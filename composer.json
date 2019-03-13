@@ -21,6 +21,7 @@
     "psr-4": {
       "OpenDialogAi\\Core\\": "src/",
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
+      "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
       "OpenDialogAi\\Core\\Database\\": "database/"
     }
   },
@@ -33,7 +34,8 @@
     "laravel": {
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
-        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider"
+        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
+        "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider"
       ],
       "aliases": {
         "ActionEngine": "OpenDialogAi\\ActionEngine\\Facades\\ActionEngine"
