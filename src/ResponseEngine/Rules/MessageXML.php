@@ -46,8 +46,7 @@ class MessageXML implements Rule
                         break;
                 }
             }
-        } catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return false;
         }
 
