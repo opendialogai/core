@@ -42,12 +42,6 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.lock" }}
 
-      # Copy .env file
-      - run: cp .env.example .env
-
-      # Install key
-      - run: php artisan key:generate
-
       # run tests!
       - run: ./vendor/bin/phpunit
 
