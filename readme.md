@@ -8,7 +8,7 @@ This is the OpenDialog core package that can be used inside of your application.
 
 Install in composer with the following block:
 
-```"opendialogai/core```
+```"opendialogai/core"```
 
 ## Running Code Sniffer
 To run code sniffer, run the following command
