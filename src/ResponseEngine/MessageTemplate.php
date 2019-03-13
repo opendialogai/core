@@ -13,4 +13,13 @@ class MessageTemplate extends Model
     {
         return $this->belongsTo('ResponseEngine\OutgoingIntent');
     }
+
+    /**
+     * Helper method: return an array of conditions.
+     */
+    public function getConditions()
+    {
+        // @TODO
+        return [];
+    }
 }
