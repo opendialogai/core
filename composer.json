@@ -38,7 +38,8 @@
         "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider"
       ],
       "aliases": {
-        "ActionEngine": "OpenDialogAi\\ActionEngine\\Facades\\ActionEngine"
+        "ActionEngine": "OpenDialogAi\\ActionEngine\\Facades\\ActionEngine",
+        "ResponseEngine": "OpenDialogAi\\ResponseEngine\\Facades\\ResponseEngine"
       }
     }
   }

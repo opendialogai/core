@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\ResponseEngine\Facades\ResponseEngine;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
 class ResponseEngineServiceProvider extends ServiceProvider

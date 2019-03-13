@@ -16,8 +16,9 @@ class CreateMessageTemplatesTable extends Migration
         Schema::create('message_templates', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
+            $table->unsignedInteger('outgoing_intent_id');
             $table->string('name');
-            $table->mediumText('conditions');
+            $table->mediumText('conditions')->nullable();
             $table->text('message_markup');
 
             $table->foreign('outgoing_intent_id')
