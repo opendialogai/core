@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @property int $id
@@ -35,7 +36,10 @@ class MessageTemplate extends Model
      */
     public function getConditions()
     {
-        // @TODO
+        $yaml = Yaml::parse($this->conditions);
+        if (!empty($yaml['conditions']) && is_array($yaml['conditions'])) {
+            return $yaml['conditions'];
+        }
         return [];
     }
 }

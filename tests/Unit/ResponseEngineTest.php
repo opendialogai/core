@@ -45,4 +45,33 @@ class ResponseEngineTest extends TestCase
         // Ensure we can get a OutgoingIntent's MessageTemplates.
         $this->assertTrue($intent->messageTemplates->contains($messageTemplate));
     }
+
+    public function testResponseDbConditionsGetter()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  last_message_posted_time: 10000\n  operation: ge\n-\n  last_message_posted_time: 20000\n  operation: le",
+            'message_markup' => 'Hi there!',
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        $this->assertEquals($messageTemplate->getConditions(), [
+          ['last_message_posted_time' => 10000, 'operation' => 'ge'],
+          ['last_message_posted_time' => 20000, 'operation' => 'le'],
+        ]);
+
+        MessageTemplate::create([
+            'name' => 'Unfriendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => '',
+            'message_markup' => 'Whaddya want?!?',
+        ]);
+        $messageTemplate2 = MessageTemplate::where('name', 'Unfriendly Hello')->first();
+
+        $this->assertEquals($messageTemplate2->getConditions(), []);
+    }
 }
