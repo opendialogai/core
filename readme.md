@@ -1,5 +1,7 @@
 # OpenDialog Core Package
 
+[![CircleCI](https://circleci.com/gh/opendialogai/core/tree/master.svg?style=svg&circle-token=d14bcacaf3cd3e6ae4dfd2fb3bf03658cf0ca8fa)](https://circleci.com/gh/opendialogai/core/tree/master)
+
 This is the OpenDialog core package that can be used inside of your application.
 
 ## Installing
