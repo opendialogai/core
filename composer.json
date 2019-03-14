@@ -36,7 +36,7 @@
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
-        "OpenDialogAi\\AttributeEngine\\AttributeEngineServiceProvider",
+        "OpenDialogAi\\AttributeEngine\\AttributeEngineServiceProvider"
       ],
       "aliases": {
         "ActionEngine": "OpenDialogAi\\ActionEngine\\Facades\\ActionEngine"
