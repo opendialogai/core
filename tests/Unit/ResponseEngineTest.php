@@ -74,4 +74,21 @@ class ResponseEngineTest extends TestCase
 
         $this->assertEquals($messageTemplate2->getConditions(), []);
     }
+
+    public function testResponseEngineService()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => '<message><text-message>Hi there!</text-message></message>',
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $responseEngineService->getMessageForIntent('Hello');
+    }
 }
