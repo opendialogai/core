@@ -4,6 +4,8 @@
 namespace OpenDialogAi\Core\Attribute;
 
 
+use phpDocumentor\Reflection\Types\Boolean;
+
 class BooleanAttribute extends AbstractAttribute
 {
     /**
@@ -14,7 +16,13 @@ class BooleanAttribute extends AbstractAttribute
      */
     public function __construct($id, $value)
     {
-        parent::__construct($id, AbstractAttribute::BOOLEAN, $value);
+        $this->setValue($value);
+        parent::__construct($id, AbstractAttribute::BOOLEAN, $this->value);
+    }
+
+    public function setValue($value)
+    {
+        $this->value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
