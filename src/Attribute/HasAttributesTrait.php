@@ -34,7 +34,7 @@ trait HasAttributesTrait
         $this->attributes->put($attribute->getId(), $attribute);
     }
 
-    public function getAttribute($attributeName): AttributeInterface
+    public function getAttribute(string $attributeName): AttributeInterface
     {
         return $this->attributes->get($attributeName);
     }
