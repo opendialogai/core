@@ -6,6 +6,12 @@ namespace OpenDialogAi\Core\Attribute;
 
 class BooleanAttribute extends AbstractAttribute
 {
+    /**
+     * BooleanAttribute constructor.
+     * @param $id
+     * @param $value
+     * @throws UnsupportedAttributeTypeException
+     */
     public function __construct($id, $value)
     {
         parent::__construct($id, AbstractAttribute::BOOLEAN, $value);

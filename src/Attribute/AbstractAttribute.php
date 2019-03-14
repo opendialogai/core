@@ -39,7 +39,6 @@ abstract class AbstractAttribute implements AttributeInterface
     /* @var mixed $value - the value for this attribute. */
     protected $value;
 
-
     /**
      * AbstractAttribute constructor.
      * @param $id

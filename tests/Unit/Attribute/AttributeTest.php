@@ -18,11 +18,20 @@ class AttributeTest extends TestCase
         $a = new BooleanAttribute('testA', true);
         $b = new BooleanAttribute('testB', false);
 
-        $this->assertFalse($a->compare($b, AbstractAttribute::EQUIVALENCE));
+        try {
+            $this->assertFalse($a->compare($b, AbstractAttribute::EQUIVALENCE));
 
-        $b->setValue(true);
+            $b->setValue(true);
 
-        $this->assertTrue($a->compare($b, AbstractAttribute::EQUIVALENCE));
+            $this->assertTrue($a->compare($b, AbstractAttribute::EQUIVALENCE));
+        } catch (UnsupportedAttributeTypeException $e) {
+            self::fail('Exception thrown');
+        }
+    }
+
+    public function testBooleanAttributeTypes()
+    {
+        $this->assertFalse((new BooleanAttribute('test', 'false'))->getValue());
     }
 
     public function testIntAttribute()
@@ -30,11 +39,15 @@ class AttributeTest extends TestCase
         $a = new IntAttribute('testA', 50);
         $b = new IntAttribute('testB', 109);
 
-        $this->assertFalse($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
+        try {
+            $this->assertFalse($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
 
-        $b->setValue(49);
+            $b->setValue(49);
 
-        $this->assertTrue($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
+            $this->assertTrue($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
+        } catch (UnsupportedAttributeTypeException $e) {
+            self::fail('Exception thrown');
+        }
     }
 
     public function testBooleanToString()
@@ -53,6 +66,6 @@ class AttributeTest extends TestCase
     {
         $this->expectException(UnsupportedAttributeTypeException::class);
         $this->expectExceptionMessage('Type unsupported is not supported');
-        $a = new BasicAttribute('a', 'unsupported', 1);
+        new BasicAttribute('a', 'unsupported', 1);
     }
 }
