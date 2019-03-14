@@ -37,11 +37,7 @@
         "OpenDialogAi\\Core\\CoreServiceProvider",
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
         "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider"
-      ],
-      "aliases": {
-        "ActionEngine": "OpenDialogAi\\ActionEngine\\Facades\\ActionEngine",
-        "ResponseEngine": "OpenDialogAi\\ResponseEngine\\Facades\\ResponseEngine"
-      }
+      ]
     }
   }
 }
