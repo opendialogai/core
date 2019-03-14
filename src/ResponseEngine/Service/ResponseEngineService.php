@@ -54,7 +54,6 @@ class ResponseEngineService
                         $attributeName = $key;
                         $attributeValue = $val;
                     }
-
                 }
 
                 if (!array_key_exists($attributeName, $availableAttributes)) {
@@ -84,6 +83,5 @@ class ResponseEngineService
         }
 
         // Get the messages.
-
     }
 }

@@ -70,7 +70,6 @@ class MessageTemplate extends Model
             Log::debug('Message Builder error: ' . $e->getMessage());
             return false;
         }
-
     }
 
     /**
