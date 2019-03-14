@@ -4,7 +4,7 @@ namespace OpenDialogAi\Core\Tests;
 
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
-use OpenDialogAi\ActionEngine\Facades\ActionEngine;
+use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
 
 /**
@@ -26,14 +26,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return [
             CoreServiceProvider::class,
             ActionEngineServiceProvider::class,
+            ResponseEngineServiceProvider::class,
             AttributeEngineServiceProvider::class
-        ];
-    }
-
-    public function getPackageAliases($app)
-    {
-        return [
-            ActionEngine::class
         ];
     }
 

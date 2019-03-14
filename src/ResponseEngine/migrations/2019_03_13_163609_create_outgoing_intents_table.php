@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateWebchatSettingsTable extends Migration
+class CreateOutgoingIntentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateWebchatSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('actions', function (Blueprint $table) {
+        Schema::create('outgoing_intents', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->string('name')->default('');
+            $table->string('name');
         });
     }
 
@@ -27,6 +27,6 @@ class CreateWebchatSettingsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('actions');
+        Schema::dropIfExists('outgoing_intents');
     }
 }

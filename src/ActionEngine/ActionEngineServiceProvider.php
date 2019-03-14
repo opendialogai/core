@@ -3,11 +3,12 @@
 namespace OpenDialogAi\ActionEngine;
 
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\ActionEngine\Facades\ActionEngine;
 use OpenDialogAi\ActionEngine\Service\ActionEngineService;
 
 class ActionEngineServiceProvider extends ServiceProvider
 {
+    const ACTION_ENGINE_SERVICE = 'action-engine-service';
+
     public function boot()
     {
         $this->publishes([
@@ -21,7 +22,7 @@ class ActionEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-actionengine.php', 'opendialog.action_engine');
 
-        $this->app->bind(ActionEngine::ACTION_ENGINE_SERVICE, function () {
+        $this->app->bind(self::ACTION_ENGINE_SERVICE, function () {
             return new ActionEngineService();
         });
     }
