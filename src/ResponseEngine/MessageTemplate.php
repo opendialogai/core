@@ -2,8 +2,14 @@
 
 namespace OpenDialogAi\ResponseEngine;
 
+use App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use SimpleXMLElement;
 use Symfony\Component\Yaml\Yaml;
 
@@ -18,12 +24,20 @@ use Symfony\Component\Yaml\Yaml;
  */
 class MessageTemplate extends Model
 {
+    protected $attributeResolver;
+
     protected $fillable = [
         'name',
         'conditions',
         'message_markup',
         'outgoing_intent_id',
     ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->attributeResolver = App::make(AttributeResolverService::ATTRIBUTE_RESOLVER);
+    }
 
     /**
      * Get the outgoing intent that owns the message template.
@@ -70,6 +84,8 @@ class MessageTemplate extends Model
             Log::debug('Message Builder error: ' . $e->getMessage());
             return false;
         }
+
+        return $messages;
     }
 
     /**
@@ -78,30 +94,45 @@ class MessageTemplate extends Model
      */
     protected function generateTextMessage($text)
     {
-        $text = $this->fillSlots($text);
+        $text = $this->fillAttributes($text);
         return (new WebChatMessage())->setText($text);
     }
+
     /**
      * @param $item
      * @return WebChatButtonMessage
      */
     protected function generateButtonMessage($item)
     {
-        $text = $this->fillSlots((string)$item->text);
+        $text = $this->fillAttributes((string) $item->text);
         $message = new WebChatButtonMessage();
         $message->setText($text);
         foreach ($item->button as $button) {
-            $buttonText = $this->fillSlots((string)$button->text);
-            $message->addButton(new WebChatButton($buttonText, (string)$button->callback, (string)$button->value));
+            $buttonText = $this->fillAttributes((string) $button->text);
+            $message->addButton(new WebChatButton($buttonText, (string) $button->callback, (string) $button->value));
         }
         return $message;
     }
+
     /**
      * @param $item
      * @return WebChatImageMessage
      */
     protected function generateImageMessage($item)
     {
-        return (new WebChatImageMessage())->setImgSrc((string)$item->src)->setImgLink((string)$item->link);
+        return (new WebChatImageMessage())->setImgSrc((string) $item->src)->setImgLink((string) $item->link);
+    }
+
+    /**
+     * @param $text
+     * @return string
+     */
+    protected function fillAttributes($text)
+    {
+        foreach ($this->attributeResolver->getAvailableAttributes() as $attributeName => $attributeClass) {
+            $value = $this->attributeResolver->getAttributeFor($attributeName)->getValue();
+            $text = str_replace('{' . $attributeName . '}', $value, $text);
+        }
+        return $text;
     }
 }

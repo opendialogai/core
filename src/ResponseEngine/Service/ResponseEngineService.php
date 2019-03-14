@@ -9,7 +9,14 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class ResponseEngineService
 {
+    protected $attributeResolver;
+
     private $messageTemplate;
+
+    public function __construct()
+    {
+        $this->attributeResolver = App::make(AttributeResolverService::ATTRIBUTE_RESOLVER);
+    }
 
     public function getMessageForIntent($intentName)
     {
@@ -27,8 +34,7 @@ class ResponseEngineService
             return false;
         }
 
-        $attributeResolver = App::make(AttributeResolverService::ATTRIBUTE_RESOLVER);
-        $availableAttributes = $attributeResolver->getAvailableAttributes();
+        $availableAttributes = $this->attributeResolver->getAvailableAttributes();
 
         // Find the correct message template to use.
         foreach ($messageTemplates as $messageTemplate) {
@@ -41,7 +47,7 @@ class ResponseEngineService
                 break;
             }
 
-            // Iterate the conditions and ensure that all pass.
+            // Iterate over the conditions and ensure that all pass.
             $conditionsPass = true;
             foreach ($conditions as $condition) {
                 $attributeName = '';
@@ -64,7 +70,7 @@ class ResponseEngineService
                 $attribute = new $availableAttributes[$attributeName]($attributeValue);
 
                 // Get the resolved attribute.
-                $resolvedAttribute = $attributeResolver->getAttributeFor($attributeName);
+                $resolvedAttribute = $this->attributeResolver->getAttributeFor($attributeName);
 
                 // Check the condition.
                 if ($resolvedAttribute->compare($attribute, $operation) !== true) {
@@ -83,5 +89,8 @@ class ResponseEngineService
         }
 
         // Get the messages.
+        $messages = $messageTemplate->getMessages();
+
+        return $messages;
     }
 }

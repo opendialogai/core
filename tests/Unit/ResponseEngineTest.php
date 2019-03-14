@@ -84,11 +84,13 @@ class ResponseEngineTest extends TestCase
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
             'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
-            'message_markup' => '<message><text-message>Hi there!</text-message></message>',
+            'message_markup' => '<message><text-message>Hi there {attributes.core.userName}!</text-message></message>',
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         $responseEngineService = $this->app->make('response-engine-service');
-        $responseEngineService->getMessageForIntent('Hello');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
     }
 }
