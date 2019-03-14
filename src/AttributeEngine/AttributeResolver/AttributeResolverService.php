@@ -36,7 +36,7 @@ class AttributeResolverService
     public function getAttributeFor(string $attributeId)
     {
         /* @var AttributeInterface $attribute */
-        $attribute = new BasicAttribute('dummy_attribute', AbstractAttribute::STRING, 'dummy');
+        $attribute = new BasicAttribute($attributeId, AbstractAttribute::STRING, 'dummy');
         return $attribute;
     }
 }
