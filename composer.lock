@@ -1,11 +1,58 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba4a8f7474f6798c7aa09be1bb83425a",
+    "content-hash": "8f132bcbaf6b5e5dc766e91413511c22",
     "packages": [
+        {
+            "name": "php-ds/php-ds",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-ds/polyfill.git",
+                "reference": "27bed3897f9c801604f5bdcb65b71eb61ec80099"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-ds/polyfill/zipball/27bed3897f9c801604f5bdcb65b71eb61ec80099",
+                "reference": "27bed3897f9c801604f5bdcb65b71eb61ec80099",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "php-ds/tests": "^1.2"
+            },
+            "suggest": {
+                "ext-ds": "to improve performance and reduce memory usage"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rudi Theunissen",
+                    "email": "rudolf.theunissen@gmail.com"
+                }
+            ],
+            "keywords": [
+                "data structures",
+                "ds",
+                "php",
+                "polyfill"
+            ],
+            "time": "2017-08-03T02:03:34+00:00"
+        },
         {
             "name": "symfony/polyfill-ctype",
             "version": "v1.10.0",
