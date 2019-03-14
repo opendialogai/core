@@ -16,7 +16,7 @@ trait HasAttributesTrait
     /**
      * @return Map
      */
-    public function getAttributes()
+    public function getAttributes(): Map
     {
         return $this->attributes;
     }
@@ -34,7 +34,7 @@ trait HasAttributesTrait
         $this->attributes->put($attribute->getId(), $attribute);
     }
 
-    public function getAttribute($attributeName)
+    public function getAttribute($attributeName): AttributeInterface
     {
         return $this->attributes->get($attributeName);
     }
