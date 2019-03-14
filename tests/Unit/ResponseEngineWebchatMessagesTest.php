@@ -103,26 +103,26 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
         $expectedOutput = [
             [
-								'name' => 'name',
-								'display' => 'Enter your Name',
-								'required' => true,
-								'element_type' => 'text',
+                'name' => 'name',
+                'display' => 'Enter your Name',
+                'required' => true,
+                'element_type' => 'text',
             ],
             [
-								'name' => 'question',
-								'display' => 'Do you love OpenDialog?',
-								'required' => true,
-								'element_type' => 'select',
-								'options' => [
+                'name' => 'question',
+                'display' => 'Do you love OpenDialog?',
+                'required' => true,
+                'element_type' => 'select',
+                'options' => [
                     0 => 'yes',
                     1 => 'very yes',
-								],
+                ],
             ],
             [
-								'name' => 'tell_more',
-								'display' => 'Tell me more about yourself',
-								'required' => false,
-								'element_type' => 'textarea',
+                'name' => 'tell_more',
+                'display' => 'Tell me more about yourself',
+                'required' => false,
+                'element_type' => 'textarea',
             ],
         ];
 
@@ -138,16 +138,16 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $message->addButton($button2);
 
         $expectedOutput = [
-						[
-								'text' => 'Yes',
-								'callback_id' => 'callback_yes',
-								'value' => true,
-						],
-						[
-								'text' => 'No',
-								'callback_id' => 'callback_no',
-								'value' => false,
-						],
+            [
+                'text' => 'Yes',
+                'callback_id' => 'callback_yes',
+                'value' => true,
+            ],
+            [
+                'text' => 'No',
+                'callback_id' => 'callback_no',
+                'value' => false,
+            ],
         ];
 
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
