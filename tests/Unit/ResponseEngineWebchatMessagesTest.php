@@ -38,6 +38,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $message->setInitialText('This is a test, this is only a test.');
         $message->setConfirmationText('This is a test, this is only a confirmation test.');
         $message->setSubmitText('This is a test, this is only a submission test.');
+        $this->assertEquals('This is a test, this is only a test.', $message->getInitialText());
         $this->assertEquals('This is a test, this is only a confirmation test.', $message->getConfirmationText());
         $this->assertEquals('This is a test, this is only a submission test.', $message->getSubmitText());
     }
