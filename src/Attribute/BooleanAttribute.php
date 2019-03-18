@@ -4,8 +4,6 @@
 namespace OpenDialogAi\Core\Attribute;
 
 
-use phpDocumentor\Reflection\Types\Boolean;
-
 class BooleanAttribute extends AbstractAttribute
 {
     /**
