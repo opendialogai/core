@@ -8,7 +8,11 @@ class StringAttribute extends AbstractAttribute
 {
     public function __construct($id, $value)
     {
-        parent::__construct($id, AbstractAttribute::STRING, $value);
+        try {
+            parent::__construct($id, AbstractAttribute::STRING, $value);
+        } catch (UnsupportedAttributeTypeException $e) {
+            return null;
+        }
     }
 
     /**

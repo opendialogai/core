@@ -8,7 +8,11 @@ class IntAttribute extends AbstractAttribute
 {
     public function __construct($id, $value)
     {
-        parent::__construct($id, AbstractAttribute::INT, $value);
+        try {
+            parent::__construct($id, AbstractAttribute::INT, $value);
+        } catch (UnsupportedAttributeTypeException $e) {
+            return null;
+        }
     }
 
     /**
