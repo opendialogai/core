@@ -13,15 +13,6 @@ class ResponseEngineService
 
     private $messageTemplate;
 
-    /**
-     * ResponseEngineService constructor.
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
-    public function __construct()
-    {
-        $this->attributeResolver = app()->make(AttributeResolverService::ATTRIBUTE_RESOLVER);
-    }
-
     public function getMessageForIntent($intentName)
     {
         // Get this intent's message templates.
@@ -89,5 +80,10 @@ class ResponseEngineService
         $messages = $messageTemplate->getMessages();
 
         return $messages;
+    }
+
+    public function setAttributeResolver()
+    {
+        $this->attributeResolver = app()->make(AttributeResolverService::ATTRIBUTE_RESOLVER);
     }
 }

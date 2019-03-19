@@ -23,7 +23,9 @@ class ResponseEngineServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-responseengine.php', 'opendialog.response_engine');
 
         $this->app->bind(self::RESPONSE_ENGINE_SERVICE, function () {
-            return new ResponseEngineService();
+            $service = new ResponseEngineService();
+            $service->setAttributeResolver();
+            return $service;
         });
     }
 }
