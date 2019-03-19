@@ -105,7 +105,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return '';
     }
 
-    public function generateTextMessage(array $template) {
+    public function generateTextMessage(array $template)
+    {
         $text = $this->responseEngineService->fillAttributes($template['text']);
         $message = (new WebChatMessage())->setText($text);
         return $message;
