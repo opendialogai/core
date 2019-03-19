@@ -72,11 +72,29 @@ class MessageTemplate extends Model
      */
     public function getConditions()
     {
+        $conditions = [];
+
         $yaml = Yaml::parse($this->conditions);
         if (!empty($yaml['conditions']) && is_array($yaml['conditions'])) {
-            return $yaml['conditions'];
+            foreach ($yaml['conditions'] as $yamlCondition) {
+                $condition = [];
+                $condition['attributeName'] = '';
+                $condition['attributeValue'] = '';
+                $condition['operation'] = '';
+
+                foreach ($yamlCondition as $key => $val) {
+                    if ($key === 'operation') {
+                        $condition['operation'] = $val;
+                    } else {
+                        $condition['attributeName'] = $key;
+                        $condition['attributeValue'] = $val;
+                    }
+                }
+
+                $conditions[] = $condition;
+            }
         }
-        return [];
+        return $conditions;
     }
 
     /**

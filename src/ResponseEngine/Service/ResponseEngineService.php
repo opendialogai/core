@@ -38,30 +38,18 @@ class ResponseEngineService
             // Iterate over the conditions and ensure that all pass.
             $conditionsPass = true;
             foreach ($conditions as $condition) {
-                $attributeName = '';
-                $attributeValue = '';
-                $operation = '';
-                foreach ($condition as $key => $val) {
-                    if ($key === 'operation') {
-                        $operation = $val;
-                    } else {
-                        $attributeName = $key;
-                        $attributeValue = $val;
-                    }
-                }
-
-                if (!array_key_exists($attributeName, $availableAttributes)) {
+                if (!array_key_exists($condition['attributeName'], $availableAttributes)) {
                     $conditionsPass = false;
                 }
 
                 // Instantiate our condition attribute.
-                $attribute = new $availableAttributes[$attributeName]($attributeValue);
+                $attribute = new $availableAttributes[$condition['attributeName']]($condition['attributeValue']);
 
                 // Get the resolved attribute.
-                $resolvedAttribute = $this->attributeResolver->getAttributeFor($attributeName);
+                $resolvedAttribute = $this->attributeResolver->getAttributeFor($condition['attributeName']);
 
                 // Check the condition.
-                if ($resolvedAttribute->compare($attribute, $operation) !== true) {
+                if ($resolvedAttribute->compare($attribute, $condition['operation']) !== true) {
                     $conditionsPass = false;
                 }
             }

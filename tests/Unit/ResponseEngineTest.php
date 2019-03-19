@@ -59,8 +59,8 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         $this->assertEquals($messageTemplate->getConditions(), [
-          ['last_message_posted_time' => 10000, 'operation' => 'ge'],
-          ['last_message_posted_time' => 20000, 'operation' => 'le'],
+          ['attributeName' => 'last_message_posted_time', 'attributeValue' => 10000, 'operation' => 'ge'],
+          ['attributeName' => 'last_message_posted_time', 'attributeValue' => 20000, 'operation' => 'le'],
         ]);
 
         MessageTemplate::create([
