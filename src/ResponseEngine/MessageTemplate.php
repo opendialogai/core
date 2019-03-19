@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ResponseEngine;
 
-use App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
@@ -21,9 +20,11 @@ use Symfony\Component\Yaml\Yaml;
  * @property String $name
  * @property String $conditions
  * @property String $message_markup
+ * @property OutgoingIntent $outgoing_intent
  */
 class MessageTemplate extends Model
 {
+    /** @var AttributeResolverService */
     protected $attributeResolver;
 
     protected $fillable = [
@@ -33,10 +34,15 @@ class MessageTemplate extends Model
         'outgoing_intent_id',
     ];
 
+    /**
+     * MessageTemplate constructor.
+     * @param array $attributes
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->attributeResolver = App::make(AttributeResolverService::ATTRIBUTE_RESOLVER);
+        $this->attributeResolver = app()->make(AttributeResolverService::ATTRIBUTE_RESOLVER);
     }
 
     /**

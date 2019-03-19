@@ -2,20 +2,24 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use App;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class ResponseEngineService
 {
+    /** @var AttributeResolverService */
     protected $attributeResolver;
 
     private $messageTemplate;
 
+    /**
+     * ResponseEngineService constructor.
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
     public function __construct()
     {
-        $this->attributeResolver = App::make(AttributeResolverService::ATTRIBUTE_RESOLVER);
+        $this->attributeResolver = app()->make(AttributeResolverService::ATTRIBUTE_RESOLVER);
     }
 
     public function getMessageForIntent($intentName)

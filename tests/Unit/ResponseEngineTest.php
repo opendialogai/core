@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
-use OpenDialogAi\ResponseEngine\Facades\ActionEngine;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\Core\Tests\TestCase;
