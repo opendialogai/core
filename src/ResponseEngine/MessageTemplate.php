@@ -54,6 +54,20 @@ class MessageTemplate extends Model
     }
 
     /**
+     * Scope a query by intent ID.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $intentName
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForIntent($query, $intentName)
+    {
+        return $query
+            ->join('outgoing_intents', 'outgoing_intents.id', '=', 'message_templates.outgoing_intent_id')
+            ->where('outgoing_intents.name', $intentName);
+    }
+
+    /**
      * Helper method: return an array of conditions.
      */
     public function getConditions()

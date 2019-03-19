@@ -24,15 +24,8 @@ class ResponseEngineService
 
     public function getMessageForIntent($intentName)
     {
-        // Load the intent.
-        $outgoingIntent = OutgoingIntent::where('name', '=', $intentName)->firstOrFail();
-
-        if (!$outgoingIntent) {
-            return false;
-        }
-
         // Get this intent's message templates.
-        $messageTemplates = MessageTemplate::where('outgoing_intent_id', '=', $outgoingIntent->id)->get();
+        $messageTemplates = MessageTemplate::forIntent($intentName)->get();
 
         if (count($messageTemplates) === 0) {
             return false;
