@@ -1,0 +1,335 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://www.greenshootlabs.com/open-dialog/conversation.schema.json",
+  "title": "Conversation",
+  "description": "An OpenDialog Conversation",
+  "type": "object",
+  "required": [
+    "conversation",
+    "scenes"
+  ],
+  "properties": {
+    "conversation": {
+      "$id": "#/properties/conversation",
+      "type": "string",
+      "title": "The Conversation Name",
+      "default": "",
+      "examples": [
+        "conversation_name"
+      ],
+      "pattern": "^[a-z_]*$"
+    },
+    "scenes": {
+      "$id": "#/properties/scenes",
+      "type": "array",
+      "title": "Scenes",
+      "default": null,
+      "items": {
+        "$id": "#/properties/scenes/items",
+        "type": "object",
+        "title": "Scene Items",
+        "default": null,
+        "required": [
+          "scene",
+          "incoming"
+        ],
+        "properties": {
+          "scene": {
+            "$id": "#/properties/scenes/items/properties/scene",
+            "type": "string",
+            "title": "Scene Name",
+            "default": "",
+            "examples": [
+              "request_new_list"
+            ],
+            "pattern": "^[a-z_]*$"
+          },
+          "type": {
+            "$id": "#/properties/scenes/items/properties/type",
+            "type": "string",
+            "title": "Scene Type",
+            "default": "",
+            "examples": [
+              "opening"
+            ],
+            "pattern": "^[a-z]*$"
+          },
+          "incoming": {
+            "$id": "#/properties/scenes/items/properties/incoming",
+            "type": "array",
+            "title": "Incoming Intents",
+            "default": null,
+            "items": {
+              "$id": "#/properties/scenes/items/properties/incoming/items",
+              "type": "object",
+              "title": "Intent Items",
+              "default": null,
+              "required": [
+                "intent"
+              ],
+              "properties": {
+                "intent": {
+                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/intent",
+                  "type": "string",
+                  "title": "Intent Name",
+                  "default": "",
+                  "examples": [
+                    "intent.list.new"
+                  ],
+                  "pattern": "^[a-z_\\.]*$"
+                },
+                "attributes": {
+                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes",
+                  "type": "array",
+                  "title": "Intent Attributes",
+                  "default": null,
+                  "items": {
+                    "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes/items",
+                    "type": "object",
+                    "title": "Attribute Items",
+                    "default": null,
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes/items/properties/type",
+                        "type": "string",
+                        "title": "Attribute Type",
+                        "default": "",
+                        "examples": [
+                          "list.name"
+                        ],
+                        "pattern": "^[a-z_\\.]*$"
+                      },
+                      "if-not-present": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes/items/properties/if-not-present",
+                        "type": "object",
+                        "title": "The If-not-present Schema",
+                        "default": null,
+                        "required": [
+                          "outgoing"
+                        ],
+                        "properties": {
+                          "outgoing": {
+                            "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes/items/properties/if-not-present/properties/outgoing",
+                            "type": "array",
+                            "title": "Outgoing Item",
+                            "default": null,
+                            "items": {
+                              "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes/items/properties/if-not-present/properties/outgoing/items",
+                              "type": "object",
+                              "title": "Outgoing Items",
+                              "default": null,
+                              "required": [
+                                "intent"
+                              ],
+                              "properties": {
+                                "intent": {
+                                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes/items/properties/if-not-present/properties/outgoing/items/properties/intent",
+                                  "type": "string",
+                                  "title": "Outgoing Intent Name",
+                                  "default": "",
+                                  "examples": [
+                                    "intent.list.request_name"
+                                  ],
+                                  "pattern": "^[a-z_\\.]*$"
+                                },
+                                "scene": {
+                                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/attributes/items/properties/if-not-present/properties/outgoing/items/properties/scene",
+                                  "type": "string",
+                                  "title": "Outgoing Scene Name",
+                                  "default": "",
+                                  "examples": [
+                                    "request_name"
+                                  ],
+                                  "pattern": "^[a-z_]*$"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "preconditions": {
+                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions",
+                  "type": "array",
+                  "title": "Scene Preconditions",
+                  "default": null,
+                  "items": {
+                    "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions/items",
+                    "type": "object",
+                    "title": "Precondition Items",
+                    "default": null,
+                    "required": [
+                      "condition",
+                      "on_fail"
+                    ],
+                    "properties": {
+                      "condition": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions/items/properties/condition",
+                        "type": "string",
+                        "title": "Condition Name",
+                        "default": "",
+                        "examples": [
+                          "condition.list.user_authorised"
+                        ],
+                        "pattern": "^[a-z_\\.]*$"
+                      },
+                      "on_fail": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions/items/properties/on_fail",
+                        "type": "object",
+                        "title": "The On_fail Schema",
+                        "required": [
+                          "outgoing"
+                        ],
+                        "properties": {
+                          "outgoing": {
+                            "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions/items/properties/on_fail/properties/outgoing",
+                            "type": "array",
+                            "title": "The Outgoing Schema",
+                            "items": {
+                              "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions/items/properties/on_fail/properties/outgoing/items",
+                              "type": "object",
+                              "title": "The Items Schema",
+                              "required": [
+                                "intent",
+                                "scene"
+                              ],
+                              "properties": {
+                                "intent": {
+                                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions/items/properties/on_fail/properties/outgoing/items/properties/intent",
+                                  "type": "string",
+                                  "title": "The Intent Schema",
+                                  "default": "",
+                                  "examples": [
+                                    "intent.list.authorise"
+                                  ],
+                                  "pattern": "^(.*)$"
+                                },
+                                "scene": {
+                                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/preconditions/items/properties/on_fail/properties/outgoing/items/properties/scene",
+                                  "type": "string",
+                                  "title": "The Scene Schema",
+                                  "default": "",
+                                  "examples": [
+                                    "authorisation"
+                                  ],
+                                  "pattern": "^(.*)$"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "actions": {
+                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/actions",
+                  "type": "array",
+                  "title": "Scene Actions",
+                  "items": {
+                    "$id": "#/properties/scenes/items/properties/incoming/items/properties/actions/items",
+                    "type": "object",
+                    "title": "Action Items",
+                    "required": [
+                      "action",
+                      "on-status",
+                      "outgoing"
+                    ],
+                    "properties": {
+                      "action": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/actions/items/properties/action",
+                        "type": "string",
+                        "title": "Action Name",
+                        "default": "",
+                        "examples": [
+                          "action.list.create"
+                        ],
+                        "pattern": "^[a-z_\\.]*$"
+                      },
+                      "on-status": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/actions/items/properties/on-status",
+                        "type": "integer",
+                        "title": "On HTTP Status",
+                        "default": 200,
+                        "examples": [
+                          200
+                        ],
+                        "pattern": "^[0-9]{3}$"
+                      },
+                      "outgoing": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/actions/items/properties/outgoing",
+                        "type": "array",
+                        "title": "Action Outgoing Items",
+                        "items": {
+                          "$id": "#/properties/scenes/items/properties/incoming/items/properties/actions/items/properties/outgoing/items",
+                          "type": "object",
+                          "title": "Outgoing Items",
+                          "required": [
+                            "intent"
+                          ],
+                          "properties": {
+                            "intent": {
+                              "$id": "#/properties/scenes/items/properties/incoming/items/properties/actions/items/properties/outgoing/items/properties/intent",
+                              "type": "string",
+                              "title": "Outgoing Intent",
+                              "default": "",
+                              "examples": [
+                                "intent.list.summary_report"
+                              ],
+                              "pattern": "^[a-z_\\.]*$"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "outgoing": {
+                  "$id": "#/properties/scenes/items/properties/incoming/items/properties/outgoing",
+                  "type": "array",
+                  "title": "Scene Outgoing Items",
+                  "items": {
+                    "$id": "#/properties/scenes/items/properties/incoming/items/properties/outgoing/items",
+                    "type": "object",
+                    "title": "Outgoing Items",
+                    "required": [
+                      "intent",
+                      "completes"
+                    ],
+                    "properties": {
+                      "intent": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/outgoing/items/properties/intent",
+                        "type": "string",
+                        "title": "Outgoing Intent",
+                        "default": "",
+                        "examples": [
+                          "intent.list.created_confirmation"
+                        ],
+                        "pattern": "^[a-z_\\.]*$"
+                      },
+                      "completes": {
+                        "$id": "#/properties/scenes/items/properties/incoming/items/properties/outgoing/items/properties/completes",
+                        "type": "boolean",
+                        "title": "Completes",
+                        "default": false,
+                        "examples": [
+                          true
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
