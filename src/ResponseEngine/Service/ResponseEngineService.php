@@ -9,6 +9,8 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class ResponseEngineService
 {
+    const ATTRIBUTE_OPERATION_KEY = 'operation';
+
     /** @var AttributeResolverService */
     protected $attributeResolver;
 

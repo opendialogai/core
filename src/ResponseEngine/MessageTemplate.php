@@ -60,6 +60,7 @@ class MessageTemplate extends Model
         $conditions = [];
 
         $yaml = Yaml::parse($this->conditions);
+        $responseEngineService = app()->make('response-engine-service');
         if (!empty($yaml['conditions']) && is_array($yaml['conditions'])) {
             foreach ($yaml['conditions'] as $yamlCondition) {
                 $condition = [];
@@ -68,7 +69,7 @@ class MessageTemplate extends Model
                 $condition['operation'] = '';
 
                 foreach ($yamlCondition as $key => $val) {
-                    if ($key === 'operation') {
+                    if ($key === $responseEngineService::ATTRIBUTE_OPERATION_KEY) {
                         $condition['operation'] = $val;
                     } else {
                         $condition['attributeName'] = $key;
