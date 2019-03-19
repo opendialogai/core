@@ -91,5 +91,6 @@ class ResponseEngineTest extends TestCase
         $message = $responseEngineService->getMessageForIntent('Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
+        $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
     }
 }
