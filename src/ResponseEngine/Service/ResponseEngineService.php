@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Service;
 
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class ResponseEngineService
@@ -65,9 +66,23 @@ class ResponseEngineService
         }
 
         // Get the messages.
-        $messages = $selectedMessageTemplate->getMessages();
+        $formatter = new WebchatMessageFormatter();
+        $messages = $formatter->getMessages($selectedMessageTemplate->message_markup);
 
         return $messages;
+    }
+
+    /**
+     * @param $text
+     * @return string
+     */
+    public function fillAttributes($text)
+    {
+        foreach ($this->attributeResolver->getAvailableAttributes() as $attributeName => $attributeClass) {
+            $value = $this->attributeResolver->getAttributeFor($attributeName)->getValue();
+            $text = str_replace('{' . $attributeName . '}', $value, $text);
+        }
+        return $text;
     }
 
     public function setAttributeResolver()
