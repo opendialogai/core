@@ -48,7 +48,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
             $model = Yaml::parse($this->conversation->model, Yaml::PARSE_OBJECT_FOR_MAP);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
-            $log = new ConversationLog;
+            $log = new ConversationLog();
             $log->conversation_id = $this->conversation->id;
             $log->message = $exception->getMessage();
             $log->type = 'validate_conversation_yaml_schema';
@@ -60,25 +60,28 @@ class ValidateConversationYamlSchema implements ShouldQueue
 
         // Now we check the model schema.
         if ($status === 'validated') {
-						// Validate against our JSON schema.
-						$validator = new Validator;
-						$validator->validate($model, (object)['$ref' => 'file://' . realpath('./src/ConversationEngine/Jobs/conversation.schema.json')]);
-						if ($validator->isValid()) {
+            // Validate against our JSON schema.
+            $validator = new Validator();
+            $validator->validate(
+                $model,
+                (object)['$ref' => 'file://' . realpath('./src/ConversationEngine/Jobs/conversation.schema.json')]
+            );
+            if ($validator->isValid()) {
                 // Save the name if the model validates.
                 $this->conversation->name = $model->conversation;
             } else {
-								// Mark as invalid.
-								$status = 'invalid';
+                // Mark as invalid.
+                $status = 'invalid';
 
-								foreach ($validator->getErrors() as $error) {
-										// Log a validation message with the error.
-										$log = new ConversationLog;
-										$log->conversation_id = $this->conversation->id;
-										$log->message = sprintf("[%s] %s\n", $error['property'], $error['message']);
-										$log->type = 'validate_conversation_yaml_schema';
-										$log->save();
-								}
-						}
+                foreach ($validator->getErrors() as $error) {
+                    // Log a validation message with the error.
+                    $log = new ConversationLog();
+                    $log->conversation_id = $this->conversation->id;
+                    $log->message = sprintf("[%s] %s\n", $error['property'], $error['message']);
+                    $log->type = 'validate_conversation_yaml_schema';
+                    $log->save();
+                }
+            }
         }
 
         $this->conversation->yaml_schema_validation_status = $status;

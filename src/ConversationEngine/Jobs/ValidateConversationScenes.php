@@ -47,7 +47,7 @@ class ValidateConversationScenes implements ShouldQueue
             $model = Yaml::parse($this->conversation->model);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
-            $log = new ConversationLog;
+            $log = new ConversationLog();
             $log->conversation_id = $this->conversation->id;
             $log->message = $exception->getMessage();
             $log->type = 'validate_conversation_scenes';
@@ -68,5 +68,4 @@ class ValidateConversationScenes implements ShouldQueue
             }
         }
     }
-
 }
