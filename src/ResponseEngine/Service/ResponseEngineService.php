@@ -11,10 +11,10 @@ class ResponseEngineService
     /** @var AttributeResolverService */
     protected $attributeResolver;
 
-    private $messageTemplate;
-
     public function getMessageForIntent($intentName)
     {
+        $selectedMessageTemplate = null;
+
         // Get this intent's message templates.
         $messageTemplates = MessageTemplate::forIntent($intentName)->get();
 
@@ -31,7 +31,7 @@ class ResponseEngineService
 
             // If there are no conditions, we can use this template.
             if (empty($conditions)) {
-                $this->messageTemplate = $messageTemplate;
+                $selectedMessageTemplate = $messageTemplate;
                 break;
             }
 
@@ -67,17 +67,17 @@ class ResponseEngineService
             }
 
             if ($conditionsPass) {
-                $this->messageTemplate = $messageTemplate;
+                $selectedMessageTemplate = $messageTemplate;
                 break;
             }
         }
 
-        if (!isset($this->messageTemplate)) {
+        if (empty($selectedMessageTemplate)) {
             return false;
         }
 
         // Get the messages.
-        $messages = $messageTemplate->getMessages();
+        $messages = $selectedMessageTemplate->getMessages();
 
         return $messages;
     }
