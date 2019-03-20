@@ -20,6 +20,17 @@ class MessageMarkUpGenerator
     }
 
     /**
+     * @param $src
+     * @param $link
+     * @return MessageMarkUpGenerator
+     */
+    public function addImageMessage($src, $link = '')
+    {
+        $this->messages[] = new ImageMessage($src, $link);
+        return $this;
+    }
+
+    /**
      * @param $text
      * @param $buttons array
      *
@@ -68,6 +79,29 @@ class TextMessage
     {
         return <<<EOT
 <text-message>{$this->text}</text-message>
+EOT;
+    }
+}
+
+class ImageMessage
+{
+    public $src;
+    public $link;
+
+    /**
+     * TextMessage constructor.
+     * @param $text
+     */
+    public function __construct($src, $link)
+    {
+        $this->src = $src;
+        $this->link = $link;
+    }
+
+    function getMarkUp()
+    {
+        return <<<EOT
+<image-message><link>{$this->link}</link><src>{$this->src}</src></image-message>
 EOT;
     }
 }

@@ -97,7 +97,49 @@ class ResponseEngineTest extends TestCase
         $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
     }
 
-    public function testButtonMessage()
+    public function testWebChatMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addTextMessage('hi there');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
+    }
+
+    public function testWebChatImageMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addImageMessage('https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif', 'http://www.opendialog.ai');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $message[0]);
+    }
+
+    public function testWebChatButtonMessage()
     {
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
