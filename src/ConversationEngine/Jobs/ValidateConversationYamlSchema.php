@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use JsonSchema\Validator;
+use ReflectionClass;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -62,9 +63,11 @@ class ValidateConversationYamlSchema implements ShouldQueue
         if ($status === 'validated') {
             // Validate against our JSON schema.
             $validator = new Validator();
+            $reflector = new ReflectionClass(get_class($this));
+            $dir = dirname($reflector->getFileName());
             $validator->validate(
                 $model,
-                (object)['$ref' => 'file://' . realpath('./src/ConversationEngine/Jobs/conversation.schema.json')]
+                (object)['$ref' => 'file://' . $dir . '/conversation.schema.json']
             );
             if ($validator->isValid()) {
                 // Save the name if the model validates.
