@@ -5,16 +5,16 @@ namespace OpenDialogAi\ResponseEngine\Service;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
-use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
-class ResponseEngineService
+class ResponseEngineService implements ResponseEngineServiceInterface
 {
-    const ATTRIBUTE_OPERATION_KEY = 'operation';
-
     /** @var AttributeResolverService */
     protected $attributeResolver;
 
-    public function getMessageForIntent($intentName)
+    /**
+     * @inheritdoc
+     */
+    public function getMessageForIntent(string $intentName) : array
     {
         $selectedMessageTemplate = null;
 
@@ -27,7 +27,7 @@ class ResponseEngineService
 
         $availableAttributes = $this->attributeResolver->getAvailableAttributes();
 
-        // Find the correct message template to use.
+        /** @var MessageTemplate $messageTemplate */
         foreach ($messageTemplates as $messageTemplate) {
             // We iterate the templates and choose the first whose conditions pass.
             $conditions = $messageTemplate->getConditions();
@@ -75,10 +75,9 @@ class ResponseEngineService
     }
 
     /**
-     * @param $text
-     * @return string
+     * @inheritdoc
      */
-    public function fillAttributes($text)
+    public function fillAttributes($text) : string
     {
         foreach ($this->attributeResolver->getAvailableAttributes() as $attributeName => $attributeClass) {
             $value = $this->attributeResolver->getAttributeFor($attributeName)->getValue();
@@ -87,8 +86,11 @@ class ResponseEngineService
         return $text;
     }
 
-    public function setAttributeResolver()
+    /**
+     * @inheritdoc
+     */
+    public function setAttributeResolver(AttributeResolverService $attributeResolverService) : void
     {
-        $this->attributeResolver = app()->make(AttributeResolverService::ATTRIBUTE_RESOLVER);
+        $this->attributeResolver = $attributeResolverService;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
+use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -79,11 +80,13 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {attributes.core.userName}!");
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
             'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
-            'message_markup' => '<message><text-message>Hi there {attributes.core.userName}!</text-message></message>',
+            'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
@@ -92,5 +95,33 @@ class ResponseEngineTest extends TestCase
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
         $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
+    }
+
+    public function testButtonMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $buttons = [
+            [
+                'text' => 'Button Text',
+                'value' => 'Value',
+                'callback' => 'callback'
+            ]
+        ];
+        $generator->addButtonMessage('test button', $buttons);
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $message[0]);
     }
 }

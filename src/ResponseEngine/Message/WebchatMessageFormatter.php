@@ -2,14 +2,13 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatListMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 use SimpleXMLElement;
 
 /**
@@ -17,6 +16,9 @@ use SimpleXMLElement;
  */
 class WebChatMessageFormatter implements MessageFormatterInterface
 {
+    /** @var ResponseEngineService */
+    private $responseEngineService;
+
     public function __construct()
     {
         $this->responseEngineService = app()->make('response-engine-service');
@@ -56,7 +58,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 }
             }
         } catch (\Exception $e) {
-            \Log::debug('Message Builder error: ' . $e->getMessage());
+            Log::debug('Message Builder error: ' . $e->getMessage());
             return [];
         }
 

@@ -2,13 +2,10 @@
 
 namespace OpenDialogAi\ResponseEngine;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\Core\Attribute\Condition;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -20,9 +17,15 @@ use Symfony\Component\Yaml\Yaml;
  * @property String $conditions
  * @property String $message_markup
  * @property OutgoingIntent $outgoing_intent
+ * @method static Builder forIntent($intentName) Local scope for messages for intent name
  */
 class MessageTemplate extends Model
 {
+    const CONDITIONS      = 'conditions';
+    const ATTRIBUTE_NAME  = 'attributeName';
+    const ATTRIBUTE_VALUE = 'attributeValue';
+    const OPERATION       = 'operation';
+
     protected $fillable = [
         'name',
         'conditions',
@@ -41,9 +44,9 @@ class MessageTemplate extends Model
     /**
      * Scope a query by intent ID.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param string $intentName
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeForIntent($query, $intentName)
     {
@@ -53,27 +56,30 @@ class MessageTemplate extends Model
     }
 
     /**
-     * Helper method: return an array of conditions.
+     * Helper method: return an array of conditions
+     *
+     * TODO - can this return an array of @see Condition
+     *
+     * @return array
      */
     public function getConditions()
     {
         $conditions = [];
 
         $yaml = Yaml::parse($this->conditions);
-        $responseEngineService = app()->make('response-engine-service');
-        if (!empty($yaml['conditions']) && is_array($yaml['conditions'])) {
-            foreach ($yaml['conditions'] as $yamlCondition) {
+        if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
+            foreach ($yaml[self::CONDITIONS] as $yamlCondition) {
                 $condition = [];
-                $condition['attributeName'] = '';
-                $condition['attributeValue'] = '';
-                $condition['operation'] = '';
+                $condition[self::ATTRIBUTE_NAME] = '';
+                $condition[self::ATTRIBUTE_VALUE] = '';
+                $condition[self::OPERATION] = '';
 
                 foreach ($yamlCondition as $key => $val) {
-                    if ($key === $responseEngineService::ATTRIBUTE_OPERATION_KEY) {
-                        $condition['operation'] = $val;
+                    if ($key === ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY) {
+                        $condition[self::OPERATION] = $val;
                     } else {
-                        $condition['attributeName'] = $key;
-                        $condition['attributeValue'] = $val;
+                        $condition[self::ATTRIBUTE_NAME] = $key;
+                        $condition[self::ATTRIBUTE_VALUE] = $val;
                     }
                 }
 
