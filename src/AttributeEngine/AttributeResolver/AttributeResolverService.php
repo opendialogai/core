@@ -1,13 +1,10 @@
 <?php
 
-
 namespace OpenDialogAi\AttributeEngine\AttributeResolver;
-
 
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\BasicAttribute;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 
 class AttributeResolverService
 {
@@ -31,7 +28,6 @@ class AttributeResolverService
     /**
      * @param string $attributeId
      * @return AttributeInterface
-     * @throws UnsupportedAttributeTypeException
      */
     public function getAttributeFor(string $attributeId)
     {
