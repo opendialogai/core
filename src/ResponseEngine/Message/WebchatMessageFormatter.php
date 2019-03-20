@@ -67,10 +67,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function generateButtonMessage(array $template)
     {
-        $text = $this->responseEngineService->fillAttributes($message['text']);
+        $text = $this->responseEngineService->fillAttributes($template['text']);
         $message = new WebChatButtonMessage();
         $message->setText($text);
-        foreach ($template->button as $button) {
+        foreach ($template['buttons'] as $button) {
             $buttonText = $this->responseEngineService->fillAttributes($button['text']);
             $message->addButton(new WebChatButton($buttonText, $button['callback'], $button['value']));
         }
