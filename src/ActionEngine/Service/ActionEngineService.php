@@ -54,7 +54,7 @@ class ActionEngineService implements ActionEngineServiceInterface
         return $this->availableActions;
     }
 
-    public function performAction($actionName)
+    public function performAction(string $actionName)
     {
 
     }
