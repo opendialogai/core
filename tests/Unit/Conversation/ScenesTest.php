@@ -3,7 +3,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
-
+use Ds\Map;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -20,16 +20,13 @@ class ScenesTest extends TestCase
         // Create a conversation manager and setup a conversation
         $cm = new ConversationManager(self::CONVERSATION);
 
-        $scene1 = $cm->createScene(self::OPENING_SCENE, true);
-        $scene2 = $cm->createScene(self::LATEST_NEWS_SCENE, false);
-        $scene3 = $cm->createScene(self::CONTINUE_WITH_AUDIT_SCENE, false);
+        $cm->createScene(self::OPENING_SCENE, true);
+        $cm->createScene(self::LATEST_NEWS_SCENE, false);
+        $cm->createScene(self::CONTINUE_WITH_AUDIT_SCENE, false);
 
         return $cm;
     }
 
-    /**
-     *
-     */
     public function testAddOpeningScene()
     {
         $cm = $this->setupConversation();

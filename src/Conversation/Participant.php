@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use Ds\Map;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 class Participant extends Node
