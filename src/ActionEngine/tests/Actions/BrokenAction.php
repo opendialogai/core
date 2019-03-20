@@ -1,13 +1,12 @@
 <?php
 
-namespace OpenDialogAi\ActionEngine\Actions;
+namespace OpenDialogAi\ActionEngine\Tests\Actions;
 
+use OpenDialogAi\ActionEngine\Actions\BaseAction;
 use OpenDialogAi\ActionEngine\Results\ActionResult;
 
-class DummyAction extends BaseAction
+class BrokenAction extends BaseAction
 {
-    protected $performs = ['action.dummy'];
-
     public function perform(string $action): ActionResult
     {
         return new ActionResult();
