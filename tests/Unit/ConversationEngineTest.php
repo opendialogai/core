@@ -148,4 +148,35 @@ EOT;
         $this->assertNull(ConversationLog::where('conversation_id', $conversation2->id)
             ->where('type', 'validate_conversation_yaml_schema')->first());
     }
+
+    /**
+     * Ensure that revisions are stored for model and notes edits.
+     */
+    public function testConversationRevisionCreation()
+    {
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => "---\nconversation_name: test"]);
+        $conversation->notes = 'test notes';
+        $conversation->save();
+        $this->assertEquals('notes', $conversation->revisionHistory[0]->fieldName());
+        $this->assertEquals('', $conversation->revisionHistory[0]->oldValue());
+        $this->assertEquals('test notes', $conversation->revisionHistory[0]->newValue());
+
+        $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => "---\nconversation_name: test"]);
+        $conversation2->model = "---\nconversation: test";
+        $conversation2->save();
+        $this->assertEquals('model', $conversation2->revisionHistory[0]->fieldName());
+        $this->assertEquals("---\nconversation_name: test", $conversation2->revisionHistory[0]->oldValue());
+        $this->assertEquals("---\nconversation: test", $conversation2->revisionHistory[0]->newValue());
+    }
+
+    /**
+     * Ensure that revisions are not stored for status changes.
+     */
+    public function testConversationRevisionNonCreation()
+    {
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => "---\nconversation: test"]);
+        $conversation->status = 'published';
+        $conversation->save();
+        $this->assertEmpty($conversation->revisionHistory);
+    }
 }
