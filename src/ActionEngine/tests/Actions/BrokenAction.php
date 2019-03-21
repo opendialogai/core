@@ -7,7 +7,7 @@ use OpenDialogAi\ActionEngine\Results\ActionResult;
 
 class BrokenAction extends BaseAction
 {
-    public function perform(string $action): ActionResult
+    public function perform(): ActionResult
     {
         return new ActionResult();
     }

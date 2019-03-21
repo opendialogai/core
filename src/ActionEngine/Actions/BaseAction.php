@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use ActionEngine\Exceptions\ActionNameNotSetException;
+use ActionEngine\Exceptions\AttributeNotResolvedException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
@@ -35,7 +36,7 @@ abstract class BaseAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function requiresAttributes() : array
+    public function requiresAttributes(): array
     {
         return $this->requires;
     }
@@ -46,6 +47,18 @@ abstract class BaseAction implements ActionInterface
     public function requiresAttribute($attributeName): bool
     {
         return in_array($attributeName, $this->requires);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAttribute($attributeName): AttributeInterface
+    {
+        if (isset($this->attributes[$attributeName])) {
+            return $this->attributes[$attributeName];
+        }
+
+        throw new AttributeNotResolvedException(sprintf("Attribute %s has not been resolved", $attributeName));
     }
 
     /**

@@ -7,11 +7,11 @@ use OpenDialogAi\ActionEngine\Results\ActionResult;
 
 class DummyAction extends BaseAction
 {
-    protected $requires = ['action.dummy'];
+    protected $requires = ['attribute.dummy'];
 
     protected $performs = 'actions.core.dummy';
 
-    public function perform(string $action): ActionResult
+    public function perform(): ActionResult
     {
         return new ActionResult();
     }

@@ -3,16 +3,18 @@
 namespace OpenDialogAi\ActionEngine\Service;
 
 use ActionEngine\Exceptions\ActionNameNotSetException;
+use ActionEngine\Exceptions\ActionNotAvailableException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
+use OpenDialogAi\ActionEngine\Results\ActionResult;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 class ActionEngineService implements ActionEngineServiceInterface
 {
     /** @var AttributeResolverService */
     private $attributeResolver;
 
+    /** @var ActionInterface[] */
     private $availableActions = [];
 
     /**
@@ -35,6 +37,7 @@ class ActionEngineService implements ActionEngineServiceInterface
 
                 /** @var ActionInterface $action */
                 $action = new $supportedAction();
+                $this->resolveAttributes($action);
 
                 $this->availableActions[$action->performs()] = $action;
             } catch (ActionNameNotSetException $exception) {
@@ -48,26 +51,58 @@ class ActionEngineService implements ActionEngineServiceInterface
         }
     }
 
+    /**
+     * @param AttributeResolverService $attributeResolver
+     */
     public function setAttributeResolver(AttributeResolverService $attributeResolver)
     {
         $this->attributeResolver = $attributeResolver;
     }
 
-    public function getAvailableActions()
+    /**
+     * @inheritdoc
+     */
+    public function getAvailableActions(): array
     {
         return $this->availableActions;
     }
 
-    public function performAction(string $actionName)
+    /**
+     * @inheritdoc
+     */
+    public function performAction(string $actionName): ActionResult
     {
+        if ($this->actionIsAvailable($actionName)) {
+            return $this->availableActions[$actionName]->perform();
+        }
+
+        throw new ActionNotAvailableException(
+            sprintf(
+                "Action %s is not available and cannot be performed",
+                $actionName
+            )
+        );
     }
 
+    /**
+     * @inheritdoc
+     */
     public function resolveAttributes(ActionInterface $action)
     {
-        /** @var AttributeInterface $attribute */
         foreach ($action->requiresAttributes() as $attribute) {
-            $value = $this->attributeResolver->getAttributeFor($attribute->getId());
+            $value = $this->attributeResolver->getAttributeFor($attribute);
             $action->setAttributeValue($attribute, $value);
         }
+    }
+
+    /**
+     * Check if the action with given name is available
+     *
+     * @param $actionName
+     * @return bool
+     */
+    private function actionIsAvailable($actionName)
+    {
+        return isset($this->availableActions[$actionName]);
     }
 }

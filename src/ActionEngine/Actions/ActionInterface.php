@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use ActionEngine\Exceptions\ActionNameNotSetException;
+use ActionEngine\Exceptions\AttributeNotResolvedException;
 use OpenDialogAi\ActionEngine\Results\ActionResult;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
@@ -20,12 +21,11 @@ interface ActionInterface
     public function performs() : string;
 
     /**
-     * Performs the action with the given name if it exists
+     * Performs the action
      *
-     * @param string $action The name of the action to perform
      * @return ActionResult
      */
-    public function perform(string $action) : ActionResult;
+    public function perform() : ActionResult;
 
     /**
      * Returns an array of attribute names that the action requires in order to be performed
@@ -48,4 +48,13 @@ interface ActionInterface
      * @return mixed
      */
     public function setAttributeValue($attributeName, AttributeInterface $attributeValue);
+
+    /**
+     * Gets the resolved value of attribute by name
+     *
+     * @param $attributeName string Name of the attribute
+     * @return AttributeInterface
+     * @throws AttributeNotResolvedException
+     */
+    public function getAttribute($attributeName) : AttributeInterface;
 }
