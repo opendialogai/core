@@ -8,18 +8,24 @@ use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYamlSchema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 
 class Conversation extends Model
 {
-    use \Venturecraft\Revisionable\RevisionableTrait;
+    use LogsActivity;
 
     protected $fillable = [
         'name',
         'model',
+        'notes',
     ];
 
-    protected $keepRevisionOf = ['model', 'notes'];
+    protected static $logAttributes = ['model', 'notes'];
+
+    protected static $logName = 'conversation_log';
+
+    protected static $logOnlyDirty = true;
 
     /**
      * Get the logs for the conversation.

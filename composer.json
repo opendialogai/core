@@ -15,7 +15,8 @@
     "php-ds/php-ds": "~1.2.",
     "venturecraft/revisionable": "^1.28",
     "justinrainbow/json-schema": "^5.2",
-    "cweagans/composer-patches": "~1.0"
+    "cweagans/composer-patches": "~1.0",
+    "spatie/laravel-activitylog": "^3.2"
   },
   "config": {
     "preferred-install": "source"

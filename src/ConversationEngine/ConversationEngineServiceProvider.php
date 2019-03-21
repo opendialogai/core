@@ -13,7 +13,9 @@ class ConversationEngineServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/config/opendialog-conversationengine.php'
-                => base_path('config/opendialog-conversationengine.php')
+                => base_path('config/opendialog-conversationengine.php'),
+            __DIR__ . '/config/activitylog.php'
+                => base_path('config/activitylog.php'),
         ], 'config');
 
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
@@ -21,6 +23,7 @@ class ConversationEngineServiceProvider extends ServiceProvider
 
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__ . '/config/activitylog.php', 'activitylog');
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-conversationengine.php', 'opendialog.conversation_engine');
 
         $this->app->bind(self::CONVERSATION_ENGINE_SERVICE, function () {

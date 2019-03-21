@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Tests\Unit;
 use OpenDialogAi\ConversationEngine\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationLog;
 use OpenDialogAi\Core\Tests\TestCase;
+use Spatie\Activitylog\Models\Activity;
 
 class ConversationEngineTest extends TestCase
 {
@@ -157,16 +158,18 @@ EOT;
         $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => "---\nconversation_name: test"]);
         $conversation->notes = 'test notes';
         $conversation->save();
-        $this->assertEquals('notes', $conversation->revisionHistory[0]->fieldName());
-        $this->assertEquals('', $conversation->revisionHistory[0]->oldValue());
-        $this->assertEquals('test notes', $conversation->revisionHistory[0]->newValue());
+        $activity = Activity::where('log_name', 'conversation_log')->get()->last();
+        $this->assertArrayHasKey('notes', $activity->changes['attributes']);
+        $this->assertEquals('', $activity->changes['old']['notes']);
+        $this->assertEquals('test notes', $activity->changes['attributes']['notes']);
 
         $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => "---\nconversation_name: test"]);
         $conversation2->model = "---\nconversation: test";
         $conversation2->save();
-        $this->assertEquals('model', $conversation2->revisionHistory[0]->fieldName());
-        $this->assertEquals("---\nconversation_name: test", $conversation2->revisionHistory[0]->oldValue());
-        $this->assertEquals("---\nconversation: test", $conversation2->revisionHistory[0]->newValue());
+        $activity = Activity::where('log_name', 'conversation_log')->get()->last();
+        $this->assertArrayHasKey('model', $activity->changes['attributes']);
+        $this->assertEquals("---\nconversation_name: test", $activity->changes['old']['model']);
+        $this->assertEquals("---\nconversation: test", $activity->changes['attributes']['model']);
     }
 
     /**
@@ -177,6 +180,7 @@ EOT;
         $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => "---\nconversation: test"]);
         $conversation->status = 'published';
         $conversation->save();
-        $this->assertEmpty($conversation->revisionHistory);
+        $activity = Activity::where('log_name', 'conversation_log')->get()->last();
+        $this->assertArrayNotHasKey('status', $activity->changes['attributes']);
     }
 }
