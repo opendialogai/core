@@ -40,6 +40,16 @@ class ValidateConversationScenes implements ShouldQueue
      */
     public function handle()
     {
+        if ($this->conversation->status === 'invalid') {
+            // Delete the job so that it will not be re-tried.
+            $this->delete();
+
+            // Update this job's status.
+            $this->conversation->scenes_validation_status = 'invalid';
+            $this->conversation->save(['validate' => false]);
+            return;
+        }
+
         $status = 'validated';
         $model = [];
 
@@ -57,15 +67,16 @@ class ValidateConversationScenes implements ShouldQueue
             $status = 'invalid';
         } finally {
             $this->conversation->scenes_validation_status = $status;
-            $this->conversation->save(['validate' => false]);
 
             if ($status === 'invalid') {
-                // Fail the job so that the next validation step will not be attempted.
-                $this->fail();
-
                 // Delete the job so that it will not be re-tried.
                 $this->delete();
+
+                // Update the conversation status.
+                $this->conversation->status = 'invalid';
             }
+
+            $this->conversation->save(['validate' => false]);
         }
     }
 }

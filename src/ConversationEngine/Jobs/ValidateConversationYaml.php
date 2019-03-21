@@ -19,7 +19,6 @@ class ValidateConversationYaml implements ShouldQueue
 
     protected $conversation;
 
-
     /**
      * Create a new job instance.
      *
@@ -55,14 +54,14 @@ class ValidateConversationYaml implements ShouldQueue
             $status = 'invalid';
         } finally {
             $this->conversation->yaml_validation_status = $status;
-            $this->conversation->save(['validate' => false]);
             if ($status === 'invalid') {
-                // Fail the job so that the next validation step will not be attempted.
-                $this->fail();
-
                 // Delete the job so that it will not be re-tried.
                 $this->delete();
+
+                // Update the conversation status.
+                $this->conversation->status = 'invalid';
             }
+            $this->conversation->save(['validate' => false]);
         }
     }
 }
