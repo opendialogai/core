@@ -4,6 +4,9 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 
+/**
+ * A Conversation is a collection of Scenes.
+ */
 class Conversation extends NodeWithConditions
 {
     public function __construct($id)
@@ -73,7 +76,7 @@ class Conversation extends NodeWithConditions
 
     /**
      * @param $sceneId
-     * @return mixed
+     * @return Scene | bool
      */
     public function getScene($sceneId)
     {
@@ -83,5 +86,7 @@ class Conversation extends NodeWithConditions
         if ($allScenes->hasKey($sceneId)) {
             return $allScenes->get($sceneId);
         }
+
+        return false;
     }
 }

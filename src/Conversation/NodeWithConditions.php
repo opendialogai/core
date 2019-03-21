@@ -9,9 +9,6 @@ use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
- * Class NodeWithConditions
- * @package OpenDialog\Core\Conversation
- *
  * Nodes that have conditions should extend this class to ensure we are
  * consistently dealing with Condition representation.
  */

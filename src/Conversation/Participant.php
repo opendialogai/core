@@ -4,6 +4,9 @@ namespace OpenDialogAi\Core\Conversation;
 
 use OpenDialogAi\Core\Graph\Node\Node;
 
+/**
+ * A participant is a user or a software agent participating in a conversation.
+ */
 class Participant extends Node
 {
 

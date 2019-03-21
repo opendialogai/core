@@ -10,6 +10,9 @@ use OpenDialogAi\Core\Attribute\ConditionInterface;
 use OpenDialogAi\Core\Attribute\ConditionTrait;
 use OpenDialogAi\Core\Graph\Node\Node;
 
+/**
+ * @see ConditionInterface
+ */
 class Condition extends Node implements ConditionInterface
 {
     use ConditionTrait;
