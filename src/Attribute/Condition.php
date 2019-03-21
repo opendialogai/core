@@ -6,12 +6,9 @@ namespace OpenDialogAi\Core\Attribute;
 use Ds\Map;
 
 /**
- * Class Condition
- * @package OpenDialog\Core\Attribute
- *
- * A condition is an Attribute with a predefined value and a corresponding evaluation operation.
+ * Implementation of the Condition interface for Attributes.
  */
-class Condition
+class Condition implements ConditionInterface
 {
     use HasAttributesTrait, ConditionTrait;
 
