@@ -5,10 +5,15 @@ namespace OpenDialogAi\Core\Attribute;
 
 use Ds\Map;
 
+/**
+ * A trait that anything that needs to deal with Attributes can use.
+ *
+ */
 trait HasAttributesTrait
 {
 
-    /* @var Map $attributes - the set of attributes related to this node - they key to the attribute defines the
+    /**
+     * @var Map $attributes - the set of attributes related to this node - they key to the attribute defines the
      * relationship
      */
     protected $attributes;

@@ -4,6 +4,9 @@
 namespace OpenDialogAi\Core\Attribute;
 
 
+/**
+ * ConditionInterface functions implemented as a trait to enable reuse in other packages.
+ */
 trait ConditionTrait
 {
     // The evaluation operation to be used to compare against the attribute to compare.
@@ -22,7 +25,7 @@ trait ConditionTrait
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getEvaluationOperation()
     {
@@ -30,9 +33,9 @@ trait ConditionTrait
     }
 
     /**
-     * @param $evaluationOperation
+     * @param string $evaluationOperation
      */
-    public function setEvaluationOperation($evaluationOperation)
+    public function setEvaluationOperation(string $evaluationOperation)
     {
         $this->evaluationOperation = $evaluationOperation;
     }
