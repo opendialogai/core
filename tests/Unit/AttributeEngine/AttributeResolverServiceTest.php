@@ -10,13 +10,13 @@ class AttributeResolverServiceTest extends TestCase
 {
     public function testAttributeEngineService()
     {
-        $this->assertEquals(config('opendialog.attribute_engine.available_attributes'), $this->app->make(AttributeResolverService::ATTRIBUTE_RESOLVER)->getAvailableAttributes());
+        $this->assertEquals(config('opendialog.attribute_engine.available_attributes'), $this->app->make(AttributeResolverService::class)->getAvailableAttributes());
     }
 
     public function testAttributeResolution()
     {
         /* @var  AttributeResolverService $attributeResolver */
-        $attributeResolver = $this->app->make(AttributeResolverService::ATTRIBUTE_RESOLVER);
+        $attributeResolver = $this->app->make(AttributeResolverService::class);
 
         $attribute = $attributeResolver->getAttributeFor('dummy_attribute');
 
