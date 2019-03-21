@@ -24,21 +24,25 @@ class ActionEngineService implements ActionEngineServiceInterface
             try {
                 if (!class_exists($supportedAction)) {
                     Log::warning(
-                        sprintf("Skipping adding action %s to list of supported actions as it does  not exist",
-                            $supportedAction)
+                        sprintf(
+                            "Skipping adding action %s to list of supported actions as it does not exist",
+                            $supportedAction
+                        )
                     );
 
                     break;
                 }
 
                 /** @var ActionInterface $action */
-                $action = new $supportedAction;
+                $action = new $supportedAction();
 
                 $this->availableActions[$action->performs()] = $action;
             } catch (ActionNameNotSetException $exception) {
                 Log::warning(
-                    sprintf("Skipping adding action %s to list of supported actions as it doesn't have a name",
-                        $supportedAction)
+                    sprintf(
+                        "Skipping adding action %s to list of supported actions as it doesn't have a name",
+                        $supportedAction
+                    )
                 );
             }
         }
@@ -56,7 +60,6 @@ class ActionEngineService implements ActionEngineServiceInterface
 
     public function performAction(string $actionName)
     {
-
     }
 
     public function resolveAttributes(ActionInterface $action)
