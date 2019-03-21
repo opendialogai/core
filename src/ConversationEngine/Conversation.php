@@ -35,10 +35,10 @@ class Conversation extends Model
     public function save(array $options = [])
     {
         // Determine if we're in the process of validation.
-        $do_validation = (!isset($options['validate']) || $options['validate'] === true);
+        $doValidation = (!isset($options['validate']) || $options['validate'] === true);
 
         // Reset validation status.
-        if ($do_validation) {
+        if ($doValidation) {
             $this->status = 'imported';
             $this->yaml_validation_status = 'waiting';
             $this->yaml_schema_validation_status = 'waiting';
@@ -49,7 +49,7 @@ class Conversation extends Model
         parent::save($options);
 
         // Create validation jobs.
-        if ($do_validation) {
+        if ($doValidation) {
             ValidateConversationYaml::dispatch($this)->chain([
               new ValidateConversationYamlSchema($this),
               new ValidateConversationScenes($this),
