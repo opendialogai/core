@@ -37,8 +37,6 @@ class ActionEngineService implements ActionEngineServiceInterface
 
                 /** @var ActionInterface $action */
                 $action = new $supportedAction();
-                $this->resolveAttributes($action);
-
                 $this->availableActions[$action->performs()] = $action;
             } catch (ActionNameNotSetException $exception) {
                 Log::warning(
