@@ -3,6 +3,9 @@
 namespace OpenDialogAi\Core\Conversation;
 
 
+/**
+ * A scene is a specific context of a conversation with the associated exchange of utterances between participants.
+ */
 class Scene extends NodeWithConditions
 {
 

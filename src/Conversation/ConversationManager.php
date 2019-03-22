@@ -4,6 +4,9 @@
 namespace OpenDialogAi\Core\Conversation;
 
 
+/**
+ * A conversation manager assists in managing conversations or creating them from scratch.
+ */
 class ConversationManager
 {
     /* @var Conversation $conversation - the root of the conversation graph */
@@ -93,8 +96,11 @@ class ConversationManager
 
         /* @var Scene $scene */
         $scene = $this->conversation->getScene($sceneId);
-        // Connect the two participants via the intent.
-        $scene->botSaysToUser($sceneIntent);
+
+        if ($scene) {
+            // Connect the two participants via the intent.
+            $scene->botSaysToUser($sceneIntent);
+        }
 
         return $this;
     }
@@ -132,8 +138,8 @@ class ConversationManager
         $endingScene = $this->conversation->getScene($endingSceneId);
         $endingScene->userListensToBotFromOtherScene($sceneIntent);
 
-        $sceneIntent->createOutgoingEdge(Intent::TRANSITIONS_TO, $endingScene);
-        $sceneIntent->createOutgoingEdge(Intent::TRANSITIONS_FROM, $startingScene);
+        $sceneIntent->createOutgoingEdge(Model::TRANSITIONS_TO, $endingScene);
+        $sceneIntent->createOutgoingEdge(Model::TRANSITIONS_FROM, $startingScene);
 
         return $this;
     }

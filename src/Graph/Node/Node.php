@@ -20,12 +20,14 @@ class Node
 {
     use GraphItem, HasAttributesTrait;
 
-    /* @var Map $outgoingEdges - the set of edges leaving this node keyed by the outgoing relationship name.
+    /**
+     * @var Map $outgoingEdges - the set of edges leaving this node keyed by the outgoing relationship name.
      * The structure of the map is [key][EdgeSet]
      */
     private $outgoingEdges;
 
-    /* @var Map $incomingEdges - the set of edges arriving to this node keyed by relationships
+    /**
+     * @var Map $incomingEdges - the set of edges arriving to this node keyed by relationships
      * The structure of the map is [key][EdgeSet]
      */
     private $incomingEdges;
@@ -86,7 +88,7 @@ class Node
     }
 
     /**
-     * @param $edge_id
+     * @param $relationship
      * @return bool
      */
     public function hasEdgeWithRelationship($relationship)
@@ -99,7 +101,7 @@ class Node
     }
 
     /**
-     * @param $edge_id
+     * @param $relationship
      * @return bool
      */
     public function hasOutgoingEdgeWithRelationship($relationship)
@@ -112,7 +114,7 @@ class Node
     }
 
     /**
-     * @param $edge_id
+     * @param $relationship
      * @return bool
      */
     public function hasIncomingEdgeWithRelationship($relationship)

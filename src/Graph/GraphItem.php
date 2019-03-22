@@ -4,9 +4,6 @@
 namespace OpenDialogAi\Core\Graph;
 
 /**
- * Trait GraphItem
- * @package OpenDialog\Core\Graph
- *
  * A GraphItem is a node or an edge belonging to a Graph.
  */
 trait GraphItem
@@ -24,11 +21,7 @@ trait GraphItem
     {
         // If there is no UID generate a random one
         if (!isset($this->uid)) {
-            return substr(
-                str_shuffle('abcdefghijklmnopqrstuvwxz0987654321'),
-                0,
-                7
-            );
+            $this->uid = $this->generateUid();
         }
         return $this->uid;
     }
@@ -63,5 +56,17 @@ trait GraphItem
     {
         $this->id = $id;
         return $this;
+    }
+
+    /**
+     * @return bool|string
+     */
+    private function generateUid()
+    {
+        return substr(
+            str_shuffle('abcdefghijklmnopqrstuvwxz0987654321'),
+            0,
+            7
+        );
     }
 }

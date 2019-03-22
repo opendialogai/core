@@ -3,7 +3,11 @@
 
 namespace OpenDialogAi\Core\Attribute;
 
+use Illuminate\Support\Facades\Log;
 
+/**
+ * A BooleanAttribute implementation.
+ */
 class BooleanAttribute extends AbstractAttribute
 {
     /**
@@ -18,6 +22,7 @@ class BooleanAttribute extends AbstractAttribute
             parent::__construct($id, AbstractAttribute::BOOLEAN, $this->value);
             $this->setValue($value);
         } catch (UnsupportedAttributeTypeException $e) {
+            Log::warning($e->getMessage());
             return null;
         }
     }

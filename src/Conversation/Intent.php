@@ -7,6 +7,9 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Graph\Node\Node;
 
+/**
+ * The intent of an utterance.
+ */
 class Intent extends Node
 {
     private $completes = false;

@@ -4,9 +4,6 @@
 namespace OpenDialogAi\Core\Conversation;
 
 /**
- * Class Model
- * @package OpenDialog\Core\Conversation
- *
  * All the relationships and identifiers used in a conversation graph.
  */
 class Model
