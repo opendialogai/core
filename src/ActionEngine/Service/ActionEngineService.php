@@ -87,7 +87,7 @@ class ActionEngineService implements ActionEngineServiceInterface
      */
     public function resolveAttributes(ActionInterface $action)
     {
-        foreach ($action->requiresAttributes() as $attribute) {
+        foreach ($action->getRequiredAttributes() as $attribute) {
             $value = $this->attributeResolver->getAttributeFor($attribute);
             $action->setAttributeValue($attribute, $value);
         }

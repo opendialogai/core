@@ -32,7 +32,7 @@ interface ActionInterface
      *
      * @return string[]
      */
-    public function requiresAttributes() : array;
+    public function getRequiredAttributes() : array;
 
     /**
      * Checks whether the action requires the specified attribute

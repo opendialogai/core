@@ -11,10 +11,11 @@ abstract class BaseAction implements ActionInterface
 {
     protected $performs;
 
-    /**
-     * @var string[]
-     */
-    protected $requires = [];
+    /** @var string[] */
+    protected $requiredAttributes = [];
+
+    /** @var string[] */
+    protected $outputsAttributes = [];
 
     /**
      * @var AttributeInterface[]
@@ -36,9 +37,9 @@ abstract class BaseAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function requiresAttributes(): array
+    public function getRequiredAttributes(): array
     {
-        return $this->requires;
+        return $this->requiredAttributes;
     }
 
     /**
@@ -46,7 +47,7 @@ abstract class BaseAction implements ActionInterface
      */
     public function requiresAttribute($attributeName): bool
     {
-        return in_array($attributeName, $this->requires);
+        return in_array($attributeName, $this->requiredAttributes);
     }
 
     /**
