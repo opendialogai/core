@@ -21,11 +21,22 @@ class Conversation extends Model
         'notes',
     ];
 
+    // Create activity logs when the model or notes attribute is updated.
     protected static $logAttributes = ['model', 'notes'];
 
     protected static $logName = 'conversation_log';
 
     protected static $logOnlyDirty = true;
+
+    // Don't create activity logs when these model attributes are updated.
+    protected static $ignoreChangedAttributes = [
+        'updated_at',
+        'status',
+        'yaml_validation_status',
+        'yaml_schema_validation_status',
+        'scenes_validation_status',
+        'model_validation_status'
+    ];
 
     /**
      * Get the logs for the conversation.
