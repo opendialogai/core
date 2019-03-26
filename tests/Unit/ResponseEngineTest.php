@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
-use OpenDialogAi\ResponseEngine\Facades\ActionEngine;
+use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -60,8 +60,8 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         $this->assertEquals($messageTemplate->getConditions(), [
-          ['last_message_posted_time' => 10000, 'operation' => 'ge'],
-          ['last_message_posted_time' => 20000, 'operation' => 'le'],
+          ['attributeName' => 'last_message_posted_time', 'attributeValue' => 10000, 'operation' => 'ge'],
+          ['attributeName' => 'last_message_posted_time', 'attributeValue' => 20000, 'operation' => 'le'],
         ]);
 
         MessageTemplate::create([
@@ -73,5 +73,97 @@ class ResponseEngineTest extends TestCase
         $messageTemplate2 = MessageTemplate::where('name', 'Unfriendly Hello')->first();
 
         $this->assertEquals($messageTemplate2->getConditions(), []);
+    }
+
+    public function testResponseEngineService()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {attributes.core.userName}!");
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
+        $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
+    }
+
+    public function testWebChatMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addTextMessage('hi there');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
+    }
+
+    public function testWebChatImageMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addImageMessage('https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif', 'http://www.opendialog.ai');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $message[0]);
+    }
+
+    public function testWebChatButtonMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $buttons = [
+            [
+                'text' => 'Button Text',
+                'value' => 'Value',
+                'callback' => 'callback'
+            ]
+        ];
+        $generator->addButtonMessage('test button', $buttons);
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        $responseEngineService = $this->app->make('response-engine-service');
+        $message = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $message[0]);
     }
 }
