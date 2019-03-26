@@ -5,6 +5,7 @@ namespace OpenDialogAi\ConversationEngine\Jobs;
 use \Exception;
 use OpenDialogAi\ConversationEngine\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,10 +16,13 @@ use Symfony\Component\Yaml\Exception\ParseException;
 
 class ValidateConversationScenes implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ValidateConversationTrait;
 
+    // Conversation object.
     protected $conversation;
 
+    // Validation job name.
+    protected $jobName;
 
     /**
      * Create a new job instance.
@@ -27,7 +31,8 @@ class ValidateConversationScenes implements ShouldQueue
      */
     public function __construct($conversation)
     {
-          $this->conversation = $conversation;
+        $this->conversation = $conversation;
+        $this->jobName = 'scenes_validation_status';
     }
 
     /**
@@ -40,13 +45,7 @@ class ValidateConversationScenes implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->conversation->status === 'invalid') {
-            // Delete the job so that it will not be re-tried.
-            $this->delete();
-
-            // Update this job's status.
-            $this->conversation->scenes_validation_status = 'invalid';
-            $this->conversation->save(['validate' => false]);
+        if (!$this->checkConversationStatus()) {
             return;
         }
 
@@ -66,7 +65,7 @@ class ValidateConversationScenes implements ShouldQueue
             // Set validation status.
             $status = 'invalid';
         } finally {
-            $this->conversation->scenes_validation_status = $status;
+            $this->conversation->{$this->jobName} = $status;
 
             if ($status === 'invalid') {
                 // Delete the job so that it will not be re-tried.

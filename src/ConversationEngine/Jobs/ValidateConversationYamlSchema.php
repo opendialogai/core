@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationEngine\Jobs;
 
 use OpenDialogAi\ConversationEngine\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,9 +17,13 @@ use Symfony\Component\Yaml\Exception\ParseException;
 
 class ValidateConversationYamlSchema implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ValidateConversationTrait;
 
+    // Conversation object.
     protected $conversation;
+
+    // Validation job name.
+    protected $jobName;
 
     /**
      * Create a new job instance.
@@ -28,6 +33,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
     public function __construct($conversation)
     {
         $this->conversation = $conversation;
+        $this->jobName = 'yaml_schema_validation_status';
     }
 
     /**
@@ -39,13 +45,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->conversation->status === 'invalid') {
-            // Delete the job so that it will not be re-tried.
-            $this->delete();
-
-            // Update this job's status.
-            $this->conversation->yaml_schema_validation_status = 'invalid';
-            $this->conversation->save(['validate' => false]);
+        if (!$this->checkConversationStatus()) {
             return;
         }
 
@@ -93,7 +93,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
             }
         }
 
-        $this->conversation->yaml_schema_validation_status = $status;
+        $this->conversation->{$this->jobName} = $status;
 
         if ($status === 'invalid') {
             // Delete the job so that it will not be re-tried.
