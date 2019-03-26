@@ -2,9 +2,8 @@
 
 namespace OpenDialogAi\ActionEngine\Service;
 
-use ActionEngine\Exceptions\ActionNotAvailableException;
-use OpenDialogAi\ActionEngine\Actions\ActionInterface;
-use OpenDialogAi\ActionEngine\Results\ActionResult;
+use ActionEngine\Input\ActionInput;
+use OpenDialogAi\ActionEngine\Output\ActionResult;
 
 interface ActionEngineServiceInterface
 {
@@ -25,14 +24,9 @@ interface ActionEngineServiceInterface
 
     /**
      * @param string $actionName The name of the action to perform
+     * @param ActionInput $actionInput
      * @return mixed
-     * @throws ActionNotAvailableException
+     * @throw MissingRequiredActionAttributes
      */
-    public function performAction(string $actionName) : ActionResult;
-
-    /**
-     * @param ActionInterface $action The action with attributes to be resolved
-     * @return mixed
-     */
-    public function resolveAttributes(ActionInterface $action);
+    public function performAction(string $actionName, ActionInput $actionInput) : ActionResult;
 }

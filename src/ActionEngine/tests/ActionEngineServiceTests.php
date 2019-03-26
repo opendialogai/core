@@ -3,7 +3,8 @@
 namespace OpenDialogAi\ActionEngine\Tests;
 
 use ActionEngine\Exceptions\ActionNotAvailableException;
-use ActionEngine\Exceptions\AttributeNotResolvedException;
+use ActionEngine\Exceptions\MissingActionRequiredAttributes;
+use ActionEngine\Input\ActionInput;
 use OpenDialogAi\ActionEngine\Service\ActionEngineService;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
 use OpenDialogAi\ActionEngine\Tests\Actions\DummyAction;
@@ -11,6 +12,7 @@ use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\BasicAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ActionEngineServiceTests extends TestCase
@@ -62,7 +64,7 @@ class ActionEngineServiceTests extends TestCase
 
     public function testSettingValidAction()
     {
-        $this->actionEngine->setAvailableActions([DummyAction::class]);
+        $this->setDummyAction();
 
         $this->assertCount(1, $this->actionEngine->getAvailableActions());
 
@@ -82,45 +84,61 @@ class ActionEngineServiceTests extends TestCase
         $this->assertEquals('actions.core.dummy', array_shift($availableActions)->performs());
     }
 
-    public function testAttributeResolving()
-    {
-        $action = new DummyAction();
-
-        try {
-            $this->assertNull($action->getAttribute('attribute.dummy'));
-            $this->fail("Should have thrown an exception");
-        } catch (AttributeNotResolvedException $e) {
-            //
-        }
-
-        $this->actionEngine->resolveAttributes($action);
-
-        try {
-            $this->assertEquals($this->anythingAttribute, $action->getAttribute('attribute.dummy'));
-        } catch (AttributeNotResolvedException $e) {
-            $this->fail('Exception should not have been thrown');
-        }
-    }
-
     public function testPerformActionNotBound()
     {
         try {
-            $this->actionEngine->performAction('actions.core.dummy');
+            $this->actionEngine->performAction('actions.core.dummy', new ActionInput());
             $this->fail('Exception should have been thrown');
         } catch (ActionNotAvailableException $e) {
+            //
+        } catch (MissingActionRequiredAttributes $e) {
+            $this->fail('Wrong exception thrown');
+        }
+    }
+
+    public function testPerformActionWithoutRequiredAction()
+    {
+        $this->setDummyAction();
+
+        try {
+            $this->actionEngine->performAction('actions.core.dummy', new ActionInput());
+            $this->fail('Exception should have been thrown');
+        } catch (ActionNotAvailableException $e) {
+            $this->fail('Wrong exception thrown');
+        } catch (MissingActionRequiredAttributes $e) {
             //
         }
     }
 
-    public function testPerformAction()
+    public function testPerformActionWithRequiredAction()
     {
-        $this->actionEngine->setAvailableActions([DummyAction::class]);
+        $this->setDummyAction();
+
+        $input = new ActionInput();
+        $input->addAttribute(new IntAttribute('attribute.core.dummy', 1));
 
         try {
-            $result = $this->actionEngine->performAction('actions.core.dummy');
+            $result = $this->actionEngine->performAction('actions.core.dummy', $input);
             $this->assertTrue($result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
-            $this->fail('Exception should not have been thrown');
+            $this->fail('ActionNotAvailableException should not be thrown');
+        } catch (MissingActionRequiredAttributes $e) {
+            $this->fail('MissingActionRequiredAttributes should not be thrown');
         }
+    }
+
+    public function testGetAttributesFromAction()
+    {
+        $this->setDummyAction();
+        $input = (new ActionInput())->addAttribute(new IntAttribute('attribute.core.dummy', 1));
+
+        $result = $this->actionEngine->performAction('actions.core.dummy', $input);
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals('complete', $result->getResultAttribute('attribute.core.dummy2')->getValue());
+    }
+
+    protected function setDummyAction(): void
+    {
+        $this->actionEngine->setAvailableActions([DummyAction::class]);
     }
 }

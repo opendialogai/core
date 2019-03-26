@@ -29,8 +29,16 @@ interface AttributeBagInterface
     /**
      * Checks whether the attribute with given name exists
      *
-     * @param $attributeName
+     * @param $attributeName string
      * @return bool
      */
     public function hasAttribute($attributeName): bool;
+
+    /**
+     * Checks if the attribute bag contains all of the given attributes by name
+     *
+     * @param $attributeNames string[] An array of attribute names to check
+     * @return bool
+     */
+    public function hasAllAttributes($attributeNames): bool;
 }

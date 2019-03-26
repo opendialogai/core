@@ -4,9 +4,11 @@ namespace OpenDialogAi\ActionEngine\Service;
 
 use ActionEngine\Exceptions\ActionNameNotSetException;
 use ActionEngine\Exceptions\ActionNotAvailableException;
+use ActionEngine\Exceptions\MissingActionRequiredAttributes;
+use ActionEngine\Input\ActionInput;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
-use OpenDialogAi\ActionEngine\Results\ActionResult;
+use OpenDialogAi\ActionEngine\Output\ActionResult;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
 
 class ActionEngineService implements ActionEngineServiceInterface
@@ -68,10 +70,21 @@ class ActionEngineService implements ActionEngineServiceInterface
     /**
      * @inheritdoc
      */
-    public function performAction(string $actionName): ActionResult
+    public function performAction(string $actionName, ActionInput $actionInput): ActionResult
     {
         if ($this->actionIsAvailable($actionName)) {
-            return $this->availableActions[$actionName]->perform();
+            $action = $this->availableActions[$actionName];
+
+            if (!$actionInput->getAttributeBag()->hasAllAttributes($action->getRequiredAttributes())) {
+                throw new MissingActionRequiredAttributes(
+                    sprintf(
+                        "Missing the required attributes for %s",
+                        $action->performs()
+                    )
+                );
+            }
+
+            return $action->perform($actionInput);
         }
 
         throw new ActionNotAvailableException(
@@ -80,17 +93,6 @@ class ActionEngineService implements ActionEngineServiceInterface
                 $actionName
             )
         );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolveAttributes(ActionInterface $action)
-    {
-        foreach ($action->getRequiredAttributes() as $attribute) {
-            $value = $this->attributeResolver->getAttributeFor($attribute);
-            $action->setAttributeValue($attribute, $value);
-        }
     }
 
     /**

@@ -3,12 +3,12 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use ActionEngine\Exceptions\ActionNameNotSetException;
-use ActionEngine\Exceptions\AttributeNotResolvedException;
-use OpenDialogAi\ActionEngine\Results\ActionResult;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use ActionEngine\Input\ActionInput;
+use OpenDialogAi\ActionEngine\Output\ActionResult;
 
 /**
- * This is a placeholder interface for what an action needs to de
+ * An action takes an input of attributes, performs its action and returns a response containing details of the action
+ * results.
  */
 interface ActionInterface
 {
@@ -23,9 +23,10 @@ interface ActionInterface
     /**
      * Performs the action
      *
+     * @param ActionInput $actionInput
      * @return ActionResult
      */
-    public function perform() : ActionResult;
+    public function perform(ActionInput $actionInput) : ActionResult;
 
     /**
      * Returns an array of attribute names that the action requires in order to be performed
@@ -43,18 +44,17 @@ interface ActionInterface
     public function requiresAttribute($attributeName) : bool;
 
     /**
-     * @param string $attributeName The name of attribute to fill
-     * @param AttributeInterface $attributeValue The resolved value of the attribute
-     * @return mixed
+     * Returns an array of attribute names that the action will output if successful
+     *
+     * @return array
      */
-    public function setAttributeValue($attributeName, AttributeInterface $attributeValue);
+    public function getOutputAttributes() : array;
 
     /**
-     * Gets the resolved value of attribute by name
+     * Whether this action outputs the given attribute
      *
-     * @param $attributeName string Name of the attribute
-     * @return AttributeInterface
-     * @throws AttributeNotResolvedException
+     * @param $attributeName
+     * @return bool
      */
-    public function getAttribute($attributeName) : AttributeInterface;
+    public function outputsAttribute($attributeName): bool;
 }

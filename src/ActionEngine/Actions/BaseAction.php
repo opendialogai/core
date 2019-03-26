@@ -3,9 +3,6 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use ActionEngine\Exceptions\ActionNameNotSetException;
-use ActionEngine\Exceptions\AttributeNotResolvedException;
-use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 abstract class BaseAction implements ActionInterface
 {
@@ -16,11 +13,6 @@ abstract class BaseAction implements ActionInterface
 
     /** @var string[] */
     protected $outputsAttributes = [];
-
-    /**
-     * @var AttributeInterface[]
-     */
-    private $attributes = [];
 
     /**
      * @inheritdoc
@@ -53,23 +45,16 @@ abstract class BaseAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function getAttribute($attributeName): AttributeInterface
+    public function getOutputAttributes(): array
     {
-        if (isset($this->attributes[$attributeName])) {
-            return $this->attributes[$attributeName];
-        }
-
-        throw new AttributeNotResolvedException(sprintf("Attribute %s has not been resolved", $attributeName));
+        return $this->outputsAttributes;
     }
 
     /**
      * @inheritdoc
      */
-    public function setAttributeValue($attributeName, AttributeInterface $attributeValue)
+    public function outputsAttribute($attributeName): bool
     {
-        if ($this->requiresAttribute($attributeName)) {
-            Log::debug(sprintf("Setting attribute %s for action %s", $attributeName, static::class));
-            $this->attributes[$attributeName] = $attributeValue;
-        }
+        return in_array($attributeName, $this->outputsAttributes);
     }
 }

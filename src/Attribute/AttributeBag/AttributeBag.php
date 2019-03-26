@@ -7,15 +7,20 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Exceptions\AttributeBagAttributeDoesNotExist;
 
-class AttributeBag
+class AttributeBag implements AttributeBagInterface
 {
     /** @var Map */
     private $attributes;
 
+    public function __construct()
+    {
+        $this->attributes = new Map();
+    }
+
     /**
      * @inheritdoc
      */
-    public function addAttribute(AttributeInterface $attribute)
+    public function addAttribute(AttributeInterface $attribute): void
     {
         $this->attributes->put($attribute->getId(), $attribute);
     }
@@ -40,5 +45,19 @@ class AttributeBag
     public function hasAttribute($attributeName): bool
     {
         return $this->attributes->hasKey($attributeName);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasAllAttributes($attributes): bool
+    {
+        foreach ($attributes as $attribute) {
+            if (!$this->attributes->hasKey($attribute)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
