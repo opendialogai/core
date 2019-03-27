@@ -12,6 +12,7 @@
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
+            <exclude>./tests/Unit/Graph/DGraph/DGraphTest.php</exclude>
         </testsuite>
 
         <testsuite name="Feature">
