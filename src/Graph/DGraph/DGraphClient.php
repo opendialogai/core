@@ -63,12 +63,14 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE, [
-            'body' => $mutation->prepareTripleMutation(),
-            'headers' => [
-                'X-Dgraph-CommitNow' => 'true',
+            self::MUTATE,
+            [
+                'body' => $mutation->prepareTripleMutation(),
+                'headers' => [
+                    'X-Dgraph-CommitNow' => 'true',
+                ]
             ]
-        ]);
+        );
 
         return new DGraphMutationResponse($response);
     }
@@ -77,13 +79,15 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE, [
-            'body' => $mutation->prepareJsonMutation(),
-            'headers' => [
-                'X-Dgraph-CommitNow' => 'true',
-                'X-Dgraph-MutationType' => 'json'
+            self::MUTATE,
+            [
+                'body' => $mutation->prepareJsonMutation(),
+                'headers' => [
+                    'X-Dgraph-CommitNow' => 'true',
+                    'X-Dgraph-MutationType' => 'json'
+                ]
             ]
-        ]);
+        );
 
         $return = (string)$response->getBody();
 
@@ -129,5 +133,4 @@ class DGraphClient
 
         return $response['data'];
     }
-
 }

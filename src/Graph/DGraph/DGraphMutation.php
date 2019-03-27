@@ -54,7 +54,7 @@ class DGraphMutation
         // The starting node for traversing the graph.
         $startingNode = $this->mutationGraph;
 
-        DFS::walk($startingNode, $visited, function($startingNode) use (&$mutationStatement) {
+        DFS::walk($startingNode, $visited, function ($startingNode) use (&$mutationStatement) {
             $mutationStatement .= $this->attributeStatement($startingNode) . "\r\n";
             $mutationStatement .= $this->relationshipStatement($startingNode) . "\r\n";
         });
@@ -83,7 +83,7 @@ class DGraphMutation
             $attributeStatement[] = $this->prepareTriple($node->getId(), $attribute->getId(), $attribute->getValue());
         }
 
-        return implode("\r\n" , $attributeStatement);
+        return implode("\n", $attributeStatement);
     }
 
     /**
@@ -102,11 +102,16 @@ class DGraphMutation
         foreach ($outgoingEdges as $relationship => $edgeSet) {
             foreach ($edgeSet->getEdges() as $edge) {
                 // Add the relationship.
-                $relationshipStatement[] = $this->prepareTriple($node->getId(), $relationship, $edge->getToNode()->getId(), true);
+                $relationshipStatement[] = $this->prepareTriple(
+                    $node->getId(),
+                    $relationship,
+                    $edge->getToNode()->getId(),
+                    true
+                );
             }
         }
 
-        return implode("\r\n" , $relationshipStatement);
+        return implode("\n", $relationshipStatement);
     }
 
     /**
@@ -138,5 +143,4 @@ class DGraphMutation
 
         return json_encode($mutation);
     }
-
 }

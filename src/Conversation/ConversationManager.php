@@ -70,7 +70,8 @@ class ConversationManager
 
 
     public function addActionToIntent($intentId, Action $action)
-    {   /* @var Intent $intent */
+    {
+        /* @var Intent $intent */
         $intent = $this->conversation->getIntent($intentId);
         $intent->addAction($action);
 

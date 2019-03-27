@@ -39,7 +39,7 @@ class DGraphQuery
         $this->query[self::FUNC] = [
             self::FUNC_TYPE => self::ALLOFTERMS,
             self::PREDICATE => $predicate,
-            self::TERM_LIST => implode(" ",$termList)
+            self::TERM_LIST => implode(" ", $termList)
         ];
 
         return $this;
@@ -80,7 +80,6 @@ class DGraphQuery
         $this->queryString .= '}';
 
         return $this->queryString;
-
     }
 
     public function getQueryFunction()
@@ -93,5 +92,4 @@ class DGraphQuery
 
         return $queryFunctionString;
     }
-
 }
