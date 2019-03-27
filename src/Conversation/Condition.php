@@ -8,6 +8,7 @@ use Ds\Map;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\ConditionInterface;
 use OpenDialogAi\Core\Attribute\ConditionTrait;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
@@ -17,10 +18,11 @@ class Condition extends Node implements ConditionInterface
 {
     use ConditionTrait;
 
-    public function __construct(AttributeInterface $attributeToCompareAgainst, $evaluationOperation)
+    public function __construct($id, AttributeInterface $attributeToCompareAgainst, $evaluationOperation)
     {
-        parent::__construct();
+        parent::__construct($id);
         $this->attributes = new Map();
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONDITION));
 
         $this->addAttribute($attributeToCompareAgainst);
         $this->evaluationOperation = $evaluationOperation;

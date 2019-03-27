@@ -3,6 +3,8 @@
 namespace OpenDialogAi\Core\Conversation;
 
 
+use OpenDialogAi\Core\Attribute\StringAttribute;
+
 /**
  * A scene is a specific context of a conversation with the associated exchange of utterances between participants.
  */
@@ -17,8 +19,8 @@ class Scene extends NodeWithConditions
 
     public function __construct($id)
     {
-        parent::__construct();
-        $this->setId($id);
+        parent::__construct($id);
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::PARTICIPANT));
 
         // Create the scene participants
         $this->bot = new Participant($this->botIdInScene());
@@ -56,12 +58,12 @@ class Scene extends NodeWithConditions
 
     public function userSaysToBotLeadingOutOfScene(Intent $intent)
     {
-        $this->user->says($intent);
+        $this->user->saysAcrossScenes($intent);
     }
 
     public function userListensToBotFromOtherScene(Intent $intent)
     {
-        $this->user->listensFor($intent);
+        $this->user->listensForAcrossScenes($intent);
     }
 
 
@@ -73,33 +75,33 @@ class Scene extends NodeWithConditions
 
     public function botSaysToUserLeadingOutOfScene(Intent $intent)
     {
-        $this->bot->says($intent);
+        $this->bot->saysAcrossScenes($intent);
     }
 
     public function botListensToUserFromOtherScene(Intent $intent)
     {
-        $this->bot->listensFor($intent);
+        $this->bot->listensForAcrossScenes($intent);
     }
 
 
     public function getIntentsSaidByUser()
     {
-        // @todo
+        return $this->user->getAllIntentsSaid();
     }
 
     public function getIntentsSaidByBot()
     {
-        // @todo
+        return $this->bot->getAllIntentsSaid();
     }
 
     public function getIntentsListenedByUser()
     {
-        // @todo
+        return $this->user->getAllIntentsListenedFor();
     }
 
     public function getIntentsListenedByBot()
     {
-        // @todo
+        return $this->bot->getAllIntentsListenedFor();
     }
 
     public function getAllIntents()

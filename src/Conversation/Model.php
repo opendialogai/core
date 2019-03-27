@@ -8,6 +8,16 @@ namespace OpenDialogAi\Core\Conversation;
  */
 class Model
 {
+    // Attributes for conversation nodes
+    const EI_TYPE = 'ei_type';
+    const CONVERSATION = 'conversation';
+    const CONDITION = 'condition';
+    const SCENE = 'scene';
+    const INTENT = 'intent';
+    const PARTICIPANT = 'participant';
+    const INTENT_INTERPRETER = 'intent_interpreter';
+    const ACTION = 'action';
+
     // Conversations and scenes have conditions.
     const HAS_CONDITION = 'has_condition';
     const HAS_OPENING_SCENE = 'has_opening_scene';
@@ -22,9 +32,11 @@ class Model
     // Participants can say (an intent) or listen for (an intent).
     const SAYS = 'says';
     const LISTENS_FOR = 'listens_for';
+    const SAYS_ACROSS_SCENES = 'says_across_scenes';
+    const LISTENS_FOR_ACROSS_SCENES = 'listens_for_across_scenes';
 
     // Intents can cause actions to be performed and can define interpreters.
-    const PERFORM_ACTION = 'perform_action';
+    const CAUSES_ACTION = 'causes_action';
     const HAS_INTERPRETER = 'has_interpreter';
 
     const ORDER = 'core.attribute.order';

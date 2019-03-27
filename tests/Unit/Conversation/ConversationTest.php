@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
@@ -38,14 +39,16 @@ class ConversationTest extends TestCase
         $cm = new ConversationManager(self::CONVERSATION);
 
         $condition1 = new Condition(
-            new BooleanAttribute(self::REGISTERED_USER_STATUS, true), AbstractAttribute::IS_TRUE
+            self::CONDITION1,
+            new BooleanAttribute(self::REGISTERED_USER_STATUS, true),
+            AbstractAttribute::IS_TRUE
         );
-        $condition1->setId(self::CONDITION1);
 
         $condition2 = new Condition(
-            new IntAttribute(self::TIME_SINCE_LAST_COMMENT, 10000), AbstractAttribute::GREATER_THAN_OR_EQUAL
+            self::CONDITION2,
+            new IntAttribute(self::TIME_SINCE_LAST_COMMENT, 10000),
+            AbstractAttribute::GREATER_THAN_OR_EQUAL
         );
-        $condition2->setId(self::CONDITION2);
 
         $cm->createScene(self::OPENING_SCENE, true)
             ->createScene(self::LATEST_NEWS_SCENE, false)
@@ -59,7 +62,8 @@ class ConversationTest extends TestCase
         $intent1 = new Intent(self::INTENT_USER_TO_BOT_1);
         $intent2 = new Intent(self::INTENT_BOT_TO_USER_2);
         $intent3 = new Intent(self::INTENT_USER_TO_BOT_3);
-        $intent4 = new Intent(self::INTENT_BOT_TO_USER_4);
+        $intent4 = new Intent(self::INTENT_BOT_TO_USER_4, true);
+        $intent4->causesAction(new Action('action.core.getNews'));
         $intent5 = new Intent(self::INTENT_USER_TO_BOT_5);
         $intent6 = new Intent(self::INTENT_BOT_TO_USER_6, true);
 

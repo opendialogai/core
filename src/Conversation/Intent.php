@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Graph\Node\Node;
 
@@ -14,10 +15,20 @@ class Intent extends Node
 {
     private $completes = false;
 
+
+    /**
+     * Intent constructor.
+     * @param $id
+     * @param bool $completes
+     * @throws UnsupportedAttributeTypeException
+     *
+     * @todo intents need unique identifiers in addition to the label that representes the intent.
+     */
     public function __construct($id, $completes = false)
     {
-        parent::__construct();
-        $this->setId($id);
+        parent::__construct($id);
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::INTENT));
+
         $this->setCompletesAttribute($completes);
     }
 
@@ -60,5 +71,10 @@ class Intent extends Node
                 return false;
             }
         }
+    }
+
+    public function causesAction(Action $action)
+    {
+        $this->createOutgoingEdge(Model::CAUSES_ACTION, $action);
     }
 }

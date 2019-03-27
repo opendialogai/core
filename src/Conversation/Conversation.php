@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
  * A Conversation is a collection of Scenes.
@@ -11,8 +12,8 @@ class Conversation extends NodeWithConditions
 {
     public function __construct($id)
     {
-        parent::__construct();
-        $this->setId($id);
+        parent::__construct($id);
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONVERSATION));
     }
 
     /**

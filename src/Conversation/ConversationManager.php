@@ -68,6 +68,15 @@ class ConversationManager
         return $this;
     }
 
+
+    public function addActionToIntent($intentId, Action $action)
+    {   /* @var Intent $intent */
+        $intent = $this->conversation->getIntent($intentId);
+        $intent->addAction($action);
+
+        return $this;
+    }
+
     /**
      * @param $sceneId
      * @param Intent $intent

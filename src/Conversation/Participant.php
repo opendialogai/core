@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
@@ -12,8 +13,8 @@ class Participant extends Node
 
     public function __construct($id)
     {
-        parent::__construct();
-        $this->setId($id);
+        parent::__construct($id);
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::PARTICIPANT));
     }
 
     public function says(Intent $intent)
@@ -24,6 +25,16 @@ class Participant extends Node
     public function listensFor(Intent $intent)
     {
         $this->createOutgoingEdge(Model::LISTENS_FOR, $intent);
+    }
+
+    public function saysAcrossScenes(Intent $intent)
+    {
+        $this->createOutgoingEdge(Model::SAYS_ACROSS_SCENES, $intent);
+    }
+
+    public function listensForAcrossScenes(Intent $intent)
+    {
+        $this->createOutgoingEdge(Model::LISTENS_FOR_ACROSS_SCENES, $intent);
     }
 
     public function getAllIntentsSaid()
