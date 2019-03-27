@@ -6,7 +6,7 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 
 use GuzzleHttp\Psr7\Response;
 
-class DGraphQueryResponse
+class DGraphMutationResponse
 {
     private $response;
 
@@ -21,7 +21,7 @@ class DGraphQueryResponse
         $responseJson = json_decode($this->response->getBody(), true);
 
         try {
-            $this->data  = $responseJson['data'][DGraphQuery::FUNC_NAME];
+            $this->data  = $responseJson['data'];
         } catch (\Exception $e) {
             return "Error processing query - {$e->getMessage()}";
         }

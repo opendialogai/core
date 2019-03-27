@@ -4,6 +4,9 @@
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 
+/**
+ * A DGraph Query.
+ */
 class DGraphQuery
 {
     const FUNC_NAME = 'dGraphQuery';
@@ -15,6 +18,7 @@ class DGraphQuery
     const TERM_LIST = 'term_list';
 
     private $query;
+
     private $queryGraph;
 
     private $queryString;
@@ -24,6 +28,12 @@ class DGraphQuery
         $this->query = [];
     }
 
+    /**
+     * @see https://docs.dgraph.io/query-language/#term-matching
+     * @param $predicate
+     * @param array $termList
+     * @return $this
+     */
     public function allofterms($predicate, array $termList)
     {
         $this->query[self::FUNC] = [
