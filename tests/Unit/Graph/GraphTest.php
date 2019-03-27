@@ -6,8 +6,9 @@ namespace OpenDialogAi\Core\Tests\Unit\Graph;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
+use OpenDialogAi\Core\Tests\TestCase;
 
-class GraphTest extends \OpenDialogAi\Core\Tests\TestCase
+class GraphTest extends TestCase
 {
 
     public function testNodeCreation()

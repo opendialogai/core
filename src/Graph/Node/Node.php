@@ -22,21 +22,25 @@ class Node
 
     /**
      * @var Map $outgoingEdges - the set of edges leaving this node keyed by the outgoing relationship name.
-     * The structure of the map is [key][EdgeSet]
+     * The structure of the map is [key][EdgeSet]. Key represents the relationship name.
      */
     private $outgoingEdges;
 
     /**
      * @var Map $incomingEdges - the set of edges arriving to this node keyed by relationships
-     * The structure of the map is [key][EdgeSet]
+     * The structure of the map is [key][EdgeSet]. Key represents the relationship name.
      */
     private $incomingEdges;
 
-    public function __construct()
+    public function __construct($id = null)
     {
         $this->outgoingEdges = new Map();
         $this->incomingEdges = new Map();
         $this->attributes = new Map();
+
+        if (isset($id)) {
+            $this->setId($id);
+        }
     }
 
     /**
@@ -140,6 +144,39 @@ class Node
     }
 
     /**
+     * Returns all outgoing edges.
+     *
+     * @return Map
+     */
+    public function getOutgoingEdges()
+    {
+        return $this->outgoingEdges;
+    }
+
+    /**
+     * Returns true if node has outgoing edges.
+     * @return bool
+     */
+    public function hasOutgoingEdges()
+    {
+        if (count($this->outgoingEdges) >= 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns all the outgoing relationships from this node.
+     *
+     * @return \Ds\Set
+     */
+    public function getOutgoingRelationships()
+    {
+        return $this->outgoingEdges->keys();
+    }
+
+    /**
      * @param $relationship
      * @return mixed
      */
@@ -150,6 +187,39 @@ class Node
         }
 
         return false;
+    }
+
+    /**
+     * Returns all incoming edges.
+     *
+     * @return Map
+     */
+    public function getIncomingEdges()
+    {
+        return $this->incomingEdges;
+    }
+
+    /**
+     * Returns true if node has incoming edges.
+     * @return bool
+     */
+    public function hasIncomingEdges()
+    {
+        if (count($this->incomingEdges) >= 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns all the incoming relationships to this node.
+     *
+     * @return \Ds\Set
+     */
+    public function getIncomingRelationships()
+    {
+        return $this->incomingEdges->keys();
     }
 
     /**
@@ -168,6 +238,32 @@ class Node
         return $nodes;
     }
 
+    public function getNodesConnectedByOutgoingRelationships(array $relationships)
+    {
+        $nodes = new Map();
+
+        foreach ($relationships as $relationship) {
+            $nodes->merge($this->getNodesConnectedByOutoingRelationship($relationship));
+        }
+
+        return $nodes;
+    }
+
+    /**
+     * @return Map
+     */
+    public function getAllNodesOnOutgoingEdges()
+    {
+        $nodes = new Map();
+        if ($this->hasOutgoingEdges()) {
+            foreach ($this->outgoingEdges as $relationship => $edgeSet) {
+                $nodes = $nodes->merge($edgeSet->getToNodes());
+            }
+        }
+
+        return $nodes;
+    }
+
     /**
      * @param $relationship
      * @return Map
@@ -179,6 +275,21 @@ class Node
             /* @var EdgeSet $edgesToOpeningScenes */
             $edges = $this->getIncomingEdgesWithRelationship($relationship);
             $nodes = $edges->getFromNodes();
+        }
+
+        return $nodes;
+    }
+
+    /**
+     * @return Map
+     */
+    public function getAllNodesFromIncomingEdges()
+    {
+        $nodes = new Map();
+        if ($this->hasIncomingEdges()) {
+            foreach ($this->incomingEdges as $relationship => $edgeSet) {
+                $nodes->merge($edgeSet->getFromNodes());
+            }
         }
 
         return $nodes;
