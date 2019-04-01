@@ -4,6 +4,9 @@
 namespace OpenDialogAi\Core\Attribute;
 
 use Ds\Map;
+use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Exceptions\AttributeBagAttributeDoesNotExist;
+
 
 /**
  * A trait that anything that needs to deal with Attributes can use.
@@ -13,10 +16,39 @@ trait HasAttributesTrait
 {
 
     /**
-     * @var Map $attributes - the set of attributes related to this node - they key to the attribute defines the
-     * relationship
+     * @var Map $attributes - the set of attributes related to this object.
      */
     protected $attributes;
+
+    /**
+     * @inheritdoc
+     */
+    public function hasAttribute($attributeName): bool
+    {
+        return $this->attributes->hasKey($attributeName);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasAllAttributes($attributes): bool
+    {
+        foreach ($attributes as $attribute) {
+            if (!$this->attributes->hasKey($attribute)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addAttribute(AttributeInterface $attribute): void
+    {
+        $this->attributes->put($attribute->getId(), $attribute);
+    }
 
     /**
      * @return Map
@@ -34,13 +66,17 @@ trait HasAttributesTrait
         $this->attributes = $attributes;
     }
 
-    public function addAttribute(AttributeInterface $attribute)
+    /**
+     * @inheritdoc
+     */
+    public function getAttribute($attributeName) : AttributeInterface
     {
-        $this->attributes->put($attribute->getId(), $attribute);
-    }
+        if ($this->hasAttribute($attributeName)) {
+            Log::debug(sprintf("Returning attribute with name %", $attributeName));
+            return $this->attributes->get($attributeName);
+        }
 
-    public function getAttribute(string $attributeName): AttributeInterface
-    {
-        return $this->attributes->get($attributeName);
+        Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
+        throw new AttributeBagAttributeDoesNotExist();
     }
 }
