@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\AttributeEngine\AttributeResolver;
 
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
@@ -9,8 +8,6 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 class AttributeResolverService
 {
-    const ATTRIBUTE_RESOLVER = 'attribute_resolver';
-
     public function __construct()
     {
         //@todo

@@ -23,7 +23,7 @@ class AttributeEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-attributeengine.php', 'opendialog.attribute_engine');
 
-        $this->app->singleton(AttributeResolverService::ATTRIBUTE_RESOLVER, function () {
+        $this->app->singleton(AttributeResolverService::class, function () {
             return new AttributeResolverService();
         });
 

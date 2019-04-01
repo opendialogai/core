@@ -3,9 +3,20 @@
 namespace OpenDialogAi\Core;
 
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
+use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBagInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
+    /**
+     * All of the container bindings that should be registered.
+     *
+     * @var array
+     */
+    public $bindings = [
+        AttributeBagInterface::class => AttributeBag::class,
+    ];
+
     public function boot()
     {
         $this->publishes([
