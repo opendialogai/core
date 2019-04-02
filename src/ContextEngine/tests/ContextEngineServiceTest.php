@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ContextManager\Tests;
 
+use OpenDialogAi\ContextEngine\ContextManager\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -56,5 +57,10 @@ class ContextEngineServiceTest extends TestCase
 
         $this->assertTrue($attribute->getId() == 'new_context.test');
         $this->assertTrue($attribute->getValue() == 'value');
+
+        $this->expectException(ContextDoesNotExistException::class);
+        // Now try for a context that is not set
+        $attribute = $this->contextService->getAttribute('new_context1.test');
+
     }
 }
