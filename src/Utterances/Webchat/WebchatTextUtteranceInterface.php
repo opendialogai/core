@@ -2,8 +2,7 @@
 
 namespace OpenDialogAi\Core\Utterances\Webchat;
 
-use Utterances\TextUtterance;
-use Utterances\Webchat\WebchatUtteranceInterface;
+use OpenDialogAi\Core\Utterances\TextUtterance;
 
 class WebchatTextUtteranceInterface extends TextUtterance implements WebchatUtteranceInterface
 {
