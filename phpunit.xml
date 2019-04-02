@@ -24,6 +24,7 @@
         </whitelist>
     </filter>
     <php>
+        <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
         <env name="PACKAGE_NAME" value="TestDialog"/>
     </php>
     <logging>

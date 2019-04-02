@@ -45,9 +45,4 @@ class TestCase extends \Orchestra\Testbench\TestCase
             'prefix'   => '',
         ]);
     }
-
-    protected function resolveApplicationHttpKernel($app)
-    {
-        $app->singleton('Illuminate\Contracts\Http\Kernel', 'Acme\Testbench\Http\Kernel');
-    }
 }
