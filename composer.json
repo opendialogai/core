@@ -33,6 +33,7 @@
       "OpenDialogAi\\AttributeEngine\\": "src/AttributeEngine",
       "OpenDialogAi\\ConversationEngine\\": "src/ConversationEngine",
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
+      "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
       "OpenDialogAi\\Core\\Database\\": "database/"
     }
   },
@@ -48,6 +49,7 @@
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
         "OpenDialogAi\\ConversationEngine\\ConversationEngineServiceProvider",
         "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider",
+        "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider",
         "OpenDialogAi\\AttributeEngine\\AttributeEngineServiceProvider"
       ]
     },

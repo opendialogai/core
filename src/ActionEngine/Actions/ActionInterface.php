@@ -5,7 +5,7 @@ namespace OpenDialogAi\ActionEngine\Actions;
 use OpenDialogAi\ActionEngine\Results\ActionResult;
 
 /**
- * This is a placeholder interface for what an action needs to de
+ * This is a placeholder interface for what an action needs to do
  */
 interface ActionInterface
 {

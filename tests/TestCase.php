@@ -6,6 +6,7 @@ use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
+use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
 
 /**
@@ -29,6 +30,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ActionEngineServiceProvider::class,
             ConversationEngineServiceProvider::class,
             ResponseEngineServiceProvider::class,
+            SensorEngineServiceProvider::class,
             AttributeEngineServiceProvider::class
         ];
     }

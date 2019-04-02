@@ -5,7 +5,7 @@ namespace OpenDialogAi\ResponseEngine\Service;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
 
 /**
- * Defines the Response Engine Servie
+ * Defines the Response Engine Service
  */
 interface ResponseEngineServiceInterface
 {
