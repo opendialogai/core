@@ -137,7 +137,10 @@ class ResponseEngineTest extends TestCase
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
         $generator = new MessageMarkUpGenerator();
-        $generator->addImageMessage('https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif', 'http://www.opendialog.ai');
+        $generator->addImageMessage(
+            'https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif',
+            'http://www.opendialog.ai'
+        );
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',

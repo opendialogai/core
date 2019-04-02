@@ -47,8 +47,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             foreach ($conditions as $condition) {
                 // If we encounter an attribute that we wouldn't know how to resolve we will need to
                 // bail now and fail the message.
-                if (!$this->attributeResolver->isAttributeSupported($condition['attributeName']))
-                {
+                if (!$this->attributeResolver->isAttributeSupported($condition['attributeName'])) {
                     $conditionsPass = false;
                 }
 

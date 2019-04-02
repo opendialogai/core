@@ -57,21 +57,21 @@ class ResponseEngineWebchatMessagesTest extends TestCase
             [
                 'title' => 'Element title',
                 'subtitle' => 'Some subtext here',
-                'image' => NULL,
+                'image' => null,
                 'button' => [
-                    'text' => NULL,
-                    'callback' => NULL,
-                    'url' => NULL,
+                    'text' => null,
+                    'callback' => null,
+                    'url' => null,
                     'link_new_tab' => true,
                 ],
             ],
             [
                 'title' => 'Second title',
-                'subtitle' => NULL,
-                'image' => NULL,
+                'subtitle' => null,
+                'image' => null,
                 'button' => [
                   'text' => 'click me',
-                  'callback' => NULL,
+                  'callback' => null,
                   'url' => 'http://www.opendialog.ai',
                   'link_new_tab' => true,
                 ],
