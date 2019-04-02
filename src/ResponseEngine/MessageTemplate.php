@@ -4,7 +4,7 @@ namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use OpenDialogAi\Core\Attribute\Condition;
+use OpenDialogAi\Core\Attribute\Condition\Condition;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
 
