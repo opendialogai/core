@@ -4,7 +4,7 @@ namespace OpenDialogAi\Core\Utterances\Webchat;
 
 use OpenDialogAi\Core\Utterances\TextUtterance;
 
-class WebchatTextUtteranceInterface extends TextUtterance implements WebchatUtteranceInterface
+class WebchatTextUtteranceInterface extends TextUtterance
 {
-
+    const PLATFORM = 'webchat';
 }
