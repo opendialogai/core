@@ -2,13 +2,19 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
-    /** @var AttributeResolverService */
+    /** @var ContextService */
+    protected $contextService;
+
+    /** @var AttributeResolver */
     protected $attributeResolver;
 
     /**
@@ -25,8 +31,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             return false;
         }
 
-        $availableAttributes = $this->attributeResolver->getAvailableAttributes();
-
         /** @var MessageTemplate $messageTemplate */
         foreach ($messageTemplates as $messageTemplate) {
             // We iterate the templates and choose the first whose conditions pass.
@@ -41,20 +45,27 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             // Iterate over the conditions and ensure that all pass.
             $conditionsPass = true;
             foreach ($conditions as $condition) {
-                if (!array_key_exists($condition['attributeName'], $availableAttributes)) {
+                // If we encounter an attribute that we wouldn't know how to resolve we will need to
+                // bail now and fail the message.
+                if (!$this->attributeResolver->isAttributeSupported($condition['attributeName']))
+                {
                     $conditionsPass = false;
                 }
 
-                // Instantiate our condition attribute.
-                $attribute = new $availableAttributes[$condition['attributeName']]($condition['attributeValue']);
+                /* @var AttributeInterface $conditionAttribute */
+                $conditionAttribute = $this->attributeResolver->getAttributeFor(
+                    $condition[MessageTemplate::ATTRIBUTE_NAME],
+                    $condition[MessageTemplate::ATTRIBUTE_VALUE]
+                );
 
-                // Get the resolved attribute.
-                $resolvedAttribute = $this->attributeResolver->getAttributeFor($condition['attributeName']);
+                /* @var Condition $conditionObject*/
+                $conditionObject = new Condition($conditionAttribute, $condition[MessageTemplate::OPERATION]);
 
-                // Check the condition.
-                if ($resolvedAttribute->compare($attribute, $condition['operation']) !== true) {
+                $attributeToCompareAgainst = $this->contextService->getAttribute($conditionAttribute->getId());
+
+                if (!$conditionObject->compareAgainst($attributeToCompareAgainst)) {
                     $conditionsPass = false;
-                }
+                };
             }
 
             if ($conditionsPass) {
@@ -79,18 +90,29 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     public function fillAttributes($text) : string
     {
-        foreach ($this->attributeResolver->getAvailableAttributes() as $attributeName => $attributeClass) {
-            $value = $this->attributeResolver->getAttributeFor($attributeName)->getValue();
-            $text = str_replace('{' . $attributeName . '}', $value, $text);
+        // Extract attributes that need to be resolved from the text
+        $matches = [];
+        $matchCount = preg_match_all("(\{(.*?)\})", $text, $matches, PREG_PATTERN_ORDER);
+        if ($matchCount > 0) {
+            foreach ($matches[1] as $attributeId) {
+                $attribute = $this->contextService->getAttribute($attributeId);
+                $text = str_replace('{' . $attributeId . '}', $attribute->getValue(), $text);
+            }
         }
+
         return $text;
     }
 
     /**
      * @inheritdoc
      */
-    public function setAttributeResolver(AttributeResolverService $attributeResolverService) : void
+    public function setContextService(ContextService $contextService) : void
     {
-        $this->attributeResolver = $attributeResolverService;
+        $this->contextService = $contextService;
+    }
+
+    public function setAttributeResolver(AttributeResolver $attributeResolver): void
+    {
+        $this->attributeResolver = $attributeResolver;
     }
 }

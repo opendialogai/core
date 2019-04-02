@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 
 /**
  * Defines the Response Engine Servie
@@ -28,7 +28,7 @@ interface ResponseEngineServiceInterface
     /**
      * Sets the Attribute Resolver dependency to use
      *
-     * @param AttributeResolverService $attributeResolverService
+     * @param AttributeResolver $attributeResolver
      */
-    public function setAttributeResolver(AttributeResolverService $attributeResolverService) : void;
+    public function setAttributeResolver(AttributeResolver $attributeResolver) : void;
 }
