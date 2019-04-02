@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Tests\Unit;
+namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
