@@ -164,4 +164,3 @@ abstract class BaseUtterance implements UtteranceInterface
         $this->callbackId = $callbackId;
     }
 }
-

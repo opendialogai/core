@@ -16,7 +16,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    function getUserId() : string;
+    public function getUserId() : string;
 
     /**
      * @param string $userId
@@ -30,7 +30,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    function getText() : string;
+    public function getText() : string;
 
     /**
      * @param string $text
@@ -80,7 +80,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    function getPlatform() : string;
+    public function getPlatform() : string;
 
     /**
      * Returns the type of utterance
@@ -88,7 +88,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    function getType() : string;
+    public function getType() : string;
 
     /**
      * @return string
