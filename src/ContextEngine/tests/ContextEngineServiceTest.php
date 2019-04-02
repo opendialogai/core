@@ -11,7 +11,6 @@ class ContextEngineServiceTest extends TestCase
     /** @var ContextService */
     private $contextService;
 
-
     /**
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
@@ -29,21 +28,33 @@ class ContextEngineServiceTest extends TestCase
 
     public function testAddingANewContext()
     {
-        $newContext = $this->contextService->createContext('context.core.new_context');
-        $this->assertTrue($this->contextService->hasContext('context.core.new_context'));
+        $newContext = $this->contextService->createContext('new_context');
+        $this->assertTrue($this->contextService->hasContext('new_context'));
     }
 
     public function testAddingAnAttributeToAContext()
     {
         // Create a context and add an attribute to it.
-        $newContext = $this->contextService->createContext('context.core.new_context');
-        $newContext->addAttribute(new StringAttribute('test', 'value'));
+        $newContext = $this->contextService->createContext('new_context');
+        $newContext->addAttribute(new StringAttribute('new_context.test', 'value'));
 
         // Retrieve the context and retrieve the attribute.
-        $newContextA = $this->contextService->getContext('context.core.new_context');
-        $attribute = $newContextA->getAttribute('test');
+        $newContextA = $this->contextService->getContext('new_context');
+        $attribute = $newContextA->getAttribute('new_context.test');
 
-        $this->assertTrue($attribute->getId() == 'test');
+        $this->assertTrue($attribute->getId() == 'new_context.test');
+        $this->assertTrue($attribute->getValue() == 'value');
+    }
+
+    public function testRetrievingAnAttributeDirectly()
+    {
+        // Create a context and add an attribute to it.
+        $newContext = $this->contextService->createContext('new_context');
+        $newContext->addAttribute(new StringAttribute('new_context.test', 'value'));
+
+        $attribute = $this->contextService->getAttribute('new_context.test');
+
+        $this->assertTrue($attribute->getId() == 'new_context.test');
         $this->assertTrue($attribute->getValue() == 'value');
     }
 }

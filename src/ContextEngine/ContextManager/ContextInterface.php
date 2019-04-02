@@ -31,10 +31,10 @@ interface ContextInterface
     /**
      * Retrieves an attribute, if present, from the context.
      *
-     * @param string $attributeId
+     * @param string $attributeName
      * @return AttributeInterface
      */
-    public function getAttribute(string $attributeId): AttributeInterface;
+    public function getAttribute(string $attributeName): AttributeInterface;
 
     /**
      * Adds an attribute to this context.
