@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 

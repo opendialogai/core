@@ -1,11 +1,11 @@
 <?php
 
-namespace OpenDialogAi\Core\Exceptions;
+namespace OpenDialogAi\ContextEngine\ContextManager;
 
 /**
  * Should be thrown when trying to get an attribute from an attribute bag, but one has not been set
  */
-class AttributeBagAttributeDoesNotExist extends \RuntimeException
+class ContextDoesNotExistException extends \RuntimeException
 {
 
 }

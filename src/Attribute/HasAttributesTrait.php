@@ -5,7 +5,6 @@ namespace OpenDialogAi\Core\Attribute;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Exceptions\AttributeBagAttributeDoesNotExist;
 
 
 /**
@@ -77,6 +76,6 @@ trait HasAttributesTrait
         }
 
         Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
-        throw new AttributeBagAttributeDoesNotExist();
+        throw new AttributeDoesNotExistException();
     }
 }

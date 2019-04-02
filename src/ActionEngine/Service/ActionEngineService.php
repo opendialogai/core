@@ -9,7 +9,7 @@ use ActionEngine\Input\ActionInput;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Output\ActionResult;
-use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 
 class ActionEngineService implements ActionEngineServiceInterface
 {

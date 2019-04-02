@@ -5,7 +5,7 @@ namespace OpenDialogAi\ActionEngine;
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineService;
 use OpenDialogAi\ActionEngine\Service\ActionEngineServiceInterface;
-use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 
 class ActionEngineServiceProvider extends ServiceProvider
 {
