@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;;
 
-use OpenDialogAi\Core\Attribute\Condition;
+use OpenDialogAi\Core\Attribute\Condition\Condition;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
