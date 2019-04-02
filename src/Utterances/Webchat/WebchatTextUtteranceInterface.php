@@ -1,8 +1,8 @@
 <?php
 
-namespace Utterances\Webchat;
+namespace OpenDialogAi\Core\Utterances\Webchat;
 
-use Utterances\TextUtterance;
+use OpenDialogAi\Core\Utterances\TextUtterance;
 
 class WebchatTextUtteranceInterface extends TextUtterance implements WebchatUtteranceInterface
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Utterances\Webchat;
+namespace OpenDialogAi\Core\Utterances\Webchat;
 
 interface WebchatUtteranceInterface
 {
