@@ -1,10 +1,8 @@
 <?php
 
-namespace Utterances;
+namespace OpenDialogAi\Core\Utterances;
 
-use OpenDialogAi\Core\Utterances\BaseUtterance;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\User;
 
 /**
  * Text utterances do not support callback ids or users

@@ -1,8 +1,7 @@
 <?php
 
-namespace Utterances;
+namespace OpenDialogAi\Core\Utterances;
 
-use OpenDialogAi\Core\Utterances\BaseUtterance;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 
 /**
