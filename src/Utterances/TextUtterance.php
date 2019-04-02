@@ -40,7 +40,7 @@ abstract class TextUtterance extends BaseUtterance
     /**
      * @inheritdoc
      */
-    public function setUser($user) :void
+    public function setUser(User $user) :void
     {
         throw new FieldNotSupported('User field is not supported by text utterances');
     }
