@@ -4,7 +4,7 @@ namespace OpenDialogAi\SensorEngine\Sensors;
 
 abstract class BaseSensor implements SensorInterface
 {
-    private $name;
+    protected $name;
 
     public function getName() : string
     {
