@@ -23,7 +23,7 @@ abstract class ChatOpenUtterance extends BaseUtterance
     /**
      * @inheritdoc
      */
-    public function setText($text) :void
+    public function setText(string $text) :void
     {
         throw new FieldNotSupported('Text field is not supported by chat open utterances');
     }
