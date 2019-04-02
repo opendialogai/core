@@ -24,7 +24,7 @@ interface AttributeBagInterface
      * @return AttributeInterface
      * @throws AttributeDoesNotExist
      */
-    public function getAttribute($attributeName) : AttributeInterface;
+    public function getAttribute(string $attributeName) : AttributeInterface;
 
     /**
      * Checks whether the attribute with given name exists
