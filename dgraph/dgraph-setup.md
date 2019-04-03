@@ -1,4 +1,4 @@
-#Dgraph Setup
+# Dgraph Setup
 
 ## Introduction
 
