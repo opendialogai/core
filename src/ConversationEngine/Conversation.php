@@ -105,7 +105,7 @@ class Conversation extends Model
 
                 if ($speaker === 'u') {
                     $cm->userSaysToBot($sceneId, $intent, $intentIdx);
-                } else if ($speaker === 'b') {
+                } elseif ($speaker === 'b') {
                     $cm->botSaysToUser($sceneId, $intent, $intentIdx);
                 } else {
                     \Log::debug("I don't know about the speaker type '{$speaker}'");
