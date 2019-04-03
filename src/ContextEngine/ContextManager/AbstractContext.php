@@ -34,5 +34,4 @@ class AbstractContext implements ContextInterface
     {
         $this->id = $id;
     }
-
 }

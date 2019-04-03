@@ -69,6 +69,7 @@ class ContextService
     {
         /* @var ContextInterface $context */
         $context = $this->getContext($this->getContextForAttribute($attributeId));
+        Log::debug(sprintf("Attempting to retrieve attribute %s in context %s", $attributeId, $context->getId()));
 
         return $context->getAttribute($attributeId);
     }
