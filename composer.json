@@ -13,6 +13,7 @@
     "php": "^7.1.3",
     "symfony/yaml": "^4.2",
     "php-ds/php-ds": "~1.2.",
+    "guzzlehttp/guzzle": "~6.3",
     "venturecraft/revisionable": "^1.28",
     "justinrainbow/json-schema": "^5.2",
     "cweagans/composer-patches": "~1.0",
@@ -30,7 +31,7 @@
     "psr-4": {
       "OpenDialogAi\\Core\\": "src/",
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
-      "OpenDialogAi\\AttributeEngine\\": "src/AttributeEngine",
+      "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
       "OpenDialogAi\\ConversationEngine\\": "src/ConversationEngine",
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
       "OpenDialogAi\\Core\\Database\\": "database/"

@@ -2,10 +2,8 @@
 
 namespace OpenDialogAi\Core\Attribute;
 
-
 /**
- * Class AbstractAttribute
- * @package OpenDialog\Core\Graph\AbstractAttribute
+ * Abstract class implementation of the AttributeInterface.
  */
 abstract class AbstractAttribute implements AttributeInterface
 {

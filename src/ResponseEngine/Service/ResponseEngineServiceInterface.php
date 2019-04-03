@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 
 /**
  * Defines the Response Engine Servie

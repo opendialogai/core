@@ -12,10 +12,19 @@
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
+            <exclude>./tests/Unit/Graph/DGraph/DGraphTest.php</exclude>
         </testsuite>
 
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+
+        <testsuite name="ActionEngine">
+            <directory suffix="Test.php">./src/ActionEngine/tests</directory>
+        </testsuite>
+
+        <testsuite name="ContextEngine">
+            <directory suffix="Test.php">./src/ContextEngine/tests</directory>
         </testsuite>
     </testsuites>
     <filter>

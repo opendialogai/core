@@ -3,12 +3,21 @@
 
 namespace OpenDialogAi\Core\Attribute;
 
+use Illuminate\Support\Facades\Log;
 
+/**
+ * Int implementation of Attribute.
+ */
 class IntAttribute extends AbstractAttribute
 {
     public function __construct($id, $value)
     {
-        parent::__construct($id, AbstractAttribute::INT, $value);
+        try {
+            parent::__construct($id, AbstractAttribute::INT, $value);
+        } catch (UnsupportedAttributeTypeException $e) {
+            Log::warning($e->getMessage());
+            return null;
+        }
     }
 
     /**
