@@ -38,6 +38,8 @@
     </filter>
     <php>
         <env name="PACKAGE_NAME" value="TestDialog"/>
+        <env name="DGRAPH_URL" value="http://10.0.2.2"/>
+        <env name="DGRAPH_PORT" value="8080"/>
     </php>
     <logging>
         <log type="coverage-text" target="build/coverage.txt"/>
