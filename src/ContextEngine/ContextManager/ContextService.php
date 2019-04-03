@@ -10,7 +10,6 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 class ContextService
 {
-    const CONTEXT_SERVICE = 'context_service';
 
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
@@ -22,9 +21,9 @@ class ContextService
 
     /**
      * @param string $contextId
-     * @return BaseContext
+     * @return ContextInterface
      */
-    public function createContext(string $contextId)
+    public function createContext(string $contextId): ContextInterface
     {
         $newContext =  new BaseContext($contextId);
         $this->addContext($newContext);

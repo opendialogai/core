@@ -19,7 +19,7 @@ class ContextEngineServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->contextService = $this->app->make(ContextService::CONTEXT_SERVICE);
+        $this->contextService = $this->app->make(ContextService::class);
     }
 
     public function testContextServiceCreation()
