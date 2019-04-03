@@ -14,7 +14,7 @@ jobs:
 
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.1.21-fpm-browsers
+      - image: circleci/php:7.3-fpm
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
