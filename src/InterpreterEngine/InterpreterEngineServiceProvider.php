@@ -19,7 +19,10 @@ class InterpreterEngineServiceProvider extends \Illuminate\Support\ServiceProvid
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-interpreterengine.php', 'opendialog.interpreter_engine');
 
         $this->app->bind(InterpreterServiceInterface::class, function () {
-            return new InterpreterService();
+            $interpreterService = new InterpreterService();
+            $interpreterService->registerAvailableInterpreters();
+
+            return $interpreterService;
         });
     }
 }
