@@ -39,15 +39,15 @@ class ConversationTest extends TestCase
         $cm = new ConversationManager(self::CONVERSATION);
 
         $condition1 = new Condition(
-            self::CONDITION1,
             new BooleanAttribute(self::REGISTERED_USER_STATUS, true),
-            AbstractAttribute::IS_TRUE
+            AbstractAttribute::IS_TRUE,
+            self::CONDITION1
         );
 
         $condition2 = new Condition(
-            self::CONDITION2,
             new IntAttribute(self::TIME_SINCE_LAST_COMMENT, 10000),
-            AbstractAttribute::GREATER_THAN_OR_EQUAL
+            AbstractAttribute::GREATER_THAN_OR_EQUAL,
+            self::CONDITION2
         );
 
         $cm->createScene(self::OPENING_SCENE, true)

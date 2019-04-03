@@ -3,7 +3,9 @@
 namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
 class ResponseEngineServiceProvider extends ServiceProvider
@@ -25,7 +27,8 @@ class ResponseEngineServiceProvider extends ServiceProvider
 
         $this->app->bind(self::RESPONSE_ENGINE_SERVICE, function () {
             $service = new ResponseEngineService();
-            $service->setAttributeResolver(app()->make(AttributeResolverService::class));
+            $service->setAttributeResolver(app()->make(AttributeResolver::class));
+            $service->setContextService(app()->make(ContextService::class));
             return $service;
         });
     }

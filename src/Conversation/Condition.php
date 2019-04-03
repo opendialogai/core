@@ -18,7 +18,7 @@ class Condition extends Node implements ConditionInterface
 {
     use ConditionTrait;
 
-    public function __construct($id, AttributeInterface $attributeToCompareAgainst, $evaluationOperation)
+    public function __construct(AttributeInterface $attributeToCompareAgainst, $evaluationOperation, $id = null)
     {
         parent::__construct($id);
         $this->attributes = new Map();

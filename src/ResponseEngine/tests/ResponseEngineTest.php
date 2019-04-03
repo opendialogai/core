@@ -1,7 +1,9 @@
 <?php
 
-namespace OpenDialogAi\Core\Tests\Unit;
+namespace OpenDialogAi\ResponseEngine\Tests;
 
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -80,19 +82,24 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {attributes.core.userName}!");
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n-\n  user.name: dummy\n  operation: eq",
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
+
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');
-
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
         $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
     }
@@ -108,9 +115,15 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n-\n  user.name: dummy\n  operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
 
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');
@@ -124,14 +137,23 @@ class ResponseEngineTest extends TestCase
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
         $generator = new MessageMarkUpGenerator();
-        $generator->addImageMessage('https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif', 'http://www.opendialog.ai');
+        $generator->addImageMessage(
+            'https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif',
+            'http://www.opendialog.ai'
+        );
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n-\n  user.name: dummy\n  operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
 
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');
@@ -157,9 +179,15 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attributes.core.userName: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n-\n  user.name: dummy\n  operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
 
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');

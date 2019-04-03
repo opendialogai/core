@@ -68,7 +68,7 @@ trait HasAttributesTrait
     /**
      * @inheritdoc
      */
-    public function getAttribute($attributeName) : AttributeInterface
+    public function getAttribute(string $attributeName) : AttributeInterface
     {
         if ($this->hasAttribute($attributeName)) {
             Log::debug(sprintf("Returning attribute with name %", $attributeName));
