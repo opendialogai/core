@@ -94,7 +94,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::CONTEXT_SERVICE);
+        $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
 
@@ -121,7 +121,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::CONTEXT_SERVICE);
+        $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
 
@@ -151,7 +151,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::CONTEXT_SERVICE);
+        $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
 
@@ -185,7 +185,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::CONTEXT_SERVICE);
+        $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
 
