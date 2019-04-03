@@ -4,11 +4,11 @@ namespace OpenDialogAi\ActionEngine;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineService;
+use OpenDialogAi\ActionEngine\Service\ActionEngineServiceInterface;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 
 class ActionEngineServiceProvider extends ServiceProvider
 {
-    const ACTION_ENGINE_SERVICE = 'action-engine-service';
-
     public function boot()
     {
         $this->publishes([
@@ -22,8 +22,11 @@ class ActionEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-actionengine.php', 'opendialog.action_engine');
 
-        $this->app->bind(self::ACTION_ENGINE_SERVICE, function () {
-            return new ActionEngineService();
+        $this->app->bind(ActionEngineServiceInterface::class, function () {
+            $actionEngineService = new ActionEngineService();
+            $actionEngineService->setAttributeResolver(app()->make(AttributeResolverService::ATTRIBUTE_RESOLVER));
+
+            return $actionEngineService;
         });
     }
 }

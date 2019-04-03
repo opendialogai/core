@@ -5,10 +5,7 @@ namespace OpenDialogAi\Core\Attribute;
 
 
 /**
- * Interface AttributeInterface
- * @package OpenDialogAi\Core\Attribute
- *
- * An attribute is a perceivable feature of the environment (username, time, etc)
+ * An Attribute is a perceivable feature of the environment (username, time, etc)
  * and through them entities (users, bots) and the environment in which they are
  * situated can be described.
  */
