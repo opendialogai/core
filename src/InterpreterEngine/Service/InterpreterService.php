@@ -23,7 +23,7 @@ class InterpreterService implements InterpreterServiceInterface
     /**
      * @inheritdoc
      */
-    public function interpret(string $interpreterName, UtteranceInterface $utterance): array
+    public function interpret($interpreterName, UtteranceInterface $utterance): array
     {
         return $this->getInterpreter($interpreterName)->interpret($utterance);
     }
