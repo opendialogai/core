@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\ConversationEngine\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationLog;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -128,5 +130,29 @@ EOT;
         $conversationModel = $conversation->buildConversation();
 
         $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
+    }
+
+    /**
+     * Ensure that a conversation representation can be persisted to DGraph.
+     */
+    public function testConversationRepresentationPersist()
+    {
+        if (getenv('LOCAL') !== true) {
+            $this->markTestSkipped('This test only runs on local environments.');
+        }
+
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+        $conversationModel = $conversation->buildConversation();
+
+        // Assert that we think publishing was successful.
+        $this->assertTrue($conversation->publishConversation($conversationModel));
+
+        /**
+         * TODO: Assert that the conversation exists in DGraph.
+        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $query = new DGraphQuery();
+        $query->allofterms('ei_type', ['conversation'])
+            ->setQueryGraph(['id' => 'hello_bot_world']);
+        */
     }
 }

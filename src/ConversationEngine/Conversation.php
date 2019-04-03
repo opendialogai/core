@@ -4,6 +4,8 @@ namespace OpenDialogAi\ConversationEngine;
 
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYaml;
@@ -116,5 +118,27 @@ class Conversation extends Model
         }
 
         return $cm->getConversation();
+    }
+
+    /**
+     * Publish the conversation to DGraph.
+     *
+     * @return bool
+     */
+    public function publishConversation(\OpenDialogAi\Core\Conversation\Conversation $conversation)
+    {
+        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $mutation = new DGraphMutation($conversation);
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+        if ($mutationResponse->getData()['code'] === 'Success') {
+            // Set conversation status to "published".
+            $this->status = 'published';
+            $this->save(['validate' => false]);
+            return true;
+        }
+
+        return false;
     }
 }
