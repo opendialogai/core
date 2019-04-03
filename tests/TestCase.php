@@ -30,6 +30,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ActionEngineServiceProvider::class,
             ConversationEngineServiceProvider::class,
             ResponseEngineServiceProvider::class,
+            ContextEngineServiceProvider::class,
             SensorEngineServiceProvider::class,
         ];
     }
