@@ -89,6 +89,7 @@ class IncomingChatController extends BaseController
                 'type' => 'required|string|in:chat_open,trigger,url_click,webchat_form_response,webchat_list_response,text,button,button_response,image,longtext,longtext_response,typing,read,system,longtext_response',
                 'data' => 'required|array',
             ]);
+
             if ($messageValidator->fails()) {
                 $validationMessages = $messageValidator->messages();
                 Log::info("Webchat endpoint received an invalid message. Errors were: ${validationMessages}");
