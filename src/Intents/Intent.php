@@ -33,7 +33,7 @@ class Intent implements IntentInterface
      */
     public function getConfidence(): float
     {
-       return $this->confidence;
+        return $this->confidence;
     }
 
     /**
