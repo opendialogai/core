@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
 class ResponseEngineServiceProvider extends ServiceProvider

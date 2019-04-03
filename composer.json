@@ -31,7 +31,7 @@
     "psr-4": {
       "OpenDialogAi\\Core\\": "src/",
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
-      "OpenDialogAi\\AttributeEngine\\": "src/AttributeEngine",
+      "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
       "OpenDialogAi\\ConversationEngine\\": "src/ConversationEngine",
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
       "OpenDialogAi\\Core\\Database\\": "database/"

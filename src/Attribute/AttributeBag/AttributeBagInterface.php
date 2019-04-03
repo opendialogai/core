@@ -22,7 +22,7 @@ interface AttributeBagInterface
      *
      * @param $attributeName
      * @return AttributeInterface
-     * @throws AttributeBagAttributeDoesNotExist
+     * @throws AttributeDoesNotExist
      */
     public function getAttribute($attributeName) : AttributeInterface;
 
