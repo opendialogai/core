@@ -42,3 +42,9 @@ expected results check what IP your own Vagrant Homestead installation has set t
 machine gateway IP as. You can use
 
 `netstat -rn | grep "^0.0.0.0 " | cut -d " " -f10` from within Vagrant to find this out.
+
+### Resetting data
+
+To drop all data, you may run the following command from within Vagrant:
+
+`curl -X POST http://10.0.2.2:8080/alter -d '{"drop_all": true}'`
