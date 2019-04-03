@@ -3,20 +3,10 @@
 namespace OpenDialogAi\Core;
 
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
-use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBagInterface;
+use OpenDialogAi\Core\Controllers\OpenDialogController;
 
 class CoreServiceProvider extends ServiceProvider
 {
-    /**
-     * All of the container bindings that should be registered.
-     *
-     * @var array
-     */
-    public $bindings = [
-        AttributeBagInterface::class => AttributeBag::class,
-    ];
-
     public function boot()
     {
         $this->publishes([
@@ -31,5 +21,9 @@ class CoreServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/opendialog.php', 'opendialog.core');
+
+        $this->app->singleton(OpenDialogController::class, function () {
+            return new OpenDialogController();
+        });
     }
 }
