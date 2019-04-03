@@ -47,5 +47,7 @@ jobs:
 
       - run: ./vendor/bin/phpcs --standard=psr12 src/ --ignore=*/migrations/*,*/tests/*
 
-      # output logs
-      - run: cat ./vendor/orchestra/testbench-core/laravel/storage/logs/*
+      - run:
+          name: Output logs on failure
+          command: cat ./vendor/orchestra/testbench-core/laravel/storage/logs/*
+          when: on_fail
