@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Tests;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
+use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
 
@@ -29,7 +30,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ActionEngineServiceProvider::class,
             ConversationEngineServiceProvider::class,
             ResponseEngineServiceProvider::class,
-            ContextEngineServiceProvider::class
+            ContextEngineServiceProvider::class,
+            InterpreterEngineServiceProvider::class
         ];
     }
 
