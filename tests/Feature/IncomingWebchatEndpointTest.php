@@ -73,20 +73,27 @@ class IncomingWebchatEndpointTest extends TestCase
             ->assertStatus(400)
             ->assertJson(['type' => ['The selected type is invalid.']]);
 
-        // Ensure that a valid message is validated.
+        // Ensure that a valid message is validated and gives the correct response.
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
             'user_id' => 'someuser',
             'author' => 'me',
             'content' => [
                 'author' => 'me',
-                'type' => 'chat_open',
+                'type' => 'text',
                 'data' => [
-                    'hello'
+                    'Hello'
                 ],
             ],
         ]);
         $response
-            ->assertStatus(200);
+            ->assertStatus(200)
+            ->assertJson([
+                'author' => 'them',
+                'type' => 'text',
+                'data' => [
+                    'text' => 'Hello',
+                ],
+            ]);
     }
 }

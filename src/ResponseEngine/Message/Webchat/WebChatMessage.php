@@ -143,7 +143,6 @@ class WebChatMessage
         $this->isEmpty = true;
     }
 
-
     /**
      * @return array
      */
