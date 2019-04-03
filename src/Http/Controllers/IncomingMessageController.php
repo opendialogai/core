@@ -34,7 +34,10 @@ class IncomingChatController extends BaseController
         // Validate the data for regular messages.
         if ($request->input('notification') === 'message') {
             $contentValid = $this->validateContent($content);
-            if ($contentValid !== true) return response()->json($contentValid, 400);
+
+            if ($contentValid !== true) {
+                return response()->json($contentValid, 400);
+            }
         }
 
         $messageType = $request->input('notification');
@@ -86,7 +89,9 @@ class IncomingChatController extends BaseController
             // Validate the message format.
             $messageValidator = Validator::make($message, [
                 'author' => 'required|string',
-                'type' => 'required|string|in:chat_open,trigger,url_click,webchat_form_response,webchat_list_response,text,button,button_response,image,longtext,longtext_response,typing,read,system,longtext_response',
+                'type' => 'required|string|in:chat_open,trigger,url_click,webchat_form_response,' .
+                    'webchat_list_response,text,button,button_response,image,longtext,longtext_response,' .
+                    'typing,read,system,longtext_response',
                 'data' => 'required|array',
             ]);
 
