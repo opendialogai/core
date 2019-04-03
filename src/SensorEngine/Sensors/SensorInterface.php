@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\SensorEngine\Sensors;
 
+use Illuminate\Http\Request;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 /**
@@ -9,5 +10,5 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
  */
 interface SensorInterface
 {
-    public function interpret(object $request) : UtteranceInterface;
+    public function interpret(Request $request) : UtteranceInterface;
 }

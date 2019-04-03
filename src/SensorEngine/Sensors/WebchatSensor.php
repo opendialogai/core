@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\SensorEngine\Sensors;
 
+use Illuminate\Http\Request;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -16,7 +17,7 @@ class WebchatSensor extends BaseSensor implements SensorInterface
      *
      * @return UtteranceInterface
      */
-    public function interpret(object $request) : UtteranceInterface
+    public function interpret(Request $request) : UtteranceInterface
     {
         \Log::debug('Interpreting webchat request.');
 
