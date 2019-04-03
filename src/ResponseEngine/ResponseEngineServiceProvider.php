@@ -27,8 +27,8 @@ class ResponseEngineServiceProvider extends ServiceProvider
 
         $this->app->bind(self::RESPONSE_ENGINE_SERVICE, function () {
             $service = new ResponseEngineService();
-            $service->setAttributeResolver(app()->make(AttributeResolver::ATTRIBUTE_RESOLVER));
-            $service->setContextService(app()->make(ContextService::CONTEXT_SERVICE));
+            $service->setAttributeResolver(app()->make(AttributeResolver::class));
+            $service->setContextService(app()->make(ContextService::class));
             return $service;
         });
     }
