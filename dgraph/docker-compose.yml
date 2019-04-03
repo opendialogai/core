@@ -35,7 +35,7 @@ services:
       volume:
         nocopy: true
     ports:
-    - 9000:8000
+    - 9001:8000
     command: dgraph-ratel
 
 volumes:

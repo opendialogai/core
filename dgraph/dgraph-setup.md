@@ -21,7 +21,7 @@ You should see output similar to this:
 
 ### Step 2
 
-To test that Dgraph is effectively up and running visit `http://localhost:9000/` in 
+To test that Dgraph is effectively up and running visit `http://localhost:9001/` in 
 you browser. You should be able to see the Dgraph explorer interface.
 
 ### Step 3
@@ -34,7 +34,7 @@ To ensure that OpenDialog-Core can communicate with Dgraph run the following tes
 
 `phpunit --filter=testDGraphMutation tests/Unit/Graph/DGraph/DGraphTest.php`
 
-Then visit `http://localhost:9000/`, click on "Schema" - you should see predicates such
+Then visit `http://localhost:9001/`, click on "Schema" - you should see predicates such
 as `ei_type`, `causes_action`, etc. 
 
 Vagrant Homestead connects to Dgraph on `http://10.0.2.2:8080` - so if you do see the 
