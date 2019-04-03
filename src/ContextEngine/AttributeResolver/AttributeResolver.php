@@ -2,11 +2,12 @@
 
 namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
+use ContextEngine\AttributeResolver\AttributeCouldNotResolvedException;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\OpenDialog;
 
 /**
  * The AttributeResolver maps from an attribute identifier (in the form <contextid>.<attributeid>) to the attribute type
@@ -14,7 +15,6 @@ use OpenDialogAi\Core\OpenDialog;
  */
 class AttributeResolver
 {
-    const ATTRIBUTE_RESOLVER = 'attribute_resolver';
 
     /* @var array */
     private $supportedAttributes;
@@ -60,6 +60,9 @@ class AttributeResolver
                 case 'OpenDialogAi\Core\Attribute\BooleanAttribute':
                     return new BooleanAttribute($attributeId, $value);
             }
+        } else {
+            Log::debug(sprintf('Attribute %s could not be resolved', $attributeId));
+            throw new AttributeCouldNotResolvedException(sprintf('Attribute %s could not be resolved', $attributeId));
         }
     }
 }

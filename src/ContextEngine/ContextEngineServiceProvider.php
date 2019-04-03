@@ -24,11 +24,11 @@ class ContextEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-contextengine.php', 'opendialog.context_engine');
 
-        $this->app->singleton(ContextService::CONTEXT_SERVICE, function () {
+        $this->app->singleton(ContextService::class, function () {
             return new ContextService();
         });
 
-        $this->app->singleton(AttributeResolver::ATTRIBUTE_RESOLVER, function () {
+        $this->app->singleton(AttributeResolver::class, function () {
             return new AttributeResolver();
         });
     }
