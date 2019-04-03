@@ -36,6 +36,7 @@ jobs:
           - v1-dependencies-
 
       - run: composer install -n --prefer-dist --no-scripts
+      - run: composer dump-autoload --optimize
 
       - save_cache:
           paths:
