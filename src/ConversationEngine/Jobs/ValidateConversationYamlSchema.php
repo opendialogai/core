@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationEngine\Jobs;
 
 use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
 use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -55,11 +54,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
             $model = Yaml::parse($this->conversation->model, Yaml::PARSE_OBJECT_FOR_MAP);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
-            $log = new ConversationLog();
-            $log->conversation_id = $this->conversation->id;
-            $log->message = $exception->getMessage();
-            $log->type = 'validate_conversation_yaml_schema';
-            $log->save();
+            $this->logMessage($this->conversation->id, 'validate_conversation_yaml_schema', $exception->getMessage());
 
             // Set validation status.
             $status = 'invalid';
@@ -84,11 +79,11 @@ class ValidateConversationYamlSchema implements ShouldQueue
 
                 foreach ($validator->getErrors() as $error) {
                     // Log a validation message with the error.
-                    $log = new ConversationLog();
-                    $log->conversation_id = $this->conversation->id;
-                    $log->message = sprintf("[%s] %s\n", $error['property'], $error['message']);
-                    $log->type = 'validate_conversation_yaml_schema';
-                    $log->save();
+                    $this->logMessage(
+                        $this->conversation->id,
+                        'validate_conversation_yaml_schema',
+                        sprintf("[%s] %s\n", $error['property'], $error['message']),
+                    );
                 }
             }
         }

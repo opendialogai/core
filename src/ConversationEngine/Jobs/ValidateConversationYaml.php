@@ -4,7 +4,7 @@ namespace OpenDialogAi\ConversationEngine\Jobs;
 
 use \Exception;
 use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,7 +15,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
 
 class ValidateConversationYaml implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ValidateConversationTrait;
 
     protected $conversation;
 
@@ -44,11 +44,7 @@ class ValidateConversationYaml implements ShouldQueue
             Yaml::parse($this->conversation->model);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
-            $log = new ConversationLog();
-            $log->conversation_id = $this->conversation->id;
-            $log->message = $exception->getMessage();
-            $log->type = 'validate_conversation_yaml';
-            $log->save();
+            $this->logMessage($this->conversation->id, 'validate_conversation_yaml', $exception->getMessage());
 
             // Set validation status.
             $status = 'invalid';
