@@ -27,7 +27,7 @@ class LuisClient
     /** @var bool */
     private $verbose;
 
-    /** @var bool  */
+    /** @var bool */
     private $spellCheck;
 
     public function __construct(Client $client, $config)
@@ -49,8 +49,8 @@ class LuisClient
     public function queryLUIS($message)
     {
         try {
-
-            $query = $this->client->request('GET',
+            $query = $this->client->request(
+                'GET',
                 $this->appUrl . '/' . $this->appId,
                 [
                     'query' =>

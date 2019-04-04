@@ -49,9 +49,7 @@ class LuisEntity
         }
 
         if (isset($entity->resolution)) {
-            foreach($entity->resolution->values as $value) {
-                $this->resolutionValues[] = $value;
-            }
+            $this->extractValues($entity);
         }
 
         if (isset($entity->score)) {
@@ -105,5 +103,15 @@ class LuisEntity
     public function getScore()
     {
         return $this->score;
+    }
+
+    /**
+     * @param $entity
+     */
+    private function extractValues($entity): void
+    {
+        foreach ($entity->resolution->values as $value) {
+            $this->resolutionValues[] = $value;
+        }
     }
 }
