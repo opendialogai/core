@@ -6,6 +6,7 @@ use InterpreterEngine\Interpreters\LuisInterpreter;
 use InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -13,7 +14,6 @@ use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
 use OpenDialogAi\InterpreterEngine\Luis\LuisRequestFailedException;
 use OpenDialogAi\InterpreterEngine\Luis\LuisResponse;
 
-// TODO still needs tests for: pulling attributes out of luis, bound and non bound attributes
 class LuisInterpreterTest extends TestCase
 {
     public function setUp(): void
@@ -96,6 +96,50 @@ class LuisInterpreterTest extends TestCase
         $this->assertEquals(0.5, $intents[0]->getConfidence());
     }
 
+    public function testMatchWithKnownEntity()
+    {
+        $this->mock(LuisClient::class, function ($mock) {
+            $mock->shouldReceive('queryLuis')->andReturn(
+                new LuisResponse($this->createLuisResponseObject(
+                    'MATCH',
+                    0.5,
+                    'intEntity',
+                    'entity'
+                    )
+                )
+            );
+        });
+
+        $interpreter = new LuisInterpreter();
+        $intents = $interpreter->interpret($this->createUtteranceWithText('match'));
+        $this->assertCount(1, $intents);
+
+        $matchedAttribute = $intents[0]->getAttribute(LuisInterpreter::ATTRIBUTE_NAMESPACE . 'intEntity');
+        $this->assertEquals(IntAttribute::class, get_class($matchedAttribute));
+    }
+
+    public function testMatchWithUnknownEntity()
+    {
+        $this->mock(LuisClient::class, function ($mock) {
+            $mock->shouldReceive('queryLuis')->andReturn(
+                new LuisResponse($this->createLuisResponseObject(
+                    'MATCH',
+                    0.5,
+                    'unknownEntity',
+                    'entity'
+                )
+                )
+            );
+        });
+
+        $interpreter = new LuisInterpreter();
+        $intents = $interpreter->interpret($this->createUtteranceWithText('match'));
+        $this->assertCount(1, $intents);
+
+        $matchedAttribute = $intents[0]->getAttribute(LuisInterpreter::ATTRIBUTE_NAMESPACE . 'unknownEntity');
+        $this->assertEquals(StringAttribute::class, get_class($matchedAttribute));
+    }
+
     private function createUtteranceWithText($text)
     {
         $utterance = new WebchatTextUtterance();
@@ -104,7 +148,7 @@ class LuisInterpreterTest extends TestCase
         return $utterance;
     }
 
-    private function createLuisResponseObject($intentName, $confidence)
+    private function createLuisResponseObject($intentName, $confidence, $entityType = null, $entityValue = null)
     {
         $response = [
             'topScoringIntent' => [
@@ -113,6 +157,18 @@ class LuisInterpreterTest extends TestCase
             ]
         ];
 
-        return json_decode(json_encode($response));
+        if ($entityType && $entityValue) {
+            $response['entities'][] = [
+                'entity' => $entityValue,
+                'type' => $entityType,
+                'startIndex' => 0,
+                'endIndex' => 1,
+                'resolution' => [
+                    'values' => [$entityValue]
+                ]
+            ];
+        }
+
+        return (json_decode(json_encode($response)));
     }
 }
