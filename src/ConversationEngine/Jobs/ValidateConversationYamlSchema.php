@@ -82,7 +82,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
                     $this->logMessage(
                         $this->conversation->id,
                         'validate_conversation_yaml_schema',
-                        sprintf("[%s] %s\n", $error['property'], $error['message']),
+                        sprintf("[%s] %s\n", $error['property'], $error['message'])
                     );
                 }
             }
