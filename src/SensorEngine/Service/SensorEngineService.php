@@ -4,6 +4,8 @@ namespace OpenDialogAi\SensorEngine\Service;
 
 class SensorEngineService
 {
+    const WEBCHAT_SENSOR = 'webchat-sensor';
+
     /**
      * @return SensorInterface[]
      */
@@ -19,5 +21,17 @@ class SensorEngineService
     public function getSensor($sensorName)
     {
         \Log::debug("Getting sensor: {$sensorName}");
+        return $this->{$sensorName};
+    }
+
+    /**
+     * Register all available sensors.
+     */
+    public function registerSensors()
+    {
+        foreach ($this->getAvailableSensors() as $sensorName => $sensor) {
+            \Log::debug("Registering sensor: {$sensor}");
+            $this->{$sensorName} = new $sensor;
+        }
     }
 }

@@ -22,7 +22,9 @@ class SensorEngineServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-sensorengine.php', 'opendialog.sensor_engine');
 
         $this->app->bind(self::SENSOR_ENGINE_SERVICE, function () {
-            return new SensorEngineService();
+            $sensorEngine = new SensorEngineService();
+            $sensorEngine->registerSensors();
+            return $sensorEngine;
         });
     }
 }
