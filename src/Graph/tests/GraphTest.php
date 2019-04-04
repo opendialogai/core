@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OpenDialogAi\Core\Tests\Unit\Graph;
+namespace OpenDialogAi\Core\Graph\Tests;
 
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -73,6 +73,6 @@ class GraphTest extends TestCase
         $this->assertTrue(count($fromNodes) == 1);
         $this->assertTrue($fromNodes->get('test.node1')->getId() == 'test.node1');
         $this->assertFalse($n3->hasIncomingEdgeWithRelationship('r1'));
-
     }
+
 }

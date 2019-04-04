@@ -19,10 +19,6 @@ trait GraphItem
      */
     public function getUid()
     {
-        // If there is no UID generate a random one
-        if (!isset($this->uid)) {
-            $this->uid = $this->generateUid();
-        }
         return $this->uid;
     }
 
@@ -41,10 +37,6 @@ trait GraphItem
      */
     public function getId()
     {
-        // When we don't have a human readable ID we return the UID as a fallback.
-        if (!isset($this->id)) {
-            return $this->getUid();
-        }
         return $this->id;
     }
 
@@ -59,14 +51,18 @@ trait GraphItem
     }
 
     /**
-     * @return bool|string
+     * @return bool
      */
-    private function generateUid()
+    public function idIsSet()
     {
-        return substr(
-            str_shuffle('abcdefghijklmnopqrstuvwxz0987654321'),
-            0,
-            7
-        );
+        return isset($this->id);
+    }
+
+    /**
+     * @return bool
+     */
+    public function uidIsSet()
+    {
+        return isset($this->uid);
     }
 }
