@@ -42,11 +42,13 @@ trait HasAttributesTrait
     }
 
     /**
-     * @inheritdoc
+     * @param AttributeInterface $attribute
+     * @return $this
      */
-    public function addAttribute(AttributeInterface $attribute): void
+    public function addAttribute(AttributeInterface $attribute)
     {
         $this->attributes->put($attribute->getId(), $attribute);
+        return $this;
     }
 
     /**
@@ -59,10 +61,12 @@ trait HasAttributesTrait
 
     /**
      * @param Map $attributes
+     * @return $this
      */
     public function setAttributes($attributes)
     {
         $this->attributes = $attributes;
+        return $this;
     }
 
     /**
