@@ -31,7 +31,7 @@ class SensorEngineService
     {
         foreach ($this->getAvailableSensors() as $sensorName => $sensor) {
             \Log::debug("Registering sensor: {$sensor}");
-            $this->{$sensorName} = new $sensor;
+            $this->{$sensorName} = new $sensor();
         }
     }
 }
