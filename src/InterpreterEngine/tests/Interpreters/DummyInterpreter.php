@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\InterpreterEngine\tests\Interpreters;
 
-use Intents\BaseInterpreter;
-use OpenDialogAi\Core\Intents\Intent;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 
 class DummyInterpreter extends BaseInterpreter
 {
@@ -15,6 +15,6 @@ class DummyInterpreter extends BaseInterpreter
      */
     public function interpret(UtteranceInterface $utterance): array
     {
-        return [new Intent('dummy', 1)];
+        return [Intent::createIntentWithConfidence('dummy', 1)];
     }
 }

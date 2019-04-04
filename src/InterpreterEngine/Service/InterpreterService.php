@@ -2,11 +2,11 @@
 
 namespace InterpreterEngine\Service;
 
-use Exceptions\InterpreterNotRegisteredException;
 use Illuminate\Support\Facades\Log;
-use Intents\InterpreterNameNotSetException;
-use OpenDialogAi\Core\Intents\InterpreterInterface;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
+use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class InterpreterService implements InterpreterServiceInterface
@@ -101,7 +101,7 @@ class InterpreterService implements InterpreterServiceInterface
      */
     private function isValidName(string $name) : bool
     {
-        return preg_match($this->validNamePattern, $name);
+        return preg_match($this->validNamePattern, $name) === 1;
     }
 
     /**

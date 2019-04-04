@@ -1,8 +1,8 @@
 <?php
 
-namespace Intents;
+namespace OpenDialogAi\InterpreterEngine;
 
-use OpenDialogAi\Core\Intents\InterpreterInterface;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
 abstract class BaseInterpreter implements InterpreterInterface
 {

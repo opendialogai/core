@@ -2,10 +2,11 @@
 
 namespace OpenDialogAi\InterpreterEngine;
 
+use Illuminate\Support\ServiceProvider;
 use InterpreterEngine\Service\InterpreterService;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
-class InterpreterEngineServiceProvider extends \Illuminate\Support\ServiceProvider
+class InterpreterEngineServiceProvider extends ServiceProvider
 {
     public function boot()
     {

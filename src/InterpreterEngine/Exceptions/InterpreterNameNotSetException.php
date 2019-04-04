@@ -1,6 +1,6 @@
 <?php
 
-namespace Intents;
+namespace OpenDialogAi\InterpreterEngine\Exceptions;
 
 class InterpreterNameNotSetException extends \Exception
 {

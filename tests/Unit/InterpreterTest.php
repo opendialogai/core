@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
-use Intents\InterpreterNameNotSetException;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Unit\Interpreters\NoNameInterpreter;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
 class InterpreterTest extends TestCase
 {

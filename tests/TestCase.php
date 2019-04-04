@@ -11,6 +11,12 @@ use OpenDialogAi\Core\CoreServiceProvider;
 
 /**
  * Base TestCase class for setting up all package tests
+ *
+ * @method assertCount($expected, $actual)
+ * @method assertEquals($expected, $actual)
+ * @method assertContains($needle, $haystack)
+ * @method assertNotNull($actual)
+ * @method fail($message)
  */
 class TestCase extends \Orchestra\Testbench\TestCase
 {

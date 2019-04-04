@@ -1,9 +1,9 @@
 <?php
 
-namespace OpenDialogAi\Core\Intents;
+namespace OpenDialogAi\InterpreterEngine;
 
-use Intents\InterpreterNameNotSetException;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
 interface InterpreterInterface
 {

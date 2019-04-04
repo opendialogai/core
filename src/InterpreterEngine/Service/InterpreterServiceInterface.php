@@ -1,9 +1,11 @@
 <?php
+
 namespace OpenDialogAi\InterpreterEngine\Service;
-use Exceptions\InterpreterNotRegisteredException;
-use OpenDialogAi\Core\Intents\Intent;
-use OpenDialogAi\Core\Intents\InterpreterInterface;
+
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
+use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 
 /**
  * Deals with registering and exposing registered interpreters and interpreting utterances into Intents

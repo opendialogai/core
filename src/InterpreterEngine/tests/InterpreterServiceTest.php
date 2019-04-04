@@ -2,13 +2,13 @@
 
 namespace InterpreterEngine\tests;
 
-use Exceptions\InterpreterNotRegisteredException;
-use Intents\InterpreterNameNotSetException;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Intents\Intent;
-use OpenDialogAi\Core\Intents\InterpreterInterface;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
+use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\DummyInterpreter;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\NoNameInterpreter;
