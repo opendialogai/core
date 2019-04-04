@@ -17,7 +17,7 @@ class LuisClientTest extends TestCase
             'app_id' => 'app_id',
             'staging' => 'staging',
             'subscription_key' => 'subscription_key',
-            'timezoneOffset' => 'timezone_offset',
+            'timezone_offset' => 'timezone_offset',
             'verbose' => 'verbose',
             'spellcheck' => 'spellcheck',
         ];
