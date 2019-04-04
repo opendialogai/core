@@ -48,7 +48,8 @@
         "OpenDialogAi\\Core\\CoreServiceProvider",
         "OpenDialogAi\\ConversationEngine\\ConversationEngineServiceProvider",
         "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider",
-        "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider"
+        "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
+        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider"
       ]
     },
     "patches": {

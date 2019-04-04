@@ -3,8 +3,9 @@
 namespace OpenDialogAi\ActionEngine;
 
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\ActionEngine\Service\ActionEngineService;
-use OpenDialogAi\ActionEngine\Service\ActionEngineServiceInterface;
+use OpenDialogAi\ActionEngine\Service\ActionEngine;
+use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 
 class ActionEngineServiceProvider extends ServiceProvider
@@ -22,9 +23,9 @@ class ActionEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-actionengine.php', 'opendialog.action_engine');
 
-        $this->app->bind(ActionEngineServiceInterface::class, function () {
-            $actionEngineService = new ActionEngineService();
-            $actionEngineService->setAttributeResolver(app()->make(AttributeResolverService::ATTRIBUTE_RESOLVER));
+        $this->app->bind(ActionEngineInterface::class, function () {
+            $actionEngineService = new ActionEngine();
+            $actionEngineService->setAttributeResolver(app()->make(AttributeResolver::class));
 
             return $actionEngineService;
         });

@@ -2,22 +2,22 @@
 
 namespace OpenDialogAi\ActionEngine\Tests\Actions;
 
-use ActionEngine\Input\ActionInput;
+use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\BaseAction;
-use OpenDialogAi\ActionEngine\Output\ActionResult;
+use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 class DummyAction extends BaseAction
 {
-    protected $requiredAttributes = ['attribute.core.dummy'];
+    protected $requiredAttributes = ['user.name'];
 
-    protected $outputsAttributes = ['attribute.core.dummy2'];
+    protected $outputsAttributes = ['user.nickname'];
 
     protected $performs = 'actions.core.dummy';
 
     public function perform(ActionInput $actionInput): ActionResult
     {
-        $dummyAttribute = new StringAttribute('attribute.core.dummy2', 'complete');
+        $dummyAttribute = new StringAttribute('user.nickname', 'Actionista');
         return ActionResult::createSuccessfulActionResultWithAttributes([$dummyAttribute]);
     }
 }
