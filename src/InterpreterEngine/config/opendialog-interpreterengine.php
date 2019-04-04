@@ -23,6 +23,6 @@ return [
 
     // Register the application interfaces
     'available_interpreters' => [
-         \InterpreterEngine\Interpreters\LuisInterpreter::class
+        OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter::class
     ]
 ];
