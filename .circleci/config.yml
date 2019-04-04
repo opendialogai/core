@@ -5,13 +5,6 @@
 version: 2
 jobs:
   build:
-    branches:
-      only:
-        - develop
-        - master
-        - /.*feature.*/
-        - /.*bug.*/
-
     docker:
       # specify the version you desire here
       - image: circleci/php:7.3-fpm
@@ -41,6 +34,14 @@ jobs:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.lock" }}
+
+      - run:
+          name: Start DGraph
+          command: |
+            cd dgraph
+            set -x
+            docker-compose up -d
+            cd ..
 
       # run tests!
       - run: ./vendor/bin/phpunit
