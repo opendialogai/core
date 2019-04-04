@@ -2,14 +2,14 @@
 
 namespace InterpreterEngine\tests;
 
-use InterpreterEngine\Interpreters\LuisInterpreter;
-use InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
+use OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter;
+use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
 use OpenDialogAi\InterpreterEngine\Luis\LuisRequestFailedException;
 use OpenDialogAi\InterpreterEngine\Luis\LuisResponse;
