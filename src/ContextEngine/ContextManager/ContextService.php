@@ -6,7 +6,9 @@ namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService
 {
@@ -14,9 +16,23 @@ class ContextService
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
 
+    /* @var UserService */
+    private $userService;
+
+    /**
+     * ContextService constructor.
+     */
     public function __construct()
     {
         $this->activeContexts = new Map();
+    }
+
+    /**
+     * @param UserService $userService
+     */
+    public function setUserService(UserService $userService)
+    {
+        $this->userService = $userService;
     }
 
     /**
@@ -87,8 +103,9 @@ class ContextService
     /**
      * @param $userId
      */
-    public function createUserContext($userId)
+    public function createUserContext(UtteranceInterface $utterance)
     {
-        // @todo
+        /* @var UserService $userService */
+        $this->userService->createOrUpdateUser($utterance);
     }
 }

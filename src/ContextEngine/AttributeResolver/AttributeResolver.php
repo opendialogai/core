@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
-use ContextEngine\AttributeResolver\AttributeCouldNotResolvedException;
+use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
@@ -62,7 +62,7 @@ class AttributeResolver
             }
         } else {
             Log::debug(sprintf('Attribute %s could not be resolved', $attributeId));
-            throw new AttributeCouldNotResolvedException(sprintf('Attribute %s could not be resolved', $attributeId));
+            throw new AttributeCouldNotBeResolvedException(sprintf('Attribute %s could not be resolved', $attributeId));
         }
     }
 }
