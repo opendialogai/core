@@ -77,7 +77,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
             );
             if ($validator->isValid()) {
                 // Save the name if the model validates.
-                $this->conversation->name = $model->conversation;
+                $this->conversation->name = $model->conversation->id;
             } else {
                 // Mark as invalid.
                 $status = 'invalid';

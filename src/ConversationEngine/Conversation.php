@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\ConversationEngine;
 
+use OpenDialogAi\Core\Conversation\ConversationManager;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYaml;
@@ -9,7 +11,8 @@ use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYamlSchema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
-
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 class Conversation extends Model
 {
@@ -73,5 +76,45 @@ class Conversation extends Model
               new ValidateConversationModel($this)
             ]);
         }
+    }
+
+    /**
+     * Build the conversation's representation.
+     *
+     * @return OpenDialogAi\Core\Conversation\Conversation
+     */
+    public function buildConversation()
+    {
+        try {
+            $yaml = Yaml::parse($this->model)['conversation'];
+        } catch (ParseException $exception) {
+            \Log::debug('Could not parse converation yaml!');
+        }
+
+        $cm = new ConversationManager($yaml['id']);
+
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            $sceneIsOpeningScene = $sceneId === 'opening_scene';
+            $cm->createScene($sceneId, $sceneIsOpeningScene);
+
+            $intents = [];
+
+            $intentIdx = 0;
+            foreach ($scene['intents'] as $speaker => $intentName) {
+                $intent = new Intent($intentName);
+
+                if ($speaker === 'u') {
+                    $cm->userSaysToBot($sceneId, $intent, $intentIdx);
+                } elseif ($speaker === 'b') {
+                    $cm->botSaysToUser($sceneId, $intent, $intentIdx);
+                } else {
+                    \Log::debug("I don't know about the speaker type '{$speaker}'");
+                }
+
+                $intentIdx++;
+            }
+        }
+
+        return $cm->getConversation();
     }
 }
