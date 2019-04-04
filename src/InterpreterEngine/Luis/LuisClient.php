@@ -44,9 +44,10 @@ class LuisClient
 
     /**
      * @param $message
-     * @return mixed|\Psr\Http\Message\ResponseInterface
+     * @return LuisResponse
+     * @throws LuisRequestFailedException
      */
-    public function queryLUIS($message)
+    public function queryLuis($message)
     {
         try {
             $query = $this->client->request(
@@ -73,9 +74,8 @@ class LuisClient
             Log::warning(sprintf("Successful LUIS call"), ['response' => $query->getBody()->getContents()]);
             return new LUISResponse(json_decode($query->getBody()->getContents()));
         } else {
-            // TODO - can we handle this?
             Log::warning("Unsuccessful LUIS call", ['response' => $query->getBody()->getContents()]);
-            return json_decode($query->getBody()->getContents());
+            throw new LuisRequestFailedException("LUIS call failed with a non 200 response, please check the logs");
         }
     }
 }

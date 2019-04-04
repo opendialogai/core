@@ -8,6 +8,9 @@ use OpenDialogAi\InterpreterEngine\Luis\LuisEntity;
 use OpenDialogAi\InterpreterEngine\Luis\LuisIntent;
 use OpenDialogAi\InterpreterEngine\Luis\LuisResponse;
 
+/**
+ * TODO Add a test mocking the guzzle client
+ */
 class LuisClientTest extends TestCase
 {
     public function testLuisConfig()
