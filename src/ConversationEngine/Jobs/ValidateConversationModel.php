@@ -45,7 +45,7 @@ class ValidateConversationModel implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->checkConversationStatus()) {
+        if (!$this->checkConversationStatus()) {
             return;
         }
 
