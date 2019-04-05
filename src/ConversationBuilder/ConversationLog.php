@@ -18,6 +18,6 @@ class ConversationLog extends Model
      */
     public function conversation()
     {
-        return $this->belongsTo('OpenDialogAi\ConversationBulider\Conversation');
+        return $this->belongsTo('OpenDialogAi\ConversationBuilder\Conversation');
     }
 }

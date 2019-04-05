@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ConversationBuilder\Jobs\Traits;
 
-use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\ConversationBuilder\ConversationLog;
 
 trait ValidateConversationTrait
 {

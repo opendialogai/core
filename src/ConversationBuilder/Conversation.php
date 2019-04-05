@@ -90,7 +90,7 @@ class Conversation extends Model
         try {
             $yaml = Yaml::parse($this->model)['conversation'];
         } catch (ParseException $exception) {
-            \Log::debug('Could not parse converation yaml!');
+            Log::debug('Could not parse converation yaml!');
         }
 
         $cm = new ConversationManager($yaml['id']);
@@ -110,7 +110,7 @@ class Conversation extends Model
                 } elseif ($speaker === 'b') {
                     $cm->botSaysToUser($sceneId, $intent, $intentIdx);
                 } else {
-                    \Log::debug("I don't know about the speaker type '{$speaker}'");
+                    Log::debug("I don't know about the speaker type '{$speaker}'");
                 }
 
                 $intentIdx++;
