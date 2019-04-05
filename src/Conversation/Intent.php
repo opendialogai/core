@@ -14,7 +14,7 @@ use OpenDialogAi\Core\Graph\Node\Node;
  */
 class Intent extends Node
 {
-    const CONFIDENCE = 'attribute.core.intent_confidence';
+    const CONFIDENCE = 'intent_confidence';
 
     private $completes = false;
 
@@ -115,7 +115,7 @@ class Intent extends Node
         } else {
             try {
                 $attribute = new BooleanAttribute(Model::COMPLETES, $this->completes);
-                $this->attributes->put(Model::ORDER, $attribute);
+                $this->addAttribute($attribute);
                 return $this;
             } catch (UnsupportedAttributeTypeException $e) {
                 return false;
