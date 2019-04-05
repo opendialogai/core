@@ -30,6 +30,17 @@ class TestCase extends \Orchestra\Testbench\TestCase
         ]);
     }
 
+    /**
+     * Sets a config value to the app
+     *
+     * @param $configName
+     * @param $config
+     */
+    public function setConfigValue($configName, $config)
+    {
+        $this->app['config']->set($configName, $config);
+    }
+
     public function getPackageProviders($app)
     {
         return [

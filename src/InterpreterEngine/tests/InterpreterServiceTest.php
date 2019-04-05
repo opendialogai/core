@@ -108,6 +108,12 @@ class InterpreterServiceTest extends TestCase
         $this->assertCount(0, $interpreters);
     }
 
+    public function testForLuisInterpreter()
+    {
+        $service = $this->getBoundInterpreterService();
+        $this->assertNotNull($service->getInterpreter('interpreter.core.luis'));
+    }
+
     private function registerInterpreter($mockInterpreter): void
     {
         $this->app['config']->set('opendialog.interpreter_engine.available_interpreters', [get_class($mockInterpreter)]);
