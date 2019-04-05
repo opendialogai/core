@@ -1,6 +1,6 @@
 <?php
 
-namespace ActionEngine\Input;
+namespace OpenDialogAi\ActionEngine\Actions;
 
 use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
 use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBagInterface;

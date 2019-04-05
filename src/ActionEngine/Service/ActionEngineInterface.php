@@ -2,16 +2,14 @@
 
 namespace OpenDialogAi\ActionEngine\Service;
 
-use ActionEngine\Input\ActionInput;
-use OpenDialogAi\ActionEngine\Output\ActionResult;
+use OpenDialogAi\ActionEngine\Actions\ActionInput;
+use OpenDialogAi\ActionEngine\Actions\ActionResult;
 
-interface ActionEngineServiceInterface
+interface ActionEngineInterface
 {
     /**
      * Sets the available actions keyed by name of action performed.
-     * Uses @see ActionEngineServiceInterface::resolveAttributes() to resolve required attributes
-     *
-     * @param $supportedActions
+     * Uses @param $supportedActions*
      */
     public function setAvailableActions($supportedActions) : void;
 

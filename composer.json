@@ -48,11 +48,11 @@
     "laravel": {
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
-        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
         "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
         "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider",
         "OpenDialogAi\\InterpreterEngine\\InterpreterEngineServiceProvider",
         "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
+        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
         "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider"
       ]
     },
