@@ -23,11 +23,19 @@ class LuisInterpreterTest extends TestCase
 
         // Register some known entity types
         $entities = [
-            'intEntity' => IntAttribute::class,
-            'floatEntity' => FloatAttribute::class
+            'name' => 'first_name',
+            'age_in_years' => 'age'
         ];
 
         $this->setConfigValue('opendialog.interpreter_engine.luis_entities', $entities);
+
+        // Sets the known attributes for these tests
+        $knownAttributes = [
+            'first_name' => StringAttribute::class,
+            'age' => IntAttribute::class
+        ];
+        $this->setConfigValue('opendialog.context_engine.supported_attributes', $knownAttributes);
+
     }
 
     public function testSetUp()
@@ -104,7 +112,7 @@ class LuisInterpreterTest extends TestCase
                 new LuisResponse($this->createLuisResponseObject(
                     'MATCH',
                     0.5,
-                    'intEntity',
+                    'age_in_years',
                     'entity'
                     )
                 )
@@ -115,7 +123,7 @@ class LuisInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('match'));
         $this->assertCount(1, $intents);
 
-        $matchedAttribute = $intents[0]->getAttribute(LuisInterpreter::ATTRIBUTE_NAMESPACE . 'intEntity');
+        $matchedAttribute = $intents[0]->getAttribute('age');
         $this->assertEquals(IntAttribute::class, get_class($matchedAttribute));
     }
 
@@ -141,7 +149,7 @@ class LuisInterpreterTest extends TestCase
 
         $this->assertCount(1, $intents[0]->getNonCoreAttributes());
 
-        $matchedAttribute = $intents[0]->getAttribute(LuisInterpreter::ATTRIBUTE_NAMESPACE . 'unknownEntity');
+        $matchedAttribute = $intents[0]->getAttribute( 'unknownEntity');
         $this->assertEquals(StringAttribute::class, get_class($matchedAttribute));
     }
 

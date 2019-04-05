@@ -2,8 +2,10 @@
 
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
+use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -19,12 +21,13 @@ use OpenDialogAi\InterpreterEngine\Luis\LuisResponse;
 
 class LuisInterpreter extends BaseInterpreter
 {
-    const ATTRIBUTE_NAMESPACE = 'attribute.luis.';
-
     protected static $name = 'interpreter.core.luis';
 
     /** @var LuisClient */
     private $client;
+
+    /** @var AttributeResolver */
+    private $attributeResolver;
 
     /**
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
@@ -32,6 +35,7 @@ class LuisInterpreter extends BaseInterpreter
     public function __construct()
     {
         $this->client = app()->make(LuisClient::class);
+        $this->attributeResolver = app()->make(AttributeResolver::class);
     }
 
     /**
@@ -104,12 +108,23 @@ class LuisInterpreter extends BaseInterpreter
         /** @var AbstractAttribute[] $luisEntities */
         $luisEntities = config('opendialog.interpreter_engine.luis_entities');
 
+        $attributeName = $entity->getType();
+        // If we have bound the LUIS entity name to an attribute name, use that instead
         if (isset($luisEntities[$entity->getType()])) {
-            $attribute = $luisEntities[$entity->getType()];
-        } else {
-            $attribute = StringAttribute::class;
+            $attributeName = $luisEntities[$entity->getType()];
         }
 
-        return new $attribute(self::ATTRIBUTE_NAMESPACE . $entity->getType(), $entity->getEntityString());
+        try {
+            return $this->attributeResolver->getAttributeFor($attributeName, $entity->getEntityString());
+        } catch (AttributeCouldNotBeResolvedException $e) {
+            Log::warning(
+                sprintf(
+                    "Unsupported attribute type %s returned from LUIS - using StringAttribute",
+                    $attributeName
+                )
+            );
+
+            return new StringAttribute($attributeName, $entity->getEntityString());
+        }
     }
 }
