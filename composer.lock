@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "458e5d1f051a7ece18ef037a20cbec3c",
-=======
     "content-hash": "b5dfa9f5f8b0e7509364c05dcfe2da3d",
->>>>>>> s5/feature/publish_conversations_to_dgraph
     "packages": [
         {
             "name": "anahkiasen/underscore-php",
