@@ -33,6 +33,7 @@
 
         <testsuite name="ConversationBuilder">
             <directory suffix="Test.php">./src/ConversationBuilder/tests</directory>
+        </testsuite>
 
           <testsuite name="SensorEngine">
             <directory suffix="Test.php">./src/SensorEngine/tests</directory>
