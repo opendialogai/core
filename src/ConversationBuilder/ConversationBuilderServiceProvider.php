@@ -22,7 +22,10 @@ class ConversationBuilderServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/config/activitylog.php', 'activitylog');
-        $this->mergeConfigFrom(__DIR__ . '/config/opendialog-conversationbuilder.php', 'opendialog.conversation_builder');
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/opendialog-conversationbuilder.php',
+            'opendialog.conversation_builder'
+        );
 
         $this->app->bind(ConversationBuilder::class, function () {
             return new ConversationBuilder();
