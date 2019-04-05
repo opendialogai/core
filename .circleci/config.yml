@@ -35,16 +35,6 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.lock" }}
 
-      - setup_remote_docker
-
-      - run:
-          name: Start DGraph
-          command: |
-            cd dgraph
-            set -x
-            docker-compose up -d
-            cd ..
-
       # run tests!
       - run: ./vendor/bin/phpunit
 
