@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
-use OpenDialogAi\SensorEngine\Service\SensorEngineService;
+use OpenDialogAi\SensorEngine\Sensors\WebchatSensor;
+use OpenDialogAi\SensorEngine\Service\SensorEngine;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 
 class IncomingChatController extends BaseController
@@ -52,8 +53,9 @@ class IncomingChatController extends BaseController
         Log::info("Webchat endpoint received a valid message of type ${messageType}.");
 
         // Get the Webchat Sensor.
-        $sensorEngine = app()->make(SensorEngineServiceProvider::SENSOR_ENGINE_SERVICE);
-        $webchatSensor = $sensorEngine->getSensor(SensorEngineService::WEBCHAT_SENSOR);
+        $sensorEngine = app()->make(SensorEngine::class);
+        /* @var WebchatSensor $webchatSensor */
+        $webchatSensor = $sensorEngine->getSensor(SensorEngine::WEBCHAT_SENSOR);
 
         // Get the Utterance.
         $utterance = $webchatSensor->interpret($request);

@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Tests\Feature;
+namespace OpenDialogAi\SensorEngine\Tests;
 
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use OpenDialogAi\Core\Tests\TestCase;

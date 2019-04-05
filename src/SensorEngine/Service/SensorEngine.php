@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\SensorEngine\Service;
 
-class SensorEngineService
+class SensorEngine
 {
     const WEBCHAT_SENSOR = 'webchat-sensor';
 
