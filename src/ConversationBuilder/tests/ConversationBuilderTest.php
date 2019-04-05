@@ -2,86 +2,23 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\ConversationLog;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
 
-class ConversationEngineTest extends TestCase
+class ConversationBuilderTest extends TestCase
 {
         public $validYaml = <<<EOT
-conversation: create_a_new_checklist
-scenes:
-  -
-    scene: request_new_list
-    type: opening
-    incoming:
-      -
-        intent: intent.list.new
-        attributes:
-          -
-            type: list.name
-            if-not-present:
-              outgoing:
-                -
-                  intent: intent.list.request_name
-                  scene: request_name
-          -
-            type: list.type
-            if-not-present:
-              outgoing:
-                -
-                  intent: intent.list.request_type
-                  scene: request_type
-        preconditions:
-          -
-            condition: condition.list.user_authorised
-            on_fail:
-              outgoing:
-                -
-                  intent: intent.list.authorise
-                  scene: authorisation
-        actions:
-          -
-            action: action.list.create
-            on-status: 200
-            outgoing:
-              -
-                intent: intent.list.summary_report
-        outgoing:
-          -
-            intent: intent.list.created_confirmation
-            completes: true
-  -
-    scene: request_type
-    incoming:
-      -
-        intent: intent.list.type
-        interpreter: interpreter.list.type
-        trigger_intent: intent.list.new
-      -
-        intent: intent.core.no_match
-        outgoing:
-          -
-            intent: intent.list.type_nomatch_recover
-            repeating: true
-            max-tries: 2
-            completes: true
-  -
-    scene: request_name
-    incoming:
-      -
-        intent: intent.list.name
-        trigger_intent: intent.list.new
-        completes: true
-      -
-        intent: intent.core.no_match
-        outgoing:
-          -
-            intent: intent.list.type_nomatch_recover
-            repeating: true
-            max-tries: 2
-            completes: true
+conversation:
+  id: hello_bot_world
+  scenes:
+    opening_scene:
+      intents:
+        - u: hello_bot
+        - b: hello_user
 EOT;
 
     /**
@@ -182,5 +119,40 @@ EOT;
         $conversation->save();
         $activity = Activity::where('log_name', 'conversation_log')->get()->last();
         $this->assertArrayNotHasKey('status', $activity->changes['attributes']);
+    }
+
+    /**
+     * Ensure that a conversation representation can be made from a YAML file.
+     */
+    public function testConversationRepresentationCreation()
+    {
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+        $conversationModel = $conversation->buildConversation();
+
+        $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
+    }
+
+    /**
+     * Ensure that a conversation representation can be persisted to DGraph.
+     */
+    public function testConversationRepresentationPersist()
+    {
+        if (getenv('LOCAL') !== true) {
+            $this->markTestSkipped('This test only runs on local environments.');
+        }
+
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+        $conversationModel = $conversation->buildConversation();
+
+        // Assert that we think publishing was successful.
+        $this->assertTrue($conversation->publishConversation($conversationModel));
+
+        /**
+         * TODO: Assert that the conversation exists in DGraph.
+        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $query = new DGraphQuery();
+        $query->allofterms('ei_type', ['conversation'])
+            ->setQueryGraph(['id' => 'hello_bot_world']);
+        */
     }
 }

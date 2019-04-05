@@ -1,6 +1,8 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs\Traits;
+namespace OpenDialogAi\ConversationBuilder\Jobs\Traits;
+
+use OpenDialogAi\ConversationBuilder\ConversationLog;
 
 trait ValidateConversationTrait
 {
@@ -23,5 +25,17 @@ trait ValidateConversationTrait
         }
 
         return true;
+    }
+
+    /**
+     * Log validation messages.
+     */
+    private function logMessage($conversationId, $type, $message)
+    {
+        $log = new ConversationLog();
+        $log->conversation_id = $conversationId;
+        $log->type = $type;
+        $log->message = $message;
+        $log->save();
     }
 }
