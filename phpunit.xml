@@ -12,7 +12,6 @@
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
-            <exclude>./tests/Unit/Graph/DGraph/DGraphTest.php</exclude>
         </testsuite>
 
         <testsuite name="Feature">
@@ -25,10 +24,17 @@
 
         <testsuite name="ContextEngine">
             <directory suffix="Test.php">./src/ContextEngine/tests</directory>
+            <exclude>./src/ContextEngine/tests/UserServiceTest.php</exclude>
         </testsuite>
 
         <testsuite name="ResponseEngine">
             <directory suffix="Test.php">./src/ResponseEngine/tests</directory>
+        </testsuite>
+
+
+        <testsuite name="Graph">
+            <directory suffix="Test.php">./src/Graph/tests</directory>
+            <exclude>./src/Graph/tests/DGraph/DGraphTest.php</exclude>
         </testsuite>
 
         <testsuite name="ConversationBuilder">

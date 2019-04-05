@@ -8,6 +8,8 @@ use GuzzleHttp\Psr7\Response;
 
 class DGraphMutationResponse
 {
+    const SUCCESS = 'Success';
+
     private $response;
 
     private $data;
@@ -37,5 +39,14 @@ class DGraphMutationResponse
     public function getExtensions()
     {
         return $this->extensions;
+    }
+
+    public function isSuccessful()
+    {
+        if ($this->getData()['code'] == self::SUCCESS) {
+            return true;
+        }
+
+        return false;
     }
 }

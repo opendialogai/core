@@ -10,12 +10,18 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 class DGraphQuery
 {
     const FUNC_NAME = 'dGraphQuery';
-    const FUNC = 'func';
     const FUNC_TYPE = 'func_type';
+
+    const FUNC = 'func';
+    const FILTER = 'filter';
     const ALLOFTERMS = 'allofterms';
+    const EQ = 'eq';
+    const UID = 'uid';
+
 
     const PREDICATE = 'predicate';
     const TERM_LIST = 'term_list';
+    const VALUE = 'value';
 
     private $query;
 
@@ -45,13 +51,66 @@ class DGraphQuery
         return $this;
     }
 
-    public function setQueryGraph(array $graphFragment)
+    /**
+     * @param $predicate
+     * @param $value
+     * @return $this
+     */
+    public function eq($predicate, $value)
     {
-        $this->queryGraph = $graphFragment;
+        $this->query[self::FUNC] = [
+            self::FUNC_TYPE => self::EQ,
+            self::PREDICATE => $predicate,
+            self::VALUE => $value
+        ];
 
         return $this;
     }
 
+    /**
+     * @param $uid
+     * @return $this
+     */
+    public function uid($uid)
+    {
+        $this->query[self::FUNC] = [
+            self::FUNC_TYPE => self::UID,
+            self::VALUE => $uid
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @param $predicate
+     * @param $value
+     * @return $this
+     */
+    public function filterEq($predicate, $value)
+    {
+        $this->query[self::FILTER] = [
+            self::FUNC_TYPE => self::EQ,
+            self::PREDICATE => $predicate,
+            self::VALUE => $value
+        ];
+
+        return $this;
+    }
+
+    /**
+     * @param array $graphFragment
+     * @return $this
+     */
+    public function setQueryGraph(array $graphFragment)
+    {
+        $this->queryGraph = $graphFragment;
+        return $this;
+    }
+
+    /**
+     * @param $queryGraph
+     * @return string
+     */
     public function decodeQueryGraph($queryGraph)
     {
         $result = '{';
@@ -70,11 +129,21 @@ class DGraphQuery
         return $result;
     }
 
+    /**
+     * @return string
+     */
     public function prepare()
     {
         $this->queryString = '{ ' . self::FUNC_NAME . '( ' . self::FUNC . ':';
 
-        $this->queryString .= $this->getQueryFunction() . ')';
+        $this->queryString .= $this->getFunction($this->query[self::FUNC]) . ')';
+
+        if (isset($this->query[self::FILTER])) {
+            $this->queryString .= '@filter(';
+            $this->queryString .= $this->getFunction($this->query[self::FILTER]);
+            $this->queryString .= ')';
+        }
+
         $this->queryString .= $this->decodeQueryGraph($this->queryGraph);
 
         $this->queryString .= '}';
@@ -82,13 +151,30 @@ class DGraphQuery
         return $this->queryString;
     }
 
-    public function getQueryFunction()
+    /**
+     * @param $queryFunction
+     * @return string
+     */
+    private function getFunction($queryFunction)
     {
-        $queryFunction = $this->query[self::FUNC];
+        switch ($queryFunction[self::FUNC_TYPE]) {
+            case self::ALLOFTERMS:
+                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
+                $queryFunctionString .= $queryFunction[self::PREDICATE] . ',';
+                $queryFunctionString .= '"' . $queryFunction[self::TERM_LIST] . '")';
+                break;
 
-        $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
-        $queryFunctionString .= $queryFunction[self::PREDICATE] . ',';
-        $queryFunctionString .= '"' . $queryFunction[self::TERM_LIST] . '")';
+            case self::EQ:
+                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
+                $queryFunctionString .= $queryFunction[self::PREDICATE] . ',';
+                $queryFunctionString .= '"' . $queryFunction[self::VALUE] . '")';
+                break;
+
+            case self::UID:
+                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
+                $queryFunctionString .= $queryFunction[self::VALUE] . ')';
+                break;
+        }
 
         return $queryFunctionString;
     }

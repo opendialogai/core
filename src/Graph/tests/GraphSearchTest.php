@@ -1,13 +1,11 @@
 <?php
 
 
-namespace OpenDialogAi\Core\Tests\Unit\Graph;
+namespace OpenDialogAi\Core\Graph\Tests;
 
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Graph\Edge\Edge;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Graph\Search\DFS;
 use OpenDialogAi\Core\Tests\TestCase;

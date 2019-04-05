@@ -72,15 +72,27 @@ class DGraphMutation
     private function attributeStatement(Node $node)
     {
         $attributeStatement = [];
+        $id = '';
+        $update = false;
+
+        $id = $node->uidIsSet() ? $node->getUid() : $node->getId();
+        if ($node->uidIsSet()) {
+            $update = true;
+        }
 
         // Add the ID value.
-        $attributeStatement[] = $this->prepareTriple($node->getId(), 'id', $node->getId());
+        $attributeStatement[] = $this->prepareAttributeTriple($id, 'id', $node->getId(), $update);
 
         // Add all the attributes related to this node.
         $attributes = $node->getAttributes();
         /* @var AttributeInterface $attribute */
         foreach ($attributes as $attribute) {
-            $attributeStatement[] = $this->prepareTriple($node->getId(), $attribute->getId(), $attribute->getValue());
+            $attributeStatement[] = $this->prepareAttributeTriple(
+                $id,
+                $attribute->getId(),
+                $attribute->getValue(),
+                $update
+            );
         }
 
         return implode("\n", $attributeStatement);
@@ -101,12 +113,29 @@ class DGraphMutation
         /* @var DirectedEdge $edge */
         foreach ($outgoingEdges as $relationship => $edgeSet) {
             foreach ($edgeSet->getEdges() as $edge) {
+                $updateFrom = false;
+                $updateTo = false;
+                $fromId = '';
+                $toId = '';
+
+                // Determine what IDs to use based on whether the nodes have uids set or not.
+                $fromId = $node->uidIsSet() ? $node->getUid() : $node->getId();
+                if ($node->uidIsSet()) {
+                    $updateFrom = true;
+                }
+
+                $toId = $edge->getToNode()->uidIsSet() ? $edge->getToNode()->getUid() : $edge->getToNode()->getId();
+                if ($edge->getToNode()->uidIsSet()) {
+                    $updateTo = true;
+                }
+
                 // Add the relationship.
-                $relationshipStatement[] = $this->prepareTriple(
-                    $node->getId(),
+                $relationshipStatement[] = $this->prepareRelationshipTriple(
+                    $fromId,
                     $relationship,
-                    $edge->getToNode()->getId(),
-                    true
+                    $toId,
+                    $updateTo,
+                    $updateFrom
                 );
             }
         }
@@ -121,12 +150,36 @@ class DGraphMutation
      * @param bool $relationship
      * @return string
      */
-    private function prepareTriple($subject, $predicate, $object, bool $relationship = false)
+    private function prepareAttributeTriple($subject, $predicate, $object, bool $update = false)
     {
-        if ($relationship) {
-            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
+        if ($update) {
+            return sprintf('<%s> <%s> "%s" .', $subject, $predicate, $object);
         } else {
             return sprintf('_:%s <%s> "%s" .', $subject, $predicate, $object);
+        }
+    }
+
+    public function prepareRelationshipTriple(
+        $subject,
+        $predicate,
+        $object,
+        bool $updateTo = false,
+        bool $updateFrom = false
+    ) {
+        if ($updateTo && $updateFrom) {
+            return sprintf('<%s> <%s> <%s> .', $subject, $predicate, $object);
+        }
+
+        if ($updateTo && !$updateFrom) {
+            return sprintf('<%s> <%s> _:%s .', $subject, $predicate, $object);
+        }
+
+        if (!$updateTo && $updateFrom) {
+            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
+        }
+
+        if (!$updateTo && !$updateFrom) {
+            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
         }
     }
 
