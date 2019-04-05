@@ -17,7 +17,7 @@ class DummyAction extends BaseAction
 
     public function perform(ActionInput $actionInput): ActionResult
     {
-        $dummyAttribute = new StringAttribute('user.nickname', 'Actionista');
+        $dummyAttribute = new StringAttribute('nickname', 'Actionista');
         return ActionResult::createSuccessfulActionResultWithAttributes([$dummyAttribute]);
     }
 }
