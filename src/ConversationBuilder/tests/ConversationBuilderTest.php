@@ -4,12 +4,12 @@ namespace OpenDialogAi\Core\Tests\Unit;
 
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\ConversationLog;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
 
-class ConversationEngineTest extends TestCase
+class ConversationBuilderTest extends TestCase
 {
         public $validYaml = <<<EOT
 conversation:

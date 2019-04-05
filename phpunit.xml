@@ -30,6 +30,11 @@
         <testsuite name="ResponseEngine">
             <directory suffix="Test.php">./src/ResponseEngine/tests</directory>
         </testsuite>
+
+        <testsuite name="ConversationBuilder">
+            <directory suffix="Test.php">./src/ConversationBuilder/tests</directory>
+        </testsuite>
+
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

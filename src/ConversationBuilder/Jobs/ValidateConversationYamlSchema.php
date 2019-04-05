@@ -1,15 +1,14 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs;
+namespace OpenDialogAi\ConversationBuilder\Jobs;
 
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use JsonSchema\Validator;
+use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use ReflectionClass;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
