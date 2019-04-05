@@ -17,7 +17,7 @@ class Intent extends Node
 {
     const CONFIDENCE = 'intent_confidence';
 
-    static $coreAttributes = [
+    public static $coreAttributes = [
         Model::EI_TYPE,
         Model::COMPLETES,
         Model::ORDER,
