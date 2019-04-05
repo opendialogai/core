@@ -50,7 +50,7 @@
         "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
         "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider",
         "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
-        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider"
+        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
         "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider"
       ]
     },
