@@ -92,10 +92,11 @@ class Intent extends Node
 
     public function getNonCoreAttributes()
     {
-        $coreAttributes = new Map();
-        $coreAttributes->putAll(array_combine(self::$coreAttributes, self::$coreAttributes));
-
-        return $this->attributes->diff($coreAttributes);
+        return $this->attributes->filter(function ($key, $value) {
+            if (!in_array($key, self::$coreAttributes)) {
+                return true;
+            }
+        });
     }
 
     /**
