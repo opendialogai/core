@@ -1,6 +1,6 @@
 <?php
 
-namespace InterpreterEngine\Interpreters;
+namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;

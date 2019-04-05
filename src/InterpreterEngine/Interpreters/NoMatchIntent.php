@@ -1,6 +1,6 @@
 <?php
 
-namespace InterpreterEngine\Interpreters;
+namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use OpenDialogAi\Core\Conversation\Intent;
 
