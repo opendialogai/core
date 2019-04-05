@@ -9,9 +9,9 @@ use OpenDialogAi\Core\Attribute\StringAttribute;
 
 class DummyAction extends BaseAction
 {
-    protected $requiredAttributes = ['user.name'];
+    protected $requiredAttributes = ['name'];
 
-    protected $outputsAttributes = ['user.nickname'];
+    protected $outputsAttributes = ['nickname'];
 
     protected $performs = 'actions.core.dummy';
 
