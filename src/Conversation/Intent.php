@@ -110,7 +110,7 @@ class Intent extends Node
             /* @var BooleanAttribute $attribute */
             $attribute = $this->attributes->get(Model::COMPLETES);
             $attribute->setValue($this->completes);
-            $this->attributes->put(Model::COMPLETES, $attribute);
+            $this->addAttribute($attribute);
             return $this;
         } else {
             try {
