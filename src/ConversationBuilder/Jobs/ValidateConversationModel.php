@@ -1,11 +1,8 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs;
+namespace OpenDialogAi\ConversationBuilder\Jobs;
 
-use \Exception;
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
-use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
+use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -45,7 +42,7 @@ class ValidateConversationModel implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->checkConversationStatus()) {
+        if (!$this->checkConversationStatus()) {
             return;
         }
 
@@ -56,11 +53,7 @@ class ValidateConversationModel implements ShouldQueue
             $model = Yaml::parse($this->conversation->model);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
-            $log = new ConversationLog();
-            $log->conversation_id = $this->conversation->id;
-            $log->message = $exception->getMessage();
-            $log->type = 'validate_conversation_model';
-            $log->save();
+            $this->logMessage($this->conversation->id, 'validate_conversation_model', $exception->getMessage());
 
             // Set validation status.
             $status = 'invalid';

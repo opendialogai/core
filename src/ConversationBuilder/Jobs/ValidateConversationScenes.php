@@ -1,10 +1,8 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs;
+namespace OpenDialogAi\ConversationBuilder\Jobs;
 
-use \Exception;
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -13,11 +11,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
-class ValidateConversationYaml implements ShouldQueue
+class ValidateConversationScenes implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ValidateConversationTrait;
 
+    // Conversation object.
     protected $conversation;
+
+    // Validation job name.
+    protected $jobName;
 
     /**
      * Create a new job instance.
@@ -26,34 +28,38 @@ class ValidateConversationYaml implements ShouldQueue
      */
     public function __construct($conversation)
     {
-          $this->conversation = $conversation;
+        $this->conversation = $conversation;
+        $this->jobName = 'scenes_validation_status';
     }
 
     /**
      * Execute the job.
      *
-     * We are checking whether the conversation model is valid YAML.
+     * We are checking whether all conversation elements are provided
+     * by the application.
      *
      * @return void
      */
     public function handle()
     {
+        if (!$this->checkConversationStatus()) {
+            return;
+        }
+
         $status = 'validated';
+        $model = [];
 
         try {
-            Yaml::parse($this->conversation->model);
+            $model = Yaml::parse($this->conversation->model);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
-            $log = new ConversationLog();
-            $log->conversation_id = $this->conversation->id;
-            $log->message = $exception->getMessage();
-            $log->type = 'validate_conversation_yaml';
-            $log->save();
+            $this->logMessage($this->conversation->id, 'validate_conversation_scenes', $exception->getMessage());
 
             // Set validation status.
             $status = 'invalid';
         } finally {
-            $this->conversation->yaml_validation_status = $status;
+            $this->conversation->{$this->jobName} = $status;
+
             if ($status === 'invalid') {
                 // Delete the job so that it will not be re-tried.
                 $this->delete();
@@ -61,6 +67,7 @@ class ValidateConversationYaml implements ShouldQueue
                 // Update the conversation status.
                 $this->conversation->status = 'invalid';
             }
+
             $this->conversation->save(['validate' => false]);
         }
     }

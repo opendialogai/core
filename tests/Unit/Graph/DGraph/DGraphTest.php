@@ -14,15 +14,12 @@ use OpenDialogAi\Core\Tests\Unit\Conversation\ConversationTest;
 
 class DGraphTest extends TestCase
 {
-    const DGRAPH_URL = 'http://10.0.2.2';
-    const DGRAPH_PORT = '8080';
-
     /**
      * @group onlylocal
      */
     public function testDGraphQuery()
     {
-        $dGraph = new DGraphClient(self::DGRAPH_URL, self::DGRAPH_PORT);
+        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
         $this->assertTrue(true);
 
         $query = new DGraphQuery();
@@ -52,7 +49,7 @@ class DGraphTest extends TestCase
 
         $conversation = $cm->getConversation();
 
-        $dGraph = new DGraphClient(self::DGRAPH_URL, self::DGRAPH_PORT);
+        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
         //$dGraph->dropSchema();
 
         $mutation = new DGraphMutation($conversation);
@@ -60,6 +57,4 @@ class DGraphTest extends TestCase
         $mutationResponse = $dGraph->tripleMutation($mutation);
         $this->assertEquals('Success', $mutationResponse->getData()['code']);
     }
-
-
 }

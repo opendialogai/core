@@ -1,13 +1,15 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine;
+namespace OpenDialogAi\ConversationBuilder;
 
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationScenes;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationModel;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYaml;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYamlSchema;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -46,7 +48,7 @@ class Conversation extends Model
      */
     public function conversationlogs()
     {
-        return $this->hasMany('OpenDialogAi\ConversationEngine\ConversationLog');
+        return $this->hasMany('OpenDialogAi\ConversationBuilder\ConversationLog');
     }
 
     /**
@@ -88,7 +90,7 @@ class Conversation extends Model
         try {
             $yaml = Yaml::parse($this->model)['conversation'];
         } catch (ParseException $exception) {
-            \Log::debug('Could not parse converation yaml!');
+            Log::debug('Could not parse converation yaml!');
         }
 
         $cm = new ConversationManager($yaml['id']);
@@ -108,7 +110,7 @@ class Conversation extends Model
                 } elseif ($speaker === 'b') {
                     $cm->botSaysToUser($sceneId, $intent, $intentIdx);
                 } else {
-                    \Log::debug("I don't know about the speaker type '{$speaker}'");
+                    Log::debug("I don't know about the speaker type '{$speaker}'");
                 }
 
                 $intentIdx++;
@@ -116,5 +118,27 @@ class Conversation extends Model
         }
 
         return $cm->getConversation();
+    }
+
+    /**
+     * Publish the conversation to DGraph.
+     *
+     * @return bool
+     */
+    public function publishConversation(\OpenDialogAi\Core\Conversation\Conversation $conversation)
+    {
+        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $mutation = new DGraphMutation($conversation);
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+        if ($mutationResponse->getData()['code'] === 'Success') {
+            // Set conversation status to "published".
+            $this->status = 'published';
+            $this->save(['validate' => false]);
+            return true;
+        }
+
+        return false;
     }
 }
