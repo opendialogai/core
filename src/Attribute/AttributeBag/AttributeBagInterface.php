@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\Attribute\AttributeBag;
 
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Exceptions\AttributeBagAttributeDoesNotExist;
 
 /**
  * An attribute bag holds a set of attributes that can be set or retrieved
@@ -15,14 +15,14 @@ interface AttributeBagInterface
      *
      * @param AttributeInterface $attribute
      */
-    public function addAttribute(AttributeInterface $attribute) : void;
+    public function addAttribute(AttributeInterface $attribute);
 
     /**
      * Tries to get an attribute from attributes if it exists
      *
      * @param $attributeName
      * @return AttributeInterface
-     * @throws AttributeDoesNotExist
+     * @throws AttributeDoesNotExistException
      */
     public function getAttribute(string $attributeName) : AttributeInterface;
 

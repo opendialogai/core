@@ -32,6 +32,10 @@
         </testsuite>
 
 
+        <testsuite name="InterpreterEngine">
+            <directory suffix="Test.php">./src/InterpreterEngine/tests</directory>
+        </testsuite>
+
         <testsuite name="Graph">
             <directory suffix="Test.php">./src/Graph/tests</directory>
             <exclude>./src/Graph/tests/DGraph/DGraphTest.php</exclude>
@@ -44,7 +48,6 @@
           <testsuite name="SensorEngine">
             <directory suffix="Test.php">./src/SensorEngine/tests</directory>
         </testsuite>
-
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

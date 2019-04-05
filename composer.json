@@ -34,6 +34,7 @@
       "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
       "OpenDialogAi\\ConversationBuilder\\": "src/ConversationBuilder",
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
+      "OpenDialogAi\\InterpreterEngine\\": "src/InterpreterEngine",
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
       "OpenDialogAi\\Core\\Database\\": "database/"
     }
@@ -49,6 +50,7 @@
         "OpenDialogAi\\Core\\CoreServiceProvider",
         "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
         "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider",
+        "OpenDialogAi\\InterpreterEngine\\InterpreterEngineServiceProvider",
         "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
         "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider"

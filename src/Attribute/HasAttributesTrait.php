@@ -9,11 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * A trait that anything that needs to deal with Attributes can use.
- *
  */
 trait HasAttributesTrait
 {
-
     /**
      * @var Map $attributes - the set of attributes related to this object.
      */
@@ -42,14 +40,18 @@ trait HasAttributesTrait
     }
 
     /**
-     * @inheritdoc
+     * @param AttributeInterface $attribute
+     * @return $this
      */
-    public function addAttribute(AttributeInterface $attribute): void
+    public function addAttribute(AttributeInterface $attribute)
     {
         $this->attributes->put($attribute->getId(), $attribute);
+        return $this;
     }
 
     /**
+     * TODO I still really think this should be sending and accepting an attribute bag rather than a raw map
+     *
      * @return Map
      */
     public function getAttributes(): Map
@@ -58,11 +60,15 @@ trait HasAttributesTrait
     }
 
     /**
+     *  TODO I still really think this should be sending and accepting an attribute bag rather than a raw map
+     *
      * @param Map $attributes
+     * @return $this
      */
     public function setAttributes($attributes)
     {
         $this->attributes = $attributes;
+        return $this;
     }
 
     /**

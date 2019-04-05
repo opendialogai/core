@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Tests;
 
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
+use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
@@ -11,6 +12,12 @@ use OpenDialogAi\Core\CoreServiceProvider;
 
 /**
  * Base TestCase class for setting up all package tests
+ *
+ * @method assertCount($expected, $actual)
+ * @method assertEquals($expected, $actual)
+ * @method assertContains($needle, $haystack)
+ * @method assertNotNull($actual)
+ * @method fail($message)
  */
 class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -23,6 +30,17 @@ class TestCase extends \Orchestra\Testbench\TestCase
         ]);
     }
 
+    /**
+     * Sets a config value to the app
+     *
+     * @param $configName
+     * @param $config
+     */
+    public function setConfigValue($configName, $config)
+    {
+        $this->app['config']->set($configName, $config);
+    }
+
     public function getPackageProviders($app)
     {
         return [
@@ -31,7 +49,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ConversationBuilderServiceProvider::class,
             ResponseEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
-            SensorEngineServiceProvider::class,
+            InterpreterEngineServiceProvider::class,
+            SensorEngineServiceProvider::class
         ];
     }
 

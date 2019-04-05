@@ -5,9 +5,6 @@ namespace OpenDialogAi\ContextEngine\AttributeResolver;
 use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
  * The AttributeResolver maps from an attribute identifier (in the form <contextid>.<attributeid>) to the attribute type
@@ -15,7 +12,6 @@ use OpenDialogAi\Core\Attribute\StringAttribute;
  */
 class AttributeResolver
 {
-
     /* @var array */
     private $supportedAttributes;
 
@@ -25,7 +21,7 @@ class AttributeResolver
     }
 
     /**
-     * @return \Illuminate\Config\Repository|mixed
+     * @return AttributeInterface[]
      */
     public function getSupportedAttributes()
     {
@@ -46,20 +42,17 @@ class AttributeResolver
     }
 
     /**
+     * Tries to resolve an attribute with the given id to a supported type.
+     *
      * @param string $attributeId
+     * @param $value
      * @return AttributeInterface
+     * @throws AttributeCouldNotBeResolvedException
      */
     public function getAttributeFor(string $attributeId, $value)
     {
         if ($this->isAttributeSupported($attributeId)) {
-            switch ($this->supportedAttributes[$attributeId]) {
-                case 'OpenDialogAi\Core\Attribute\StringAttribute':
-                    return new StringAttribute($attributeId, $value);
-                case 'OpenDialogAi\Core\Attribute\IntAttribute':
-                    return new IntAttribute($attributeId, $value);
-                case 'OpenDialogAi\Core\Attribute\BooleanAttribute':
-                    return new BooleanAttribute($attributeId, $value);
-            }
+            return new $this->supportedAttributes[$attributeId]($attributeId, $value);
         } else {
             Log::debug(sprintf('Attribute %s could not be resolved', $attributeId));
             throw new AttributeCouldNotBeResolvedException(sprintf('Attribute %s could not be resolved', $attributeId));
