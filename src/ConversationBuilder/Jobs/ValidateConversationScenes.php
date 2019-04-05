@@ -1,11 +1,11 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs;
+namespace OpenDialogAi\ConversationBuilder\Jobs;
 
 use \Exception;
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
-use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\ConversationLog;
+use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -14,7 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
-class ValidateConversationModel implements ShouldQueue
+class ValidateConversationScenes implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ValidateConversationTrait;
 
@@ -31,8 +31,8 @@ class ValidateConversationModel implements ShouldQueue
      */
     public function __construct($conversation)
     {
-          $this->conversation = $conversation;
-          $this->jobName = 'model_validation_status';
+        $this->conversation = $conversation;
+        $this->jobName = 'scenes_validation_status';
     }
 
     /**
@@ -45,7 +45,7 @@ class ValidateConversationModel implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->checkConversationStatus()) {
+        if (!$this->checkConversationStatus()) {
             return;
         }
 
@@ -59,7 +59,7 @@ class ValidateConversationModel implements ShouldQueue
             $log = new ConversationLog();
             $log->conversation_id = $this->conversation->id;
             $log->message = $exception->getMessage();
-            $log->type = 'validate_conversation_model';
+            $log->type = 'validate_conversation_scenes';
             $log->save();
 
             // Set validation status.
@@ -73,9 +73,6 @@ class ValidateConversationModel implements ShouldQueue
 
                 // Update the conversation status.
                 $this->conversation->status = 'invalid';
-            } else {
-                // Update the conversation status.
-                $this->conversation->status = 'validated';
             }
 
             $this->conversation->save(['validate' => false]);

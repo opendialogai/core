@@ -1,15 +1,15 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine;
+namespace OpenDialogAi\ConversationBuilder;
 
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationScenes;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationModel;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYaml;
-use OpenDialogAi\ConversationEngine\Jobs\ValidateConversationYamlSchema;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -48,7 +48,7 @@ class Conversation extends Model
      */
     public function conversationlogs()
     {
-        return $this->hasMany('OpenDialogAi\ConversationEngine\ConversationLog');
+        return $this->hasMany('OpenDialogAi\ConversationBuilder\ConversationLog');
     }
 
     /**

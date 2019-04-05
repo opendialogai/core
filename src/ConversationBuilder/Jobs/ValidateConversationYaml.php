@@ -1,10 +1,10 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs;
+namespace OpenDialogAi\ConversationBuilder\Jobs;
 
 use \Exception;
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\ConversationLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;

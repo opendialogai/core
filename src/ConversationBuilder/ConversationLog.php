@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine;
+namespace OpenDialogAi\ConversationBuilder;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,6 +18,6 @@ class ConversationLog extends Model
      */
     public function conversation()
     {
-        return $this->belongsTo('OpenDialogAi\ConversationEngine\Conversation');
+        return $this->belongsTo('OpenDialogAi\ConversationBulider\Conversation');
     }
 }

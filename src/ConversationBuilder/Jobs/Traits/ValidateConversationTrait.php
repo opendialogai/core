@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs\Traits;
+namespace OpenDialogAi\ConversationBuilder\Jobs\Traits;
 
 trait ValidateConversationTrait
 {

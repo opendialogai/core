@@ -1,10 +1,10 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs;
+namespace OpenDialogAi\ConversationBuilder\Jobs;
 
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
-use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\ConversationLog;
+use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
