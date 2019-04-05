@@ -52,9 +52,9 @@ class ActionEngine implements ActionEngineInterface
     }
 
     /**
-     * @param AttributeResolverService $attributeResolver
+     * @param AttributeResolver $attributeResolver
      */
-    public function setAttributeResolver(AttributeResolverService $attributeResolver)
+    public function setAttributeResolver(AttributeResolver $attributeResolver)
     {
         $this->attributeResolver = $attributeResolver;
     }

@@ -6,7 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngine;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 
 class ActionEngineServiceProvider extends ServiceProvider
 {
