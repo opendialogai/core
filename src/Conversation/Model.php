@@ -17,6 +17,7 @@ class Model
     const PARTICIPANT = 'participant';
     const INTENT_INTERPRETER = 'intent_interpreter';
     const ACTION = 'action';
+    const CHATBOT_USER = 'chatbot_user';
 
     // Conversations and scenes have conditions.
     const HAS_CONDITION = 'has_condition';

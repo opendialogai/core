@@ -70,6 +70,19 @@ trait HasAttributesTrait
     }
 
     /**
+     * @param string $attributeName
+     * @param $value
+     * @param null $type
+     */
+    public function setAttribute(string $attributeName, $value, $type = null): void
+    {
+        $attribute = $this->getAttribute($attributeName);
+        $attribute->setValue($value);
+
+        // @todo if attribute does not exist create it using type to instantiate the correct type
+    }
+
+    /**
      * @inheritdoc
      */
     public function getAttribute(string $attributeName) : AttributeInterface

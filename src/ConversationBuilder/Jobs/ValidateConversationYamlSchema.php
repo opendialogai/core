@@ -1,16 +1,14 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine\Jobs;
+namespace OpenDialogAi\ConversationBuilder\Jobs;
 
-use OpenDialogAi\ConversationEngine\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationLog;
-use OpenDialogAi\ConversationEngine\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use JsonSchema\Validator;
+use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use ReflectionClass;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -55,11 +53,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
             $model = Yaml::parse($this->conversation->model, Yaml::PARSE_OBJECT_FOR_MAP);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
-            $log = new ConversationLog();
-            $log->conversation_id = $this->conversation->id;
-            $log->message = $exception->getMessage();
-            $log->type = 'validate_conversation_yaml_schema';
-            $log->save();
+            $this->logMessage($this->conversation->id, 'validate_conversation_yaml_schema', $exception->getMessage());
 
             // Set validation status.
             $status = 'invalid';
@@ -77,18 +71,18 @@ class ValidateConversationYamlSchema implements ShouldQueue
             );
             if ($validator->isValid()) {
                 // Save the name if the model validates.
-                $this->conversation->name = $model->conversation;
+                $this->conversation->name = $model->conversation->id;
             } else {
                 // Mark as invalid.
                 $status = 'invalid';
 
                 foreach ($validator->getErrors() as $error) {
                     // Log a validation message with the error.
-                    $log = new ConversationLog();
-                    $log->conversation_id = $this->conversation->id;
-                    $log->message = sprintf("[%s] %s\n", $error['property'], $error['message']);
-                    $log->type = 'validate_conversation_yaml_schema';
-                    $log->save();
+                    $this->logMessage(
+                        $this->conversation->id,
+                        'validate_conversation_yaml_schema',
+                        sprintf("[%s] %s\n", $error['property'], $error['message'])
+                    );
                 }
             }
         }

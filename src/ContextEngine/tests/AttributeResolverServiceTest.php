@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ContextManager\Tests;
 
+use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use ContextEngine\AttributeResolver\AttributeCouldNotResolvedException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -46,7 +47,7 @@ class AttributeResolverServiceTest extends TestCase
 
     public function testAccessToUnsupportedAttribute()
     {
-        $this->expectException(AttributeCouldNotResolvedException::class);
+        $this->expectException(AttributeCouldNotBeResolvedException::class);
 
         $attribute = $this->attributeResolver->getAttributeFor('user.name2', 'John Smith');
     }
