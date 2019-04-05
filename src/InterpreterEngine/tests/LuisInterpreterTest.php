@@ -5,6 +5,7 @@ namespace InterpreterEngine\tests;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -133,8 +134,12 @@ class LuisInterpreterTest extends TestCase
         });
 
         $interpreter = new LuisInterpreter();
+
+        /** @var Intent[] $intents */
         $intents = $interpreter->interpret($this->createUtteranceWithText('match'));
         $this->assertCount(1, $intents);
+
+        $this->assertCount(1, $intents[0]->getNonCoreAttributes());
 
         $matchedAttribute = $intents[0]->getAttribute(LuisInterpreter::ATTRIBUTE_NAMESPACE . 'unknownEntity');
         $this->assertEquals(StringAttribute::class, get_class($matchedAttribute));

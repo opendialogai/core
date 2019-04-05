@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use Ds\Map;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -15,6 +16,13 @@ use OpenDialogAi\Core\Graph\Node\Node;
 class Intent extends Node
 {
     const CONFIDENCE = 'intent_confidence';
+
+    static $coreAttributes = [
+        Model::EI_TYPE,
+        Model::COMPLETES,
+        Model::ORDER,
+        self::CONFIDENCE
+    ];
 
     private $completes = false;
 
@@ -80,6 +88,14 @@ class Intent extends Node
     public function getLabel()
     {
         return $this->id;
+    }
+
+    public function getNonCoreAttributes()
+    {
+        $coreAttributes = new Map();
+        $coreAttributes->putAll(array_combine(self::$coreAttributes, self::$coreAttributes));
+
+        return $this->attributes->diff($coreAttributes);
     }
 
     /**
