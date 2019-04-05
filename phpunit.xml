@@ -33,6 +33,9 @@
 
         <testsuite name="ConversationBuilder">
             <directory suffix="Test.php">./src/ConversationBuilder/tests</directory>
+
+          <testsuite name="SensorEngine">
+            <directory suffix="Test.php">./src/SensorEngine/tests</directory>
         </testsuite>
 
     </testsuites>
@@ -43,6 +46,7 @@
     </filter>
     <php>
         <env name="PACKAGE_NAME" value="TestDialog"/>
+        <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
         <env name="DGRAPH_URL" value="http://10.0.2.2"/>
         <env name="DGRAPH_PORT" value="8080"/>
     </php>
