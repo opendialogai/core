@@ -71,7 +71,6 @@ class DGraphClient
                 ]
             ]
         );
-
         return new DGraphMutationResponse($response);
     }
 
