@@ -2,18 +2,18 @@
 
 namespace OpenDialogAi\ActionEngine\Service;
 
-use ActionEngine\Exceptions\ActionNameNotSetException;
-use ActionEngine\Exceptions\ActionNotAvailableException;
-use ActionEngine\Exceptions\MissingActionRequiredAttributes;
-use ActionEngine\Input\ActionInput;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
+use OpenDialogAi\ActionEngine\Exceptions\MissingActionRequiredAttributes;
+use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
-use OpenDialogAi\ActionEngine\Output\ActionResult;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
+use OpenDialogAi\ActionEngine\Actions\ActionResult;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 
-class ActionEngineService implements ActionEngineServiceInterface
+class ActionEngine implements ActionEngineInterface
 {
-    /** @var AttributeResolverService */
+    /** @var AttributeResolver */
     private $attributeResolver;
 
     /** @var ActionInterface[] */
@@ -52,9 +52,9 @@ class ActionEngineService implements ActionEngineServiceInterface
     }
 
     /**
-     * @param AttributeResolverService $attributeResolver
+     * @param AttributeResolver $attributeResolver
      */
-    public function setAttributeResolver(AttributeResolverService $attributeResolver)
+    public function setAttributeResolver(AttributeResolver $attributeResolver)
     {
         $this->attributeResolver = $attributeResolver;
     }

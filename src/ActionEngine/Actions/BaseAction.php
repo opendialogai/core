@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
-use ActionEngine\Exceptions\ActionNameNotSetException;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
 
 abstract class BaseAction implements ActionInterface
 {

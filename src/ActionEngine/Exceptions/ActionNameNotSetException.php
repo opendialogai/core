@@ -1,6 +1,6 @@
 <?php
 
-namespace ActionEngine\Exceptions;
+namespace OpenDialogAi\ActionEngine\Exceptions;
 
 /**
  * Used when an Action does not have a unique name set to it

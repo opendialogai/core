@@ -2,46 +2,24 @@
 
 namespace OpenDialogAi\ActionEngine\Tests;
 
-use ActionEngine\Exceptions\ActionNotAvailableException;
-use ActionEngine\Exceptions\MissingActionRequiredAttributes;
-use ActionEngine\Input\ActionInput;
-use OpenDialogAi\ActionEngine\Service\ActionEngineService;
+use OpenDialogAi\ActionEngine\Actions\ActionInput;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
+use OpenDialogAi\ActionEngine\Exceptions\MissingActionRequiredAttributes;
+use OpenDialogAi\ActionEngine\Service\ActionEngine;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
 use OpenDialogAi\ActionEngine\Tests\Actions\DummyAction;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\BasicAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ActionEngineServiceTests extends TestCase
 {
-    /** @var ActionEngineService */
+    /** @var ActionEngine */
     private $actionEngine;
 
-    /** @var AttributeInterface */
-    private $anythingAttribute;
-
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
     public function setUp(): void
     {
         parent::setUp();
-        $this->anythingAttribute = new BasicAttribute('anything', AbstractAttribute::STRING, 'anything');
-
-        $actionEngineService = new ActionEngineService();
-
-        $this->mock(AttributeResolverService::class, function ($mock) {
-            $mock->shouldReceive('getAttributeFor')->andReturn(
-                $this->anythingAttribute
-            );
-        });
-
-        $actionEngineService->setAttributeResolver(app()->make(AttributeResolverService::class));
-
-        $this->actionEngine = $actionEngineService;
+        $this->actionEngine = $this->app->make(ActionEngine::class);
     }
 
     public function testSettingNonExistentAction()
@@ -84,57 +62,63 @@ class ActionEngineServiceTests extends TestCase
         $this->assertEquals('actions.core.dummy', array_shift($availableActions)->performs());
     }
 
+    /**
+     * @throws ActionNotAvailableException
+     * @throws MissingActionRequiredAttributes
+     */
     public function testPerformActionNotBound()
     {
-        try {
-            $this->actionEngine->performAction('actions.core.dummy', new ActionInput());
-            $this->fail('Exception should have been thrown');
-        } catch (ActionNotAvailableException $e) {
-            //
-        } catch (MissingActionRequiredAttributes $e) {
-            $this->fail('Wrong exception thrown');
-        }
+        $this->expectException(ActionNotAvailableException::class);
+        $this->actionEngine->performAction('actions.core.dummy', new ActionInput());
     }
 
+    /**
+     * @throws MissingActionRequiredAttributes
+     */
     public function testPerformActionWithoutRequiredAction()
     {
         $this->setDummyAction();
 
+        $this->expectException(MissingActionRequiredAttributes::class);
         try {
             $this->actionEngine->performAction('actions.core.dummy', new ActionInput());
             $this->fail('Exception should have been thrown');
         } catch (ActionNotAvailableException $e) {
             $this->fail('Wrong exception thrown');
-        } catch (MissingActionRequiredAttributes $e) {
-            //
         }
     }
 
+    /**
+     * @throws MissingActionRequiredAttributes
+     */
     public function testPerformActionWithRequiredAction()
     {
         $this->setDummyAction();
 
         $input = new ActionInput();
-        $input->addAttribute(new IntAttribute('attribute.core.dummy', 1));
+        $input->addAttribute(new IntAttribute('dummy', 1));
 
+        $this->expectException(MissingActionRequiredAttributes::class);
         try {
             $result = $this->actionEngine->performAction('actions.core.dummy', $input);
             $this->assertTrue($result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('ActionNotAvailableException should not be thrown');
-        } catch (MissingActionRequiredAttributes $e) {
-            $this->fail('MissingActionRequiredAttributes should not be thrown');
         }
     }
 
+    /**
+     * @throws ActionNotAvailableException
+     * @throws MissingActionRequiredAttributes
+     */
     public function testGetAttributesFromAction()
     {
         $this->setDummyAction();
-        $input = (new ActionInput())->addAttribute(new IntAttribute('attribute.core.dummy', 1));
+        $input = (new ActionInput())->addAttribute(new IntAttribute('name', 'John'));
 
         $result = $this->actionEngine->performAction('actions.core.dummy', $input);
         $this->assertTrue($result->isSuccessful());
-        $this->assertEquals('complete', $result->getResultAttribute('attribute.core.dummy2')->getValue());
+        $this->assertEquals('Actionista', $result->getResultAttribute('nickname')->getValue());
     }
 
     protected function setDummyAction(): void

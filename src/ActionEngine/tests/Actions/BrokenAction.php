@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\ActionEngine\Tests\Actions;
 
-use ActionEngine\Input\ActionInput;
+use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\BaseAction;
-use OpenDialogAi\ActionEngine\Output\ActionResult;
+use OpenDialogAi\ActionEngine\Actions\ActionResult;
 
 class BrokenAction extends BaseAction
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace ActionEngine\Exceptions;
+namespace OpenDialogAi\ActionEngine\Exceptions;
 
 /**
  * Used when trying to perform an action that has not been registered
