@@ -19,7 +19,9 @@ class LuisResponse
     {
         $this->query = isset($response->query) ? $response->query : null;
 
-        $this->topScoringIntent = new LuisIntent($response->topScoringIntent);
+        if (isset($response->topScoringIntent)) {
+            $this->topScoringIntent = new LuisIntent($response->topScoringIntent);
+        }
 
         if (isset($response->entities)) {
             $this->createEntities($response->entities);
@@ -49,7 +51,7 @@ class LuisResponse
     /**
      * @return LuisIntent
      */
-    public function getTopScoringIntent(): LuisIntent
+    public function getTopScoringIntent()
     {
         return $this->topScoringIntent;
     }

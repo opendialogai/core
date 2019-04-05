@@ -5,13 +5,6 @@
 version: 2
 jobs:
   build:
-    branches:
-      only:
-        - develop
-        - master
-        - /.*feature.*/
-        - /.*bug.*/
-
     docker:
       # specify the version you desire here
       - image: circleci/php:7.3-fpm

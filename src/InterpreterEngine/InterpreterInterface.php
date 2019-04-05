@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\InterpreterEngine;
 
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
@@ -20,7 +21,7 @@ interface InterpreterInterface
      * Interprets an utterance and returns all matching intents in an array
      *
      * @param UtteranceInterface $utterance
-     * @return array
+     * @return Intent[]
      */
     public function interpret(UtteranceInterface $utterance) : array;
 }
