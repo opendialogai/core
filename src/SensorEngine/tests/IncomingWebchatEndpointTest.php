@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\SensorEngine\Tests;
 
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class IncomingWebchatEndpointTest extends TestCase
@@ -37,7 +36,7 @@ class IncomingWebchatEndpointTest extends TestCase
         ]);
         $response
             ->assertStatus(400)
-            ->assertJson(['notification'  => ['The notification field is required.']]);
+            ->assertJson(['notification' => ['The notification field is required.']]);
     }
 
     /**
