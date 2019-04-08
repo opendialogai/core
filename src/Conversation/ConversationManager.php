@@ -12,9 +12,22 @@ class ConversationManager
     /* @var Conversation $conversation - the root of the conversation graph */
     private $conversation;
 
-    public function __construct($conversation_id)
+    public function __construct(string $conversation_id)
     {
         $this->conversation = new Conversation($conversation_id);
+    }
+
+    /**
+     * Helper function to return a manager for an existing conversation.
+     *
+     * @param Conversation $conversation
+     * @return ConversationManager
+     */
+    public static function createManagerForExistingConversation(Conversation $conversation)
+    {
+        $cm = new ConversationManager($conversation->getId());
+        $cm->setConversation($conversation);
+        return $cm;
     }
 
     /**
@@ -23,6 +36,11 @@ class ConversationManager
     public function getConversation()
     {
         return $this->conversation;
+    }
+
+    public function setConversation(Conversation $conversation)
+    {
+        $this->conversation = $conversation;
     }
 
     /**

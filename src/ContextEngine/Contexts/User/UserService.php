@@ -8,6 +8,7 @@ use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
@@ -38,11 +39,11 @@ class UserService
      * @param $userId
      * @return Node
      */
-    public function getUser($userId): Node
+    public function getUser($userId): ChatbotUser
     {
         $response = $this->dGraphClient->query($this->getUserQuery($userId));
 
-        $user = new Node();
+        $user = new ChatbotUser();
         if (isset($response->getData()[0]['id'])) {
             foreach ($response->getData()[0] as $name => $value) {
                 if ($name == 'id') {
@@ -115,7 +116,7 @@ class UserService
      * @param Node $user
      * @return Node
      */
-    public function updateUser(Node $user)
+    public function updateUser(ChatbotUser $user)
     {
         $mutation = new DGraphMutation($user);
 

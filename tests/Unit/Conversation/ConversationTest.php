@@ -63,7 +63,7 @@ class ConversationTest extends TestCase
         $intent2 = new Intent(self::INTENT_BOT_TO_USER_2);
         $intent3 = new Intent(self::INTENT_USER_TO_BOT_3);
         $intent4 = new Intent(self::INTENT_BOT_TO_USER_4, true);
-        $intent4->causesAction(new Action('action.core.getNews'));
+        $intent4->addAction(new Action('action.core.getNews'));
         $intent5 = new Intent(self::INTENT_USER_TO_BOT_5);
         $intent6 = new Intent(self::INTENT_BOT_TO_USER_6, true);
 

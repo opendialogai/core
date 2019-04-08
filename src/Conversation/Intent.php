@@ -140,8 +140,31 @@ class Intent extends Node
         }
     }
 
-    public function causesAction(Action $action)
+    public function addAction(Action $action)
     {
         $this->createOutgoingEdge(Model::CAUSES_ACTION, $action);
+    }
+
+    public function addInterpreter(Interpreter $interpreter)
+    {
+        $this->createOutgoingEdge(Model::HAS_INTERPRETER, $interpreter);
+    }
+
+    public function hasInterpreter(): bool
+    {
+        if ($this->hasOutgoingEdgeWithRelationship(Model::HAS_INTERPRETER)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function causesAction(): bool
+    {
+        if ($this->hasOutgoingEdgeWithRelationship(Model::CAUSES_ACTION)) {
+            return true;
+        }
+
+        return false;
     }
 }

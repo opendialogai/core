@@ -2,8 +2,10 @@
 
 namespace OpenDialogAi\ConversationBuilder;
 
+use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
@@ -101,14 +103,15 @@ class Conversation extends Model
 
             $intents = [];
 
-            $intentIdx = 0;
-            foreach ($scene['intents'] as $speaker => $intentName) {
-                $intent = new Intent($intentName);
+            $intentIdx = 1;
+            foreach ($scene['intents'] as $intent) {
+                $speaker = null;
+                $intentNode = $this->createIntent($intent, $speaker);
 
                 if ($speaker === 'u') {
-                    $cm->userSaysToBot($sceneId, $intent, $intentIdx);
+                    $cm->userSaysToBot($sceneId, $intentNode, $intentIdx);
                 } elseif ($speaker === 'b') {
-                    $cm->botSaysToUser($sceneId, $intent, $intentIdx);
+                    $cm->botSaysToUser($sceneId, $intentNode, $intentIdx);
                 } else {
                     Log::debug("I don't know about the speaker type '{$speaker}'");
                 }
@@ -140,5 +143,41 @@ class Conversation extends Model
         }
 
         return false;
+    }
+
+    /**
+     * @param $intent
+     * @return Intent
+     */
+    private function createIntent($intent, &$speaker)
+    {
+        $speaker = array_keys($intent)[0];
+        $intentValue = $intent[$speaker];
+
+        $actionLabel = null;
+        $interpreterLabel = null;
+        $completes = false;
+
+        if (is_array($intentValue)) {
+            $intentLabel = $intentValue['i'];
+            $actionLabel = isset($intentValue['action']) ? $intentValue['action'] : null ;
+            $interpreterLabel = isset($intentValue['interpreter']) ? $intentValue['interpreter'] : null;
+            $completes = isset($intentValue['completes']) ? $intentValue['completes'] : false;
+        } else {
+            $intentLabel = $intentValue;
+        }
+
+        /* @var Intent $intentNode */
+        $intentNode = new Intent($intentLabel, $completes);
+
+        if ($actionLabel) {
+            $intentNode->addAction(new Action($actionLabel));
+        }
+
+        if ($interpreterLabel) {
+            $intentNode->addInterpreter(new Interpreter($interpreterLabel));
+        }
+
+        return $intentNode;
     }
 }

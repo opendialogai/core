@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
+use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\ConversationBuilder\Conversation;
@@ -17,8 +19,13 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: hello_bot
-        - b: hello_user
+        - u: 
+            i: hello_bot
+            interpreter: hello_interpreter
+            action: register_hello
+        - b: 
+            i: hello_user
+            action: register_hello
 EOT;
 
     /**
@@ -123,11 +130,47 @@ EOT;
 
     /**
      * Ensure that a conversation representation can be made from a YAML file.
+     *
+     * @grpu
      */
     public function testConversationRepresentationCreation()
     {
         $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+        /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
         $conversationModel = $conversation->buildConversation();
+
+        // There should be one scene
+        $this->assertCount(1, $conversationModel->getAllScenes());
+
+        // The opening scene should be called opening_scene
+        $this->assertEquals('opening_scene', $conversationModel->getScene('opening_scene')->getId());
+
+        // There should be one opening scene
+        $this->assertCount(1, $conversationModel->getOpeningScenes());
+
+        /* @var Scene $openingScene */
+        $openingScene = $conversationModel->getOpeningScenes()->first()->value;
+
+        // User says one thing
+        $this->assertCount(1, $openingScene->getIntentsSaidByUser());
+        $this->assertEquals('hello_bot', $openingScene->getIntentsSaidByUser()->first()->value->getId());
+        // Bot replies
+        $this->assertCount(1, $openingScene->getIntentsSaidByBot());
+        $this->assertEquals('hello_user', $openingScene->getIntentsSaidByBot()->first()->value->getId());
+
+        // The opening scene should have two intents
+        $this->assertCount(2, $openingScene->getAllIntents());
+
+        // Intents should have actions and interpreters
+        /* @var Intent $userIntent */
+        $userIntent = $openingScene->getIntentsSaidByUser()->first()->value;
+        $this->assertTrue($userIntent->hasInterpreter());
+        $this->assertTrue($userIntent->causesAction());
+
+        /* @var Intent $botIntent */
+        $botIntent = $openingScene->getIntentsSaidByBot()->first()->value;
+        $this->assertTrue($botIntent->causesAction());
+        $this->assertFalse($botIntent->hasInterpreter());
 
         $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
     }

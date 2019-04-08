@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 
+use Ds\Map;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
@@ -20,7 +21,7 @@ class Scene extends NodeWithConditions
     public function __construct($id)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::PARTICIPANT));
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::SCENE));
 
         // Create the scene participants
         $this->bot = new Participant($this->botIdInScene());
@@ -104,8 +105,11 @@ class Scene extends NodeWithConditions
         return $this->bot->getAllIntentsListenedFor();
     }
 
-    public function getAllIntents()
+    public function getAllIntents(): Map
     {
-        // @todo
+        $allIntents = new Map();
+        $allIntents = $allIntents->merge($this->getIntentsSaidByUser());
+        $allIntents = $allIntents->merge($this->getIntentsSaidByBot());
+        return $allIntents;
     }
 }
