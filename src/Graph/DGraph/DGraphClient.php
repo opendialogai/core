@@ -147,6 +147,7 @@ class DGraphClient
             <listens_for>: uid .
             <name>: default .
             <says>: uid .
+            <having_conversation>: uid @reverse .
         ";
     }
 }
