@@ -4,7 +4,10 @@ namespace OpenDialogAi\Core\Utterances;
 
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 
-class TriggerUtterance extends BaseUtterance
+/**
+ * Trigger utterances do not include text
+ */
+abstract class TriggerUtterance extends BaseUtterance
 {
     /**
      * @inheritdoc
