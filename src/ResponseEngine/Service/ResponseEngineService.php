@@ -143,6 +143,5 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             $attributeId = $matches[0];
             $contextId = ContextService::UNDEFINED_CONTEXT;
         }
-
     }
 }

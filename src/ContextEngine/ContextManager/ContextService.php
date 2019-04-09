@@ -87,11 +87,15 @@ class ContextService
         if ($this->hasContext($contextId)) {
             /* @var ContextInterface $context */
             $context = $this->getContext($contextId);
-            Log::debug(sprintf("Attempting to retrieve attribute %s in context %s", $attributeId, $context->getId()));
+            Log::debug(
+                sprintf("Attempting to retrieve attribute %s in context %s", $attributeId, $context->getId())
+            );
             return $context->getAttribute($attributeId);
         }
 
-        throw new ContextDoesNotExistException('Context %s for attribute %s not available.', $contextId, $attributeId);
+        throw new ContextDoesNotExistException(
+            sprintf('Context %s for attribute %s not available.', $contextId, $attributeId)
+        );
     }
 
     /**
