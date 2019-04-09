@@ -45,22 +45,26 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             // Iterate over the conditions and ensure that all pass.
             $conditionsPass = true;
             foreach ($conditions as $condition) {
+                $attributeName = '';
+                $attributeContext = '';
+
+                $this->determineContext($condition['attributeName'], $attributeContext, $attributeName);
                 // If we encounter an attribute that we wouldn't know how to resolve we will need to
                 // bail now and fail the message.
-                if (!$this->attributeResolver->isAttributeSupported($condition['attributeName'])) {
+                if (!$this->attributeResolver->isAttributeSupported($attributeName)) {
                     $conditionsPass = false;
                 }
 
                 /* @var AttributeInterface $conditionAttribute */
                 $conditionAttribute = $this->attributeResolver->getAttributeFor(
-                    $condition[MessageTemplate::ATTRIBUTE_NAME],
+                    $attributeName,
                     $condition[MessageTemplate::ATTRIBUTE_VALUE]
                 );
 
                 /* @var Condition $conditionObject*/
                 $conditionObject = new Condition($conditionAttribute, $condition[MessageTemplate::OPERATION]);
 
-                $attributeToCompareAgainst = $this->contextService->getAttribute($conditionAttribute->getId());
+                $attributeToCompareAgainst = $this->contextService->getAttribute($attributeName, $attributeContext);
 
                 if (!$conditionObject->compareAgainst($attributeToCompareAgainst)) {
                     $conditionsPass = false;
@@ -94,7 +98,10 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $matchCount = preg_match_all("(\{(.*?)\})", $text, $matches, PREG_PATTERN_ORDER);
         if ($matchCount > 0) {
             foreach ($matches[1] as $attributeId) {
-                $attribute = $this->contextService->getAttribute($attributeId);
+                $attributeName = '';
+                $contextId = '';
+                $this->determineContext($attributeId, $contextId, $attributeName);
+                $attribute = $this->contextService->getAttribute($attributeName, $contextId);
                 $text = str_replace('{' . $attributeId . '}', $attribute->getValue(), $text);
             }
         }
@@ -110,8 +117,32 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $this->contextService = $contextService;
     }
 
+    /**
+     * @param AttributeResolver $attributeResolver
+     */
     public function setAttributeResolver(AttributeResolver $attributeResolver): void
     {
         $this->attributeResolver = $attributeResolver;
+    }
+
+    /**
+     * @param $attribute
+     * @param $contextId
+     * @param $attributeId
+     */
+    private function determineContext($attribute, &$contextId, &$attributeId)
+    {
+        $matches = explode('.', $attribute);
+
+        if (count($matches) == 2) {
+            $contextId = $matches[0];
+            $attributeId = $matches[1];
+        }
+
+        if (count($matches) == 1) {
+            $attributeId = $matches[0];
+            $contextId = ContextService::UNDEFINED_CONTEXT;
+        }
+
     }
 }

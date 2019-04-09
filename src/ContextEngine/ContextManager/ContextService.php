@@ -12,6 +12,7 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService
 {
+    const UNDEFINED_CONTEXT = 'undefined_context';
 
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
