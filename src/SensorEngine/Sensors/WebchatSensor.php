@@ -36,7 +36,7 @@ class WebchatSensor extends BaseSensor
             case 'text':
                 Log::debug('Received webchat message.');
                 $utterance = new WebchatTextUtterance();
-                $utterance->setText($request['content']['data'][0]);
+                $utterance->setText($request['content']['data']['text']);
                 $utterance->setUserId($request['user_id']);
                 return $utterance;
                 break;

@@ -103,9 +103,13 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
             'content' => [
                 'type' => 'chat_open',
-                'callback_id' => 'me',
-                'user' => [
-                    'ip' => '127.0.0.1',
+                'user_id' => 'someuser',
+                'author' => 'me',
+                'data' => [
+                    'callback_id' => 'WELCOME',
+                    'user' => [
+                        'ip' => '127.0.0.1',
+                    ],
                 ],
             ],
         ]);
@@ -128,7 +132,7 @@ class IncomingWebchatEndpointTest extends TestCase
                 'author' => 'me',
                 'type' => 'text',
                 'data' => [
-                    'Hello'
+                    'text' => 'Hello'
                 ],
             ],
         ]);
