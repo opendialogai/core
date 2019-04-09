@@ -11,7 +11,8 @@ class ConversationEngineServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/config/opendialog-conversationengine.php' => base_path('config/opendialog-conversationengine.php')
+            __DIR__ . '/config/opendialog-conversationengine.php'
+                => base_path('config/opendialog-conversationengine.php')
         ], 'config');
     }
 
