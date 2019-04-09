@@ -24,11 +24,9 @@ class IncomingWebchatMessage extends FormRequest
     public function rules()
     {
         return [
-            'notification' => 'required|string|in:read_receipt,typing_on,typing_off,message',
+            'notification' => 'required|string|in:message,chat_open,trigger',
             'user_id' => 'required|string',
             'author' => 'required|string',
-            // The message id is only required for read receipts.
-            'message_id' => 'required_if:notification,==,read_receipt|string',
             // The content object is only required for regular messages.
             'content' => 'required_if:notification,==,message|array',
         ];
