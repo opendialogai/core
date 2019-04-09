@@ -27,8 +27,6 @@ class DGraphClient
         ]);
 
         $this->client = $client;
-
-        $this->dGraphQueriesFilePath = '';
     }
 
     /**
@@ -44,7 +42,7 @@ class DGraphClient
      */
     public function initSchema()
     {
-        $schema = $this->getCurrentSchema();
+        $schema = $this->schema();
         $outcome = $this->alter($schema);
         return $outcome;
     }
@@ -131,5 +129,24 @@ class DGraphClient
         }
 
         return $response['data'];
+    }
+
+    private function schema()
+    {
+        return "
+            <causes_action>: uid .
+            <core.attribute.completes>: default .
+            <core.attribute.order>: default .
+            <ei_type>: string @index(exact) .
+            <has_bot_participant>: uid .
+            <has_interpreter>: uid .
+            <has_opening_scene>: uid .
+            <has_scene>: uid .
+            <has_user_participant>: uid .
+            <id>: string @index(exact) .
+            <listens_for>: uid .
+            <name>: default .
+            <says>: uid .
+        ";
     }
 }
