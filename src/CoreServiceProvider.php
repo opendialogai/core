@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,13 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->app->singleton(OpenDialogController::class, function () {
             return new OpenDialogController();
+        });
+
+        $this->app->singleton(DGraphClient::class, function() {
+           return new DGraphClient(
+               config('opendialog.core.DGRAPH_URL'),
+               config('opendialog.core.DGRAPH_PORT')
+           ) ;
         });
     }
 }
