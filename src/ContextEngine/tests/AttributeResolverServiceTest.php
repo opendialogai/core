@@ -33,12 +33,12 @@ class AttributeResolverServiceTest extends TestCase
         $supportedAttributes = $this->attributeResolver->getSupportedAttributes();
 
         $this->assertTrue(count($supportedAttributes) > 0);
-        $this->assertArrayHasKey('user.name', $supportedAttributes);
+        $this->assertArrayHasKey('name', $supportedAttributes);
     }
 
     public function testAttributeResolution()
     {
-        $attribute = $this->attributeResolver->getAttributeFor('user.name', 'John Smith');
+        $attribute = $this->attributeResolver->getAttributeFor('name', 'John Smith');
 
         $this->assertTrue($attribute instanceof StringAttribute);
         $this->assertTrue($attribute->getValue() == 'John Smith');
@@ -49,6 +49,6 @@ class AttributeResolverServiceTest extends TestCase
     {
         $this->expectException(AttributeCouldNotBeResolvedException::class);
 
-        $attribute = $this->attributeResolver->getAttributeFor('user.name2', 'John Smith');
+        $attribute = $this->attributeResolver->getAttributeFor('name2', 'John Smith');
     }
 }
