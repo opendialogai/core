@@ -140,16 +140,25 @@ class Intent extends Node
         }
     }
 
+    /**
+     * @param Action $action
+     */
     public function addAction(Action $action)
     {
         $this->createOutgoingEdge(Model::CAUSES_ACTION, $action);
     }
 
+    /**
+     * @param Interpreter $interpreter
+     */
     public function addInterpreter(Interpreter $interpreter)
     {
         $this->createOutgoingEdge(Model::HAS_INTERPRETER, $interpreter);
     }
 
+    /**
+     * @return bool
+     */
     public function hasInterpreter(): bool
     {
         if ($this->hasOutgoingEdgeWithRelationship(Model::HAS_INTERPRETER)) {
@@ -159,6 +168,9 @@ class Intent extends Node
         return false;
     }
 
+    /**
+     * @return bool
+     */
     public function causesAction(): bool
     {
         if ($this->hasOutgoingEdgeWithRelationship(Model::CAUSES_ACTION)) {

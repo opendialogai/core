@@ -10,6 +10,8 @@ class Model
 {
     // Attributes for conversation nodes
     const EI_TYPE = 'ei_type';
+    const ID = 'id';
+    CONST UID = 'uid';
     const CONVERSATION_TEMPLATE = 'conversation_template';
     const CONVERSATION_USER = 'conversation_user';
     const CONDITION = 'condition';
