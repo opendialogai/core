@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Http\Requests;
+namespace OpenDialogAi\SensorEngine\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

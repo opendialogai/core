@@ -1,17 +1,17 @@
 <?php
 
-namespace OpenDialogAi\Core\Http\Controllers;
+namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\Sensors\WebchatSensor;
 use OpenDialogAi\SensorEngine\Service\SensorEngine;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
-use OpenDialogAi\Core\Http\Requests\IncomingWebchatMessage;
 
-class IncomingChatController extends BaseController
+class WebchatIncomingController extends BaseController
 {
     public function receive(IncomingWebchatMessage $request)
     {

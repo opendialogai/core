@@ -7,5 +7,5 @@ Route::group(['middleware' => 'web'], function() {
         return config('opendialog.core');
     });
 
-    Route::post('/incoming/webchat', 'OpenDialogAi\Core\Http\Controllers\IncomingChatController@receive');
+    Route::post('/incoming/webchat', 'OpenDialogAi\SensorEngine\Http\Controllers\WebchatIncomingController@receive');
 });
