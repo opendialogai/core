@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\Sensors\WebchatSensor;
-use OpenDialogAi\SensorEngine\Service\SensorEngine;
+use OpenDialogAi\SensorEngine\Service\SensorService;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 
 class WebchatIncomingController extends BaseController
@@ -17,15 +17,15 @@ class WebchatIncomingController extends BaseController
     /**
      * Create a new controller instance.
      *
-     * @param  SensorEngine  $sensorEngine
+     * @param  SensorService  $sensorService
      * @param  OpenDialogController  $odController
      * @return void
      */
-    public function __construct(SensorEngine $sensorEngine, OpenDialogController $odController)
+    public function __construct(SensorService $sensorService, OpenDialogController $odController)
     {
-        $this->sensorEngine = $sensorEngine;
+        $this->sensorService = $sensorService;
         $this->odController = $odController;
-        $this->webchatSensor = $this->sensorEngine->getSensor(SensorEngine::WEBCHAT_SENSOR);
+        $this->webchatSensor = $this->sensorService->getSensor('sensor.core.webchat');
     }
 
     public function receive(IncomingWebchatMessage $request)

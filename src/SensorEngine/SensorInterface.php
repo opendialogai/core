@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\SensorEngine\Sensors;
+namespace OpenDialogAi\SensorEngine;
 
 use Illuminate\Http\Request;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
