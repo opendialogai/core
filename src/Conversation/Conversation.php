@@ -26,6 +26,9 @@ class Conversation extends NodeWithConditions
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function hasOpeningScene()
     {
         if ($this->hasOutgoingEdgeWithRelationship(Model::HAS_OPENING_SCENE)) {
@@ -89,5 +92,15 @@ class Conversation extends NodeWithConditions
         }
 
         return false;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setConversationType(string $type)
+    {
+        /* @var \OpenDialogAi\Core\Attribute\StringAttribute $eiType */
+        $eiType = $this->getAttribute(Model::EI_TYPE);
+        $eiType->setValue($type);
     }
 }

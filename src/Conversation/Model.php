@@ -48,4 +48,7 @@ class Model
 
     const TRANSITIONS_TO = 'transitions_to';
     const TRANSITIONS_FROM = 'transitions_from';
+
+    const HAVING_CONVERSATION = 'having_conversation';
+    const HAD_CONVERSATION = 'had_conversation';
 }
