@@ -17,6 +17,9 @@ class ChatbotUser extends Node
 
     public function isHavingConversation()
     {
+        //Retrieve the current user from DGraph and determine if there is an ongoing conversation
+
+
     }
 
     public function setCurrentConversation(Conversation $conversation)

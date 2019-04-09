@@ -48,7 +48,7 @@ class ConversationEngine implements ConversationEngineInterface
      */
     private function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
-        if ($userContext->getUser()->isHavingConversation()) {
+        if ($userContext->isHavingConversation()) {
             $ongoingConversation = $userContext->getUser()->getCurrentConversation();
             Log::debug(
                 sprintf(

@@ -44,4 +44,9 @@ class UserContext extends AbstractContext
     {
         $this->userService->updateUser($this->user);
     }
+
+    public function isHavingConversation() : bool
+    {
+        $this->userService->isUserHavingConversation($this->user);
+    }
 }

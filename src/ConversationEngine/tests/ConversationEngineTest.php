@@ -4,12 +4,14 @@
 namespace OpenDialogAi\ConversationEngine\tests;
 
 
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 
 class ConversationEngineTest extends TestCase
 {
@@ -41,7 +43,7 @@ class ConversationEngineTest extends TestCase
 
     }
 
-    public function testConversationStore()
+    public function testConversationStoreIntents()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
         $openingIntents = $conversationStore->getAllOpeningIntents();
@@ -58,5 +60,44 @@ class ConversationEngineTest extends TestCase
                 $this->assertTrue($intent == 'hello_bot');
             }
         }
+    }
+
+    public function testConversationEngineCurrentConversation()
+    {
+        $this->createConversationAndAttachToUser();
+
+        // Now
+    }
+
+
+    private function createUserContext()
+    {
+        // Create an utterance
+        $utterance = new WebchatChatOpenUtterance();
+        $utterance->setCallbackId('chat_open');
+        $utterance->setUserId('abcdefg123');
+
+        /* @var \OpenDialogAi\ContextEngine\ContextManager\ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+
+        /* @var \OpenDialogAi\ContextEngine\Contexts\UserContext $userContext; */
+        $userContext = $contextService->createUserContext($utterance);
+
+        return $userContext;
+    }
+
+    private function createConversationAndAttachToUser()
+    {
+        /* @var \OpenDialogAi\ConversationBuilder\Conversation $conversation */
+        $conversation = Conversation::create(['name' => 'Conversation1', 'model' => $this->conversation1()]);
+        /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
+        $conversationModel = $conversation->buildConversation();
+
+        /* @var \OpenDialogAi\ContextEngine\Contexts\UserContext $userContext */
+        $userContext = $this->createUserContext();
+        $user = $userContext->getUser();
+
+        $user->setCurrentConversation($conversationModel);
+        $userContext->updateUser();
     }
 }
