@@ -54,6 +54,15 @@ class IncomingWebchatEndpointTest extends TestCase
             ->assertStatus(422)
             ->assertJson(['errors' => ['content' => ['The content field is required when notification is message.']]]);
 
+        // Ensure that the notification type is validated.
+        $response = $this->json('POST', '/incoming/webchat', [
+            'notification' => 'some_new_type',
+            'user_id' => 'someuser',
+            'author' => 'me',
+        ]);
+        $response
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['notification' => ['The selected notification is invalid.']]]);
 
         // Ensure that the message type is validated.
         $response = $this->json('POST', '/incoming/webchat', [
