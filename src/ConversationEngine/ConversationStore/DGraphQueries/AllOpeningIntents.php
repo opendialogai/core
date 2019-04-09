@@ -22,7 +22,7 @@ class AllOpeningIntents extends DGraphQuery
         parent::__construct();
         $this->dGraphClient = $client;
 
-        $this->eq(Model::EI_TYPE,Model::CONVERSATION_TEMPLATE)
+        $this->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph([
                 Model::EI_TYPE,
                 Model::ID,
@@ -53,8 +53,7 @@ class AllOpeningIntents extends DGraphQuery
     public function getIntents()
     {
         $intents = new Map();
-        foreach ($this->data as $datum)
-        {
+        foreach ($this->data as $datum) {
             if (isset($datum[Model::HAS_OPENING_SCENE])) {
                 if (isset($datum[Model::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT])) {
                     if (isset($datum[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0][Model::SAYS])) {
@@ -66,7 +65,8 @@ class AllOpeningIntents extends DGraphQuery
                         }
                         if (isset($intent[Model::HAS_INTERPRETER])) {
                             $intents->put(
-                                $intent[Model::UID], [
+                                $intent[Model::UID],
+                                [
                                     Model::INTENT => $intent[Model::ID],
                                     Model::INTENT_INTERPRETER =>
                                         $intent[Model::HAS_INTERPRETER][0][Model::ID]
@@ -80,5 +80,4 @@ class AllOpeningIntents extends DGraphQuery
 
         return $intents;
     }
-
 }

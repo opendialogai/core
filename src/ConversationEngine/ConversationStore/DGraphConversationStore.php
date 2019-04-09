@@ -14,7 +14,8 @@ class DGraphConversationStore implements ConversationStoreInterface
 {
     private $dGraphClient;
 
-    public function __construct(DGraphClient $dGraphClient){
+    public function __construct(DGraphClient $dGraphClient)
+    {
         $this->dGraphClient = $dGraphClient;
     }
 
@@ -24,5 +25,4 @@ class DGraphConversationStore implements ConversationStoreInterface
 
         return $query->getIntents();
     }
-
 }

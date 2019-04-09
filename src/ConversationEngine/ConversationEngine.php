@@ -84,8 +84,6 @@ class ConversationEngine implements ConversationEngineInterface
     private function getMatchingConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
         $matchingIntents = new Map();
-
-
     }
 
     public function getConversationStore(): ConversationStoreInterface

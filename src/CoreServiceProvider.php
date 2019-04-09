@@ -27,11 +27,11 @@ class CoreServiceProvider extends ServiceProvider
             return new OpenDialogController();
         });
 
-        $this->app->singleton(DGraphClient::class, function() {
-           return new DGraphClient(
-               config('opendialog.core.DGRAPH_URL'),
-               config('opendialog.core.DGRAPH_PORT')
-           ) ;
+        $this->app->singleton(DGraphClient::class, function () {
+            return new DGraphClient(
+                config('opendialog.core.DGRAPH_URL'),
+                config('opendialog.core.DGRAPH_PORT')
+            ) ;
         });
     }
 }

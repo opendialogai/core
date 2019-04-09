@@ -20,7 +20,7 @@ class ConversationEngineServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-conversationengine.php', 'opendialog.conversation_engine');
 
         $this->app->singleton(ConversationEngineInterface::class, function () {
-           return new DGraphConversationStore($this->app->make(DGraphClient::class));
+            return new DGraphConversationStore($this->app->make(DGraphClient::class));
         });
 
         $this->app->singleton(ConversationEngineInterface::class, function () {
