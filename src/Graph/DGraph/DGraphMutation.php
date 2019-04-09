@@ -134,8 +134,8 @@ class DGraphMutation
                     $fromId,
                     $relationship,
                     $toId,
-                    $updateTo,
-                    $updateFrom
+                    $updateFrom,
+                    $updateTo
                 );
             }
         }
@@ -163,22 +163,22 @@ class DGraphMutation
         $subject,
         $predicate,
         $object,
-        bool $updateTo = false,
-        bool $updateFrom = false
+        bool $updateFrom = false,
+        bool $updateTo = false
     ) {
-        if ($updateTo && $updateFrom) {
+        if ($updateFrom && $updateTo) {
             return sprintf('<%s> <%s> <%s> .', $subject, $predicate, $object);
         }
 
-        if ($updateTo && !$updateFrom) {
+        if ($updateFrom && !$updateTo) {
             return sprintf('<%s> <%s> _:%s .', $subject, $predicate, $object);
         }
 
-        if (!$updateTo && $updateFrom) {
-            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
+        if (!$updateFrom && $updateTo) {
+            return sprintf('_:%s <%s> <%s> .', $subject, $predicate, $object);
         }
 
-        if (!$updateTo && !$updateFrom) {
+        if (!$updateFrom && !$updateTo) {
             return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
         }
     }
