@@ -71,10 +71,10 @@ class UserService
 
     /**
      * @param UtteranceInterface $utterance
-     * @return Node
+     * @return ChatbotUser
      * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
      */
-    public function createOrUpdateUser(UtteranceInterface $utterance): Node
+    public function createOrUpdateUser(UtteranceInterface $utterance): ChatbotUser
     {
         if ($this->userExists($utterance->getUserId())) {
             return $this->updateUserFromUtterance($utterance);
@@ -105,9 +105,8 @@ class UserService
      */
     public function createUserFromUtterance(UtteranceInterface $utterance)
     {
-        $user = new Node($utterance->getUserId());
-        $user->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CHATBOT_USER));
-        $user->addAttribute(new IntAttribute('user.timestamp', microtime(true)));
+        $user = new ChatbotUser($utterance->getUserId());
+        $user->addAttribute(new IntAttribute('timestamp', microtime(true)));
 
         return $this->updateUser($user);
     }
@@ -119,7 +118,6 @@ class UserService
     public function updateUser(ChatbotUser $user)
     {
         $mutation = new DGraphMutation($user);
-
         $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
 
         if ($mutationResponse->isSuccessful()) {
