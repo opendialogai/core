@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Tests;
 
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
+use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
@@ -47,6 +48,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             CoreServiceProvider::class,
             ActionEngineServiceProvider::class,
             ConversationBuilderServiceProvider::class,
+            ConversationEngineServiceProvider::class,
             ResponseEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
@@ -63,5 +65,86 @@ class TestCase extends \Orchestra\Testbench\TestCase
             'database' => ':memory:',
             'prefix'   => '',
         ]);
+    }
+
+    protected function conversation1()
+    {
+        return <<<EOT
+conversation:
+  id: hello_bot_world
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+            interpreter: hello_interpreter1
+            action: register_hello
+        - b: 
+            i: hello_user
+            action: register_hello
+    scene2:
+      intents:
+        - u: 
+            i: how_are_you
+            interpreter: how_are_you_interpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back            
+EOT;
+    }
+
+    protected function conversation2()
+    {
+        return <<<EOT
+conversation:
+  id: hello_bot_world2
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+            interpreter: hello_interpreter1
+            action: register_hello
+        - b: 
+            i: hello_user
+            action: register_hello
+    scene2:
+      intents:
+        - u: 
+            i: how_are_you
+            interpreter: how_are_you_interpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back            
+EOT;
+    }
+
+    protected function conversation3()
+    {
+        return <<<EOT
+conversation:
+  id: hello_bot_world3
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+            interpreter: hello_interpreter2
+            action: register_hello
+        - b: 
+            i: hello_user
+            action: register_hello
+    scene2:
+      intents:
+        - u: 
+            i: how_are_you
+            interpreter: how_are_you_interpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back            
+EOT;
     }
 }

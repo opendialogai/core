@@ -13,7 +13,7 @@ class Conversation extends NodeWithConditions
     public function __construct($id)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONVERSATION));
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE));
     }
 
     /**
