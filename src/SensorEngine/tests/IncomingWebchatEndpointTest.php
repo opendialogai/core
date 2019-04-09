@@ -93,7 +93,7 @@ class IncomingWebchatEndpointTest extends TestCase
         ]);
         $response
             ->assertStatus(422)
-            ->assertJson(['errors' => ['content.callback_id' => ['The content.callback id field is required when content.type is chat_open.']]]);
+            ->assertJson(['errors' => ['content.data.callback_id' => ['The content.data.callback id field is required when content.type is chat_open.']]]);
 
 
         // Ensure that a valid chat_open message is validated and gives the correct response.
