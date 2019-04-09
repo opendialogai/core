@@ -13,6 +13,21 @@ use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 
 class WebchatIncomingController extends BaseController
 {
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param  SensorEngine  $sensorEngine
+     * @param  OpenDialogController  $odController
+     * @return void
+     */
+    public function __construct(SensorEngine $sensorEngine, OpenDialogController $odController)
+    {
+        $this->sensorEngine = $sensorEngine;
+        $this->odController = $odController;
+        $this->webchatSensor = $this->sensorEngine->getSensor(SensorEngine::WEBCHAT_SENSOR);
+    }
+
     public function receive(IncomingWebchatMessage $request)
     {
         $messageType = $request->input('notification');
@@ -20,19 +35,11 @@ class WebchatIncomingController extends BaseController
         // Log that the message was successfully received.
         Log::info("Webchat endpoint received a valid message of type ${messageType}.");
 
-        // Get the Webchat Sensor.
-        $sensorEngine = app()->make(SensorEngine::class);
-        /* @var WebchatSensor $webchatSensor */
-        $webchatSensor = $sensorEngine->getSensor(SensorEngine::WEBCHAT_SENSOR);
-
         // Get the Utterance.
-        $utterance = $webchatSensor->interpret($request);
-
-        // Pass the utterance to the OD Controller.
-        $odController = app()->make(OpenDialogController::class);
+        $utterance = $this->webchatSensor->interpret($request);
 
         // Get the response.
-        $message = $odController->runConversation($utterance);
+        $message = $this->odController->runConversation($utterance);
         Log::debug("Sending response: {$message->getText()}");
 
         return response($message->getMessageToPost(), 200);
