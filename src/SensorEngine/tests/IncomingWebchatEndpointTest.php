@@ -17,8 +17,8 @@ class IncomingWebchatEndpointTest extends TestCase
             'user_id' => 'someuser',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['author' => ['The author field is required.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['author' => ['The author field is required.']]]);
 
         // Ensure that the user_id field is required.
         $response = $this->json('POST', '/incoming/webchat', [
@@ -26,8 +26,8 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['user_id' => ['The user id field is required.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['user_id' => ['The user id field is required.']]]);
 
         // Ensure that the notification type field is required.
         $response = $this->json('POST', '/incoming/webchat', [
@@ -35,8 +35,8 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['notification' => ['The notification field is required.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['notification' => ['The notification field is required.']]]);
     }
 
     /**
@@ -51,8 +51,8 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['content' => ['The content field is required when notification is message.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['content' => ['The content field is required when notification is message.']]]);
 
 
         // Ensure that the message type is validated.

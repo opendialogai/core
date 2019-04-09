@@ -11,20 +11,14 @@ use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\SensorEngine\Sensors\WebchatSensor;
 use OpenDialogAi\SensorEngine\Service\SensorEngine;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
+use OpenDialogAi\Core\Http\Requests\IncomingWebchatMessage;
 
 class IncomingChatController extends BaseController
 {
     use ValidatesRequests;
 
-    public function receive(Request $request)
+    public function receive(IncomingWebchatMessage $request)
     {
-        // Validate the request.
-        $requestValid = $this->validateRequest($request);
-
-        if ($requestValid !== true) {
-            return response()->json($requestValid, 400);
-        }
-
         // Handle requests without the content object.
         if (!$content = $request->input('content')) {
             $content = [0 => 0];
@@ -68,34 +62,6 @@ class IncomingChatController extends BaseController
         Log::debug("Sending response: {$message->getText()}");
 
         return response($message->getMessageToPost(), 200);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return mixed
-     */
-    private function validateRequest($request)
-    {
-        Log::debug('Request:', $request->all());
-
-        $validator = Validator::make($request->all(), [
-            'notification' => 'required|string|in:read_receipt,typing_on,typing_off,message',
-            'user_id' => 'required|string',
-            'author' => 'required|string',
-            // The message id is only required for read receipts.
-            'message_id' => 'required_if:notification,==,read_receipt|string',
-            // The content object is only required for regular messages.
-            'content' => 'required_if:notification,==,message|array',
-        ]);
-
-        if ($validator->fails()) {
-            $validationMessages = $validator->messages();
-            Log::info('Webchat endpoint received an invalid message. Errors were: ' . $validationMessages);
-            return $validationMessages;
-        }
-
-        return true;
     }
 
     /**
