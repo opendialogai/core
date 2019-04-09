@@ -14,9 +14,7 @@
     "symfony/yaml": "^4.2",
     "php-ds/php-ds": "~1.2.",
     "guzzlehttp/guzzle": "~6.3",
-    "venturecraft/revisionable": "^1.28",
     "justinrainbow/json-schema": "^5.2",
-    "cweagans/composer-patches": "~1.0",
     "spatie/laravel-activitylog": "^3.2"
   },
   "config": {
@@ -55,11 +53,6 @@
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
         "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider"
       ]
-    },
-    "patches": {
-      "venturecraft/revisionable": {
-        "Laravel 5.8 compatibility": "https://github.com/VentureCraft/revisionable/compare/master...markacianfrani:master.diff"
-      }
     }
   }
 }
