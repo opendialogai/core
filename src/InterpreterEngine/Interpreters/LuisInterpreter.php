@@ -58,8 +58,8 @@ class LuisInterpreter extends BaseInterpreter
     }
 
     /**
-     * Creates an @see Intent from the LUIS response. If there is no intent in th response, a default NO_MATCH intent is
-     * returned
+     * Creates an @see Intent from the LUIS response. If there is no intent in the response, a default NO_MATCH intent
+     * is returned
      *
      * @param LuisResponse $response
      * @return NoMatchIntent|Intent

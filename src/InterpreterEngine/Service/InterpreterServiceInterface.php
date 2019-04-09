@@ -45,4 +45,15 @@ interface InterpreterServiceInterface
      * @return InterpreterInterface
      */
     public function getInterpreter($interpreterName) : InterpreterInterface;
+
+    /**
+     * @param $interpreterName
+     * @return mixed
+     */
+    public function setDefaultInterpreter($interpreterName);
+
+    /**
+     * @return InterpreterInterface
+     */
+    public function getDefaultInterpreter() : InterpreterInterface;
 }
