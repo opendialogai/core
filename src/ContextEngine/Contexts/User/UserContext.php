@@ -88,4 +88,10 @@ class UserContext extends AbstractContext
     {
         return $this->userService->getCurrentConversation($this->user->getId());
     }
+
+    public function setCurrentConversation(Conversation $conversation)
+    {
+        $this->getUser()->setCurrentConversation($conversation);
+        $this->updateUser();
+    }
 }
