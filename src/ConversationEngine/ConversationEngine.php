@@ -12,7 +12,6 @@ use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
@@ -50,9 +49,9 @@ class ConversationEngine implements ConversationEngineInterface
     {
         /* @var Conversation $ongoingConversation */
         $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
-        dd($ongoingConversation->getId());
 
-        // We are either dealing with a newly started conversation or with a conversation that is set to a specific point.
+        if ($userContext->hasCurrentIntent()) {
+        }
 
         /* @var Intent $intent */
         $intent = null;
@@ -129,14 +128,12 @@ class ConversationEngine implements ConversationEngineInterface
                         $matchingIntents->put($key, $openingIntent);
                     }
                 }
-
             } else {
             // If we don't have a custom interpreter just check if it is a match to the default intent
                 if ($defaultIntent->getId() === $openingIntent->getIntentId()) {
                     $matchingIntents->put($key, $openingIntent);
                 }
             }
-
         }
 
         /* @var \OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent $intent */
