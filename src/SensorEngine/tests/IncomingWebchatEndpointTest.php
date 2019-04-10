@@ -17,8 +17,8 @@ class IncomingWebchatEndpointTest extends TestCase
             'user_id' => 'someuser',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['author' => ['The author field is required.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['author' => ['The author field is required.']]]);
 
         // Ensure that the user_id field is required.
         $response = $this->json('POST', '/incoming/webchat', [
@@ -26,8 +26,8 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['user_id' => ['The user id field is required.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['user_id' => ['The user id field is required.']]]);
 
         // Ensure that the notification type field is required.
         $response = $this->json('POST', '/incoming/webchat', [
@@ -35,8 +35,8 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['notification' => ['The notification field is required.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['notification' => ['The notification field is required.']]]);
     }
 
     /**
@@ -51,9 +51,18 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['content' => ['The content field is required when notification is message.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['content' => ['The content field is required.']]]);
 
+        // Ensure that the notification type is validated.
+        $response = $this->json('POST', '/incoming/webchat', [
+            'notification' => 'some_new_type',
+            'user_id' => 'someuser',
+            'author' => 'me',
+        ]);
+        $response
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['notification' => ['The selected notification is invalid.']]]);
 
         // Ensure that the message type is validated.
         $response = $this->json('POST', '/incoming/webchat', [
@@ -69,8 +78,46 @@ class IncomingWebchatEndpointTest extends TestCase
             ],
         ]);
         $response
-            ->assertStatus(400)
-            ->assertJson(['type' => ['The selected type is invalid.']]);
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['content.type' => ['The selected content.type is invalid.']]]);
+
+        // Ensure that a callback is required for chat_open messages.
+        $response = $this->json('POST', '/incoming/webchat', [
+            'notification' => 'message',
+            'user_id' => 'someuser',
+            'author' => 'me',
+            'content' => [
+                'author' => 'me',
+                'type' => 'chat_open',
+            ],
+        ]);
+        $response
+            ->assertStatus(422)
+            ->assertJson(['errors' => ['content.callback_id' => ['The content.callback id field is required when content.type is chat_open.']]]);
+
+
+        // Ensure that a valid chat_open message is validated and gives the correct response.
+        $response = $this->json('POST', '/incoming/webchat', [
+            'notification' => 'message',
+            'user_id' => 'someuser',
+            'author' => 'me',
+            'content' => [
+                'type' => 'chat_open',
+                'callback_id' => 'me',
+                'user' => [
+                    'ip' => '127.0.0.1',
+                ],
+            ],
+        ]);
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'author' => 'them',
+                'type' => 'text',
+                'data' => [
+                    'text' => 'Hello',
+                ],
+            ]);
 
         // Ensure that a valid message is validated and gives the correct response.
         $response = $this->json('POST', '/incoming/webchat', [
