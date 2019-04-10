@@ -63,6 +63,8 @@ class ChatbotUser extends Node
                 ->first()
                 ->value;
         }
+
+        return null;
     }
 
     /**
