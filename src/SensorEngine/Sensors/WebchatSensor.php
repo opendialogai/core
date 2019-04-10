@@ -27,11 +27,17 @@ class WebchatSensor extends BaseSensor implements SensorInterface
         switch ($request['content']['type']) {
             case 'chat_open':
                 Log::debug('Received webchat open request.');
-                return new WebchatChatOpenUtterance();
+                $utterance = new WebchatChatOpenUtterance();
+                $utterance->setCallbackId($request['content']['callback_id']);
+                $utterance->setUserId($request['user_id']);
+                return $utterance;
                 break;
             case 'text':
                 Log::debug('Received webchat message.');
-                return new WebchatTextUtterance();
+                $utterance = new WebchatTextUtterance();
+                $utterance->setText($request['content']['data'][0]);
+                $utterance->setUserId($request['user_id']);
+                return $utterance;
                 break;
             default:
                 Log::debug("Received unknown webchat message type {$request['content']['type']}.");

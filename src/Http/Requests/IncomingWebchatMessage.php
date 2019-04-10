@@ -24,11 +24,17 @@ class IncomingWebchatMessage extends FormRequest
     public function rules()
     {
         return [
-            'notification' => 'required|string|in:message,chat_open,trigger',
+            'notification' => 'required|string|in:message',
             'user_id' => 'required|string',
             'author' => 'required|string',
-            // The content object is only required for regular messages.
-            'content' => 'required_if:notification,==,message|array',
+            // The content array is required for all messages.
+            'content' => 'required|array',
+            // Validate the message type.
+            'content.type' => 'in:chat_open,text,trigger',
+            // The callback_id is required for chat_opens.
+            'content.callback_id' => 'required_if:content.type,==,chat_open|string',
+            // The user data array is required for chat_opens.
+            'content.user' => 'required_if:content.type,==,chat_open|array',
         ];
     }
 }
