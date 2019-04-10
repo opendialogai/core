@@ -4,11 +4,12 @@
 namespace OpenDialogAi\ContextEngine\Contexts;
 
 
+use Ds\Map;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Conversation;
 
 class UserContext extends AbstractContext
 {
@@ -25,28 +26,66 @@ class UserContext extends AbstractContext
         parent::__construct(self::USER_CONTEXT);
         $this->user = $user;
         $this->userService = $userService;
-
-        // Move all the user attributes to the context;
-        $this->setAttributes($this->user->getAttributes());
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getAttributes(): Map
+    {
+        return $this->getUser()->getAttributes();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAttribute(string $attributeName): AttributeInterface
+    {
+        return $this->getUser()->getAttribute($attributeName);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addAttribute(AttributeInterface $attribute)
+    {
+        $this->getUser()->addAttribute($attribute);
+    }
+
+    /**
+     * @return ChatbotUser
+     */
     public function getUser(): ChatbotUser
     {
         return $this->user;
     }
 
+    /**
+     * @return string
+     */
     public function getUserId(): string
     {
-        return $this->user->getAttribute('id')->getValue();
+        return $this->user->getId();
     }
 
+    /**
+     *
+     */
     public function updateUser()
     {
         $this->userService->updateUser($this->user);
     }
 
-    public function isHavingConversation() : bool
+    /**
+     * @return bool
+     */
+    public function isUserHavingConversation() : bool
     {
-        $this->userService->isUserHavingConversation($this->user);
+        return $this->userService->userIsHavingConversation($this->user->getId());
+    }
+
+    public function getCurrentConversation(): Conversation
+    {
+        return $this->userService->getCurrentConversation($this->user->getId());
     }
 }

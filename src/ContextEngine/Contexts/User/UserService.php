@@ -6,9 +6,11 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
@@ -143,19 +145,78 @@ class UserService
 
     /**
      * @param $userId
+     * @return bool
+     */
+    public function userIsHavingConversation($userId): bool
+    {
+        if (isset($this->getOngoingConversationIdQuery($userId)[0][Model::HAVING_CONVERSATION])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $userId
+     * @return mixed
+     */
+    public function getCurrentConversation($userId)
+    {
+        if ($this->userIsHavingConversation($userId)) {
+            $conversationId = $this->getOngoingConversationIdQuery(
+                $userId
+            )[0][Model::HAVING_CONVERSATION][0][Model::UID];
+        } else {
+            throw new NoOngoingConversationException();
+        }
+
+        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationId, $this->dGraphClient);
+        return $conversation;
+    }
+
+    /**
+     * @param $userId
      * @return DGraphQuery
      */
     private function getUserQuery($userId): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
 
-        $dGraphQuery->eq('id', $userId)
+        $dGraphQuery->eq(Model::ID, $userId)
             ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
             ->setQueryGraph([
-                'uid',
+                Model::UID,
                 'expand(_all_)',
             ]);
 
         return $dGraphQuery;
+    }
+
+
+    /**
+     * @param $userId
+     * @return array
+     */
+    private function getOngoingConversationIdQuery($userId): array
+    {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->eq('id', $userId)
+            ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
+            ->setQueryGraph([
+                Model::UID,
+                MODEL::HAVING_CONVERSATION => [
+                    Model::UID,
+                    Model::ID
+                ],
+            ]);
+
+        $response = $this->dGraphClient->query($dGraphQuery);
+        return $response->getData();
+    }
+
+    private function getConversation($conversationUid): DGraphQuery
+    {
+
     }
 }
