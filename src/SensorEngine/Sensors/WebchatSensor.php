@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Utterances\Exceptions\UtteranceUnknownMessageType;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
 
 class WebchatSensor extends BaseSensor implements SensorInterface
 {
@@ -32,6 +33,10 @@ class WebchatSensor extends BaseSensor implements SensorInterface
             case 'text':
                 Log::debug('Received webchat message.');
                 return new WebchatTextUtterance();
+                break;
+            case 'trigger':
+                Log::debug('Received webchat trigger message.');
+                return new WebchatTriggerUtterance();
                 break;
             default:
                 Log::debug("Received unknown webchat message type {$request['content']['type']}.");

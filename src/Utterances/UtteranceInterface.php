@@ -101,4 +101,16 @@ interface UtteranceInterface
      * @throws FieldNotSupported
      */
     public function setCallbackId(string $callbackId): void;
+
+    /**
+     * @return string
+     * @throws FieldNotSupported
+     */
+    public function getValue(): string;
+
+    /**
+     * @param string $value
+     * @throws FieldNotSupported
+     */
+    public function setValue(string $value): void;
 }
