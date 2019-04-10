@@ -77,7 +77,7 @@ conversation:
       intents:
         - u: 
             i: hello_bot
-            interpreter: hello_interpreter1
+            interpreter: interpreter.core.callbackInterpreter
             action: register_hello
         - b: 
             i: hello_user
@@ -86,7 +86,7 @@ conversation:
       intents:
         - u: 
             i: how_are_you
-            interpreter: how_are_you_interpreter
+            interpreter: interpreter.core.callbackInterpreter
             action: wave
         - b: 
             i: doing_dandy
@@ -103,8 +103,8 @@ conversation:
     opening_scene:
       intents:
         - u: 
-            i: hello_bot
-            interpreter: hello_interpreter1
+            i: howdy_bot
+            interpreter: interpreter.core.callbackInterpreter
             action: register_hello
         - b: 
             i: hello_user
@@ -113,7 +113,7 @@ conversation:
       intents:
         - u: 
             i: how_are_you
-            interpreter: how_are_you_interpreter
+            interpreter: interpreter.core.callbackInterpreter
             action: wave
         - b: 
             i: doing_dandy
@@ -130,8 +130,8 @@ conversation:
     opening_scene:
       intents:
         - u: 
-            i: hello_bot
-            interpreter: hello_interpreter2
+            i: top_of_the_morning_bot
+            interpreter: interpreter.core.callbackInterpreter
             action: register_hello
         - b: 
             i: hello_user
@@ -140,7 +140,7 @@ conversation:
       intents:
         - u: 
             i: how_are_you
-            interpreter: how_are_you_interpreter
+            interpreter: interpreter.core.callbackInterpreter
             action: wave
         - b: 
             i: doing_dandy
