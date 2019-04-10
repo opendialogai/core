@@ -34,7 +34,7 @@ class ConversationEngineTest extends TestCase
         $this->client->dropSchema();
         $this->client->initSchema();
 
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
 
             // Now create and store three conversations
@@ -46,7 +46,7 @@ class ConversationEngineTest extends TestCase
 
         // Create an utterance
         $utterance = new WebchatChatOpenUtterance();
-        $utterance->setCallbackId('chat_open');
+        $utterance->setCallbackId('hello_bot');
         $this->utterance = $utterance;
     }
 
@@ -89,7 +89,11 @@ class ConversationEngineTest extends TestCase
     {
         $userContext = $this->createUserContext('abc123a');
 
-        dd($this->conversationEngine->determineCurrentConversation($userContext, $this->utterance));
+        $conversation = $this->conversationEngine->determineCurrentConversation($userContext, $this->utterance);
+        $this->assertTrue($conversation->getId() == 'no_match_conversation');
+
+        $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+
     }
 
 

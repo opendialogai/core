@@ -6,9 +6,9 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use Ds\Map;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\AllOpeningIntents;
-use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 class DGraphConversationStore implements ConversationStoreInterface
 {
@@ -19,10 +19,23 @@ class DGraphConversationStore implements ConversationStoreInterface
         $this->dGraphClient = $dGraphClient;
     }
 
+    /**
+     * @return Map
+     */
     public function getAllOpeningIntents(): Map
     {
         $query = new AllOpeningIntents($this->dGraphClient);
 
         return $query->getIntents();
+    }
+
+    /**
+     * @param $conversationId
+     * @return Conversation
+     */
+    public function getConversation($conversationId): Conversation
+    {
+        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationId, $this->dGraphClient, true);
+        return $conversation;
     }
 }

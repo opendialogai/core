@@ -12,16 +12,33 @@ use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 
 class ConversationEngine implements ConversationEngineInterface
 {
     /* @var ConversationStoreInterface */
     private $conversationStore;
 
+    /* @var InterpreterServiceInterface */
+    private $interpreterService;
+
+    /**
+     * @param ConversationStoreInterface $conversationStore
+     */
     public function setConversationStore(ConversationStoreInterface $conversationStore)
     {
         $this->conversationStore = $conversationStore;
+    }
+
+    /**
+     * @param InterpreterServiceInterface $interpreterService
+     */
+    public function setInterpreterService(InterpreterServiceInterface $interpreterService)
+    {
+        $this->interpreterService = $interpreterService;
     }
 
     /**
@@ -33,6 +50,9 @@ class ConversationEngine implements ConversationEngineInterface
     {
         /* @var Conversation $ongoingConversation */
         $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
+        dd($ongoingConversation->getId());
+
+        // We are either dealing with a newly started conversation or with a conversation that is set to a specific point.
 
         /* @var Intent $intent */
         $intent = null;
@@ -70,7 +90,11 @@ class ConversationEngine implements ConversationEngineInterface
             )
         );
 
-        return $ongoingConversation;
+        // Associate the conversation with the user
+        $userContext->setCurrentConversation($ongoingConversation);
+
+        // Start from the top - we should now have a set conversation
+        return self::determineCurrentConversation($userContext, $utterance);
     }
 
     /**
@@ -86,13 +110,40 @@ class ConversationEngine implements ConversationEngineInterface
     {
         $matchingIntents = new Map();
 
-        $defaultIntent = $this->app->make(InterpreterService::class)->
+        $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
 
         $openingIntents = $this->conversationStore->getAllOpeningIntents();
 
-        // Use the default interpreter unless a custom interpreter is defined.
+        /* @var \OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent $openingIntent */
+        foreach ($openingIntents as $key => $openingIntent) {
+            // If we have an interpreter use that to interpret.
+            if ($openingIntent->hasInterpreter()) {
+                $intents = $this->interpreterService
+                    ->getInterpreter($openingIntent->getInterpreter())
+                    ->interpret($utterance);
 
-        dd($openingIntents);
+                // For each intent from the interpreter check to see if it matches the opening intent candidate.
+                foreach ($intents as $interpretedIntent) {
+                    if ($interpretedIntent->getId() === $openingIntent->getIntentId()) {
+                        // If it is a match add it to the matching intents.
+                        $matchingIntents->put($key, $openingIntent);
+                    }
+                }
+
+            } else {
+            // If we don't have a custom interpreter just check if it is a match to the default intent
+                if ($defaultIntent->getId() === $openingIntent->getIntentId()) {
+                    $matchingIntents->put($key, $openingIntent);
+                }
+            }
+
+        }
+
+        /* @var \OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent $intent */
+        $intent = $matchingIntents->last()->value;
+
+        // For this intent get the matching conversation
+        return $this->conversationStore->getConversation($intent->getConversationUid());
     }
 
     public function getConversationStore(): ConversationStoreInterface
