@@ -93,7 +93,7 @@ class IncomingWebchatEndpointTest extends TestCase
         ]);
         $response
             ->assertStatus(422)
-            ->assertJson(['errors' => ['content.callback_id' => ['The content.callback id field is required when content.type is chat_open.']]]);
+            ->assertJson(['errors' => ['content.data.callback_id' => ['The content.data.callback id field is required when content.type is chat_open.']]]);
 
 
         // Ensure that a valid chat_open message is validated and gives the correct response.
@@ -103,9 +103,13 @@ class IncomingWebchatEndpointTest extends TestCase
             'author' => 'me',
             'content' => [
                 'type' => 'chat_open',
-                'callback_id' => 'me',
-                'user' => [
-                    'ip' => '127.0.0.1',
+                'user_id' => 'someuser',
+                'author' => 'me',
+                'data' => [
+                    'callback_id' => 'WELCOME',
+                    'user' => [
+                        'ip' => '127.0.0.1',
+                    ],
                 ],
             ],
         ]);
@@ -128,7 +132,7 @@ class IncomingWebchatEndpointTest extends TestCase
                 'author' => 'me',
                 'type' => 'text',
                 'data' => [
-                    'Hello'
+                    'text' => 'Hello'
                 ],
             ],
         ]);

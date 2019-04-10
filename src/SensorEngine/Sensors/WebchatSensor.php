@@ -29,14 +29,14 @@ class WebchatSensor extends BaseSensor
             case 'chat_open':
                 Log::debug('Received webchat open request.');
                 $utterance = new WebchatChatOpenUtterance();
-                $utterance->setCallbackId($request['content']['callback_id']);
+                $utterance->setCallbackId($request['content']['data']['callback_id']);
                 $utterance->setUserId($request['user_id']);
                 return $utterance;
                 break;
             case 'text':
                 Log::debug('Received webchat message.');
                 $utterance = new WebchatTextUtterance();
-                $utterance->setText($request['content']['data'][0]);
+                $utterance->setText($request['content']['data']['text']);
                 $utterance->setUserId($request['user_id']);
                 return $utterance;
                 break;
