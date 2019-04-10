@@ -90,7 +90,8 @@ conversation:
             action: wave
         - b: 
             i: doing_dandy
-            action: wave_back            
+            action: wave_back
+            completes: true            
 EOT;
     }
 
@@ -117,7 +118,8 @@ conversation:
             action: wave
         - b: 
             i: doing_dandy
-            action: wave_back            
+            action: wave_back 
+            completes: true           
 EOT;
     }
 
@@ -144,7 +146,25 @@ conversation:
             action: wave
         - b: 
             i: doing_dandy
-            action: wave_back            
+            action: wave_back   
+            completes: true         
 EOT;
+    }
+
+    protected function conversation4()
+    {
+        return <<<EOT
+conversation:
+  id: no_match_conversation
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: intent.core.NoMatch
+        - b: 
+            i: intent.core.NoMatchResponse
+            completes: true
+EOT;
+
     }
 }
