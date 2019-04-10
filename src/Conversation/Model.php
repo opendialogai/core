@@ -51,4 +51,5 @@ class Model
 
     const HAVING_CONVERSATION = 'having_conversation';
     const HAD_CONVERSATION = 'had_conversation';
+    const CURRENT_INTENT = 'current_intent';
 }

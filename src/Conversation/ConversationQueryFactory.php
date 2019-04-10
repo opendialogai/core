@@ -12,6 +12,21 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
  */
 class ConversationQueryFactory
 {
+    public static function getConversationTemplateIds(DGraphClient $client)
+    {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
+            ->setQueryGraph([
+               MODEL::UID,
+               MODEL::ID
+            ]);
+
+        $response = $client->query($dGraphQuery)->getData();
+        return $response;
+    }
+
+
     /**
      * This queries Dgraph and retrieves a rebuilt Conversation Object.
      * @param string $conversationUid
@@ -26,6 +41,7 @@ class ConversationQueryFactory
             ->setQueryGraph([
                 Model::UID,
                 Model::ID,
+                Model::EI_TYPE,
                 Model::HAS_OPENING_SCENE => self::getSceneGraph(),
                 Model::HAS_SCENE => self::getSceneGraph()
             ]);
@@ -102,6 +118,7 @@ class ConversationQueryFactory
     {
         $cm = new ConversationManager($data[Model::ID]);
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
+        $cm->getConversation()->setConversationType($data[Model::EI_TYPE]);
 
         // Create the opening scene
         self::createSceneFromDgraphData($cm, $data[Model::HAS_OPENING_SCENE][0], true, $clone);
@@ -122,7 +139,7 @@ class ConversationQueryFactory
      * @param bool $opening
      * @param bool $clone
      */
-    private static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $opening = false, bool $clone = true)
+    private static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $opening = false, bool $clone = false)
     {
         $cm->createScene($data[Model::ID], $opening);
         $scene = $cm->getScene($data[Model::ID]);
@@ -151,7 +168,7 @@ class ConversationQueryFactory
         Participant $participant,
         ConversationManager $cm,
         $data,
-        bool $clone = true
+        bool $clone = false
     )
     {
         foreach ($data[Model::SAYS] as $intentData) {
