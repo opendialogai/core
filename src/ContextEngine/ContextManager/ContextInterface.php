@@ -29,7 +29,8 @@ interface ContextInterface
     public function getAttributes(): Map;
 
     /**
-     * Retrieves an attribute, if present, from the context.
+     * Retrieves an attribute, if present, from the context. It is always up to the calling service to let us know
+     * what context we should use.
      *
      * @param string $attributeName
      * @return AttributeInterface
