@@ -11,9 +11,12 @@ use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
+use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class ConversationEngineTest extends TestCase
 {
@@ -129,6 +132,21 @@ class ConversationEngineTest extends TestCase
         $this->assertTrue($botIntent->getAction()->getId() == 'wave_back');
     }
 
+    public function testNextPossibleIntents()
+    {
+        $userContext = $this->createConversationAndAttachToUser('abc123a');
+
+        $this->utterance->setCallbackId('hello_bot');
+        /* @var InterpreterServiceInterface $interpreterService */
+        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        /* @var CallbackInterpreter $callbackInterpeter */
+        $defaultInterpreter = $interpreterService->getDefaultInterpreter();
+        $defaultInterpreter->addCallback('hello_bot', 'hello_bot');
+
+        $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+
+    }
+
     /**
      * @param $userId
      * @return \OpenDialogAi\ContextEngine\Contexts\UserContext
@@ -166,6 +184,10 @@ class ConversationEngineTest extends TestCase
         $user = $userContext->getUser();
 
         $user->setCurrentConversation($conversationModel);
+        /* @var Scene $scene */
+        $scene = $user->getCurrentConversation()->getOpeningScenes()->first()->value;
+        $intent = $scene->getIntentByOrder(1);
+        $user->setCurrentIntent($intent);
         $userContext->updateUser();
 
         return $userContext;
