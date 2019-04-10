@@ -10,7 +10,9 @@ use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
@@ -38,6 +40,8 @@ class UserService
     }
 
     /**
+     * This retrieves the user from dgraph and sets the current conversation
+     *
      * @param $userId
      * @return Node
      */
@@ -68,6 +72,21 @@ class UserService
             }
         }
 
+        if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
+            $conversation = ConversationQueryFactory::getConversationFromDgraph(
+                $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID],
+                $this->dGraphClient
+            );
+
+            $user->setCurrentConversation($conversation);
+        }
+
+        if (isset($response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT])) {
+            $intent = $user->getIntentByUid(
+                $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT][0][Model::UID]
+            );
+            $user->setCurrentIntent($intent);
+        }
         return $user;
     }
 
@@ -96,7 +115,7 @@ class UserService
         $user = $this->getUser($utterance->getUserId());
 
         // @todo identify what needs to be updated - this is just a dummy action now
-        $user->setAttribute('user.timestamp', microtime(true));
+        $user->setAttribute('timestamp', microtime(true));
         return $this->updateUser($user);
     }
 
@@ -111,6 +130,25 @@ class UserService
         $user->addAttribute(new IntAttribute('timestamp', microtime(true)));
 
         return $this->updateUser($user);
+    }
+
+    /**
+     * @param ChatbotUser $user
+     * @param Conversation $conversation
+     */
+    public function setCurrentConversation(ChatbotUser $user, Conversation $conversation)
+    {
+        $user->setCurrentConversation($conversation);
+        $this->updateUser($user);
+    }
+
+    /**
+     *
+     */
+    public function setCurrentIntent(ChatbotUser $user, Intent $intent)
+    {
+        $user->setCurrentIntent($intent);
+        $this->updateUser($user);
     }
 
     /**
@@ -175,6 +213,19 @@ class UserService
     }
 
     /**
+     * @param ChatbotUser $user
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function unsetCurrentIntent(ChatbotUser $user)
+    {
+        $this->dGraphClient->deleteRelationship(
+            $user->getCurrentConversation()->getUid(),
+            $user->getCurrentIntent()->getUid(),
+            Model::CURRENT_INTENT
+        );
+    }
+
+    /**
      * @param $userId
      * @return DGraphQuery
      */
@@ -186,7 +237,12 @@ class UserService
             ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
             ->setQueryGraph([
                 Model::UID,
-                'expand(_all_)',
+                'expand(_all_)' => [
+                    Model::UID,
+                    'expand(_all_)' => [
+                        Model::UID,
+                    ]
+                ]
             ]);
 
         return $dGraphQuery;
@@ -215,8 +271,4 @@ class UserService
         return $response->getData();
     }
 
-    private function getConversation($conversationUid): DGraphQuery
-    {
-
-    }
 }

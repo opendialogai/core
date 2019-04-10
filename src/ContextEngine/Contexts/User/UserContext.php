@@ -10,6 +10,7 @@ use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\Intent;
 
 class UserContext extends AbstractContext
 {
@@ -84,14 +85,40 @@ class UserContext extends AbstractContext
         return $this->userService->userIsHavingConversation($this->user->getId());
     }
 
+    /**
+     * @return Conversation
+     */
     public function getCurrentConversation(): Conversation
     {
         return $this->userService->getCurrentConversation($this->user->getId());
     }
 
+    /**
+     * @param Conversation $conversation
+     */
     public function setCurrentConversation(Conversation $conversation)
     {
-        $this->getUser()->setCurrentConversation($conversation);
+        $this->user->setCurrentConversation($conversation);
         $this->updateUser();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasCurrentIntent()
+    {
+        if ($this->user->hasCurrentIntent()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Intent
+     */
+    public function getCurrentIntent() : Intent
+    {
+        return $this->user->getCurrentIntent();
     }
 }
