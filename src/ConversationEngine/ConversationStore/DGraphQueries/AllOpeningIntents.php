@@ -50,6 +50,11 @@ class AllOpeningIntents extends DGraphQuery
         return $this->data;
     }
 
+    /**
+     * Returns all opening intents.
+     *
+     * @return Map
+     */
     public function getIntents()
     {
         $intents = new Map();
@@ -60,17 +65,24 @@ class AllOpeningIntents extends DGraphQuery
                         foreach ($datum[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0][Model::SAYS] as $intent) {
                             $intents->put(
                                 $intent[Model::UID],
-                                $intent[Model::ID]
+                                new OpeningIntent(
+                                    $intent[Model::ID],
+                                    $intent[Model::UID],
+                                    $datum[Model::ID],
+                                    $datum[Model::UID]
+                                )
                             );
                         }
                         if (isset($intent[Model::HAS_INTERPRETER])) {
                             $intents->put(
                                 $intent[Model::UID],
-                                [
-                                    Model::INTENT => $intent[Model::ID],
-                                    Model::INTENT_INTERPRETER =>
-                                        $intent[Model::HAS_INTERPRETER][0][Model::ID]
-                                ]
+                                new OpeningIntent(
+                                    $intent[Model::ID],
+                                    $intent[Model::UID],
+                                    $datum[Model::ID],
+                                    $datum[Model::UID],
+                                    $intent[Model::HAS_INTERPRETER][0][Model::ID]
+                                )
                             );
                         }
                     }
