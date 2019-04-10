@@ -115,6 +115,11 @@ class Intent extends Node
         return $this;
     }
 
+    public function getOrder():int
+    {
+        return $this->getAttribute(Model::ORDER)->getValue();
+    }
+
     /**
      * @param bool $completes
      * @return Intent | bool
