@@ -24,7 +24,19 @@ use Illuminate\Support\Str;
 class Message extends Model
 {
     /** @var array */
-    protected $fillable = ['user_id', 'author', 'message', 'message_id', 'type', 'data', 'matched_intent', 'scene_id', 'conversation_id', 'microtime', 'user'];
+    protected $fillable = [
+        'user_id',
+        'author',
+        'message',
+        'message_id',
+        'type',
+        'data',
+        'matched_intent',
+        'scene_id',
+        'conversation_id',
+        'microtime',
+        'user'
+    ];
 
     /**
      * Deserialize the data field
@@ -84,8 +96,19 @@ class Message extends Model
             ->whereIn('matched_intent', $intents);
     }
 
-    public static function create($microtime, $type, $user_id, $author, $message, $data = null, $message_id = null, $matched_intent = null, $scene_id = null, $conversation_id = null, $user = null)
-    {
+    public static function create(
+        $microtime,
+        $type,
+        $user_id,
+        $author,
+        $message,
+        $data = null,
+        $message_id = null,
+        $matched_intent = null,
+        $scene_id = null,
+        $conversation_id = null,
+        $user = null
+    ) {
         // Generate a message ID if we weren't given one.
         if (empty($message_id)) {
             $message_id = (string) Str::uuid();
