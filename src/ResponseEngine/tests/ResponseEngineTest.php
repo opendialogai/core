@@ -96,7 +96,7 @@ class ResponseEngineTest extends TestCase
         /* @var ContextService $contextService */
         $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
-        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');
@@ -123,7 +123,7 @@ class ResponseEngineTest extends TestCase
         /* @var ContextService $contextService */
         $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
-        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');
@@ -153,7 +153,7 @@ class ResponseEngineTest extends TestCase
         /* @var ContextService $contextService */
         $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
-        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');
@@ -187,7 +187,7 @@ class ResponseEngineTest extends TestCase
         /* @var ContextService $contextService */
         $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
-        $userContext->addAttribute(new StringAttribute('user.name', 'dummy'));
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make('response-engine-service');
         $message = $responseEngineService->getMessageForIntent('Hello');

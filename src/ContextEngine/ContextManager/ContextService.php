@@ -13,6 +13,7 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService
 {
+    const UNDEFINED_CONTEXT = 'undefined_context';
 
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
@@ -82,23 +83,20 @@ class ContextService
      * @param string $attributeId
      * @return \OpenDialogAi\Core\Attribute\AttributeInterface
      */
-    public function getAttribute(string $attributeId): AttributeInterface
+    public function getAttribute(string $attributeId, string $contextId): AttributeInterface
     {
-        /* @var ContextInterface $context */
-        $context = $this->getContext($this->getContextForAttribute($attributeId));
-        Log::debug(sprintf("Attempting to retrieve attribute %s in context %s", $attributeId, $context->getId()));
+        if ($this->hasContext($contextId)) {
+            /* @var ContextInterface $context */
+            $context = $this->getContext($contextId);
+            Log::debug(
+                sprintf("Attempting to retrieve attribute %s in context %s", $attributeId, $context->getId())
+            );
+            return $context->getAttribute($attributeId);
+        }
 
-        return $context->getAttribute($attributeId);
-    }
-
-    /**
-     * @param string $attributeId
-     * @return string
-     */
-    private function getContextForAttribute(string $attributeId): string
-    {
-        $contents = explode('.', $attributeId);
-        return $contents[0];
+        throw new ContextDoesNotExistException(
+            sprintf('Context %s for attribute %s not available.', $contextId, $attributeId)
+        );
     }
 
     /**

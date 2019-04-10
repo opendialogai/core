@@ -5,6 +5,8 @@ namespace OpenDialogAi\InterpreterEngine;
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 use InterpreterEngine\Service\InterpreterService;
+use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
+use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
@@ -30,6 +32,20 @@ class InterpreterEngineServiceProvider extends ServiceProvider
             $interpreterService = new InterpreterService();
             $interpreterService->registerAvailableInterpreters();
 
+            // Check if there is a default interpreter that is amongst the registered ones and set it as such
+            $defaultInterpreterName = config('opendialog.interpreter_engine.default_interpreter');
+            if ($interpreterService->isInterpreterAvailable($defaultInterpreterName)) {
+                $interpreterService->setDefaultInterpreter($defaultInterpreterName);
+            } else {
+                throw new DefaultInterpreterNotDefined('You must define a default interpreter for OpenDialog.');
+            }
+
+            // Check that there is a callback interepreter and setup the supported callbacks
+            if ($interpreterService->isInterpreterAvailable(CallbackInterpreter::getName())) {
+                /* @var \OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter $interpreter */
+                $interpreter = $interpreterService->getInterpreter(CallbackInterpreter::getName());
+                $interpreter->setSupportedCallbacks(config('opendialog.interpreter_engine.supported_callbacks'));
+            }
             return $interpreterService;
         });
     }

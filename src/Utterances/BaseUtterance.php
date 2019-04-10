@@ -33,6 +33,9 @@ abstract class BaseUtterance implements UtteranceInterface
     /** @var string The callback id associated with the utterance */
     protected $callbackId;
 
+    /** @var string */
+    protected $value;
+
     public function __construct()
     {
         $this->timestamp = microtime(true);
@@ -162,5 +165,21 @@ abstract class BaseUtterance implements UtteranceInterface
     public function setCallbackId(string $callbackId): void
     {
         $this->callbackId = $callbackId;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setValue(string $value): void
+    {
+        $this->value = $value;
     }
 }

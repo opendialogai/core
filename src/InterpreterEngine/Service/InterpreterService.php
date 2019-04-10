@@ -11,14 +11,17 @@ use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class InterpreterService implements InterpreterServiceInterface
 {
-    /** @var string A regex pattern for a valid interpreter name */
-    private $validNamePattern = "/^interpreter\.[a-z]*\.[a-z_]*$/";
+    /* @var string A regex pattern for a valid interpreter name */
+    private $validNamePattern = "/^interpreter\.[A-Za-z]*\.[A-Za-z_]*$/";
 
     /**
      * A place to store a cache of available interpreters
      * @var InterpreterInterface[]
      */
     private $availableInterpreters = [];
+
+    /* @var InterpreterInterface - the default interpreter to use when intent does not define its own */
+    private $defaultInterpreter;
 
     /**
      * @inheritdoc
@@ -91,6 +94,22 @@ class InterpreterService implements InterpreterServiceInterface
                 );
             }
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setDefaultInterpreter($defaultInterpreterName)
+    {
+        $this->defaultInterpreter = $this->getInterpreter($defaultInterpreterName);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDefaultInterpreter(): InterpreterInterface
+    {
+        return $this->defaultInterpreter;
     }
 
     /**

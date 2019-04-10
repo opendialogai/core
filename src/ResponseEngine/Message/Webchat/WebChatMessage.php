@@ -32,7 +32,7 @@ class WebChatMessage
      *
      * @param $format - main message text
      * @param array $args - replaced in format
-     * @param bool - skip special chars encoding
+     * @param bool $noSpecialChars
      * @return $this
      */
     public function setText($format, $args = [], bool $noSpecialChars = false)

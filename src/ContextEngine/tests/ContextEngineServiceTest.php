@@ -51,16 +51,17 @@ class ContextEngineServiceTest extends TestCase
     {
         // Create a context and add an attribute to it.
         $newContext = $this->contextService->createContext('new_context');
-        $newContext->addAttribute(new StringAttribute('new_context.test', 'value'));
+        $newContext->addAttribute(new StringAttribute('test', 'value'));
 
-        $attribute = $this->contextService->getAttribute('new_context.test');
+        $attribute = $this->contextService->getAttribute('test', 'new_context');
 
-        $this->assertTrue($attribute->getId() == 'new_context.test');
+        $this->assertTrue($attribute->getId() == 'test');
         $this->assertTrue($attribute->getValue() == 'value');
 
         $this->expectException(ContextDoesNotExistException::class);
+        $this->expectExceptionMessage('Context new_context1 for attribute test not available.');
         // Now try for a context that is not set
-        $attribute = $this->contextService->getAttribute('new_context1.test');
+        $attribute = $this->contextService->getAttribute('test', 'new_context1');
 
     }
 }
