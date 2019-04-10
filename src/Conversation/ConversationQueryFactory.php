@@ -53,7 +53,8 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getSceneGraph() {
+    private static function getSceneGraph()
+    {
         return [
             Model::UID,
             Model::ID,
@@ -65,7 +66,8 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getParticipantGraph() {
+    private static function getParticipantGraph()
+    {
         return [
             Model::UID,
             Model::ID,
@@ -77,7 +79,8 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getIntentGraph() {
+    private static function getIntentGraph()
+    {
         return [
             Model::UID,
             Model::ID,
@@ -91,7 +94,8 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getActionGraph() {
+    private static function getActionGraph()
+    {
         return [
             Model::UID,
             Model::ID,
@@ -169,8 +173,7 @@ class ConversationQueryFactory
         ConversationManager $cm,
         $data,
         bool $clone = false
-    )
-    {
+    ) {
         foreach ($data[Model::SAYS] as $intentData) {
             $intent = new Intent($intentData[Model::ID]);
             $clone ? false : $intent->setUid($intentData[Model::UID]);

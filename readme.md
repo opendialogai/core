@@ -13,7 +13,7 @@ Install in composer with the following block:
 ## Running Code Sniffer
 
 To run code sniffer, run the following command
-```./vendor/bin/phpcs --standard=psr12 src/ --ignore=*/migrations/*,*/tests/*```
+```./vendor/bin/phpcs --standard=od-cs-ruleset.xml src/ --ignore=*/migrations/*,*/tests/*```
 
 This will ignore all files inside of migration directories as they will never have a namespace
 

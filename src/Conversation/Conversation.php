@@ -128,7 +128,7 @@ class Conversation extends NodeWithConditions
     {
         $intents = $this->getAllIntents();
 
-        $intents = $intents->filter(function($key, $value) use ($uid) {
+        $intents = $intents->filter(function ($key, $value) use ($uid) {
             /* @var Intent $value */
             if ($value->getUid() === $uid) {
                 return true;
