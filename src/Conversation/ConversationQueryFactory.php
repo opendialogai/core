@@ -18,7 +18,7 @@ class ConversationQueryFactory
      * @param DGraphClient $client
      * @return Conversation
      */
-    public static function getConversationFromDgraph(string $conversationUid, DGraphClient $client)
+    public static function getConversationFromDgraph(string $conversationUid, DGraphClient $client, $clone = false)
     {
         $dGraphQuery = new DGraphQuery();
 
@@ -31,7 +31,7 @@ class ConversationQueryFactory
             ]);
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDgraphData($response);
+        return self::buildConversationFromDgraphData($response, $clone);
     }
 
     /**
@@ -95,19 +95,22 @@ class ConversationQueryFactory
 
     /**
      * @param array $data
+     * @param bool $clone
      * @return Conversation
      */
-    private static function buildConversationFromDgraphData(array $data)
+    private static function buildConversationFromDgraphData(array $data, bool $clone = false)
     {
         $cm = new ConversationManager($data[Model::ID]);
-        $cm->getConversation()->setUid($data[Model::UID]);
+        $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
 
         // Create the opening scene
-        self::createSceneFromDgraphData($cm, $data[Model::HAS_OPENING_SCENE][0], true);
+        self::createSceneFromDgraphData($cm, $data[Model::HAS_OPENING_SCENE][0], true, $clone);
 
         // Cycle through all the other scenes and set those up as well.
-        foreach ($data[Model::HAS_SCENE] as $scene) {
-            self::createSceneFromDgraphData($cm, $scene);
+        if (isset($data[Model::HAS_SCENE])) {
+            foreach ($data[Model::HAS_SCENE] as $scene) {
+                self::createSceneFromDgraphData($cm, $scene, false, $clone);
+            }
         }
 
         return $cm->getConversation();
@@ -117,15 +120,14 @@ class ConversationQueryFactory
      * @param ConversationManager $cm
      * @param $data
      * @param bool $opening
+     * @param bool $clone
      */
-    private static function createSceneFromDgraphData(ConversationManager $cm, $data, $opening = false)
+    private static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $opening = false, bool $clone = true)
     {
         $cm->createScene($data[Model::ID], $opening);
         $scene = $cm->getScene($data[Model::ID]);
-        $scene->setUid($data[Model::UID]);
-        $scene->getUser()->setUid(
-            $data[Model::HAS_USER_PARTICIPANT][0][Model::UID]
-        );
+        $clone ? false : $scene->setUid($data[Model::UID]);
+        $clone ? false: $scene->getUser()->setUid($data[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
         self::updateParticipantFromDgraphData(
             $scene->getId(), $scene->getUser(), $cm, $data[Model::HAS_USER_PARTICIPANT][0]
         );
@@ -142,26 +144,28 @@ class ConversationQueryFactory
      * @param Participant $participant
      * @param ConversationManager $cm
      * @param $data
+     * @param bool $clone
      */
     private static function updateParticipantFromDgraphData(
         $sceneId,
         Participant $participant,
         ConversationManager $cm,
-        $data
+        $data,
+        bool $clone = true
     )
     {
         foreach ($data[Model::SAYS] as $intentData) {
             $intent = new Intent($intentData[Model::ID]);
-            $intent->setUid($intentData[Model::UID]);
+            $clone ? false : $intent->setUid($intentData[Model::UID]);
             $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
             if (isset($intentData[Model::CAUSES_ACTION])) {
                 $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
-                $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
+                $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
                 $intent->addAction($action);
             }
             if (isset($intentData[Model::HAS_INTERPRETER])) {
                 $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
-                $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
+                $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
                 $intent->addInterpreter($interpreter);
             }
 
