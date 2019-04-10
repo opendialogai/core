@@ -9,6 +9,7 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\SensorEngine\BaseSensor;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
 
 class WebchatSensor extends BaseSensor
 {
@@ -39,6 +40,10 @@ class WebchatSensor extends BaseSensor
                 $utterance->setText($request['content']['data']['text']);
                 $utterance->setUserId($request['user_id']);
                 return $utterance;
+                break;
+            case 'trigger':
+                Log::debug('Received webchat trigger message.');
+                return new WebchatTriggerUtterance();
                 break;
             default:
                 Log::debug("Received unknown webchat message type {$request['content']['type']}.");

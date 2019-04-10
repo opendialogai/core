@@ -42,4 +42,20 @@ abstract class TextUtterance extends BaseUtterance
     {
         throw new FieldNotSupported('User field is not supported by text utterances');
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getValue(): string
+    {
+        throw new FieldNotSupported('Value field is not supported by text utterances');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setValue(string $value) :void
+    {
+        throw new FieldNotSupported('Value field is not supported by text utterances');
+    }
 }

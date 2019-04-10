@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "031624d4ca98c8910651d46933b732e3",
+    "content-hash": "6cc049f4ad60a9d13c0ab41b749550ea",
     "packages": [
         {
             "name": "anahkiasen/underscore-php",
@@ -55,50 +55,6 @@
                 "toolkit"
             ],
             "time": "2015-05-16T19:24:58+00:00"
-        },
-        {
-            "name": "cweagans/composer-patches",
-            "version": "1.6.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "2ec4f00ff5fb64de584c8c4aea53bf9053ecb0b3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/2ec4f00ff5fb64de584c8c4aea53bf9053ecb0b3",
-                "reference": "2ec4f00ff5fb64de584c8c4aea53bf9053ecb0b3",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "composer/composer": "~1.0",
-                "phpunit/phpunit": "~4.6"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "cweagans\\Composer\\Patches"
-            },
-            "autoload": {
-                "psr-4": {
-                    "cweagans\\Composer\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Cameron Eagans",
-                    "email": "me@cweagans.net"
-                }
-            ],
-            "description": "Provides a way to patch Composer packages.",
-            "time": "2018-05-11T18:00:16+00:00"
         },
         {
             "name": "doctrine/inflector",
@@ -1576,16 +1532,16 @@
         },
         {
             "name": "spatie/laravel-activitylog",
-            "version": "3.3.0",
+            "version": "3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-activitylog.git",
-                "reference": "eedee0f1a123adf5c94a7a463ddd0b17de63443c"
+                "reference": "3d7cb418148a80d5c1afe07657c1771965851d1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-activitylog/zipball/eedee0f1a123adf5c94a7a463ddd0b17de63443c",
-                "reference": "eedee0f1a123adf5c94a7a463ddd0b17de63443c",
+                "url": "https://api.github.com/repos/spatie/laravel-activitylog/zipball/3d7cb418148a80d5c1afe07657c1771965851d1c",
+                "reference": "3d7cb418148a80d5c1afe07657c1771965851d1c",
                 "shasum": ""
             },
             "require": {
@@ -1644,7 +1600,7 @@
                 "spatie",
                 "user"
             ],
-            "time": "2019-04-05T10:27:44+00:00"
+            "time": "2019-04-09T14:53:05+00:00"
         },
         {
             "name": "spatie/string",
@@ -2938,59 +2894,6 @@
             "description": "CssToInlineStyles is a class that enables you to convert HTML-pages/files into HTML-pages/files with inline styles. This is very useful when you're sending emails.",
             "homepage": "https://github.com/tijsverkoyen/CssToInlineStyles",
             "time": "2017-11-27T11:13:29+00:00"
-        },
-        {
-            "name": "venturecraft/revisionable",
-            "version": "1.28.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/VentureCraft/revisionable.git",
-                "reference": "5a76d29b897d4864cef41c605e7e03258dd5d051"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/VentureCraft/revisionable/zipball/5a76d29b897d4864cef41c605e7e03258dd5d051",
-                "reference": "5a76d29b897d4864cef41c605e7e03258dd5d051",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/support": "~4.0|~5.0|~5.1",
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "extra": {
-                "patches_applied": {
-                    "Laravel 5.8 compatibility": "https://github.com/VentureCraft/revisionable/compare/master...markacianfrani:master.diff"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/migrations"
-                ],
-                "psr-0": {
-                    "Venturecraft\\Revisionable": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Duell",
-                    "email": "me@chrisduell.com"
-                }
-            ],
-            "description": "Keep a revision history for your models without thinking, created as a package for use with Laravel",
-            "homepage": "http://github.com/venturecraft/revisionable",
-            "keywords": [
-                "ardent",
-                "history",
-                "laravel",
-                "model",
-                "revision"
-            ],
-            "time": "2016-08-02T02:32:00+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
