@@ -82,6 +82,14 @@ conversation:
         - b: 
             i: hello_user
             action: register_hello
+        - b: 
+            i: hello_registered_user
+            action: register_hello
+        - u:
+            i: weather_question
+            action: get_weather
+        - b:
+            i: weather_answer    
     scene2:
       intents:
         - u: 
