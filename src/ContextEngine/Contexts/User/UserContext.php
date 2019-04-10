@@ -11,6 +11,7 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Scene;
 
 class UserContext extends AbstractContext
 {
@@ -74,7 +75,7 @@ class UserContext extends AbstractContext
      */
     public function updateUser()
     {
-        $this->userService->updateUser($this->user);
+        $this->user = $this->userService->updateUser($this->user);
     }
 
     /**
@@ -98,9 +99,15 @@ class UserContext extends AbstractContext
      */
     public function setCurrentConversation(Conversation $conversation)
     {
-        $this->user->setCurrentConversation($conversation);
+        $this->userService->setCurrentConversation($this->user, $conversation);
         $this->updateUser();
     }
+
+    public function setCurrentIntent(Intent $intent){
+        $this->userService->setCurrentIntent($this->user, $intent);
+        $this->updateUser();
+    }
+
 
     /**
      * @return bool
@@ -117,8 +124,28 @@ class UserContext extends AbstractContext
     /**
      * @return Intent
      */
-    public function getCurrentIntent() : Intent
+    public function getCurrentIntent(): Intent
     {
         return $this->user->getCurrentIntent();
+    }
+
+    /**
+     * @return Scene
+     */
+    public function getCurrentScene(): Scene
+    {
+        if ($this->user->hasCurrentIntent()) {
+            // Get the scene for the current intent
+            $sceneId = $this->userService->getSceneForIntent($this->user->getCurrentIntent()->getUid());
+            $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
+        } else {
+            // Set the current intent as the first intent of the opening scene
+            /* @var Scene $currentScene */
+            $currentScene = $this->user->getCurrentConversation()->getOpeningScenes()->first()->value;
+            $this->user->setCurrentIntent($currentScene->getIntentByOrder(1));
+            $this->updateUser();
+        }
+
+        return $currentScene;
     }
 }
