@@ -9,6 +9,7 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Graph\Node\Node;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
 /**
  * The intent of an utterance.
@@ -169,6 +170,19 @@ class Intent extends Node
     }
 
     /**
+     * @return Interpreter
+     * @throws NodeDoesNotExistException
+     */
+    public function getInterpreter(): Interpreter
+    {
+        if ($this->hasInterpreter()) {
+            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_INTERPRETER)->first()->value;
+        }
+
+        throw new NodeDoesNotExistException();
+    }
+
+    /**
      * @return bool
      */
     public function causesAction(): bool
@@ -178,5 +192,18 @@ class Intent extends Node
         }
 
         return false;
+    }
+
+    /**
+     * @return Action
+     * @throws NodeDoesNotExistException
+     */
+    public function getAction(): Action
+    {
+        if ($this->causesAction()) {
+            return $this->getNodesConnectedByOutgoingRelationship(Model::CAUSES_ACTION)->first()->value;
+        }
+
+        throw new NodeDoesNotExistException();
     }
 }

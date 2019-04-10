@@ -17,33 +17,73 @@ class Participant extends Node
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::PARTICIPANT));
     }
 
+    /**
+     * @param Intent $intent
+     */
     public function says(Intent $intent)
     {
         $this->createOutgoingEdge(Model::SAYS, $intent);
     }
 
+    /**
+     * @param Intent $intent
+     */
     public function listensFor(Intent $intent)
     {
         $this->createOutgoingEdge(Model::LISTENS_FOR, $intent);
     }
 
+    /**
+     * @param Intent $intent
+     */
     public function saysAcrossScenes(Intent $intent)
     {
         $this->createOutgoingEdge(Model::SAYS_ACROSS_SCENES, $intent);
     }
 
+    /**
+     * @param Intent $intent
+     */
     public function listensForAcrossScenes(Intent $intent)
     {
         $this->createOutgoingEdge(Model::LISTENS_FOR_ACROSS_SCENES, $intent);
     }
 
+    /**
+     * @return \Ds\Map
+     */
     public function getAllIntentsSaid()
     {
         return $this->getNodesConnectedByOutgoingRelationship(Model::SAYS);
     }
 
+    /**
+     * @return \Ds\Map
+     */
     public function getAllIntentsListenedFor()
     {
         return $this->getNodesConnectedByOutgoingRelationship(Model::LISTENS_FOR);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBot()
+    {
+        if (preg_match("/".Model::BOT."/", $this->id)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUser()
+    {
+        if (preg_match("/".Model::USER."/", $this->id)) {
+            return true;
+        }
+        return false;
     }
 }

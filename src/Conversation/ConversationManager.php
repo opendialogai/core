@@ -38,6 +38,9 @@ class ConversationManager
         return $this->conversation;
     }
 
+    /**
+     * @param Conversation $conversation
+     */
     public function setConversation(Conversation $conversation)
     {
         $this->conversation = $conversation;
@@ -73,6 +76,15 @@ class ConversationManager
     }
 
     /**
+     * @param $id
+     * @return bool|Scene
+     */
+    public function getScene($id)
+    {
+        return $this->conversation->getScene($id);
+    }
+
+    /**
      * @param $sceneId
      * @param Condition $condition
      * @return ConversationManager
@@ -87,6 +99,11 @@ class ConversationManager
     }
 
 
+    /**
+     * @param $intentId
+     * @param Action $action
+     * @return $this
+     */
     public function addActionToIntent($intentId, Action $action)
     {
         /* @var Intent $intent */
@@ -116,6 +133,12 @@ class ConversationManager
         return $this;
     }
 
+    /**
+     * @param $sceneId
+     * @param Intent $intent
+     * @param $order
+     * @return $this
+     */
     public function botSaysToUser($sceneId, Intent $intent, $order)
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
@@ -133,7 +156,13 @@ class ConversationManager
         return $this;
     }
 
-
+    /**
+     * @param $startingSceneId
+     * @param $endingSceneId
+     * @param Intent $intent
+     * @param $order
+     * @return $this
+     */
     public function userSaysToBotAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order)
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
@@ -151,6 +180,13 @@ class ConversationManager
         return $this;
     }
 
+    /**
+     * @param $startingSceneId
+     * @param $endingSceneId
+     * @param Intent $intent
+     * @param $order
+     * @return $this
+     */
     public function botSaysToUserAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order)
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
