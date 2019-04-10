@@ -147,7 +147,6 @@ class DGraphQuery
         $this->queryString .= $this->decodeQueryGraph($this->queryGraph);
 
         $this->queryString .= '}';
-
         return $this->queryString;
     }
 

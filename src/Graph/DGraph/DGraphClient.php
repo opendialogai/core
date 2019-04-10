@@ -185,15 +185,15 @@ class DGraphClient
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
             <ei_type>: string @index(exact) .
-            <has_bot_participant>: uid .
+            <has_bot_participant>: uid @reverse .
             <has_interpreter>: uid .
-            <has_opening_scene>: uid .
+            <has_opening_scene>: uid @reverse .
             <has_scene>: uid .
-            <has_user_participant>: uid .
+            <has_user_participant>: uid @reverse .
             <id>: string @index(exact) .
-            <listens_for>: uid .
+            <listens_for>: uid @reverse .
             <name>: default .
-            <says>: uid .
+            <says>: uid @reverse .
             <having_conversation>: uid @reverse .
         ";
     }
