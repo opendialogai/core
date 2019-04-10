@@ -25,6 +25,15 @@ return [
 
     // Register the application interfaces
     'available_interpreters' => [
-        OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter::class
+        OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter::class,
+        OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter::class
+    ],
+
+    'default_interpreter' => 'interpreter.core.callbackInterpreter',
+
+
+    'supported_callbacks' => [
+        'callback_example' => 'intent.core.exampleIntent',
+        'chat_open' => 'intent.core.chatOpen'
     ]
 ];

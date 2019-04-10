@@ -5,7 +5,9 @@ namespace InterpreterEngine\tests;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
+use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
@@ -53,6 +55,7 @@ class InterpreterServiceTest extends TestCase
         $this->registerInterpreter($mockInterpreter);
 
         // Should not have been bound
+        $this->expectException(DefaultInterpreterNotDefined::class);
         $this->assertCount(0, $this->getBoundInterpreterService()->getAvailableInterpreters());
     }
 
@@ -105,7 +108,8 @@ class InterpreterServiceTest extends TestCase
         $service = $this->getBoundInterpreterService();
         $interpreters = $service->getAvailableInterpreters();
 
-        $this->assertCount(0, $interpreters);
+
+        $this->assertCount(1, $interpreters);
     }
 
     public function testForLuisInterpreter()
@@ -114,9 +118,41 @@ class InterpreterServiceTest extends TestCase
         $this->assertNotNull($service->getInterpreter('interpreter.core.luis'));
     }
 
+    public function testDefaultInterpreterSetting()
+    {
+        $service = $this->getBoundInterpreterService();
+        $service->setDefaultInterpreter('interpreter.core.callbackInterpreter');
+        $defaultInterpreter = $service->getDefaultInterpreter();
+
+        $this->assertTrue($defaultInterpreter::getName() == 'interpreter.core.callbackInterpreter');
+    }
+
+    public function testSupportedCallbacksForCallbackInterpreter()
+    {
+        $service = $this->getBoundInterpreterService();
+        $service->setDefaultInterpreter('interpreter.core.callbackInterpreter');
+        $defaultInterpreter = $service->getDefaultInterpreter();
+
+        $utterance = new WebchatChatOpenUtterance();
+        $utterance->setCallbackId('chat_open');
+
+        $intents = $defaultInterpreter->interpret($utterance);
+        $this->assertCount(1, $intents);
+        $intent = $intents[0];
+        $this->assertTrue($intent->getId() == 'intent.core.chatOpen');
+    }
+
     private function registerInterpreter($mockInterpreter): void
     {
-        $this->app['config']->set('opendialog.interpreter_engine.available_interpreters', [get_class($mockInterpreter)]);
+        $defaultInterpreter = $this->createMockInterpreter('interpreter.core.default');
+
+        $this->app['config']->set(
+            'opendialog.interpreter_engine.available_interpreters', [
+                get_class($mockInterpreter),
+                get_class($defaultInterpreter)
+            ]);
+
+        $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }
 
     /**
