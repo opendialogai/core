@@ -29,18 +29,14 @@ class CreateMessagesTable extends Migration
             $table->text('user')->nullable();
 
             $table->index('message_id');
-        });
 
-        if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
-            Schema::table('messages', function (Blueprint $table) {
+            if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
                 $table->timestamp('microtime', 6)->nullable();
-            });
-            return;
-        };
-
-        Schema::table('messages', function (Blueprint $table) {
-            $table->timestamp('microtime', 6)->default(DB::raw('CURRENT_TIMESTAMP(6)'));
+            } else {
+                $table->timestamp('microtime', 6)->default(DB::raw('CURRENT_TIMESTAMP(6)'));
+            }
         });
+
     }
 
     /**
