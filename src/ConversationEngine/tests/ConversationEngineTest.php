@@ -8,6 +8,7 @@ use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -54,19 +55,8 @@ class ConversationEngineTest extends TestCase
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
         $openingIntents = $conversationStore->getAllOpeningIntents();
-        //dd($openingIntents);
 
-        $this->assertCount(3, $openingIntents);
-        $validInterpreters = ['hello_interpreter1', 'hello_interpreter2'];
-        $validIntent = 'hello_bot';
-        foreach ($openingIntents as $uid => $intent) {
-            if (is_array($intent)) {
-                $this->assertTrue($intent[Model::INTENT] == $validIntent);
-                $this->assertTrue(in_array($intent[Model::INTENT_INTERPRETER], $validInterpreters));
-            } else {
-                $this->assertTrue($intent == 'hello_bot');
-            }
-        }
+        $this->assertCount(4, $openingIntents);
     }
 
     public function testConversationEngineNoOngoingConversation()
@@ -91,11 +81,7 @@ class ConversationEngineTest extends TestCase
 
         $conversation = $this->conversationEngine->determineCurrentConversation($userContext, $this->utterance);
         $this->assertTrue($conversation->getId() == 'no_match_conversation');
-
-        $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
-
     }
-
 
     public function testDeterminingCurrentConversationWithOngoingConversation()
     {
@@ -116,7 +102,7 @@ class ConversationEngineTest extends TestCase
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertTrue($userIntent->getAction()->getId() == 'register_hello');
-        $this->assertTrue($userIntent->getInterpreter()->getId() == 'hello_interpreter1');
+        $this->assertTrue($userIntent->getInterpreter()->getId() == 'interpreter.core.callbackInterpreter');
 
         $this->assertCount(1, $openingScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
@@ -133,7 +119,7 @@ class ConversationEngineTest extends TestCase
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertTrue($userIntent->getAction()->getId() == 'wave');
-        $this->assertTrue($userIntent->getInterpreter()->getId() == 'how_are_you_interpreter');
+        $this->assertTrue($userIntent->getInterpreter()->getId() == 'interpreter.core.callbackInterpreter');
 
         $this->assertCount(1, $secondScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
@@ -141,8 +127,6 @@ class ConversationEngineTest extends TestCase
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertTrue($botIntent->getAction()->getId() == 'wave_back');
-
-        // Change the relationships between the user and this conversation
     }
 
     /**
