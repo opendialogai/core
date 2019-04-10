@@ -84,7 +84,6 @@ class Scene extends NodeWithConditions
         $this->bot->listensForAcrossScenes($intent);
     }
 
-
     public function getIntentsSaidByUser()
     {
         return $this->user->getAllIntentsSaid();
@@ -111,5 +110,36 @@ class Scene extends NodeWithConditions
         $allIntents = $allIntents->merge($this->getIntentsSaidByUser());
         $allIntents = $allIntents->merge($this->getIntentsSaidByBot());
         return $allIntents;
+    }
+
+    public function getIntentByOrder($order):Intent
+    {
+        $intents =  $this->getAllIntents()->filter( function($key, $value) use ($order) {
+           /* @var Intent $value */
+            if ($value->getOrder() == $order) {
+                return true;
+            }
+        });
+
+        return $intents->first()->value;
+    }
+
+    /**
+     * Get the bot intents said in the scene that have a higher order than the current intent
+     * and are in an uninterrupted ascending order.
+     * @param Intent $currentIntent
+     * @return Map
+     */
+    public function getNextPossibleBotIntents(Intent $currentIntent): Map
+    {
+        $currentOrder = $currentIntent->getOrder();
+
+        $intents = $this->getIntentsSaidByBot()->filter( function($key, $value) use ($currentOrder) {
+            if ($value->getOrder() > $currentOrder) {
+                return true;
+            }
+        });
+
+        dd($intents);
     }
 }
