@@ -19,6 +19,7 @@ class DGraphClient
     const QUERY  = 'query';
     const MUTATE = 'mutate';
     const ALTER  = 'alter';
+    const DELETE = 'delete';
 
     public function __construct($dgraphUrl, $dGraphPort)
     {
@@ -132,6 +133,51 @@ class DGraphClient
         return $response['data'];
     }
 
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function deleteRelationship($node1Uid, $node2Uid, $relationship)
+    {
+        $response = $this->client->request(
+            'POST',
+            self::MUTATE,
+            [
+                'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship),
+                'headers' => [
+                    'X-Dgraph-CommitNow' => 'true',
+                ]
+            ]
+        );
+
+        $response = json_decode($response->getBody(), true);
+
+        try {
+            return $this->getData($response);
+        } catch (\Exception $e) {
+            return "Error processing alter {$e->getMessage()}";
+        }
+    }
+
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
+     * @return string
+     */
+    private function prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
+    {
+        $statement = sprintf('{ delete { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
+
+        return $statement;
+    }
+    
+    /**
+     * @return string
+     */
     private function schema()
     {
         return "
