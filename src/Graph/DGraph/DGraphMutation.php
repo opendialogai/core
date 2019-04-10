@@ -6,6 +6,7 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Graph\Search\DFS;
@@ -87,6 +88,11 @@ class DGraphMutation
         $attributes = $node->getAttributes();
         /* @var AttributeInterface $attribute */
         foreach ($attributes as $attribute) {
+            // Skip the UID - we don't need to add that back as an attribute.
+            if ($attribute->getId() == Model::UID) {
+                continue;
+            }
+
             $attributeStatement[] = $this->prepareAttributeTriple(
                 $id,
                 $attribute->getId(),
@@ -159,6 +165,14 @@ class DGraphMutation
         }
     }
 
+    /**
+     * @param $subject
+     * @param $predicate
+     * @param $object
+     * @param bool $updateFrom
+     * @param bool $updateTo
+     * @return string
+     */
     public function prepareRelationshipTriple(
         $subject,
         $predicate,

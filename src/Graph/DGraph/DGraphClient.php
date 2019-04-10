@@ -54,6 +54,7 @@ class DGraphClient
             self::QUERY,
             ['body' => $query->prepare()]
         );
+
         return new DGraphQueryResponse($response);
     }
 
