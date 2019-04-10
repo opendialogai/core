@@ -8,6 +8,9 @@ abstract class BaseSensor implements SensorInterface
 {
     protected static $name = 'base';
 
+    /**
+     * @inheritDoc
+     */
     public static function getName() : string
     {
         if (static::$name === self::$name) {

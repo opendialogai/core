@@ -4,6 +4,7 @@ namespace OpenDialogAi\SensorEngine\Sensors;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Exceptions\UtteranceUnknownMessageType;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
@@ -21,6 +22,7 @@ class WebchatSensor extends BaseSensor
      * @param Request $request
      * @return UtteranceInterface
      * @throws UtteranceUnknownMessageType
+     * @throws FieldNotSupported
      */
     public function interpret(Request $request) : UtteranceInterface
     {

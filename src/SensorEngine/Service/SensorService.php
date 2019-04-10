@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\SensorEngine\Exceptions\SensorNameNotSetException;
 use OpenDialogAi\SensorEngine\Exceptions\SensorNotRegisteredException;
 use OpenDialogAi\SensorEngine\SensorInterface;
-use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
 class SensorService implements SensorServiceInterface
 {

@@ -3,16 +3,23 @@
 namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
-use OpenDialogAi\SensorEngine\Sensors\WebchatSensor;
+use OpenDialogAi\SensorEngine\SensorInterface;
 use OpenDialogAi\SensorEngine\Service\SensorService;
-use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 
 class WebchatIncomingController extends BaseController
 {
+    /** @var SensorService */
+    private $sensorService;
+
+    /** @var OpenDialogController */
+    private $odController;
+
+    /** @var SensorInterface */
+    private $webchatSensor;
 
     /**
      * Create a new controller instance.
@@ -38,7 +45,7 @@ class WebchatIncomingController extends BaseController
         // Get the Utterance.
         $utterance = $this->webchatSensor->interpret($request);
 
-        // Get the response.
+        /** @var WebChatMessage $message */
         $message = $this->odController->runConversation($utterance);
         Log::debug("Sending response: {$message->getText()}");
 
