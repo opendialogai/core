@@ -31,11 +31,15 @@ class Model
     const BOT = 'bot_participant';
     const USER = 'user_participant';
     const HAS_BOT_PARTICIPANT = 'has_bot_participant';
+    const BOT_PARTICIPATES_IN = '~has_bot_participant';
     const HAS_USER_PARTICIPANT = 'has_user_participant';
+    const USER_PARTICIPATES_IN = '~has_user_participant';
 
     // Participants can say (an intent) or listen for (an intent).
     const SAYS = 'says';
+    const SAID_BY = '~says';
     const LISTENS_FOR = 'listens_for';
+    const LISTENED_BY = '~listens_for';
     const SAYS_ACROSS_SCENES = 'says_across_scenes';
     const LISTENS_FOR_ACROSS_SCENES = 'listens_for_across_scenes';
 
