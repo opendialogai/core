@@ -108,6 +108,8 @@ class ContextService
      */
     public function createUserContext(UtteranceInterface $utterance)
     {
-        return new UserContext($this->userService->createOrUpdateUser($utterance), $this->userService);
+        $userContext = new UserContext($this->userService->createOrUpdateUser($utterance), $this->userService);
+        $this->addContext($userContext);
+        return $userContext;
     }
 }

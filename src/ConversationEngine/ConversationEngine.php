@@ -6,6 +6,7 @@ namespace OpenDialogAi\ConversationEngine;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use InterpreterEngine\Service\InterpreterService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
@@ -46,10 +47,10 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UtteranceInterface $utterance
      * @return Conversation
      */
-    private function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
+    public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
-        if ($userContext->isHavingConversation()) {
-            $ongoingConversation = $userContext->getUser()->getCurrentConversation();
+        if ($userContext->isUserHavingConversation()) {
+            $ongoingConversation = $userContext->getCurrentConversation();
             Log::debug(
                 sprintf(
                     'User %s is having a conversation with id %s',
@@ -84,6 +85,14 @@ class ConversationEngine implements ConversationEngineInterface
     private function getMatchingConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
         $matchingIntents = new Map();
+
+        $defaultIntent = $this->app->make(InterpreterService::class)->
+
+        $openingIntents = $this->conversationStore->getAllOpeningIntents();
+
+        // Use the default interpreter unless a custom interpreter is defined.
+
+        dd($openingIntents);
     }
 
     public function getConversationStore(): ConversationStoreInterface
