@@ -3,7 +3,7 @@
 namespace OpenDialogAi\SensorEngine;
 
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\SensorEngine\Service\SensorEngine;
+use OpenDialogAi\SensorEngine\Service\SensorService;
 
 class SensorEngineServiceProvider extends ServiceProvider
 {
@@ -19,9 +19,9 @@ class SensorEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-sensorengine.php', 'opendialog.sensor_engine');
 
-        $this->app->bind(SensorEngine::class, function () {
-            $sensorEngine = new SensorEngine();
-            $sensorEngine->registerSensors();
+        $this->app->bind(SensorInterface::class, function () {
+            $sensorEngine = new SensorService();
+            $sensorEngine->registerAvailableSensors();
             return $sensorEngine;
         });
     }

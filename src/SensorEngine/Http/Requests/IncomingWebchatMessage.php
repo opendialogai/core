@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Http\Requests;
+namespace OpenDialogAi\SensorEngine\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -32,9 +32,9 @@ class IncomingWebchatMessage extends FormRequest
             // Validate the message type.
             'content.type' => 'in:chat_open,text,trigger',
             // The callback_id is required for chat_opens.
-            'content.callback_id' => 'required_if:content.type,==,chat_open|string',
+            'content.data.callback_id' => 'required_if:content.type,==,chat_open|string',
             // The user data array is required for chat_opens.
-            'content.user' => 'required_if:content.type,==,chat_open|array',
+            'content.data.user' => 'required_if:content.type,==,chat_open|array',
         ];
     }
 }
