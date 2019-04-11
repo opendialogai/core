@@ -28,13 +28,14 @@ class AllOpeningIntents extends DGraphQuery
                 Model::ID,
                 Model::UID,
                 Model::HAS_OPENING_SCENE => [
-                    MODEL::HAS_USER_PARTICIPANT => [
-                        MODEL::SAYS => [
-                            MODEL::ID,
-                            MODEL::UID,
-                            MODEL::HAS_INTERPRETER => [
-                                MODEL::ID,
-                                MODEL::UID,
+                    Model::HAS_USER_PARTICIPANT => [
+                        Model::SAYS => [
+                            Model::ID,
+                            Model::UID,
+                            Model::ORDER,
+                            Model::HAS_INTERPRETER => [
+                                Model::ID,
+                                Model::UID,
                             ]
                         ]
                     ]
@@ -69,7 +70,8 @@ class AllOpeningIntents extends DGraphQuery
                                     $intent[Model::ID],
                                     $intent[Model::UID],
                                     $datum[Model::ID],
-                                    $datum[Model::UID]
+                                    $datum[Model::UID],
+                                    $intent[Model::ORDER]
                                 )
                             );
                         }
@@ -81,6 +83,7 @@ class AllOpeningIntents extends DGraphQuery
                                     $intent[Model::UID],
                                     $datum[Model::ID],
                                     $datum[Model::UID],
+                                    $intent[Model::ORDER],
                                     $intent[Model::HAS_INTERPRETER][0][Model::ID]
                                 )
                             );

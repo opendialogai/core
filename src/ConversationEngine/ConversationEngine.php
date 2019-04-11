@@ -55,12 +55,16 @@ class ConversationEngine implements ConversationEngineInterface
         $currentScene = $userContext->getCurrentScene();
         $possibleNextIntents = $currentScene->getNextPossibleBotIntents($userContext->getCurrentIntent());
 
-        // Pull the top one
-        $possibleNextIntents->getFirst();
+        /* @var Intent $nextIntent */
+        $nextIntent = $possibleNextIntents->first()->value;
 
-        /* @var Intent $intent */
-        $intent = null;
-        return $intent;
+        if ($nextIntent->completes()) {
+            $userContext->moveCurrentConversationToPast();
+        } else {
+            $userContext->setCurrentIntent($nextIntent);
+        }
+
+        return $nextIntent;
     }
 
     /**
@@ -140,9 +144,10 @@ class ConversationEngine implements ConversationEngineInterface
 
         $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
         $userContext->setCurrentConversation($conversation);
-        $userContext->setCurrentIntent($conversation->getIntentByUid($intent->getIntentUid()));
+        $userContext->setCurrentIntent($userContext->getUser()->getCurrentConversation()->getIntentByOrder($intent->getOrder()));
 
-        // For this intent get the matching conversation
+        // For this intent get the matching conversation - we are pulling this back out from the user
+        // so that we have the copy from the graph.
         return $this->conversationStore->getConversation($intent->getConversationUid());
     }
 

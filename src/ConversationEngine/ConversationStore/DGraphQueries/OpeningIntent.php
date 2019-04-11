@@ -14,14 +14,18 @@ class OpeningIntent
 
     private $conversationUid;
 
+    private $order;
+
     private $interpreter;
 
-    public function __construct($intentId, $intentUid, $conversationId, $conversationUid, $interpreter = null)
+
+    public function __construct($intentId, $intentUid, $conversationId, $conversationUid, $order, $interpreter = null)
     {
         $this->intentId = $intentId;
         $this->intentUid = $intentUid;
         $this->conversationId = $conversationId;
         $this->conversationUid = $conversationUid;
+        $this->order = $order;
         $this->interpreter = $interpreter;
     }
 
@@ -103,6 +107,22 @@ class OpeningIntent
     public function setInterpreter($interpreter): void
     {
         $this->interpreter = $interpreter;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOrder()
+    {
+        return $this->order;
+    }
+
+    /**
+     * @param mixed $order
+     */
+    public function setOrder($order): void
+    {
+        $this->order = $order;
     }
 
     /**

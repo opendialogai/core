@@ -84,7 +84,55 @@ class ConversationEngineTest extends TestCase
 
         $conversation = $this->conversationEngine->determineCurrentConversation($userContext, $this->utterance);
         $this->assertTrue($conversation->getId() == 'no_match_conversation');
+        $this->assertTrue($userContext->getCurrentConversation()->getId() == 'no_match_conversation');
     }
+
+    public function testDeterminingNextIntentWithoutOngoingConversation()
+    {
+        // This is setup to match the NoMatch conversation
+
+        $userContext = $this->createUserContext('abc123a');
+
+        $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+        $this->assertTrue($intent->getId() == 'intent.core.NoMatchResponse');
+        $this->assertFalse($userContext->isUserHavingConversation());
+    }
+
+    public function testDeterminingNextIntentsInMultiSceneConversation()
+    {
+        $userContext = $this->createUserContext('abc123a');
+
+        $this->utterance->setCallbackId('hello_bot');
+        /* @var InterpreterServiceInterface $interpreterService */
+        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        /* @var CallbackInterpreter $callbackInterpeter */
+        $callbackInterpeter = $interpreterService->getDefaultInterpreter();
+        $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
+        $callbackInterpeter->addCallback('how_are_you', 'how_are_you');
+        $callbackInterpeter->addCallback('hello_registered_user', 'hello_registered_user');
+
+        // Let's see if we get the right next intent for the first step.
+        $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+        $validIntents = ['hello_user','hello_registered_user'];
+        $this->assertTrue(in_array($intent->getId(), $validIntents));
+
+        $this->assertTrue(in_array($userContext->getCurrentIntent()->getId(), $validIntents));
+
+        // Ok, now the conversation has moved on let us take the next step
+        /* @var WebchatChatOpenUtterance $nextUtterance */
+        $nextUtterance = new WebchatChatOpenUtterance();
+        if ($intent->getId() == 'hello_user') {
+            $nextUtterance->setCallbackId('how_are_you');
+            $intent = $this->conversationEngine->getNextIntent($userContext, $nextUtterance);
+            $this->assertTrue($intent->getId()=='doing_dandy');
+        }
+        if ($intent->getId() == 'hello_registered_user') {
+            $nextUtterance->setCallbackId('weather_question');
+            $intent = $this->conversationEngine->getNextIntent($userContext, $nextUtterance);
+            $this->assertTrue($intent->getId()=='weather_answer');
+        }
+    }
+
 
     public function testDeterminingCurrentConversationWithOngoingConversation()
     {
@@ -94,7 +142,7 @@ class ConversationEngineTest extends TestCase
 
         // Ensure that the $conversation is the right one.
         $this->assertTrue($conversation->getId() == 'hello_bot_world');
-        $this->assertCount(2, $conversation->getAllScenes());
+        $this->assertCount(3, $conversation->getAllScenes());
         $this->assertTrue($conversation->getScene('opening_scene')->getId() == 'opening_scene');
         $this->assertTrue($conversation->getScene('scene2')->getId() == 'scene2');
 
@@ -107,7 +155,7 @@ class ConversationEngineTest extends TestCase
         $this->assertTrue($userIntent->getAction()->getId() == 'register_hello');
         $this->assertTrue($userIntent->getInterpreter()->getId() == 'interpreter.core.callbackInterpreter');
 
-        $this->assertCount(1, $openingScene->getIntentsSaidByBot());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
         $botIntent = $openingScene->getIntentsSaidByBot()->get('hello_user');
         $this->assertFalse($botIntent->hasInterpreter());
@@ -130,21 +178,6 @@ class ConversationEngineTest extends TestCase
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertTrue($botIntent->getAction()->getId() == 'wave_back');
-    }
-
-    public function testNextPossibleIntents()
-    {
-        $userContext = $this->createConversationAndAttachToUser('abc123a');
-
-        $this->utterance->setCallbackId('hello_bot');
-        /* @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
-        /* @var CallbackInterpreter $callbackInterpeter */
-        $defaultInterpreter = $interpreterService->getDefaultInterpreter();
-        $defaultInterpreter->addCallback('hello_bot', 'hello_bot');
-
-        $this->conversationEngine->getNextIntent($userContext, $this->utterance);
-
     }
 
     /**
@@ -192,4 +225,5 @@ class ConversationEngineTest extends TestCase
 
         return $userContext;
     }
+
 }
