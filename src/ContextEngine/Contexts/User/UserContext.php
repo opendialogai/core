@@ -99,13 +99,24 @@ class UserContext extends AbstractContext
      */
     public function setCurrentConversation(Conversation $conversation)
     {
-        $this->userService->setCurrentConversation($this->user, $conversation);
-        $this->updateUser();
+        $this->user = $this->userService->setCurrentConversation($this->user, $conversation);
     }
 
-    public function setCurrentIntent(Intent $intent){
-        $this->userService->setCurrentIntent($this->user, $intent);
-        $this->updateUser();
+    /**
+     * @param Intent $intent
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function setCurrentIntent(Intent $intent)
+    {
+        $this->user = $this->userService->setCurrentIntent($this->user, $intent);
+    }
+
+    /**
+     *
+     */
+    public function moveCurrentConversationToPast()
+    {
+        $this->user = $this->userService->moveCurrentConversationToPast($this->user);
     }
 
 
@@ -148,4 +159,6 @@ class UserContext extends AbstractContext
 
         return $currentScene;
     }
+
+
 }
