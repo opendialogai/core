@@ -166,11 +166,53 @@ class DGraphClient
      * @param $node1Uid
      * @param $node2Uid
      * @param $relationship
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createRelationship($node1Uid, $node2Uid, $relationship)
+    {
+        $response = $this->client->request(
+            'POST',
+            self::MUTATE,
+            [
+                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship),
+                'headers' => [
+                    'X-Dgraph-CommitNow' => 'true',
+                ]
+            ]
+        );
+
+        $response = json_decode($response->getBody(), true);
+
+        try {
+            return $this->getData($response);
+        } catch (\Exception $e) {
+            return "Error processing alter {$e->getMessage()}";
+        }
+    }
+
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
      * @return string
      */
     private function prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
     {
         $statement = sprintf('{ delete { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
+
+        return $statement;
+    }
+
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
+     * @return string
+     */
+    private function prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
+    {
+        $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
 
         return $statement;
     }
@@ -195,6 +237,8 @@ class DGraphClient
             <name>: default .
             <says>: uid @reverse .
             <having_conversation>: uid @reverse .
+            <says_across_scenes>: uid @reverse .
+            <listens_for_across_scenes>: uid @reverse .
         ";
     }
 }

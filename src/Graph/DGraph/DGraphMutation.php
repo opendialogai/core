@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 
 
 use Ds\Map;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;
@@ -59,7 +60,7 @@ class DGraphMutation
             $mutationStatement .= $this->attributeStatement($startingNode) . "\r\n";
             $mutationStatement .= $this->relationshipStatement($startingNode) . "\r\n";
         });
-
+        Log::debug($mutationStatement . "}}");
         return $mutationStatement . "}}";
     }
 

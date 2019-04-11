@@ -41,4 +41,20 @@ class DirectedEdge extends Edge
     {
         return $this->b;
     }
+
+    /**
+     * @param Node $b
+     */
+    public function setToNode(Node $b)
+    {
+        $this->b = $b;
+    }
+
+    /**
+     * @param Node $a
+     */
+    public function setFromNode(Node $a)
+    {
+        $this->a = $a;
+    }
 }
