@@ -4,7 +4,7 @@ namespace OpenDialogAi\ConversationBuilder;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ConversationLog extends Model
+class ConversationStateLog extends Model
 {
     protected $fillable = [
         'conversation_id',
@@ -14,7 +14,7 @@ class ConversationLog extends Model
     ];
 
     /**
-     * Get the Conversation that owns the Log.
+     * Get the Conversation that owns the State Log.
      */
     public function conversation()
     {

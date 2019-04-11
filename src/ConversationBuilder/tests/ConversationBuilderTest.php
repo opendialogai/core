@@ -5,7 +5,7 @@ namespace OpenDialogAi\Core\Tests\Unit;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\ConversationBuilder\Conversation;
-use OpenDialogAi\ConversationBuilder\ConversationLog;
+use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
 
@@ -39,18 +39,18 @@ EOT;
         Conversation::create(['name' => 'Test Conversation', 'model' => 'conversation:']);
         $conversation = Conversation::where('name', 'Test Conversation')->first();
 
-        ConversationLog::create([
+        ConversationStateLog::create([
             'conversation_id' => $conversation->id,
             'message' => 'new revision',
             'type' => 'update',
         ]);
-        $conversationLog = ConversationLog::where('message', 'new revision')->first();
+        $conversationStateLog = ConversationStateLog::where('message', 'new revision')->first();
 
-        // Ensure we can get a ConversationLog's Conversation.
-        $this->assertEquals($conversation->id, $conversationLog->conversation->id);
+        // Ensure we can get a ConversationStateLog's Conversation.
+        $this->assertEquals($conversation->id, $conversationStateLog->conversation->id);
 
-        // Ensure we can get a Conversation's ConversationLogs.
-        $this->assertTrue($conversation->conversationLogs->contains($conversationLog));
+        // Ensure we can get a Conversation's ConversationStateLogs.
+        $this->assertTrue($conversation->conversationStateLogs->contains($conversationStateLog));
     }
 
     /**
@@ -61,12 +61,12 @@ EOT;
         // Assert that invalid yaml is detected.
         Conversation::create(['name' => 'Test Conversation', 'model' => '--- "']);
         $conversation = Conversation::where('name', 'Test Conversation')->first();
-        $conversationLog = ConversationLog::where('conversation_id', $conversation->id)->firstOrFail();
-        $this->assertStringStartsWith('[] String value found, but an object is required', $conversationLog->message);
+        $conversationStateLog = ConversationStateLog::where('conversation_id', $conversation->id)->firstOrFail();
+        $this->assertStringStartsWith('[] String value found, but an object is required', $conversationStateLog->message);
 
         // Assert that no validation log is created for valid yaml.
         $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => $this->validYaml]);
-        $this->assertNull(ConversationLog::where('conversation_id', $conversation2->id)
+        $this->assertNull(ConversationStateLog::where('conversation_id', $conversation2->id)
             ->where('type', 'validate_conversation_yaml')->first());
     }
 
@@ -78,12 +78,12 @@ EOT;
         // Assert that yaml not matching the schema is detected.
         Conversation::create(['name' => 'Test Conversation', 'model' => "---\nconversation_name: test"]);
         $conversation = Conversation::where('name', 'Test Conversation')->first();
-        $conversationLog = ConversationLog::where('conversation_id', $conversation->id)->firstOrFail();
-        $this->assertStringStartsWith('[conversation] The property conversation is required', $conversationLog->message);
+        $conversationStateLog = ConversationStateLog::where('conversation_id', $conversation->id)->firstOrFail();
+        $this->assertStringStartsWith('[conversation] The property conversation is required', $conversationStateLog->message);
 
         // Assert that no validation log is created for a valid schema.
         $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => $this->validYaml]);
-        $this->assertNull(ConversationLog::where('conversation_id', $conversation2->id)
+        $this->assertNull(ConversationStateLog::where('conversation_id', $conversation2->id)
             ->where('type', 'validate_conversation_yaml_schema')->first());
     }
 

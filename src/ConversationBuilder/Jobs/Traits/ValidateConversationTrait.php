@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ConversationBuilder\Jobs\Traits;
 
-use OpenDialogAi\ConversationBuilder\ConversationLog;
+use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 
 trait ValidateConversationTrait
 {
@@ -32,7 +32,7 @@ trait ValidateConversationTrait
      */
     private function logMessage($conversationId, $type, $message)
     {
-        $log = new ConversationLog();
+        $log = new ConversationStateLog();
         $log->conversation_id = $conversationId;
         $log->type = $type;
         $log->message = $message;
