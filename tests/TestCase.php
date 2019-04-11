@@ -82,14 +82,11 @@ conversation:
         - b: 
             i: hello_user
             action: register_hello
+            scene: scene2
         - b: 
             i: hello_registered_user
             action: register_hello
-        - u:
-            i: weather_question
-            action: get_weather
-        - b:
-            i: weather_answer    
+            scene: scene3
     scene2:
       intents:
         - u: 
@@ -99,7 +96,23 @@ conversation:
         - b: 
             i: doing_dandy
             action: wave_back
-            completes: true            
+            completes: true 
+    scene3:
+      intents:
+        - u:
+            i: weather_question
+            action: get_weather
+        - b:
+            i: weather_answer    
+        - u: 
+            i: will_you_cope
+            interpreter: interpreter.core.callbackInterpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back
+            completes: true 
+                       
 EOT;
     }
 
