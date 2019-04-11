@@ -8,7 +8,6 @@ class ConversationStateLog extends Model
 {
     protected $fillable = [
         'conversation_id',
-        'name',
         'message',
         'type',
     ];

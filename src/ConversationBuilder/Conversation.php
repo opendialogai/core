@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
+use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
@@ -153,10 +154,42 @@ class Conversation extends Model
             // Set conversation status to "published".
             $this->status = 'published';
             $this->save(['validate' => false]);
+
+            // Add log message.
+            ConversationStateLog::create([
+                'conversation_id' => $this->id,
+                'message' => 'Published conversation to DGraph.',
+                'type' => 'publish_conversation',
+            ])->save();
+
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Unpublish the conversation from DGraph.
+     *
+     * @return bool
+     */
+    public function unPublishConversation()
+    {
+        // TODO: Actually remove conversation from DGraph.
+        // $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+
+        // Set conversation status to "validated".
+        $this->status = 'validated';
+        $this->save(['validate' => false]);
+
+        // Add log message.
+        ConversationStateLog::create([
+            'conversation_id' => $this->id,
+            'message' => 'Unpublished conversation from DGraph.',
+            'type' => 'unpublish_conversation',
+        ])->save();
+
+        return true;
     }
 
     /**
@@ -174,7 +207,7 @@ class Conversation extends Model
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
-            $actionLabel = isset($intentValue['action']) ? $intentValue['action'] : null ;
+            $actionLabel = isset($intentValue['action']) ? $intentValue['action'] : null;
             $interpreterLabel = isset($intentValue['interpreter']) ? $intentValue['interpreter'] : null;
             $completes = isset($intentValue['completes']) ? $intentValue['completes'] : false;
             $intentSceneId = isset($intent[$speaker]['scene']) ? $intent[$speaker]['scene'] : null;
@@ -195,4 +228,5 @@ class Conversation extends Model
 
         return $intentNode;
     }
+
 }
