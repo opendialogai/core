@@ -126,7 +126,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
 
         // There should be two scenes
-        $this->assertCount(2, $conversationModel->getAllScenes());
+        $this->assertCount(3, $conversationModel->getAllScenes());
 
         // The opening scene should be called opening_scene
         $this->assertEquals('opening_scene', $conversationModel->getScene('opening_scene')->getId());
@@ -137,14 +137,14 @@ class ConversationBuilderTest extends TestCase
         /* @var Scene $openingScene */
         $openingScene = $conversationModel->getOpeningScenes()->first()->value;
 
-        // The opening scene should have two intents
-        $this->assertCount(2, $openingScene->getAllIntents());
+        // The opening scene should have three intents
+        $this->assertCount(3, $openingScene->getAllIntents());
 
         // User says one thing
         $this->assertCount(1, $openingScene->getIntentsSaidByUser());
         $this->assertEquals('hello_bot', $openingScene->getIntentsSaidByUser()->first()->value->getId());
         // Bot replies
-        $this->assertCount(1, $openingScene->getIntentsSaidByBot());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         $this->assertEquals('hello_user', $openingScene->getIntentsSaidByBot()->first()->value->getId());
 
 
@@ -158,7 +158,6 @@ class ConversationBuilderTest extends TestCase
         $botIntent = $openingScene->getIntentsSaidByBot()->first()->value;
         $this->assertTrue($botIntent->causesAction());
         $this->assertFalse($botIntent->hasInterpreter());
-
 
         /* @var Scene $scene2 */
         $scene2 = $conversationModel->getNonOpeningScenes()->first()->value;
@@ -175,6 +174,8 @@ class ConversationBuilderTest extends TestCase
         // Bot replies
         $this->assertCount(1, $scene2->getIntentsSaidByBot());
         $this->assertEquals('doing_dandy', $scene2->getIntentsSaidByBot()->first()->value->getId());
+
+
     }
 
     /**

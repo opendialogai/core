@@ -97,23 +97,36 @@ class Conversation extends Model
 
         $cm = new ConversationManager($yaml['id']);
 
+        // Build the conversation in two steps. First all the scenes and then all the intents as
+        // intents may connect between scenes.
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             $sceneIsOpeningScene = $sceneId === 'opening_scene';
             $cm->createScene($sceneId, $sceneIsOpeningScene);
+        }
 
-            $intents = [];
-
-            $intentIdx = 1;
+        // Now cycle through the scenes again and identifying intents that cut across scenes.
+        $intentIdx = 1;
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
             foreach ($scene['intents'] as $intent) {
                 $speaker = null;
                 $intentNode = $this->createIntent($intent, $speaker);
 
-                if ($speaker === 'u') {
-                    $cm->userSaysToBot($sceneId, $intentNode, $intentIdx);
-                } elseif ($speaker === 'b') {
-                    $cm->botSaysToUser($sceneId, $intentNode, $intentIdx);
+                if (isset($intent['scene'])) {
+                    if ($speaker === 'u') {
+                        $cm->userSaysToBotAcrossScenes($sceneId, $intent['scene'], $intentNode, $intentIdx);
+                    } elseif ($speaker === 'b') {
+                        $cm->botSaysToUserAcrossScenes($sceneId, $intent['scene'], $intentNode, $intentIdx);
+                    } else {
+                        Log::debug("I don't know about the speaker type '{$speaker}'");
+                    }
                 } else {
-                    Log::debug("I don't know about the speaker type '{$speaker}'");
+                    if ($speaker === 'u') {
+                        $cm->userSaysToBot($sceneId, $intentNode, $intentIdx);
+                    } elseif ($speaker === 'b') {
+                        $cm->botSaysToUser($sceneId, $intentNode, $intentIdx);
+                    } else {
+                        Log::debug("I don't know about the speaker type '{$speaker}'");
+                    }
                 }
 
                 $intentIdx++;
