@@ -31,9 +31,6 @@ class Message extends Model
         'message_id',
         'type',
         'data',
-        'matched_intent',
-        'scene_id',
-        'conversation_id',
         'microtime',
         'user'
     ];
@@ -68,34 +65,6 @@ class Message extends Model
         return $query->where('microtime', '>', Carbon::parse($date));
     }
 
-    /**
-     * Returns messages with the given matched intent
-     *
-     * @param Builder $query
-     * @param $intent
-     * @return Builder
-     */
-    public function scopeMatchedIntent(Builder $query, $intent)
-    {
-        return $query
-            ->where('author', '<>', 'them')
-            ->where('matched_intent', $intent);
-    }
-
-    /**
-     * Returns messages with one of the given matched intents. Ignores messages from the chatbot
-     *
-     * @param Builder $query
-     * @param $intents
-     * @return Builder
-     */
-    public function scopeMatchedIntents(Builder $query, $intents)
-    {
-        return $query
-            ->where('author', '<>', 'them')
-            ->whereIn('matched_intent', $intents);
-    }
-
     public static function create(
         $microtime,
         $type,
@@ -104,9 +73,6 @@ class Message extends Model
         $message,
         $data = null,
         $message_id = null,
-        $matched_intent = null,
-        $scene_id = null,
-        $conversation_id = null,
         $user = null
     ) {
         // Generate a message ID if we weren't given one.
@@ -122,9 +88,6 @@ class Message extends Model
             'message'         => $message,
             'data'            => ($data) ? serialize($data) : null,
             'message_id'      => $message_id,
-            'matched_intent'  => $matched_intent,
-            'scene_id'        => $scene_id,
-            'conversation_id' => $conversation_id,
             'user'            => $user,
         ]);
 

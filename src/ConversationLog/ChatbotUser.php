@@ -34,8 +34,6 @@ class ChatbotUser extends Model
         'platform',
     ];
 
-    protected $dates = ['hand_to_human'];
-
     protected $appends = ['registered'];
 
     public function messages()
@@ -74,40 +72,6 @@ class ChatbotUser extends Model
     public function getRouteKeyName()
     {
         return 'user_id';
-    }
-
-    /**
-     * Checks if the user is in handover mode. This is determined by the hand_to_human datetime + the number of seconds
-     * in the HAND_TO_HUMAN_TIMEOUT environment variable
-     *
-     * @return bool
-     */
-    public function isInHandoverMode()
-    {
-        if (!$this->hand_to_human) {
-            return false;
-        }
-
-        return $this->hand_to_human->addSecond(env("HAND_TO_HUMAN_TIMEOUT", 1800))->isFuture();
-    }
-
-    /**
-     * Updates the hand over to human date time on the user.
-     * This should be called when the user interacts whilst in hand over mode
-     */
-    public function updateHandoverMode()
-    {
-        $this->hand_to_human = now();
-        $this->save();
-    }
-
-    /**
-     * Takes the user out of hand over mode
-     */
-    public function turnOffHandoverMode()
-    {
-        $this->hand_to_human = null;
-        $this->save();
     }
 
     public function getRegisteredAttribute()

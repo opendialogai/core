@@ -23,9 +23,6 @@ class CreateMessagesTable extends Migration
             $table->string('type');
             $table->binary('data')->nullable(true);
             $table->string('message_id')->nullable();
-            $table->string('matched_intent')->nullable();
-            $table->string('scene_id')->nullable();
-            $table->string('conversation_id')->nullable();
             $table->text('user')->nullable();
 
             $table->index('message_id');
