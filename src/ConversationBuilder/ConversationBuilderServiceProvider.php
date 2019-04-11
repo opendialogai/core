@@ -4,6 +4,8 @@ namespace OpenDialogAi\ConversationBuilder;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ConversationBuilder\Service\ConversationBuilder;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\Observers\ConversationObserver;
 
 class ConversationBuilderServiceProvider extends ServiceProvider
 {
@@ -17,6 +19,9 @@ class ConversationBuilderServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
+
+        // Handle conversation life-cycle events.
+        Conversation::observe(ConversationObserver::class);
     }
 
     public function register()
