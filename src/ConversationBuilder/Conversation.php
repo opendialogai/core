@@ -109,13 +109,14 @@ class Conversation extends Model
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             foreach ($scene['intents'] as $intent) {
                 $speaker = null;
-                $intentNode = $this->createIntent($intent, $speaker);
+                $intentSceneId = null;
+                $intentNode = $this->createIntent($intent, $speaker, $intentSceneId);
 
-                if (isset($intent['scene'])) {
+                if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
-                        $cm->userSaysToBotAcrossScenes($sceneId, $intent['scene'], $intentNode, $intentIdx);
+                        $cm->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
-                        $cm->botSaysToUserAcrossScenes($sceneId, $intent['scene'], $intentNode, $intentIdx);
+                        $cm->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
                     }
@@ -162,7 +163,7 @@ class Conversation extends Model
      * @param $intent
      * @return Intent
      */
-    private function createIntent($intent, &$speaker)
+    private function createIntent($intent, &$speaker, &$intentSceneId)
     {
         $speaker = array_keys($intent)[0];
         $intentValue = $intent[$speaker];
@@ -176,6 +177,7 @@ class Conversation extends Model
             $actionLabel = isset($intentValue['action']) ? $intentValue['action'] : null ;
             $interpreterLabel = isset($intentValue['interpreter']) ? $intentValue['interpreter'] : null;
             $completes = isset($intentValue['completes']) ? $intentValue['completes'] : false;
+            $intentSceneId = isset($intent[$speaker]['scene']) ? $intent[$speaker]['scene'] : null;
         } else {
             $intentLabel = $intentValue;
         }
