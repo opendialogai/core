@@ -8,4 +8,6 @@ Route::group(['middleware' => 'web'], function() {
     });
 
     Route::post('/incoming/webchat', 'OpenDialogAi\SensorEngine\Http\Controllers\WebchatIncomingController@receive');
+
+    Route::get('/chat-init/webchat/{user_id}/{limit}', 'OpenDialogAi\ConversationLog\Http\Controllers\WebchatInitController');
 });
