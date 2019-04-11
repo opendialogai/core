@@ -156,21 +156,24 @@ class Conversation extends Model
      *
      * @return bool
      */
-    public function unPublishConversation()
+    public function unPublishConversation($reValidate = true)
     {
         // TODO: Actually remove conversation from DGraph.
         // $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
 
-        // Set conversation status to "validated".
-        $this->status = 'validated';
-        $this->save(['validate' => false]);
+        // Don't update conversation status if not requested.
+        if ($reValidate) {
+            // Set conversation status to "validated".
+            $this->status = 'validated';
+            $this->save(['validate' => false]);
 
-        // Add log message.
-        ConversationStateLog::create([
-            'conversation_id' => $this->id,
-            'message' => 'Unpublished conversation from DGraph.',
-            'type' => 'unpublish_conversation',
-        ])->save();
+            // Add log message.
+            ConversationStateLog::create([
+                'conversation_id' => $this->id,
+                'message' => 'Unpublished conversation from DGraph.',
+                'type' => 'unpublish_conversation',
+            ])->save();
+        }
 
         return true;
     }

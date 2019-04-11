@@ -122,6 +122,34 @@ EOT;
     }
 
     /**
+     * Ensure that logs/revisions are cleaned up when Conversations are deleted.
+     */
+    public function testConversationDeletion()
+    {
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+
+        $conversationStateLog = ConversationStateLog::create([
+            'conversation_id' => $conversation->id,
+            'message' => 'new revision',
+            'type' => 'update',
+        ]);
+
+        $conversationStateLogs = ConversationStateLog::where('conversation_id', $conversation->id)->get();
+        $this->assertCount(1, $conversationStateLogs);
+
+        $activities = Activity::where('subject_id', $conversation->id)->get();
+        $this->assertCount(2, $activities);
+
+        $conversation->delete();
+
+        $conversationStateLogs = ConversationStateLog::where('conversation_id', $conversation->id)->get();
+        $this->assertCount(0, $conversationStateLogs);
+
+        $activities = Activity::where('subject_id', $conversation->id)->get();
+        $this->assertCount(0, $activities);
+    }
+
+    /**
      * Ensure that a conversation representation can be made from a YAML file.
      */
     public function testConversationRepresentationCreation()
