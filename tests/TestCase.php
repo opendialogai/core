@@ -7,6 +7,7 @@ use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
+use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
@@ -49,6 +50,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ActionEngineServiceProvider::class,
             ConversationBuilderServiceProvider::class,
             ConversationEngineServiceProvider::class,
+            ConversationLogServiceProvider::class,
             ResponseEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
