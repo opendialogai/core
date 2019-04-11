@@ -48,9 +48,9 @@ class Conversation extends Model
     /**
      * Get the logs for the conversation.
      */
-    public function conversationlogs()
+    public function conversationStateLogs()
     {
-        return $this->hasMany('OpenDialogAi\ConversationBuilder\ConversationLog');
+        return $this->hasMany('OpenDialogAi\ConversationBuilder\ConversationStateLog');
     }
 
     /**
