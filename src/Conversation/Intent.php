@@ -211,4 +211,13 @@ class Intent extends Node
 
         throw new NodeDoesNotExistException();
     }
+
+    public function completes(): bool
+    {
+        if ($this->getAttribute(Model::COMPLETES)->getValue()) {
+            return true;
+        }
+
+        return false;
+    }
 }

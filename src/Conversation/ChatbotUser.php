@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 class ChatbotUser extends Node
@@ -37,6 +38,16 @@ class ChatbotUser extends Node
     }
 
     /**
+     *
+     */
+    public function moveCurrentConversationToPast()
+    {
+        $currentConversation = $this->getCurrentConversation();
+        $this->outgoingEdges->remove(Model::HAVING_CONVERSATION);
+        $this->createOutgoingEdge(Model::HAD_CONVERSATION, $currentConversation);
+    }
+
+    /**
      * @return Conversation
      */
     public function getCurrentConversation(): Conversation
@@ -45,11 +56,19 @@ class ChatbotUser extends Node
     }
 
     /**
+     * Creates a new outgoing edge if there is no current intent otherwise changes the pointer
      * @param Intent $intent
      */
     public function setCurrentIntent(Intent $intent)
     {
-        $this->getCurrentConversation()->createOutgoingEdge(Model::CURRENT_INTENT, $intent);
+        if ($this->hasCurrentIntent()) {
+            /* @var DirectedEdge $existingEdge */
+            $existingEdge = $this->getCurrentConversation()
+                ->getOutgoingEdgesWithRelationship(Model::CURRENT_INTENT)->getFirstEdge();
+            $existingEdge->setToNode($intent);
+        } else {
+            $this->getCurrentConversation()->createOutgoingEdge(Model::CURRENT_INTENT, $intent);
+        }
     }
 
     /**

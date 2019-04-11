@@ -141,4 +141,23 @@ class Conversation extends NodeWithConditions
 
         return null;
     }
+
+    public function getIntentByOrder(int $order): Intent
+    {
+        $intents = $this->getAllIntents();
+
+        $intents = $intents->filter(function ($key, $value) use ($order) {
+            /* @var Intent $value */
+            if ($value->getOrder() == $order) {
+                return true;
+            }
+        });
+
+        if (count($intents) == 1) {
+            return $intents->first()->value;
+        }
+
+        return null;
+    }
+
 }

@@ -72,7 +72,9 @@ class ConversationQueryFactory
             Model::UID,
             Model::ID,
             Model::SAYS => self::getIntentGraph(),
+            Model::SAYS_ACROSS_SCENES => self::getIntentGraph(),
             Model::LISTENS_FOR => self::getIntentGraph(),
+            Model::LISTENS_FOR_ACROSS_SCENES => self::getIntentGraph(),
         ];
     }
 
@@ -87,7 +89,17 @@ class ConversationQueryFactory
             Model::ORDER,
             Model::COMPLETES,
             Model::CAUSES_ACTION => self::getActionGraph(),
-            Model::HAS_INTERPRETER => self::getInterpreterGraph()
+            Model::HAS_INTERPRETER => self::getInterpreterGraph(),
+            Model::LISTENED_BY_FROM_SCENES => [
+                Model::UID,
+                Model::ID,
+                Model::USER_PARTICIPATES_IN => [
+                    Model::ID,
+                ],
+                Model::BOT_PARTICIPATES_IN => [
+                    Model::ID,
+                ]
+            ]
         ];
     }
 
@@ -124,13 +136,18 @@ class ConversationQueryFactory
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
         $cm->getConversation()->setConversationType($data[Model::EI_TYPE]);
 
+        // First create all the scenes
+        self::createScenesFromDgraphData($cm, $data);
+
+        // Now populate the scenes with data.
+
         // Create the opening scene
-        self::createSceneFromDgraphData($cm, $data[Model::HAS_OPENING_SCENE][0], true, $clone);
+        self::createSceneFromDgraphData($cm, $data[Model::HAS_OPENING_SCENE][0], $clone);
 
         // Cycle through all the other scenes and set those up as well.
         if (isset($data[Model::HAS_SCENE])) {
             foreach ($data[Model::HAS_SCENE] as $scene) {
-                self::createSceneFromDgraphData($cm, $scene, false, $clone);
+                self::createSceneFromDgraphData($cm, $scene, $clone);
             }
         }
 
@@ -140,23 +157,39 @@ class ConversationQueryFactory
     /**
      * @param ConversationManager $cm
      * @param $data
+     */
+    private static function createScenesFromDgraphData(ConversationManager $cm, $data)
+    {
+        foreach ($data[Model::HAS_OPENING_SCENE] as $openingScene) {
+            $cm->createScene($openingScene[Model::ID], true);
+        }
+
+        if (isset($data[Model::HAS_SCENE])) {
+            foreach ($data[Model::HAS_SCENE] as $scene) {
+                $cm->createScene($scene[Model::ID], false);
+            }
+        }
+    }
+
+    /**
+     * @param ConversationManager $cm
+     * @param $data
      * @param bool $opening
      * @param bool $clone
      */
-    private static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $opening = false, bool $clone = false)
+    private static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $clone = false)
     {
-        $cm->createScene($data[Model::ID], $opening);
         $scene = $cm->getScene($data[Model::ID]);
         $clone ? false : $scene->setUid($data[Model::UID]);
         $clone ? false: $scene->getUser()->setUid($data[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
+        $clone ? false: $scene->getBot()->setUid($data[Model::HAS_BOT_PARTICIPANT][0][Model::UID]);
+
         self::updateParticipantFromDgraphData(
-            $scene->getId(), $scene->getUser(), $cm, $data[Model::HAS_USER_PARTICIPANT][0]
+            $scene->getId(), $scene->getUser(), $cm, $data[Model::HAS_USER_PARTICIPANT][0], $clone
         );
-        $scene->getBot()->setUid(
-            $data[Model::HAS_BOT_PARTICIPANT][0][Model::UID]
-        );
+
         self::updateParticipantFromDgraphData(
-            $scene->getId(), $scene->getBot(), $cm, $data[Model::HAS_BOT_PARTICIPANT][0]
+            $scene->getId(), $scene->getBot(), $cm, $data[Model::HAS_BOT_PARTICIPANT][0], $clone
         );
     }
 
@@ -174,27 +207,56 @@ class ConversationQueryFactory
         $data,
         bool $clone = false
     ) {
-        foreach ($data[Model::SAYS] as $intentData) {
-            $intent = new Intent($intentData[Model::ID]);
-            $clone ? false : $intent->setUid($intentData[Model::UID]);
-            $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
-            if (isset($intentData[Model::CAUSES_ACTION])) {
-                $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
-                $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
-                $intent->addAction($action);
-            }
-            if (isset($intentData[Model::HAS_INTERPRETER])) {
-                $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
-                $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
-                $intent->addInterpreter($interpreter);
-            }
+        if (isset($data[Model::SAYS])) {
+            foreach ($data[Model::SAYS] as $intentData) {
+                $intent = new Intent($intentData[Model::ID]);
+                $clone ? false : $intent->setUid($intentData[Model::UID]);
+                $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
+                if (isset($intentData[Model::CAUSES_ACTION])) {
+                    $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
+                    $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
+                    $intent->addAction($action);
+                }
+                if (isset($intentData[Model::HAS_INTERPRETER])) {
+                    $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
+                    $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
+                    $intent->addInterpreter($interpreter);
+                }
 
-            if ($participant->isUser()) {
-                $cm->userSaysToBot($sceneId, $intent, $intentData[Model::ORDER]);
-            }
+                if ($participant->isUser()) {
+                    $cm->userSaysToBot($sceneId, $intent, $intentData[Model::ORDER]);
+                }
 
-            if ($participant->isBot()) {
-                $cm->botSaysToUser($sceneId, $intent, $intentData[Model::ORDER]);
+                if ($participant->isBot()) {
+                    $cm->botSaysToUser($sceneId, $intent, $intentData[Model::ORDER]);
+                }
+            }
+        }
+        if (isset($data[Model::SAYS_ACROSS_SCENES])) {
+            foreach ($data[Model::SAYS_ACROSS_SCENES] as $intentData) {
+                $intent = new Intent($intentData[Model::ID]);
+                $clone ? false : $intent->setUid($intentData[Model::UID]);
+                $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
+                if (isset($intentData[Model::CAUSES_ACTION])) {
+                    $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
+                    $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
+                    $intent->addAction($action);
+                }
+                if (isset($intentData[Model::HAS_INTERPRETER])) {
+                    $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
+                    $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
+                    $intent->addInterpreter($interpreter);
+                }
+
+                $endingSceneId = $intentData[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID];
+
+                if ($participant->isUser()) {
+                    $cm->userSaysToBotAcrossScenes($sceneId, $endingSceneId, $intent, $intentData[Model::ORDER]);
+                }
+
+                if ($participant->isBot()) {
+                    $cm->botSaysToUserAcrossScenes($sceneId, $endingSceneId, $intent, $intentData[Model::ORDER]);
+                }
             }
         }
     }

@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use Ds\Map;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
@@ -54,7 +55,15 @@ class Participant extends Node
      */
     public function getAllIntentsSaid()
     {
-        return $this->getNodesConnectedByOutgoingRelationship(Model::SAYS);
+        $allIntentsSaid = new Map();
+        $allIntentsSaid = $allIntentsSaid->merge(
+            $this->getNodesConnectedByOutgoingRelationship(Model::SAYS)
+        );
+        $allIntentsSaid = $allIntentsSaid->merge(
+            $this->getNodesConnectedByOutgoingRelationship(Model::SAYS_ACROSS_SCENES)
+        );
+
+        return $allIntentsSaid;
     }
 
     /**
@@ -62,7 +71,15 @@ class Participant extends Node
      */
     public function getAllIntentsListenedFor()
     {
-        return $this->getNodesConnectedByOutgoingRelationship(Model::LISTENS_FOR);
+        $allIntentsSaid = new Map();
+        $allIntentsSaid = $allIntentsSaid->merge(
+            $this->getNodesConnectedByOutgoingRelationship(Model::LISTENS_FOR)
+        );
+        $allIntentsSaid = $allIntentsSaid->merge(
+            $this->getNodesConnectedByOutgoingRelationship(Model::LISTENS_FOR_ACROSS_SCENES)
+        );
+
+        return $allIntentsSaid;
     }
 
     /**
