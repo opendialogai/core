@@ -8,7 +8,7 @@ use OpenDialogAi\ConversationLog\Message;
 
 class WebchatInitController extends BaseController
 {
-    public function __invoke($user_id, $limit = 10)
+    public function receive($user_id, $limit = 10)
     {
         $messages = Message::where('user_id', $user_id)
             ->orderBy('microtime', 'desc')
