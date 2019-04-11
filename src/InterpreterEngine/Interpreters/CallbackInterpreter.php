@@ -14,13 +14,31 @@ class CallbackInterpreter extends BaseInterpreter
 {
     protected static $name = 'interpreter.core.callbackInterpreter';
 
-    private $supportedCallbacks;
+    /**
+     * @var array - the callbacks supported by the application.
+     */
+    private $supportedCallbacks = [];
 
+    /**
+     * @param $supportedCallbacks
+     */
     public function setSupportedCallbacks($supportedCallbacks)
     {
         $this->supportedCallbacks = $supportedCallbacks;
     }
 
+    /**
+     * @param $callbackId
+     * @param $intent
+     */
+    public function addCallback($callbackId, $intent)
+    {
+        $this->supportedCallbacks[$callbackId] = $intent;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function interpret(UtteranceInterface $utterance): array
     {
         try {
@@ -32,5 +50,7 @@ class CallbackInterpreter extends BaseInterpreter
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf('Utterance %s does not support callbacks', $utterance->getType()));
         }
+
+        return [new NoMatchIntent()];
     }
 }

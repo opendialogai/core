@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 
+use Ds\Map;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
@@ -20,7 +21,7 @@ class Scene extends NodeWithConditions
     public function __construct($id)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::PARTICIPANT));
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::SCENE));
 
         // Create the scene participants
         $this->bot = new Participant($this->botIdInScene());
@@ -83,7 +84,6 @@ class Scene extends NodeWithConditions
         $this->bot->listensForAcrossScenes($intent);
     }
 
-
     public function getIntentsSaidByUser()
     {
         return $this->user->getAllIntentsSaid();
@@ -104,8 +104,63 @@ class Scene extends NodeWithConditions
         return $this->bot->getAllIntentsListenedFor();
     }
 
-    public function getAllIntents()
+    public function getAllIntents(): Map
     {
-        // @todo
+        $allIntents = new Map();
+        $allIntents = $allIntents->merge($this->getIntentsSaidByUser());
+        $allIntents = $allIntents->merge($this->getIntentsSaidByBot());
+        return $allIntents;
+    }
+
+    public function getIntentByOrder($order):Intent
+    {
+        $intents =  $this->getAllIntents()->filter( function ($key, $value) use ($order) {
+           /* @var Intent $value */
+            if ($value->getOrder() == $order) {
+                return true;
+            }
+        });
+
+        return $intents->first()->value;
+    }
+
+    /**
+     * Get the bot intents said in the scene that have a higher order than the current intent
+     * and are in an uninterrupted ascending order.
+     * @param Intent $currentIntent
+     * @return Map
+     */
+    public function getNextPossibleBotIntents(Intent $currentIntent): Map
+    {
+        $currentOrder = $currentIntent->getOrder();
+
+        $intents = $this->getIntentsSaidByBot()->filter( function ($key, $value) use ($currentOrder) {
+            /* @var Intent $value */
+            if ($value->getOrder() > $currentOrder) {
+                return true;
+            }
+        });
+
+        return $intents;
+    }
+
+    /**
+     * Get the user intents said in the scene that have a higher order than the current intent
+     * and are in an uninterrupted ascending order.
+     * @param Intent $currentIntent
+     * @return Map
+     */
+    public function getNextPossibleUserIntents(Intent $currentIntent): Map
+    {
+        $currentOrder = $currentIntent->getOrder();
+
+        $intents = $this->getIntentsSaidByUser()->filter( function ($key, $value) use ($currentOrder) {
+            /* @var Intent $value */
+            if ($value->getOrder() > $currentOrder) {
+                return true;
+            }
+        });
+
+        return $intents;
     }
 }

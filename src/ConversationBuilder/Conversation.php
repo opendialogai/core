@@ -2,8 +2,10 @@
 
 namespace OpenDialogAi\ConversationBuilder;
 
+use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
@@ -95,22 +97,37 @@ class Conversation extends Model
 
         $cm = new ConversationManager($yaml['id']);
 
+        // Build the conversation in two steps. First all the scenes and then all the intents as
+        // intents may connect between scenes.
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             $sceneIsOpeningScene = $sceneId === 'opening_scene';
             $cm->createScene($sceneId, $sceneIsOpeningScene);
+        }
 
-            $intents = [];
+        // Now cycle through the scenes again and identifying intents that cut across scenes.
+        $intentIdx = 1;
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            foreach ($scene['intents'] as $intent) {
+                $speaker = null;
+                $intentSceneId = null;
+                $intentNode = $this->createIntent($intent, $speaker, $intentSceneId);
 
-            $intentIdx = 0;
-            foreach ($scene['intents'] as $speaker => $intentName) {
-                $intent = new Intent($intentName);
-
-                if ($speaker === 'u') {
-                    $cm->userSaysToBot($sceneId, $intent, $intentIdx);
-                } elseif ($speaker === 'b') {
-                    $cm->botSaysToUser($sceneId, $intent, $intentIdx);
+                if (isset($intentSceneId)) {
+                    if ($speaker === 'u') {
+                        $cm->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
+                    } elseif ($speaker === 'b') {
+                        $cm->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
+                    } else {
+                        Log::debug("I don't know about the speaker type '{$speaker}'");
+                    }
                 } else {
-                    Log::debug("I don't know about the speaker type '{$speaker}'");
+                    if ($speaker === 'u') {
+                        $cm->userSaysToBot($sceneId, $intentNode, $intentIdx);
+                    } elseif ($speaker === 'b') {
+                        $cm->botSaysToUser($sceneId, $intentNode, $intentIdx);
+                    } else {
+                        Log::debug("I don't know about the speaker type '{$speaker}'");
+                    }
                 }
 
                 $intentIdx++;
@@ -140,5 +157,42 @@ class Conversation extends Model
         }
 
         return false;
+    }
+
+    /**
+     * @param $intent
+     * @return Intent
+     */
+    private function createIntent($intent, &$speaker, &$intentSceneId)
+    {
+        $speaker = array_keys($intent)[0];
+        $intentValue = $intent[$speaker];
+
+        $actionLabel = null;
+        $interpreterLabel = null;
+        $completes = false;
+
+        if (is_array($intentValue)) {
+            $intentLabel = $intentValue['i'];
+            $actionLabel = isset($intentValue['action']) ? $intentValue['action'] : null ;
+            $interpreterLabel = isset($intentValue['interpreter']) ? $intentValue['interpreter'] : null;
+            $completes = isset($intentValue['completes']) ? $intentValue['completes'] : false;
+            $intentSceneId = isset($intent[$speaker]['scene']) ? $intent[$speaker]['scene'] : null;
+        } else {
+            $intentLabel = $intentValue;
+        }
+
+        /* @var Intent $intentNode */
+        $intentNode = new Intent($intentLabel, $completes);
+
+        if ($actionLabel) {
+            $intentNode->addAction(new Action($actionLabel));
+        }
+
+        if ($interpreterLabel) {
+            $intentNode->addInterpreter(new Interpreter($interpreterLabel));
+        }
+
+        return $intentNode;
     }
 }

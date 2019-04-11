@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Tests;
 
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
+use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
@@ -47,6 +48,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             CoreServiceProvider::class,
             ActionEngineServiceProvider::class,
             ConversationBuilderServiceProvider::class,
+            ConversationEngineServiceProvider::class,
             ResponseEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
@@ -63,5 +65,127 @@ class TestCase extends \Orchestra\Testbench\TestCase
             'database' => ':memory:',
             'prefix'   => '',
         ]);
+    }
+
+    protected function conversation1()
+    {
+        return <<<EOT
+conversation:
+  id: hello_bot_world
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+            interpreter: interpreter.core.callbackInterpreter
+            action: register_hello
+        - b: 
+            i: hello_user
+            action: register_hello
+            scene: scene2
+        - b: 
+            i: hello_registered_user
+            action: register_hello
+            scene: scene3
+    scene2:
+      intents:
+        - u: 
+            i: how_are_you
+            interpreter: interpreter.core.callbackInterpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back
+            completes: true 
+    scene3:
+      intents:
+        - u:
+            i: weather_question
+            action: get_weather
+        - b:
+            i: weather_answer    
+        - u: 
+            i: will_you_cope
+            interpreter: interpreter.core.callbackInterpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back
+            completes: true 
+                       
+EOT;
+    }
+
+    protected function conversation2()
+    {
+        return <<<EOT
+conversation:
+  id: hello_bot_world2
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: howdy_bot
+            interpreter: interpreter.core.callbackInterpreter
+            action: register_hello
+        - b: 
+            i: hello_user
+            action: register_hello
+    scene2:
+      intents:
+        - u: 
+            i: how_are_you
+            interpreter: interpreter.core.callbackInterpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back 
+            completes: true           
+EOT;
+    }
+
+    protected function conversation3()
+    {
+        return <<<EOT
+conversation:
+  id: hello_bot_world3
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: top_of_the_morning_bot
+            interpreter: interpreter.core.callbackInterpreter
+            action: register_hello
+        - b: 
+            i: hello_user
+            action: register_hello
+    scene2:
+      intents:
+        - u: 
+            i: how_are_you
+            interpreter: interpreter.core.callbackInterpreter
+            action: wave
+        - b: 
+            i: doing_dandy
+            action: wave_back   
+            completes: true         
+EOT;
+    }
+
+    protected function conversation4()
+    {
+        return <<<EOT
+conversation:
+  id: no_match_conversation
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: intent.core.NoMatch
+        - b: 
+            i: intent.core.NoMatchResponse
+            completes: true
+EOT;
+
     }
 }

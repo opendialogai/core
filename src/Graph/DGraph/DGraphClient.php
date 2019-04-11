@@ -19,6 +19,7 @@ class DGraphClient
     const QUERY  = 'query';
     const MUTATE = 'mutate';
     const ALTER  = 'alter';
+    const DELETE = 'delete';
 
     public function __construct($dgraphUrl, $dGraphPort)
     {
@@ -27,8 +28,6 @@ class DGraphClient
         ]);
 
         $this->client = $client;
-
-        $this->dGraphQueriesFilePath = '';
     }
 
     /**
@@ -44,7 +43,7 @@ class DGraphClient
      */
     public function initSchema()
     {
-        $schema = $this->getCurrentSchema();
+        $schema = $this->schema();
         $outcome = $this->alter($schema);
         return $outcome;
     }
@@ -56,6 +55,7 @@ class DGraphClient
             self::QUERY,
             ['body' => $query->prepare()]
         );
+
         return new DGraphQueryResponse($response);
     }
 
@@ -131,5 +131,114 @@ class DGraphClient
         }
 
         return $response['data'];
+    }
+
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function deleteRelationship($node1Uid, $node2Uid, $relationship)
+    {
+        $response = $this->client->request(
+            'POST',
+            self::MUTATE,
+            [
+                'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship),
+                'headers' => [
+                    'X-Dgraph-CommitNow' => 'true',
+                ]
+            ]
+        );
+
+        $response = json_decode($response->getBody(), true);
+
+        try {
+            return $this->getData($response);
+        } catch (\Exception $e) {
+            return "Error processing alter {$e->getMessage()}";
+        }
+    }
+
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createRelationship($node1Uid, $node2Uid, $relationship)
+    {
+        $response = $this->client->request(
+            'POST',
+            self::MUTATE,
+            [
+                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship),
+                'headers' => [
+                    'X-Dgraph-CommitNow' => 'true',
+                ]
+            ]
+        );
+
+        $response = json_decode($response->getBody(), true);
+
+        try {
+            return $this->getData($response);
+        } catch (\Exception $e) {
+            return "Error processing alter {$e->getMessage()}";
+        }
+    }
+
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
+     * @return string
+     */
+    private function prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
+    {
+        $statement = sprintf('{ delete { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
+
+        return $statement;
+    }
+
+    /**
+     * @param $node1Uid
+     * @param $node2Uid
+     * @param $relationship
+     * @return string
+     */
+    private function prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
+    {
+        $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
+
+        return $statement;
+    }
+    
+    /**
+     * @return string
+     */
+    private function schema()
+    {
+        return "
+            <causes_action>: uid .
+            <core.attribute.completes>: default .
+            <core.attribute.order>: default .
+            <ei_type>: string @index(exact) .
+            <has_bot_participant>: uid @reverse .
+            <has_interpreter>: uid .
+            <has_opening_scene>: uid @reverse .
+            <has_scene>: uid .
+            <has_user_participant>: uid @reverse .
+            <id>: string @index(exact) .
+            <listens_for>: uid @reverse .
+            <name>: default .
+            <says>: uid @reverse .
+            <having_conversation>: uid @reverse .
+            <says_across_scenes>: uid @reverse .
+            <listens_for_across_scenes>: uid @reverse .
+        ";
     }
 }

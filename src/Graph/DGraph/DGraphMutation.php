@@ -5,7 +5,9 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 
 
 use Ds\Map;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Graph\Search\DFS;
@@ -58,7 +60,7 @@ class DGraphMutation
             $mutationStatement .= $this->attributeStatement($startingNode) . "\r\n";
             $mutationStatement .= $this->relationshipStatement($startingNode) . "\r\n";
         });
-
+        Log::debug($mutationStatement . "}}");
         return $mutationStatement . "}}";
     }
 
@@ -87,6 +89,11 @@ class DGraphMutation
         $attributes = $node->getAttributes();
         /* @var AttributeInterface $attribute */
         foreach ($attributes as $attribute) {
+            // Skip the UID - we don't need to add that back as an attribute.
+            if ($attribute->getId() == Model::UID) {
+                continue;
+            }
+
             $attributeStatement[] = $this->prepareAttributeTriple(
                 $id,
                 $attribute->getId(),
@@ -134,8 +141,8 @@ class DGraphMutation
                     $fromId,
                     $relationship,
                     $toId,
-                    $updateTo,
-                    $updateFrom
+                    $updateFrom,
+                    $updateTo
                 );
             }
         }
@@ -159,26 +166,34 @@ class DGraphMutation
         }
     }
 
+    /**
+     * @param $subject
+     * @param $predicate
+     * @param $object
+     * @param bool $updateFrom
+     * @param bool $updateTo
+     * @return string
+     */
     public function prepareRelationshipTriple(
         $subject,
         $predicate,
         $object,
-        bool $updateTo = false,
-        bool $updateFrom = false
+        bool $updateFrom = false,
+        bool $updateTo = false
     ) {
-        if ($updateTo && $updateFrom) {
+        if ($updateFrom && $updateTo) {
             return sprintf('<%s> <%s> <%s> .', $subject, $predicate, $object);
         }
 
-        if ($updateTo && !$updateFrom) {
+        if ($updateFrom && !$updateTo) {
             return sprintf('<%s> <%s> _:%s .', $subject, $predicate, $object);
         }
 
-        if (!$updateTo && $updateFrom) {
-            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
+        if (!$updateFrom && $updateTo) {
+            return sprintf('_:%s <%s> <%s> .', $subject, $predicate, $object);
         }
 
-        if (!$updateTo && !$updateFrom) {
+        if (!$updateFrom && !$updateTo) {
             return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
         }
     }

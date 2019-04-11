@@ -28,7 +28,7 @@ class InterpreterEngineServiceProvider extends ServiceProvider
             return new LuisClient(new Client(), $config);
         });
 
-        $this->app->bind(InterpreterServiceInterface::class, function () {
+        $this->app->singleton(InterpreterServiceInterface::class, function () {
             $interpreterService = new InterpreterService();
             $interpreterService->registerAvailableInterpreters();
 

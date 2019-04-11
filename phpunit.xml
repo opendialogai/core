@@ -47,6 +47,12 @@
           <testsuite name="SensorEngine">
             <directory suffix="Test.php">./src/SensorEngine/tests</directory>
         </testsuite>
+
+        <testsuite name="ConversationEngine">
+            <directory suffix="Test.php">./src/ConversationEngine/tests</directory>
+            <exclude>./src/ConversationEngine/tests/ConversationEngineTest.php</exclude>
+        </testsuite>
+
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

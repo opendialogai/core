@@ -7,6 +7,7 @@ namespace OpenDialogAi\ContextEngine\ContextManager;
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
@@ -100,11 +101,13 @@ class ContextService
 
     /**
      * @param UtteranceInterface $utterance
+     * @return UserContext
      * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
      */
     public function createUserContext(UtteranceInterface $utterance)
     {
-        /* @var UserService $userService */
-        $this->userService->createOrUpdateUser($utterance);
+        $userContext = new UserContext($this->userService->createOrUpdateUser($utterance), $this->userService);
+        $this->addContext($userContext);
+        return $userContext;
     }
 }

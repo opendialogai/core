@@ -12,9 +12,22 @@ class ConversationManager
     /* @var Conversation $conversation - the root of the conversation graph */
     private $conversation;
 
-    public function __construct($conversation_id)
+    public function __construct(string $conversation_id)
     {
         $this->conversation = new Conversation($conversation_id);
+    }
+
+    /**
+     * Helper function to return a manager for an existing conversation.
+     *
+     * @param Conversation $conversation
+     * @return ConversationManager
+     */
+    public static function createManagerForExistingConversation(Conversation $conversation)
+    {
+        $cm = new ConversationManager($conversation->getId());
+        $cm->setConversation($conversation);
+        return $cm;
     }
 
     /**
@@ -23,6 +36,14 @@ class ConversationManager
     public function getConversation()
     {
         return $this->conversation;
+    }
+
+    /**
+     * @param Conversation $conversation
+     */
+    public function setConversation(Conversation $conversation)
+    {
+        $this->conversation = $conversation;
     }
 
     /**
@@ -55,6 +76,15 @@ class ConversationManager
     }
 
     /**
+     * @param $id
+     * @return bool|Scene
+     */
+    public function getScene($id)
+    {
+        return $this->conversation->getScene($id);
+    }
+
+    /**
      * @param $sceneId
      * @param Condition $condition
      * @return ConversationManager
@@ -69,6 +99,11 @@ class ConversationManager
     }
 
 
+    /**
+     * @param $intentId
+     * @param Action $action
+     * @return $this
+     */
     public function addActionToIntent($intentId, Action $action)
     {
         /* @var Intent $intent */
@@ -98,6 +133,12 @@ class ConversationManager
         return $this;
     }
 
+    /**
+     * @param $sceneId
+     * @param Intent $intent
+     * @param $order
+     * @return $this
+     */
     public function botSaysToUser($sceneId, Intent $intent, $order)
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
@@ -115,7 +156,13 @@ class ConversationManager
         return $this;
     }
 
-
+    /**
+     * @param $startingSceneId
+     * @param $endingSceneId
+     * @param Intent $intent
+     * @param $order
+     * @return $this
+     */
     public function userSaysToBotAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order)
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
@@ -133,6 +180,13 @@ class ConversationManager
         return $this;
     }
 
+    /**
+     * @param $startingSceneId
+     * @param $endingSceneId
+     * @param Intent $intent
+     * @param $order
+     * @return $this
+     */
     public function botSaysToUserAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order)
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.

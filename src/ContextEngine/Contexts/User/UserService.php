@@ -6,8 +6,13 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
@@ -35,14 +40,16 @@ class UserService
     }
 
     /**
+     * This retrieves the user from dgraph and sets the current conversation
+     *
      * @param $userId
-     * @return Node
+     * @return ChatbotUser
      */
-    public function getUser($userId): Node
+    public function getUser($userId): ChatbotUser
     {
         $response = $this->dGraphClient->query($this->getUserQuery($userId));
 
-        $user = new Node();
+        $user = new ChatbotUser();
         if (isset($response->getData()[0]['id'])) {
             foreach ($response->getData()[0] as $name => $value) {
                 if ($name == 'id') {
@@ -65,15 +72,30 @@ class UserService
             }
         }
 
+        if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
+            $conversation = ConversationQueryFactory::getConversationFromDgraph(
+                $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID],
+                $this->dGraphClient
+            );
+
+            $user->setCurrentConversation($conversation);
+        }
+
+        if (isset($response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT])) {
+            $intent = $user->getIntentByUid(
+                $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT][0][Model::UID]
+            );
+            $user->setCurrentIntent($intent);
+        }
         return $user;
     }
 
     /**
      * @param UtteranceInterface $utterance
-     * @return Node
+     * @return ChatbotUser
      * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
      */
-    public function createOrUpdateUser(UtteranceInterface $utterance): Node
+    public function createOrUpdateUser(UtteranceInterface $utterance): ChatbotUser
     {
         if ($this->userExists($utterance->getUserId())) {
             return $this->updateUserFromUtterance($utterance);
@@ -93,7 +115,7 @@ class UserService
         $user = $this->getUser($utterance->getUserId());
 
         // @todo identify what needs to be updated - this is just a dummy action now
-        $user->setAttribute('user.timestamp', microtime(true));
+        $user->setAttribute('timestamp', microtime(true));
         return $this->updateUser($user);
     }
 
@@ -104,10 +126,54 @@ class UserService
      */
     public function createUserFromUtterance(UtteranceInterface $utterance)
     {
-        $user = new Node($utterance->getUserId());
-        $user->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CHATBOT_USER));
-        $user->addAttribute(new IntAttribute('user.timestamp', microtime(true)));
+        $user = new ChatbotUser($utterance->getUserId());
+        $user->addAttribute(new IntAttribute('timestamp', microtime(true)));
 
+        return $this->updateUser($user);
+    }
+
+    /**
+     * @param ChatbotUser $user
+     * @param Conversation $conversation
+     * @return Node
+     */
+    public function setCurrentConversation(ChatbotUser $user, Conversation $conversation)
+    {
+        $user->setCurrentConversation($conversation);
+        return $this->updateUser($user);
+    }
+
+    public function moveCurrentConversationToPast(ChatbotUser $user)
+    {
+        // Delete the current relationship from Dgraph.
+        $this->dGraphClient->deleteRelationship(
+            $user->getUid(),
+            $user->getCurrentConversation()->getUid(),
+            Model::HAVING_CONVERSATION
+        );
+
+        // Update the user model
+        $user->moveCurrentConversationToPast();
+        return $this->updateUser($user);
+    }
+
+    /**
+     * @param ChatbotUser $user
+     * @param Intent $intent
+     * @return Node
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function setCurrentIntent(ChatbotUser $user, Intent $intent)
+    {
+        if ($user->hasCurrentIntent()) {
+            // Delete the current relationship from Dgraph
+            $this->dGraphClient->deleteRelationship(
+                $user->getCurrentConversation()->getUid(),
+                $user->getCurrentIntent()->getUid(),
+                Model::CURRENT_INTENT
+            );
+        }
+        $user->setCurrentIntent($intent);
         return $this->updateUser($user);
     }
 
@@ -115,10 +181,9 @@ class UserService
      * @param Node $user
      * @return Node
      */
-    public function updateUser(Node $user)
+    public function updateUser(ChatbotUser $user)
     {
         $mutation = new DGraphMutation($user);
-
         $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
 
         if ($mutationResponse->isSuccessful()) {
@@ -144,19 +209,209 @@ class UserService
 
     /**
      * @param $userId
+     * @return bool
+     */
+    public function userIsHavingConversation($userId): bool
+    {
+        if (isset($this->getOngoingConversationIdQuery($userId)[0][Model::HAVING_CONVERSATION])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $userId
+     * @return mixed
+     */
+    public function getCurrentConversation($userId)
+    {
+        if ($this->userIsHavingConversation($userId)) {
+            $conversationId = $this->getOngoingConversationIdQuery(
+                $userId
+            )[0][Model::HAVING_CONVERSATION][0][Model::UID];
+        } else {
+            throw new NoOngoingConversationException();
+        }
+
+        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationId, $this->dGraphClient);
+        return $conversation;
+    }
+
+    /**
+     * @param ChatbotUser $user
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function unsetCurrentIntent(ChatbotUser $user)
+    {
+        $this->dGraphClient->deleteRelationship(
+            $user->getCurrentConversation()->getUid(),
+            $user->getCurrentIntent()->getUid(),
+            Model::CURRENT_INTENT
+        );
+    }
+
+    /**
+     * @param ChatbotUser $user
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function unsetCurrentConversation(ChatbotUser $user)
+    {
+        $this->dGraphClient->createRelationship(
+            $user->getCurrentConversation()->getUid(),
+            $user->getUid(),
+            Model::HAD_CONVERSATION
+        );
+
+        $this->dGraphClient->deleteRelationship(
+            $user->getCurrentConversation()->getUid(),
+            $user->getUid(),
+            Model::HAVING_CONVERSATION
+        );
+    }
+
+    /**
+     * @param $userId
      * @return DGraphQuery
      */
     private function getUserQuery($userId): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
 
-        $dGraphQuery->eq('id', $userId)
+        $dGraphQuery->eq(Model::ID, $userId)
             ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
             ->setQueryGraph([
-                'uid',
-                'expand(_all_)',
+                Model::UID,
+                'expand(_all_)' => [
+                    Model::UID,
+                    'expand(_all_)' => [
+                        Model::UID,
+                    ]
+                ]
             ]);
 
         return $dGraphQuery;
+    }
+
+
+    /**
+     * @param $userId
+     * @return array
+     */
+    private function getOngoingConversationIdQuery($userId): array
+    {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->eq('id', $userId)
+            ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
+            ->setQueryGraph([
+                Model::UID,
+                MODEL::HAVING_CONVERSATION => [
+                    Model::UID,
+                    Model::ID
+                ],
+            ]);
+
+        $response = $this->dGraphClient->query($dGraphQuery);
+        return $response->getData();
+    }
+
+    /**
+     * @param $intentUid
+     * @return string
+     */
+    public function getSceneForIntent($intentUid): string
+    {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->uid($intentUid)
+            ->setQueryGraph([
+                Model::LISTENED_BY => [
+                    Model::UID,
+                    Model::BOT_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ],
+                    Model::USER_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ]
+                ],
+                Model::LISTENED_BY_FROM_SCENES => [
+                    Model::UID,
+                    Model::BOT_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ],
+                    Model::USER_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ]
+                ]
+            ]);
+
+        $response = $this->dGraphClient->query($dGraphQuery);
+        $data = $response->getData()[0];
+
+        if (isset($data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN][0][Model::ID]);
+        }
+        if (isset($data[Model::LISTENED_BY][0][Model::USER_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY][0][Model::USER_PARTICIPATES_IN][0][Model::ID]);
+        }
+        if (isset($data[Model::LISTENED_BY_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN][0][Model::ID]);
+        }
+        if (isset($data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID]);
+        }
+
+    }
+
+    public function getCurrentSpeaker($intentUid)
+    {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->uid($intentUid)
+            ->setQueryGraph([
+                Model::SAID_BY => [
+                    Model::UID,
+                    Model::BOT_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ],
+                    Model::USER_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ]
+                ],
+                Model::SAID_FROM_SCENES => [
+                    Model::UID,
+                    Model::BOT_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ],
+                    Model::USER_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ]
+                ]
+            ]);
+
+        $response = $this->dGraphClient->query($dGraphQuery);
+        $data = $response->getData()[0];
+
+        if (isset($data[Model::SAID_BY][0][Model::BOT_PARTICIPATES_IN])) {
+            return Model::BOT;
+        }
+        if (isset($data[Model::SAID_BY][0][Model::USER_PARTICIPATES_IN])) {
+            return Model::USER;
+        }
+        if (isset($data[Model::SAID_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN])) {
+            return Model::BOT;
+        }
+        if (isset($data[Model::SAID_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
+            return Model::USER;
+        }
     }
 }

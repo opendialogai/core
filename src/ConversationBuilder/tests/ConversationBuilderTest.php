@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
+use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\ConversationBuilder\Conversation;
@@ -11,16 +13,6 @@ use Spatie\Activitylog\Models\Activity;
 
 class ConversationBuilderTest extends TestCase
 {
-        public $validYaml = <<<EOT
-conversation:
-  id: hello_bot_world
-  scenes:
-    opening_scene:
-      intents:
-        - u: hello_bot
-        - b: hello_user
-EOT;
-
     /**
      * Ensure that we can create a conversation.
      */
@@ -65,7 +57,7 @@ EOT;
         $this->assertStringStartsWith('[] String value found, but an object is required', $conversationLog->message);
 
         // Assert that no validation log is created for valid yaml.
-        $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => $this->validYaml]);
+        $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => $this->conversation1()]);
         $this->assertNull(ConversationLog::where('conversation_id', $conversation2->id)
             ->where('type', 'validate_conversation_yaml')->first());
     }
@@ -82,7 +74,7 @@ EOT;
         $this->assertStringStartsWith('[conversation] The property conversation is required', $conversationLog->message);
 
         // Assert that no validation log is created for a valid schema.
-        $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => $this->validYaml]);
+        $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => $this->conversation1()]);
         $this->assertNull(ConversationLog::where('conversation_id', $conversation2->id)
             ->where('type', 'validate_conversation_yaml_schema')->first());
     }
@@ -123,13 +115,67 @@ EOT;
 
     /**
      * Ensure that a conversation representation can be made from a YAML file.
+     *
+     * @grpu
      */
     public function testConversationRepresentationCreation()
     {
-        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
+        /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
         $conversationModel = $conversation->buildConversation();
-
         $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
+
+        // There should be two scenes
+        $this->assertCount(3, $conversationModel->getAllScenes());
+
+        // The opening scene should be called opening_scene
+        $this->assertEquals('opening_scene', $conversationModel->getScene('opening_scene')->getId());
+
+        // There should be one opening scene
+        $this->assertCount(1, $conversationModel->getOpeningScenes());
+
+        /* @var Scene $openingScene */
+        $openingScene = $conversationModel->getOpeningScenes()->first()->value;
+
+        // The opening scene should have three intents
+        $this->assertCount(3, $openingScene->getAllIntents());
+
+        // User says one thing
+        $this->assertCount(1, $openingScene->getIntentsSaidByUser());
+        $this->assertEquals('hello_bot', $openingScene->getIntentsSaidByUser()->first()->value->getId());
+        // Bot replies
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+        $this->assertEquals('hello_user', $openingScene->getIntentsSaidByBot()->first()->value->getId());
+
+
+        // Intents should have actions and interpreters
+        /* @var Intent $userIntent */
+        $userIntent = $openingScene->getIntentsSaidByUser()->first()->value;
+        $this->assertTrue($userIntent->hasInterpreter());
+        $this->assertTrue($userIntent->causesAction());
+
+        /* @var Intent $botIntent */
+        $botIntent = $openingScene->getIntentsSaidByBot()->first()->value;
+        $this->assertTrue($botIntent->causesAction());
+        $this->assertFalse($botIntent->hasInterpreter());
+
+        /* @var Scene $scene2 */
+        $scene2 = $conversationModel->getNonOpeningScenes()->first()->value;
+
+        // Scene two should be called scene2
+        $this->assertEquals('scene2', $conversationModel->getScene('scene2')->getId());
+
+        // The scene2 should have two intents
+        $this->assertCount(2, $scene2->getAllIntents());
+
+        // User says one thing
+        $this->assertCount(1, $scene2->getIntentsSaidByUser());
+        $this->assertEquals('how_are_you', $scene2->getIntentsSaidByUser()->first()->value->getId());
+        // Bot replies
+        $this->assertCount(1, $scene2->getIntentsSaidByBot());
+        $this->assertEquals('doing_dandy', $scene2->getIntentsSaidByBot()->first()->value->getId());
+
+
     }
 
     /**
@@ -141,7 +187,7 @@ EOT;
             $this->markTestSkipped('This test only runs on local environments.');
         }
 
-        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
         $conversationModel = $conversation->buildConversation();
 
         // Assert that we think publishing was successful.

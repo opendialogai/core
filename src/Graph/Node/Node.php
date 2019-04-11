@@ -24,13 +24,13 @@ class Node
      * @var Map $outgoingEdges - the set of edges leaving this node keyed by the outgoing relationship name.
      * The structure of the map is [key][EdgeSet]. Key represents the relationship name.
      */
-    private $outgoingEdges;
+    protected $outgoingEdges;
 
     /**
      * @var Map $incomingEdges - the set of edges arriving to this node keyed by relationships
      * The structure of the map is [key][EdgeSet]. Key represents the relationship name.
      */
-    private $incomingEdges;
+    protected $incomingEdges;
 
     public function __construct($id = null)
     {

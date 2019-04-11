@@ -38,7 +38,7 @@ jobs:
       # run tests!
       - run: ./vendor/bin/phpunit
 
-      - run: ./vendor/bin/phpcs --standard=psr12 src/ --ignore=*/migrations/*,*/tests/*
+      - run: ./vendor/bin/phpcs --standard=od-cs-ruleset.xml src/ --ignore=*/migrations/*,*/tests/*
 
       - run:
           name: Output logs on failure
