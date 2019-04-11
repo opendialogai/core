@@ -43,7 +43,7 @@ class UserService
      * This retrieves the user from dgraph and sets the current conversation
      *
      * @param $userId
-     * @return Node
+     * @return ChatbotUser
      */
     public function getUser($userId): ChatbotUser
     {
@@ -135,20 +135,46 @@ class UserService
     /**
      * @param ChatbotUser $user
      * @param Conversation $conversation
+     * @return Node
      */
     public function setCurrentConversation(ChatbotUser $user, Conversation $conversation)
     {
         $user->setCurrentConversation($conversation);
-        $this->updateUser($user);
+        return $this->updateUser($user);
+    }
+
+    public function moveCurrentConversationToPast(ChatbotUser $user)
+    {
+        // Delete the current relationship from Dgraph.
+        $this->dGraphClient->deleteRelationship(
+            $user->getUid(),
+            $user->getCurrentConversation()->getUid(),
+            Model::HAVING_CONVERSATION
+        );
+
+        // Update the user model
+        $user->moveCurrentConversationToPast();
+        return $this->updateUser($user);
     }
 
     /**
-     *
+     * @param ChatbotUser $user
+     * @param Intent $intent
+     * @return Node
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function setCurrentIntent(ChatbotUser $user, Intent $intent)
     {
+        if ($user->hasCurrentIntent()) {
+            // Delete the current relationship from Dgraph
+            $this->dGraphClient->deleteRelationship(
+                $user->getCurrentConversation()->getUid(),
+                $user->getCurrentIntent()->getUid(),
+                Model::CURRENT_INTENT
+            );
+        }
         $user->setCurrentIntent($intent);
-        $this->updateUser($user);
+        return $this->updateUser($user);
     }
 
     /**
@@ -226,6 +252,25 @@ class UserService
     }
 
     /**
+     * @param ChatbotUser $user
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function unsetCurrentConversation(ChatbotUser $user)
+    {
+        $this->dGraphClient->createRelationship(
+            $user->getCurrentConversation()->getUid(),
+            $user->getUid(),
+            Model::HAD_CONVERSATION
+        );
+
+        $this->dGraphClient->deleteRelationship(
+            $user->getCurrentConversation()->getUid(),
+            $user->getUid(),
+            Model::HAVING_CONVERSATION
+        );
+    }
+
+    /**
      * @param $userId
      * @return DGraphQuery
      */
@@ -281,7 +326,18 @@ class UserService
 
         $dGraphQuery->uid($intentUid)
             ->setQueryGraph([
-                Model::SAID_BY => [
+                Model::LISTENED_BY => [
+                    Model::UID,
+                    Model::BOT_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ],
+                    Model::USER_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ]
+                ],
+                Model::LISTENED_BY_FROM_SCENES => [
                     Model::UID,
                     Model::BOT_PARTICIPATES_IN => [
                         Model::UID,
@@ -295,14 +351,25 @@ class UserService
             ]);
 
         $response = $this->dGraphClient->query($dGraphQuery);
+
+
         $data = $response->getData()[0];
 
-        if (isset($data[Model::SAID_BY][0][Model::BOT_PARTICIPATES_IN])) {
-            return ($data[Model::SAID_BY][0][Model::BOT_PARTICIPATES_IN][0][Model::ID]);
+        if (isset($data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN][0][Model::ID]);
         }
-        if (isset($data[Model::SAID_BY][0][Model::USER_PARTICIPATES_IN])) {
-            return ($data[Model::SAID_BY][0][Model::USER_PARTICIPATES_IN][0][Model::ID]);
+        if (isset($data[Model::LISTENED_BY][0][Model::USER_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY][0][Model::USER_PARTICIPATES_IN][0][Model::ID]);
         }
+        if (isset($data[Model::LISTENED_BY_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN][0][Model::ID]);
+        }
+        if (isset($data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
+            return ($data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID]);
+        }
+
     }
+
+
 
 }
