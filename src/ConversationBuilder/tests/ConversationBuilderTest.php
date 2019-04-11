@@ -118,7 +118,7 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationDeletion()
     {
-        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->validYaml]);
+        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
 
         $conversationStateLog = ConversationStateLog::create([
             'conversation_id' => $conversation->id,
