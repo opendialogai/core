@@ -129,7 +129,7 @@ class ConversationEngineTest extends TestCase
         if ($intent->getId() == 'hello_registered_user') {
             $nextUtterance->setCallbackId('weather_question');
             $intent = $this->conversationEngine->getNextIntent($userContext, $nextUtterance);
-            $this->assertTrue($intent->getId()=='weather_answer');
+            $this->assertTrue($intent->getId() =='intent.core.NoMatchResponse');
         }
     }
 

@@ -19,6 +19,8 @@ use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningInten
 
 class ConversationEngine implements ConversationEngineInterface
 {
+    const NO_MATCH = 'intent.core.NoMatch';
+
     /* @var ConversationStoreInterface */
     private $conversationStore;
 
@@ -45,6 +47,8 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Intent
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
     {
@@ -71,6 +75,9 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -83,6 +90,17 @@ class ConversationEngine implements ConversationEngineInterface
                     $ongoingConversation->getId()
                 )
             );
+
+            if ($userContext->currentSpeakerIsBot()) {
+                $ongoingConversation = $this->updateConversationFollowingUserInput($userContext, $utterance);
+
+                if (!isset($ongoingConversation)) {
+                    // We couldn't find a conversation let's set the utterance to a NoMatch
+                    $utterance->setCallbackId(self::NO_MATCH);
+                    return self::determineCurrentConversation($userContext, $utterance);
+                }
+            }
+
             return $ongoingConversation;
         }
 
@@ -100,6 +118,72 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
+     * @param Conversation $ongoingConversation
+     * @param UserContext $userContext
+     * @param UtteranceInterface $utterance
+     * @return Conversation
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     */
+    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance)
+    {
+        $matchingIntents = new Map();
+
+        /* @var Scene $currentScene */
+        $currentScene = $userContext->getCurrentScene();
+
+        $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
+        $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
+
+        //Determine if there is an intent that matches the incoming utterance
+        /* @var Intent $intent */
+        foreach ($possibleNextIntents as $intent) {
+            if ($intent->hasInterpreter()) {
+                $intents = $this->interpreterService
+                    ->getInterpreter($intent->getInterpreter()->getId())
+                    ->interpret($utterance);
+                // Check to see if one of the interpreted intents matches the possible next intents
+                /* @vat Intent $interpretedIntent */
+                foreach ($intents as $interpretedIntent) {
+                    $matchedIntents = array_filter($intents, function ($i) use ($interpretedIntent) {
+                        if ($i->getId() === $interpretedIntent->getId()) {
+                            return true;
+                        }
+                    });
+                    $matchingIntents = $matchingIntents->merge($matchedIntents);
+                }
+            } else {
+                if ($intent->getId() === $defaultIntent->getId()) {
+                    $matchingIntents->put($intent->getId(), $intent);
+                }
+            }
+        }
+        // We can get a "matching" intent that is not part of the possible intents if we hit a NoMatch
+        // So let's make another run through intents to ensure that it is a real match.
+        $finalIntents = new Map();
+        foreach ($matchingIntents as $matchedIntent) {
+            foreach ($possibleNextIntents as $possibleIntent) {
+                if ($matchedIntent->getId() === $possibleIntent->getId()) {
+                    $finalIntents->put($possibleIntent->getId(), $possibleIntent);
+                }
+            }
+        }
+
+        if (count($finalIntents) >= 1) {
+            /* @var Intent $nextIntent */
+            $nextIntent = $possibleNextIntents->first()->value;
+            $userContext->setCurrentIntent($nextIntent);
+            return $userContext->getCurrentConversation();
+        } else {
+            // What the user says does not match anything expected in the current conversation so complete it and
+            // pretend we received a no match intent.
+            $userContext->moveCurrentConversationToPast();
+            //@todo This should be an exception
+            return null;
+        }
+    }
+
+    /**
      * There is no ongoing conversation for the current user so we will attempt to find
      * a matching new conversation or return a core-level NoMatch conversation if nothing else
      * works.
@@ -107,6 +191,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -128,13 +213,13 @@ class ConversationEngine implements ConversationEngineInterface
                 foreach ($intents as $interpretedIntent) {
                     if ($interpretedIntent->getId() === $openingIntent->getIntentId()) {
                         // If it is a match add it to the matching intents.
-                        $matchingIntents->put($key, $openingIntent);
+                        $matchingIntents->put($openingIntent->getIntentId(), $openingIntent);
                     }
                 }
             } else {
                 // If we don't have a custom interpreter just check if it is a match to the default intent.
                 if ($defaultIntent->getId() === $openingIntent->getIntentId()) {
-                    $matchingIntents->put($key, $openingIntent);
+                    $matchingIntents->put($openingIntent->getIntentId(), $openingIntent);
                 }
             }
         }

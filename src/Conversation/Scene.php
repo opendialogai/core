@@ -143,4 +143,24 @@ class Scene extends NodeWithConditions
 
         return $intents;
     }
+
+    /**
+     * Get the user intents said in the scene that have a higher order than the current intent
+     * and are in an uninterrupted ascending order.
+     * @param Intent $currentIntent
+     * @return Map
+     */
+    public function getNextPossibleUserIntents(Intent $currentIntent): Map
+    {
+        $currentOrder = $currentIntent->getOrder();
+
+        $intents = $this->getIntentsSaidByUser()->filter( function ($key, $value) use ($currentOrder) {
+            /* @var Intent $value */
+            if ($value->getOrder() > $currentOrder) {
+                return true;
+            }
+        });
+
+        return $intents;
+    }
 }

@@ -11,6 +11,7 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 
 class UserContext extends AbstractContext
@@ -160,5 +161,15 @@ class UserContext extends AbstractContext
         return $currentScene;
     }
 
+    /**
+     * @return bool
+     */
+    public function currentSpeakerIsBot()
+    {
+        if ($this->userService->getCurrentSpeaker($this->getCurrentIntent()->getUid()) == Model::BOT) {
+            return true;
+        }
 
+        return false;
+    }
 }

@@ -351,8 +351,6 @@ class UserService
             ]);
 
         $response = $this->dGraphClient->query($dGraphQuery);
-
-
         $data = $response->getData()[0];
 
         if (isset($data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN])) {
@@ -370,6 +368,50 @@ class UserService
 
     }
 
+    public function getCurrentSpeaker($intentUid)
+    {
+        $dGraphQuery = new DGraphQuery();
 
+        $dGraphQuery->uid($intentUid)
+            ->setQueryGraph([
+                Model::SAID_BY => [
+                    Model::UID,
+                    Model::BOT_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ],
+                    Model::USER_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ]
+                ],
+                Model::SAID_FROM_SCENES => [
+                    Model::UID,
+                    Model::BOT_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ],
+                    Model::USER_PARTICIPATES_IN => [
+                        Model::UID,
+                        Model::ID
+                    ]
+                ]
+            ]);
 
+        $response = $this->dGraphClient->query($dGraphQuery);
+        $data = $response->getData()[0];
+
+        if (isset($data[Model::SAID_BY][0][Model::BOT_PARTICIPATES_IN])) {
+            return Model::BOT;
+        }
+        if (isset($data[Model::SAID_BY][0][Model::USER_PARTICIPATES_IN])) {
+            return Model::USER;
+        }
+        if (isset($data[Model::SAID_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN])) {
+            return Model::BOT;
+        }
+        if (isset($data[Model::SAID_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
+            return Model::USER;
+        }
+    }
 }

@@ -140,8 +140,6 @@ class ConversationQueryFactory
         self::createScenesFromDgraphData($cm, $data);
 
         // Now populate the scenes with data.
-
-        // Create the opening scene
         self::createSceneFromDgraphData($cm, $data[Model::HAS_OPENING_SCENE][0], $clone);
 
         // Cycle through all the other scenes and set those up as well.
