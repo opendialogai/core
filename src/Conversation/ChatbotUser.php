@@ -77,10 +77,12 @@ class ChatbotUser extends Node
     public function getCurrentIntent(): Intent
     {
         if ($this->isHavingConversation()) {
-            return $this->getCurrentConversation()
-                ->getNodesConnectedByOutgoingRelationship(Model::CURRENT_INTENT)
-                ->first()
-                ->value;
+            if ($this->getCurrentConversation()->hasOutgoingEdgeWithRelationship(Model::CURRENT_INTENT)) {
+                return $this->getCurrentConversation()
+                    ->getNodesConnectedByOutgoingRelationship(Model::CURRENT_INTENT)
+                    ->first()
+                    ->value;
+            }
         }
 
         return null;
