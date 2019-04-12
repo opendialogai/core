@@ -6,7 +6,7 @@ namespace OpenDialogAi\ConversationEngine;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use InterpreterEngine\Service\InterpreterService;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
@@ -36,6 +36,14 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
+     * @return ConversationStoreInterface
+     */
+    public function getConversationStore(): ConversationStoreInterface
+    {
+        return $this->conversationStore;
+    }
+
+    /**
      * @param InterpreterServiceInterface $interpreterService
      */
     public function setInterpreterService(InterpreterServiceInterface $interpreterService)
@@ -49,6 +57,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @return Intent
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
      */
     public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
     {
@@ -136,40 +145,29 @@ class ConversationEngine implements ConversationEngineInterface
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
 
         //Determine if there is an intent that matches the incoming utterance
-        /* @var Intent $intent */
-        foreach ($possibleNextIntents as $intent) {
-            if ($intent->hasInterpreter()) {
-                $intents = $this->interpreterService
-                    ->getInterpreter($intent->getInterpreter()->getId())
+        /* @var Intent $validIntent */
+        foreach ($possibleNextIntents as $validIntent) {
+            if ($validIntent->hasInterpreter()) {
+                $interpretedIntents = $this->interpreterService
+                    ->getInterpreter($validIntent->getInterpreter()->getId())
                     ->interpret($utterance);
-                // Check to see if one of the interpreted intents matches the possible next intents
-                /* @vat Intent $interpretedIntent */
-                foreach ($intents as $interpretedIntent) {
-                    $matchedIntents = array_filter($intents, function ($i) use ($interpretedIntent) {
-                        if ($i->getId() === $interpretedIntent->getId()) {
-                            return true;
-                        }
-                    });
-                    $matchingIntents = $matchingIntents->merge($matchedIntents);
+                // Check to see if one of the interpreted intents matches the valid Intent.
+                /* @var Intent $interpretedIntent */
+                foreach ($interpretedIntents as $interpretedIntent) {
+                    if ($interpretedIntent->getId() === $validIntent->getId() &&
+                        $interpretedIntent->getConfidence() >= $validIntent->getConfidence()) {
+                        $matchingIntents->put($validIntent->getId(), $validIntent);
+                    }
                 }
             } else {
-                if ($intent->getId() === $defaultIntent->getId()) {
-                    $matchingIntents->put($intent->getId(), $intent);
-                }
-            }
-        }
-        // We can get a "matching" intent that is not part of the possible intents if we hit a NoMatch
-        // So let's make another run through intents to ensure that it is a real match.
-        $finalIntents = new Map();
-        foreach ($matchingIntents as $matchedIntent) {
-            foreach ($possibleNextIntents as $possibleIntent) {
-                if ($matchedIntent->getId() === $possibleIntent->getId()) {
-                    $finalIntents->put($possibleIntent->getId(), $possibleIntent);
+                if ($validIntent->getId() === $defaultIntent->getId() &&
+                    $validIntent->getConfidence() >= $defaultIntent->getConfidence()) {
+                    $matchingIntents->put($validIntent->getId(), $validIntent);
                 }
             }
         }
 
-        if (count($finalIntents) >= 1) {
+        if (count($matchingIntents) >= 1) {
             /* @var Intent $nextIntent */
             $nextIntent = $possibleNextIntents->first()->value;
             $userContext->setCurrentIntent($nextIntent);
@@ -195,34 +193,11 @@ class ConversationEngine implements ConversationEngineInterface
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
-        $matchingIntents = new Map();
-
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
 
         $openingIntents = $this->conversationStore->getAllOpeningIntents();
 
-        /* @var OpeningIntent $openingIntent */
-        foreach ($openingIntents as $key => $openingIntent) {
-            // If we have an interpreter use that to interpret.
-            if ($openingIntent->hasInterpreter()) {
-                $intents = $this->interpreterService
-                    ->getInterpreter($openingIntent->getInterpreter())
-                    ->interpret($utterance);
-
-                // For each intent from the interpreter check to see if it matches the opening intent candidate.
-                foreach ($intents as $interpretedIntent) {
-                    if ($interpretedIntent->getId() === $openingIntent->getIntentId()) {
-                        // If it is a match add it to the matching intents.
-                        $matchingIntents->put($openingIntent->getIntentId(), $openingIntent);
-                    }
-                }
-            } else {
-                // If we don't have a custom interpreter just check if it is a match to the default intent.
-                if ($defaultIntent->getId() === $openingIntent->getIntentId()) {
-                    $matchingIntents->put($openingIntent->getIntentId(), $openingIntent);
-                }
-            }
-        }
+        $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents);
 
         /* @var OpeningIntent $intent */
         $intent = $matchingIntents->last()->value;
@@ -236,8 +211,43 @@ class ConversationEngine implements ConversationEngineInterface
         return $this->conversationStore->getConversation($intent->getConversationUid());
     }
 
-    public function getConversationStore(): ConversationStoreInterface
+    /**
+     * @param Intent $defaultIntent
+     * @param UtteranceInterface $utterance
+     * @param Map $validOpeningIntents
+     * @return Map
+     */
+    private function matchOpeningIntents(Intent $defaultIntent, UtteranceInterface $utterance, Map $validOpeningIntents): Map
     {
-        return $this->conversationStore;
+        $matchingIntents = new Map();
+
+        /* @var OpeningIntent $validIntent */
+        foreach ($validOpeningIntents as $key => $validIntent) {
+            // If we have an interpreter use that to interpret.
+            if ($validIntent->hasInterpreter()) {
+                $intentsFromInterpreter = $this->interpreterService
+                    ->getInterpreter($validIntent->getInterpreter())
+                    ->interpret($utterance);
+
+                // For each intent from the interpreter check to see if it matches the opening intent candidate.
+                foreach ($intentsFromInterpreter as $interpretedIntent) {
+                    // For an intent to "pass" it has to match and have a higher or equal confidence to the interpreted one
+                    if (
+                        $interpretedIntent->getId() === $validIntent->getIntentId() &&
+                        $interpretedIntent->getConfidence() >= $validIntent->getConfidence()) {
+                        // If it is a match add it to the matching intents.
+                        $matchingIntents->put($validIntent->getIntentId(), $validIntent);
+                    }
+                }
+            } else {
+                // If we don't have a custom interpreter just check if it is a match to the default intent.
+                if ($defaultIntent->getId() === $validIntent->getIntentId() &&
+                    $defaultIntent->getConfidence() >= $validIntent->getConfidence()) {
+                    $matchingIntents->put($validIntent->getIntentId(), $validIntent);
+                }
+            }
+        }
+
+        return $matchingIntents;
     }
 }
