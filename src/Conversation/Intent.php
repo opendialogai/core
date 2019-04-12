@@ -16,13 +16,11 @@ use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
  */
 class Intent extends Node
 {
-    const CONFIDENCE = 'intent_confidence';
-
     public static $coreAttributes = [
         Model::EI_TYPE,
         Model::COMPLETES,
         Model::ORDER,
-        self::CONFIDENCE
+        Model::CONFIDENCE
     ];
 
     private $completes = false;
@@ -66,7 +64,7 @@ class Intent extends Node
      */
     public function setConfidence($confidence)
     {
-        $this->addAttribute(new FloatAttribute(self::CONFIDENCE, $confidence));
+        $this->addAttribute(new FloatAttribute(Model::CONFIDENCE, $confidence));
         return $this;
     }
 
@@ -77,7 +75,7 @@ class Intent extends Node
      */
     public function getConfidence()
     {
-        $confidence = $this->getAttribute(self::CONFIDENCE);
+        $confidence = $this->getAttribute(Model::CONFIDENCE);
         return $confidence->getValue();
     }
 

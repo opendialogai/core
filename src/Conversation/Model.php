@@ -51,6 +51,7 @@ class Model
 
     const ORDER = 'core.attribute.order';
     const COMPLETES = 'core.attribute.completes';
+    const CONFIDENCE = 'core.attribute.confidence';
 
     const TRANSITIONS_TO = 'transitions_to';
     const TRANSITIONS_FROM = 'transitions_from';
