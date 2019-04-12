@@ -162,6 +162,7 @@ class DGraphMutation
         if ($update) {
             return sprintf('<%s> <%s> "%s" .', $subject, $predicate, $object);
         } else {
+            $subject = $this->normalizeString($subject);
             return sprintf('_:%s <%s> "%s" .', $subject, $predicate, $object);
         }
     }
@@ -186,14 +187,18 @@ class DGraphMutation
         }
 
         if ($updateFrom && !$updateTo) {
+            $object = $this->normalizeString($object);
             return sprintf('<%s> <%s> _:%s .', $subject, $predicate, $object);
         }
 
         if (!$updateFrom && $updateTo) {
+            $subject = $this->normalizeString($subject);
             return sprintf('_:%s <%s> <%s> .', $subject, $predicate, $object);
         }
 
         if (!$updateFrom && !$updateTo) {
+            $subject = $this->normalizeString($subject);
+            $object = $this->normalizeString($object);
             return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
         }
     }
@@ -210,5 +215,13 @@ class DGraphMutation
         ];
 
         return json_encode($mutation);
+    }
+
+    private function normalizeString($input): string
+    {
+        $invalidCharacters = ['@'];
+
+        return str_replace($invalidCharacters, "", $input);
+
     }
 }
