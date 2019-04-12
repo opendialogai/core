@@ -16,16 +16,26 @@ class OpeningIntent
 
     private $order;
 
+    private $confidence;
+
     private $interpreter;
 
 
-    public function __construct($intentId, $intentUid, $conversationId, $conversationUid, $order, $interpreter = null)
-    {
+    public function __construct(
+        $intentId,
+        $intentUid,
+        $conversationId,
+        $conversationUid,
+        $order,
+        float $confidence = 1,
+        $interpreter = null
+    ) {
         $this->intentId = $intentId;
         $this->intentUid = $intentUid;
         $this->conversationId = $conversationId;
         $this->conversationUid = $conversationUid;
         $this->order = $order;
+        $this->confidence = $confidence;
         $this->interpreter = $interpreter;
     }
 
@@ -124,6 +134,23 @@ class OpeningIntent
     {
         $this->order = $order;
     }
+
+    /**
+     * @return int
+     */
+    public function getConfidence(): float
+    {
+        return $this->confidence;
+    }
+
+    /**
+     * @param int $confidence
+     */
+    public function setConfidence(float $confidence): void
+    {
+        $this->confidence = $confidence;
+    }
+
 
     /**
      * @return bool

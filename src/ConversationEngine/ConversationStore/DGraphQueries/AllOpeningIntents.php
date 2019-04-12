@@ -33,6 +33,7 @@ class AllOpeningIntents extends DGraphQuery
                             Model::ID,
                             Model::UID,
                             Model::ORDER,
+                            Model::CONFIDENCE,
                             Model::HAS_INTERPRETER => [
                                 Model::ID,
                                 Model::UID,
@@ -71,7 +72,8 @@ class AllOpeningIntents extends DGraphQuery
                                     $intent[Model::UID],
                                     $datum[Model::ID],
                                     $datum[Model::UID],
-                                    $intent[Model::ORDER]
+                                    $intent[Model::ORDER],
+                                    isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1
                                 )
                             );
                         }
@@ -84,6 +86,7 @@ class AllOpeningIntents extends DGraphQuery
                                     $datum[Model::ID],
                                     $datum[Model::UID],
                                     $intent[Model::ORDER],
+                                    isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1,
                                     $intent[Model::HAS_INTERPRETER][0][Model::ID]
                                 )
                             );
