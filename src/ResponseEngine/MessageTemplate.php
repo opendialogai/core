@@ -66,24 +66,26 @@ class MessageTemplate extends Model
     {
         $conditions = [];
 
-        $yaml = Yaml::parse($this->conditions);
-        if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
-            foreach ($yaml[self::CONDITIONS] as $yamlCondition) {
-                $condition = [];
-                $condition[self::ATTRIBUTE_NAME] = '';
-                $condition[self::ATTRIBUTE_VALUE] = '';
-                $condition[self::OPERATION] = '';
+        if (isset($this->conditions)) {
+            $yaml = Yaml::parse($this->conditions);
+            if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
+                foreach ($yaml[self::CONDITIONS] as $yamlCondition) {
+                    $condition = [];
+                    $condition[self::ATTRIBUTE_NAME] = '';
+                    $condition[self::ATTRIBUTE_VALUE] = '';
+                    $condition[self::OPERATION] = '';
 
-                foreach ($yamlCondition as $key => $val) {
-                    if ($key === ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY) {
-                        $condition[self::OPERATION] = $val;
-                    } else {
-                        $condition[self::ATTRIBUTE_NAME] = $key;
-                        $condition[self::ATTRIBUTE_VALUE] = $val;
+                    foreach ($yamlCondition as $key => $val) {
+                        if ($key === ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY) {
+                            $condition[self::OPERATION] = $val;
+                        } else {
+                            $condition[self::ATTRIBUTE_NAME] = $key;
+                            $condition[self::ATTRIBUTE_VALUE] = $val;
+                        }
                     }
-                }
 
-                $conditions[] = $condition;
+                    $conditions[] = $condition;
+                }
             }
         }
         return $conditions;
