@@ -7,6 +7,7 @@ use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolverService;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class ResponseEngineServiceProvider extends ServiceProvider
 {
@@ -25,7 +26,7 @@ class ResponseEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-responseengine.php', 'opendialog.response_engine');
 
-        $this->app->bind(self::RESPONSE_ENGINE_SERVICE, function () {
+        $this->app->bind(ResponseEngineServiceInterface::class, function () {
             $service = new ResponseEngineService();
             $service->setAttributeResolver(app()->make(AttributeResolver::class));
             $service->setContextService(app()->make(ContextService::class));

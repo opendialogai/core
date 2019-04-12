@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -21,7 +22,7 @@ class ConversationEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-conversationengine.php', 'opendialog.conversation_engine');
 
-        $this->app->singleton(ConversationEngineInterface::class, function () {
+        $this->app->singleton(ConversationStoreInterface::class, function () {
             return new DGraphConversationStore($this->app->make(DGraphClient::class));
         });
 
