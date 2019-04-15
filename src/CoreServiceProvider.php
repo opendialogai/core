@@ -3,8 +3,11 @@
 namespace OpenDialogAi\Core;
 
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -31,7 +34,17 @@ class CoreServiceProvider extends ServiceProvider
             return new DGraphClient(
                 config('opendialog.core.DGRAPH_URL'),
                 config('opendialog.core.DGRAPH_PORT')
-            ) ;
+            );
+        });
+
+        $this->app->singleton(OpenDialogController::class, function () {
+            $odController = new OpenDialogController();
+
+            $odController->setContextService($this->app->make(ContextService::class));
+            $odController->setConversationEngine($this->app->make(ConversationEngineInterface::class));
+            $odController->setResponseEngine($this->app->make(ResponseEngineServiceInterface::class));
+
+            return $odController;
         });
     }
 }

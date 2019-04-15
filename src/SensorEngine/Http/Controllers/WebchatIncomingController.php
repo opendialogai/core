@@ -4,8 +4,11 @@ namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\SensorInterface;
 use OpenDialogAi\SensorEngine\Service\SensorService;
@@ -15,6 +18,15 @@ class WebchatIncomingController extends BaseController
     /** @var SensorService */
     private $sensorService;
 
+    /** @var ContextService */
+    private $contextService;
+
+    /** @var ConversationEngineInterface  */
+    private $conversationEngine;
+
+    /** @var ResponseEngineServiceInterface */
+    private $responseEngineService;
+
     /** @var OpenDialogController */
     private $odController;
 
@@ -22,16 +34,26 @@ class WebchatIncomingController extends BaseController
     private $webchatSensor;
 
     /**
-     * Create a new controller instance.
-     *
-     * @param  SensorService  $sensorService
-     * @param  OpenDialogController  $odController
-     * @return void
+     * WebchatIncomingController constructor.
+     * @param SensorService $sensorService
+     * @param ContextService $contextService
+     * @param ConversationEngineInterface $conversationEngine
+     * @param OpenDialogController $odController
+     * @param ResponseEngineServiceInterface $responseEngineService
      */
-    public function __construct(SensorService $sensorService, OpenDialogController $odController)
-    {
+    public function __construct(
+        SensorService $sensorService,
+        ContextService $contextService,
+        ConversationEngineInterface $conversationEngine,
+        OpenDialogController $odController,
+        ResponseEngineServiceInterface $responseEngineService
+    ) {
         $this->sensorService = $sensorService;
+        $this->contextService = $contextService;
+        $this->conversationEngine = $conversationEngine;
+        $this->responseEngineService = $responseEngineService;
         $this->odController = $odController;
+
         $this->webchatSensor = $this->sensorService->getSensor('sensor.core.webchat');
     }
 
@@ -47,8 +69,8 @@ class WebchatIncomingController extends BaseController
 
         /** @var WebChatMessage $message */
         $message = $this->odController->runConversation($utterance);
-        Log::debug("Sending response: {$message->getText()}");
+        Log::debug("Sending response: " . json_encode($message));
 
-        return response($message->getMessageToPost(), 200);
+        return response($message[0]->getMessageToPost(), 200);
     }
 }

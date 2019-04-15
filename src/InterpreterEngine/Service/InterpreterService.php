@@ -1,6 +1,6 @@
 <?php
 
-namespace InterpreterEngine\Service;
+namespace OpenDialogAi\InterpreterEngine\Service;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;

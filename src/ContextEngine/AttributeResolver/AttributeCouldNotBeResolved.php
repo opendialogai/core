@@ -1,11 +1,11 @@
 <?php
 
-namespace ContextEngine\AttributeResolver;
+namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
 /**
 * Used when trying to get an attribute from an action that hasn't yet been resolved
 */
-class AttributeCouldNotBeResolvedException extends \InvalidArgumentException
+class AttributeCouldNotBeResolved extends \InvalidArgumentException
 {
 
 }

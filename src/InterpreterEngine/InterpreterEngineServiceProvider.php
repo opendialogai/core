@@ -4,11 +4,11 @@ namespace OpenDialogAi\InterpreterEngine;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
-use InterpreterEngine\Service\InterpreterService;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
-use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class InterpreterEngineServiceProvider extends ServiceProvider
 {

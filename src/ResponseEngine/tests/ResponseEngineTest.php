@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class ResponseEngineTest extends TestCase
 {
@@ -98,7 +99,7 @@ class ResponseEngineTest extends TestCase
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
-        $responseEngineService = $this->app->make('response-engine-service');
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $message = $responseEngineService->getMessageForIntent('Hello');
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
         $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
@@ -125,7 +126,7 @@ class ResponseEngineTest extends TestCase
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
-        $responseEngineService = $this->app->make('response-engine-service');
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $message = $responseEngineService->getMessageForIntent('Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
@@ -155,7 +156,7 @@ class ResponseEngineTest extends TestCase
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
-        $responseEngineService = $this->app->make('response-engine-service');
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $message = $responseEngineService->getMessageForIntent('Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $message[0]);
@@ -189,7 +190,7 @@ class ResponseEngineTest extends TestCase
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
-        $responseEngineService = $this->app->make('response-engine-service');
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $message = $responseEngineService->getMessageForIntent('Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $message[0]);

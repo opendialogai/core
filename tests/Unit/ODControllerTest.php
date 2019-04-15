@@ -14,16 +14,5 @@ class ODControllerTest extends TestCase
         $this->assertEquals(OpenDialogController::class, get_class($this->app->make(OpenDialogController::class)));
     }
 
-    public function testGetMessage()
-    {
-        /** @var OpenDialogController $odController */
-        $odController = $this->app->make(OpenDialogController::class);
-
-        $utterance = new WebchatTextUtterance();
-
-        $message = $odController
-            ->runConversation($utterance);
-
-        $this->assertEquals(WebChatMessage::class, get_class($message));
-    }
+    //@todo Add OD Controller tests.
 }

@@ -4,10 +4,9 @@
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
 
-use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeCouldNotBeResolved;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
@@ -15,8 +14,6 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Tests\Unit\Conversation\ConversationTest;
-use PHPUnit\Framework\Constraint\Attribute;
 
 class DGraphTest extends TestCase
 {
@@ -106,7 +103,7 @@ class DGraphTest extends TestCase
             try {
                 $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                 $node1->addAttribute($attribute);
-            } catch (AttributeCouldNotBeResolvedException $e) {
+            } catch (AttributeCouldNotBeResolved $e) {
                 // Simply skip attributes we can't deal with.
                 continue;
             }

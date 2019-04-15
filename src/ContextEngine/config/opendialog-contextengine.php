@@ -8,6 +8,6 @@ return [
         'timestamp' => \OpenDialogAi\Core\Attribute\IntAttribute::class,
 
         // Intents
-        \OpenDialogAi\Core\Conversation\Intent::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class
+        \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class
     ],
 ];

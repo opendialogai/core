@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
-use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
@@ -47,7 +46,7 @@ class AttributeResolver
      * @param string $attributeId
      * @param $value
      * @return AttributeInterface
-     * @throws AttributeCouldNotBeResolvedException
+     * @throws AttributeCouldNotBeResolved
      */
     public function getAttributeFor(string $attributeId, $value)
     {
@@ -55,7 +54,7 @@ class AttributeResolver
             return new $this->supportedAttributes[$attributeId]($attributeId, $value);
         } else {
             Log::debug(sprintf('Attribute %s could not be resolved', $attributeId));
-            throw new AttributeCouldNotBeResolvedException(sprintf('Attribute %s could not be resolved', $attributeId));
+            throw new AttributeCouldNotBeResolved(sprintf('Attribute %s could not be resolved', $attributeId));
         }
     }
 }

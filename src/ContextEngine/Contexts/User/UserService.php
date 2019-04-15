@@ -4,7 +4,7 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 
-use ContextEngine\AttributeResolver\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeCouldNotBeResolved;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -62,10 +62,14 @@ class UserService
                     continue;
                 }
 
+                if ($name == Model::HAVING_CONVERSATION || $name == Model::HAD_CONVERSATION) {
+                    continue;
+                }
+
                 try {
                     $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
-                } catch (AttributeCouldNotBeResolvedException $e) {
+                } catch (AttributeCouldNotBeResolved $e) {
                     // Simply skip attributes we can't deal with.
                     continue;
                 }

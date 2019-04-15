@@ -9,6 +9,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
 
 /**
@@ -21,7 +22,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function __construct()
     {
-        $this->responseEngineService = app()->make('response-engine-service');
+        $this->responseEngineService = app()->make(ResponseEngineServiceInterface::class);
     }
 
     public function getMessages(string $markup)
