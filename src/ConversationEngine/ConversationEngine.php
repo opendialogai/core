@@ -6,6 +6,9 @@ namespace OpenDialogAi\ConversationEngine;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ActionEngine\Actions\ActionResult;
+use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -26,6 +29,9 @@ class ConversationEngine implements ConversationEngineInterface
 
     /* @var InterpreterServiceInterface */
     private $interpreterService;
+
+    /* @var ActionEngineInterface $actionEngine */
+    private $actionEngine;
 
     /**
      * @param ConversationStoreInterface $conversationStore
@@ -50,6 +56,15 @@ class ConversationEngine implements ConversationEngineInterface
     {
         $this->interpreterService = $interpreterService;
     }
+
+    /**
+     * @param ActionEngineInterface $actionEngine
+     */
+    public function setActionEngine(ActionEngineInterface $actionEngine)
+    {
+        $this->actionEngine = $actionEngine;
+    }
+
 
     /**
      * @param UserContext $userContext
@@ -171,6 +186,8 @@ class ConversationEngine implements ConversationEngineInterface
             /* @var Intent $nextIntent */
             $nextIntent = $possibleNextIntents->first()->value;
             $userContext->setCurrentIntent($nextIntent);
+            // @todo perform action associated with incoming intent.
+
             return $userContext->getCurrentConversation();
         } else {
             // What the user says does not match anything expected in the current conversation so complete it and
@@ -190,6 +207,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UtteranceInterface $utterance
      * @return Conversation
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -199,12 +217,21 @@ class ConversationEngine implements ConversationEngineInterface
 
         $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents);
 
+        // @todo check conditions for each conversation/scene associated with each intent and remove
+        // the ones that don't match
+
         /* @var OpeningIntent $intent */
         $intent = $matchingIntents->last()->value;
 
         $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
         $userContext->setCurrentConversation($conversation);
         $userContext->setCurrentIntent($userContext->getUser()->getCurrentConversation()->getIntentByOrder($intent->getOrder()));
+
+        /* @var Intent $currentIntent */
+        $currentIntent = $userContext->getCurrentIntent();
+        /* @var ActionResult $actionResult */
+        $actionResult = $this->actionEngine->performAction($currentIntent->getAction()->getId());
+        $userContext->addActionResult($actionResult);
 
         // For this intent get the matching conversation - we are pulling this back out from the user
         // so that we have the copy from the graph.
