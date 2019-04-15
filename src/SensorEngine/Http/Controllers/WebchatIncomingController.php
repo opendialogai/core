@@ -4,6 +4,7 @@ namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
@@ -33,6 +34,9 @@ class WebchatIncomingController extends BaseController
     /** @var SensorInterface */
     private $webchatSensor;
 
+    /** @var ActionEngineInterface */
+    private $actionEngine;
+
     /**
      * WebchatIncomingController constructor.
      * @param SensorService $sensorService
@@ -46,12 +50,14 @@ class WebchatIncomingController extends BaseController
         ContextService $contextService,
         ConversationEngineInterface $conversationEngine,
         OpenDialogController $odController,
-        ResponseEngineServiceInterface $responseEngineService
+        ResponseEngineServiceInterface $responseEngineService,
+        ActionEngineInterface $actionEngine
     ) {
         $this->sensorService = $sensorService;
         $this->contextService = $contextService;
         $this->conversationEngine = $conversationEngine;
         $this->responseEngineService = $responseEngineService;
+        $this->actionEngine = $actionEngine;
         $this->odController = $odController;
 
         $this->odController->setContextService($this->contextService);
@@ -75,6 +81,7 @@ class WebchatIncomingController extends BaseController
         $message = $this->odController->runConversation($utterance);
         Log::debug("Sending response: " . json_encode($message));
 
+        // @todo - loop through messages and send all of them (collating in a single post)
         return response($message[0]->getMessageToPost(), 200);
     }
 }
