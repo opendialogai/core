@@ -26,5 +26,5 @@ interface ActionEngineInterface
      * @return mixed
      * @throw MissingRequiredActionAttributes
      */
-    public function performAction(string $actionName, ActionInput $actionInput) : ActionResult;
+    public function performAction(string $actionName) : ActionResult;
 }

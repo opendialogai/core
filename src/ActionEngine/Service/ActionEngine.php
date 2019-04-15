@@ -10,11 +10,17 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
 
 class ActionEngine implements ActionEngineInterface
 {
     /** @var AttributeResolver */
     private $attributeResolver;
+
+    /** @var ContextService */
+    private $contextService;
 
     /** @var ActionInterface[] */
     private $availableActions = [];
@@ -60,6 +66,14 @@ class ActionEngine implements ActionEngineInterface
     }
 
     /**
+     * @param ContextService $contextService
+     */
+    public function setContextService(ContextService $contextService)
+    {
+        $this->contextService = $contextService;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getAvailableActions(): array
@@ -70,20 +84,13 @@ class ActionEngine implements ActionEngineInterface
     /**
      * @inheritdoc
      */
-    public function performAction(string $actionName, ActionInput $actionInput): ActionResult
+    public function performAction(string $actionName): ActionResult
     {
         if ($this->actionIsAvailable($actionName)) {
             $action = $this->availableActions[$actionName];
 
-            if (!$actionInput->getAttributeBag()->hasAllAttributes($action->getRequiredAttributes())) {
-                throw new MissingActionRequiredAttributes(
-                    sprintf(
-                        "Missing the required attributes for %s",
-                        $action->performs()
-                    )
-                );
-            }
-
+            // Get action input
+            $actionInput = $this->getActionInput($action->getRequiredAttributes());
             return $action->perform($actionInput);
         }
 
@@ -104,5 +111,22 @@ class ActionEngine implements ActionEngineInterface
     private function actionIsAvailable($actionName)
     {
         return isset($this->availableActions[$actionName]);
+    }
+
+    /**
+     * @param array $requiredAttributes
+     * @return ActionInput
+     */
+    private function getActionInput(array $requiredAttributes): ActionInput
+    {
+        $actionInput = new ActionInput();
+        foreach ($requiredAttributes as $attributeId) {
+            $attributeName = '';
+            $contextId = '';
+            ContextParser::determineContext($attributeId, $contextId, $attributeName);
+            $attribute = $this->contextService->getAttribute($attributeName, $contextId);
+            $actionInput->addAttribute($attribute);
+        }
+        return $actionInput;
     }
 }
