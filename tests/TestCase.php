@@ -80,39 +80,39 @@ conversation:
         - u: 
             i: hello_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: register_hello
+            action: action.core.example
         - b: 
             i: hello_user
-            action: register_hello
+            action: action.core.example
             scene: scene2
         - b: 
             i: hello_registered_user
-            action: register_hello
+            action: action.core.example
             scene: scene3
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: wave
+            action: action.core.example
         - b: 
             i: doing_dandy
-            action: wave_back
+            action: action.core.example
             completes: true 
     scene3:
       intents:
         - u:
             i: weather_question
-            action: get_weather
+            action: action.core.example
         - b:
             i: weather_answer    
         - u: 
             i: will_you_cope
             interpreter: interpreter.core.callbackInterpreter
-            action: wave
+            action: action.core.example
         - b: 
             i: doing_dandy
-            action: wave_back
+            action: action.core.example
             completes: true 
                        
 EOT;
@@ -129,19 +129,19 @@ conversation:
         - u: 
             i: howdy_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: register_hello
+            action: action.core.example
         - b: 
             i: hello_user
-            action: register_hello
+            action: action.core.example
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: wave
+            action: action.core.example
         - b: 
             i: doing_dandy
-            action: wave_back 
+            action: action.core.example 
             completes: true           
 EOT;
     }
@@ -157,19 +157,19 @@ conversation:
         - u: 
             i: top_of_the_morning_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: register_hello
+            action: action.core.example
         - b: 
             i: hello_user
-            action: register_hello
+            action: action.core.example
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: wave
+            action: action.core.example
         - b: 
             i: doing_dandy
-            action: wave_back   
+            action: action.core.example   
             completes: true         
 EOT;
     }
