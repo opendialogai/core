@@ -4,6 +4,7 @@
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Client for DGraph using REST API.
@@ -200,7 +201,7 @@ class DGraphClient
     private function prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
     {
         $statement = sprintf('{ delete { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
-
+        Log::debug($statement);
         return $statement;
     }
 
@@ -213,7 +214,7 @@ class DGraphClient
     private function prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
     {
         $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
-
+        Log::debug($statement);
         return $statement;
     }
     
