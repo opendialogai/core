@@ -32,7 +32,7 @@ Start Vagrant Homestead as you usually would.
 
 To ensure that OpenDialog-Core can communicate with Dgraph run the following test:
 
-`phpunit --filter=testDGraphMutation tests/Unit/Graph/DGraph/DGraphTest.php`
+`phpunit --filter=testDGraphMutation src/Graph/tests/DGraph/DGraphTest.php`
 
 Then visit `http://localhost:9001/`, click on "Schema" - you should see predicates such
 as `ei_type`, `causes_action`, etc. 
