@@ -54,10 +54,6 @@ class WebchatIncomingController extends BaseController
         $this->responseEngineService = $responseEngineService;
         $this->odController = $odController;
 
-        $this->odController->setContextService($this->contextService);
-        $this->odController->setConversationEngine($this->conversationEngine);
-        $this->odController->setResponseEngine($responseEngineService);
-
         $this->webchatSensor = $this->sensorService->getSensor('sensor.core.webchat');
     }
 
