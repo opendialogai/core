@@ -131,18 +131,6 @@ class UtteranceTest extends TestCase
         }
 
         try {
-            $utterance->setUser(new User);
-            self::fail('Exception not thrown');
-        } catch (FieldNotSupported $e) {
-        }
-
-        try {
-            $utterance->getUser();
-            self::fail('Exception not thrown');
-        } catch (FieldNotSupported $e) {
-        }
-
-        try {
             $utterance->setMessageId('test');
         } catch (FieldNotSupported $e) {
             self::fail('Exception thrown');
