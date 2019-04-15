@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Exceptions\UtteranceUnknownMessageType;
+use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -34,6 +35,9 @@ class WebchatSensor extends BaseSensor
                 $utterance = new WebchatChatOpenUtterance();
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['content']['user']));
+                }
                 return $utterance;
                 break;
 
@@ -42,6 +46,9 @@ class WebchatSensor extends BaseSensor
                 $utterance = new WebchatTextUtterance();
                 $utterance->setText($request['content']['data']['text']);
                 $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['content']['user']));
+                }
                 return $utterance;
                 break;
 
@@ -50,6 +57,9 @@ class WebchatSensor extends BaseSensor
                 $utterance = new WebchatTriggerUtterance();
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['content']['user']));
+                }
                 if (isset($request['content']['data']['value'])) {
                     $utterance->setValue($request['content']['data']['value']);
                 }
@@ -61,5 +71,21 @@ class WebchatSensor extends BaseSensor
                 throw new UtteranceUnknownMessageType('Unknown Webchat Message Type.');
                 break;
         }
+    }
+
+    /**
+     * @param $userData
+     * @return User
+     */
+    private function createUser(array $userData)
+    {
+        $user = new User();
+
+        isset($userData['first_name']) ? $user->setFirstName($userData['first_name']) : null;
+        isset($userData['last_name']) ? $user->setLastName($userData['last_name']) : null;
+        isset($userData['email']) ? $user->setEmail($userData['email']) : null;
+        isset($userData['external_id']) ? $user->setExternalId($userData['external_id']) : null;
+
+        return $user;
     }
 }
