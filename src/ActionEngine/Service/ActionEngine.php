@@ -13,6 +13,7 @@ use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
+use phpDocumentor\Reflection\Types\Null_;
 
 class ActionEngine implements ActionEngineInterface
 {
@@ -79,6 +80,14 @@ class ActionEngine implements ActionEngineInterface
     public function getAvailableActions(): array
     {
         return $this->availableActions;
+    }
+
+    /**
+     * Helper function to allow you to ignore any predefined config.
+     */
+    public function unsetAvailableActions(): void
+    {
+        $this->availableActions = [];
     }
 
     /**
