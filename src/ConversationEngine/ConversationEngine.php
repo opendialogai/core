@@ -229,9 +229,12 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var Intent $currentIntent */
         $currentIntent = $userContext->getCurrentIntent();
-        /* @var ActionResult $actionResult */
-        $actionResult = $this->actionEngine->performAction($currentIntent->getAction()->getId());
-        $userContext->addActionResult($actionResult);
+
+        if ($currentIntent->causesAction()) {
+            /* @var ActionResult $actionResult */
+            $actionResult = $this->actionEngine->performAction($currentIntent->getAction()->getId());
+            $userContext->addActionResult($actionResult);
+        }
 
         // For this intent get the matching conversation - we are pulling this back out from the user
         // so that we have the copy from the graph.
