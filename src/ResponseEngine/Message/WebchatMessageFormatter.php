@@ -59,7 +59,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 }
             }
         } catch (\Exception $e) {
-            Log::debug('Message Builder error: ' . $e->getMessage());
+            Log::warning('Message Builder error: ' . $e->getMessage());
             return [];
         }
 
