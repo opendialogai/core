@@ -2,8 +2,11 @@
 
 return [
 
+    /**
+     * Core available actions. All must implement @see \OpenDialogAi\ActionEngine\Actions\ActionInterface
+     */
     'available_actions' => [
-        'action.core.example' => \OpenDialogAi\ActionEngine\Actions\ExampleAction::class
+        \OpenDialogAi\ActionEngine\Actions\ExampleAction::class
     ],
 
 ];

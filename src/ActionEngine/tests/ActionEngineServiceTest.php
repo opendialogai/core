@@ -4,7 +4,6 @@ namespace OpenDialogAi\ActionEngine\Tests;
 
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
-use OpenDialogAi\ActionEngine\Exceptions\MissingActionRequiredAttributes;
 use OpenDialogAi\ActionEngine\Service\ActionEngine;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
@@ -14,7 +13,6 @@ use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
-use Spatie\String\Str;
 
 class ActionEngineServiceTest extends TestCase
 {
@@ -77,17 +75,13 @@ class ActionEngineServiceTest extends TestCase
 
     /**
      * @throws ActionNotAvailableException
-     * @throws MissingActionRequiredAttributes
      */
     public function testPerformActionNotBound()
     {
         $this->expectException(ActionNotAvailableException::class);
-        $this->actionEngine->performAction('actions.core.dummy', new ActionInput());
+        $this->actionEngine->performAction('actions.core.dummy');
     }
 
-    /**
-     * @throws MissingActionRequiredAttributes
-     */
     public function testPerformActionWithoutRequiredAction()
     {
         $this->setDummyAction();
@@ -96,16 +90,13 @@ class ActionEngineServiceTest extends TestCase
 
         $this->expectException(AttributeDoesNotExistException::class);
         try {
-            $this->actionEngine->performAction('actions.core.dummy', new ActionInput());
+            $this->actionEngine->performAction('actions.core.dummy');
             $this->fail('Exception should have been thrown');
         } catch (ActionNotAvailableException $e) {
             $this->fail('Wrong exception thrown');
         }
     }
 
-    /**
-     * @throws MissingActionRequiredAttributes
-     */
     public function testPerformActionWithRequiredAction()
     {
         $this->setDummyAction();
@@ -116,7 +107,7 @@ class ActionEngineServiceTest extends TestCase
 
         $this->expectException(AttributeDoesNotExistException::class);
         try {
-            $result = $this->actionEngine->performAction('actions.core.dummy', $input);
+            $result = $this->actionEngine->performAction('actions.core.dummy');
             $this->assertTrue($result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('ActionNotAvailableException should not be thrown');
@@ -125,18 +116,27 @@ class ActionEngineServiceTest extends TestCase
 
     /**
      * @throws ActionNotAvailableException
-     * @throws MissingActionRequiredAttributes
      */
     public function testGetAttributesFromAction()
     {
         $this->setDummyAction();
         $this->contextService->createContext('test');
         $testAttribute = new StringAttribute('name', 'John');
-        $testContext = $this->contextService->getContext('test')->addAttribute($testAttribute);
+        $this->contextService->getContext('test')->addAttribute($testAttribute);
 
         $result = $this->actionEngine->performAction('actions.core.dummy');
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals('Actionista', $result->getResultAttribute('nickname')->getValue());
+    }
+
+    public function testCustomActions()
+    {
+        $this->setConfigValue('opendialog.action_engine.custom_actions', [DummyAction::class]);
+
+        /** @var ActionEngineInterface $actionEngine */
+        $actionEngine = app()->make(ActionEngineInterface::class);
+
+        $this->assertContains('actions.core.dummy', array_keys($actionEngine->getAvailableActions()));
     }
 
     protected function setDummyAction(): void

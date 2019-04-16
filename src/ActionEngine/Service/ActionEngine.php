@@ -2,18 +2,15 @@
 
 namespace OpenDialogAi\ActionEngine\Service;
 
-use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
-use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
-use OpenDialogAi\ActionEngine\Exceptions\MissingActionRequiredAttributes;
-use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
-use phpDocumentor\Reflection\Types\Null_;
 
 class ActionEngine implements ActionEngineInterface
 {
@@ -33,10 +30,10 @@ class ActionEngine implements ActionEngineInterface
     {
         foreach ($supportedActions as $supportedAction) {
             try {
-                if (!class_exists($supportedAction)) {
+                if (!class_exists($supportedAction) || !in_array(ActionInterface::class, class_implements($supportedAction))) {
                     Log::warning(
                         sprintf(
-                            "Skipping adding action %s to list of supported actions as it does not exist",
+                            "Skipping adding action %s to list of supported actions as it does not exist or is wrong type",
                             $supportedAction
                         )
                     );
