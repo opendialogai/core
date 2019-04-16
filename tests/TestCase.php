@@ -94,6 +94,7 @@ conversation:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
+            confidence: 1
             action: wave
         - b: 
             i: doing_dandy
