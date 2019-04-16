@@ -19,15 +19,15 @@ class LuisClient
     /** @var string */
     private $subscriptionKey;
 
-    /** @var boolean */
+    /** @var string */
     private $staging;
 
     private $timezoneOffset;
 
-    /** @var bool */
+    /** @var string */
     private $verbose;
 
-    /** @var bool */
+    /** @var string */
     private $spellCheck;
 
     public function __construct(Client $client, $config)
@@ -35,17 +35,17 @@ class LuisClient
         $this->client = $client;
         $this->appUrl = $config['app_url'];
         $this->appId = $config['app_id'];
-        $this->staging = $config['staging'];
+        $this->staging = $config['staging'] ? 'TRUE' : 'FALSE';
         $this->subscriptionKey = $config['subscription_key'];
         $this->timezoneOffset = $config['timezone_offset'];
-        $this->verbose = $config['verbose'];
-        $this->spellCheck = $config['spellcheck'];
+        $this->verbose = $config['verbose'] ? 'TRUE' : 'FALSE';
+        $this->spellCheck = $config['spellcheck'] ? 'TRUE' : 'FALSE';
     }
 
     /**
      * @param $message
      * @return LuisResponse
-     * @throws LuisRequestFailedException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function queryLuis($message)
     {
@@ -71,10 +71,12 @@ class LuisClient
         }
 
         if ($query->getStatusCode() == '200') {
-            Log::warning(sprintf("Successful LUIS call"), ['response' => $query->getBody()->getContents()]);
-            return new LUISResponse(json_decode($query->getBody()->getContents()));
+            $response = $query->getBody()->getContents();
+            Log::debug("Successful LUIS call", ['response' => $response]);
+            return new LUISResponse(json_decode($response));
         } else {
-            Log::warning("Unsuccessful LUIS call", ['response' => $query->getBody()->getContents()]);
+            $response = $query->getBody()->getContents();
+            Log::warning("Unsuccessful LUIS call", ['response' => $response]);
             throw new LuisRequestFailedException("LUIS call failed with a non 200 response, please check the logs");
         }
     }
