@@ -10,7 +10,7 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 abstract class TextUtterance extends BaseUtterance
 {
     const TYPE = 'text';
-    
+
     /**
      * @inheritdoc
      */
