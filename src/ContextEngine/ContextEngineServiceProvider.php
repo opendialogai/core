@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine;
-
 
 use Carbon\Laravel\ServiceProvider;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
@@ -15,7 +13,7 @@ class ContextEngineServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/config/opendialog-contextengine.php' => base_path('config/opendialog-contextengine.php'),
+            __DIR__ . '/config/opendialog-contextengine-custom.php' => config_path('opendialog/context_engine.php'),
 
         ], 'config');
 
@@ -33,7 +31,15 @@ class ContextEngineServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(AttributeResolver::class, function () {
-            return new AttributeResolver();
+            $attributeResolver = new AttributeResolver();
+            $attributeResolver->registerAttributes(config('opendialog.context_engine.supported_attributes'));
+
+            // Gets custom attributes if they have been set
+            if (is_array(config('opendialog.context_engine.custom_attributes'))) {
+                $attributeResolver->registerAttributes(config('opendialog.context_engine.custom_attributes'));
+            }
+
+            return $attributeResolver;
         });
 
         $this->app->singleton(UserService::class, function () {

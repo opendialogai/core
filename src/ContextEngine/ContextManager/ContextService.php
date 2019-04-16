@@ -81,7 +81,7 @@ class ContextService
 
     /**
      * @param string $attributeId
-     * @return \OpenDialogAi\Core\Attribute\AttributeInterface
+     * @return AttributeInterface
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface
     {

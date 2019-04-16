@@ -9,27 +9,19 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeResolverServiceTest extends TestCase
 {
-    /** @var AttributeResolver */
-    private $attributeResolver;
-
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->attributeResolver = $this->app->make(AttributeResolver::class);
     }
 
     public function testContextServiceCreation()
     {
-        $this->assertTrue($this->attributeResolver instanceof AttributeResolver);
+        $this->assertTrue($this->getAttributeResolver() instanceof AttributeResolver);
     }
 
     public function testAccessToSupportedAttributes()
     {
-        $supportedAttributes = $this->attributeResolver->getSupportedAttributes();
+        $supportedAttributes = $this->getAttributeResolver()->getSupportedAttributes();
 
         $this->assertTrue(count($supportedAttributes) > 0);
         $this->assertArrayHasKey('name', $supportedAttributes);
@@ -37,7 +29,7 @@ class AttributeResolverServiceTest extends TestCase
 
     public function testAttributeResolution()
     {
-        $attribute = $this->attributeResolver->getAttributeFor('name', 'John Smith');
+        $attribute = $this->getAttributeResolver()->getAttributeFor('name', 'John Smith');
 
         $this->assertTrue($attribute instanceof StringAttribute);
         $this->assertTrue($attribute->getValue() == 'John Smith');
@@ -48,6 +40,36 @@ class AttributeResolverServiceTest extends TestCase
     {
         $this->expectException(AttributeCouldNotBeResolved::class);
 
-        $attribute = $this->attributeResolver->getAttributeFor('name2', 'John Smith');
+        $this->getAttributeResolver()->getAttributeFor('name2', 'John Smith');
     }
+
+    public function testBindingCustomAttributes()
+    {
+        $this->setConfigValue('opendialog.context_engine.custom_attributes',
+            ['test_attribute' => StringAttribute::class]);
+
+        $attributeResolver = $this->getAttributeResolver();
+        $this->assertEquals(StringAttribute::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
+    }
+
+    public function testBadBinding()
+    {
+        // Bind attribute to non-class
+        $this->setConfigValue('opendialog.context_engine.custom_attributes',
+            ['test_attribute' => 'nothing']);
+
+        $attributeResolver = $this->getAttributeResolver();
+
+        $this->expectException(AttributeCouldNotBeResolved::class);
+        $attributeResolver->getAttributeFor('test_attribute', null);
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getAttributeResolver(): AttributeResolver
+    {
+        return $this->app->make(AttributeResolver::class);
+    }
+
 }
