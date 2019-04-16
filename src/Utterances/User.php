@@ -9,6 +9,14 @@ namespace OpenDialogAi\Core\Utterances;
  */
 class User
 {
+    private $firstName;
+
+    private $lastName;
+
+    private $email;
+
+    private $externalId;
+
     private $IPAddress;
 
     private $country;
@@ -20,6 +28,119 @@ class User
     private $browser;
 
     private $timezone;
+
+
+    /**
+     * @return mixed
+     */
+    public function getFirstName()
+    {
+        return $this->firstName;
+    }
+
+    /**
+     * @param mixed $firstName
+     */
+    public function setFirstName($firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasFirstName(): bool
+    {
+        if (isset($this->firstName)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastName()
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param mixed $lastName
+     */
+    public function setLastName($lastName): void
+    {
+        $this->lastName = $lastName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasLastName(): bool
+    {
+        if (isset($this->lastName)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param mixed $email
+     */
+    public function setEmail($email): void
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasEmail(): bool
+    {
+        if (isset($this->email)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExternalId()
+    {
+        return $this->externalId;
+    }
+
+    /**
+     * @param mixed $externalId
+     */
+    public function setExternalId($externalId): void
+    {
+        $this->externalId = $externalId;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasExternalId(): bool
+    {
+        if (isset($this->externalId)) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * @return mixed

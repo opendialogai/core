@@ -27,6 +27,14 @@ interface AttributeBagInterface
     public function getAttribute(string $attributeName) : AttributeInterface;
 
     /**
+     * Tries to get the value of the named attribute
+     *
+     * @param string $attributeName
+     * @return mixed
+     */
+    public function getAttributeValue(string $attributeName);
+
+    /**
      * Checks whether the attribute with given name exists
      *
      * @param $attributeName string

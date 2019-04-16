@@ -75,13 +75,20 @@ trait HasAttributesTrait
      * @param string $attributeName
      * @param $value
      * @param null $type
+     * @return AttributeInterface
      */
-    public function setAttribute(string $attributeName, $value, $type = null): void
+    public function setAttribute(string $attributeName, $value, $type = null): AttributeInterface
     {
-        $attribute = $this->getAttribute($attributeName);
-        $attribute->setValue($value);
+        // If the attribute exists update its value
+        if ($this->hasAttribute($attributeName)) {
+            $attribute = $this->getAttribute($attributeName);
+            $attribute->setValue($value);
+            return $this->getAttribute($attributeName);
+        }
 
-        // @todo if attribute does not exist create it using type to instantiate the correct type
+        throw new AttributeDoesNotExistException(
+            sprintf('Tried to set %s attribute value that does not exist.', $attributeName)
+        );
     }
 
     /**
@@ -90,11 +97,20 @@ trait HasAttributesTrait
     public function getAttribute(string $attributeName) : AttributeInterface
     {
         if ($this->hasAttribute($attributeName)) {
-            Log::debug(sprintf("Returning attribute with name %", $attributeName));
+            Log::debug(sprintf("Returning attribute with name %s", $attributeName));
             return $this->attributes->get($attributeName);
         }
 
         Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
         throw new AttributeDoesNotExistException();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAttributeValue(string $attributeName)
+    {
+        return $this->getAttribute($attributeName)->getValue();
+    }
+
 }

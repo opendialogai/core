@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Service;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -48,7 +49,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 $attributeName = '';
                 $attributeContext = '';
 
-                $this->determineContext($condition['attributeName'], $attributeContext, $attributeName);
+                ContextParser::determineContext($condition['attributeName'], $attributeContext, $attributeName);
                 // If we encounter an attribute that we wouldn't know how to resolve we will need to
                 // bail now and fail the message.
                 if (!$this->attributeResolver->isAttributeSupported($attributeName)) {
@@ -100,7 +101,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             foreach ($matches[1] as $attributeId) {
                 $attributeName = '';
                 $contextId = '';
-                $this->determineContext($attributeId, $contextId, $attributeName);
+                ContextParser::determineContext($attributeId, $contextId, $attributeName);
                 $attribute = $this->contextService->getAttribute($attributeName, $contextId);
                 $text = str_replace('{' . $attributeId . '}', $attribute->getValue(), $text);
             }
@@ -123,25 +124,5 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     public function setAttributeResolver(AttributeResolver $attributeResolver): void
     {
         $this->attributeResolver = $attributeResolver;
-    }
-
-    /**
-     * @param $attribute
-     * @param $contextId
-     * @param $attributeId
-     */
-    private function determineContext($attribute, &$contextId, &$attributeId)
-    {
-        $matches = explode('.', $attribute);
-
-        if (count($matches) == 2) {
-            $contextId = $matches[0];
-            $attributeId = $matches[1];
-        }
-
-        if (count($matches) == 1) {
-            $attributeId = $matches[0];
-            $contextId = ContextService::UNDEFINED_CONTEXT;
-        }
     }
 }

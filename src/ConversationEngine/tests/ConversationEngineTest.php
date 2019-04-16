@@ -14,6 +14,7 @@ use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -49,8 +50,12 @@ class ConversationEngineTest extends TestCase
         }
 
         // Create an utterance
+        $user = new User();
+        $user->setFirstName('John');
+        $user->setLastName('Smith');
         $utterance = new WebchatChatOpenUtterance();
         $utterance->setCallbackId('hello_bot');
+        $utterance->setUser($user);
         $this->utterance = $utterance;
     }
 
@@ -152,7 +157,7 @@ class ConversationEngineTest extends TestCase
         $userIntent = $openingScene->getIntentsSaidByUser()->get('hello_bot');
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
-        $this->assertTrue($userIntent->getAction()->getId() == 'register_hello');
+        $this->assertTrue($userIntent->getAction()->getId() == 'action.core.example');
         $this->assertTrue($userIntent->getInterpreter()->getId() == 'interpreter.core.callbackInterpreter');
 
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
@@ -160,7 +165,7 @@ class ConversationEngineTest extends TestCase
         $botIntent = $openingScene->getIntentsSaidByBot()->get('hello_user');
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
-        $this->assertTrue($botIntent->getAction()->getId() == 'register_hello');
+        $this->assertTrue($botIntent->getAction()->getId() == 'action.core.example');
 
         $secondScene = $conversation->getScene('scene2');
 
@@ -169,7 +174,7 @@ class ConversationEngineTest extends TestCase
         $userIntent = $secondScene->getIntentsSaidByUser()->get('how_are_you');
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
-        $this->assertTrue($userIntent->getAction()->getId() == 'wave');
+        $this->assertTrue($userIntent->getAction()->getId() == 'action.core.example');
         $this->assertTrue($userIntent->getInterpreter()->getId() == 'interpreter.core.callbackInterpreter');
 
         $this->assertCount(1, $secondScene->getIntentsSaidByBot());
@@ -177,7 +182,7 @@ class ConversationEngineTest extends TestCase
         $botIntent = $secondScene->getIntentsSaidByBot()->get('doing_dandy');
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
-        $this->assertTrue($botIntent->getAction()->getId() == 'wave_back');
+        $this->assertTrue($botIntent->getAction()->getId() == 'action.core.example');
     }
 
     /**

@@ -10,23 +10,7 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 abstract class TextUtterance extends BaseUtterance
 {
     const TYPE = 'text';
-
-    /**
-     * @inheritdoc
-     */
-    public function getUser(): User
-    {
-        throw new FieldNotSupported('User field is not supported by text utterances');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setUser(User $user) :void
-    {
-        throw new FieldNotSupported('User field is not supported by text utterances');
-    }
-
+    
     /**
      * @inheritdoc
      */

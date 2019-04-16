@@ -67,7 +67,7 @@ class DGraphTest extends TestCase
         $nodeName = 'testNode1' . time();
         // Create a node and store with an attribute
         $node = new Node($nodeName);
-        $node->addAttribute(new StringAttribute('user.name', 'John Smith'));
+        $node->addAttribute(new StringAttribute('name', 'John Smith'));
         $mutation = new DGraphMutation($node);
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
@@ -109,8 +109,8 @@ class DGraphTest extends TestCase
             }
         }
 
-        $this->assertTrue($node1->hasAttribute('user.name'));
-        $node1->setAttribute('user.name', 'Mario Rossi');
+        $this->assertTrue($node1->hasAttribute('name'));
+        $node1->setAttribute('name', 'Mario Rossi');
 
         $mutation = new DGraphMutation($node1);
         $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
@@ -125,6 +125,6 @@ class DGraphTest extends TestCase
 
         /* @var DGraphQueryResponse $response */
         $response = $this->dGraphClient->query($query);
-        $this->assertTrue($response->getData()[0]['user.name'] == 'Mario Rossi');
+        $this->assertTrue($response->getData()[0]['name'] == 'Mario Rossi');
     }
 }
