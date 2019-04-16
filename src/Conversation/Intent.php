@@ -75,8 +75,12 @@ class Intent extends Node
      */
     public function getConfidence()
     {
-        $confidence = $this->getAttribute(Model::CONFIDENCE);
-        return $confidence->getValue();
+        if ($this->hasAttribute(Model::CONFIDENCE)) {
+            $confidence = $this->getAttribute(Model::CONFIDENCE);
+            return $confidence->getValue();
+        }
+
+        return 1;
     }
 
     /**

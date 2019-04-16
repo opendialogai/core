@@ -88,6 +88,7 @@ class ConversationQueryFactory
             Model::ID,
             Model::ORDER,
             Model::COMPLETES,
+            Model::CONFIDENCE,
             Model::CAUSES_ACTION => self::getActionGraph(),
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::LISTENED_BY_FROM_SCENES => [
@@ -210,6 +211,11 @@ class ConversationQueryFactory
                 $intent = new Intent($intentData[Model::ID]);
                 $clone ? false : $intent->setUid($intentData[Model::UID]);
                 $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
+
+                if (isset($intentData[Model::CONFIDENCE])) {
+                    $intent->setConfidence($intentData[Model::CONFIDENCE]);
+                }
+
                 if (isset($intentData[Model::CAUSES_ACTION])) {
                     $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
                     $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
@@ -235,6 +241,11 @@ class ConversationQueryFactory
                 $intent = new Intent($intentData[Model::ID]);
                 $clone ? false : $intent->setUid($intentData[Model::UID]);
                 $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
+
+                if (isset($intentData[Model::CONFIDENCE])) {
+                    $intent->setConfidence($intentData[Model::CONFIDENCE]);
+                }
+
                 if (isset($intentData[Model::CAUSES_ACTION])) {
                     $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
                     $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);

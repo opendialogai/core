@@ -107,6 +107,7 @@ class Conversation extends Model
 
         // Now cycle through the scenes again and identifying intents that cut across scenes.
         $intentIdx = 1;
+
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             foreach ($scene['intents'] as $intent) {
                 $speaker = null;
@@ -206,6 +207,7 @@ class Conversation extends Model
 
         $actionLabel = null;
         $interpreterLabel = null;
+        $confidence = null;
         $completes = false;
 
         if (is_array($intentValue)) {
@@ -213,6 +215,7 @@ class Conversation extends Model
             $actionLabel = isset($intentValue['action']) ? $intentValue['action'] : null;
             $interpreterLabel = isset($intentValue['interpreter']) ? $intentValue['interpreter'] : null;
             $completes = isset($intentValue['completes']) ? $intentValue['completes'] : false;
+            $confidence = isset($intentValue['confidence']) ? $intentValue['confidence'] : false;
             $intentSceneId = isset($intent[$speaker]['scene']) ? $intent[$speaker]['scene'] : null;
         } else {
             $intentLabel = $intentValue;
@@ -227,6 +230,10 @@ class Conversation extends Model
 
         if ($interpreterLabel) {
             $intentNode->addInterpreter(new Interpreter($interpreterLabel));
+        }
+
+        if ($confidence) {
+            $intentNode->setConfidence($confidence);
         }
 
         return $intentNode;
