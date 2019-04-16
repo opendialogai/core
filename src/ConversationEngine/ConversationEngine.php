@@ -8,12 +8,9 @@ use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\Core\Conversation\Action;
-use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
-use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -78,6 +75,7 @@ class ConversationEngine implements ConversationEngineInterface
     {
         /* @var Conversation $ongoingConversation */
         $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
+        Log::debug(sprintf('Ongoing conversation determined as %s', $ongoingConversation->getId()));
 
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
@@ -116,6 +114,7 @@ class ConversationEngine implements ConversationEngineInterface
             );
 
             if ($userContext->currentSpeakerIsBot()) {
+                Log::debug(sprintf('Speaker was bog'));
                 $ongoingConversation = $this->updateConversationFollowingUserInput($userContext, $utterance);
 
                 if (!isset($ongoingConversation)) {
@@ -157,7 +156,10 @@ class ConversationEngine implements ConversationEngineInterface
         $currentScene = $userContext->getCurrentScene();
 
         $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
+        Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
+
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
+        Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
         //Determine if there is an intent that matches the incoming utterance
         /* @var Intent $validIntent */
@@ -183,16 +185,34 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         if (count($matchingIntents) >= 1) {
+            Log::debug(sprintf('There are %s matching intents', count($matchingIntents)));
+
             /* @var Intent $nextIntent */
             $nextIntent = $possibleNextIntents->first()->value;
+            Log::debug(sprintf('Selected %s as the next intent', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
-            // @todo perform action associated with incoming intent.
+
+            if ($nextIntent->causesAction()) {
+                Log::debug(
+                    sprintf(
+                        'Current intent %s causes action %s',
+                        $nextIntent->getId(),
+                        $nextIntent->getAction()->getId()
+                    )
+                );
+
+                /* @var ActionResult $actionResult */
+                $actionResult = $this->actionEngine->performAction($nextIntent->getAction()->getId());
+                $userContext->addActionResult($actionResult);
+                Log::debug(sprintf('Adding action result to user context'));
+            }
 
             return $userContext->getCurrentConversation();
         } else {
             // What the user says does not match anything expected in the current conversation so complete it and
             // pretend we received a no match intent.
             $userContext->moveCurrentConversationToPast();
+            Log::debug('No match found, droping out of current conversation.');
             //@todo This should be an exception
             return null;
         }
@@ -212,16 +232,20 @@ class ConversationEngine implements ConversationEngineInterface
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
+        Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
         $openingIntents = $this->conversationStore->getAllOpeningIntents();
+        Log::debug(sprintf('Found %s opening intents.', count($openingIntents)));
 
         $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents);
+        Log::debug(sprintf('Found %s matching intents.', count($matchingIntents)));
 
         // @todo check conditions for each conversation/scene associated with each intent and remove
         // the ones that don't match
 
         /* @var OpeningIntent $intent */
         $intent = $matchingIntents->last()->value;
+        Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
         $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
         $userContext->setCurrentConversation($conversation);
@@ -229,11 +253,21 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var Intent $currentIntent */
         $currentIntent = $userContext->getCurrentIntent();
+        Log::debug(sprintf('Set current intent as %s', $currentIntent->getId()));
 
         if ($currentIntent->causesAction()) {
+            Log::debug(
+                sprintf(
+                    'Current intent %s causes action %s',
+                    $currentIntent->getId(),
+                    $currentIntent->getAction()->getId()
+                )
+            );
+
             /* @var ActionResult $actionResult */
             $actionResult = $this->actionEngine->performAction($currentIntent->getAction()->getId());
             $userContext->addActionResult($actionResult);
+            Log::debug(sprintf('Adding action result to user context'));
         }
 
         // For this intent get the matching conversation - we are pulling this back out from the user
