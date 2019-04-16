@@ -5,6 +5,7 @@ namespace OpenDialogAi\ContextEngine\ContextManager;
 
 
 use Ds\Map;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 /**
@@ -34,6 +35,7 @@ interface ContextInterface
      *
      * @param string $attributeName
      * @return AttributeInterface
+     * @throws AttributeDoesNotExistException
      */
     public function getAttribute(string $attributeName): AttributeInterface;
 

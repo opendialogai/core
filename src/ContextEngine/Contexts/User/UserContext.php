@@ -5,9 +5,11 @@ namespace OpenDialogAi\ContextEngine\Contexts;
 
 
 use Ds\Map;
+use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -16,7 +18,7 @@ use OpenDialogAi\Core\Conversation\Scene;
 
 class UserContext extends AbstractContext
 {
-    const USER_CONTEXT = 'context.core.user';
+    const USER_CONTEXT = 'user';
 
     /* @var \OpenDialogAi\Core\Conversation\ChatbotUser */
     private $user;
@@ -72,11 +74,25 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * @param ActionResult $actionResult
+     * @return ChatbotUser
+     */
+    public function addActionResult(ActionResult $actionResult): ChatbotUser
+    {
+        foreach ($actionResult->getResultAttributes()->getAttributes() as $attribute) {
+            $this->user->addAttribute($attribute);
+        }
+
+        return $this->updateUser();
+    }
+
+    /**
      *
      */
     public function updateUser()
     {
         $this->user = $this->userService->updateUser($this->user);
+        return $this->user;
     }
 
     /**

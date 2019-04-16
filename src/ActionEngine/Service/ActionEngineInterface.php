@@ -14,6 +14,11 @@ interface ActionEngineInterface
     public function setAvailableActions($supportedActions) : void;
 
     /**
+     * Helper function to allow you to ignore any predefined config.
+     */
+    public function unSetAvailableActions(): void;
+
+    /**
      * Returns a list of all available actions keyed by the action they perform
      *
      * @return array
@@ -26,5 +31,5 @@ interface ActionEngineInterface
      * @return mixed
      * @throw MissingRequiredActionAttributes
      */
-    public function performAction(string $actionName, ActionInput $actionInput) : ActionResult;
+    public function performAction(string $actionName) : ActionResult;
 }

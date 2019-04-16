@@ -18,6 +18,7 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\Node\Node;
+use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class UserService
@@ -117,10 +118,48 @@ class UserService
     {
         // We are dealing with an existing user to go get them
         $user = $this->getUser($utterance->getUserId());
-
-        // @todo identify what needs to be updated - this is just a dummy action now
-        $user->setAttribute('timestamp', microtime(true));
+        $this->updateFromUtteranceUserObject($utterance->getUser(), $user);
         return $this->updateUser($user);
+    }
+
+    /**
+     * @param User $user
+     * @param ChatbotUser $chatbotUser
+     */
+    protected function updateFromUtteranceUserObject(User $user, ChatbotUser $chatbotUser)
+    {
+        if ($user->hasFirstName()) {
+            if ($chatbotUser->hasAttribute('first_name')) {
+                $chatbotUser->setAttribute('first_name', $user->getFirstName());
+            } else {
+                $attribute = $this->attributeResolver->getAttributeFor('first_name', $user->getFirstName());
+                $chatbotUser->addAttribute($attribute);
+            }
+        }
+        if ($user->hasLastName()) {
+            if ($chatbotUser->hasAttribute('last_name')) {
+                $chatbotUser->setAttribute('last_name', $user->getLastName());
+            } else {
+                $attribute = $this->attributeResolver->getAttributeFor('last_name', $user->getLastName());
+                $chatbotUser->addAttribute($attribute);
+            }
+        }
+        if ($user->hasEmail()) {
+            if ($chatbotUser->hasAttribute('email')) {
+                $chatbotUser->setAttribute('email', $user->getEmail());
+            } else {
+                $attribute = $this->attributeResolver->getAttributeFor('email', $user->getEmail());
+                $chatbotUser->addAttribute($attribute);
+            }
+        }
+        if ($user->hasExternalId()) {
+            if ($chatbotUser->hasAttribute('external_id')) {
+                $chatbotUser->setAttribute('external_id', $user->getExternalId());
+            } else {
+                $attribute = $this->attributeResolver->getAttributeFor('external_id', $user->getExternalId());
+                $chatbotUser->addAttribute($attribute);
+            }
+        }
     }
 
     /**
@@ -131,8 +170,7 @@ class UserService
     public function createUserFromUtterance(UtteranceInterface $utterance)
     {
         $user = new ChatbotUser($utterance->getUserId());
-        $user->addAttribute(new IntAttribute('timestamp', microtime(true)));
-
+        $this->updateFromUtteranceUserObject($utterance->getUser(), $user);
         return $this->updateUser($user);
     }
 
@@ -170,10 +208,18 @@ class UserService
     public function setCurrentIntent(ChatbotUser $user, Intent $intent)
     {
         if ($user->hasCurrentIntent()) {
+            $currentIntentId = $user->getCurrentIntent()->getUid();
+
+            $this->dGraphClient->createRelationship(
+              $currentIntentId,
+              $intent->getUid(),
+              Model::FOLLOWED_BY
+            );
+
             // Delete the current relationship from Dgraph
             $this->dGraphClient->deleteRelationship(
                 $user->getCurrentConversation()->getUid(),
-                $user->getCurrentIntent()->getUid(),
+                $currentIntentId,
                 Model::CURRENT_INTENT
             );
         }
