@@ -104,4 +104,13 @@ trait HasAttributesTrait
         Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
         throw new AttributeDoesNotExistException();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAttributeValue(string $attributeName)
+    {
+        return $this->getAttribute($attributeName)->getValue();
+    }
+
 }
