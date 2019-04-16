@@ -13,16 +13,6 @@ return [
         'spellcheck'       => env('LUIS_SPELLCHECK', 'true')
     ],
 
-    /*
-     * A registration of know LUIS entities mapped to known attribute type. If an entity is returned from LUIS that is
-     * not an already registered attribute name and is not mapped here, a StringAttribute will be used
-     *
-     * Mapping is {luis_entity_type} => {OD_attribute_name}
-     */
-    'luis_entities' => [
-//         'example_type' => 'first_name'
-    ],
-
     // Register the application interfaces
     'available_interpreters' => [
         OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter::class,
