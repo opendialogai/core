@@ -49,7 +49,7 @@ class WebchatIncomingController extends BaseController
 
         /** @var WebChatMessage $message */
         $message = $this->odController->runConversation($utterance);
-        Log::debug(sprintf("Sending response: %s" , json_encode($message)));
+        Log::debug(sprintf("Sending response: %s", json_encode($message)));
 
         // @todo - loop through messages and send all of them (collating in a single post)
         return response($message[0]->getMessageToPost(), 200);
