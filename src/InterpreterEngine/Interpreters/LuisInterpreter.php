@@ -69,10 +69,13 @@ class LuisInterpreter extends BaseInterpreter
         $intent = new NoMatchIntent();
 
         if ($topIntent = $response->getTopScoringIntent()) {
+            Log::debug(sprintf('Creating intent from Luis with name %s', $topIntent->getLabel()));
             $intent = Intent::createIntentWithConfidence($topIntent->getLabel(), $topIntent->getConfidence());
         }
 
+        /* @var AttributeInterface $attribute */
         foreach ($this->extractAttributes($response->getEntities()) as $attribute) {
+            Log::debug(sprintf('Adding attribute %s to intent.', $attribute->getId()));
             $intent->addAttribute($attribute);
         }
 
@@ -115,7 +118,7 @@ class LuisInterpreter extends BaseInterpreter
         }
 
         try {
-            return $this->attributeResolver->getAttributeFor($attributeName, $entity->getEntityString());
+            return $this->attributeResolver->getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
         } catch (AttributeCouldNotBeResolved $e) {
             Log::warning(
                 sprintf(
@@ -124,7 +127,7 @@ class LuisInterpreter extends BaseInterpreter
                 )
             );
 
-            return new StringAttribute($attributeName, $entity->getEntityString());
+            return new StringAttribute($attributeName, $entity->getResolutionValues()[0]);
         }
     }
 }
