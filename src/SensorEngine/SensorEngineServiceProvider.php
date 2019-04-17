@@ -9,10 +9,6 @@ class SensorEngineServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->publishes([
-            __DIR__ . '/config/opendialog-sensorengine.php'
-                => base_path('config/opendialog-sensorengine.php'),
-        ], 'config');
     }
 
     public function register()

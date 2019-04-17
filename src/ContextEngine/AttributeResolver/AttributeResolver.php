@@ -3,16 +3,17 @@
 namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 /**
- * The AttributeResolver maps from an attribute identifier (in the form <contextid>.<attributeid>) to the attribute type
- * for that Attribute. The mapping is donw in configuration.
+ * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.
+ * Attribute types extend the @see AbstractAttribute
  */
 class AttributeResolver
 {
     /* @var array */
-    private $supportedAttributes;
+    private $supportedAttributes = [];
 
     public function __construct()
     {
@@ -24,7 +25,24 @@ class AttributeResolver
      */
     public function getSupportedAttributes()
     {
-        return config('opendialog.context_engine.supported_attributes');
+        return $this->supportedAttributes;
+    }
+
+    /**
+     * Registers an array of attributes. The original set of attributes is preserved so this can be run multiple times
+     *
+     * @param $attributes AttributeInterface[]
+     */
+    public function registerAttributes($attributes)
+    {
+        foreach ($attributes as $name => $type) {
+            if (class_exists($type) && in_array(AttributeInterface::class, class_implements($type))) {
+                Log::debug(sprintf("Registering attribute %s", $name));
+                $this->supportedAttributes[$name] = $type;
+            } else {
+                Log::error(sprintf("Not registering attribute %s - has unknown type %s", $name, $type));
+            }
+        }
     }
 
     /**

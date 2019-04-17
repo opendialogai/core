@@ -15,7 +15,7 @@ class InterpreterEngineServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/config/opendialog-interpreterengine.php' => base_path('config/opendialog-interpreterengine.php')
+            __DIR__ . '/config/opendialog-interpreterengine-custom.php' => config_path('opendialog/interpreter_engine.php')
         ], 'config');
     }
 
@@ -30,7 +30,12 @@ class InterpreterEngineServiceProvider extends ServiceProvider
 
         $this->app->singleton(InterpreterServiceInterface::class, function () {
             $interpreterService = new InterpreterService();
-            $interpreterService->registerAvailableInterpreters();
+            $interpreterService->registerAvailableInterpreters(config('opendialog.interpreter_engine.available_interpreters'));
+
+            // Register custom interpreters if they are available
+            if (is_array(config('opendialog.interpreter_engine.custom_interpreters'))) {
+                $interpreterService->registerAvailableInterpreters(config('opendialog.interpreter_engine.custom_interpreters'));
+            }
 
             // Check if there is a default interpreter that is amongst the registered ones and set it as such
             $defaultInterpreterName = config('opendialog.interpreter_engine.default_interpreter');
@@ -40,9 +45,9 @@ class InterpreterEngineServiceProvider extends ServiceProvider
                 throw new DefaultInterpreterNotDefined('You must define a default interpreter for OpenDialog.');
             }
 
-            // Check that there is a callback interepreter and setup the supported callbacks
+            // Check that there is a callback interpreter and setup the supported callbacks
             if ($interpreterService->isInterpreterAvailable(CallbackInterpreter::getName())) {
-                /* @var \OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter $interpreter */
+                /* @var CallbackInterpreter $interpreter */
                 $interpreter = $interpreterService->getInterpreter(CallbackInterpreter::getName());
                 $interpreter->setSupportedCallbacks(config('opendialog.interpreter_engine.supported_callbacks'));
             }

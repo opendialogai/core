@@ -7,7 +7,6 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
-use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class InterpreterService implements InterpreterServiceInterface
 {
@@ -36,10 +35,6 @@ class InterpreterService implements InterpreterServiceInterface
      */
     public function getAvailableInterpreters(): array
     {
-        if (empty($this->availableInterpreters)) {
-            $this->registerAvailableInterpreters();
-        }
-
         return $this->availableInterpreters;
     }
 
@@ -73,11 +68,13 @@ class InterpreterService implements InterpreterServiceInterface
     /**
      * Loops through all available interpreters from config, and creates a local array keyed by the name of the
      * interpreter
+     *
+     * @param $interpreters InterpreterInterface[]
      */
-    public function registerAvailableInterpreters(): void
+    public function registerAvailableInterpreters($interpreters): void
     {
         /** @var InterpreterInterface $interpreter */
-        foreach ($this->getAvailableInterpreterConfig() as $interpreter) {
+        foreach ($interpreters as $interpreter) {
             try {
                 $name = $interpreter::getName();
 
@@ -118,18 +115,8 @@ class InterpreterService implements InterpreterServiceInterface
      * @param string $name
      * @return bool
      */
-    private function isValidName(string $name) : bool
+    private function isValidName(string $name): bool
     {
         return preg_match($this->validNamePattern, $name) === 1;
-    }
-
-    /**
-     * Returns the list of available interpreters as registered in the available_interpreters config
-     *
-     * @return InterpreterInterface[]
-     */
-    private function getAvailableInterpreterConfig()
-    {
-        return config('opendialog.interpreter_engine.available_interpreters');
     }
 }
