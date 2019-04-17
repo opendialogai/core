@@ -336,7 +336,8 @@ class ConversationEngine implements ConversationEngineInterface
      * @param Intent $intent
      * @param UserContext $context
      */
-    private function storeIntentEntities(Intent $intent, UserContext $context) {
+    private function storeIntentEntities(Intent $intent, UserContext $context)
+    {
         foreach ($intent->getNonCoreAttributes() as $attribute) {
             Log::debug(sprintf('Storing attribute %s for user', $attribute->getId()));
             $context->addAttribute($attribute);
