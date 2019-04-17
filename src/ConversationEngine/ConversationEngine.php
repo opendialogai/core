@@ -171,8 +171,20 @@ class ConversationEngine implements ConversationEngineInterface
                 // Check to see if one of the interpreted intents matches the valid Intent.
                 /* @var Intent $interpretedIntent */
                 foreach ($interpretedIntents as $interpretedIntent) {
+                    Log::debug(
+                        sprintf('Comparing interpreted intent %s with confidence %s against valid intent %s with confidence %s',
+                            $interpretedIntent->getId(),
+                            $interpretedIntent->getConfidence(),
+                            $validIntent->getId(),
+                            $validIntent->getConfidence()
+                        )
+                    );
                     if ($interpretedIntent->getId() === $validIntent->getId() &&
                         $interpretedIntent->getConfidence() >= $validIntent->getConfidence()) {
+                        // Pass attributes from the interpreted intent to the valid intent
+                        foreach ($interpretedIntent->getNonCoreAttributes() as $attribute) {
+                            $validIntent->addAttribute($attribute);
+                        }
                         $matchingIntents->put($validIntent->getId(), $validIntent);
                     }
                 }
@@ -189,8 +201,11 @@ class ConversationEngine implements ConversationEngineInterface
 
             /* @var Intent $nextIntent */
             $nextIntent = $possibleNextIntents->first()->value;
-            Log::debug(sprintf('Selected %s as the next intent', $nextIntent->getId()));
+            Log::debug(sprintf('We found a matching intent %s', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
+            // Check if the intent has non-core attributes and set those at the user context level
+            $this->storeIntentEntities($nextIntent, $userContext);
+
 
             if ($nextIntent->causesAction()) {
                 Log::debug(
@@ -207,10 +222,12 @@ class ConversationEngine implements ConversationEngineInterface
                 Log::debug(sprintf('Adding action result to user context'));
             }
 
+
             return $userContext->getCurrentConversation();
         } else {
             // What the user says does not match anything expected in the current conversation so complete it and
             // pretend we received a no match intent.
+            Log::debug('No matching intent, moving conversation to past state');
             $userContext->moveCurrentConversationToPast();
             Log::debug('No match found, droping out of current conversation.');
             //@todo This should be an exception
@@ -313,5 +330,19 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         return $matchingIntents;
+    }
+
+    /**
+     * @param Intent $intent
+     * @param UserContext $context
+     */
+    private function storeIntentEntities(Intent $intent, UserContext $context)
+    {
+        foreach ($intent->getNonCoreAttributes() as $attribute) {
+            Log::debug(sprintf('Storing attribute %s for user', $attribute->getId()));
+            $context->addAttribute($attribute);
+        }
+
+        $context->updateUser();
     }
 }

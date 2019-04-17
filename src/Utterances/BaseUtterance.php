@@ -156,6 +156,9 @@ abstract class BaseUtterance implements UtteranceInterface
      */
     public function getCallbackId(): string
     {
+        if (!isset($this->callbackId)) {
+            return '';
+        }
         return $this->callbackId;
     }
 

@@ -94,6 +94,7 @@ conversation:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
+            confidence: 1
             action: action.core.example
         - b: 
             i: doing_dandy
@@ -113,8 +114,7 @@ conversation:
         - b: 
             i: doing_dandy
             action: action.core.example
-            completes: true 
-                       
+            completes: true           
 EOT;
     }
 

@@ -155,18 +155,6 @@ class UtteranceTest extends TestCase
         }
 
         try {
-            $utterance->setCallbackId('test');
-            self::fail('Exception not thrown');
-        } catch (FieldNotSupported $e) {
-        }
-
-        try {
-            $utterance->getCallbackId();
-            self::fail('Exception not thrown');
-        } catch (FieldNotSupported $e) {
-        }
-
-        try {
             $utterance->setValue('test');
             self::fail('Exception not thrown');
         } catch (FieldNotSupported $e) {

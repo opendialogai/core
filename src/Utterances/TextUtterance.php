@@ -14,22 +14,6 @@ abstract class TextUtterance extends BaseUtterance
     /**
      * @inheritdoc
      */
-    public function getCallbackId(): string
-    {
-        throw new FieldNotSupported('Callback ID field is not supported by text utterances');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setCallbackId(string $callbackId) :void
-    {
-        throw new FieldNotSupported('Callback ID field is not supported by text utterances');
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getValue(): string
     {
         throw new FieldNotSupported('Value field is not supported by text utterances');
