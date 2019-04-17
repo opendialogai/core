@@ -13,16 +13,10 @@ class ConversationEngineServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->publishes([
-            __DIR__ . '/config/opendialog-conversationengine.php'
-                => base_path('config/opendialog-conversationengine.php')
-        ], 'config');
     }
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/config/opendialog-conversationengine.php', 'opendialog.conversation_engine');
-
         $this->app->singleton(ConversationStoreInterface::class, function () {
             return new DGraphConversationStore($this->app->make(DGraphClient::class));
         });

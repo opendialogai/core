@@ -2,16 +2,16 @@
 
 namespace OpenDialogAi\ActionEngine\Service;
 
-use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 
 interface ActionEngineInterface
 {
     /**
      * Sets the available actions keyed by name of action performed.
-     * Uses @param $supportedActions*
+     * Uses @param $supportedActions *
      */
-    public function setAvailableActions($supportedActions) : void;
+    public function setAvailableActions($supportedActions): void;
 
     /**
      * Helper function to allow you to ignore any predefined config.
@@ -23,13 +23,12 @@ interface ActionEngineInterface
      *
      * @return array
      */
-    public function getAvailableActions() : array;
+    public function getAvailableActions(): array;
 
     /**
      * @param string $actionName The name of the action to perform
-     * @param ActionInput $actionInput
      * @return mixed
-     * @throw MissingRequiredActionAttributes
+     * @throws ActionNotAvailableException
      */
-    public function performAction(string $actionName) : ActionResult;
+    public function performAction(string $actionName): ActionResult;
 }
