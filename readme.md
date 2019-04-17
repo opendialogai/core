@@ -13,7 +13,7 @@ Install in composer with the following block:
 ## Local Config
 To publish config files for local set up and customisation, run
 
-```php artisan package:publish --tag="config"```
+```php artisan vendor:publish --tag="config"```
 
 This will copy over all required config files into `config/opendialog/`
 
