@@ -73,7 +73,7 @@ class LuisClient
         if ($query->getStatusCode() == '200') {
             $response = $query->getBody()->getContents();
             Log::debug("Successful LUIS call", ['response' => $response]);
-            return new LUISResponse(json_decode($response));
+            return new LuisResponse(json_decode($response));
         } else {
             $response = $query->getBody()->getContents();
             Log::warning("Unsuccessful LUIS call", ['response' => $response]);
