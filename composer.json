@@ -2,11 +2,15 @@
   "name": "opendialogai/core",
   "description": "The OpenDialog core package",
   "type": "library",
-  "license": "proprietary",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "Stuart Haigh",
       "email": "stuarth@greenshootlabs.com"
+    },
+    {
+      "name": "Ronald Ashri",
+      "email": "ronalda@greenshootlabs.com"
     }
   ],
   "require": {
