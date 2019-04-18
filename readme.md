@@ -5,12 +5,12 @@
 This is the OpenDialog core package that can be used inside of your conversational application.
 
 [OpenDialog](https://opendialog.ai) is a conversation management platform and OpenDialog Core provides the 
-key pieces of support required. 
+key pieces of support required. It has been created by the conversational interface and applied AI team at [GreenShoot Labs](https://www.greenshootlabs.com/).
 
 We will soon be releasing our webchat package that gives you a webchat interface as well as a full Laravel-based
 application that makes use of OpenDialog core and provides a GUI to manage conversations. 
 
-In the meantime if you would like a preview please [get in touch](mailto:hello@greenshootlabs.com).
+In the meantime if you would like a preview please [get in touch](https://www.greenshootlabs.com/).
 
 ## Installing
 
