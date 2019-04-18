@@ -2,7 +2,15 @@
 
 [![CircleCI](https://circleci.com/gh/opendialogai/core/tree/master.svg?style=svg&circle-token=d14bcacaf3cd3e6ae4dfd2fb3bf03658cf0ca8fa)](https://circleci.com/gh/opendialogai/core/tree/master)
 
-This is the OpenDialog core package that can be used inside of your application.
+This is the OpenDialog core package that can be used inside of your conversational application.
+
+[OpenDialog](https://opendialog.ai) is a conversation management platform and OpenDialog Core provides the 
+key pieces of support required. 
+
+We will soon be releasing our webchat package that gives you a webchat interface as well as a full Laravel-based
+application that makes use of OpenDialog core and provides a GUI to manage conversations. 
+
+In the meantime if you would like a preview please [get in touch](mailto:hello@greenshootlabs.com).
 
 ## Installing
 
