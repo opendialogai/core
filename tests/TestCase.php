@@ -74,6 +74,14 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return <<<EOT
 conversation:
   id: hello_bot_world
+  conditions:
+    - condition:
+        attribute: user.name
+        operation: is_set
+    - condition:
+        attribute: user.test
+        operation: gt
+        value: 10
   scenes:
     opening_scene:
       intents:
