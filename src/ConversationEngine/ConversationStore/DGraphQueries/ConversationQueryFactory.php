@@ -48,8 +48,7 @@ class ConversationQueryFactory
         DGraphClient $client,
         AttributeResolver $attributeResolver,
         $clone = false
-    )
-    {
+    ) {
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->uid($conversationUid)
@@ -71,8 +70,7 @@ class ConversationQueryFactory
         DGraphClient $client,
         AttributeResolver $attributeResolver,
         $clone = false
-    )
-    {
+    ) {
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->eq('id', $templateName)
@@ -230,14 +228,15 @@ class ConversationQueryFactory
         ConversationManager $cm,
         AttributeResolver $attributeResolver,
         bool $clone = false
-    )
-    {
+    ) {
         foreach ($conditions as $condition_attributes) {
             $uid = $condition_attributes[Model::UID];
             $id = $condition_attributes[Model::ID];
-            $context = $condition_attributes[Model::CONTEXT];;
+            $context = $condition_attributes[Model::CONTEXT];
             $attributeName = $condition_attributes[Model::ATTRIBUTE_NAME];
-            $attributeValue = ($condition_attributes[Model::ATTRIBUTE_VALUE] === '') ? null : $condition_attributes[Model::ATTRIBUTE_VALUE];
+            $attributeValue = $condition_attributes[Model::ATTRIBUTE_VALUE] === ''
+                ? null
+                : $condition_attributes[Model::ATTRIBUTE_VALUE];
             $operation = $condition_attributes[Model::OPERATION];
 
             if (array_key_exists($attributeName, $attributeResolver->getSupportedAttributes())) {

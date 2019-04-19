@@ -32,6 +32,7 @@ class Condition extends Node implements ConditionInterface
         $this->addAttribute(new StringAttribute(Model::OPERATION, $evaluationOperation));
 
         $this->attributeToCompareAgainst = $attributeToCompareAgainst;
+        $this->addAttribute($attributeToCompareAgainst);
         $this->evaluationOperation = $evaluationOperation;
     }
 
