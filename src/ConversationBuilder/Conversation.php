@@ -326,7 +326,7 @@ class Conversation extends Model
         $attribute = $attributeResolver->getAttributeFor($attributeId, $value);
 
         // Now we can create the condition - we set an id as a helper
-        $id = sprintf('%s|%s|%s', $attributeName, $operation, $value);
+        $id = sprintf('%s-%s-%s', $attributeName, $operation, $value);
         $condition = new Condition($attribute, $operation, $id);
         $condition->setContextId($contextId);
         Log::debug('Created condition from Yaml.');

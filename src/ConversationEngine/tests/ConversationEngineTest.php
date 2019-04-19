@@ -4,11 +4,16 @@
 namespace OpenDialogAi\ConversationEngine\tests;
 
 
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
+use OpenDialogAi\Core\Attribute\AbstractAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
@@ -33,6 +38,11 @@ class ConversationEngineTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        /* @var AttributeResolver $attributeResolver */
+        $attributeResolver = $this->app->make(AttributeResolver::class);
+        $attributes = ['test' => IntAttribute::class];
+        $attributeResolver->registerAttributes($attributes);
+
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
 
         $this->client = $this->app->make(DGraphClient::class);
@@ -57,6 +67,7 @@ class ConversationEngineTest extends TestCase
         $utterance->setCallbackId('hello_bot');
         $utterance->setUser($user);
         $this->utterance = $utterance;
+
     }
 
     public function testConversationStoreIntents()
@@ -65,6 +76,42 @@ class ConversationEngineTest extends TestCase
         $openingIntents = $conversationStore->getAllOpeningIntents();
 
         $this->assertCount(4, $openingIntents);
+    }
+
+    public function testConversationConditions()
+    {
+        /* @var ConversationStoreInterface $conversationStore */
+        $conversationStore = $this->conversationEngine->getConversationStore();
+
+        $conversation = $conversationStore->getConversationTemplate('hello_bot_world');
+        $conditions = $conversation->getConditions();
+
+        $this->assertCount(2, $conditions);
+
+        /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
+        foreach ($conditions as $condition) {
+            $attribute = $condition->getAttributeToCompareAgainst();
+            $this->assertTrue(in_array($attribute->getId(), ['name', 'test']));
+
+            if ($condition->getId() == 'user.name-is_set-') {
+                $this->assertInstanceOf(StringAttribute::class, $condition->getAttributeToCompareAgainst());
+                $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === null);
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'name');
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === null);
+                $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::IS_SET);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::IS_SET);
+            }
+
+            if ($condition->getId() == 'user.test-gt-10') {
+                $this->assertInstanceOf(IntAttribute::class, $condition->getAttributeToCompareAgainst());
+                $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === 10);
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === 10);
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'test');
+                $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::GREATER_THAN);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::GREATER_THAN);
+            }
+
+        }
     }
 
     public function testConversationEngineNoOngoingConversation()

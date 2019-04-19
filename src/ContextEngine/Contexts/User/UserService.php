@@ -12,7 +12,7 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;

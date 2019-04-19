@@ -5,7 +5,7 @@ namespace OpenDialogAi\ContextManager\Tests;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;

@@ -11,4 +11,6 @@ interface ConversationStoreInterface
     public function getAllOpeningIntents(): Map;
 
     public function getConversation($conversationId): Conversation;
+
+    public function getConversationTemplate($conversationTemplateName): Conversation;
 }

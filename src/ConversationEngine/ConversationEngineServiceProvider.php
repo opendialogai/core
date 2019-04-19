@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -18,7 +19,10 @@ class ConversationEngineServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(ConversationStoreInterface::class, function () {
-            return new DGraphConversationStore($this->app->make(DGraphClient::class));
+            return new DGraphConversationStore(
+                $this->app->make(DGraphClient::class),
+                $this->app->make(AttributeResolver::class)
+            );
         });
 
         $this->app->singleton(ConversationEngineInterface::class, function () {

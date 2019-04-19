@@ -1,11 +1,20 @@
 <?php
 
 
-namespace OpenDialogAi\Core\Conversation;
+namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\Core\Conversation\Action;
+use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\Conversation\ConversationManager;
+use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Interpreter;
+use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\Participant;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
+use PHPUnit\Framework\Constraint\Attribute;
 
 /**
  * Helper methods for forming queries to extract information from Dgraph.
@@ -18,7 +27,7 @@ class ConversationQueryFactory
 
         $dGraphQuery->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph([
-               MODEL::UID,
+               Model::UID,
                MODEL::ID
             ]);
 
@@ -28,12 +37,18 @@ class ConversationQueryFactory
 
 
     /**
-     * This queries Dgraph and retrieves a rebuilt Conversation Object.
      * @param string $conversationUid
      * @param DGraphClient $client
+     * @param AttributeResolver $attributeResolver
+     * @param bool $clone
      * @return Conversation
      */
-    public static function getConversationFromDgraphWithUid(string $conversationUid, DGraphClient $client, $clone = false)
+    public static function getConversationFromDgraphWithUid(
+        string $conversationUid,
+        DGraphClient $client,
+        AttributeResolver $attributeResolver,
+        $clone = false
+    )
     {
         $dGraphQuery = new DGraphQuery();
 
@@ -41,16 +56,22 @@ class ConversationQueryFactory
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDgraphData($response, $clone);
+        return self::buildConversationFromDgraphData($response, $attributeResolver, $clone);
     }
 
     /**
-     * This queries Dgraph and retrieves a rebuilt Conversation Object.
-     * @param string $conversationUid
+     * @param string $templateName
      * @param DGraphClient $client
+     * @param AttributeResolver $attributeResolver
+     * @param bool $clone
      * @return Conversation
      */
-    public static function getConversationFromDgraphWithTemplateName(string $templateName, DGraphClient $client, $clone = false)
+    public static function getConversationFromDgraphWithTemplateName(
+        string $templateName,
+        DGraphClient $client,
+        AttributeResolver $attributeResolver,
+        $clone = false
+    )
     {
         $dGraphQuery = new DGraphQuery();
 
@@ -58,7 +79,7 @@ class ConversationQueryFactory
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDgraphData($response, $clone);
+        return self::buildConversationFromDgraphData($response, $attributeResolver, $clone);
     }
 
     /**
@@ -80,7 +101,11 @@ class ConversationQueryFactory
     {
         return [
             Model::UID,
-            'expand(_all_)'
+            Model::ID,
+            Model::ATTRIBUTE_NAME,
+            Model::ATTRIBUTE_VALUE,
+            Model::CONTEXT,
+            Model::OPERATION
         ];
     }
 
@@ -160,20 +185,23 @@ class ConversationQueryFactory
         ];
     }
 
+
     /**
      * @param array $data
+     * @param AttributeResolver $attributeResolver
      * @param bool $clone
-     * @return Conversation
+     * @return mixed
      */
-    private static function buildConversationFromDgraphData(array $data, bool $clone = false)
+    private static function buildConversationFromDgraphData(array $data, AttributeResolver $attributeResolver, $clone = false)
     {
         $cm = new ConversationManager($data[Model::ID]);
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
         $cm->getConversation()->setConversationType($data[Model::EI_TYPE]);
 
-        dd($data);
         // Add any conversation level conditions
-        //self::createConversationConditions($cm, $data)
+        if (isset($data[Model::HAS_CONDITION])) {
+            self::createConversationConditions($data[Model::HAS_CONDITION], $cm, $attributeResolver);
+        }
 
         // First create all the scenes
         self::createScenesFromDgraphData($cm, $data);
@@ -189,6 +217,39 @@ class ConversationQueryFactory
         }
 
         return $cm->getConversation();
+    }
+
+    /**
+     * @param array $conditions
+     * @param ConversationManager $cm
+     * @param AttributeResolver $attributeResolver
+     * @param bool $clone
+     */
+    public static function createConversationConditions(
+        array $conditions,
+        ConversationManager $cm,
+        AttributeResolver $attributeResolver,
+        bool $clone = false
+    )
+    {
+        foreach ($conditions as $condition_attributes) {
+            $uid = $condition_attributes[Model::UID];
+            $id = $condition_attributes[Model::ID];
+            $context = $condition_attributes[Model::CONTEXT];;
+            $attributeName = $condition_attributes[Model::ATTRIBUTE_NAME];
+            $attributeValue = ($condition_attributes[Model::ATTRIBUTE_VALUE] === '') ? null : $condition_attributes[Model::ATTRIBUTE_VALUE];
+            $operation = $condition_attributes[Model::OPERATION];
+
+            if (array_key_exists($attributeName, $attributeResolver->getSupportedAttributes())) {
+                $attribute = $attributeResolver->getAttributeFor($attributeName, $attributeValue);
+                $condition = new Condition($attribute, $operation, $id);
+                $condition->setContextId($context);
+                if ($clone) {
+                    $condition->setUid($uid);
+                }
+                $cm->addConditionToConversation($condition);
+            }
+        }
     }
 
     /**
