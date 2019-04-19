@@ -2,6 +2,7 @@
 
 return [
     'supported_attributes' => [
+        'context' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'first_name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'last_name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
