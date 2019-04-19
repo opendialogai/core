@@ -4,6 +4,7 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use Ds\Map;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Conversation;
 
 interface ConversationStoreInterface

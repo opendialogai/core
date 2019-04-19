@@ -8,10 +8,14 @@ use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -27,8 +31,14 @@ class ConversationEngine implements ConversationEngineInterface
     /* @var InterpreterServiceInterface */
     private $interpreterService;
 
-    /* @var ActionEngineInterface $actionEngine */
+    /* @var ActionEngineInterface */
     private $actionEngine;
+
+    /* @var AttributeResolver */
+    private $attributeResolver;
+
+    /* @var ContextService */
+    private $contextService;
 
     /**
      * @param ConversationStoreInterface $conversationStore
@@ -62,6 +72,18 @@ class ConversationEngine implements ConversationEngineInterface
         $this->actionEngine = $actionEngine;
     }
 
+    /**
+     * @param AttributeResolver $attributeResolver
+     */
+    public function setAttributeResolver(AttributeResolver $attributeResolver)
+    {
+        $this->attributeResolver = $attributeResolver;
+    }
+
+    public function setContextService(ContextService $contextService)
+    {
+        $this->contextService = $contextService;
+    }
 
     /**
      * @param UserContext $userContext
@@ -141,11 +163,11 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
-     * @param Conversation $ongoingConversation
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance)
@@ -257,9 +279,6 @@ class ConversationEngine implements ConversationEngineInterface
         $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents);
         Log::debug(sprintf('Found %s matching intents.', count($matchingIntents)));
 
-        // @todo check conditions for each conversation/scene associated with each intent and remove
-        // the ones that don't match
-
         /* @var OpeningIntent $intent */
         $intent = $matchingIntents->last()->value;
         Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
@@ -326,6 +345,51 @@ class ConversationEngine implements ConversationEngineInterface
                     $defaultIntent->getConfidence() >= $validIntent->getConfidence()) {
                     $matchingIntents->put($validIntent->getIntentId(), $validIntent);
                 }
+            }
+        }
+
+        // Check conditions for each conversation
+        $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
+
+
+        return $matchingIntents;
+    }
+
+    private function filterOpeningIntentsForConditions(Map $intentsToCheck)
+    {
+        $matchingIntents = new Map();
+
+        /* @var OpeningIntent $intent */
+        foreach ($intentsToCheck as $intent) {
+            if ($intent->hasConditions()) {
+                $pass = true;
+                $conditions = $intent->getConditions();
+
+                /* @var Condition $condition */
+                foreach ($conditions as $condition) {
+                    // Get the actual attribute
+                    $attributeName = $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue();
+                    $attributeContext = $condition->getAttribute(Model::CONTEXT)->getValue();
+
+                    try {
+                        $actualAttribute = $this->contextService->getAttribute($attributeName, $attributeContext);
+                    } catch (\Exception $e) {
+                        Log::debug($e->getMessage());
+                        // If the attribute does not exist create one with a null value since we may be testing
+                        // for its existence.
+                        $actualAttribute = $this->attributeResolver->getAttributeFor($attributeName, null);
+                    }
+
+                    if (!$condition->compareAgainst($actualAttribute)) {
+                        $pass = false;
+                    }
+                }
+
+                if ($pass) {
+                    $matchingIntents->put($intent->getIntentId(), $intent);
+                }
+            } else {
+                $matchingIntents->put($intent->getIntentId(), $intent);
             }
         }
 

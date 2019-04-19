@@ -29,7 +29,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getAllOpeningIntents(): Map
     {
-        $query = new AllOpeningIntents($this->dGraphClient);
+        $query = new AllOpeningIntents($this->dGraphClient, $this->attributeResolver);
 
         return $query->getIntents();
     }

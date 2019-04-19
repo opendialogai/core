@@ -153,6 +153,7 @@ class ConversationEngineTest extends TestCase
     public function testDeterminingNextIntentsInMultiSceneConversation()
     {
         $userContext = $this->createUserContext('abc123a');
+        $userContext->addAttribute(new IntAttribute('test', 11));
 
         $this->utterance->setCallbackId('hello_bot');
         /* @var InterpreterServiceInterface $interpreterService */
