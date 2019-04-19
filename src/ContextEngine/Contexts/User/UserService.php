@@ -4,8 +4,9 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeCouldNotBeResolved;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -70,7 +71,7 @@ class UserService
                 try {
                     $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
-                } catch (AttributeCouldNotBeResolved $e) {
+                } catch (AttributeCouldNotBeResolvedException $e) {
                     // Simply skip attributes we can't deal with.
                     continue;
                 }
