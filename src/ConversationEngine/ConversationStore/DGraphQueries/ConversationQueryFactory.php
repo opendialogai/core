@@ -95,7 +95,7 @@ class ConversationQueryFactory
         ];
     }
 
-    private static function getConditionGraph()
+    public static function getConditionGraph()
     {
         return [
             Model::UID,
@@ -110,7 +110,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getSceneGraph()
+    public static function getSceneGraph()
     {
         return [
             Model::UID,
@@ -123,7 +123,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getParticipantGraph()
+    public static function getParticipantGraph()
     {
         return [
             Model::UID,
@@ -138,7 +138,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getIntentGraph()
+    public static function getIntentGraph()
     {
         return [
             Model::UID,
@@ -164,7 +164,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getActionGraph()
+    public static function getActionGraph()
     {
         return [
             Model::UID,
@@ -175,7 +175,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    private static function getInterpreterGraph()
+    public static function getInterpreterGraph()
     {
         return [
             Model::UID,
@@ -190,7 +190,7 @@ class ConversationQueryFactory
      * @param bool $clone
      * @return mixed
      */
-    private static function buildConversationFromDgraphData(array $data, AttributeResolver $attributeResolver, $clone = false)
+    public static function buildConversationFromDgraphData(array $data, AttributeResolver $attributeResolver, $clone = false)
     {
         $cm = new ConversationManager($data[Model::ID]);
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
@@ -229,33 +229,49 @@ class ConversationQueryFactory
         AttributeResolver $attributeResolver,
         bool $clone = false
     ) {
-        foreach ($conditions as $condition_attributes) {
-            $uid = $condition_attributes[Model::UID];
-            $id = $condition_attributes[Model::ID];
-            $context = $condition_attributes[Model::CONTEXT];
-            $attributeName = $condition_attributes[Model::ATTRIBUTE_NAME];
-            $attributeValue = $condition_attributes[Model::ATTRIBUTE_VALUE] === ''
-                ? null
-                : $condition_attributes[Model::ATTRIBUTE_VALUE];
-            $operation = $condition_attributes[Model::OPERATION];
-
-            if (array_key_exists($attributeName, $attributeResolver->getSupportedAttributes())) {
-                $attribute = $attributeResolver->getAttributeFor($attributeName, $attributeValue);
-                $condition = new Condition($attribute, $operation, $id);
-                $condition->setContextId($context);
-                if ($clone) {
-                    $condition->setUid($uid);
-                }
+        foreach ($conditions as $conditionData) {
+            $condition = self::createCondition($conditionData, $attributeResolver, $clone);
+            if (isset($condition)) {
                 $cm->addConditionToConversation($condition);
             }
         }
     }
 
     /**
+     * @param array $conditionData
+     * @param AttributeResolver $attributeResolver
+     * @param bool $clone
+     * @return Condition
+     */
+    public static function createCondition(array $conditionData, AttributeResolver $attributeResolver, bool $clone = false)
+    {
+        $uid = $conditionData[Model::UID];
+        $id = $conditionData[Model::ID];
+        $context = $conditionData[Model::CONTEXT];
+        $attributeName = $conditionData[Model::ATTRIBUTE_NAME];
+        $attributeValue = $conditionData[Model::ATTRIBUTE_VALUE] === ''
+            ? null
+            : $conditionData[Model::ATTRIBUTE_VALUE];
+        $operation = $conditionData[Model::OPERATION];
+
+        if (array_key_exists($attributeName, $attributeResolver->getSupportedAttributes())) {
+            $attribute = $attributeResolver->getAttributeFor($attributeName, $attributeValue);
+            $condition = new Condition($attribute, $operation, $id);
+            $condition->setContextId($context);
+            if ($clone) {
+                $condition->setUid($uid);
+            }
+            return $condition;
+        }
+
+        return null;
+    }
+
+    /**
      * @param ConversationManager $cm
      * @param $data
      */
-    private static function createScenesFromDgraphData(ConversationManager $cm, $data)
+    public static function createScenesFromDgraphData(ConversationManager $cm, $data)
     {
         foreach ($data[Model::HAS_OPENING_SCENE] as $openingScene) {
             $cm->createScene($openingScene[Model::ID], true);
@@ -274,7 +290,7 @@ class ConversationQueryFactory
      * @param bool $opening
      * @param bool $clone
      */
-    private static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $clone = false)
+    public static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $clone = false)
     {
         $scene = $cm->getScene($data[Model::ID]);
         $clone ? false : $scene->setUid($data[Model::UID]);
@@ -297,7 +313,7 @@ class ConversationQueryFactory
      * @param $data
      * @param bool $clone
      */
-    private static function updateParticipantFromDgraphData(
+    public static function updateParticipantFromDgraphData(
         $sceneId,
         Participant $participant,
         ConversationManager $cm,
