@@ -79,9 +79,10 @@ class UserService
         }
 
         if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
-            $conversation = ConversationQueryFactory::getConversationFromDgraph(
+            $conversation = ConversationQueryFactory::getConversationFromDgraphWithUid(
                 $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID],
-                $this->dGraphClient
+                $this->dGraphClient,
+                $this->attributeResolver
             );
 
             $user->setCurrentConversation($conversation);
@@ -278,14 +279,18 @@ class UserService
     public function getCurrentConversation($userId)
     {
         if ($this->userIsHavingConversation($userId)) {
-            $conversationId = $this->getOngoingConversationIdQuery(
+            $conversationUid = $this->getOngoingConversationIdQuery(
                 $userId
             )[0][Model::HAVING_CONVERSATION][0][Model::UID];
         } else {
             throw new NoOngoingConversationException();
         }
 
-        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationId, $this->dGraphClient);
+        $conversation = ConversationQueryFactory::getConversationFromDgraphWithUid(
+            $conversationUid,
+            $this->dGraphClient,
+            $this->attributeResolver
+        );
         return $conversation;
     }
 
