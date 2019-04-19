@@ -260,7 +260,7 @@ class Conversation extends Model
     {
         foreach ($conditions as $key => $condition) {
             try {
-                $conditionObject = $this->createCondition($condition[0]['condition']);
+                $conditionObject = $this->createCondition($condition['condition']);
                 $cm->addConditionToConversation($conditionObject);
             } catch (\Exception $e) {
                 Log::debug(

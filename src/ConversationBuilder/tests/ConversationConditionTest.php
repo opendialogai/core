@@ -48,8 +48,8 @@ class ConversationConditionTest extends TestCase
 
 
         $this->goodConditions = [
-          0 => [$this->userNameCondition],
-          1 => [$this->userTestCondition]
+          $this->userNameCondition,
+          $this->userTestCondition
         ];
 
         Conversation::create(['name' => 'Test Conversation', 'model' => 'conversation:']);
@@ -113,7 +113,7 @@ class ConversationConditionTest extends TestCase
         ];
 
         $conditionsToAdd = [
-            0 => [$unSupportedCondition],
+            $unSupportedCondition,
         ];
 
         Log::shouldReceive('debug')
@@ -133,7 +133,7 @@ class ConversationConditionTest extends TestCase
         ];
 
         $conditionsToAdd = [
-            0 => [$unSupportedCondition],
+            $unSupportedCondition,
         ];
 
         Log::shouldReceive('debug')
@@ -153,7 +153,7 @@ class ConversationConditionTest extends TestCase
         ];
 
         $conditionsToAdd = [
-            0 => [$unSupportedCondition],
+            $unSupportedCondition,
         ];
 
         Log::shouldReceive('debug')
@@ -174,7 +174,7 @@ class ConversationConditionTest extends TestCase
         ];
 
         $conditionsToAdd = [
-            0 => [$unSupportedCondition],
+            $unSupportedCondition,
         ];
 
         Log::shouldReceive('debug')
