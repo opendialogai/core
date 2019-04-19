@@ -33,21 +33,55 @@ class ConversationQueryFactory
      * @param DGraphClient $client
      * @return Conversation
      */
-    public static function getConversationFromDgraph(string $conversationUid, DGraphClient $client, $clone = false)
+    public static function getConversationFromDgraphWithUid(string $conversationUid, DGraphClient $client, $clone = false)
     {
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->uid($conversationUid)
-            ->setQueryGraph([
-                Model::UID,
-                Model::ID,
-                Model::EI_TYPE,
-                Model::HAS_OPENING_SCENE => self::getSceneGraph(),
-                Model::HAS_SCENE => self::getSceneGraph()
-            ]);
+            ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
         return self::buildConversationFromDgraphData($response, $clone);
+    }
+
+    /**
+     * This queries Dgraph and retrieves a rebuilt Conversation Object.
+     * @param string $conversationUid
+     * @param DGraphClient $client
+     * @return Conversation
+     */
+    public static function getConversationFromDgraphWithTemplateName(string $templateName, DGraphClient $client, $clone = false)
+    {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->eq('id', $templateName)
+            ->setQueryGraph(self::getConversationQueryGraph());
+
+        $response = $client->query($dGraphQuery)->getData()[0];
+        return self::buildConversationFromDgraphData($response, $clone);
+    }
+
+    /**
+     * @return array
+     */
+    public static function getConversationQueryGraph()
+    {
+        return [
+            Model::UID,
+            Model::ID,
+            Model::EI_TYPE,
+            Model::HAS_CONDITION => self::getConditionGraph(),
+            Model::HAS_OPENING_SCENE => self::getSceneGraph(),
+            Model::HAS_SCENE => self::getSceneGraph()
+        ];
+    }
+
+    private static function getConditionGraph()
+    {
+        return [
+            Model::UID,
+            'expand(_all_)'
+        ];
     }
 
     /**
@@ -136,6 +170,10 @@ class ConversationQueryFactory
         $cm = new ConversationManager($data[Model::ID]);
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
         $cm->getConversation()->setConversationType($data[Model::EI_TYPE]);
+
+        dd($data);
+        // Add any conversation level conditions
+        //self::createConversationConditions($cm, $data)
 
         // First create all the scenes
         self::createScenesFromDgraphData($cm, $data);

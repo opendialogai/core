@@ -20,6 +20,11 @@ class IntAttribute extends AbstractAttribute
         }
     }
 
+    public function getValue()
+    {
+        return intval(parent::getValue());
+    }
+
     /**
      * @param AttributeInterface $attribute
      * @param string $operation
