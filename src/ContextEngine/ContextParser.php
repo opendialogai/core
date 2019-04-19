@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ContextEngine;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 class ContextParser
 {
@@ -17,7 +18,7 @@ class ContextParser
 
         if (count($matches) == 1) {
             $attributeId = $matches[0];
-            $contextId = ContextService::UNDEFINED_CONTEXT;
+            $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
         }
     }
 }
