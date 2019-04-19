@@ -2,6 +2,15 @@
 
 namespace OpenDialogAi\ConversationBuilder;
 
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineAttributeException;
+use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
+use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineValidOperationException;
+use OpenDialogAi\ConversationBuilder\Exceptions\ConditionRequiresValueButDoesNotDefineItException;
+use OpenDialogAi\Core\Attribute\AbstractAttribute;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -97,6 +106,10 @@ class Conversation extends Model
         }
 
         $cm = new ConversationManager($yaml['id']);
+
+        if (isset($yaml['conditions'])) {
+            $this->addConversationConditions($yaml['conditions'], $cm);
+        }
 
         // Build the conversation in two steps. First all the scenes and then all the intents as
         // intents may connect between scenes.
@@ -237,6 +250,87 @@ class Conversation extends Model
         }
 
         return $intentNode;
+    }
+
+    /**
+     * @param array $conditions
+     * @param ConversationManager $cm
+     */
+    public function addConversationConditions(array $conditions, ConversationManager $cm)
+    {
+        foreach ($conditions as $key => $condition) {
+            try {
+                $conditionObject = $this->createCondition($condition[0]['condition']);
+                $cm->addConditionToConversation($conditionObject);
+            } catch (\Exception $e) {
+                Log::debug(
+                    sprintf(
+                        'Could not create condition because: %s',
+                        $e->getMessage()
+                    )
+                );
+            }
+        }
+    }
+
+    /**
+     * @param array $condition
+     * @return Condition
+     */
+    private function createCondition(array $condition)
+    {
+        $attributeName = isset($condition['attribute']) ? $condition['attribute'] : null;
+
+        // Confirm we have an attribute name to work with.
+        if (!isset($attributeName)) {
+            throw new ConditionDoesNotDefineAttributeException(
+                'Condition found in Yaml model without defined attribute name'
+            );
+        }
+
+        $attributeId = '';
+        $contextId = '';
+        ContextParser::determineContext($attributeName, $contextId, $attributeId);
+
+        // Check that we can actually turn this attribute name into a real attribute.
+        /* @var AttributeResolver $attributeResolver */
+        $attributeResolver = resolve(AttributeResolver::class);
+        if (!array_key_exists($attributeId, $attributeResolver->getSupportedAttributes())) {
+            throw new AttributeCouldNotBeResolvedException(
+                sprintf('Attribute %s could not be resolved', $attributeName)
+            );
+        }
+
+        $operation = isset($condition['operation']) ? $condition['operation'] : null;
+        $value = isset($condition['value']) ? $condition['value'] : null;
+
+        // Now check that we have a valid operation and a value if required for that operation.
+        if (isset($operation)) {
+            if (in_array($operation, AbstractAttribute::allowedAttributeOperations())) {
+                if (!in_array($operation, AbstractAttribute::operationsNotRequiringValue()) && !isset($value)) {
+                    throw new ConditionRequiresValueButDoesNotDefineItException(
+                        sprintf('Condition %s required a value but has not defined it', $attributeName)
+                    );
+                }
+            } else {
+                throw new ConditionDoesNotDefineValidOperationException(
+                    sprintf('Condition operation %s is not a valid operation', $operation)
+                );
+            }
+        } else {
+            throw new ConditionDoesNotDefineOperationException(
+                sprintf('Condition %s does not define an operation', $condition['attribute'])
+            );
+        }
+
+        $attribute = $attributeResolver->getAttributeFor($attributeId, $value);
+
+        // Now we can create the condition - we set an id as a helper
+        $id = sprintf('%s|%s|%s', $attributeName, $operation, $value);
+        $condition = new Condition($attribute, $operation, $id);
+        $condition->setContextId($contextId);
+        Log::debug('Created condition from Yaml.');
+        return $condition;
     }
 
 }

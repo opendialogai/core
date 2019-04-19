@@ -18,6 +18,9 @@ class Condition extends Node implements ConditionInterface
 {
     use ConditionTrait;
 
+    /* @var AttributeInterface $attributeToCompareAgainst */
+    private $attributeToCompareAgainst;
+
     public function __construct(AttributeInterface $attributeToCompareAgainst, $evaluationOperation, $id = null)
     {
         parent::__construct($id);
@@ -25,7 +28,34 @@ class Condition extends Node implements ConditionInterface
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONDITION));
 
         $this->addAttribute($attributeToCompareAgainst);
+        $this->attributeToCompareAgainst = $attributeToCompareAgainst;
+        $this->addAttribute(new StringAttribute(Model::OPERATION, $evaluationOperation));
         $this->evaluationOperation = $evaluationOperation;
+    }
+
+    /**
+     * @return AttributeInterface
+     */
+    public function getAttributeToCompareAgainst(): AttributeInterface
+    {
+        return $this->attributeToCompareAgainst;
+    }
+
+
+    /**
+     * @param string $contextId
+     */
+    public function setContextId(string $contextId)
+    {
+        $this->addAttribute(new StringAttribute(Model::CONTEXT, $contextId));
+    }
+
+    /**
+     * @return string
+     */
+    public function getContextId() : string
+    {
+        return $this->getAttribute(Model::CONTEXT)->getValue();
     }
 
     /**

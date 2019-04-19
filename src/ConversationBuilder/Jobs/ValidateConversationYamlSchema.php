@@ -40,6 +40,7 @@ class ValidateConversationYamlSchema implements ShouldQueue
      * We are checking whether the conversation model is valid YAML.
      *
      * @return void
+     * @throws \ReflectionException
      */
     public function handle()
     {
