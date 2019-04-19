@@ -55,6 +55,8 @@ class Model
     const CONFIDENCE = 'core.attribute.confidence';
     const CONTEXT = 'context';
     const OPERATION = 'operation';
+    const ATTRIBUTE_NAME = 'attribute_name';
+    const ATTRIBUTE_VALUE = 'attribute_value';
 
     const TRANSITIONS_TO = 'transitions_to';
     const TRANSITIONS_FROM = 'transitions_from';

@@ -83,22 +83,23 @@ class ConversationConditionTest extends TestCase
             $attribute = $condition->getAttributeToCompareAgainst();
             $this->assertTrue(in_array($attribute->getId(), ['name', 'test']));
 
-            if ($condition->getId() == 'user.name|is_set|') {
+            if ($condition->getId() == 'user.name-is_set-') {
                 $this->assertInstanceOf(StringAttribute::class, $condition->getAttributeToCompareAgainst());
                 $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === null);
-                $this->assertTrue($condition->getAttribute('name')->getValue() === null);
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'name');
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === null);
                 $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::IS_SET);
                 $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::IS_SET);
             }
 
-            if ($condition->getId() == 'user.test|gt|10') {
+            if ($condition->getId() == 'user.test-gt-10') {
                 $this->assertInstanceOf(IntAttribute::class, $condition->getAttributeToCompareAgainst());
                 $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === 10);
-                $this->assertTrue($condition->getAttribute('test')->getValue() === 10);
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === 10);
+                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'test');
                 $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::GREATER_THAN);
                 $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::GREATER_THAN);
             }
-
         }
     }
 

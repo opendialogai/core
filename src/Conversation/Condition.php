@@ -10,6 +10,7 @@ use OpenDialogAi\Core\Attribute\Condition\ConditionInterface;
 use OpenDialogAi\Core\Attribute\Condition\ConditionTrait;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
+use Spatie\String\Str;
 
 /**
  * @see ConditionInterface
@@ -26,10 +27,11 @@ class Condition extends Node implements ConditionInterface
         parent::__construct($id);
         $this->attributes = new Map();
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONDITION));
-
-        $this->addAttribute($attributeToCompareAgainst);
-        $this->attributeToCompareAgainst = $attributeToCompareAgainst;
+        $this->addAttribute(new StringAttribute(Model::ATTRIBUTE_NAME, $attributeToCompareAgainst->getId()));
+        $this->addAttribute(new StringAttribute(Model::ATTRIBUTE_VALUE, $attributeToCompareAgainst->getValue()));
         $this->addAttribute(new StringAttribute(Model::OPERATION, $evaluationOperation));
+
+        $this->attributeToCompareAgainst = $attributeToCompareAgainst;
         $this->evaluationOperation = $evaluationOperation;
     }
 
