@@ -32,6 +32,20 @@ To run code sniffer, run the following command
 
 This will ignore all files inside of migration directories as they will never have a namespace
 
+## Git Hooks
+
+To set up the included git pre-commit hook, first make sure the pre-commit script is executable by running
+
+```chmod +x .githooks/pre-commit```
+
+Then configure your local git to use this directory for git hooks by running:
+
+```git config core.hooksPath .githooks/```
+
+Now every commit you make will trigger php codesniffer to run. If there is a problem with the formatting
+of the code, the script will echo the output of php codesniffer. If there are no issues, the commit will
+go into git.
+
 ## Running Tests
 
 ```./vendor/bin/phpunit```
