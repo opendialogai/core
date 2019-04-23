@@ -17,6 +17,10 @@ class CoreServiceProvider extends ServiceProvider
             __DIR__ . '/../config/opendialog.php' => base_path('config/opendialog.php')
         ], 'config');
 
+        $this->publishes([
+            __DIR__ . '/../dgraph' => base_path('dgraph')
+        ], 'dgraph');
+
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
