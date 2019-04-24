@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Conversation;
-
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -10,7 +8,6 @@ use OpenDialogAi\Core\Attribute\Condition\ConditionInterface;
 use OpenDialogAi\Core\Attribute\Condition\ConditionTrait;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
-use Spatie\String\Str;
 
 /**
  * @see ConditionInterface
@@ -54,11 +51,23 @@ class Condition extends Node implements ConditionInterface
     }
 
     /**
+     * Gets the context id part of the condition
+     *
      * @return string
      */
     public function getContextId() : string
     {
         return $this->getAttribute(Model::CONTEXT)->getValue();
+    }
+
+    /**
+     * Gets the attribute name part of the condition
+     *
+     * @return string
+     */
+    public function getAttributeName(): string
+    {
+        return $this->getAttribute(Model::ATTRIBUTE_NAME)->getValue();
     }
 
     /**

@@ -1,25 +1,28 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine;
 
-
 use Ds\Map;
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
+use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 
 class ConversationEngine implements ConversationEngineInterface
 {
@@ -89,9 +92,10 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Intent
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws FieldNotSupported
+     * @throws ActionNotAvailableException
      */
     public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
     {
@@ -119,9 +123,10 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws FieldNotSupported
+     * @throws ActionNotAvailableException
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -166,9 +171,9 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws GuzzleException
+     * @throws ActionNotAvailableException
+     * @throws NodeDoesNotExistException
      */
     public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance)
     {
@@ -251,7 +256,7 @@ class ConversationEngine implements ConversationEngineInterface
             // pretend we received a no match intent.
             Log::debug('No matching intent, moving conversation to past state');
             $userContext->moveCurrentConversationToPast();
-            Log::debug('No match found, droping out of current conversation.');
+            Log::debug('No match found, dropping out of current conversation.');
             //@todo This should be an exception
             return null;
         }
@@ -265,8 +270,9 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws ActionNotAvailableException
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -323,7 +329,6 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var OpeningIntent $validIntent */
         foreach ($validOpeningIntents as $key => $validIntent) {
-            // If we have an interpreter use that to interpret.
             if ($validIntent->hasInterpreter()) {
                 $intentsFromInterpreter = $this->interpreterService
                     ->getInterpreter($validIntent->getInterpreter())
@@ -331,18 +336,12 @@ class ConversationEngine implements ConversationEngineInterface
 
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
                 foreach ($intentsFromInterpreter as $interpretedIntent) {
-                    // For an intent to "pass" it has to match and have a higher or equal confidence to the interpreted one
-                    if (
-                        $interpretedIntent->getId() === $validIntent->getIntentId() &&
-                        $interpretedIntent->getConfidence() >= $validIntent->getConfidence()) {
-                        // If it is a match add it to the matching intents.
+                    if ($this->intentHasEnoughConfidence($interpretedIntent, $validIntent)) {
                         $matchingIntents->put($validIntent->getIntentId(), $validIntent);
                     }
                 }
             } else {
-                // If we don't have a custom interpreter just check if it is a match to the default intent.
-                if ($defaultIntent->getId() === $validIntent->getIntentId() &&
-                    $defaultIntent->getConfidence() >= $validIntent->getConfidence()) {
+                if ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
                     $matchingIntents->put($validIntent->getIntentId(), $validIntent);
                 }
             }
@@ -367,13 +366,11 @@ class ConversationEngine implements ConversationEngineInterface
 
                 /* @var Condition $condition */
                 foreach ($conditions as $condition) {
-                    // Get the actual attribute
-                    $attributeName = $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue();
-                    $attributeContext = $condition->getAttribute(Model::CONTEXT)->getValue();
+                    $attributeName = $condition->getAttributeName();
 
                     try {
-                        $actualAttribute = $this->contextService->getAttribute($attributeName, $attributeContext);
-                    } catch (\Exception $e) {
+                        $actualAttribute = $this->contextService->getAttribute($attributeName, $condition->getContextId());
+                    } catch (Exception $e) {
                         Log::debug($e->getMessage());
                         // If the attribute does not exist create one with a null value since we may be testing
                         // for its existence.
@@ -402,11 +399,23 @@ class ConversationEngine implements ConversationEngineInterface
      */
     private function storeIntentEntities(Intent $intent, UserContext $context)
     {
+        /** @var AttributeInterface $attribute */
         foreach ($intent->getNonCoreAttributes() as $attribute) {
             Log::debug(sprintf('Storing attribute %s for user', $attribute->getId()));
             $context->addAttribute($attribute);
         }
 
         $context->updateUser();
+    }
+
+    /**
+     * @param Intent $interpretedIntent
+     * @param OpeningIntent $validIntent
+     * @return bool
+     */
+    private function intentHasEnoughConfidence(Intent $interpretedIntent, OpeningIntent $validIntent): bool
+    {
+        return $interpretedIntent->getId() === $validIntent->getIntentId() &&
+            $interpretedIntent->getConfidence() >= $validIntent->getConfidence();
     }
 }

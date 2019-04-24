@@ -4,6 +4,11 @@ namespace OpenDialogAi\ConversationBuilder;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int conversation_id
+ * @property string type
+ * @property string message
+ */
 class ConversationStateLog extends Model
 {
     protected $fillable = [

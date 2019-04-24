@@ -47,26 +47,24 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             // Iterate over the conditions and ensure that all pass.
             $conditionsPass = true;
             foreach ($conditions as $condition) {
-                $attributeName = '';
-                $attributeContext = '';
+                list($contextId, $attributeId) = ContextParser::determineContext($condition['attributeName']);
 
-                ContextParser::determineContext($condition['attributeName'], $attributeContext, $attributeName);
                 // If we encounter an attribute that we wouldn't know how to resolve we will need to
                 // bail now and fail the message.
-                if (!$this->attributeResolver->isAttributeSupported($attributeName)) {
+                if (!$this->attributeResolver->isAttributeSupported($attributeId)) {
                     $conditionsPass = false;
                 }
 
                 /* @var AttributeInterface $conditionAttribute */
                 $conditionAttribute = $this->attributeResolver->getAttributeFor(
-                    $attributeName,
+                    $attributeId,
                     $condition[MessageTemplate::ATTRIBUTE_VALUE]
                 );
 
                 /* @var Condition $conditionObject */
                 $conditionObject = new Condition($conditionAttribute, $condition[MessageTemplate::OPERATION]);
 
-                $attributeToCompareAgainst = $this->contextService->getAttribute($attributeName, $attributeContext);
+                $attributeToCompareAgainst = $this->contextService->getAttribute($attributeId, $contextId);
 
                 if (!$conditionObject->compareAgainst($attributeToCompareAgainst)) {
                     $conditionsPass = false;
@@ -102,9 +100,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $matchCount = preg_match_all("(\{(.*?)\})", $text, $matches, PREG_PATTERN_ORDER);
         if ($matchCount > 0) {
             foreach ($matches[1] as $attributeId) {
-                $attributeName = '';
-                $contextId = '';
-                ContextParser::determineContext($attributeId, $contextId, $attributeName);
+                list($contextId, $attributeName) = ContextParser::determineContext($attributeId);
                 $attribute = $this->contextService->getAttribute($attributeName, $contextId);
                 $text = str_replace('{' . $attributeId . '}', $attribute->getValue(), $text);
             }

@@ -4,6 +4,7 @@
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -36,6 +37,7 @@ class DGraphClient
      */
     public function dropSchema()
     {
+        Log::debug("Dropping DGraph schema");
         return $this->alter('{"drop_all": true}');
     }
 
@@ -51,6 +53,7 @@ class DGraphClient
 
     public function query(DGraphQuery $query)
     {
+        Log::debug(sprintf("Running DGraph query: %s", $query));
         $response = $this->client->request(
             'POST',
             self::QUERY,
@@ -62,11 +65,14 @@ class DGraphClient
 
     public function tripleMutation(DGraphMutation $mutation)
     {
+        $tripleMutation = $mutation->prepareTripleMutation();
+        Log::debug(sprintf("Running DGraph triple mutation: %s", $tripleMutation));
+
         $response = $this->client->request(
             'POST',
             self::MUTATE,
             [
-                'body' => $mutation->prepareTripleMutation(),
+                'body' => $tripleMutation,
                 'headers' => [
                     'X-Dgraph-CommitNow' => 'true',
                 ]
@@ -77,11 +83,14 @@ class DGraphClient
 
     public function jsonMutation(DGraphMutation $mutation)
     {
+        $jsonMutation = $mutation->prepareJsonMutation();
+        Log::debug(sprintf("Running DGraph json mutation: %s", $jsonMutation));
+
         $response = $this->client->request(
             'POST',
             self::MUTATE,
             [
-                'body' => $mutation->prepareJsonMutation(),
+                'body' => $jsonMutation,
                 'headers' => [
                     'X-Dgraph-CommitNow' => 'true',
                     'X-Dgraph-MutationType' => 'json'
@@ -96,6 +105,8 @@ class DGraphClient
 
     public function alter(string $alter)
     {
+        $this->logMessage(sprintf("DGraph alter: %s", $alter));
+
         $response = $this->client->request(
             'POST',
             self::ALTER,
@@ -139,7 +150,7 @@ class DGraphClient
      * @param $node2Uid
      * @param $relationship
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function deleteRelationship($node1Uid, $node2Uid, $relationship)
     {
@@ -168,7 +179,7 @@ class DGraphClient
      * @param $node2Uid
      * @param $relationship
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function createRelationship($node1Uid, $node2Uid, $relationship)
     {
@@ -241,5 +252,17 @@ class DGraphClient
             <says_across_scenes>: uid @reverse .
             <listens_for_across_scenes>: uid @reverse .
         ";
+    }
+
+    /**
+     * Logs a message if the config is set to true
+     *
+     * @param $message
+     */
+    private function logMessage($message): void
+    {
+        if (config("opendialog.LOG_DGRAPH_QUERIES")) {
+            Log::debug("DGRAPH QUERY : " . $message);
+        }
     }
 }

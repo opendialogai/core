@@ -79,6 +79,7 @@ class ContextService
 
     /**
      * @param string $attributeId
+     * @param string $contextId
      * @return AttributeInterface
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface

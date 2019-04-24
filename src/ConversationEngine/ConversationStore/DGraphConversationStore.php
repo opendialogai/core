@@ -1,16 +1,13 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
-
 
 use Ds\Map;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\AllOpeningIntents;
-use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use PHPUnit\Framework\Constraint\Attribute;
 
 class DGraphConversationStore implements ConversationStoreInterface
 {
@@ -40,7 +37,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getConversation($conversationId): Conversation
     {
-        $conversation = ConversationQueryFactory::getConversationFromDgraphWithUid(
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationId,
             $this->dGraphClient,
             $this->attributeResolver,
@@ -56,7 +53,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getConversationTemplate($conversationTemplateName): Conversation
     {
-        $conversation = ConversationQueryFactory::getConversationFromDgraphWithTemplateName(
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
             $conversationTemplateName,
             $this->dGraphClient,
             $this->attributeResolver,

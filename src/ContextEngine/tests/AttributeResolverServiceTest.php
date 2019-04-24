@@ -1,9 +1,9 @@
 <?php
 
-namespace OpenDialogAi\ContextManager\Tests;
+namespace OpenDialogAi\ContextEngine\Tests;
 
-use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 

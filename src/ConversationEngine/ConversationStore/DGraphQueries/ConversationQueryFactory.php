@@ -3,10 +3,10 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
-
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
@@ -14,10 +14,12 @@ use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Participant;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
-use PHPUnit\Framework\Constraint\Attribute;
 
 /**
- * Helper methods for forming queries to extract information from Dgraph.
+ * Helper methods for forming queries to extract information from DGraph.
+ *
+ * TODO this isn't a query factory as its actually running the queries.
+ * TODO Move the running of the queries into the conversation store
  */
 class ConversationQueryFactory
 {
@@ -35,7 +37,6 @@ class ConversationQueryFactory
         return $response;
     }
 
-
     /**
      * @param string $conversationUid
      * @param DGraphClient $client
@@ -43,7 +44,7 @@ class ConversationQueryFactory
      * @param bool $clone
      * @return Conversation
      */
-    public static function getConversationFromDgraphWithUid(
+    public static function getConversationFromDGraphWithUid(
         string $conversationUid,
         DGraphClient $client,
         AttributeResolver $attributeResolver,
@@ -55,7 +56,7 @@ class ConversationQueryFactory
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDgraphData($response, $attributeResolver, $clone);
+        return self::buildConversationFromDGraphData($response, $attributeResolver, $clone);
     }
 
     /**
@@ -65,7 +66,7 @@ class ConversationQueryFactory
      * @param bool $clone
      * @return Conversation
      */
-    public static function getConversationFromDgraphWithTemplateName(
+    public static function getConversationFromDGraphWithTemplateName(
         string $templateName,
         DGraphClient $client,
         AttributeResolver $attributeResolver,
@@ -77,7 +78,7 @@ class ConversationQueryFactory
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDgraphData($response, $attributeResolver, $clone);
+        return self::buildConversationFromDGraphData($response, $attributeResolver, $clone);
     }
 
     /**
@@ -190,7 +191,7 @@ class ConversationQueryFactory
      * @param bool $clone
      * @return mixed
      */
-    public static function buildConversationFromDgraphData(array $data, AttributeResolver $attributeResolver, $clone = false)
+    public static function buildConversationFromDGraphData(array $data, AttributeResolver $attributeResolver, $clone = false)
     {
         $cm = new ConversationManager($data[Model::ID]);
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
@@ -202,15 +203,15 @@ class ConversationQueryFactory
         }
 
         // First create all the scenes
-        self::createScenesFromDgraphData($cm, $data);
+        self::createScenesFromDGraphData($cm, $data);
 
         // Now populate the scenes with data.
-        self::createSceneFromDgraphData($cm, $data[Model::HAS_OPENING_SCENE][0], $clone);
+        self::createSceneFromDGraphData($cm, $data[Model::HAS_OPENING_SCENE][0], $clone);
 
         // Cycle through all the other scenes and set those up as well.
         if (isset($data[Model::HAS_SCENE])) {
             foreach ($data[Model::HAS_SCENE] as $scene) {
-                self::createSceneFromDgraphData($cm, $scene, $clone);
+                self::createSceneFromDGraphData($cm, $scene, $clone);
             }
         }
 
@@ -271,7 +272,7 @@ class ConversationQueryFactory
      * @param ConversationManager $cm
      * @param $data
      */
-    public static function createScenesFromDgraphData(ConversationManager $cm, $data)
+    public static function createScenesFromDGraphData(ConversationManager $cm, $data)
     {
         foreach ($data[Model::HAS_OPENING_SCENE] as $openingScene) {
             $cm->createScene($openingScene[Model::ID], true);
@@ -287,21 +288,20 @@ class ConversationQueryFactory
     /**
      * @param ConversationManager $cm
      * @param $data
-     * @param bool $opening
      * @param bool $clone
      */
-    public static function createSceneFromDgraphData(ConversationManager $cm, $data, bool $clone = false)
+    public static function createSceneFromDGraphData(ConversationManager $cm, $data, bool $clone = false)
     {
         $scene = $cm->getScene($data[Model::ID]);
         $clone ? false : $scene->setUid($data[Model::UID]);
         $clone ? false: $scene->getUser()->setUid($data[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
         $clone ? false: $scene->getBot()->setUid($data[Model::HAS_BOT_PARTICIPANT][0][Model::UID]);
 
-        self::updateParticipantFromDgraphData(
+        self::updateParticipantFromDGraphData(
             $scene->getId(), $scene->getUser(), $cm, $data[Model::HAS_USER_PARTICIPANT][0], $clone
         );
 
-        self::updateParticipantFromDgraphData(
+        self::updateParticipantFromDGraphData(
             $scene->getId(), $scene->getBot(), $cm, $data[Model::HAS_BOT_PARTICIPANT][0], $clone
         );
     }
@@ -313,7 +313,7 @@ class ConversationQueryFactory
      * @param $data
      * @param bool $clone
      */
-    public static function updateParticipantFromDgraphData(
+    public static function updateParticipantFromDGraphData(
         $sceneId,
         Participant $participant,
         ConversationManager $cm,

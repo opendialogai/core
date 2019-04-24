@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use Ds\Map;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -99,6 +98,8 @@ class Intent extends Node
             if (!in_array($key, self::$coreAttributes)) {
                 return true;
             }
+
+            return false;
         });
     }
 

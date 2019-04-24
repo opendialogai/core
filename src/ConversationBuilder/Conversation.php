@@ -2,6 +2,9 @@
 
 namespace OpenDialogAi\ConversationBuilder;
 
+use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
@@ -9,25 +12,34 @@ use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineAttributeE
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineValidOperationException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionRequiresValueButDoesNotDefineItException;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
+use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
-use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Action;
+use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
-use OpenDialogAi\ConversationBuilder\ConversationStateLog;
-use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
-use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
-use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
-use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\Model;
+use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @property string status
+ * @property string yaml_validation_status
+ * @property string yaml_schema_validation_status
+ * @property string scenes_validation_status
+ * @property string model_validation_status
+ * @property mixed model
+ * @property int id
+ * @property string name
+ */
 class Conversation extends Model
 {
     use LogsActivity;
@@ -65,6 +77,7 @@ class Conversation extends Model
 
     /**
      * Override save to add our validation jobs.
+     * @param array $options
      */
     public function save(array $options = [])
     {
@@ -85,9 +98,9 @@ class Conversation extends Model
         // Create validation jobs.
         if ($doValidation) {
             ValidateConversationYaml::dispatch($this)->chain([
-              new ValidateConversationYamlSchema($this),
-              new ValidateConversationScenes($this),
-              new ValidateConversationModel($this)
+                new ValidateConversationYamlSchema($this),
+                new ValidateConversationScenes($this),
+                new ValidateConversationModel($this)
             ]);
         }
     }
@@ -95,14 +108,15 @@ class Conversation extends Model
     /**
      * Build the conversation's representation.
      *
-     * @return OpenDialogAi\Core\Conversation\Conversation
+     * @return ConversationNode
      */
     public function buildConversation()
     {
         try {
             $yaml = Yaml::parse($this->model)['conversation'];
         } catch (ParseException $exception) {
-            Log::debug('Could not parse converation yaml!');
+            Log::error('Could not parse conversation yaml!');
+            throw $exception;
         }
 
         $cm = new ConversationManager($yaml['id']);
@@ -155,9 +169,10 @@ class Conversation extends Model
     /**
      * Publish the conversation to DGraph.
      *
+     * @param ConversationNode $conversation
      * @return bool
      */
-    public function publishConversation(\OpenDialogAi\Core\Conversation\Conversation $conversation)
+    public function publishConversation(ConversationNode $conversation)
     {
         $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
         $mutation = new DGraphMutation($conversation);
@@ -169,7 +184,6 @@ class Conversation extends Model
             $this->status = 'published';
             $this->save(['validate' => false]);
 
-            // Add log message.
             ConversationStateLog::create([
                 'conversation_id' => $this->id,
                 'message' => 'Published conversation to DGraph.',
@@ -185,6 +199,7 @@ class Conversation extends Model
     /**
      * Unpublish the conversation from DGraph.
      *
+     * @param bool $reValidate
      * @return bool
      */
     public function unPublishConversation($reValidate = true)
@@ -211,6 +226,8 @@ class Conversation extends Model
 
     /**
      * @param $intent
+     * @param $speaker
+     * @param $intentSceneId
      * @return Intent
      */
     private function createIntent($intent, &$speaker, &$intentSceneId)
@@ -262,7 +279,7 @@ class Conversation extends Model
             try {
                 $conditionObject = $this->createCondition($condition['condition']);
                 $cm->addConditionToConversation($conditionObject);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::debug(
                     sprintf(
                         'Could not create condition because: %s',
@@ -288,11 +305,8 @@ class Conversation extends Model
             );
         }
 
-        $attributeId = '';
-        $contextId = '';
-        ContextParser::determineContext($attributeName, $contextId, $attributeId);
+        list($contextId, $attributeId) = ContextParser::determineContext($attributeName);
 
-        // Check that we can actually turn this attribute name into a real attribute.
         /* @var AttributeResolver $attributeResolver */
         $attributeResolver = resolve(AttributeResolver::class);
         if (!array_key_exists($attributeId, $attributeResolver->getSupportedAttributes())) {
