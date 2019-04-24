@@ -67,6 +67,21 @@ class WebchatSensor extends BaseSensor
                 return $utterance;
                 break;
 
+            case 'button_response':
+                Log::debug('Received webchat button_response message.');
+                $utterance = new WebchatTriggerUtterance();
+                $utterance->setCallbackId($request['content']['data']['callback_id']);
+                Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
+                $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['content']['user']));
+                }
+                if (isset($request['content']['data']['value'])) {
+                    $utterance->setValue($request['content']['data']['value']);
+                }
+                return $utterance;
+                break;
+
             default:
                 Log::debug("Received unknown webchat message type {$request['content']['type']}.");
                 throw new UtteranceUnknownMessageType('Unknown Webchat Message Type.');
