@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatAttributeMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
@@ -152,5 +153,12 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         ];
 
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
+
+    public function testWebChatAttributeMessage()
+    {
+        $message = new WebChatAttributeMessage();
+        $message->setText('This is a test, this is only a test.');
+        $this->assertEquals('This is a test, this is only a test.', $message->getText());
     }
 }

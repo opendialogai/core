@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatAttributeMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
@@ -55,6 +56,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     case 'text-message':
                         $template = ['text' => (string) $item];
                         $messages[] = $this->generateTextMessage($template);
+                        break;
+                    case 'attribute-message':
+                        $template = ['text' => (string) $item];
+                        $messages[] = $this->generateAttributeMessage($template);
                         break;
                 }
             }
@@ -112,6 +117,13 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     {
         $text = $this->responseEngineService->fillAttributes($template['text']);
         $message = (new WebChatMessage())->setText($text);
+        return $message;
+    }
+
+    public function generateAttributeMessage(array $template)
+    {
+        $text = $this->responseEngineService->fillAttributes($template['text']);
+        $message = (new WebChatAttributeMessage())->setText($text);
         return $message;
     }
 }
