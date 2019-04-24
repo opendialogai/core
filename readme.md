@@ -60,3 +60,6 @@ You will need to set the DGraph URL and port in your .env file, e.g.:
 DGRAPH_URL=http://10.0.2.2
 DGRAPH_PORT=8080
 ```
+
+### Query Logging
+

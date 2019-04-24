@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
  */
 class DGraphClient
 {
-    /** @var \GuzzleHttp\Client */
+    /** @var Client */
     protected $client;
 
     /** @var string */
@@ -37,7 +37,6 @@ class DGraphClient
      */
     public function dropSchema()
     {
-        Log::debug("Dropping DGraph schema");
         return $this->alter('{"drop_all": true}');
     }
 
@@ -53,11 +52,12 @@ class DGraphClient
 
     public function query(DGraphQuery $query)
     {
-        Log::debug(sprintf("Running DGraph query: %s", $query));
+        $prepared = $query->prepare();
+        $this->logMessage(sprintf("Running DGraph query: %s", $prepared));
         $response = $this->client->request(
             'POST',
             self::QUERY,
-            ['body' => $query->prepare()]
+            ['body' => $prepared]
         );
 
         return new DGraphQueryResponse($response);
@@ -66,7 +66,7 @@ class DGraphClient
     public function tripleMutation(DGraphMutation $mutation)
     {
         $tripleMutation = $mutation->prepareTripleMutation();
-        Log::debug(sprintf("Running DGraph triple mutation: %s", $tripleMutation));
+        $this->logMessage(sprintf("Running DGraph triple mutation: %s", $tripleMutation));
 
         $response = $this->client->request(
             'POST',
@@ -84,7 +84,7 @@ class DGraphClient
     public function jsonMutation(DGraphMutation $mutation)
     {
         $jsonMutation = $mutation->prepareJsonMutation();
-        Log::debug(sprintf("Running DGraph json mutation: %s", $jsonMutation));
+        $this->logMessage(sprintf("Running DGraph json mutation: %s", $jsonMutation));
 
         $response = $this->client->request(
             'POST',
@@ -212,7 +212,6 @@ class DGraphClient
     private function prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
     {
         $statement = sprintf('{ delete { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
-        Log::debug($statement);
         return $statement;
     }
 
@@ -225,7 +224,6 @@ class DGraphClient
     private function prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
     {
         $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
-        Log::debug($statement);
         return $statement;
     }
     
@@ -261,8 +259,8 @@ class DGraphClient
      */
     private function logMessage($message): void
     {
-        if (config("opendialog.LOG_DGRAPH_QUERIES")) {
-            Log::debug("DGRAPH QUERY : " . $message);
+        if (config("opendialog.core.LOG_DGRAPH_QUERIES")) {
+            Log::info("DGRAPH QUERY : " . trim(preg_replace('/\s+/', ' ', $message)));
         }
     }
 }

@@ -3,11 +3,10 @@
 
 namespace OpenDialogAi\Core\Graph\DGraph;
 
-
 use Ds\Map;
-use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Graph\Search\DFS;
@@ -60,7 +59,6 @@ class DGraphMutation
             $mutationStatement .= $this->attributeStatement($startingNode) . "\r\n";
             $mutationStatement .= $this->relationshipStatement($startingNode) . "\r\n";
         });
-        Log::debug($mutationStatement . "}}");
         return $mutationStatement . "}}";
     }
 
@@ -74,7 +72,6 @@ class DGraphMutation
     private function attributeStatement(Node $node)
     {
         $attributeStatement = [];
-        $id = '';
         $update = false;
 
         $id = $node->uidIsSet() ? $node->getUid() : $node->getId();
@@ -122,8 +119,6 @@ class DGraphMutation
             foreach ($edgeSet->getEdges() as $edge) {
                 $updateFrom = false;
                 $updateTo = false;
-                $fromId = '';
-                $toId = '';
 
                 // Determine what IDs to use based on whether the nodes have uids set or not.
                 $fromId = $node->uidIsSet() ? $node->getUid() : $node->getId();
@@ -154,7 +149,7 @@ class DGraphMutation
      * @param string $subject
      * @param string $predicate
      * @param string $object
-     * @param bool $relationship
+     * @param bool $update
      * @return string
      */
     private function prepareAttributeTriple($subject, $predicate, $object, bool $update = false)
