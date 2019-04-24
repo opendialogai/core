@@ -238,6 +238,10 @@ class Node
         return $nodes;
     }
 
+    /**
+     * @param array $relationships
+     * @return Map
+     */
     public function getNodesConnectedByOutgoingRelationships(array $relationships)
     {
         $nodes = new Map();

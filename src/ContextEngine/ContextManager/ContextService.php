@@ -13,8 +13,6 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService
 {
-    const UNDEFINED_CONTEXT = 'undefined_context';
-
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
 
@@ -81,6 +79,7 @@ class ContextService
 
     /**
      * @param string $attributeId
+     * @param string $contextId
      * @return AttributeInterface
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface

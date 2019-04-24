@@ -28,6 +28,8 @@ abstract class AbstractAttribute implements AttributeInterface
     const IS_TRUE = 'is_true';
     const IS_FALSE = 'is_false';
 
+    const UNDEFINED_CONTEXT = 'undefined_context';
+
     /* @var string $id - a unique id for this attribute class. */
     protected $id;
 
@@ -49,6 +51,39 @@ abstract class AbstractAttribute implements AttributeInterface
         $this->id = $id;
         $this->value = $value;
         $this->checkAndAssignType($type);
+    }
+
+    /**
+     * @return array
+     */
+    public static function allowedAttributeOperations()
+    {
+        return [
+            self::EQUIVALENCE,
+            self::GREATER_THAN,
+            self::LESS_THAN,
+            self::GREATER_THAN_OR_EQUAL,
+            self::LESS_THAN_OR_EQUAL,
+            self::IN_SET,
+            self::NOT_IN_SET,
+            self::IS_SET,
+            self::IS_NOT_SET,
+            self::IS_TRUE,
+            self::IS_FALSE
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function operationsNotRequiringValue()
+    {
+        return [
+            self::IS_FALSE,
+            self::IS_TRUE,
+            self::IS_SET,
+            self::IS_NOT_SET
+        ];
     }
 
     /**

@@ -11,7 +11,7 @@ class ConversationObserver
     /**
      * Handle the conversation "created" event.
      *
-     * @param  \OpenDialogAiConversationBuilder\Conversation  $conversation
+     * @param  Conversation  $conversation
      * @return void
      */
     public function created(Conversation $conversation)
@@ -22,7 +22,7 @@ class ConversationObserver
     /**
      * Handle the conversation "updated" event.
      *
-     * @param  \OpenDialogAiConversationBuilder\Conversation  $conversation
+     * @param  Conversation  $conversation
      * @return void
      */
     public function updated(Conversation $conversation)
@@ -33,7 +33,7 @@ class ConversationObserver
     /**
      * Handle the conversation "deleted" event.
      *
-     * @param  \OpenDialogAiConversationBuilder\Conversation  $conversation
+     * @param  Conversation  $conversation
      * @return void
      */
     public function deleted(Conversation $conversation)
@@ -51,7 +51,7 @@ class ConversationObserver
     /**
      * Handle the conversation "restored" event.
      *
-     * @param  \OpenDialogAiConversationBuilder\Conversation  $conversation
+     * @param  Conversation  $conversation
      * @return void
      */
     public function restored(Conversation $conversation)
@@ -62,7 +62,7 @@ class ConversationObserver
     /**
      * Handle the conversation "force deleted" event.
      *
-     * @param  \OpenDialogAiConversationBuilder\Conversation  $conversation
+     * @param  Conversation  $conversation
      * @return void
      */
     public function forceDeleted(Conversation $conversation)

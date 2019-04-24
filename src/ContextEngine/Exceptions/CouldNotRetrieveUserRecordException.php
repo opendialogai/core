@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OpenDialogAi\ContextEngine\Contexts\User;
+namespace OpenDialogAi\ContextEngine\Exceptions;
 
 
 class CouldNotRetrieveUserRecordException extends \RuntimeException
