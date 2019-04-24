@@ -7,8 +7,9 @@ use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
@@ -21,7 +22,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     /**
      * @inheritdoc
      */
-    public function getMessageForIntent(string $intentName) : array
+    public function getMessageForIntent(string $intentName): array
     {
         $selectedMessageTemplate = null;
 
@@ -29,7 +30,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $messageTemplates = MessageTemplate::forIntent($intentName)->get();
 
         if (count($messageTemplates) === 0) {
-            return false;
+            throw new NoMatchingMessagesException(sprintf("No messages found for intent %s", $intentName));
         }
 
         /** @var MessageTemplate $messageTemplate */
@@ -62,7 +63,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                     $condition[MessageTemplate::ATTRIBUTE_VALUE]
                 );
 
-                /* @var Condition $conditionObject*/
+                /* @var Condition $conditionObject */
                 $conditionObject = new Condition($conditionAttribute, $condition[MessageTemplate::OPERATION]);
 
                 $attributeToCompareAgainst = $this->contextService->getAttribute($attributeName, $attributeContext);
@@ -79,7 +80,9 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
 
         if (empty($selectedMessageTemplate)) {
-            return false;
+            throw new NoMatchingMessagesException(
+                sprintf("No messages with passing conditions found for intent %s", $intentName)
+            );
         }
 
         // Get the messages.
@@ -92,7 +95,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     /**
      * @inheritdoc
      */
-    public function fillAttributes($text) : string
+    public function fillAttributes($text): string
     {
         // Extract attributes that need to be resolved from the text
         $matches = [];
@@ -113,7 +116,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     /**
      * @inheritdoc
      */
-    public function setContextService(ContextService $contextService) : void
+    public function setContextService(ContextService $contextService): void
     {
         $this->contextService = $contextService;
     }
