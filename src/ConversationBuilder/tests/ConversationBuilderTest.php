@@ -222,7 +222,7 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationPersist()
     {
-        if (getenv('LOCAL') !== true) {
+        if (!getenv('LOCAL')) {
             $this->markTestSkipped('This test only runs on local environments.');
         }
 

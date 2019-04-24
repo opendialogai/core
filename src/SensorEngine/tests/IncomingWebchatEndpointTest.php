@@ -94,9 +94,43 @@ class IncomingWebchatEndpointTest extends TestCase
         $response
             ->assertStatus(422)
             ->assertJson(['errors' => ['content.data.callback_id' => ['The content.data.callback id field is required when content.type is chat_open.']]]);
+    }
 
+    /**
+     * Test message response.
+     */
+    public function testMessageResponse()
+    {
+        if (!getenv('LOCAL')) {
+            // This test depends on dGraph.
+            $this->markTestSkipped('This test only runs on local environments.');
+        }
+
+        // Test a valid message.
+        $response = $this->json('POST', '/incoming/webchat', [
+            'notification' => 'message',
+            'user_id' => 'someuser',
+            'author' => 'me',
+            'content' => [
+                'author' => 'me',
+                'type' => 'text',
+                'data' => [
+                    'text' => 'test'
+                ],
+                'user' => [
+                    'ipAddress' => '127.0.0.1',
+                    'country' => 'UK',
+                    'browserLanguage' => 'en-gb',
+                    'os' => 'macos',
+                    'browser' => 'safari',
+                    'timezone' => 'GMT',
+                ],
+            ],
+        ]);
+        $response
+            ->assertStatus(200)
+            ->assertJson([0 => ['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]]);
 
         //@todo full valid tests need to mock ODController responses.
-
     }
 }

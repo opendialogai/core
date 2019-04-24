@@ -8,6 +8,7 @@ use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
@@ -21,8 +22,10 @@ class ResponseEngineService implements ResponseEngineServiceInterface
 
     /**
      * @inheritdoc
+     *
+     * @return WebChatMessages $messageWrapper
      */
-    public function getMessageForIntent(string $intentName): array
+    public function getMessageForIntent(string $intentName): WebChatMessages
     {
         $selectedMessageTemplate = null;
 
@@ -87,7 +90,12 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $formatter = new WebchatMessageFormatter();
         $messages = $formatter->getMessages($selectedMessageTemplate->message_markup);
 
-        return $messages;
+        $messageWrapper = new WebChatMessages();
+        foreach ($messages as $message) {
+            $messageWrapper->addMessage($message);
+        }
+
+        return $messageWrapper;
     }
 
     /**

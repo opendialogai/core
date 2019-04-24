@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 /**
@@ -17,10 +17,10 @@ interface ResponseEngineServiceInterface
      * Gets messages from the given intent formatted correctly for the platform the user is on
      *
      * @param string $intentName
-     * @return WebChatMessage[]
+     * @return WebChatMessages $messageWrapper
      * @throws NoMatchingMessagesException
      */
-    public function getMessageForIntent(string $intentName) : array;
+    public function getMessageForIntent(string $intentName): WebChatMessages;
 
     /**
      * @param $text string The message test to fill
