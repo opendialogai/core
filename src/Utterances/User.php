@@ -29,6 +29,8 @@ class User
 
     private $timezone;
 
+    private $custom;
+
 
     /**
      * @return mixed
@@ -236,5 +238,21 @@ class User
     public function setTimezone($timezone): void
     {
         $this->timezone = $timezone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCustomParameters()
+    {
+        return $this->custom;
+    }
+
+    /**
+     * @param mixed $custom
+     */
+    public function setCustomParameters($custom): void
+    {
+        $this->custom = $custom;
     }
 }
