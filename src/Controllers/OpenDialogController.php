@@ -2,10 +2,13 @@
 
 namespace OpenDialogAi\Core\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class OpenDialogController
@@ -48,7 +51,7 @@ class OpenDialogController
      *
      * @param UtteranceInterface $utterance
      * @return array
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @throws FieldNotSupported
      */
     public function runConversation(UtteranceInterface $utterance)
     {
@@ -56,6 +59,14 @@ class OpenDialogController
 
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
-        return $this->responseEngineService->getMessageForIntent($intent->getId());
+        try {
+            $message = $this->responseEngineService->getMessageForIntent($intent->getId());
+        } catch (NoMatchingMessagesException $e) {
+            Log::error($e->getMessage());
+            $message = [
+                (new WebChatMessage())->setText($e->getMessage())
+            ];
+        }
+        return $message;
     }
 }

@@ -3,6 +3,8 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 /**
  * Defines the Response Engine Service
@@ -15,7 +17,8 @@ interface ResponseEngineServiceInterface
      * Gets messages from the given intent formatted correctly for the platform the user is on
      *
      * @param string $intentName
-     * @return array
+     * @return WebChatMessage[]
+     * @throws NoMatchingMessagesException
      */
     public function getMessageForIntent(string $intentName) : array;
 

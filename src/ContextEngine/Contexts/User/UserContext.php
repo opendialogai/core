@@ -9,7 +9,6 @@ use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -152,7 +151,7 @@ class UserContext extends AbstractContext
     /**
      * @return Intent
      */
-    public function getCurrentIntent(): Intent
+    public function getCurrentIntent(): ?Intent
     {
         return $this->user->getCurrentIntent();
     }
