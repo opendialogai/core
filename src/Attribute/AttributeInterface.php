@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Attribute;
-
 
 /**
  * An Attribute is a perceivable feature of the environment (username, time, etc)

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Attribute;
 
 use Illuminate\Support\Facades\Log;

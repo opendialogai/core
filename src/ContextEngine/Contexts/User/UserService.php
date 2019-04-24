@@ -160,6 +160,16 @@ class UserService
                 $chatbotUser->addAttribute($attribute);
             }
         }
+        if ($user->hasCustomParameters()) {
+            foreach ($user->getCustomParameters() as $key => $value) {
+                if ($chatbotUser->hasAttribute($key)) {
+                    $chatbotUser->setAttribute($key, $value);
+                } else {
+                    $attribute = $this->attributeResolver->getAttributeFor($key, $value);
+                    $chatbotUser->addAttribute($attribute);
+                }
+            }
+        }
     }
 
     /**

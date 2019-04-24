@@ -255,4 +255,16 @@ class User
     {
         $this->custom = $custom;
     }
+
+    /**
+     * @return bool
+     */
+    public function hasCustomParameters(): bool
+    {
+        if (isset($this->custom)) {
+            return true;
+        }
+
+        return false;
+    }
 }
