@@ -88,7 +88,12 @@ class ResponseEngineService implements ResponseEngineServiceInterface
 
         // Get the messages.
         $formatter = new WebchatMessageFormatter();
-        $messages = $formatter->getMessages($selectedMessageTemplate->message_markup);
+
+        // Resolve all attributes in the markup.
+        $markup = $this->fillAttributes($selectedMessageTemplate->message_markup);
+
+        // Format the messages.
+        $messages = $formatter->getMessages($markup);
 
         $messageWrapper = new WebChatMessages();
         foreach ($messages as $message) {

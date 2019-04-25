@@ -3,13 +3,12 @@
 namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
-use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
-use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
 
 /**
@@ -17,12 +16,12 @@ use SimpleXMLElement;
  */
 class WebChatMessageFormatter implements MessageFormatterInterface
 {
-    /** @var ResponseEngineService */
-    private $responseEngineService;
+    /** @var ContextService */
+    private $contextService;
 
     public function __construct()
     {
-        $this->responseEngineService = app()->make(ResponseEngineServiceInterface::class);
+        $this->contextService = app()->make(ContextService::class);
     }
 
     /**
@@ -40,7 +39,13 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             foreach ($message->children() as $item) {
                 // Handle attribute messages.
                 if ($item->getName() === 'attribute-message') {
-                    $attributeValid = false;
+                    // Resolve custom context values.
+                    if (!empty((string) $item)) {
+                        $attribute = explode('.', (string) $item, 2);
+                        $attributeText = $this->contextService->getAttributeValue($attribute[1], $attribute[0]);
+                        $item = new SimpleXMLElement($attributeText);
+                    }
+
                     foreach ($item->children() as $child) {
                         $messages[] = $this->parseMessage($child);
                     }
@@ -99,12 +104,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function generateButtonMessage(array $template)
     {
-        $text = $this->responseEngineService->fillAttributes($template['text']);
         $message = new WebChatButtonMessage();
-        $message->setText($text);
+        $message->setText($template['text']);
         foreach ($template['buttons'] as $button) {
-            $buttonText = $this->responseEngineService->fillAttributes($button['text']);
-            $message->addButton(new WebChatButton($buttonText, $button['callback'], $button['value']));
+            $message->addButton(new WebChatButton($button['text'], $button['callback'], $button['value']));
         }
         return $message;
     }
@@ -141,8 +144,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function generateTextMessage(array $template)
     {
-        $text = $this->responseEngineService->fillAttributes($template['text']);
-        $message = (new WebChatMessage())->setText($text);
+        $message = (new WebChatMessage())->setText($template['text']);
         return $message;
     }
 }
