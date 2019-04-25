@@ -9,6 +9,8 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
  */
 abstract class ButtonResponseUtterance extends BaseUtterance
 {
+    const TYPE = 'button_response';
+
     /**
      * @inheritdoc
      */

@@ -49,7 +49,7 @@ class CallbackInterpreter extends BaseInterpreter
                     $intent = new Intent($this->supportedCallbacks[$utterance->getCallbackId()]);
                     $intent->setConfidence(1);
 
-                    if ($value = $utterance->getValue()) {
+                    if ($utterance->getType() == 'button_response' && $value = $utterance->getValue()) {
                         $attribute = new StringAttribute('button_value', $value);
                         Log::debug(sprintf(
                             'Adding attribute %s with value %s to intent.',
