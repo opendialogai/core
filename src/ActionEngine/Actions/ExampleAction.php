@@ -27,7 +27,7 @@ class ExampleAction extends BaseAction
     public function perform(ActionInput $actionInput): ActionResult
     {
         $fullName = $actionInput->getAttributeBag()->getAttribute('first_name')->getValue() .
-        $actionInput->getAttributeBag()->getAttribute('last_name')->getValue();
+            $actionInput->getAttributeBag()->getAttribute('last_name')->getValue();
 
         $fullNameAttribute = new StringAttribute('full_name', $fullName);
 
