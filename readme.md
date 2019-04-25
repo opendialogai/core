@@ -63,3 +63,5 @@ DGRAPH_PORT=8080
 
 ### Query Logging
 
+To log DGraph queries to the standard application log, set the `LOG_DGRAPH_QUERIES` environment variable to true.
+All queries are logged at info level
