@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatAttributeMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
@@ -26,41 +25,28 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         $this->responseEngineService = app()->make(ResponseEngineServiceInterface::class);
     }
 
+    /**
+     * Convert the template to the appropriate message types.
+     *
+     * @param String $markup
+     * @return WebChatMessage|Array $messages
+     */
     public function getMessages(string $markup)
     {
         $messages = [];
         try {
             $message = new SimpleXMLElement($markup);
+
             foreach ($message->children() as $item) {
-                switch ($item->getName()) {
-                    case 'button-message':
-                        $template = [
-                            'text' => (string) $item->text,
-                        ];
-                        foreach ($item->button as $button) {
-                            $template['buttons'][] = [
-                                'callback' => (string) $button->callback,
-                                'text' => (string) $button->text,
-                                'value' => (string) $button->value,
-                            ];
-                        }
-                        $messages[] = $this->generateButtonMessage($template);
-                        break;
-                    case 'image-message':
-                        $template = [
-                            'link' => (string) $item->link,
-                            'src' => (string) $item->src,
-                        ];
-                        $messages[] = $this->generateImageMessage($template);
-                        break;
-                    case 'text-message':
-                        $template = ['text' => (string) $item];
-                        $messages[] = $this->generateTextMessage($template);
-                        break;
-                    case 'attribute-message':
-                        $template = ['text' => (string) $item];
-                        $messages[] = $this->generateAttributeMessage($template);
-                        break;
+                // Handle attribute messages.
+                if ($item->getName() === 'attribute-message') {
+                    $attributeValid = false;
+                    foreach ($item->children() as $child) {
+                        $messages[] = $this->parseMessage($child);
+                    }
+                } else {
+                    // Convert the markup to the appropriate type of message.
+                    $messages[] = $this->parseMessage($item);
                 }
             }
         } catch (\Exception $e) {
@@ -69,6 +55,46 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         }
 
         return $messages;
+    }
+
+    /**
+     * Parse XML markup and convert to the appropriate Message class.
+     *
+     * @param SimpleXMLElement $item
+     * @return WebChatMessage
+     */
+    private function parseMessage(SimpleXMLElement $item)
+    {
+        switch ($item->getName()) {
+            case 'button-message':
+                $template = [
+                    'text' => (string) $item->text,
+                ];
+                foreach ($item->button as $button) {
+                    $template['buttons'][] = [
+                        'callback' => (string) $button->callback,
+                        'text' => (string) $button->text,
+                        'value' => (string) $button->value,
+                    ];
+                }
+                return $this->generateButtonMessage($template);
+                break;
+            case 'image-message':
+                $template = [
+                    'link' => (string) $item->link,
+                    'src' => (string) $item->src,
+                ];
+                return $this->generateImageMessage($template);
+                break;
+            case 'text-message':
+                $template = ['text' => (string) $item];
+                return $this->generateTextMessage($template);
+                break;
+            default:
+                $template = ['text' => 'Sorry, I did not understand this message type.'];
+                return $this->generateTextMessage($template);
+                break;
+        }
     }
 
     public function generateButtonMessage(array $template)
@@ -117,13 +143,6 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     {
         $text = $this->responseEngineService->fillAttributes($template['text']);
         $message = (new WebChatMessage())->setText($text);
-        return $message;
-    }
-
-    public function generateAttributeMessage(array $template)
-    {
-        $text = $this->responseEngineService->fillAttributes($template['text']);
-        $message = (new WebChatAttributeMessage())->setText($text);
         return $message;
     }
 }

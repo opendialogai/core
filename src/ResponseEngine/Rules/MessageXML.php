@@ -23,9 +23,23 @@ class MessageXML implements Rule
             foreach ($message->children() as $item) {
                 switch ($item->getName()) {
                     case 'attribute-message':
+                        $attributeValid = false;
+
                         if (empty((string)$item)) {
+                            // Try parsing the item's children.
+                            foreach ($item->children() as $child) {
+                                if (!empty((string) $child)) {
+                                    $attributeValid = true;
+                                }
+                            }
+                        } else {
+                            $attributeValid = true;
+                        }
+
+                        if (!$attributeValid) {
                             return false;
                         }
+
                         break;
 
                     case 'text-message':

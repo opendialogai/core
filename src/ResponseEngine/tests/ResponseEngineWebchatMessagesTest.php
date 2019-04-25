@@ -154,11 +154,4 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
-
-    public function testWebChatAttributeMessage()
-    {
-        $message = new WebChatAttributeMessage();
-        $message->setText('This is a test, this is only a test.');
-        $this->assertEquals('This is a test, this is only a test.', $message->getText());
-    }
 }
