@@ -47,11 +47,11 @@ class WebchatIncomingController extends BaseController
         // Get the Utterance.
         $utterance = $this->webchatSensor->interpret($request);
 
-        /** @var WebChatMessage $message */
-        $message = $this->odController->runConversation($utterance);
-        Log::debug(sprintf("Sending response: %s", json_encode($message)));
+        /** @var WebChatMessages $messageWrapper */
+        $messageWrapper = $this->odController->runConversation($utterance);
 
-        // @todo - loop through messages and send all of them (collating in a single post)
-        return response($message[0]->getMessageToPost(), 200);
+        Log::debug(sprintf("Sending response: %s", json_encode($messageWrapper->getMessageToPost())));
+
+        return response($messageWrapper->getMessageToPost(), 200);
     }
 }

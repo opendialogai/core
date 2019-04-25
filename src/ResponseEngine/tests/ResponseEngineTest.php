@@ -100,9 +100,9 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
-        $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there dummy!');
     }
 
     public function testWebChatMessage()
@@ -127,9 +127,9 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $messageWrapper->getMessages()[0]);
     }
 
     public function testWebChatImageMessage()
@@ -157,9 +157,9 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $message[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $messageWrapper->getMessages()[0]);
     }
 
     public function testWebChatButtonMessage()
@@ -191,8 +191,8 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $message[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $messageWrapper->getMessages()[0]);
     }
 }
