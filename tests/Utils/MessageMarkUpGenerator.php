@@ -50,6 +50,16 @@ class MessageMarkUpGenerator
         return $this;
     }
 
+    /**
+     * @param $text
+     * @return MessageMarkUpGenerator
+     */
+    public function addAttributeMessage($text)
+    {
+        $this->messages[] = new AttributeMessage($text);
+        return $this;
+    }
+
     public function getMarkUp()
     {
         $markUp = "";
@@ -172,6 +182,27 @@ class Button
     <value>$this->value</value>
     <callback>$this->callbackId</callback>
 </button>
+EOT;
+    }
+}
+
+class AttributeMessage
+{
+    public $text;
+
+    /**
+     * Attribute Message constructor.
+     * @param $text
+     */
+    public function __construct($text)
+    {
+        $this->text = $text;
+    }
+
+    function getMarkUp()
+    {
+        return <<<EOT
+<attribute-message>{$this->text}</attribute-message>
 EOT;
     }
 }
