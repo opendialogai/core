@@ -22,7 +22,7 @@ abstract class ContextParser
         $contextId = null;
         $attributeId = null;
 
-        $matches = explode('.', $attribute);
+        $matches = explode('.', $attribute, 2);
 
         if (count($matches) === 2) {
             $contextId = $matches[0];

@@ -25,7 +25,7 @@ abstract class BaseUtterance implements UtteranceInterface
     protected $user = null;
 
     /** @var string The id of the individual message */
-    protected $messageId = null;
+    protected $messageId = '';
 
     /** @var float The time the message was received by OpenDialog */
     protected $timestamp = null;

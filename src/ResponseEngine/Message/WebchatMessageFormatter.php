@@ -40,7 +40,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             foreach ($message->children() as $item) {
                 if ($item->getName() === self::ATTRIBUTE_MESSAGE) {
                     if (!empty((string) $item)) {
-                        [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId($item);
+                        [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId((string) $item);
                         $attributeText = $this->contextService->getAttributeValue($attributeId, $contextId);
                         $item = new SimpleXMLElement($attributeText);
                     }

@@ -33,7 +33,6 @@ class CreateMessagesTable extends Migration
                 $table->timestamp('microtime', 6)->default(DB::raw('CURRENT_TIMESTAMP(6)'));
             }
         });
-
     }
 
     /**

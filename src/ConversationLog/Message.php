@@ -20,6 +20,9 @@ use Illuminate\Support\Str;
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * @property string $user
+ * @property string $matched_intent
+ * @property string $scene_id
+ * @property string $conversation_id
  */
 class Message extends Model
 {
@@ -32,7 +35,10 @@ class Message extends Model
         'type',
         'data',
         'microtime',
-        'user'
+        'user',
+        'matched_intent',
+        'scene_id',
+        'conversation_id'
     ];
 
     /**
@@ -73,7 +79,10 @@ class Message extends Model
         $message,
         $data = null,
         $message_id = null,
-        $user = null
+        $user = null,
+        $matched_intent = null,
+        $scene_id = null,
+        $conversation_id = null
     ) {
         // Generate a message ID if we weren't given one.
         if (empty($message_id)) {
@@ -89,6 +98,9 @@ class Message extends Model
             'data'            => ($data) ? serialize($data) : null,
             'message_id'      => $message_id,
             'user'            => $user,
+            'matched_intent'  => $matched_intent,
+            'scene_id'        => $scene_id,
+            'conversation_id' => $conversation_id,
         ]);
 
         return $message;
