@@ -56,6 +56,21 @@ class Message extends Model
         return unserialize($value);
     }
 
+    /**
+     * Deserialize the user field
+     *
+     * @param $value
+     * @return mixed|null
+     */
+    public function getUserAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+
+        return unserialize($value);
+    }
+
     public function chatbotUser()
     {
         return $this->belongsTo('OpenDialogAi\ConversationLog\ChatbotUser', 'user_id');
@@ -97,7 +112,7 @@ class Message extends Model
             'message'         => $message,
             'data'            => ($data) ? serialize($data) : null,
             'message_id'      => $message_id,
-            'user'            => $user,
+            'user'            => ($user) ? serialize($user) : null,
             'matched_intent'  => $matched_intent,
             'scene_id'        => $scene_id,
             'conversation_id' => $conversation_id,

@@ -36,13 +36,10 @@ class ConversationLogService
      */
     public function logIncomingMessage(UtteranceInterface $utterance, Intent $intent, UserContext $userContext)
     {
-        $author = '';
         $message = '';
         $type = '';
         $messageId = '';
         $timestamp = 0.0;
-
-        // @TODO get author.
 
         try {
             $message = $utterance->getText();
@@ -68,9 +65,9 @@ class ConversationLogService
             $timestamp,
             $type,
             $this->getUserId($utterance),
-            $author,
+            $this->getUserId($utterance),
             $message,
-            serialize($utterance->getData()),
+            $utterance->getData(),
             $messageId,
             $this->getUser($utterance),
             $this->getMatchedIntent($intent),
@@ -100,7 +97,7 @@ class ConversationLogService
                 $this->getUserId($utterance),
                 $messageData['author'],
                 $messageData['data']['text'],
-                serialize($messageData['data']),
+                $messageData['data'],
                 null,
                 $this->getUser($utterance),
                 $this->getMatchedIntent($intent),
@@ -161,7 +158,7 @@ class ConversationLogService
     private function getUser(UtteranceInterface $utterance)
     {
         $userInfo = $utterance->getUser();
-        return serialize([
+        return [
             'first_name' => $userInfo->getFirstName(),
             'last_name' => $userInfo->getLastName(),
             'email' => $userInfo->getEmail(),
@@ -173,6 +170,6 @@ class ConversationLogService
             'browser' => $userInfo->getBrowser(),
             'timezone' => $userInfo->getTimezone(),
             'custom' => $userInfo->getCustomParameters(),
-        ]);
+        ];
     }
 }
