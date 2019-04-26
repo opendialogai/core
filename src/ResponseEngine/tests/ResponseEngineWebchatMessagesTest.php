@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormElement;
@@ -133,8 +133,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     public function testWebChatButtonMessage()
     {
         $message = new WebChatButtonMessage();
-        $button1 = new WebChatButton('Yes', 'callback_yes', true);
-        $button2 = new WebChatButton('No', 'callback_no', false);
+        $button1 = new WebchatCallbackButton('Yes', 'callback_yes', true);
+        $button2 = new WebchatCallbackButton('No', 'callback_no', false);
         $message->addButton($button1);
         $message->addButton($button2);
 

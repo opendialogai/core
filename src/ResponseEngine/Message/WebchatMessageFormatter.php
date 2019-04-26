@@ -4,7 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
@@ -73,7 +73,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         $message->setText($text);
         foreach ($template['buttons'] as $button) {
             $buttonText = $this->responseEngineService->fillAttributes($button['text']);
-            $message->addButton(new WebChatButton($buttonText, $button['callback'], $button['value']));
+            $message->addButton(new WebchatCallbackButton($buttonText, $button['callback'], $button['value']));
         }
         return $message;
     }
