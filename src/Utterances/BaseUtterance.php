@@ -45,7 +45,7 @@ abstract class BaseUtterance implements UtteranceInterface
      * Returns the utterance platform. Classes that extend this class can set their own type by defining a type constant
      *
      * @return string
-     * @throws UtteranceTypeNotSetException
+     * @throws UtterancePlatformNotSetException
      */
     public function getPlatform(): string
     {
@@ -60,7 +60,7 @@ abstract class BaseUtterance implements UtteranceInterface
      * Returns the type of utterance. Classes that extend this class can set their own type by defining a type constant
      *
      * @return string
-     * @throws UtterancePlatformNotSetException
+     * @throws UtteranceTypeNotSetException
      */
     public function getType(): string
     {
