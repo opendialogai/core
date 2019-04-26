@@ -5,6 +5,7 @@ namespace OpenDialogAi\ResponseEngine\Message;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
@@ -37,11 +38,18 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                             'text' => (string) $item->text,
                         ];
                         foreach ($item->button as $button) {
-                            $template['buttons'][] = [
-                                'callback' => (string) $button->callback,
-                                'text' => (string) $button->text,
-                                'value' => (string) $button->value,
-                            ];
+                            if (isset($button->tab_switch)) {
+                                $template['buttons'][] = [
+                                    'text' => (string) $button->text,
+                                    'tab_switch' => true,
+                                ];
+                            } else {
+                                $template['buttons'][] = [
+                                    'callback' => (string) $button->callback,
+                                    'text' => (string) $button->text,
+                                    'value' => (string) $button->value,
+                                ];
+                            }
                         }
                         $messages[] = $this->generateButtonMessage($template);
                         break;
@@ -73,7 +81,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         $message->setText($text);
         foreach ($template['buttons'] as $button) {
             $buttonText = $this->responseEngineService->fillAttributes($button['text']);
-            $message->addButton(new WebchatCallbackButton($buttonText, $button['callback'], $button['value']));
+            if (isset($button['tab_switch'])) {
+                $message->addButton(new WebchatTabSwitchButton($buttonText));
+            } else {
+                $message->addButton(new WebchatCallbackButton($buttonText, $button['callback'], $button['value']));
+            }
         }
         return $message;
     }
