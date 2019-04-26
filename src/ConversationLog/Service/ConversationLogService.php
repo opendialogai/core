@@ -161,7 +161,7 @@ class ConversationLogService
     private function getUser(UtteranceInterface $utterance)
     {
         $userInfo = $utterance->getUser();
-        return json_encode([
+        return serialize([
             'first_name' => $userInfo->getFirstName(),
             'last_name' => $userInfo->getLastName(),
             'email' => $userInfo->getEmail(),
