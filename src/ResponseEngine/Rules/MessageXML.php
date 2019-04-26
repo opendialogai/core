@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ResponseEngine\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Http\Request;
 use SimpleXMLElement;
 
 class MessageXML implements Rule
@@ -26,7 +25,6 @@ class MessageXML implements Rule
                         $attributeValid = false;
 
                         if (empty((string)$item)) {
-                            // Try parsing the item's children.
                             foreach ($item->children() as $child) {
                                 if (!empty((string) $child)) {
                                     $attributeValid = true;

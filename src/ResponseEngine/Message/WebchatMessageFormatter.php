@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
@@ -28,21 +29,19 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      * Convert the template to the appropriate message types.
      *
      * @param String $markup
-     * @return WebChatMessage|Array $messages
+     * @return WebChatMessage[]
      */
-    public function getMessages(string $markup)
+    public function getMessages(string $markup): array
     {
         $messages = [];
         try {
             $message = new SimpleXMLElement($markup);
 
             foreach ($message->children() as $item) {
-                // Handle attribute messages.
-                if ($item->getName() === 'attribute-message') {
-                    // Resolve custom context values.
+                if ($item->getName() === self::ATTRIBUTE_MESSAGE) {
                     if (!empty((string) $item)) {
-                        $attribute = explode('.', (string) $item, 2);
-                        $attributeText = $this->contextService->getAttributeValue($attribute[1], $attribute[0]);
+                        [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId($item);
+                        $attributeText = $this->contextService->getAttributeValue($attributeId, $contextId);
                         $item = new SimpleXMLElement($attributeText);
                     }
 
@@ -50,12 +49,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                         $messages[] = $this->parseMessage($child);
                     }
                 } else {
-                    // Convert the markup to the appropriate type of message.
                     $messages[] = $this->parseMessage($item);
                 }
             }
         } catch (\Exception $e) {
-            Log::warning('Message Builder error: ' . $e->getMessage());
+            Log::warning(sprintf('Message Builder error: %s', $e->getMessage()));
             return [];
         }
 
@@ -71,7 +69,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     private function parseMessage(SimpleXMLElement $item)
     {
         switch ($item->getName()) {
-            case 'button-message':
+            case self::BUTTON_MESSAGE:
                 $template = [
                     'text' => (string) $item->text,
                 ];
@@ -84,14 +82,14 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 }
                 return $this->generateButtonMessage($template);
                 break;
-            case 'image-message':
+            case self::IMAGE_MESSAGE:
                 $template = [
                     'link' => (string) $item->link,
                     'src' => (string) $item->src,
                 ];
                 return $this->generateImageMessage($template);
                 break;
-            case 'text-message':
+            case self::TEXT_MESSAGE:
                 $template = ['text' => (string) $item];
                 return $this->generateTextMessage($template);
                 break;
@@ -102,6 +100,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         }
     }
 
+    /**
+     * @param array $template
+     * @return WebChatButtonMessage
+     */
     public function generateButtonMessage(array $template)
     {
         $message = new WebChatButtonMessage();
@@ -112,18 +114,29 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
+    /**
+     * @return EmptyMessage
+     */
     public function generateEmptyMessage()
     {
         $message = new EmptyMessage();
         return $message;
     }
 
+    /**
+     * @param array $template
+     * @return string
+     */
     public function generateFormMessage(array $template)
     {
         // @TODO
         return '';
     }
 
+    /**
+     * @param array $template
+     * @return WebChatImageMessage
+     */
     public function generateImageMessage(array $template)
     {
         $message = (new WebChatImageMessage())->setImgSrc($template['src'])->setImgLink($template['link']);

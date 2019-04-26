@@ -305,7 +305,7 @@ class Conversation extends Model
             );
         }
 
-        list($contextId, $attributeId) = ContextParser::determineContext($attributeName);
+        list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId($attributeName);
 
         /* @var AttributeResolver $attributeResolver */
         $attributeResolver = resolve(AttributeResolver::class);

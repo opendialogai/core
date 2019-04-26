@@ -7,6 +7,11 @@ namespace OpenDialogAi\ResponseEngine\Message;
  */
 interface MessageFormatterInterface
 {
+    public const ATTRIBUTE_MESSAGE = 'attribute-message';
+    public const BUTTON_MESSAGE    = 'button-message';
+    public const IMAGE_MESSAGE     = 'image-message';
+    public const TEXT_MESSAGE      = 'text-message';
+
     public function getMessages(string $markup);
 
     public function generateButtonMessage(array $template);
