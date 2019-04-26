@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\DGraph;
-
 
 use GuzzleHttp\Psr7\Response;
 

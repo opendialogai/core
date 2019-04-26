@@ -37,9 +37,7 @@ class UserServiceTest extends TestCase
 
             $this->assertTrue($conversation->publishConversation($conversationModel));
         }
-
     }
-
 
     public function testUserCreation()
     {

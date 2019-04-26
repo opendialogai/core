@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\DGraph;
-
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
