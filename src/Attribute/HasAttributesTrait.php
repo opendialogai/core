@@ -1,11 +1,9 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Attribute;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-
 
 /**
  * A trait that anything that needs to deal with Attributes can use.

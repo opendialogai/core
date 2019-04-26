@@ -38,9 +38,7 @@ class UserServiceTest extends TestCase
 
             $this->assertTrue($conversation->publishConversation($conversationModel));
         }
-
     }
-
 
     /**
      * @throws FieldNotSupported
