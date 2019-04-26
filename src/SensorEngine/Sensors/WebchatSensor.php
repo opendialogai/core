@@ -33,6 +33,7 @@ class WebchatSensor extends BaseSensor
             case 'chat_open':
                 Log::debug('Received webchat open request.');
                 $utterance = new WebchatChatOpenUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
@@ -44,6 +45,7 @@ class WebchatSensor extends BaseSensor
             case 'text':
                 Log::debug('Received webchat message.');
                 $utterance = new WebchatTextUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setText($request['content']['data']['text']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
@@ -55,6 +57,7 @@ class WebchatSensor extends BaseSensor
             case 'trigger':
                 Log::debug('Received webchat trigger message.');
                 $utterance = new WebchatTriggerUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
                 $utterance->setUserId($request['user_id']);
