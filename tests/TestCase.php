@@ -10,6 +10,7 @@ use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
+use OpenDialogAi\Util\UtilServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
 
 /**
@@ -26,6 +27,10 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function setUp() :void
     {
         parent::setUp();
+
+        if (!defined('LARAVEL_START')) {
+            define('LARAVEL_START', microtime(true));
+        }
 
         $this->artisan('migrate', [
             '--database' => 'testbench'
@@ -54,7 +59,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ResponseEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
-            SensorEngineServiceProvider::class
+            SensorEngineServiceProvider::class,
+            UtilServiceProvider::class
         ];
     }
 

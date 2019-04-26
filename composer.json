@@ -41,7 +41,8 @@
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
       "OpenDialogAi\\InterpreterEngine\\": "src/InterpreterEngine",
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
-      "OpenDialogAi\\Core\\Database\\": "database/"
+      "OpenDialogAi\\Core\\Database\\": "database/",
+      "OpenDialogAi\\Util\\": "src/Util"
     }
   },
   "autoload-dev": {
@@ -60,7 +61,8 @@
         "OpenDialogAi\\InterpreterEngine\\InterpreterEngineServiceProvider",
         "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
-        "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider"
+        "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider",
+        "OpenDialogAi\\Util\\UtilServiceProvider"
       ]
     }
   }
