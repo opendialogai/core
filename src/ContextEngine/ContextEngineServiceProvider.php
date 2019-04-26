@@ -27,6 +27,10 @@ class ContextEngineServiceProvider extends ServiceProvider
         $this->app->singleton(ContextService::class, function () {
             $contextService = new ContextService();
             $contextService->setUserService($this->app->make(UserService::class));
+
+            if (is_array(config('opendialog.context_engine.custom_contexts'))) {
+                $contextService->loadCustomContexts(config('opendialog.context_engine.custom_contexts'));
+            }
             return $contextService;
         });
 
@@ -43,12 +47,7 @@ class ContextEngineServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(UserService::class, function () {
-            $userService = new UserService(
-                new DGraphClient(
-                    config('opendialog.core.DGRAPH_URL'),
-                    config('opendialog.core.DGRAPH_PORT')
-                )
-            );
+            $userService = new UserService($this->app->make(DGraphClient::class));
             $userService->setAttributeResolver($this->app->make(AttributeResolver::class));
             return $userService;
         });

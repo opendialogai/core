@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\ContextManager;
-
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\HasAttributesTrait;
