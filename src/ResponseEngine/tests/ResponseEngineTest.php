@@ -9,6 +9,7 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
+use SimpleXMLElement;
 
 class ResponseEngineTest extends TestCase
 {
@@ -100,9 +101,9 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
-        $this->assertEquals($message[0]->getText(), 'Hi there dummy!');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there dummy!');
     }
 
     public function testWebChatMessage()
@@ -127,9 +128,9 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $message[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $messageWrapper->getMessages()[0]);
     }
 
     public function testWebChatImageMessage()
@@ -157,9 +158,9 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $message[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $messageWrapper->getMessages()[0]);
     }
 
     public function testWebChatButtonMessage()
@@ -191,8 +192,50 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $message = $responseEngineService->getMessageForIntent('Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $message[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $messageWrapper->getMessages()[0]);
+    }
+
+    public function testWebChatAttributeMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addTextMessage('hi there');
+        $generator->addImageMessage(
+            'https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif',
+            'http://www.opendialog.ai'
+        );
+        $markup = '';
+
+        // Strip wrapper tag.
+        $items = new SimpleXMLElement($generator->getMarkUp());
+        foreach ($items as $child) {
+            $markup .= $child->asXML();
+        }
+
+        // Create an attribute message containing a text message and an image message.
+        $generator2 = new MessageMarkUpGenerator();
+        $generator2->addAttributeMessage($markup);
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n-\n  user.name: dummy\n  operation: eq",
+            'message_markup' => $generator2->getMarkUp(),
+        ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $messageWrapper->getMessages()[1]);
     }
 }

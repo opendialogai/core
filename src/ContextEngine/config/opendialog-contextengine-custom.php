@@ -10,5 +10,15 @@ return [
      */
     'custom_attributes' => [
         // 'attribute_name' => AttributeTypeClass::class
+    ],
+
+    /**
+     * Register your custom contexts here. Custom contexts must extend
+     * @see \OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext
+     *
+     * Custom contexts are used to make available application specific attributes that are externally managed
+     */
+    'custom_contexts' => [
+//        \OpenDialogAi\ContextEngine\tests\contexts\DummyCustomContext::class
     ]
 ];

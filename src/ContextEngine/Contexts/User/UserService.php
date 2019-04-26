@@ -4,20 +4,22 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeCouldNotBeResolved;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\Node\Node;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
@@ -70,17 +72,18 @@ class UserService
                 try {
                     $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
-                } catch (AttributeCouldNotBeResolved $e) {
-                    // Simply skip attributes we can't deal with.
+                } catch (AttributeCouldNotBeResolvedException $e) {
+                    Log::warning(sprintf("Attribute for user could not be resolved %s => %s", $name, $value));
                     continue;
                 }
             }
         }
 
         if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
-            $conversation = ConversationQueryFactory::getConversationFromDgraph(
+            $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
                 $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID],
-                $this->dGraphClient
+                $this->dGraphClient,
+                $this->attributeResolver
             );
 
             $user->setCurrentConversation($conversation);
@@ -98,7 +101,7 @@ class UserService
     /**
      * @param UtteranceInterface $utterance
      * @return ChatbotUser
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @throws FieldNotSupported
      */
     public function createOrUpdateUser(UtteranceInterface $utterance): ChatbotUser
     {
@@ -111,8 +114,8 @@ class UserService
 
     /**
      * @param UtteranceInterface $utterance
-     * @return bool|Node
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @return ChatbotUser
+     * @throws FieldNotSupported
      */
     public function updateUserFromUtterance(UtteranceInterface $utterance)
     {
@@ -174,8 +177,8 @@ class UserService
 
     /**
      * @param UtteranceInterface $utterance
-     * @return Node | bool
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @return ChatbotUser
+     * @throws FieldNotSupported
      */
     public function createUserFromUtterance(UtteranceInterface $utterance)
     {
@@ -213,7 +216,7 @@ class UserService
      * @param ChatbotUser $user
      * @param Intent $intent
      * @return Node
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function setCurrentIntent(ChatbotUser $user, Intent $intent)
     {
@@ -238,8 +241,8 @@ class UserService
     }
 
     /**
-     * @param Node $user
-     * @return Node
+     * @param ChatbotUser $user
+     * @return ChatbotUser
      */
     public function updateUser(ChatbotUser $user)
     {
@@ -287,20 +290,24 @@ class UserService
     public function getCurrentConversation($userId)
     {
         if ($this->userIsHavingConversation($userId)) {
-            $conversationId = $this->getOngoingConversationIdQuery(
+            $conversationUid = $this->getOngoingConversationIdQuery(
                 $userId
             )[0][Model::HAVING_CONVERSATION][0][Model::UID];
         } else {
             throw new NoOngoingConversationException();
         }
 
-        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationId, $this->dGraphClient);
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
+            $conversationUid,
+            $this->dGraphClient,
+            $this->attributeResolver
+        );
         return $conversation;
     }
 
     /**
      * @param ChatbotUser $user
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function unsetCurrentIntent(ChatbotUser $user)
     {
@@ -313,7 +320,7 @@ class UserService
 
     /**
      * @param ChatbotUser $user
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function unsetCurrentConversation(ChatbotUser $user)
     {

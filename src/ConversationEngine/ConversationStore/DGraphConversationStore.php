@@ -1,22 +1,24 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
-
 use Ds\Map;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\AllOpeningIntents;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 class DGraphConversationStore implements ConversationStoreInterface
 {
     private $dGraphClient;
 
-    public function __construct(DGraphClient $dGraphClient)
+    private $attributeResolver;
+
+    public function __construct(DGraphClient $dGraphClient, AttributeResolver $attributeResolver)
     {
         $this->dGraphClient = $dGraphClient;
+        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -24,7 +26,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getAllOpeningIntents(): Map
     {
-        $query = new AllOpeningIntents($this->dGraphClient);
+        $query = new AllOpeningIntents($this->dGraphClient, $this->attributeResolver);
 
         return $query->getIntents();
     }
@@ -35,7 +37,29 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getConversation($conversationId): Conversation
     {
-        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationId, $this->dGraphClient, true);
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
+            $conversationId,
+            $this->dGraphClient,
+            $this->attributeResolver,
+            true
+        );
+
+        return $conversation;
+    }
+
+    /**
+     * @param $conversationTemplateName
+     * @return Conversation
+     */
+    public function getConversationTemplate($conversationTemplateName): Conversation
+    {
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
+            $conversationTemplateName,
+            $this->dGraphClient,
+            $this->attributeResolver,
+            true
+        );
+
         return $conversation;
     }
 }

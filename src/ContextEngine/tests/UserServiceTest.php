@@ -1,14 +1,15 @@
 <?php
 
-namespace OpenDialogAi\ContextManager\Tests;
+namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationBuilder\Conversation;
-use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Conversation\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 
 class UserServiceTest extends TestCase
@@ -16,7 +17,7 @@ class UserServiceTest extends TestCase
     /* @var UserService */
     private $userService;
 
-    /* @var \OpenDialogAi\Core\Graph\DGraph\DGraphClient */
+    /* @var DGraphClient */
     private $client;
 
     public function setUp(): void
@@ -31,7 +32,7 @@ class UserServiceTest extends TestCase
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
 
-            // Now create and store three conversations
+            /** @var Conversation $conversation */
             $conversation = Conversation::create(['name' => 'Conversation1', 'model' => $this->$conversationId()]);
             $conversationModel = $conversation->buildConversation();
 
@@ -39,6 +40,9 @@ class UserServiceTest extends TestCase
         }
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
     public function testUserCreation()
     {
         $userId = 'newUser' . time();
@@ -81,7 +85,7 @@ class UserServiceTest extends TestCase
         $utterance = new WebchatTextUtterance();
         $utterance->setUserId($userId);
 
-        /* @var \OpenDialogAi\Core\Conversation\ChatbotUser $user */
+        /* @var ChatbotUser $user */
         $user = $this->userService->createOrUpdateUser($utterance);
 
         $this->assertFalse($user->isHavingConversation());
@@ -107,7 +111,7 @@ class UserServiceTest extends TestCase
         $utterance = new WebchatTextUtterance();
         $utterance->setUserId($userId);
 
-        /* @var \OpenDialogAi\Core\Conversation\ChatbotUser $user */
+        /* @var ChatbotUser $user */
         $user = $this->userService->createOrUpdateUser($utterance);
 
         $this->assertFalse($user->isHavingConversation());
@@ -144,7 +148,7 @@ class UserServiceTest extends TestCase
         $utterance = new WebchatTextUtterance();
         $utterance->setUserId($userId);
 
-        /* @var \OpenDialogAi\Core\Conversation\ChatbotUser $user */
+        /* @var ChatbotUser $user */
         $user = $this->userService->createOrUpdateUser($utterance);
 
         $this->assertFalse($user->isHavingConversation());

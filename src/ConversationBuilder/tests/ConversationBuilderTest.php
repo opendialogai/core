@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -149,9 +151,18 @@ class ConversationBuilderTest extends TestCase
     public function testConversationRepresentationCreation()
     {
         $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
+
+        /* @var AttributeResolver $attributeResolver */
+        $attributeResolver = $this->app->make(AttributeResolver::class);
+        $attributes = ['test' => IntAttribute::class];
+        $attributeResolver->registerAttributes($attributes);
+
         /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
         $conversationModel = $conversation->buildConversation();
         $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
+
+        // There should be two conditions
+        $this->assertCount(2, $conversationModel->getConditions());
 
         // There should be two scenes
         $this->assertCount(3, $conversationModel->getAllScenes());
@@ -211,7 +222,7 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationPersist()
     {
-        if (getenv('LOCAL') !== true) {
+        if (!getenv('LOCAL')) {
             $this->markTestSkipped('This test only runs on local environments.');
         }
 

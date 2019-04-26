@@ -2,10 +2,14 @@
 
 namespace OpenDialogAi\ConversationBuilder\Jobs\Traits;
 
+use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 
 trait ValidateConversationTrait
 {
+    /** @var Conversation */
+    protected $conversation;
+
     /**
      * Check the conversation status and update the job
      * status if it is invalid.

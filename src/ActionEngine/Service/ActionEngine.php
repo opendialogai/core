@@ -127,10 +127,8 @@ class ActionEngine implements ActionEngineInterface
     {
         $actionInput = new ActionInput();
         foreach ($requiredAttributes as $attributeId) {
-            $attributeName = '';
-            $contextId = '';
-            ContextParser::determineContext($attributeId, $contextId, $attributeName);
-            $attribute = $this->contextService->getAttribute($attributeName, $contextId);
+            list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId($attributeId);
+            $attribute = $this->contextService->getAttribute($attributeId, $contextId);
             $actionInput->addAttribute($attribute);
         }
         return $actionInput;

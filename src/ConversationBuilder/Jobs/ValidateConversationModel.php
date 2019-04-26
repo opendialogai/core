@@ -2,20 +2,21 @@
 
 namespace OpenDialogAi\ConversationBuilder\Jobs;
 
-use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Symfony\Component\Yaml\Yaml;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
 use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 class ValidateConversationModel implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ValidateConversationTrait;
 
-    // Conversation object.
+    /** @var Conversation */
     protected $conversation;
 
     // Validation job name.
@@ -47,10 +48,9 @@ class ValidateConversationModel implements ShouldQueue
         }
 
         $status = 'validated';
-        $model = [];
 
         try {
-            $model = Yaml::parse($this->conversation->model);
+            Yaml::parse($this->conversation->model);
         } catch (ParseException $exception) {
             // Log a validation message with the error.
             $this->logMessage($this->conversation->id, 'validate_conversation_model', $exception->getMessage());

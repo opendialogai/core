@@ -4,6 +4,9 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 
+use Ds\Map;
+use OpenDialogAi\Core\Conversation\Condition;
+
 class OpeningIntent
 {
     private $intentId;
@@ -19,6 +22,9 @@ class OpeningIntent
     private $confidence;
 
     private $interpreter;
+
+    /* @var Map */
+    private $conditions;
 
 
     public function __construct(
@@ -37,6 +43,43 @@ class OpeningIntent
         $this->order = $order;
         $this->confidence = $confidence;
         $this->interpreter = $interpreter;
+        $this->conditions = new Map();
+    }
+
+    /**
+     * @param Condition $condition
+     */
+    public function addCondition(Condition $condition)
+    {
+        $this->conditions->put($condition->getId(), $condition);
+    }
+
+    /**
+     * @return Map
+     */
+    public function getConditions(): Map
+    {
+        return $this->conditions;
+    }
+
+    /**
+     * @param Map $conditions
+     */
+    public function setConditions(Map $conditions)
+    {
+        $this->conditions = $conditions;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasConditions()
+    {
+        if (count($this->conditions) >= 1) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -19,6 +19,11 @@ class IntAttribute extends AbstractAttribute
         }
     }
 
+    public function getValue()
+    {
+        return intval(parent::getValue());
+    }
+
     /**
      * @param AttributeInterface $attribute
      * @param string $operation
@@ -39,6 +44,10 @@ class IntAttribute extends AbstractAttribute
                 break;
             case AbstractAttribute::GREATER_THAN_OR_EQUAL:
                 return $this->testGreaterThanOrEqual($attribute);
+                break;
+            case AbstractAttribute::GREATER_THAN:
+                return $this->testGreaterThan($attribute);
+                break;
             default:
                 return false;
         }
@@ -68,6 +77,20 @@ class IntAttribute extends AbstractAttribute
 
         return false;
     }
+
+    /**
+     * @param AttributeInterface $attribute
+     * @return bool
+     */
+    private function testGreaterThan(AttributeInterface $attribute)
+    {
+        if ($this->getValue() > $attribute->getValue()) {
+            return true;
+        }
+
+        return false;
+    }
+
 
     /**
      * @return string

@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ResponseEngine\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Http\Request;
 use SimpleXMLElement;
 
 class MessageXML implements Rule
@@ -22,6 +21,25 @@ class MessageXML implements Rule
 
             foreach ($message->children() as $item) {
                 switch ($item->getName()) {
+                    case 'attribute-message':
+                        $attributeValid = false;
+
+                        if (empty((string)$item)) {
+                            foreach ($item->children() as $child) {
+                                if (!empty((string) $child)) {
+                                    $attributeValid = true;
+                                }
+                            }
+                        } else {
+                            $attributeValid = true;
+                        }
+
+                        if (!$attributeValid) {
+                            return false;
+                        }
+
+                        break;
+
                     case 'text-message':
                         if (empty((string)$item)) {
                             return false;
