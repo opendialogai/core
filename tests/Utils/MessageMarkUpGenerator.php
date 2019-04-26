@@ -40,9 +40,15 @@ class MessageMarkUpGenerator
     {
         $buttonMessage = new ButtonMessage($text);
         foreach ($buttons as $button) {
-            $buttonMessage->addButton(
-                (new Button($button['text'], $button['value'], $button['callback']))
-            );
+            if (isset($button['tab_switch'])) {
+                $buttonMessage->addButton(
+                    (new TabSwitchButton($button['text']))
+                );
+            } else {
+                $buttonMessage->addButton(
+                    (new CallbackButton($button['text'], $button['value'], $button['callback']))
+                );
+            }
         }
 
         $this->messages[] = $buttonMessage;
@@ -155,14 +161,17 @@ EOT;
     }
 }
 
-class Button
+abstract class Button {
+}
+
+class CallbackButton extends Button
 {
     public $text;
     public $value;
     public $callbackId;
 
     /**
-     * Button constructor.
+     * CallbackButton constructor.
      * @param $text
      * @param $callbackId
      * @param $value
@@ -181,6 +190,30 @@ class Button
     <text>$this->text</text>
     <value>$this->value</value>
     <callback>$this->callbackId</callback>
+</button>
+EOT;
+    }
+}
+
+class TabSwitchButton extends Button
+{
+    public $text;
+
+    /**
+     * TabSwitchButton constructor.
+     * @param $text
+     */
+    public function __construct($text)
+    {
+        $this->text = $text;
+    }
+
+    public function getMarkUp()
+    {
+        return <<<EOT
+<button>
+    <text>$this->text</text>
+    <tab_switch>true</tab_switch>
 </button>
 EOT;
     }
