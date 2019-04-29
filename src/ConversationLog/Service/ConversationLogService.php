@@ -2,15 +2,16 @@
 
 namespace OpenDialogAi\ConversationLog\Service;
 
-use \DateTime;
+use DateTime;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
-use OpenDialogAi\ConversationLog\Message;
+use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 
 
@@ -33,13 +34,14 @@ class ConversationLogService
      *
      * @param UtteranceInterface $utterance
      * @param Intent $intent
+     * @param UserContext $userContext
+     * @throws FieldNotSupported
      */
-    public function logIncomingMessage(UtteranceInterface $utterance, Intent $intent, UserContext $userContext)
+    public function logIncomingMessage(UtteranceInterface $utterance, Intent $intent, UserContext $userContext): void
     {
         $message = '';
         $type = '';
         $messageId = '';
-        $timestamp = 0.0;
 
         try {
             $message = $utterance->getText();
@@ -49,13 +51,13 @@ class ConversationLogService
 
         try {
             $type = $utterance->getType();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::debug(sprintf("Could not retrieve message type. Error: %s", $e->getMessage()));
         }
 
         try {
             $messageId = $utterance->getMessageId();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::debug(sprintf("Could not retrieve message ID. Error: %s", $e->getMessage()));
         }
 
@@ -79,15 +81,19 @@ class ConversationLogService
     /**
      * Log outgoing message.
      *
+     * @param WebChatMessages $messageWrapper
      * @param UtteranceInterface $utterance
      * @param Intent $intent
+     * @param UserContext $userContext
+     * @throws FieldNotSupported
      */
     public function logOutgoingMessages(
         WebChatMessages $messageWrapper,
         UtteranceInterface $utterance,
         Intent $intent,
         UserContext $userContext
-    ) {
+    ): void {
+        /** @var WebChatMessage $message */
         foreach ($messageWrapper->getMessages() as $message) {
             $messageData = $message->getMessageToPost();
 
@@ -111,12 +117,12 @@ class ConversationLogService
      * @param UtteranceInterface $utterance
      * @return String
      */
-    private function getUserId(UtteranceInterface $utterance)
+    private function getUserId(UtteranceInterface $utterance): string
     {
         $userId = '';
         try {
             $userId = $utterance->getUserId();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::debug(sprintf("Could not retrieve user id. Error: %s", $e->getMessage()));
         }
 
@@ -127,7 +133,7 @@ class ConversationLogService
      * @param Intent $intent
      * @return String
      */
-    private function getMatchedIntent(Intent $intent)
+    private function getMatchedIntent(Intent $intent): string
     {
         return $intent->getLabel();
     }
@@ -136,7 +142,7 @@ class ConversationLogService
      * @param Intent $intent
      * @return String
      */
-    private function getSceneId(Intent $intent)
+    private function getSceneId(Intent $intent): string
     {
         return $this->userService->getSceneForIntent($intent->getUid());
     }
@@ -146,16 +152,17 @@ class ConversationLogService
      * @param UtteranceInterface $utterance
      * @return String
      */
-    private function getConversationId(UserContext $userContext, UtteranceInterface $utterance)
+    private function getConversationId(UserContext $userContext, UtteranceInterface $utterance): string
     {
         return $this->conversationEngine->determineCurrentConversation($userContext, $utterance)->getId();
     }
 
     /**
      * @param UtteranceInterface $utterance
-     * @return String
+     * @return array
+     * @throws FieldNotSupported
      */
-    private function getUser(UtteranceInterface $utterance)
+    private function getUser(UtteranceInterface $utterance): array
     {
         $userInfo = $utterance->getUser();
         return [

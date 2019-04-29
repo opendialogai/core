@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\ConversationLog;
 
-use \Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
@@ -73,7 +73,7 @@ class Message extends Model
 
     public function chatbotUser()
     {
-        return $this->belongsTo('OpenDialogAi\ConversationLog\ChatbotUser', 'user_id');
+        return $this->belongsTo(ChatbotUser::class, 'user_id');
     }
 
     public function scopeBefore(Builder $query, $date): Builder
@@ -104,15 +104,15 @@ class Message extends Model
             $message_id = (string) Str::uuid();
         }
 
-        $message = new Message([
+        $message = new self([
             'microtime'       => $microtime,
             'type'            => $type,
             'user_id'         => $user_id,
             'author'          => $author,
             'message'         => $message,
-            'data'            => ($data) ? serialize($data) : null,
+            'data'            => $data ? serialize($data) : null,
             'message_id'      => $message_id,
-            'user'            => ($user) ? serialize($user) : null,
+            'user'            => $user ? serialize($user) : null,
             'matched_intent'  => $matched_intent,
             'scene_id'        => $scene_id,
             'conversation_id' => $conversation_id,
