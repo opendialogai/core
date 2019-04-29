@@ -1,14 +1,12 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message\Webchat;
+namespace OpenDialogAi\ResponseEngine\Message\Webchat\Button;
 
-class WebChatButton
+class WebchatCallbackButton extends BaseWebchatButton
 {
-    private $text = null;
+    protected $callbackId = null;
 
-    private $callbackId = null;
-
-    private $value = null;
+    protected $value = null;
 
     /**
      * @param $text
@@ -23,16 +21,6 @@ class WebChatButton
     }
 
     /**
-     * @param $text
-     * @return $this
-     */
-    public function setText($text)
-    {
-        $this->text = $text;
-        return $this;
-    }
-
-    /**
      * @param $callbackId
      * @return $this
      */
@@ -40,14 +28,6 @@ class WebChatButton
     {
         $this->callbackId = $callbackId;
         return $this;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getText()
-    {
-        return $this->text;
     }
 
     /**
@@ -72,5 +52,13 @@ class WebChatButton
     public function setValue($value)
     {
         $this->value = $value;
+    }
+
+    public function getData()
+    {
+        return parent::getData() + [
+            'callback_id' => $this->getCallbackId(),
+            'value' => $this->getValue()
+        ];
     }
 }
