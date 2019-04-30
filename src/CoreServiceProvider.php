@@ -7,6 +7,7 @@ use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
@@ -24,6 +25,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+
+        $this->app['router']->middleware('requestLoggerMiddleware', 'RequestLoggerMiddleware');
     }
 
     public function register()
