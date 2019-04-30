@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use OpenDialogAi\Util\Http\Middleware\RequestLoggerMiddleware;
+use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
 
 Route::group(['middleware' => 'web'], function() {
     Route::get('/config', function () {

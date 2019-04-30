@@ -1,10 +1,10 @@
 <?php
 
-namespace OpenDialogAi\Util;
+namespace OpenDialogAi\Core;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RequestLog extends Model
+class ResponseLog extends Model
 {
     /**
      * Indicates if the model should be timestamped.

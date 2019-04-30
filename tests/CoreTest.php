@@ -1,12 +1,12 @@
 <?php
 
-namespace OpenDialogAi\Core\Tests\Unit;
+namespace OpenDialogAi\Core\Tests;
 
-use OpenDialogAi\Util\RequestLog;
-use OpenDialogAi\Util\ResponseLog;
+use OpenDialogAi\RequestLog;
+use OpenDialogAi\ResponseLog;
 use OpenDialogAi\Core\Tests\TestCase;
 
-class UtilTest extends TestCase
+class CoreTest extends TestCase
 {
     /**
      * Test that incoming & outgoing messages are logged.

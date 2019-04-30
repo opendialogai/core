@@ -1,13 +1,13 @@
 <?php
 
-namespace OpenDialogAi\Util\Http\Middleware;
+namespace OpenDialogAi\Core\Http\Middleware;
 
 use Closure;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Util\RequestLog;
-use OpenDialogAi\Util\ResponseLog;
+use OpenDialogAi\Core\RequestLog;
+use OpenDialogAi\Core\ResponseLog;
 use Symfony\Component\HttpFoundation\Response;
 
 class RequestLoggerMiddleware
