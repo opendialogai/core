@@ -11,6 +11,7 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationLog\ChatbotUser as DbUser;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -172,6 +173,26 @@ class UserService
                     $chatbotUser->addAttribute($attribute);
                 }
             }
+        }
+
+        // Create/update the user in MySQL.
+        if ($user->getExternalId()) {
+            DbUser::updateOrCreate(
+                [
+                    'user_id' => $user->getExternalId(),
+                ],
+                [
+                    'ip_address' => $user->getIPAddress(),
+                    'country' => $user->getCountry(),
+                    'browser_language' => $user->getBrowserLanguage(),
+                    'os' => $user->getOS(),
+                    'browser' => $user->getBrowser(),
+                    'timezone' => $user->getTimezone(),
+                    'first_name' => $user->getFirstName(),
+                    'last_name' => $user->getLastName(),
+                    'email' => $user->getEmail(),
+                ]
+            );
         }
     }
 

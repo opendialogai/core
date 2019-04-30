@@ -78,6 +78,14 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 
         $user = $userService->updateUserFromUtterance($utterance);
 
+        // Ensure that the user is stored to the DB.
+        $this->assertDatabaseHas('chatbot_users', [
+            'user_id' => '1',
+            'first_name' => 'test',
+            'last_name' => 'test',
+            'email' => 'test@example.com',
+        ]);
+
         $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
         $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), $utteranceUser->getLastName());
         $this->assertEquals($chatbotUser->getAttribute('email')->getValue(), $utteranceUser->getEmail());
@@ -161,6 +169,14 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), '');
 
         $user = $userService->updateUserFromUtterance($utterance);
+
+        // Ensure that the user is stored to the DB.
+        $this->assertDatabaseHas('chatbot_users', [
+            'user_id' => '1',
+            'first_name' => 'test',
+            'last_name' => 'test',
+            'email' => 'test@example.com',
+        ]);
 
         $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
         $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), $utteranceUser->getLastName());

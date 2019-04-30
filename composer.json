@@ -19,7 +19,8 @@
     "php-ds/php-ds": "~1.2.",
     "guzzlehttp/guzzle": "~6.3",
     "justinrainbow/json-schema": "^5.2",
-    "spatie/laravel-activitylog": "^3.2"
+    "spatie/laravel-activitylog": "^3.2",
+    "doctrine/dbal": "^2.9"
   },
   "config": {
     "preferred-install": "source"
