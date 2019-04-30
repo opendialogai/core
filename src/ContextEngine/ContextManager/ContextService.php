@@ -129,6 +129,7 @@ class ContextService
      * @param string $attributeId
      * @param string $contextId
      * @return AttributeInterface
+     * @throws ContextDoesNotExistException
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface
     {
