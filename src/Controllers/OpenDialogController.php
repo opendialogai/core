@@ -73,7 +73,7 @@ class OpenDialogController
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
         // Log incoming message.
-        $this->conversationLogService->logIncomingMessage($utterance, $intent, $userContext);
+        $this->conversationLogService->logIncomingMessage($utterance);
 
         try {
             $messageWrapper = $this->responseEngineService->getMessageForIntent($intent->getId());
@@ -85,7 +85,7 @@ class OpenDialogController
         }
 
         // Log outgoing messages.
-        $this->conversationLogService->logOutgoingMessages($messageWrapper, $utterance, $intent, $userContext);
+        $this->conversationLogService->logOutgoingMessages($messageWrapper, $utterance);
 
         return $messageWrapper;
     }

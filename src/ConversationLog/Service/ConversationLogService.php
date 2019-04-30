@@ -33,11 +33,9 @@ class ConversationLogService
      * Log an incoming message.
      *
      * @param UtteranceInterface $utterance
-     * @param Intent $intent
-     * @param UserContext $userContext
      * @throws FieldNotSupported
      */
-    public function logIncomingMessage(UtteranceInterface $utterance, Intent $intent, UserContext $userContext): void
+    public function logIncomingMessage(UtteranceInterface $utterance): void
     {
         $message = '';
         $type = '';
@@ -71,10 +69,7 @@ class ConversationLogService
             $message,
             $utterance->getData(),
             $messageId,
-            $this->getUser($utterance),
-            $this->getMatchedIntent($intent),
-            $this->getSceneId($intent),
-            $this->getConversationId($userContext, $utterance)
+            $this->getUser($utterance)
         )->save();
     }
 
@@ -83,15 +78,10 @@ class ConversationLogService
      *
      * @param WebChatMessages $messageWrapper
      * @param UtteranceInterface $utterance
-     * @param Intent $intent
-     * @param UserContext $userContext
-     * @throws FieldNotSupported
      */
     public function logOutgoingMessages(
         WebChatMessages $messageWrapper,
-        UtteranceInterface $utterance,
-        Intent $intent,
-        UserContext $userContext
+        UtteranceInterface $utterance
     ): void {
         /** @var WebChatMessage $message */
         foreach ($messageWrapper->getMessages() as $message) {
@@ -105,10 +95,7 @@ class ConversationLogService
                 $messageData['data']['text'],
                 $messageData['data'],
                 null,
-                $this->getUser($utterance),
-                $this->getMatchedIntent($intent),
-                $this->getSceneId($intent),
-                $this->getConversationId($userContext, $utterance)
+                $this->getUser($utterance)
             )->save();
         }
     }
@@ -130,37 +117,8 @@ class ConversationLogService
     }
 
     /**
-     * @param Intent $intent
-     * @return String
-     */
-    private function getMatchedIntent(Intent $intent): string
-    {
-        return $intent->getLabel();
-    }
-
-    /**
-     * @param Intent $intent
-     * @return String
-     */
-    private function getSceneId(Intent $intent): string
-    {
-        return $this->userService->getSceneForIntent($intent->getUid());
-    }
-
-    /**
-     * @param UserContext $userContext
-     * @param UtteranceInterface $utterance
-     * @return String
-     */
-    private function getConversationId(UserContext $userContext, UtteranceInterface $utterance): string
-    {
-        return $this->conversationEngine->determineCurrentConversation($userContext, $utterance)->getId();
-    }
-
-    /**
      * @param UtteranceInterface $utterance
      * @return array
-     * @throws FieldNotSupported
      */
     private function getUser(UtteranceInterface $utterance): array
     {
