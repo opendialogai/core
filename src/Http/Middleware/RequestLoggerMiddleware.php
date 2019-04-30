@@ -12,6 +12,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RequestLoggerMiddleware
 {
+    private $requestId;
+
+    /**
+     * Set request ID.
+     */
+    public function __construct($requestId)
+    {
+        $this->requestId = $requestId;
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -41,8 +51,7 @@ class RequestLoggerMiddleware
             'query_params' => serialize($request->query()),
             'method' => $request->method(),
             'source_ip' => $request->ip(),
-            // FIXME get this.
-            'request_id' => '',
+            'request_id' => $this->requestId,
             'raw_request' => serialize($request->all()),
             'microtime' => DateTime::createFromFormat('U.u', LARAVEL_START)->format('Y-m-d H:i:s.u'),
         ])->save();

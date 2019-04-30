@@ -44,7 +44,6 @@ class OpenDialogController
         $this->responseEngineService = $responseEngineService;
     }
 
-
     /**
      * @todo - return a system level no match intent if we don't get back a usercontext,
      * or intent and return back a system level no match message if we don't get that from
