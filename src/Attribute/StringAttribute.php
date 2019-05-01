@@ -40,9 +40,6 @@ class StringAttribute extends AbstractAttribute
             case AbstractAttribute::IS_SET:
                 return $this->testIsSet($attribute);
                 break;
-            case AbstractAttribute::IS_NOT_SET:
-                return $this->testIsNotSet($attribute);
-                break;
             default:
                 return false;
         }
@@ -66,26 +63,13 @@ class StringAttribute extends AbstractAttribute
      */
     private function testIsSet(AttributeInterface $attribute)
     {
-        if ($attribute->getValue() === null) {
-            return false;
-        }
-
-        return true;
+        // For the IS_SET operator, this test passes if:
+        //
+        // operation value is true and attribute has a value
+        //   OR
+        // operation value is not true and attribute is null
+        return (($this->getValue() === 'true') === ($attribute->getValue() !== null));
     }
-
-    /**
-     * @param AttributeInterface $attribute
-     * @return bool
-     */
-    private function testIsNotSet(AttributeInterface $attribute)
-    {
-        if ($attribute->getValue() === null) {
-            return true;
-        }
-
-        return false;
-    }
-
 
     /**
      * @return string

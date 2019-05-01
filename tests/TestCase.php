@@ -77,7 +77,8 @@ conversation:
   conditions:
     - condition:
         attribute: user.name
-        operation: is_not_set
+        operation: is_set
+        value: false
     - condition:
         attribute: user.test
         operation: gt

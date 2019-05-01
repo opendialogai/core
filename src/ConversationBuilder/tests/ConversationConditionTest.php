@@ -158,6 +158,9 @@ class ConversationConditionTest extends TestCase
         ];
 
         Log::shouldReceive('debug')
+            ->with('Created condition from Yaml.');
+
+        Log::shouldReceive('debug')
             ->with('Could not create condition because: Condition user.name required a value but has not defined it');
 
         $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
