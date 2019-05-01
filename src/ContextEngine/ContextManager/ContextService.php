@@ -43,7 +43,7 @@ class ContextService
      */
     public function createContext(string $contextId): ContextInterface
     {
-        $newContext =  new BaseContext($contextId);
+        $newContext = new BaseContext($contextId);
         $this->addContext($newContext);
         return $newContext;
     }
@@ -158,7 +158,6 @@ class ContextService
     {
         return $this->getAttribute($attributeId, $contextId)->getValue();
     }
-
 
     /**
      * @param UtteranceInterface $utterance
