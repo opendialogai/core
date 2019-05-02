@@ -66,7 +66,7 @@ class ConversationConditionTest extends TestCase
 
     public function testConditionsAreCreatedCorrectly()
     {
-        Conversation::create(['name' => 'Test Conversation', 'model' => 'conversation:']);
+        Conversation::create(['name' => 'Test Conversation 2', 'model' => 'conversation:']);
         /* @var \OpenDialogAi\ConversationBuilder\Conversation $conversation */
         $conversationModel = Conversation::where('name', 'Test Conversation')->first();
 
