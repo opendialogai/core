@@ -15,7 +15,7 @@ class ExportConversation extends Command
      *
      * @var string
      */
-    protected $signature = 'export:conversation {conversation id} {--f|filename=}';
+    protected $signature = 'export:conversation {conversation name} {--f|filename=}';
 
     /**
      * The console command description.
@@ -42,8 +42,15 @@ class ExportConversation extends Command
     public function handle()
     {
         // Load the conversation.
-        $conversationId = $this->argument('conversation id');
-        $conversation = Conversation::findOrFail($conversationId);
+        $conversationName = $this->argument('conversation name');
+        $conversation = Conversation::where(['name' => $conversationName])->first();
+
+        if (!$conversation) {
+            $this->error("I could not find a conversation with name " . $conversationName . "!");
+            exit;
+        } else {
+            $this->info("Exporting conversation with id " . $conversation->id);
+        }
 
         // Find this conversation's intents.
         $outgoingIntents = [];
