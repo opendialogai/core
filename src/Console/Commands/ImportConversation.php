@@ -56,7 +56,7 @@ class ImportConversation extends Command
                 "* Conversation with ID " . $existingConversation->id . " and name " . $existingConversation->name . "\n";
         } else {
             $newModelText .=
-                "* Conversation with name " . $existingConversation->name . "\n";
+                "* Conversation with name " . $data['conversation']->name . "\n";
         }
 
         // Check for existing intents with this name.
