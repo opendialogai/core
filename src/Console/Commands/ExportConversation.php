@@ -42,22 +42,16 @@ class ExportConversation extends Command
     public function handle()
     {
         // Load the conversation.
-        $conversationId = $this->argument('conversation');
+        $conversationId = $this->argument('conversation id');
         $conversation = Conversation::findOrFail($conversationId);
 
         // Find this conversation's intents.
         $outgoingIntents = [];
-        $messageTemplates = [];
         $parsedConversation = $conversation->buildConversation();
         foreach ($parsedConversation->getAllIntents() as $intent) {
             if ($outgoingIntent = OutgoingIntent::where('name', $intent->getLabel())->with('messageTemplates')->first()) {
                 if (!isset($outgoingIntents[$outgoingIntent->id])) {
                     $outgoingIntents[$outgoingIntent->id] = $outgoingIntent;
-                    foreach ($outgoingIntent->messageTemplates as $messageTemplate) {
-                        if (!isset($messageTemplates[$messageTemplate->id])) {
-                            $messageTemplates[$messageTemplate->id] = $messageTemplate;
-                        }
-                    }
                 }
             }
         }
@@ -65,7 +59,6 @@ class ExportConversation extends Command
         $output = serialize([
             'conversation' => $conversation,
             'outgoingIntents' => $outgoingIntents,
-            'messageTemplates' => $messageTemplates,
         ]);
 
         $filename = $this->option('filename');

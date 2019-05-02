@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
+use OpenDialogAi\Core\Console\Commands\ImportConversation;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
@@ -29,6 +30,7 @@ class CoreServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ExportConversation::class,
+                ImportConversation::class,
             ]);
         }
     }
