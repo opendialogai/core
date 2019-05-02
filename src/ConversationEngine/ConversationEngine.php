@@ -83,6 +83,9 @@ class ConversationEngine implements ConversationEngineInterface
         $this->attributeResolver = $attributeResolver;
     }
 
+    /**
+     * @param ContextService $contextService
+     */
     public function setContextService(ContextService $contextService)
     {
         $this->contextService = $contextService;
