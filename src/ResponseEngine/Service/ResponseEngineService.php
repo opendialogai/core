@@ -2,9 +2,11 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -74,9 +76,16 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $matchCount = preg_match_all("(\{(.*?)\})", $text, $matches, PREG_PATTERN_ORDER);
         if ($matchCount > 0) {
             foreach ($matches[1] as $attributeId) {
-                [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attributeId);
-                $attribute = $this->contextService->getAttribute($attributeName, $contextId);
-                $text = str_replace('{' . $attributeId . '}', $attribute->getValue(), $text);
+                $replacement = ' ';
+                try {
+                    [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attributeId);
+                    $replacement = $this->contextService->getAttributeValue($attributeName, $contextId);
+                } catch (ContextDoesNotExistException $e) {
+                    Log::warning($e->getMessage());
+                } catch (AttributeDoesNotExistException $e) {
+                    Log::warning($e->getMessage());
+                }
+                $text = str_replace('{' . $attributeId . '}', $replacement, $text);
             }
         }
 
