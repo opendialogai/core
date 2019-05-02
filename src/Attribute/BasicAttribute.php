@@ -38,14 +38,17 @@ class BasicAttribute extends AbstractAttribute
             case AbstractAttribute::LESS_THAN:
                 return $this->testLessThan($attribute);
                 break;
-            case AbstractAttribute::IS_SET:
-                return $this->testIsSet($attribute);
-                break;
             case AbstractAttribute::IN_SET:
                 return $this->testIsInSet($attribute);
                 break;
             case AbstractAttribute::NOT_IN_SET:
                 return $this->testIsNotInSet($attribute);
+                break;
+            case AbstractAttribute::IS_SET:
+                return $this->testIsSet($attribute);
+                break;
+            case AbstractAttribute::IS_NOT_SET:
+                return $this->testIsNotSet($attribute);
                 break;
             default:
                 return false;
@@ -122,12 +125,16 @@ class BasicAttribute extends AbstractAttribute
      */
     private function testIsSet(AttributeInterface $attribute)
     {
-        // For the IS_SET operator, this test passes if:
-        //
-        // operation value is true and attribute has a value
-        //   OR
-        // operation value is not true and attribute is null
-        return (($this->getValue() === 'true') === ($attribute->getValue() !== null));
+        return ($attribute->getValue() !== null);
+    }
+
+    /**
+     * @param AttributeInterface $attribute
+     * @return bool
+     */
+    private function testIsNotSet(AttributeInterface $attribute)
+    {
+        return ($attribute->getValue() === null);
     }
 
     /**

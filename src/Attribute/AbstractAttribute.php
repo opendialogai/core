@@ -24,6 +24,7 @@ abstract class AbstractAttribute implements AttributeInterface
     const IN_SET = 'in_set';
     const NOT_IN_SET = 'not_in_set';
     const IS_SET = 'is_set';
+    const IS_NOT_SET = 'is_not_set';
 
     const UNDEFINED_CONTEXT = 'undefined_context';
 
@@ -64,6 +65,18 @@ abstract class AbstractAttribute implements AttributeInterface
             self::IN_SET,
             self::NOT_IN_SET,
             self::IS_SET,
+            self::IS_NOT_SET,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function operationsNotRequiringValue()
+    {
+        return [
+            self::IS_SET,
+            self::IS_NOT_SET
         ];
     }
 

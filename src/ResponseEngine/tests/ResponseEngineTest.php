@@ -297,7 +297,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  user.name: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
             'message_markup' => $generator2->getMarkUp(),
         ]);
 

@@ -11,6 +11,7 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineAttributeException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineValidOperationException;
+use OpenDialogAi\ConversationBuilder\Exceptions\ConditionRequiresValueButDoesNotDefineItException;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
@@ -319,7 +320,13 @@ class Conversation extends Model
 
         // Now check that we have a valid operation and a value if required for that operation.
         if (isset($operation)) {
-            if (!in_array($operation, AbstractAttribute::allowedAttributeOperations())) {
+            if (in_array($operation, AbstractAttribute::allowedAttributeOperations())) {
+                if (!in_array($operation, AbstractAttribute::operationsNotRequiringValue()) && !isset($value)) {
+                    throw new ConditionRequiresValueButDoesNotDefineItException(
+                        sprintf('Condition %s required a value but has not defined it', $attributeName)
+                    );
+                }
+            } else {
                 throw new ConditionDoesNotDefineValidOperationException(
                     sprintf('Condition operation %s is not a valid operation', $operation)
                 );

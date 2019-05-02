@@ -106,7 +106,7 @@ class ConditionTest extends TestCase
 
     public function testConditionIsSetComparison()
     {
-        $condition = new Condition(new StringAttribute('A', 'true'), AbstractAttribute::IS_SET);
+        $condition = new Condition(new StringAttribute('A', null), AbstractAttribute::IS_SET);
         $attributeToCompare = new StringAttribute('A', null);
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
@@ -118,7 +118,7 @@ class ConditionTest extends TestCase
 
     public function testConditionIsNotSetComparison()
     {
-        $condition = new Condition(new StringAttribute('A', 'false'), AbstractAttribute::IS_SET);
+        $condition = new Condition(new StringAttribute('A', null), AbstractAttribute::IS_NOT_SET);
         $attributeToCompare = new StringAttribute('A', 'foo');
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
