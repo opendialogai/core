@@ -13,9 +13,16 @@ return [
         'spellcheck'       => env('LUIS_SPELLCHECK', 'true')
     ],
 
+    // Config for the QnA service
+    'qna_config' => [
+        'app_url'      => env('QNA_APP_URL'),
+        'endpoint_key' => env('QNA_ENDPOINT_KEY'),
+    ],
+
     // Register the application interfaces
     'available_interpreters' => [
         OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter::class,
+        OpenDialogAi\InterpreterEngine\Interpreters\QnAInterpreter::class,
         OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter::class
     ],
 
