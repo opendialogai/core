@@ -45,10 +45,10 @@ class BasicAttribute extends AbstractAttribute
                 return $this->testIsNotInSet($attribute);
                 break;
             case AbstractAttribute::IS_SET:
-                return $this->testIsSet($attribute);
+                return $this->testIsSet();
                 break;
             case AbstractAttribute::IS_NOT_SET:
-                return $this->testIsNotSet($attribute);
+                return $this->testIsNotSet();
                 break;
             default:
                 return false;
@@ -120,21 +120,19 @@ class BasicAttribute extends AbstractAttribute
     }
 
     /**
-     * @param AttributeInterface $attribute
      * @return bool
      */
-    private function testIsSet(AttributeInterface $attribute)
+    private function testIsSet()
     {
-        return ($attribute->getValue() !== null);
+        return ($this->getValue() !== null);
     }
 
     /**
-     * @param AttributeInterface $attribute
      * @return bool
      */
-    private function testIsNotSet(AttributeInterface $attribute)
+    private function testIsNotSet()
     {
-        return ($attribute->getValue() === null);
+        return ($this->getValue() === null);
     }
 
     /**
