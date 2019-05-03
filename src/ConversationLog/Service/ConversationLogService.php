@@ -92,7 +92,7 @@ class ConversationLogService
                 $messageData['type'],
                 $this->getUserId($utterance),
                 $messageData['author'],
-                $messageData['data']['text'],
+                (isset($messageData['data']['text'])) ? $messageData['data']['text'] : '',
                 $messageData['data'],
                 null,
                 $this->getUser($utterance)
