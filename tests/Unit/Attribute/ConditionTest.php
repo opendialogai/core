@@ -34,72 +34,71 @@ class ConditionTest extends TestCase
 
     public function testConditionGreaterThanComparison()
     {
-        $condition = new Condition(new IntAttribute('A', 1), AbstractAttribute::GREATER_THAN);
-        $attributeToCompare = new IntAttribute('A', 2);
+        $condition = new Condition(new IntAttribute('A', 2), AbstractAttribute::GREATER_THAN);
+        $attributeToCompare = new IntAttribute('A', 1);
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
 
-        $attributeToCompare->setValue(0);
+        $condition = new Condition(new IntAttribute('A', 0), AbstractAttribute::GREATER_THAN);
 
         $this->assertTrue($condition->compareAgainst($attributeToCompare));
     }
 
     public function testConditionLessThanComparison()
     {
-        $condition = new Condition(new IntAttribute('A', 1), AbstractAttribute::LESS_THAN);
-        $attributeToCompare = new IntAttribute('A', 0);
+        $condition = new Condition(new IntAttribute('A', 0), AbstractAttribute::LESS_THAN);
+        $attributeToCompare = new IntAttribute('A', 1);
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
 
-        $attributeToCompare->setValue(2);
+        $condition = new Condition(new IntAttribute('A', 2), AbstractAttribute::LESS_THAN);
 
         $this->assertTrue($condition->compareAgainst($attributeToCompare));
     }
 
     public function testConditionGreaterThanOrEqualComparison()
     {
-        $condition = new Condition(new FloatAttribute('A', 1.5), AbstractAttribute::GREATER_THAN);
-        $attributeToCompare = new FloatAttribute('A', 1.8);
+        $condition = new Condition(new FloatAttribute('A', 1.8), AbstractAttribute::GREATER_THAN);
+        $attributeToCompare = new FloatAttribute('A', 1.5);
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
 
-        $attributeToCompare->setValue(1.2);
+        $condition = new Condition(new FloatAttribute('A', 1.2), AbstractAttribute::GREATER_THAN);
 
         $this->assertTrue($condition->compareAgainst($attributeToCompare));
     }
 
     public function testConditionLessThanOrEqualComparison()
     {
-        $condition = new Condition(new FloatAttribute('A', 1.5), AbstractAttribute::LESS_THAN);
-        $attributeToCompare = new FloatAttribute('A', 1.2);
+        $condition = new Condition(new FloatAttribute('A', 1.2), AbstractAttribute::LESS_THAN);
+        $attributeToCompare = new FloatAttribute('A', 1.5);
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
 
-        $attributeToCompare->setValue(1.8);
+        $condition = new Condition(new FloatAttribute('A', 1.8), AbstractAttribute::LESS_THAN);
 
         $this->assertTrue($condition->compareAgainst($attributeToCompare));
     }
 
     public function testConditionInSetComparison()
     {
-        $condition = new Condition(new StringAttribute('A', ['foo', 'bar']), AbstractAttribute::IN_SET);
-        $attributeToCompare = new StringAttribute('A', 'baz');
+        $condition = new Condition(new StringAttribute('A', 'baz'), AbstractAttribute::IN_SET);
+        $attributeToCompare = new StringAttribute('A', ['foo', 'bar']);
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
 
-        $attributeToCompare->setValue('foo');
-
+        $condition = new Condition(new StringAttribute('A', 'foo'), AbstractAttribute::IN_SET);
         $this->assertTrue($condition->compareAgainst($attributeToCompare));
     }
 
     public function testConditionNotInSetComparison()
     {
-        $condition = new Condition(new StringAttribute('A', ['foo', 'bar']), AbstractAttribute::NOT_IN_SET);
-        $attributeToCompare = new StringAttribute('A', 'foo');
+        $condition = new Condition(new StringAttribute('A', 'foo'), AbstractAttribute::NOT_IN_SET);
+        $attributeToCompare = new StringAttribute('A', ['foo', 'bar']);
 
         $this->assertFalse($condition->compareAgainst($attributeToCompare));
 
-        $attributeToCompare->setValue('baz');
+        $condition = new Condition(new StringAttribute('A', 'baz'), AbstractAttribute::NOT_IN_SET);
 
         $this->assertTrue($condition->compareAgainst($attributeToCompare));
     }
