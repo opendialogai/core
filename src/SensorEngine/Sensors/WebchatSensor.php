@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Exceptions\UtteranceUnknownMessageType;
 use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatButtonResponseUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
@@ -63,6 +64,21 @@ class WebchatSensor extends BaseSensor
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
                     $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
+                }
+                if (isset($request['content']['data']['value'])) {
+                    $utterance->setValue($request['content']['data']['value']);
+                }
+                return $utterance;
+                break;
+
+            case 'button_response':
+                Log::debug('Received webchat button_response message.');
+                $utterance = new WebchatButtonResponseUtterance();
+                $utterance->setCallbackId($request['content']['data']['callback_id']);
+                Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
+                $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['content']['user']));
                 }
                 if (isset($request['content']['data']['value'])) {
                     $utterance->setValue($request['content']['data']['value']);

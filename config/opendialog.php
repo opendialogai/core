@@ -7,6 +7,3 @@ return [
 
     'LOG_DGRAPH_QUERIES' => env("LOG_DGRAPH_QUERIES", false)
 ];
-
-
-
