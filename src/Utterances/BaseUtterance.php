@@ -42,15 +42,15 @@ abstract class BaseUtterance implements UtteranceInterface
     }
 
     /**
-     * Returns the type of utterance. Classes that extend this class can set their own type by defining a type constant
+     * Returns the utterance platform. Classes that extend this class can set their own type by defining a type constant
      *
      * @return string
-     * @throws UtteranceTypeNotSetException
+     * @throws UtterancePlatformNotSetException
      */
-    public function getType(): string
+    public function getPlatform(): string
     {
         if (static::PLATFORM === self::PLATFORM) {
-            throw new UtteranceTypeNotSetException('Utterance platform has not been set');
+            throw new UtterancePlatformNotSetException('Utterance platform has not been set');
         }
 
         return static::PLATFORM;
@@ -60,12 +60,12 @@ abstract class BaseUtterance implements UtteranceInterface
      * Returns the type of utterance. Classes that extend this class can set their own type by defining a type constant
      *
      * @return string
-     * @throws UtterancePlatformNotSetException
+     * @throws UtteranceTypeNotSetException
      */
-    public function getPlatform(): string
+    public function getType(): string
     {
         if (static::TYPE === self::TYPE) {
-            throw new UtterancePlatformNotSetException('Utterance platform has not been set');
+            throw new UtteranceTypeNotSetException('Utterance platform has not been set');
         }
 
         return static::TYPE;

@@ -5,6 +5,7 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -47,6 +48,16 @@ class CallbackInterpreter extends BaseInterpreter
                 if (array_key_exists($callbackId, $this->supportedCallbacks)) {
                     $intent = new Intent($this->supportedCallbacks[$utterance->getCallbackId()]);
                     $intent->setConfidence(1);
+
+                    if ($utterance->getType() == 'button_response' && $value = $utterance->getValue()) {
+                        $attribute = new StringAttribute('button_value', $value);
+                        Log::debug(sprintf(
+                            'Adding attribute %s with value %s to intent.',
+                            $attribute->getId(),
+                            $attribute->getValue()
+                        ));
+                        $intent->addAttribute($attribute);
+                    }
                     return [$intent];
                 }
             }
