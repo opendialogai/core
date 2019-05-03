@@ -33,8 +33,8 @@ class IncomingWebchatMessage extends FormRequest
             'content.type' => 'in:button_response,chat_open,text,trigger',
             // The callback_id is required for chat_opens.
             'content.data.callback_id' => 'required_if:content.type,in:button_response,chat_open|string',
-            // The user data array is required for chat_opens.
-            'content.data.user' => 'required_if:content.type,==,chat_open|array',
+            // The user array is required for chat_opens.
+            'content.user' => 'required_if:content.type,==,chat_open|array',
         ];
     }
 }
