@@ -34,10 +34,11 @@ class WebchatSensor extends BaseSensor
             case 'chat_open':
                 Log::debug('Received webchat open request.');
                 $utterance = new WebchatChatOpenUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
-                    $utterance->setUser($this->createUser($request['content']['user']));
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 return $utterance;
                 break;
@@ -45,10 +46,11 @@ class WebchatSensor extends BaseSensor
             case 'text':
                 Log::debug('Received webchat message.');
                 $utterance = new WebchatTextUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setText($request['content']['data']['text']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
-                    $utterance->setUser($this->createUser($request['content']['user']));
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 return $utterance;
                 break;
@@ -56,11 +58,12 @@ class WebchatSensor extends BaseSensor
             case 'trigger':
                 Log::debug('Received webchat trigger message.');
                 $utterance = new WebchatTriggerUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
-                    $utterance->setUser($this->createUser($request['content']['user']));
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 if (isset($request['content']['data']['value'])) {
                     $utterance->setValue($request['content']['data']['value']);
@@ -91,12 +94,13 @@ class WebchatSensor extends BaseSensor
     }
 
     /**
-     * @param $userData
+     * @param string $userId The webchat id of the user
+     * @param array $userData Array of user specific data sent with a request
      * @return User
      */
-    private function createUser(array $userData)
+    private function createUser(string $userId, array $userData): User
     {
-        $user = new User();
+        $user = new User($userId);
 
         isset($userData['first_name']) ? $user->setFirstName($userData['first_name']) : null;
         isset($userData['last_name']) ? $user->setLastName($userData['last_name']) : null;
