@@ -29,6 +29,7 @@ abstract class AbstractAttribute implements AttributeInterface
     const IS_FALSE = 'is_false';
 
     const UNDEFINED_CONTEXT = 'undefined_context';
+    const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
 
     /* @var string $id - a unique id for this attribute class. */
     protected $id;
@@ -101,11 +102,11 @@ abstract class AbstractAttribute implements AttributeInterface
             self::DATETIME
         ];
 
-        if (!in_array($type, $types)) {
+        if (!in_array($type, $types, true)) {
             throw new UnsupportedAttributeTypeException(sprintf('Type %s is not supported', $type));
-        } else {
-            $this->type = $type;
         }
+
+        $this->type = $type;
     }
 
     /**
@@ -120,7 +121,7 @@ abstract class AbstractAttribute implements AttributeInterface
      * @param string $type
      * @throws UnsupportedAttributeTypeException
      */
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         $this->checkAndAssignType($type);
     }

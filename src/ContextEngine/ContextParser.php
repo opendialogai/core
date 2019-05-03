@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ContextEngine;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
@@ -19,19 +20,20 @@ abstract class ContextParser
      */
     public static function determineContextAndAttributeId($attribute): array
     {
-        $contextId = null;
-        $attributeId = null;
+        $matches = explode('.', $attribute);
 
-        $matches = explode('.', $attribute, 2);
-
-        if (count($matches) === 2) {
-            $contextId = $matches[0];
-            $attributeId = $matches[1];
-        }
-
-        if (count($matches) === 1) {
-            $attributeId = $matches[0];
-            $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
+        switch (count($matches)) {
+            case 2:
+                [$contextId, $attributeId] = $matches;
+                break;
+            case 1:
+                $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
+                $attributeId = $matches[0];
+                break;
+            default:
+                Log::warning(sprintf('Parsing invalid attribute name %s', $attribute));
+                $attributeId = AbstractAttribute::INVALID_ATTRIBUTE_NAME;
+                $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
         }
 
         return [$contextId, $attributeId];
@@ -49,18 +51,7 @@ abstract class ContextParser
      */
     public static function determineContextId($attribute): string
     {
-        $contextId = null;
-        $matches = explode('.', $attribute);
-
-        if (count($matches) === 2) {
-            $contextId = $matches[0];
-        }
-
-        if (count($matches) === 1) {
-            $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
-        }
-
-        return $contextId;
+        return self::determineContextAndAttributeId($attribute)[0];
     }
 
     /**
@@ -72,18 +63,6 @@ abstract class ContextParser
      */
     public static function determineAttributeId($attribute): string
     {
-        $attributeId = null;
-
-        $matches = explode('.', $attribute);
-
-        if (count($matches) === 2) {
-            $attributeId = $matches[1];
-        }
-
-        if (count($matches) === 1) {
-            $attributeId = $matches[0];
-        }
-
-        return $attributeId;
+        return self::determineContextAndAttributeId($attribute)[1];
     }
 }
