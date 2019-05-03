@@ -10,8 +10,8 @@ use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
-use OpenDialogAi\SensorEngine\BaseSensor;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
+use OpenDialogAi\SensorEngine\BaseSensor;
 
 class WebchatSensor extends BaseSensor
 {
@@ -37,7 +37,7 @@ class WebchatSensor extends BaseSensor
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
-                    $utterance->setUser($this->createUser($request['content']['user']));
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 return $utterance;
                 break;
@@ -49,7 +49,7 @@ class WebchatSensor extends BaseSensor
                 $utterance->setText($request['content']['data']['text']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
-                    $utterance->setUser($this->createUser($request['content']['user']));
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 return $utterance;
                 break;
@@ -62,7 +62,7 @@ class WebchatSensor extends BaseSensor
                 Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
-                    $utterance->setUser($this->createUser($request['content']['user']));
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 if (isset($request['content']['data']['value'])) {
                     $utterance->setValue($request['content']['data']['value']);
@@ -78,12 +78,13 @@ class WebchatSensor extends BaseSensor
     }
 
     /**
-     * @param $userData
+     * @param string $userId The webchat id of the user
+     * @param array $userData Array of user specific data sent with a request
      * @return User
      */
-    private function createUser(array $userData)
+    private function createUser(string $userId, array $userData): User
     {
-        $user = new User();
+        $user = new User($userId);
 
         isset($userData['first_name']) ? $user->setFirstName($userData['first_name']) : null;
         isset($userData['last_name']) ? $user->setLastName($userData['last_name']) : null;

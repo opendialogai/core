@@ -11,7 +11,6 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
-use OpenDialogAi\ConversationLog\ChatbotUser as DbUser;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -38,7 +37,7 @@ class UserService
         $this->dGraphClient = $dGraphClient;
     }
 
-    public function setAttributeResolver(AttributeResolver $attributeResolver)
+    public function setAttributeResolver(AttributeResolver $attributeResolver): void
     {
         $this->attributeResolver = $attributeResolver;
     }
@@ -56,17 +55,17 @@ class UserService
         $user = new ChatbotUser();
         if (isset($response->getData()[0]['id'])) {
             foreach ($response->getData()[0] as $name => $value) {
-                if ($name == 'id') {
+                if ($name === 'id') {
                     $user->setId($value);
                     continue;
                 }
 
-                if ($name == 'uid') {
+                if ($name === 'uid') {
                     $user->setUid($value);
                     continue;
                 }
 
-                if ($name == Model::HAVING_CONVERSATION || $name == Model::HAD_CONVERSATION) {
+                if ($name === Model::HAVING_CONVERSATION || $name === Model::HAD_CONVERSATION) {
                     continue;
                 }
 
@@ -74,7 +73,7 @@ class UserService
                     $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
                 } catch (AttributeCouldNotBeResolvedException $e) {
-                    Log::warning(sprintf("Attribute for user could not be resolved %s => %s", $name, $value));
+                    Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
                     continue;
                 }
             }
@@ -108,9 +107,9 @@ class UserService
     {
         if ($this->userExists($utterance->getUserId())) {
             return $this->updateUserFromUtterance($utterance);
-        } else {
-            return $this->createUserFromUtterance($utterance);
         }
+
+        return $this->createUserFromUtterance($utterance);
     }
 
     /**
@@ -118,81 +117,43 @@ class UserService
      * @return ChatbotUser
      * @throws FieldNotSupported
      */
-    public function updateUserFromUtterance(UtteranceInterface $utterance)
+    public function updateUserFromUtterance(UtteranceInterface $utterance): ChatbotUser
     {
         // We are dealing with an existing user to go get them
         $user = $this->getUser($utterance->getUserId());
         $this->updateFromUtteranceUserObject($utterance->getUser(), $user);
-        return $this->updateUser($user);
+
+        $chatbotUser = $this->updateUser($user);
+        MySqlUserRepository::persistUserToMySql($utterance->getUser());
+        return $chatbotUser;
     }
 
     /**
      * @param User $user
      * @param ChatbotUser $chatbotUser
      */
-    protected function updateFromUtteranceUserObject(User $user, ChatbotUser $chatbotUser)
+    protected function updateFromUtteranceUserObject(User $user, ChatbotUser $chatbotUser): void
     {
         if ($user->hasFirstName()) {
-            if ($chatbotUser->hasAttribute('first_name')) {
-                $chatbotUser->setAttribute('first_name', $user->getFirstName());
-            } else {
-                $attribute = $this->attributeResolver->getAttributeFor('first_name', $user->getFirstName());
-                $chatbotUser->addAttribute($attribute);
-            }
-        }
-        if ($user->hasLastName()) {
-            if ($chatbotUser->hasAttribute('last_name')) {
-                $chatbotUser->setAttribute('last_name', $user->getLastName());
-            } else {
-                $attribute = $this->attributeResolver->getAttributeFor('last_name', $user->getLastName());
-                $chatbotUser->addAttribute($attribute);
-            }
-        }
-        if ($user->hasEmail()) {
-            if ($chatbotUser->hasAttribute('email')) {
-                $chatbotUser->setAttribute('email', $user->getEmail());
-            } else {
-                $attribute = $this->attributeResolver->getAttributeFor('email', $user->getEmail());
-                $chatbotUser->addAttribute($attribute);
-            }
-        }
-        if ($user->hasExternalId()) {
-            if ($chatbotUser->hasAttribute('external_id')) {
-                $chatbotUser->setAttribute('external_id', $user->getExternalId());
-            } else {
-                $attribute = $this->attributeResolver->getAttributeFor('external_id', $user->getExternalId());
-                $chatbotUser->addAttribute($attribute);
-            }
-        }
-        if ($user->hasCustomParameters()) {
-            foreach ($user->getCustomParameters() as $key => $value) {
-                if ($chatbotUser->hasAttribute($key)) {
-                    $chatbotUser->setAttribute($key, $value);
-                } else {
-                    $attribute = $this->attributeResolver->getAttributeFor($key, $value);
-                    $chatbotUser->addAttribute($attribute);
-                }
-            }
+            $this->setUserAttribute($chatbotUser, 'first_name', $user->getFirstName());
         }
 
-        // Create/update the user in MySQL.
-        if ($user->getExternalId()) {
-            DbUser::updateOrCreate(
-                [
-                    'user_id' => $user->getExternalId(),
-                ],
-                [
-                    'ip_address' => $user->getIPAddress(),
-                    'country' => $user->getCountry(),
-                    'browser_language' => $user->getBrowserLanguage(),
-                    'os' => $user->getOS(),
-                    'browser' => $user->getBrowser(),
-                    'timezone' => $user->getTimezone(),
-                    'first_name' => $user->getFirstName(),
-                    'last_name' => $user->getLastName(),
-                    'email' => $user->getEmail(),
-                ]
-            );
+        if ($user->hasLastName()) {
+            $this->setUserAttribute($chatbotUser, 'last_name', $user->getLastName());
+        }
+
+        if ($user->hasEmail()) {
+            $this->setUserAttribute($chatbotUser, 'email', $user->getEmail());
+        }
+
+        if ($user->hasExternalId()) {
+            $this->setUserAttribute($chatbotUser, 'external_id', $user->hasExternalId());
+        }
+
+        if ($user->hasCustomParameters()) {
+            foreach ($user->getCustomParameters() as $key => $value) {
+                $this->setUserAttribute($chatbotUser, $key, $value);
+            }
         }
     }
 
@@ -201,11 +162,15 @@ class UserService
      * @return ChatbotUser
      * @throws FieldNotSupported
      */
-    public function createUserFromUtterance(UtteranceInterface $utterance)
+    public function createUserFromUtterance(UtteranceInterface $utterance): ChatbotUser
     {
         $user = new ChatbotUser($utterance->getUserId());
         $this->updateFromUtteranceUserObject($utterance->getUser(), $user);
-        return $this->updateUser($user);
+
+        $chatbotUser = $this->updateUser($user);
+        MySqlUserRepository::persistUserToMySql($utterance->getUser());
+
+        return $chatbotUser;
     }
 
     /**
@@ -213,13 +178,13 @@ class UserService
      * @param Conversation $conversation
      * @return Node
      */
-    public function setCurrentConversation(ChatbotUser $user, Conversation $conversation)
+    public function setCurrentConversation(ChatbotUser $user, Conversation $conversation): Node
     {
         $user->setCurrentConversation($conversation);
         return $this->updateUser($user);
     }
 
-    public function moveCurrentConversationToPast(ChatbotUser $user)
+    public function moveCurrentConversationToPast(ChatbotUser $user): ChatbotUser
     {
         // Delete the current relationship from Dgraph.
         $this->dGraphClient->deleteRelationship(
@@ -239,7 +204,7 @@ class UserService
      * @return Node
      * @throws GuzzleException
      */
-    public function setCurrentIntent(ChatbotUser $user, Intent $intent)
+    public function setCurrentIntent(ChatbotUser $user, Intent $intent): Node
     {
         if ($user->hasCurrentIntent()) {
             $currentIntentId = $user->getCurrentIntent()->getUid();
@@ -265,7 +230,7 @@ class UserService
      * @param ChatbotUser $user
      * @return ChatbotUser
      */
-    public function updateUser(ChatbotUser $user)
+    public function updateUser(ChatbotUser $user): ChatbotUser
     {
         $mutation = new DGraphMutation($user);
         $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
@@ -274,14 +239,14 @@ class UserService
             return $this->getUser($user->getId());
         }
 
-        throw new CouldNotRetrieveUserRecordException();
+        throw new CouldNotRetrieveUserRecordException(sprintf("Couldn't retrieve user from dgraph %s", $user->getId()));
     }
 
     /**
      * @param $userId
      * @return bool
      */
-    public function userExists($userId)
+    public function userExists($userId): bool
     {
         $response = $this->dGraphClient->query($this->getUserQuery($userId));
         if (isset($response->getData()[0]['id'])) {
@@ -330,7 +295,7 @@ class UserService
      * @param ChatbotUser $user
      * @throws GuzzleException
      */
-    public function unsetCurrentIntent(ChatbotUser $user)
+    public function unsetCurrentIntent(ChatbotUser $user): void
     {
         $this->dGraphClient->deleteRelationship(
             $user->getCurrentConversation()->getUid(),
@@ -343,7 +308,7 @@ class UserService
      * @param ChatbotUser $user
      * @throws GuzzleException
      */
-    public function unsetCurrentConversation(ChatbotUser $user)
+    public function unsetCurrentConversation(ChatbotUser $user): void
     {
         $this->dGraphClient->createRelationship(
             $user->getCurrentConversation()->getUid(),
@@ -442,21 +407,21 @@ class UserService
         $data = $response->getData()[0];
 
         if (isset($data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN])) {
-            return ($data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN][0][Model::ID]);
+            return $data[Model::LISTENED_BY][0][Model::BOT_PARTICIPATES_IN][0][Model::ID];
         }
         if (isset($data[Model::LISTENED_BY][0][Model::USER_PARTICIPATES_IN])) {
-            return ($data[Model::LISTENED_BY][0][Model::USER_PARTICIPATES_IN][0][Model::ID]);
+            return $data[Model::LISTENED_BY][0][Model::USER_PARTICIPATES_IN][0][Model::ID];
         }
         if (isset($data[Model::LISTENED_BY_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN])) {
-            return ($data[Model::LISTENED_BY_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN][0][Model::ID]);
+            return $data[Model::LISTENED_BY_FROM_SCENES][0][Model::BOT_PARTICIPATES_IN][0][Model::ID];
         }
         if (isset($data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
-            return ($data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID]);
+            return $data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID];
         }
 
     }
 
-    public function getCurrentSpeaker($intentUid)
+    public function getCurrentSpeaker($intentUid): ?string
     {
         $dGraphQuery = new DGraphQuery();
 
@@ -500,6 +465,23 @@ class UserService
         }
         if (isset($data[Model::SAID_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
             return Model::USER;
+        }
+    }
+
+    /**
+     * Sets the value of an attribute on a chatbot user
+     *
+     * @param ChatbotUser $chatbotUser
+     * @param $attributeName
+     * @param $attributeValue
+     */
+    protected function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
+    {
+        if ($chatbotUser->hasAttribute($attributeName)) {
+            $chatbotUser->setAttribute($attributeName, $attributeValue);
+        } else {
+            $attribute = $this->attributeResolver->getAttributeFor($attributeName, $attributeValue);
+            $chatbotUser->addAttribute($attribute);
         }
     }
 }

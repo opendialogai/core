@@ -7,10 +7,8 @@ namespace OpenDialogAi\ConversationEngine\tests;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
-use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -60,7 +58,7 @@ class ConversationEngineTest extends TestCase
         }
 
         // Create an utterance
-        $user = new User();
+        $user = new User('1');
         $user->setFirstName('John');
         $user->setLastName('Smith');
         $utterance = new WebchatChatOpenUtterance();
