@@ -302,7 +302,9 @@ class ConversationEngine implements ConversationEngineInterface
 
             $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
             $userContext->setCurrentConversation($conversation);
-            $userContext->setCurrentIntent($userContext->getUser()->getCurrentConversation()->getIntentByOrder($intent->getOrder()));
+            $userContext->setCurrentIntent(
+                $userContext->getUser()->getCurrentConversation()->getIntentByOrder($intent->getOrder())
+            );
 
             /* @var Intent $currentIntent */
             $currentIntent = $userContext->getCurrentIntent();
@@ -349,12 +351,12 @@ class ConversationEngine implements ConversationEngineInterface
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
                 foreach ($intentsFromInterpreter as $interpretedIntent) {
                     if ($this->intentHasEnoughConfidence($interpretedIntent, $validIntent)) {
-                        $matchingIntents->put($validIntent->getIntentId(), $validIntent);
+                        $matchingIntents->put($validIntent->getConversationId(), $validIntent);
                     }
                 }
             } else {
                 if ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
-                    $matchingIntents->put($validIntent->getIntentId(), $validIntent);
+                    $matchingIntents->put($validIntent->getConversationId(), $validIntent);
                 }
             }
         }
@@ -399,10 +401,10 @@ class ConversationEngine implements ConversationEngineInterface
                 }
 
                 if ($pass) {
-                    $matchingIntents->put($intent->getIntentId(), $intent);
+                    $matchingIntents->put($intent->getConversationId(), $intent);
                 }
             } else {
-                $matchingIntents->put($intent->getIntentId(), $intent);
+                $matchingIntents->put($intent->getConversationId(), $intent);
             }
         }
 
