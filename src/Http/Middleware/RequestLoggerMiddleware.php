@@ -5,7 +5,6 @@ namespace OpenDialogAi\Core\Http\Middleware;
 use Closure;
 use DateTime;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\RequestLog;
 use OpenDialogAi\Core\ResponseLog;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,6 +15,7 @@ class RequestLoggerMiddleware
 
     /**
      * Set request ID.
+     * @param $requestId
      */
     public function __construct($requestId)
     {
@@ -25,7 +25,7 @@ class RequestLoggerMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param Request $request
      * @param  \Closure $next
      * @return mixed
      */
@@ -39,7 +39,6 @@ class RequestLoggerMiddleware
      *
      * @param  Request $request
      * @param  Response $response
-     * @return mixed
      */
     public function terminate(Request $request, Response $response)
     {
@@ -48,11 +47,11 @@ class RequestLoggerMiddleware
 
         RequestLog::create([
             'url' => $request->url(),
-            'query_params' => serialize($request->query()),
+            'query_params' => json_encode($request->query()),
             'method' => $request->method(),
             'source_ip' => $request->ip(),
             'request_id' => $this->requestId,
-            'raw_request' => serialize($request->all()),
+            'raw_request' => json_encode($request->all()),
             'microtime' => DateTime::createFromFormat('U.u', LARAVEL_START)->format('Y-m-d H:i:s.u'),
         ])->save();
 
@@ -60,7 +59,8 @@ class RequestLoggerMiddleware
             'request_length' => $requestLength,
             'memory_usage' => $memoryUsage,
             'http_status' => $response->getStatusCode(),
-            'raw_response' => $response->__toString()
+            'headers' => $response->headers,
+            'raw_response' => $response->getContent()
         ])->save();
     }
 }

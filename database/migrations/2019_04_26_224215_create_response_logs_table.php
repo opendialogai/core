@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateResponseLogsTable extends Migration
 {
@@ -18,6 +18,7 @@ class CreateResponseLogsTable extends Migration
             $table->integer('http_status');
             $table->decimal('request_length', 12, 6);
             $table->integer('memory_usage');
+            $table->text('headers');
             $table->text('raw_response');
         });
     }
