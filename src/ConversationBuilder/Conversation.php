@@ -25,7 +25,6 @@ use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -182,8 +181,11 @@ class Conversation extends Model
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->getData()['code'] === 'Success') {
+            $uid = ConversationQueryFactory::getConversationUid($this->name, $dGraph);
+
             // Set conversation status to "published".
             $this->status = 'published';
+            $this->graph_uid = $uid;
             $this->save(['validate' => false]);
 
             ConversationStateLog::create([
@@ -207,16 +209,10 @@ class Conversation extends Model
     public function unPublishConversation($reValidate = true)
     {
         $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
-        $dGraphQuery = new DGraphQuery();
 
-        $dGraphQuery->eq('id', $this->name)
-            ->setQueryGraph(ConversationQueryFactory::getConversationQueryGraph());
+        $uid = ConversationQueryFactory::getConversationUid($this->name, $dGraph);
 
-        $queryResponse = $dGraph->query($dGraphQuery)->getData();
-
-        if (isset($queryResponse[0]['uid'])) {
-            $uid = $queryResponse[0]['uid'];
-
+        if ($this->graph_uid === $uid) {
             $deleteResponse = $dGraph->deleteNode($uid);
 
             if ($deleteResponse['code'] === 'Success') {
@@ -224,6 +220,7 @@ class Conversation extends Model
                 if ($reValidate) {
                     // Set conversation status to "validated".
                     $this->status = 'validated';
+                    $this->graph_uid = null;
                     $this->save(['validate' => false]);
 
                     // Add log message.

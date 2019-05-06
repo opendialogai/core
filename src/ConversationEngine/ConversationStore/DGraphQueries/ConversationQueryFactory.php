@@ -82,6 +82,23 @@ class ConversationQueryFactory
     }
 
     /**
+     * @param string $templateName
+     * @return string
+     */
+    public static function getConversationUid(
+        string $templateName,
+        DGraphClient $client
+    ) {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->eq('id', $templateName)
+            ->setQueryGraph(self::getConversationQueryGraph());
+
+        $response = $client->query($dGraphQuery)->getData()[0];
+        return $response['uid'];
+    }
+
+    /**
      * @return array
      */
     public static function getConversationQueryGraph()
