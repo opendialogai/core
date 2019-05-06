@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMessagesTable extends Migration
+class CreateRequestLogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,20 +13,14 @@ class CreateMessagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('messages', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
-
-            $table->string('user_id');
-            $table->string('author');
-            $table->text('message');
-            $table->string('type');
-            $table->binary('data')->nullable(true);
-            $table->string('message_id')->nullable();
-            $table->text('user')->nullable();
-
-            $table->index('message_id');
-
+        Schema::create('request_logs', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('url', 4096);
+            $table->string('query_params', 4096);
+            $table->string('method');
+            $table->string('source_ip');
+            $table->string('request_id');
+            $table->text('raw_request');
             if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
                 $table->timestamp('microtime', 6)->nullable();
             } else {
@@ -42,6 +36,6 @@ class CreateMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('messages');
+        Schema::dropIfExists('request_logs');
     }
 }

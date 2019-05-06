@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Int implementation of Attribute.
  */
-class IntAttribute extends AbstractAttribute
+class IntAttribute extends BasicAttribute
 {
     public function __construct($id, $value)
     {
@@ -38,59 +38,8 @@ class IntAttribute extends AbstractAttribute
             );
         }
 
-        switch ($operation) {
-            case AbstractAttribute::EQUIVALENCE:
-                return $this->testEquivalence($attribute);
-                break;
-            case AbstractAttribute::GREATER_THAN_OR_EQUAL:
-                return $this->testGreaterThanOrEqual($attribute);
-                break;
-            case AbstractAttribute::GREATER_THAN:
-                return $this->testGreaterThan($attribute);
-                break;
-            default:
-                return false;
-        }
+        return $this->doComparison($attribute, $operation);
     }
-
-    /**
-     * @param AttributeInterface $attribute
-     * @return bool
-     */
-    private function testEquivalence(AttributeInterface $attribute)
-    {
-        if ($this->getValue() === $attribute->getValue()) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param AttributeInterface $attribute
-     * @return bool
-     */
-    private function testGreaterThanOrEqual(AttributeInterface $attribute)
-    {
-        if ($this->getValue() >= $attribute->getValue()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param AttributeInterface $attribute
-     * @return bool
-     */
-    private function testGreaterThan(AttributeInterface $attribute)
-    {
-        if ($this->getValue() > $attribute->getValue()) {
-            return true;
-        }
-
-        return false;
-    }
-
 
     /**
      * @return string

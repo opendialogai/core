@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationLog\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ConversationLog\Message;
 
 class WebchatInitController extends BaseController

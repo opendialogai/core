@@ -4,7 +4,13 @@ namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\Condition\Condition;
+use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\Attribute\BooleanAttribute;
+use OpenDialogAi\Core\Attribute\FloatAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -22,8 +28,8 @@ use Symfony\Component\Yaml\Yaml;
 class MessageTemplate extends Model
 {
     const CONDITIONS      = 'conditions';
-    const ATTRIBUTE_NAME  = 'attributeName';
-    const ATTRIBUTE_VALUE = 'attributeValue';
+    const ATTRIBUTE_NAME  = 'attribute';
+    const ATTRIBUTE_VALUE = 'value';
     const OPERATION       = 'operation';
 
     protected $fillable = [
@@ -58,9 +64,7 @@ class MessageTemplate extends Model
     /**
      * Helper method: return an array of conditions
      *
-     * TODO - can this return an array of @see Condition
-     *
-     * @return array
+     * @return array|Condition
      */
     public function getConditions()
     {
@@ -76,18 +80,46 @@ class MessageTemplate extends Model
                     $condition[self::OPERATION] = '';
 
                     foreach ($yamlCondition as $key => $val) {
-                        if ($key === ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY) {
-                            $condition[self::OPERATION] = $val;
-                        } else {
-                            $condition[self::ATTRIBUTE_NAME] = $key;
-                            $condition[self::ATTRIBUTE_VALUE] = $val;
+                        switch ($key) {
+                            case ResponseEngineServiceInterface::ATTRIBUTE_NAME_KEY:
+                                $condition[self::ATTRIBUTE_NAME] = $val;
+                                break;
+                            case ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY:
+                                $condition[self::OPERATION] = $val;
+                                break;
+                            case ResponseEngineServiceInterface::ATTRIBUTE_VALUE_KEY:
+                                $condition[self::ATTRIBUTE_VALUE] = $val;
+                                break;
+                            default:
+                                break;
                         }
                     }
 
-                    $conditions[] = $condition;
+                    [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($condition['attribute']);
+
+                    switch (gettype($condition['value'])) {
+                        case 'boolean':
+                            $attribute = new BooleanAttribute($attributeName, $condition['value']);
+                            break;
+                        case 'double':
+                            $attribute = new FloatAttribute($attributeName, $condition['value']);
+                            break;
+                        case 'integer':
+                            $attribute = new IntAttribute($attributeName, $condition['value']);
+                            break;
+                        case 'string':
+                            $attribute = new StringAttribute($attributeName, $condition['value']);
+                            break;
+                        default:
+                            throw new UnsupportedAttributeTypeException(sprintf('Type %s is not supported', $type));
+                            break;
+                    }
+
+                    $conditions[$contextId][] = [$attributeName => new Condition($attribute, $condition['operation'])];
                 }
             }
         }
+
         return $conditions;
     }
 }

@@ -113,4 +113,14 @@ interface UtteranceInterface
      * @throws FieldNotSupported
      */
     public function setValue(string $value): void;
+
+    /**
+     * @return array
+     */
+    public function getData(): array;
+
+    /**
+     * @param array $data
+     */
+    public function setData(array $data): void;
 }

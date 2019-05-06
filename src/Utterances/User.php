@@ -9,12 +9,16 @@ namespace OpenDialogAi\Core\Utterances;
  */
 class User
 {
+    /** @var string The id of the user within the chatbot platform being used */
+    private $id;
+
     private $firstName;
 
     private $lastName;
 
     private $email;
 
+    /** @var string The of the user in a system external to the chatbot */
     private $externalId;
 
     private $IPAddress;
@@ -31,6 +35,22 @@ class User
 
     private $custom;
 
+    /**
+     * User constructor.
+     * @param $id string The id of the user in the chatbot platform they are using
+     */
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
 
     /**
      * @return mixed
