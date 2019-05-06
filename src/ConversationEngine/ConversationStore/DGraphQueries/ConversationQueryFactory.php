@@ -23,6 +23,10 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
  */
 class ConversationQueryFactory
 {
+    /**
+     * @param DGraphClient $client
+     * @return mixed
+     */
     public static function getConversationTemplateIds(DGraphClient $client)
     {
         $dGraphQuery = new DGraphQuery();
@@ -75,10 +79,32 @@ class ConversationQueryFactory
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->eq('id', $templateName)
+            ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
         return self::buildConversationFromDGraphData($response, $attributeResolver, $clone);
+    }
+
+    /**
+     * @param string $templateName
+     * @return string
+     */
+    public static function getConversationTemplateUid(
+        string $templateName,
+        DGraphClient $client
+    ) {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->eq('id', $templateName)
+            ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
+            ->setQueryGraph([
+                Model::UID,
+                Model::ID
+            ]);
+
+        $response = $client->query($dGraphQuery)->getData()[0];
+        return $response['uid'];
     }
 
     /**
