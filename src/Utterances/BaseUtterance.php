@@ -52,10 +52,6 @@ abstract class BaseUtterance implements UtteranceInterface
      */
     public function getPlatform(): string
     {
-        if (static::PLATFORM === self::PLATFORM) {
-            throw new UtterancePlatformNotSetException('Utterance platform has not been set');
-        }
-
         return static::PLATFORM;
     }
 
@@ -67,10 +63,6 @@ abstract class BaseUtterance implements UtteranceInterface
      */
     public function getType(): string
     {
-        if (static::TYPE === self::TYPE) {
-            throw new UtteranceTypeNotSetException('Utterance platform has not been set');
-        }
-
         return static::TYPE;
     }
 
