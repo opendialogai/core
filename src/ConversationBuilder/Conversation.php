@@ -181,7 +181,7 @@ class Conversation extends Model
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->getData()['code'] === 'Success') {
-            $uid = ConversationQueryFactory::getConversationUid($this->name, $dGraph);
+            $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
 
             // Set conversation status to "published".
             $this->status = 'published';
@@ -210,7 +210,7 @@ class Conversation extends Model
     {
         $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
 
-        $uid = ConversationQueryFactory::getConversationUid($this->name, $dGraph);
+        $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
 
         if ($this->graph_uid === $uid) {
             $deleteResponse = $dGraph->deleteNode($uid);

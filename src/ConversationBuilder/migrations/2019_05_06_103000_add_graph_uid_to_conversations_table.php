@@ -42,7 +42,7 @@ class AddGraphUidToConversationsTable extends Migration
         $rows = DB::table('conversations')->get(['id', 'name', 'status']);
         foreach ($rows as $row) {
             if ($row->status == 'published') {
-                $uid = ConversationQueryFactory::getConversationUid($row->name, $dGraph);
+                $uid = ConversationQueryFactory::getConversationTemplateUid($row->name, $dGraph);
 
                 DB::table('conversations')
                     ->where('id', $row->id)
