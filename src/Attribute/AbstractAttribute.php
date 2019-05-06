@@ -25,8 +25,6 @@ abstract class AbstractAttribute implements AttributeInterface
     const NOT_IN_SET = 'not_in_set';
     const IS_SET = 'is_set';
     const IS_NOT_SET = 'is_not_set';
-    const IS_TRUE = 'is_true';
-    const IS_FALSE = 'is_false';
 
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
@@ -69,8 +67,6 @@ abstract class AbstractAttribute implements AttributeInterface
             self::NOT_IN_SET,
             self::IS_SET,
             self::IS_NOT_SET,
-            self::IS_TRUE,
-            self::IS_FALSE
         ];
     }
 
@@ -80,8 +76,6 @@ abstract class AbstractAttribute implements AttributeInterface
     public static function operationsNotRequiringValue()
     {
         return [
-            self::IS_FALSE,
-            self::IS_TRUE,
             self::IS_SET,
             self::IS_NOT_SET
         ];

@@ -29,6 +29,6 @@ class Condition implements ConditionInterface
     public function compareAgainst(AttributeInterface $attribute)
     {
         $conditionAttribute = $this->getAttribute($attribute->getId());
-        return $conditionAttribute->compare($attribute, $this->evaluationOperation);
+        return $attribute->compare($conditionAttribute, $this->evaluationOperation);
     }
 }
