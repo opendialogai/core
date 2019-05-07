@@ -12,6 +12,7 @@ class WebchatInitController extends BaseController
         $messages = Message::where('user_id', $user_id)
             ->orderBy('microtime', 'desc')
             ->limit($limit)
+            ->where('type', '<>', 'chat_open')
             ->get();
 
         return $messages;
