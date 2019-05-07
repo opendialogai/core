@@ -4,7 +4,7 @@ return [
     'supported_attributes' => [
         'attribute_name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'attribute_value' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'button_value' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'callback_value' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'context' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'ei_type' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'email' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
