@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ConversationLog;
 
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -93,6 +94,11 @@ class Message extends Model
         // Generate a message ID if we weren't given one.
         if (empty($message_id)) {
             $message_id = (string) Str::uuid();
+        }
+
+        // Generate a timestamp if we weren't given one.
+        if (empty($microtime)) {
+            $microtime = DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u');
         }
 
         $message = new self([
