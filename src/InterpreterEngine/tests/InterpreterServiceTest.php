@@ -118,6 +118,12 @@ class InterpreterServiceTest extends TestCase
         $this->assertNotNull($service->getInterpreter('interpreter.core.luis'));
     }
 
+    public function testForQnAInterpreter()
+    {
+        $service = $this->getBoundInterpreterService();
+        $this->assertNotNull($service->getInterpreter('interpreter.core.qna'));
+    }
+
     public function testDefaultInterpreterSetting()
     {
         $service = $this->getBoundInterpreterService();
