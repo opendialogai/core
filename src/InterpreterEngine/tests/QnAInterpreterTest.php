@@ -2,6 +2,7 @@
 
 namespace InterpreterEngine\tests;
 
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -72,6 +73,9 @@ class QnAInterpreterTest extends TestCase
 
     public function testMatch()
     {
+        $this->setConfigValue('opendialog.context_engine.custom_attributes',
+            ['answer' => StringAttribute::class]);
+
         $this->mock(QnAClient::class, function ($mock) {
             $mock->shouldReceive('queryQnA')->andReturn(
                 new QnAResponse($this->createQnAResponse())
