@@ -174,6 +174,28 @@ class DGraphClient
         }
     }
 
+    public function deleteNode($nodeUid)
+    {
+        $response = $this->client->request(
+            'POST',
+            self::MUTATE,
+            [
+                'body' => $this->prepareDeleteNodeStatement($nodeUid),
+                'headers' => [
+                    'X-Dgraph-CommitNow' => 'true',
+                ]
+            ]
+        );
+
+        $response = json_decode($response->getBody(), true);
+
+        try {
+            return $this->getData($response);
+        } catch (\Exception $e) {
+            return "Error processing alter {$e->getMessage()}";
+        }
+    }
+
     /**
      * @param $node1Uid
      * @param $node2Uid
@@ -212,6 +234,16 @@ class DGraphClient
     private function prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
     {
         $statement = sprintf('{ delete { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
+        return $statement;
+    }
+
+    /**
+     * @param $nodeUid
+     * @return string
+     */
+    private function prepareDeleteNodeStatement($nodeUid)
+    {
+        $statement = sprintf('{ delete { <%s> * * . } }', $nodeUid);
         return $statement;
     }
 

@@ -9,11 +9,11 @@ use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
+use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
-use OpenDialogAi\Core\Tests\TestCase;
 
 class UserServiceUpdateUserFromUtteranceTest extends TestCase
 {
@@ -57,7 +57,7 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $chatbotUser->addAttribute(new StringAttribute('email', ''));
         $chatbotUser->addAttribute(new StringAttribute('external_id', ''));
 
-        $utteranceUser = new User();
+        $utteranceUser = new User('1');
 
         $utteranceUser->setFirstName('test');
         $utteranceUser->setLastName('test');
@@ -77,6 +77,14 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), '');
 
         $user = $userService->updateUserFromUtterance($utterance);
+
+        // Ensure that the user is stored to the DB.
+        $this->assertDatabaseHas('chatbot_users', [
+            'user_id' => '1',
+            'first_name' => 'test',
+            'last_name' => 'test',
+            'email' => 'test@example.com',
+        ]);
 
         $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
         $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), $utteranceUser->getLastName());
@@ -99,7 +107,7 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $chatbotUser->addAttribute(new StringAttribute('email', ''));
         $chatbotUser->addAttribute(new StringAttribute('external_id', ''));
 
-        $utteranceUser = new User();
+        $utteranceUser = new User('1');
 
         $utteranceUser->setFirstName('test');
         $utteranceUser->setLastName('test');
@@ -141,7 +149,7 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $chatbotUser->addAttribute(new StringAttribute('email', ''));
         $chatbotUser->addAttribute(new StringAttribute('external_id', ''));
 
-        $utteranceUser = new User();
+        $utteranceUser = new User('1');
 
         $utteranceUser->setFirstName('test');
         $utteranceUser->setLastName('test');
@@ -161,6 +169,14 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), '');
 
         $user = $userService->updateUserFromUtterance($utterance);
+
+        // Ensure that the user is stored to the DB.
+        $this->assertDatabaseHas('chatbot_users', [
+            'user_id' => '1',
+            'first_name' => 'test',
+            'last_name' => 'test',
+            'email' => 'test@example.com',
+        ]);
 
         $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
         $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), $utteranceUser->getLastName());

@@ -16,7 +16,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    public function getUserId() : string;
+    public function getUserId() : ?string;
 
     /**
      * @param string $userId
@@ -30,7 +30,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    public function getText() : string;
+    public function getText() : ?string;
 
     /**
      * @param string $text
@@ -42,7 +42,7 @@ interface UtteranceInterface
      * @return User
      * @throws FieldNotSupported
      */
-    public function getUser(): User;
+    public function getUser(): ?User;
 
     /**
      * @param User $user
@@ -54,7 +54,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    public function getMessageId(): string;
+    public function getMessageId(): ?string;
 
     /**
      * @param string $messageId
@@ -66,7 +66,7 @@ interface UtteranceInterface
      * @return float
      * @throws FieldNotSupported
      */
-    public function getTimestamp(): float;
+    public function getTimestamp(): ?float;
 
     /**
      * @param float $timestamp
@@ -78,7 +78,6 @@ interface UtteranceInterface
      * Returns the platform that this utterance originated from
      *
      * @return string
-     * @throws FieldNotSupported
      */
     public function getPlatform() : string;
 
@@ -86,7 +85,6 @@ interface UtteranceInterface
      * Returns the type of utterance
      *
      * @return string
-     * @throws FieldNotSupported
      */
     public function getType() : string;
 
@@ -94,7 +92,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    public function getCallbackId(): string;
+    public function getCallbackId(): ?string;
 
     /**
      * @param string $callbackId
@@ -106,11 +104,21 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    public function getValue(): string;
+    public function getValue(): ?string;
 
     /**
      * @param string $value
      * @throws FieldNotSupported
      */
     public function setValue(string $value): void;
+
+    /**
+     * @return array
+     */
+    public function getData(): array;
+
+    /**
+     * @param array $data
+     */
+    public function setData(array $data): void;
 }

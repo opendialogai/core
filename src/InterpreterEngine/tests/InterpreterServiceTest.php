@@ -1,6 +1,6 @@
 <?php
 
-namespace InterpreterEngine\tests;
+namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\tests;
 
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;

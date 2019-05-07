@@ -116,4 +116,60 @@ class ConversationLogTest extends TestCase
                 ['user_id' => 'test@example.com']
             ]);
     }
+
+    /**
+     * Test that incoming & outgoing messages are logged.
+     */
+    public function testMessageLogging()
+    {
+        if (!getenv('LOCAL')) {
+            // This test depends on dGraph.
+            $this->markTestSkipped('This test only runs on local environments.');
+        }
+
+        // Test a valid message.
+        $response = $this->json('POST', '/incoming/webchat', [
+            'notification' => 'message',
+            'user_id' => 'someuser',
+            'author' => 'me',
+            'content' => [
+                'author' => 'me',
+                'type' => 'text',
+                'data' => [
+                    'text' => 'test message'
+                ],
+                'user' => [
+                    'ipAddress' => '127.0.0.1',
+                    'country' => 'UK',
+                    'browserLanguage' => 'en-gb',
+                    'os' => 'macos',
+                    'browser' => 'safari',
+                    'timezone' => 'GMT',
+                ],
+            ],
+        ]);
+        $response
+            ->assertStatus(200)
+            ->assertJson([0 => ['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]]);
+
+        // Ensure that incoming messages are logged.
+				$this->assertDatabaseHas('messages', [
+						'user_id' => 'someuser',
+						'message' => 'test message',
+				]);
+
+        // Ensure that outgoing messages are logged.
+				$this->assertDatabaseHas('messages', [
+						'author' => 'them',
+						'message' => 'No messages found for intent intent.core.NoMatchResponse',
+				]);
+
+        // Ensure that the correct history is returned
+        $response = $this->get('/chat-init/webchat/someuser/2')
+            ->assertStatus(200)
+            ->assertJsonCount(2)
+            ->assertJson([
+                ['user_id' => 'someuser']
+            ]);
+    }
 }

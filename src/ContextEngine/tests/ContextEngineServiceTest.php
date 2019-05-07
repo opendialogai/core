@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
-use OpenDialogAi\ContextEngine\ContextManager\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
