@@ -3,6 +3,7 @@
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -19,9 +20,13 @@ class QnAInterpreter extends BaseInterpreter
     /** @var QnAClient */
     private $client;
 
+    /** @var AttributeResolver */
+    private $attributeResolver;
+
     public function __construct()
     {
         $this->client = app()->make(QnAClient::class);
+        $this->attributeResolver = app()->make(AttributeResolver::class);
     }
 
     /**
@@ -57,8 +62,10 @@ class QnAInterpreter extends BaseInterpreter
         if (!empty($response->getAnswers())) {
             foreach ($response->getAnswers() as $answer) {
                 if ($answer->id >= 0) {
+                    $attribute = $this->attributeResolver->getAttributeFor('answer', $answer->answer);
+
                     $intent = new QnAQuestionMatchedIntent();
-                    $intent->addAttribute(new StringAttribute('answer', $answer->answer));
+                    $intent->addAttribute($attribute);
                     $intent->setConfidence($answer->score / 100);
                     return $intent;
                 }

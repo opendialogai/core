@@ -243,7 +243,6 @@ class ConversationEngine implements ConversationEngineInterface
             // Check if the intent has non-core attributes and set those at the user context level
             $this->storeIntentEntities($nextIntent, $userContext);
 
-
             if ($nextIntent->causesAction()) {
                 Log::debug(
                     sprintf(
@@ -301,6 +300,12 @@ class ConversationEngine implements ConversationEngineInterface
             $intent = $matchingIntents->last()->value;
             Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
+            if ($interpretedIntent = $intent->getInterpretedIntent()) {
+                // Check if the interpreted intent has non-core attributes
+                // and set those at the user context level
+                $this->storeIntentEntities($interpretedIntent, $userContext);
+            }
+
             $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
             $userContext->setCurrentConversation($conversation);
             $userContext->setCurrentIntent(
@@ -351,6 +356,8 @@ class ConversationEngine implements ConversationEngineInterface
 
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
                 foreach ($intentsFromInterpreter as $interpretedIntent) {
+                    $validIntent->setInterpretedIntent($interpretedIntent);
+
                     if ($this->intentHasEnoughConfidence($interpretedIntent, $validIntent)) {
                         $matchingIntents->put($validIntent->getConversationId(), $validIntent);
                     }
