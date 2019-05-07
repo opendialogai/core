@@ -56,10 +56,10 @@ class QnAInterpreter extends BaseInterpreter
 
         if (!empty($response->getAnswers())) {
             foreach ($response->getAnswers() as $answer) {
-                if ($answer['id'] >= 0) {
+                if ($answer->id >= 0) {
                     $intent = new QnAQuestionMatchedIntent();
-                    $intent->addAttribute(new StringAttribute('answer', $answer['answer']));
-                    $intent->setConfidence($answer['score'] / 100);
+                    $intent->addAttribute(new StringAttribute('answer', $answer->answer));
+                    $intent->setConfidence($answer->score / 100);
                     return $intent;
                 }
             }

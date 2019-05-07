@@ -98,7 +98,7 @@ class QnAInterpreterTest extends TestCase
     {
         $response = [
             'answers' => [
-                [
+                (object) [
                     'questions' => [],
                     'answer' => 'No good match found in KB.',
                     'score' => 0,
@@ -116,7 +116,7 @@ class QnAInterpreterTest extends TestCase
     {
         $response = [
             'answers' => [
-                [
+                (object) [
                     'questions' => [
                         'Who created you?',
                         'Where did you come from?',
