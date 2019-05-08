@@ -4,7 +4,7 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\CallbackValueParser;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -86,7 +86,7 @@ class CallbackInterpreter extends BaseInterpreter
                 $parsed[CallbackValueParser::ATTRIBUTE_NAME],
                 $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             );
-        } catch (AttributeDoesNotExistException $e) {
+        } catch (AttributeIsNotSupported $e) {
             $attribute = new StringAttribute(
                 $parsed[CallbackValueParser::ATTRIBUTE_NAME],
                 $parsed[CallbackValueParser::ATTRIBUTE_VALUE]

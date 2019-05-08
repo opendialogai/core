@@ -7,7 +7,7 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
@@ -72,7 +72,7 @@ class UserService
                 try {
                     $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
-                } catch (AttributeCouldNotBeResolvedException $e) {
+                } catch (AttributeIsNotSupported $e) {
                     Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
                     continue;
                 }
