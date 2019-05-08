@@ -5,12 +5,14 @@ namespace OpenDialogAi\ResponseEngine\Message;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
 
 /**
@@ -21,9 +23,13 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     /** @var ContextService */
     private $contextService;
 
+    /** @var ResponseEngineService */
+    private $responseEngineService;
+
     public function __construct()
     {
         $this->contextService = app()->make(ContextService::class);
+        $this->responseEngineService = app()->make(ResponseEngineServiceInterface::class);
     }
 
     /**
@@ -40,18 +46,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
             foreach ($message->children() as $item) {
                 if ($item->getName() === self::ATTRIBUTE_MESSAGE) {
-                    if (!empty((string) $item)) {
-                        [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId((string) $item);
-                        $attributeText = $this->contextService->getAttributeValue($attributeId, $contextId);
-                        $item = new SimpleXMLElement($attributeText);
-                    }
-
-                    foreach ($item->children() as $child) {
-                        $messages[] = $this->parseMessage($child);
-                    }
-                } else {
-                    $messages[] = $this->parseMessage($item);
+                    $attributeText = $this->getAttributeMessageText((string)$item);
+                    return $this->getMessages($attributeText);
                 }
+
+                $messages[] = $this->parseMessage($item);
             }
         } catch (\Exception $e) {
             Log::warning(sprintf('Message Builder error: %s', $e->getMessage()));
@@ -72,19 +71,19 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         switch ($item->getName()) {
             case self::BUTTON_MESSAGE:
                 $template = [
-                    'text' => (string) $item->text,
+                    'text' => (string)$item->text,
                 ];
                 foreach ($item->button as $button) {
                     if (isset($button->tab_switch)) {
                         $template['buttons'][] = [
-                            'text' => (string) $button->text,
+                            'text' => (string)$button->text,
                             'tab_switch' => true,
                         ];
                     } else {
                         $template['buttons'][] = [
-                            'callback' => (string) $button->callback,
-                            'text' => (string) $button->text,
-                            'value' => (string) $button->value,
+                            'callback' => (string)$button->callback,
+                            'text' => (string)$button->text,
+                            'value' => (string)$button->value,
                         ];
                     }
                 }
@@ -92,13 +91,13 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 break;
             case self::IMAGE_MESSAGE:
                 $template = [
-                    'link' => (string) $item->link,
-                    'src' => (string) $item->src,
+                    'link' => (string)$item->link,
+                    'src' => (string)$item->src,
                 ];
                 return $this->generateImageMessage($template);
                 break;
             case self::TEXT_MESSAGE:
-                $template = ['text' => (string) $item];
+                $template = ['text' => (string)$item];
                 return $this->generateTextMessage($template);
                 break;
             default:
@@ -169,7 +168,22 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function generateTextMessage(array $template)
     {
-        $message = (new WebChatMessage())->setText($template['text']);
+        $message = (new WebChatMessage())->setText($template['text'], [], true);
         return $message;
+    }
+
+    /**
+     * Resolves the attribute by name to get the value for the attribute message, then resolves any attributes
+     * in the resulting text
+     *
+     * @param string $attributeName
+     * @return string
+     */
+    protected function getAttributeMessageText($attributeName): string
+    {
+        [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId($attributeName);
+        $attributeValue = $this->contextService->getAttributeValue($attributeId, $contextId);
+
+        return $this->responseEngineService->fillAttributes($attributeValue);
     }
 }
