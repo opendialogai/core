@@ -197,13 +197,14 @@ class ConversationEngine implements ConversationEngineInterface
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
-        //Determine if there is an intent that matches the incoming utterance
+        // Determine if there is an intent that matches the incoming utterance
         /* @var Intent $validIntent */
         foreach ($possibleNextIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 $interpretedIntents = $this->interpreterService
                     ->getInterpreter($validIntent->getInterpreter()->getId())
                     ->interpret($utterance);
+
                 // Check to see if one of the interpreted intents matches the valid Intent.
                 /* @var Intent $interpretedIntent */
                 foreach ($interpretedIntents as $interpretedIntent) {
@@ -241,7 +242,6 @@ class ConversationEngine implements ConversationEngineInterface
             $userContext->setCurrentIntent($nextIntent);
             // Check if the intent has non-core attributes and set those at the user context level
             $this->storeIntentEntities($nextIntent, $userContext);
-
 
             if ($nextIntent->causesAction()) {
                 Log::debug(
@@ -300,6 +300,12 @@ class ConversationEngine implements ConversationEngineInterface
             $intent = $matchingIntents->last()->value;
             Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
+            if ($interpretedIntent = $intent->getInterpretedIntent()) {
+                // Check if the interpreted intent has non-core attributes
+                // and set those at the user context level
+                $this->storeIntentEntities($interpretedIntent, $userContext);
+            }
+
             $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
             $userContext->setCurrentConversation($conversation);
             $userContext->setCurrentIntent(
@@ -350,6 +356,8 @@ class ConversationEngine implements ConversationEngineInterface
 
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
                 foreach ($intentsFromInterpreter as $interpretedIntent) {
+                    $validIntent->setInterpretedIntent($interpretedIntent);
+
                     if ($this->intentHasEnoughConfidence($interpretedIntent, $validIntent)) {
                         $matchingIntents->put($validIntent->getConversationId(), $validIntent);
                     }
@@ -363,7 +371,6 @@ class ConversationEngine implements ConversationEngineInterface
 
         // Check conditions for each conversation
         $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
-
 
         return $matchingIntents;
     }
