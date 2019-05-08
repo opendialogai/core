@@ -4,12 +4,13 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
-use OpenDialogAi\ResponseEngine\OutgoingIntent;
-use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
-use SimpleXMLElement;
 
 class ResponseEngineTest extends TestCase
 {
@@ -232,6 +233,12 @@ class ResponseEngineTest extends TestCase
 
     public function testWebChatAttributeMessage()
     {
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
@@ -241,17 +248,11 @@ class ResponseEngineTest extends TestCase
             'https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif',
             'http://www.opendialog.ai'
         );
-        $markup = '';
 
-        // Strip wrapper tag.
-        $items = new SimpleXMLElement($generator->getMarkUp());
-        foreach ($items as $child) {
-            $markup .= $child->asXML();
-        }
+        $userContext->addAttribute(new StringAttribute('message', $generator->getMarkUp()));
+        $generator2 = (new MessageMarkUpGenerator())
+            ->addAttributeMessage('user.message');
 
-        // Create an attribute message containing a text message and an image message.
-        $generator2 = new MessageMarkUpGenerator();
-        $generator2->addAttributeMessage($markup);
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
@@ -259,17 +260,11 @@ class ResponseEngineTest extends TestCase
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
-        // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
-        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
-
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $messageWrapper->getMessages()[0]);
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $messageWrapper->getMessages()[1]);
+        $this->assertInstanceOf(WebChatMessage::class, $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf(WebChatImageMessage::class, $messageWrapper->getMessages()[1]);
     }
 
     public function testWebChatMissingAttributeMessage()
@@ -283,17 +278,9 @@ class ResponseEngineTest extends TestCase
             'https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif',
             'http://www.opendialog.ai'
         );
-        $markup = '';
 
-        // Strip wrapper tag.
-        $items = new SimpleXMLElement($generator->getMarkUp());
-        foreach ($items as $child) {
-            $markup .= $child->asXML();
-        }
+        $generator2 = (new MessageMarkUpGenerator())->addAttributeMessage('user.message');
 
-        // Create an attribute message containing a text message and an image message.
-        $generator2 = new MessageMarkUpGenerator();
-        $generator2->addAttributeMessage($markup);
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
@@ -306,6 +293,7 @@ class ResponseEngineTest extends TestCase
         $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+        $userContext->addAttribute(new StringAttribute('message', $generator->getMarkUp()));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
