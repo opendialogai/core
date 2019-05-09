@@ -4,7 +4,6 @@ namespace OpenDialogAi\Core\Console\Commands;
 
 use Illuminate\Console\Command;
 use OpenDialogAi\ConversationBuilder\Conversation;
-use OpenDialogAi\Core\Conversation\Conversation as CoreConversation;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
@@ -15,7 +14,7 @@ class ImportConversation extends Command
      *
      * @var string
      */
-    protected $signature = 'import:conversation {filename}';
+    protected $signature = 'import:conversation {filename} {publish=false} {no-interaction=false}';
 
     /**
      * The console command description.
@@ -91,7 +90,9 @@ class ImportConversation extends Command
         }
         $messageText .= "Do you wish to continue?";
 
-        if (!$this->confirm($messageText)) {
+
+        $noInteraction = $this->argument('no-interaction');
+        if (!$noInteraction && !$this->confirm($messageText)) {
             exit;
         }
 
@@ -100,7 +101,12 @@ class ImportConversation extends Command
         foreach ($data['conversation']->getFillable() as $attribute) {
             $attributes[$attribute] = $data['conversation']->{$attribute};
         }
-        Conversation::updateOrCreate(['name' => $data['conversation']->name], $attributes);
+
+        /** @var Conversation $newConversation */
+        $newConversation = Conversation::updateOrCreate(['name' => $data['conversation']->name], $attributes);
+        if ($this->argument('publish')) {
+            $newConversation->publishConversation($newConversation->buildConversation());
+        }
 
         foreach ($data['outgoingIntents'] as $outgoingIntent) {
             $attributes = [];
