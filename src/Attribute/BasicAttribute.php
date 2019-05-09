@@ -124,7 +124,7 @@ class BasicAttribute extends AbstractAttribute
      */
     private function testIsSet()
     {
-        return ($this->getValue() !== null);
+        return $this->getValue() !== null && $this->getValue() !== '';
     }
 
     /**
@@ -132,7 +132,7 @@ class BasicAttribute extends AbstractAttribute
      */
     private function testIsNotSet()
     {
-        return ($this->getValue() === null);
+        return $this->getValue() === null || $this->getValue() === '';
     }
 
     /**
