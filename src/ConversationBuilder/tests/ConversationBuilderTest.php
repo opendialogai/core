@@ -70,13 +70,13 @@ class ConversationBuilderTest extends TestCase
     public function testConversationYamlSchemaValidation()
     {
         // Assert that yaml not matching the schema is detected.
-        Conversation::create(['name' => 'Test Conversation', 'model' => "---\nconversation_name: test"]);
-        $conversation = Conversation::where('name', 'Test Conversation')->first();
+        Conversation::create(['name' => 'test', 'model' => "---\nconversation_name: test"]);
+        $conversation = Conversation::where('name', 'test')->first();
         $conversationStateLog = ConversationStateLog::where('conversation_id', $conversation->id)->firstOrFail();
         $this->assertStringStartsWith('[conversation] The property conversation is required', $conversationStateLog->message);
 
         // Assert that no validation log is created for a valid schema.
-        $conversation2 = Conversation::create(['name' => 'Test Conversation 2', 'model' => $this->conversation1()]);
+        $conversation2 = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
         $this->assertNull(ConversationStateLog::where('conversation_id', $conversation2->id)
             ->where('type', 'validate_conversation_yaml_schema')->first());
     }
@@ -120,7 +120,7 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationDeletion()
     {
-        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
+        $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
 
         $conversationStateLog = ConversationStateLog::create([
             'conversation_id' => $conversation->id,
@@ -132,7 +132,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(1, $conversationStateLogs);
 
         $activities = Activity::where('subject_id', $conversation->id)->get();
-        $this->assertCount(2, $activities);
+        $this->assertCount(1, $activities);
 
         $conversation->delete();
 

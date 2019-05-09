@@ -68,8 +68,22 @@ class ValidateConversationYamlSchema implements ShouldQueue
                 (object)['$ref' => 'file://' . $dir . '/conversation.schema.json']
             );
             if ($validator->isValid()) {
-                // Save the name if the model validates.
-                $this->conversation->name = $model->conversation->id;
+                // Ensure that the name matches.
+                if ($model->conversation->id !== $this->conversation->name) {
+                    // Mark as invalid.
+                    $status = 'invalid';
+
+                    // Log a validation message with the error.
+                    $this->logMessage(
+                        $this->conversation->id,
+                        'validate_conversation_yaml_schema',
+                        sprintf(
+                            "Name \"%s\" in Yaml does not match conversation name \"%s\"\n",
+                            $model->conversation->id,
+                            $this->conversation->name
+                        )
+                    );
+                }
             } else {
                 // Mark as invalid.
                 $status = 'invalid';
