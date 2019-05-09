@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\Core\Console\Commands\ExportConversation;
+use OpenDialogAi\Core\Console\Commands\ImportConversation;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
@@ -31,6 +33,13 @@ class CoreServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ExportConversation::class,
+                ImportConversation::class,
+            ]);
+        }
 
         $this->requestId = uniqid();
         $this->app->when('OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware')
