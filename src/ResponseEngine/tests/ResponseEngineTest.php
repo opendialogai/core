@@ -4,10 +4,11 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
-use OpenDialogAi\ResponseEngine\OutgoingIntent;
-use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
+use OpenDialogAi\ResponseEngine\Rules\MessageConditions;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
 
@@ -311,5 +312,26 @@ class ResponseEngineTest extends TestCase
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi dummy there   welcome');
+    }
+
+    public function testMessageConditionRules()
+    {
+        $conditionsValidator = new MessageConditions();
+
+        // Test valid condition.
+        $conditions = "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq";
+        $this->assertTrue($conditionsValidator->passes(null, $conditions));
+
+        // Test invalid condition.
+        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    value: dummy\n    operation: eq";
+        $this->assertFalse($conditionsValidator->passes(null, $conditions));
+
+        // Test condition without enough attributes.
+        $conditions = "---\nconditions:\n-\n    operation: eq";
+        $this->assertFalse($conditionsValidator->passes(null, $conditions));
+
+        // Test condition without operation.
+        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    value: dummy";
+        $this->assertFalse($conditionsValidator->passes(null, $conditions));
     }
 }
