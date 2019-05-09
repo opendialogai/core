@@ -366,7 +366,7 @@ class ConversationEngine implements ConversationEngineInterface
             }
         }
 
-        // TODO - can we check the conditions before interpreting?
+        // Check conditions for each conversation
         $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
 
         return $matchingIntents;
