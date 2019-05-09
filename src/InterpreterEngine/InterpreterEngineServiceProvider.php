@@ -4,11 +4,13 @@ namespace OpenDialogAi\InterpreterEngine;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
-use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
+use OpenDialogAi\InterpreterEngine\QnA\QnAClient;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class InterpreterEngineServiceProvider extends ServiceProvider
 {
@@ -26,6 +28,11 @@ class InterpreterEngineServiceProvider extends ServiceProvider
         $this->app->bind(LuisClient::class, function () {
             $config = config('opendialog.interpreter_engine.luis_config');
             return new LuisClient(new Client(), $config);
+        });
+
+        $this->app->bind(QnAClient::class, function () {
+            $config = config('opendialog.interpreter_engine.qna_config');
+            return new QnAClient(new Client(), $config);
         });
 
         $this->app->singleton(InterpreterServiceInterface::class, function () {
@@ -49,6 +56,7 @@ class InterpreterEngineServiceProvider extends ServiceProvider
             if ($interpreterService->isInterpreterAvailable(CallbackInterpreter::getName())) {
                 /* @var CallbackInterpreter $interpreter */
                 $interpreter = $interpreterService->getInterpreter(CallbackInterpreter::getName());
+                $interpreter->setAttributeResolver($this->app->make(AttributeResolver::class));
                 $interpreter->setSupportedCallbacks(config('opendialog.interpreter_engine.supported_callbacks'));
             }
             return $interpreterService;

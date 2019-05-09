@@ -25,7 +25,7 @@ abstract class BaseUtterance implements UtteranceInterface
     protected $user = null;
 
     /** @var string The id of the individual message */
-    protected $messageId = null;
+    protected $messageId = '';
 
     /** @var float The time the message was received by OpenDialog */
     protected $timestamp = null;
@@ -36,9 +36,23 @@ abstract class BaseUtterance implements UtteranceInterface
     /** @var string */
     protected $value;
 
+    /** @var array */
+    protected $data = [];
+
     public function __construct()
     {
         $this->timestamp = microtime(true);
+    }
+
+    /**
+     * Returns the utterance platform. Classes that extend this class can set their own type by defining a type constant
+     *
+     * @return string
+     * @throws UtterancePlatformNotSetException
+     */
+    public function getPlatform(): string
+    {
+        return static::PLATFORM;
     }
 
     /**
@@ -49,25 +63,6 @@ abstract class BaseUtterance implements UtteranceInterface
      */
     public function getType(): string
     {
-        if (static::PLATFORM === self::PLATFORM) {
-            throw new UtteranceTypeNotSetException('Utterance platform has not been set');
-        }
-
-        return static::PLATFORM;
-    }
-
-    /**
-     * Returns the type of utterance. Classes that extend this class can set their own type by defining a type constant
-     *
-     * @return string
-     * @throws UtterancePlatformNotSetException
-     */
-    public function getPlatform(): string
-    {
-        if (static::TYPE === self::TYPE) {
-            throw new UtterancePlatformNotSetException('Utterance platform has not been set');
-        }
-
         return static::TYPE;
     }
 
@@ -173,7 +168,7 @@ abstract class BaseUtterance implements UtteranceInterface
     /**
      * @inheritdoc
      */
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->value;
     }
@@ -184,5 +179,21 @@ abstract class BaseUtterance implements UtteranceInterface
     public function setValue(string $value): void
     {
         $this->value = $value;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setData(array $data): void
+    {
+        $this->data = $data;
     }
 }

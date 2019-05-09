@@ -1,6 +1,6 @@
 <?php
 
-namespace InterpreterEngine\tests;
+namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\tests;
 
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -116,6 +116,12 @@ class InterpreterServiceTest extends TestCase
     {
         $service = $this->getBoundInterpreterService();
         $this->assertNotNull($service->getInterpreter('interpreter.core.luis'));
+    }
+
+    public function testForQnAInterpreter()
+    {
+        $service = $this->getBoundInterpreterService();
+        $this->assertNotNull($service->getInterpreter('interpreter.core.qna'));
     }
 
     public function testDefaultInterpreterSetting()

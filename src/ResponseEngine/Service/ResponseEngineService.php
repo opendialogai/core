@@ -123,9 +123,18 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             return true;
         }
 
-        $conditionsPass = true;
-        foreach ($conditions as $condition) {
-            $conditionsPass = $this->testCondition($condition);
+        $conditionsPass = false;
+        foreach ($conditions as $contextId => $conditions) {
+            foreach ($conditions as $conditionArray) {
+                try {
+                    $attributeName = array_keys($conditionArray)[0];
+                    $condition = array_values($conditionArray)[0];
+                    $attribute = $this->contextService->getAttribute($attributeName, $contextId);
+                    $conditionsPass = $condition->compareAgainst($attribute);
+                } catch (AttributeDoesNotExistException $e) {
+                    Log:debug('Could not get attribute');
+                }
+            }
         }
 
         if ($conditionsPass) {
@@ -133,40 +142,5 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
 
         return false;
-    }
-
-    /**
-     * Check if a condition passes by resolving it's attribute and comparing to the value specified
-     *
-     * @param $condition
-     * @return bool
-     */
-    private function testCondition($condition): bool
-    {
-        $conditionsPass = true;
-
-        [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId($condition['attributeName']);
-
-        // If we encounter an attribute that we wouldn't know how to resolve we will need to
-        // bail now and fail the message.
-        if (!$this->attributeResolver->isAttributeSupported($attributeId)) {
-            $conditionsPass = false;
-        }
-
-        /* @var AttributeInterface $conditionAttribute */
-        $conditionAttribute = $this->attributeResolver->getAttributeFor(
-            $attributeId,
-            $condition[MessageTemplate::ATTRIBUTE_VALUE]
-        );
-
-        /* @var Condition $conditionObject */
-        $conditionObject = new Condition($conditionAttribute, $condition[MessageTemplate::OPERATION]);
-
-        $attributeToCompareAgainst = $this->contextService->getAttribute($attributeId, $contextId);
-
-        if (!$conditionObject->compareAgainst($attributeToCompareAgainst)) {
-            $conditionsPass = false;
-        }
-        return $conditionsPass;
     }
 }

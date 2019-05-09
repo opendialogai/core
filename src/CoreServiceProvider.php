@@ -2,17 +2,24 @@
 
 namespace OpenDialogAi\Core;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
 use OpenDialogAi\Core\Console\Commands\ImportConversation;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
+use OpenDialogAi\Core\LoggingHelper;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
+    /** @var requestId */
+    private $requestId;
+
     public function boot()
     {
         $this->publishes([
@@ -33,6 +40,13 @@ class CoreServiceProvider extends ServiceProvider
                 ImportConversation::class,
             ]);
         }
+
+        $this->requestId = uniqid();
+        $this->app->when('OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware')
+            ->needs('$requestId')
+            ->give($this->requestId);
+
+        Log::pushProcessor(LoggingHelper::getLogUserIdProcessor($this->requestId));
     }
 
     public function register()
@@ -54,6 +68,7 @@ class CoreServiceProvider extends ServiceProvider
             $odController = new OpenDialogController();
 
             $odController->setContextService($this->app->make(ContextService::class));
+            $odController->setConversationLogService($this->app->make(ConversationLogService::class));
             $odController->setConversationEngine($this->app->make(ConversationEngineInterface::class));
             $odController->setResponseEngine($this->app->make(ResponseEngineServiceInterface::class));
 

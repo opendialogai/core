@@ -2,9 +2,10 @@
 
 namespace OpenDialogAi\ConversationLog;
 
-use \Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
@@ -32,7 +33,7 @@ class Message extends Model
         'type',
         'data',
         'microtime',
-        'user'
+        'user',
     ];
 
     /**
@@ -50,9 +51,24 @@ class Message extends Model
         return unserialize($value);
     }
 
+    /**
+     * Deserialize the user field
+     *
+     * @param $value
+     * @return mixed|null
+     */
+    public function getUserAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+
+        return unserialize($value);
+    }
+
     public function chatbotUser()
     {
-        return $this->belongsTo('OpenDialogAi\ConversationLog\ChatbotUser', 'user_id');
+        return $this->belongsTo(ChatbotUser::class, 'user_id');
     }
 
     public function scopeBefore(Builder $query, $date): Builder
@@ -68,27 +84,32 @@ class Message extends Model
     public static function create(
         $microtime,
         $type,
-        $user_id,
+        $userId,
         $author,
         $message,
         $data = null,
-        $message_id = null,
+        $messageId = null,
         $user = null
     ) {
         // Generate a message ID if we weren't given one.
-        if (empty($message_id)) {
-            $message_id = (string) Str::uuid();
+        if (empty($messageId)) {
+            $messageId = (string) Str::uuid();
         }
 
-        $message = new Message([
+        // Generate a timestamp if we weren't given one.
+        if (empty($microtime)) {
+            $microtime = DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u');
+        }
+
+        $message = new self([
             'microtime'       => $microtime,
             'type'            => $type,
-            'user_id'         => $user_id,
+            'user_id'         => $userId,
             'author'          => $author,
             'message'         => $message,
-            'data'            => ($data) ? serialize($data) : null,
-            'message_id'      => $message_id,
-            'user'            => $user,
+            'data'            => $data ? serialize($data) : null,
+            'message_id'      => $messageId,
+            'user'            => $user ? serialize($user) : null,
         ]);
 
         return $message;

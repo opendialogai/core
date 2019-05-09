@@ -27,6 +27,10 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
+        if (!defined('LARAVEL_START')) {
+            define('LARAVEL_START', microtime(true));
+        }
+
         $this->artisan('migrate', [
             '--database' => 'testbench'
         ]);
@@ -54,7 +58,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ResponseEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
-            SensorEngineServiceProvider::class
+            SensorEngineServiceProvider::class,
         ];
     }
 

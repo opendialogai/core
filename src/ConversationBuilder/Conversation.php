@@ -16,6 +16,7 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -180,8 +181,11 @@ class Conversation extends Model
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->getData()['code'] === 'Success') {
+            $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
+
             // Set conversation status to "published".
             $this->status = 'published';
+            $this->graph_uid = $uid;
             $this->save(['validate' => false]);
 
             ConversationStateLog::create([
@@ -204,24 +208,34 @@ class Conversation extends Model
      */
     public function unPublishConversation($reValidate = true)
     {
-        // TODO: Actually remove conversation from DGraph.
-        // $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
 
-        // Don't update conversation status if not requested.
-        if ($reValidate) {
-            // Set conversation status to "validated".
-            $this->status = 'validated';
-            $this->save(['validate' => false]);
+        $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
 
-            // Add log message.
-            ConversationStateLog::create([
-                'conversation_id' => $this->id,
-                'message' => 'Unpublished conversation from DGraph.',
-                'type' => 'unpublish_conversation',
-            ])->save();
+        if ($this->graph_uid === $uid) {
+            $deleteResponse = $dGraph->deleteNode($uid);
+
+            if ($deleteResponse['code'] === 'Success') {
+                // Don't update conversation status if not requested.
+                if ($reValidate) {
+                    // Set conversation status to "validated".
+                    $this->status = 'validated';
+                    $this->graph_uid = null;
+                    $this->save(['validate' => false]);
+
+                    // Add log message.
+                    ConversationStateLog::create([
+                        'conversation_id' => $this->id,
+                        'message' => 'Unpublished conversation from DGraph.',
+                        'type' => 'unpublish_conversation',
+                    ])->save();
+                }
+
+                return true;
+            }
         }
 
-        return true;
+        return false;
     }
 
     /**

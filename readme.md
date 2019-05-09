@@ -65,3 +65,8 @@ DGRAPH_PORT=8080
 
 To log DGraph queries to the standard application log, set the `LOG_DGRAPH_QUERIES` environment variable to true.
 All queries are logged at info level
+
+## Logging API requests
+
+By default, all incoming and outgoing API calls will be logged to the request and response mysql tables.
+To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`

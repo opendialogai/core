@@ -40,7 +40,7 @@ class ConversationTest extends TestCase
 
         $condition1 = new Condition(
             new BooleanAttribute(self::REGISTERED_USER_STATUS, true),
-            AbstractAttribute::IS_TRUE,
+            AbstractAttribute::EQUIVALENCE,
             self::CONDITION1
         );
 
@@ -121,7 +121,6 @@ class ConversationTest extends TestCase
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() == self::CONDITION1);
         $this->assertTrue($scene->getCondition(self::CONDITION2)->getId() == self::CONDITION2);
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
-
     }
 
 }
