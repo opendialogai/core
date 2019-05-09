@@ -59,7 +59,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.timestamp\n  value: 10000\n  operation: ge\n-\n  attribute: user.timestamp\n  value: 20000\n  operation: le",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.timestamp\n    value: 10000\n    operation: ge\n- condition:\n    attribute: user.timestamp\n    value: 20000\n    operation: le",
             'message_markup' => 'Hi there!',
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
@@ -90,7 +90,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
@@ -118,7 +118,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -148,7 +148,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -182,7 +182,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -215,7 +215,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -256,7 +256,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
@@ -284,7 +284,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n-\n  attribute: user.name\n  value: dummy\n  operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
