@@ -184,7 +184,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws ActionNotAvailableException
      * @throws NodeDoesNotExistException
      */
-    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance): Conversation
+    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
         $matchingIntents = new Map();
 
