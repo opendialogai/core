@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\Contexts\User;
-
 
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +23,6 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class UserService
 {
-
     /* @var DGraphClient */
     private $dGraphClient;
 
@@ -480,8 +477,12 @@ class UserService
         if ($chatbotUser->hasAttribute($attributeName)) {
             $chatbotUser->setAttribute($attributeName, $attributeValue);
         } else {
-            $attribute = $this->attributeResolver->getAttributeFor($attributeName, $attributeValue);
-            $chatbotUser->addAttribute($attribute);
+            try {
+                $attribute = $this->attributeResolver->getAttributeFor($attributeName, $attributeValue);
+                $chatbotUser->addAttribute($attribute);
+            } catch (AttributeIsNotSupported $e) {
+                Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
+            }
         }
     }
 }
