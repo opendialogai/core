@@ -38,10 +38,6 @@ class CoreServiceProvider extends ServiceProvider
             ->give($this->requestId);
 
         Log::pushProcessor(LoggingHelper::getLogUserIdProcessor($this->requestId));
-
-        // Register our global middleware.
-        $kernel = $this->app->make('Illuminate\Contracts\Http\Kernel');
-        $kernel->pushMiddleware(RequestLoggerMiddleware::class);
     }
 
     public function register()
