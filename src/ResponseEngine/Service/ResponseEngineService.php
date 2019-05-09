@@ -8,8 +8,6 @@ use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -132,7 +130,9 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                     $attribute = $this->contextService->getAttribute($attributeName, $contextId);
                     $conditionsPass = $condition->compareAgainst($attribute);
                 } catch (AttributeDoesNotExistException $e) {
-                    Log:debug('Could not get attribute');
+                    Log::warning(sprintf(
+                        'Could not get attribute %s when resolving condition on message template %s',
+                        $attributeName, $messageTemplate->name));
                 }
             }
         }
