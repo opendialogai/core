@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\Core\Console\Commands\ExportConversation;
+use OpenDialogAi\Core\Console\Commands\ImportConversation;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
@@ -32,16 +34,19 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ExportConversation::class,
+                ImportConversation::class,
+            ]);
+        }
+
         $this->requestId = uniqid();
         $this->app->when('OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware')
             ->needs('$requestId')
             ->give($this->requestId);
 
         Log::pushProcessor(LoggingHelper::getLogUserIdProcessor($this->requestId));
-
-        // Register our global middleware.
-        $kernel = $this->app->make('Illuminate\Contracts\Http\Kernel');
-        $kernel->pushMiddleware(RequestLoggerMiddleware::class);
     }
 
     public function register()

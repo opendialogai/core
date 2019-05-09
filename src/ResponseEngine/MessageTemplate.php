@@ -79,7 +79,7 @@ class MessageTemplate extends Model
                     $condition[self::ATTRIBUTE_VALUE] = '';
                     $condition[self::OPERATION] = '';
 
-                    foreach ($yamlCondition as $key => $val) {
+                    foreach ($yamlCondition['condition'] as $key => $val) {
                         switch ($key) {
                             case ResponseEngineServiceInterface::ATTRIBUTE_NAME_KEY:
                                 $condition[self::ATTRIBUTE_NAME] = $val;
