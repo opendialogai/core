@@ -44,6 +44,11 @@ class MessageXML implements Rule
                         if (empty((string)$item)) {
                             return false;
                         }
+                        foreach ($item->link as $link) {
+                            if (empty((string)$link->url) || empty((string)$link->text)) {
+                                return false;
+                            }
+                        }
                         break;
 
                     case 'button-message':

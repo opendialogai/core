@@ -97,7 +97,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 return $this->generateImageMessage($template);
                 break;
             case self::TEXT_MESSAGE:
-                $template = ['text' => (string)$item];
+                $text = $this->getMessageText($item);
+                $template = ['text' => $text];
                 return $this->generateTextMessage($template);
                 break;
             default:
@@ -185,5 +186,55 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         $attributeValue = $this->contextService->getAttributeValue($attributeId, $contextId);
 
         return $this->responseEngineService->fillAttributes($attributeValue);
+    }
+
+    /**
+     * @param SimpleXMLElement $element
+     * @return string
+     */
+    protected function getMessageText(SimpleXMLElement $element): string
+    {
+        $dom = new \DOMDocument;
+        $dom->loadXML($element->asXml());
+
+        $text = '';
+        foreach ($dom->childNodes as $node) {
+            foreach ($node->childNodes as $item) {
+                if ($item->nodeType === XML_TEXT_NODE) {
+                    $text .= $item->textContent;
+                } elseif ($item->nodeType === XML_ELEMENT_NODE) {
+                    if ($item->nodeName == 'link') {
+                        $link = [
+                            'open-new-tab' => false,
+                            'text' => '',
+                            'url' => '',
+                        ];
+
+                        foreach ($item->childNodes as $t) {
+                            $link[$t->nodeName] = $t->nodeValue;
+                        }
+
+                        $text .= $this->generateLink($link['url'], $link['text'], $link['open-new-tab']);
+                    }
+                }
+            }
+        }
+
+        return $text;
+    }
+
+    /**
+     * @param string $url
+     * @param string $text
+     * @param bool $openNewTab
+     * @return string
+     */
+    protected function generateLink($url, $text, $openNewTab)
+    {
+        if ($openNewTab) {
+            return '<a target="_blank" href="' . $url . '">' . $text . '</a>';
+        }
+
+        return '<a href="' . $url . '">' . $text . '</a>';
     }
 }
