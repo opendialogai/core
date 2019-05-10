@@ -46,7 +46,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param ConversationStoreInterface $conversationStore
      */
-    public function setConversationStore(ConversationStoreInterface $conversationStore)
+    public function setConversationStore(ConversationStoreInterface $conversationStore): void
     {
         $this->conversationStore = $conversationStore;
     }
@@ -62,7 +62,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param InterpreterServiceInterface $interpreterService
      */
-    public function setInterpreterService(InterpreterServiceInterface $interpreterService)
+    public function setInterpreterService(InterpreterServiceInterface $interpreterService): void
     {
         $this->interpreterService = $interpreterService;
     }
@@ -70,7 +70,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param ActionEngineInterface $actionEngine
      */
-    public function setActionEngine(ActionEngineInterface $actionEngine)
+    public function setActionEngine(ActionEngineInterface $actionEngine): void
     {
         $this->actionEngine = $actionEngine;
     }
@@ -78,7 +78,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param AttributeResolver $attributeResolver
      */
-    public function setAttributeResolver(AttributeResolver $attributeResolver)
+    public function setAttributeResolver(AttributeResolver $attributeResolver): void
     {
         $this->attributeResolver = $attributeResolver;
     }
@@ -86,7 +86,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param ContextService $contextService
      */
-    public function setContextService(ContextService $contextService)
+    public function setContextService(ContextService $contextService): void
     {
         $this->contextService = $contextService;
     }

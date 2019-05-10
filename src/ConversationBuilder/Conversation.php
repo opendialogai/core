@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineAttributeException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineValidOperationException;
@@ -324,7 +324,7 @@ class Conversation extends Model
         /* @var AttributeResolver $attributeResolver */
         $attributeResolver = resolve(AttributeResolver::class);
         if (!array_key_exists($attributeId, $attributeResolver->getSupportedAttributes())) {
-            throw new AttributeCouldNotBeResolvedException(
+            throw new AttributeIsNotSupported(
                 sprintf('Attribute %s could not be resolved', $attributeName)
             );
         }

@@ -1,13 +1,11 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\Contexts\User;
-
 
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
@@ -25,7 +23,6 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class UserService
 {
-
     /* @var DGraphClient */
     private $dGraphClient;
 
@@ -72,7 +69,7 @@ class UserService
                 try {
                     $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
-                } catch (AttributeCouldNotBeResolvedException $e) {
+                } catch (AttributeIsNotSupported $e) {
                     Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
                     continue;
                 }
@@ -480,8 +477,12 @@ class UserService
         if ($chatbotUser->hasAttribute($attributeName)) {
             $chatbotUser->setAttribute($attributeName, $attributeValue);
         } else {
-            $attribute = $this->attributeResolver->getAttributeFor($attributeName, $attributeValue);
-            $chatbotUser->addAttribute($attribute);
+            try {
+                $attribute = $this->attributeResolver->getAttributeFor($attributeName, $attributeValue);
+                $chatbotUser->addAttribute($attribute);
+            } catch (AttributeIsNotSupported $e) {
+                Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
+            }
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
@@ -65,7 +65,7 @@ class AttributeResolver
      * @param string $attributeId
      * @param $value
      * @return AttributeInterface
-     * @throws AttributeCouldNotBeResolvedException
+     * @throws AttributeIsNotSupported
      */
     public function getAttributeFor(string $attributeId, $value)
     {
@@ -73,7 +73,7 @@ class AttributeResolver
             return new $this->supportedAttributes[$attributeId]($attributeId, $value);
         } else {
             Log::debug(sprintf('Attribute %s could not be resolved', $attributeId));
-            throw new AttributeCouldNotBeResolvedException(sprintf('Attribute %s could not be resolved', $attributeId));
+            throw new AttributeIsNotSupported(sprintf('Attribute %s could not be resolved', $attributeId));
         }
     }
 }
