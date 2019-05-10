@@ -61,7 +61,7 @@ class CallbackInterpreterTest extends TestCase
         $this->assertEquals('valid', $intent->getId());
         $this->assertCount(1, $intent->getNonCoreAttributes());
         $this->assertInstanceOf(StringAttribute::class, $intent->getNonCoreAttributes()->first()->value);
-        $this->assertEquals('button_value', $intent->getNonCoreAttributes()->first()->value->getId());
+        $this->assertEquals('callback_value', $intent->getNonCoreAttributes()->first()->value->getId());
         $this->assertEquals('badly_named', $intent->getNonCoreAttributes()->first()->value->getValue());
     }
 

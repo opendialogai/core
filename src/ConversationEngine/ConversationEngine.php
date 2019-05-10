@@ -46,7 +46,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param ConversationStoreInterface $conversationStore
      */
-    public function setConversationStore(ConversationStoreInterface $conversationStore)
+    public function setConversationStore(ConversationStoreInterface $conversationStore): void
     {
         $this->conversationStore = $conversationStore;
     }
@@ -62,7 +62,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param InterpreterServiceInterface $interpreterService
      */
-    public function setInterpreterService(InterpreterServiceInterface $interpreterService)
+    public function setInterpreterService(InterpreterServiceInterface $interpreterService): void
     {
         $this->interpreterService = $interpreterService;
     }
@@ -70,7 +70,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param ActionEngineInterface $actionEngine
      */
-    public function setActionEngine(ActionEngineInterface $actionEngine)
+    public function setActionEngine(ActionEngineInterface $actionEngine): void
     {
         $this->actionEngine = $actionEngine;
     }
@@ -78,7 +78,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param AttributeResolver $attributeResolver
      */
-    public function setAttributeResolver(AttributeResolver $attributeResolver)
+    public function setAttributeResolver(AttributeResolver $attributeResolver): void
     {
         $this->attributeResolver = $attributeResolver;
     }
@@ -86,7 +86,7 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param ContextService $contextService
      */
-    public function setContextService(ContextService $contextService)
+    public function setContextService(ContextService $contextService): void
     {
         $this->contextService = $contextService;
     }
@@ -184,7 +184,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws ActionNotAvailableException
      * @throws NodeDoesNotExistException
      */
-    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance)
+    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
         $matchingIntents = new Map();
 
@@ -197,13 +197,14 @@ class ConversationEngine implements ConversationEngineInterface
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
-        //Determine if there is an intent that matches the incoming utterance
+        // Determine if there is an intent that matches the incoming utterance
         /* @var Intent $validIntent */
         foreach ($possibleNextIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 $interpretedIntents = $this->interpreterService
                     ->getInterpreter($validIntent->getInterpreter()->getId())
                     ->interpret($utterance);
+
                 // Check to see if one of the interpreted intents matches the valid Intent.
                 /* @var Intent $interpretedIntent */
                 foreach ($interpretedIntents as $interpretedIntent) {
@@ -242,7 +243,6 @@ class ConversationEngine implements ConversationEngineInterface
             // Check if the intent has non-core attributes and set those at the user context level
             $this->storeIntentEntities($nextIntent, $userContext);
 
-
             if ($nextIntent->causesAction()) {
                 Log::debug(
                     sprintf(
@@ -259,15 +259,15 @@ class ConversationEngine implements ConversationEngineInterface
             }
 
             return $userContext->getCurrentConversation();
-        } else {
-            // What the user says does not match anything expected in the current conversation so complete it and
-            // pretend we received a no match intent.
-            Log::debug('No matching intent, moving conversation to past state');
-            $userContext->moveCurrentConversationToPast();
-            Log::debug('No match found, dropping out of current conversation.');
-            //@todo This should be an exception
-            return null;
         }
+
+        // What the user says does not match anything expected in the current conversation so complete it and
+        // pretend we received a no match intent.
+        Log::debug('No matching intent, moving conversation to past state');
+        $userContext->moveCurrentConversationToPast();
+        Log::debug('No match found, dropping out of current conversation.');
+        //@todo This should be an exception
+        return null;
     }
 
     /**
@@ -282,7 +282,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws NodeDoesNotExistException
      * @throws ActionNotAvailableException
      */
-    private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance)
+    private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
@@ -293,42 +293,46 @@ class ConversationEngine implements ConversationEngineInterface
         $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents);
         Log::debug(sprintf('Found %s matching intents.', count($matchingIntents)));
 
-        if (count($matchingIntents) == 0) {
+        if (count($matchingIntents) === 0) {
             return null;
-        } else {
-            /* @var OpeningIntent $intent */
-            $intent = $matchingIntents->last()->value;
-            Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
+        }
 
-            $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
-            $userContext->setCurrentConversation($conversation);
-            $userContext->setCurrentIntent(
-                $userContext->getUser()->getCurrentConversation()->getIntentByOrder($intent->getOrder())
+        /* @var OpeningIntent $intent */
+        $intent = $matchingIntents->last()->value;
+        Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
+
+        if ($interpretedIntent = $intent->getInterpretedIntent()) {
+            $this->storeIntentEntities($interpretedIntent, $userContext);
+        }
+
+        $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
+        $userContext->setCurrentConversation($conversation);
+        $userContext->setCurrentIntent(
+            $userContext->getUser()->getCurrentConversation()->getIntentByOrder($intent->getOrder())
+        );
+
+        /* @var Intent $currentIntent */
+        $currentIntent = $userContext->getCurrentIntent();
+        Log::debug(sprintf('Set current intent as %s', $currentIntent->getId()));
+
+        if ($currentIntent->causesAction()) {
+            Log::debug(
+                sprintf(
+                    'Current intent %s causes action %s',
+                    $currentIntent->getId(),
+                    $currentIntent->getAction()->getId()
+                )
             );
 
-            /* @var Intent $currentIntent */
-            $currentIntent = $userContext->getCurrentIntent();
-            Log::debug(sprintf('Set current intent as %s', $currentIntent->getId()));
-
-            if ($currentIntent->causesAction()) {
-                Log::debug(
-                    sprintf(
-                        'Current intent %s causes action %s',
-                        $currentIntent->getId(),
-                        $currentIntent->getAction()->getId()
-                    )
-                );
-
-                /* @var ActionResult $actionResult */
-                $actionResult = $this->actionEngine->performAction($currentIntent->getAction()->getId());
-                $userContext->addActionResult($actionResult);
-                Log::debug(sprintf('Adding action result to user context'));
-            }
-
-            // For this intent get the matching conversation - we are pulling this back out from the user
-            // so that we have the copy from the graph.
-            return $this->conversationStore->getConversation($intent->getConversationUid());
+            /* @var ActionResult $actionResult */
+            $actionResult = $this->actionEngine->performAction($currentIntent->getAction()->getId());
+            $userContext->addActionResult($actionResult);
+            Log::debug(sprintf('Adding action result to user context'));
         }
+
+        // For this intent get the matching conversation - we are pulling this back out from the user
+        // so that we have the copy from the graph.
+        return $this->conversationStore->getConversation($intent->getConversationUid());
     }
 
     /**
@@ -350,20 +354,20 @@ class ConversationEngine implements ConversationEngineInterface
 
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
                 foreach ($intentsFromInterpreter as $interpretedIntent) {
+                    $validIntent->setInterpretedIntent($interpretedIntent);
+
                     if ($this->intentHasEnoughConfidence($interpretedIntent, $validIntent)) {
                         $matchingIntents->put($validIntent->getConversationId(), $validIntent);
                     }
                 }
-            } else {
-                if ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
-                    $matchingIntents->put($validIntent->getConversationId(), $validIntent);
-                }
+            } else if ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
+                $validIntent->setInterpretedIntent($defaultIntent);
+                $matchingIntents->put($validIntent->getConversationId(), $validIntent);
             }
         }
 
         // Check conditions for each conversation
         $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
-
 
         return $matchingIntents;
     }
@@ -372,7 +376,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @param Map $intentsToCheck
      * @return Map
      */
-    private function filterOpeningIntentsForConditions(Map $intentsToCheck)
+    private function filterOpeningIntentsForConditions(Map $intentsToCheck): Map
     {
         $matchingIntents = new Map();
 
@@ -415,7 +419,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @param Intent $intent
      * @param UserContext $context
      */
-    private function storeIntentEntities(Intent $intent, UserContext $context)
+    private function storeIntentEntities(Intent $intent, UserContext $context): void
     {
         /** @var AttributeInterface $attribute */
         foreach ($intent->getNonCoreAttributes() as $attribute) {

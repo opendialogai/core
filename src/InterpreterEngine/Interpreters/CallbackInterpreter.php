@@ -4,12 +4,11 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\ButtonValueParser;
+use OpenDialogAi\Core\Attribute\CallbackValueParser;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\ButtonResponseUtterance;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
@@ -63,12 +62,12 @@ class CallbackInterpreter extends BaseInterpreter
                 $intent = new Intent($this->supportedCallbacks[$utterance->getCallbackId()]);
                 $intent->setConfidence(1);
 
-                if ($utterance->getType() === ButtonResponseUtterance::TYPE && $value = $utterance->getValue()) {
-                    $intent->addAttribute($this->getButtonValueAttribute($value));
+                if ($utterance->getValue()) {
+                    $intent->addAttribute($this->getCallbackValueAttribute($utterance->getValue()));
                 }
             }
         } catch (FieldNotSupported $e) {
-            Log::warning(sprintf('Utterance %s does not support callbacks', $utterance->getType()));
+            Log::warning(sprintf('Utterance %s does not support callbacks or callback values', $utterance->getType()));
         }
 
         return [$intent];
@@ -78,19 +77,19 @@ class CallbackInterpreter extends BaseInterpreter
      * @param string $value
      * @return AttributeInterface
      */
-    protected function getButtonValueAttribute(string $value): AttributeInterface
+    protected function getCallbackValueAttribute(string $value): AttributeInterface
     {
-        $parsed = ButtonValueParser::parseButtonValue($value);
+        $parsed = CallbackValueParser::parseCallbackValue($value);
 
         try {
             $attribute = $this->attributeResolver->getAttributeFor(
-                $parsed[ButtonValueParser::ATTRIBUTE_NAME],
-                $parsed[ButtonValueParser::ATTRIBUTE_VALUE]
+                $parsed[CallbackValueParser::ATTRIBUTE_NAME],
+                $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             );
-        } catch (AttributeDoesNotExistException $e) {
+        } catch (AttributeIsNotSupported $e) {
             $attribute = new StringAttribute(
-                $parsed[ButtonValueParser::ATTRIBUTE_NAME],
-                $parsed[ButtonValueParser::ATTRIBUTE_VALUE]
+                $parsed[CallbackValueParser::ATTRIBUTE_NAME],
+                $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             );
         }
 

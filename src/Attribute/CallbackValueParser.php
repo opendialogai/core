@@ -9,33 +9,33 @@ use Illuminate\Support\Facades\Log;
  *
  * Button values should be in the format {attributeName}.{attributeValue}
  *
- * If {attributeName} is not included, 'button_value' will be used
+ * If {attributeName} is not included, 'callback_value' will be used
  */
-abstract class ButtonValueParser
+abstract class CallbackValueParser
 {
-    const BUTTON_VALUE = 'button_value';
+    const CALLBACK_VALUE = 'callback_value';
     const ATTRIBUTE_NAME = 'attribute_name';
     const ATTRIBUTE_VALUE = 'attribute_value';
 
     /**
-     * Parses the button value and returns an array in the format:
+     * Parses the callback value and returns an array in the format:
      * [
      *  'attribute_name'  => $attributeName,
      *  'attribute_value' => $attributeValue
      * ]
      *
-     * If no attribute name can be established, 'button_value' is used
+     * If no attribute name can be established, 'callback_value' is used
      *
      * @param $value
      * @return array
      */
-    public static function parseButtonValue($value): array
+    public static function parseCallbackValue($value): array
     {
         $matches = explode('.', $value);
 
         switch (count($matches)) {
             case 1:
-                $attributeName = self::BUTTON_VALUE;
+                $attributeName = self::CALLBACK_VALUE;
                 $attributeValue = $value;
                 break;
             case 2:
@@ -43,7 +43,7 @@ abstract class ButtonValueParser
                 break;
             default:
                 Log::warning(sprintf('Parsing invalid button value %s', $value));
-                $attributeName = self::BUTTON_VALUE;
+                $attributeName = self::CALLBACK_VALUE;
                 $attributeValue = $value;
                 break;
         }

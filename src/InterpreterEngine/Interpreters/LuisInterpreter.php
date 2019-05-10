@@ -5,7 +5,7 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -119,7 +119,7 @@ class LuisInterpreter extends BaseInterpreter
 
         try {
             return $this->attributeResolver->getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
-        } catch (AttributeCouldNotBeResolvedException $e) {
+        } catch (AttributeIsNotSupported $e) {
             Log::warning(
                 sprintf(
                     "Unsupported attribute type %s returned from LUIS - using StringAttribute",

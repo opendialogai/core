@@ -1,11 +1,10 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
-
 
 use Ds\Map;
 use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\Conversation\Intent;
 
 class OpeningIntent
 {
@@ -22,6 +21,9 @@ class OpeningIntent
     private $confidence;
 
     private $interpreter;
+
+    /* @var Intent */
+    private $interpretedIntent;
 
     /* @var Map */
     private $conditions;
@@ -194,6 +196,21 @@ class OpeningIntent
         $this->confidence = $confidence;
     }
 
+    /**
+     * @return Intent|null
+     */
+    public function getInterpretedIntent()
+    {
+        return $this->interpretedIntent;
+    }
+
+    /**
+     * @param Intent $intent
+     */
+    public function setInterpretedIntent(Intent $intent)
+    {
+        $this->interpretedIntent = $intent;
+    }
 
     /**
      * @return bool
@@ -206,6 +223,4 @@ class OpeningIntent
 
         return false;
     }
-
-
 }

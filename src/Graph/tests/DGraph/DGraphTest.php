@@ -4,8 +4,8 @@
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
 
-use OpenDialogAi\ContextEngine\Exceptions\AttributeCouldNotBeResolvedException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
@@ -103,7 +103,7 @@ class DGraphTest extends TestCase
             try {
                 $attribute = $this->attributeResolver->getAttributeFor($name, $value);
                 $node1->addAttribute($attribute);
-            } catch (AttributeCouldNotBeResolvedException $e) {
+            } catch (AttributeIsNotSupported $e) {
                 // Simply skip attributes we can't deal with.
                 continue;
             }
