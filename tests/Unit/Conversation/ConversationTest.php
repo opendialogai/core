@@ -81,46 +81,46 @@ class ConversationTest extends TestCase
     /**
      *
      */
-    public function testParticipantsExistInScene()
+    /*public function testParticipantsExistInScene()
     {
         $cm = $this->setupConversation();
         /* @var Conversation @conversation */
-        $conversation = $cm->getConversation();
+        //$conversation = $cm->getConversation();
 
         /* @var Map $openingScenes */
-        $openingScenes = $conversation->getOpeningScenes();
+        //$openingScenes = $conversation->getOpeningScenes();
 
         /* @var Scene $openingScene */
-        $openingScene = $openingScenes->first()->toArray()['value'];
+        //$openingScene = $openingScenes->first()->toArray()['value'];
 
-        $this->assertTrue($openingScene->getBot()->getId() == $openingScene->botIdInScene());
-        $this->assertTrue($openingScene->getUser()->getId() == $openingScene->userIdInScene());
+        //$this->assertTrue($openingScene->getBot()->getId() == $openingScene->botIdInScene());
+        //$this->assertTrue($openingScene->getUser()->getId() == $openingScene->userIdInScene());
 
         // Traverse the graph to get to the participants
         /* @var Map $nodes */
-        $nodes = $openingScene->getOutgoingEdgesWithRelationship(Model::HAS_BOT_PARTICIPANT)->getToNodes();
+        /*$nodes = $openingScene->getOutgoingEdgesWithRelationship(Model::HAS_BOT_PARTICIPANT)->getToNodes();
 
         $this->assertTrue(count($nodes) == 1);
 
         $this->assertTrue($nodes->first()->toArray()['value']->getId() == $openingScene->botIdInScene());
-    }
+    }*/
 
-    public function testConditionsAreAssosiatedWithScene()
+    /*public function testConditionsAreAssosiatedWithScene()
     {
         $cm = $this->setupConversation();
         $conversation = $cm->getConversation();
 
         /* @var Scene scene */
-        $scene = $conversation->getScene(self::OPENING_SCENE);
+        //$scene = $conversation->getScene(self::OPENING_SCENE);
 
         /* @var Map $conditions */
-        $conditions = $scene->getConditions();
+        /*$conditions = $scene->getConditions();
 
         $this->assertTrue(count($conditions) == 2);
 
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() == self::CONDITION1);
         $this->assertTrue($scene->getCondition(self::CONDITION2)->getId() == self::CONDITION2);
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
-    }
+    }*/
 
 }

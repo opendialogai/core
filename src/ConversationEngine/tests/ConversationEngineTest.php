@@ -12,6 +12,8 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Attribute\Operation\GreaterThanOperation;
+use OpenDialogAi\Core\Attribute\Operation\IsSetOperation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
@@ -88,25 +90,18 @@ class ConversationEngineTest extends TestCase
 
         /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
         foreach ($conditions as $condition) {
-            $attribute = $condition->getAttributeToCompareAgainst();
-            $this->assertTrue(in_array($attribute->getId(), ['name', 'test']));
-
             if ($condition->getId() == 'user.name-is_set-') {
-                $this->assertInstanceOf(StringAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === null);
                 $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'name');
                 $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === null);
-                $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::IS_SET);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::IS_SET);
+                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::NAME);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::NAME);
             }
 
             if ($condition->getId() == 'user.test-gt-10') {
-                $this->assertInstanceOf(IntAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === 10);
                 $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === 10);
                 $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'test');
-                $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::GREATER_THAN);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::GREATER_THAN);
+                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::NAME);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::NAME);
             }
 
         }

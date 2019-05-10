@@ -8,6 +8,8 @@ use OpenDialogAi\Core\Attribute\BasicAttribute;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\Attribute\Operation\EquivalenceOperation;
+use OpenDialogAi\Core\Attribute\Operation\GreaterThanOrEqualOperation;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeTest extends TestCase
@@ -16,14 +18,15 @@ class AttributeTest extends TestCase
     public function testBooleanAttribute()
     {
         $a = new BooleanAttribute('testA', true);
-        $b = new BooleanAttribute('testB', false);
+        $operation = new EquivalenceOperation();
+        $parameters = [ 'value' => false ];
 
         try {
-            $this->assertFalse($a->compare($b, AbstractAttribute::EQUIVALENCE));
+            $this->assertFalse($a->executeOperation($operation, $parameters));
 
-            $b->setValue(true);
+            $parameters = [ 'value' => true ];
 
-            $this->assertTrue($a->compare($b, AbstractAttribute::EQUIVALENCE));
+            $this->assertTrue($a->executeOperation($operation, $parameters));
         } catch (UnsupportedAttributeTypeException $e) {
             self::fail('Exception thrown');
         }
@@ -37,14 +40,15 @@ class AttributeTest extends TestCase
     public function testIntAttribute()
     {
         $a = new IntAttribute('testA', 50);
-        $b = new IntAttribute('testB', 109);
+        $operation = new GreaterThanOrEqualOperation();
+        $parameters = [ 'value' => 109 ];
 
         try {
-            $this->assertFalse($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
+            $this->assertFalse($a->executeOperation($operation, $parameters));
 
-            $b->setValue(49);
+            $parameters = [ 'value' => 49 ];
 
-            $this->assertTrue($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
+            $this->assertTrue($a->executeOperation($operation, $parameters));
         } catch (UnsupportedAttributeTypeException $e) {
             self::fail('Exception thrown');
         }

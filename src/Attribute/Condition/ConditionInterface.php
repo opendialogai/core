@@ -10,9 +10,11 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
  */
 interface ConditionInterface
 {
-    public function compareAgainst(AttributeInterface $attribute);
+    public function executeOperation(AttributeInterface $attribute);
 
     public function getEvaluationOperation();
 
     public function setEvaluationOperation(string $evaluationOperation);
+
+    public function getParameters();
 }

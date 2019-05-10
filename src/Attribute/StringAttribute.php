@@ -18,4 +18,5 @@ class StringAttribute extends BasicAttribute
             return null;
         }
     }
+
 }

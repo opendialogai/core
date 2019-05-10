@@ -85,7 +85,8 @@ conversation:
     - condition:
         attribute: user.test
         operation: gt
-        value: 10
+        parameters:
+          value: 10
   scenes:
     opening_scene:
       intents:

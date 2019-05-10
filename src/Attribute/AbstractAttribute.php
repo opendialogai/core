@@ -15,17 +15,6 @@ abstract class AbstractAttribute implements AttributeInterface
     const FLOAT = 'attribute.core.float';
     const DATETIME = 'attribute.core.dateTime';
 
-    // Operations that can be performed
-    const EQUIVALENCE = 'eq';
-    const GREATER_THAN = 'gt';
-    const LESS_THAN = 'lt';
-    const GREATER_THAN_OR_EQUAL = 'gte';
-    const LESS_THAN_OR_EQUAL = 'lte';
-    const IN_SET = 'in_set';
-    const NOT_IN_SET = 'not_in_set';
-    const IS_SET = 'is_set';
-    const IS_NOT_SET = 'is_not_set';
-
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
 
@@ -50,35 +39,6 @@ abstract class AbstractAttribute implements AttributeInterface
         $this->id = $id;
         $this->value = $value;
         $this->checkAndAssignType($type);
-    }
-
-    /**
-     * @return array
-     */
-    public static function allowedAttributeOperations()
-    {
-        return [
-            self::EQUIVALENCE,
-            self::GREATER_THAN,
-            self::LESS_THAN,
-            self::GREATER_THAN_OR_EQUAL,
-            self::LESS_THAN_OR_EQUAL,
-            self::IN_SET,
-            self::NOT_IN_SET,
-            self::IS_SET,
-            self::IS_NOT_SET,
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public static function operationsNotRequiringValue()
-    {
-        return [
-            self::IS_SET,
-            self::IS_NOT_SET
-        ];
     }
 
     /**

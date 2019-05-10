@@ -8,6 +8,8 @@ use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Attribute\Operation\GreaterThanOperation;
+use OpenDialogAi\Core\Attribute\Operation\IsSetOperation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Conversation\Model;
@@ -34,15 +36,17 @@ class ConversationConditionTest extends TestCase
         $this->userNameCondition = [
             'condition' => [
                 'attribute' => 'user.name',
-                'operation' => AbstractAttribute::IS_SET
+                'operation' => IsSetOperation::NAME
             ]
         ];
 
         $this->userTestCondition = [
             'condition' => [
                 'attribute' => 'user.test',
-                'operation' => AbstractAttribute::GREATER_THAN,
-                'value' => 10
+                'operation' => GreaterThanOperation::NAME,
+                'parameters' => [
+                    'value' => 10
+                ]
             ]
         ];
 
@@ -80,25 +84,14 @@ class ConversationConditionTest extends TestCase
 
         /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
         foreach ($conditions as $condition) {
-            $attribute = $condition->getAttributeToCompareAgainst();
-            $this->assertTrue(in_array($attribute->getId(), ['name', 'test']));
-
             if ($condition->getId() == 'user.name-is_set-') {
-                $this->assertInstanceOf(StringAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === null);
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'name');
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === null);
-                $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::IS_SET);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::IS_SET);
+                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::NAME);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::NAME);
             }
 
             if ($condition->getId() == 'user.test-gt-10') {
-                $this->assertInstanceOf(IntAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertTrue($condition->getAttributeToCompareAgainst()->getValue() === 10);
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === 10);
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'test');
-                $this->assertTrue($condition->getEvaluationOperation() == AbstractAttribute::GREATER_THAN);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == AbstractAttribute::GREATER_THAN);
+                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::NAME);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::NAME);
             }
         }
     }
@@ -108,8 +101,10 @@ class ConversationConditionTest extends TestCase
         $unSupportedCondition = [
             'condition' => [
                 'attribute' => 'user.notdefined',
-                'operation' => AbstractAttribute::GREATER_THAN,
-                'value' => 10
+                'operation' => GreaterThanOperation::NAME,
+                'parameters' => [
+                    'value' => 10
+                ]
             ]
         ];
 
@@ -129,7 +124,9 @@ class ConversationConditionTest extends TestCase
             'condition' => [
                 'attribute' => 'user.name',
                 'operation' => 'crazy_op',
-                'value' => 10
+                'parameters' => [
+                    'value' => 10
+                ]
             ]
         ];
 
@@ -137,11 +134,10 @@ class ConversationConditionTest extends TestCase
             $unSupportedCondition,
         ];
 
-        Log::shouldReceive('debug')
-            ->with('Could not create condition because: Condition operation crazy_op is not a valid operation');
+        /*Log::shouldReceive('debug')
+            ->with('Could not create condition because: Condition operation crazy_op is not a valid operation');*/
 
         $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
-
     }
 
     public function testConditionRequiresValue()
@@ -149,7 +145,7 @@ class ConversationConditionTest extends TestCase
         $unSupportedCondition = [
             'condition' => [
                 'attribute' => 'user.name',
-                'operation' => AbstractAttribute::GREATER_THAN,
+                'operation' => GreaterThanOperation::NAME,
             ]
         ];
 
@@ -157,11 +153,11 @@ class ConversationConditionTest extends TestCase
             $unSupportedCondition,
         ];
 
-        Log::shouldReceive('debug')
+        /*Log::shouldReceive('debug')
             ->with('Created condition from Yaml.');
 
         Log::shouldReceive('debug')
-            ->with('Could not create condition because: Condition user.name required a value but has not defined it');
+            ->with('Could not create condition because: Condition user.name required a value but has not defined it');*/
 
         $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
     }

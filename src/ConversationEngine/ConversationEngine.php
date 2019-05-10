@@ -399,7 +399,7 @@ class ConversationEngine implements ConversationEngineInterface
                         $actualAttribute = $this->attributeResolver->getAttributeFor($attributeName, null);
                     }
 
-                    if (!$condition->compareAgainst($actualAttribute)) {
+                    if (!$condition->executeOperation($actualAttribute)) {
                         $pass = false;
                     }
                 }

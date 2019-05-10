@@ -60,15 +60,18 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.timestamp\n    value: 10000\n    operation: ge\n- condition:\n    attribute: user.timestamp\n    value: 20000\n    operation: le",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.timestamp\n    parameters:\n      value: 10000\n    operation: gte\n- condition:\n    attribute: user.timestamp\n    parameters:\n      value: 20000\n    operation: lte",
             'message_markup' => 'Hi there!',
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
-        $this->assertequals($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertequals($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getValue(), 10000);
-        $this->assertequals($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertequals($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getValue(), 20000);
+        $condition1 = $messageTemplate->getConditions()['user'][0]['timestamp'];
+        $condition2 = $messageTemplate->getConditions()['user'][1]['timestamp'];
+
+        $this->assertequals(get_class($condition1->getEvaluationOperation()), 'OpenDialogAi\Core\Attribute\Operation\GreaterThanOrEqualOperation');
+        $this->assertequals(get_class($condition2->getEvaluationOperation()), 'OpenDialogAi\Core\Attribute\Operation\LessThanOrEqualOperation');
+        $this->assertequals($condition1->getParameters()['value'], 10000);
+        $this->assertequals($condition2->getParameters()['value'], 20000);
 
         MessageTemplate::create([
             'name' => 'Unfriendly Hello',
@@ -91,7 +94,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq",
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
@@ -119,7 +122,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -149,7 +152,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -183,7 +186,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -216,7 +219,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq",
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -257,7 +260,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq",
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
@@ -285,7 +288,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq",
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
@@ -307,11 +310,11 @@ class ResponseEngineTest extends TestCase
         $conditionsValidator = new MessageConditions();
 
         // Test valid condition.
-        $conditions = "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq";
+        $conditions = "---\nconditions:\n- condition:\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq";
         $this->assertTrue($conditionsValidator->passes(null, $conditions));
 
         // Test invalid condition.
-        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    value: dummy\n    operation: eq";
+        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    parameters:\n      value: dummy\n    operation: eq";
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
 
         // Test condition without enough attributes.
@@ -319,7 +322,7 @@ class ResponseEngineTest extends TestCase
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
 
         // Test condition without operation.
-        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    value: dummy";
+        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    parameters:\n      value: dummy";
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
     }
 }

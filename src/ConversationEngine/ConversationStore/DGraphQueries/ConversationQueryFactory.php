@@ -225,7 +225,7 @@ class ConversationQueryFactory
 
         // Add any conversation level conditions
         if (isset($data[Model::HAS_CONDITION])) {
-            self::createConversationConditions($data[Model::HAS_CONDITION], $cm, $attributeResolver);
+            self::createConversationConditions($data[Model::HAS_CONDITION], $cm);
         }
 
         // First create all the scenes
@@ -247,17 +247,15 @@ class ConversationQueryFactory
     /**
      * @param array $conditions
      * @param ConversationManager $cm
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      */
     public static function createConversationConditions(
         array $conditions,
         ConversationManager $cm,
-        AttributeResolver $attributeResolver,
         bool $clone = false
     ) {
         foreach ($conditions as $conditionData) {
-            $condition = self::createCondition($conditionData, $attributeResolver, $clone);
+            $condition = self::createCondition($conditionData, $clone);
             if (isset($condition)) {
                 $cm->addConditionToConversation($condition);
             }
@@ -266,32 +264,23 @@ class ConversationQueryFactory
 
     /**
      * @param array $conditionData
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return Condition
      */
-    public static function createCondition(array $conditionData, AttributeResolver $attributeResolver, bool $clone = false)
+    public static function createCondition(array $conditionDatabool, $clone = false)
     {
         $uid = $conditionData[Model::UID];
         $id = $conditionData[Model::ID];
         $context = $conditionData[Model::CONTEXT];
-        $attributeName = $conditionData[Model::ATTRIBUTE_NAME];
-        $attributeValue = $conditionData[Model::ATTRIBUTE_VALUE] === ''
-            ? null
-            : $conditionData[Model::ATTRIBUTE_VALUE];
         $operation = $conditionData[Model::OPERATION];
+        $parameters = $conditionData[Model::PARAMETERS];
 
-        if (array_key_exists($attributeName, $attributeResolver->getSupportedAttributes())) {
-            $attribute = $attributeResolver->getAttributeFor($attributeName, $attributeValue);
-            $condition = new Condition($attribute, $operation, $id);
-            $condition->setContextId($context);
-            if ($clone) {
-                $condition->setUid($uid);
-            }
-            return $condition;
+        $condition = new Condition($operation, $parameters, $id);
+        $condition->setContextId($context);
+        if ($clone) {
+            $condition->setUid($uid);
         }
-
-        return null;
+        return $condition;
     }
 
     /**

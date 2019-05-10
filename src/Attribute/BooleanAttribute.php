@@ -3,6 +3,8 @@
 namespace OpenDialogAi\Core\Attribute;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Attribute\Operation\EquivalenceOperation;
+use OpenDialogAi\Core\Attribute\Operation\OperationInterface;
 
 /**
  * A BooleanAttribute implementation.
@@ -32,26 +34,23 @@ class BooleanAttribute extends AbstractAttribute
     }
 
     /**
-     * @param AttributeInterface $attribute
-     * @param string $operation
+     * @return array
+     */
+    public function allowedAttributeOperations()
+    {
+        return [
+            EquivalenceOperation::class,
+        ];
+    }
+
+    /**
+     * @param OperationInterface $operation
      * @return bool
      * @throws UnsupportedAttributeTypeException
      */
-    public function compare(AttributeInterface $attribute, string $operation): bool
+    public function executeOperation(OperationInterface $operation, $parameters = []): bool
     {
-        if (!($attribute instanceof BooleanAttribute)) {
-            throw new UnsupportedAttributeTypeException(
-                sprintf('Trying to compare type %s to type %s', $this->getType(), $attribute->getType())
-            );
-        }
-
-        switch ($operation) {
-            case AbstractAttribute::EQUIVALENCE:
-                return $this->testEquivalence($attribute);
-                break;
-            default:
-                return false;
-        }
+        return $operation->execute($this, $parameters);
     }
 
     /**

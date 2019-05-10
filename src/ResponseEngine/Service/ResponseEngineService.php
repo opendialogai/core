@@ -128,7 +128,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                     $attributeName = array_keys($conditionArray)[0];
                     $condition = array_values($conditionArray)[0];
                     $attribute = $this->contextService->getAttribute($attributeName, $contextId);
-                    $conditionsPass = $condition->compareAgainst($attribute);
+                    $conditionsPass = $condition->executeOperation($attribute);
                 } catch (AttributeDoesNotExistException $e) {
                     Log::warning(sprintf(
                         'Could not get attribute %s when resolving condition on message template %s',

@@ -4,13 +4,9 @@ namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\Condition\Condition;
-use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -29,7 +25,7 @@ class MessageTemplate extends Model
 {
     const CONDITIONS      = 'conditions';
     const ATTRIBUTE_NAME  = 'attribute';
-    const ATTRIBUTE_VALUE = 'value';
+    const PARAMETERS      = 'parameters';
     const OPERATION       = 'operation';
 
     protected $fillable = [
@@ -76,7 +72,7 @@ class MessageTemplate extends Model
                 foreach ($yaml[self::CONDITIONS] as $yamlCondition) {
                     $condition = [];
                     $condition[self::ATTRIBUTE_NAME] = '';
-                    $condition[self::ATTRIBUTE_VALUE] = '';
+                    $condition[self::PARAMETERS] = '';
                     $condition[self::OPERATION] = '';
 
                     foreach ($yamlCondition['condition'] as $key => $val) {
@@ -87,8 +83,8 @@ class MessageTemplate extends Model
                             case ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY:
                                 $condition[self::OPERATION] = $val;
                                 break;
-                            case ResponseEngineServiceInterface::ATTRIBUTE_VALUE_KEY:
-                                $condition[self::ATTRIBUTE_VALUE] = $val;
+                            case ResponseEngineServiceInterface::ATTRIBUTE_PARAMETERS_KEY:
+                                $condition[self::PARAMETERS] = $val;
                                 break;
                             default:
                                 break;
@@ -97,25 +93,9 @@ class MessageTemplate extends Model
 
                     [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($condition['attribute']);
 
-                    switch (gettype($condition['value'])) {
-                        case 'boolean':
-                            $attribute = new BooleanAttribute($attributeName, $condition['value']);
-                            break;
-                        case 'double':
-                            $attribute = new FloatAttribute($attributeName, $condition['value']);
-                            break;
-                        case 'integer':
-                            $attribute = new IntAttribute($attributeName, $condition['value']);
-                            break;
-                        case 'string':
-                            $attribute = new StringAttribute($attributeName, $condition['value']);
-                            break;
-                        default:
-                            throw new UnsupportedAttributeTypeException(sprintf('Type %s is not supported', $type));
-                            break;
-                    }
-
-                    $conditions[$contextId][] = [$attributeName => new Condition($attribute, $condition['operation'])];
+                    $operation = $condition[self::OPERATION];
+                    $parameters = $condition[self::PARAMETERS];
+                    $conditions[$contextId][] = [$attributeName => new Condition($operation, $parameters)];
                 }
             }
         }

@@ -13,7 +13,7 @@ interface ResponseEngineServiceInterface
 {
     const ATTRIBUTE_OPERATION_KEY = 'operation';
     const ATTRIBUTE_NAME_KEY = 'attribute';
-    const ATTRIBUTE_VALUE_KEY = 'value';
+    const ATTRIBUTE_PARAMETERS_KEY = 'parameters';
 
     /**
      * Gets messages from the given intent formatted correctly for the platform the user is on

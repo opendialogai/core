@@ -14,6 +14,8 @@ trait ConditionTrait
     // The evaluation operation to be used to compare against the attribute to compare.
     private $evaluationOperation;
 
+    private $parameters;
+
     /**
      * @return string
      */
@@ -28,5 +30,13 @@ trait ConditionTrait
     public function setEvaluationOperation(string $evaluationOperation)
     {
         $this->evaluationOperation = $evaluationOperation;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
     }
 }

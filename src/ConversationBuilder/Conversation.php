@@ -330,32 +330,18 @@ class Conversation extends Model
         }
 
         $operation = isset($condition['operation']) ? $condition['operation'] : null;
-        $value = isset($condition['value']) ? $condition['value'] : null;
+        $parameters = isset($condition['parameters']) ? $condition['parameters'] : [];
 
-        // Now check that we have a valid operation and a value if required for that operation.
-        if (isset($operation)) {
-            if (in_array($operation, AbstractAttribute::allowedAttributeOperations())) {
-                if (!in_array($operation, AbstractAttribute::operationsNotRequiringValue()) && !isset($value)) {
-                    throw new ConditionRequiresValueButDoesNotDefineItException(
-                        sprintf('Condition %s required a value but has not defined it', $attributeName)
-                    );
-                }
-            } else {
-                throw new ConditionDoesNotDefineValidOperationException(
-                    sprintf('Condition operation %s is not a valid operation', $operation)
-                );
-            }
-        } else {
+        // Now check that we have a valid operation.
+        if (!isset($operation)) {
             throw new ConditionDoesNotDefineOperationException(
                 sprintf('Condition %s does not define an operation', $condition['attribute'])
             );
         }
 
-        $attribute = $attributeResolver->getAttributeFor($attributeId, $value);
-
         // Now we can create the condition - we set an id as a helper
-        $id = sprintf('%s-%s-%s', $attributeName, $operation, $value);
-        $condition = new Condition($attribute, $operation, $id);
+        $id = sprintf('%s-%s-%s', $attributeName, $operation, implode($parameters));
+        $condition = new Condition($operation, $parameters, $id);
         $condition->setContextId($contextId);
         Log::debug('Created condition from Yaml.');
         return $condition;
