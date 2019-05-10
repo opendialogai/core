@@ -14,6 +14,7 @@ abstract class AbstractAttribute implements AttributeInterface
     const INT = 'attribute.core.int';
     const FLOAT = 'attribute.core.float';
     const DATETIME = 'attribute.core.dateTime';
+    const TIMESTAMP = 'attribute.core.timestamp';
 
     // Operations that can be performed
     const EQUIVALENCE = 'eq';
@@ -25,6 +26,9 @@ abstract class AbstractAttribute implements AttributeInterface
     const NOT_IN_SET = 'not_in_set';
     const IS_SET = 'is_set';
     const IS_NOT_SET = 'is_not_set';
+    const TIME_PASSED_GREATER_THAN = 'time_passed_greater_than';
+    const TIME_PASSED_LESS_THAN = 'time_passed_less_than';
+    const TIME_PASSED_EQUALS = 'time_passed_equals';
 
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
@@ -93,7 +97,8 @@ abstract class AbstractAttribute implements AttributeInterface
             self::BOOLEAN,
             self::INT,
             self::FLOAT,
-            self::DATETIME
+            self::DATETIME,
+            self::TIMESTAMP
         ];
 
         if (!in_array($type, $types, true)) {

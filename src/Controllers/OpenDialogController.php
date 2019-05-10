@@ -86,6 +86,10 @@ class OpenDialogController
         // Log outgoing messages.
         $this->conversationLogService->logOutgoingMessages($messageWrapper, $utterance);
 
+        // Set user 'lastseen' timestamp attribute.
+        $userContext->setAttribute('lastseen', now()->timestamp);
+        $userContext->updateUser();
+
         return $messageWrapper;
     }
 }

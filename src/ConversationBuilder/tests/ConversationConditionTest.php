@@ -21,6 +21,8 @@ class ConversationConditionTest extends TestCase
 
     private $userTestCondition;
 
+    private $userLastSeenCondition;
+
     /* @var ConversationManager */
     private $cm;
 
@@ -46,10 +48,19 @@ class ConversationConditionTest extends TestCase
             ]
         ];
 
+        $this->userLastSeenCondition = [
+            'condition' => [
+                'attribute' => 'user.lastseen',
+                'operation' => AbstractAttribute::TIME_PASSED_GREATER_THAN,
+                'value' => 600
+            ]
+        ];
+
 
         $this->goodConditions = [
           $this->userNameCondition,
-          $this->userTestCondition
+          $this->userTestCondition,
+          $this->userLastSeenCondition
         ];
 
         Conversation::create(['name' => 'Test Conversation', 'model' => 'conversation:']);
@@ -141,7 +152,6 @@ class ConversationConditionTest extends TestCase
             ->with('Could not create condition because: Condition operation crazy_op is not a valid operation');
 
         $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
-
     }
 
     public function testConditionRequiresValue()
