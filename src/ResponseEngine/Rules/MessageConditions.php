@@ -29,13 +29,18 @@ class MessageConditions implements Rule
             }
 
             foreach ($yaml['conditions'] as $condition) {
-                // Each condition must have an operation and a value.
-                if (count($condition) !== 2) {
+                // See what condition our condition is in.
+                if (empty($condition['condition'])) {
+                    return false;
+                }
+
+                // Each condition must have at least an operation and an attribute.
+                if (count($condition['condition']) < 2) {
                     return false;
                 }
 
                 // Each condition must have an operation.
-                if (!isset($condition['operation']) || empty($condition['operation'])) {
+                if (!isset($condition['condition']['operation']) || empty($condition['condition']['operation'])) {
                     return false;
                 }
             }
