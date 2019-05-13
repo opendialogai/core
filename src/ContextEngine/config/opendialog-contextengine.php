@@ -19,6 +19,7 @@ return [
         'last_seen' => OpenDialogAi\Core\Attribute\TimestampAttribute::class,
         'first_seen' => OpenDialogAi\Core\Attribute\TimestampAttribute::class,
 
+        'qna_answer' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
 
         // Intents
         \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class
