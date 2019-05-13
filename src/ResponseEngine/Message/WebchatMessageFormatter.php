@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
@@ -26,6 +27,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     /** @var ResponseEngineService */
     private $responseEngineService;
 
+    /**
+     * WebChatMessageFormatter constructor.
+     * @throws BindingResolutionException
+     */
     public function __construct()
     {
         $this->contextService = app()->make(ContextService::class);
@@ -99,6 +104,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             case self::TEXT_MESSAGE:
                 $template = ['text' => (string)$item];
                 return $this->generateTextMessage($template);
+                break;
+            case self::EMPTY_MESSAGE:
+                return new EmptyMessage();
                 break;
             default:
                 $template = ['text' => 'Sorry, I did not understand this message type.'];
