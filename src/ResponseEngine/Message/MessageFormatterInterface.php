@@ -11,6 +11,7 @@ interface MessageFormatterInterface
     public const BUTTON_MESSAGE    = 'button-message';
     public const IMAGE_MESSAGE     = 'image-message';
     public const TEXT_MESSAGE      = 'text-message';
+    public const EMPTY_MESSAGE     = 'empty-message';
 
     public function getMessages(string $markup);
 
