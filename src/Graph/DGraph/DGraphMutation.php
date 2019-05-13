@@ -154,7 +154,7 @@ class DGraphMutation
     private function prepareAttributeTriple($subject, $predicate, $object, bool $update = false)
     {
         if ($update) {
-            return sprintf('<%s> <%s> "%s" .', $subject, $predicate, $object);
+            return sprintf('<%s> <%s> "%s" .', $subject, $predicate, $this->escapeCharacters($object));
         } else {
             $subject = $this->normalizeString($subject);
             return sprintf('_:%s <%s> "%s" .', $subject, $predicate, $object);
@@ -211,11 +211,27 @@ class DGraphMutation
         return json_encode($mutation);
     }
 
+    /**
+     * Removes non-valid characters from the input
+     *
+     * @param $input
+     * @return string
+     */
     private function normalizeString($input): string
     {
         $invalidCharacters = ['@'];
 
         return str_replace($invalidCharacters, "", $input);
+    }
 
+    /**
+     * Escapes non-valid characters from the mutation
+     *
+     * @param $input
+     * @return mixed
+     */
+    private function escapeCharacters($input)
+    {
+        return str_replace("\n", "\\n", $input);
     }
 }
