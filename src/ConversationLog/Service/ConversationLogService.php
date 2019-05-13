@@ -4,31 +4,14 @@ namespace OpenDialogAi\ConversationLog\Service;
 
 use DateTime;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Contexts\User\UserService;
-use OpenDialogAi\ContextEngine\Contexts\UserContext;
-use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Message;
-use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 
-
 class ConversationLogService
 {
-    /* @var UserService */
-    private $userService;
-
-    /** @var ConversationEngineInterface */
-    private $conversationEngine;
-
-    public function __construct(ConversationEngineInterface $conversationEngine, UserService $userService)
-    {
-        $this->conversationEngine = $conversationEngine;
-        $this->userService = $userService;
-    }
-
     /**
      * Log an incoming message.
      *
@@ -44,19 +27,19 @@ class ConversationLogService
         try {
             $message = $utterance->getText();
         } catch (FieldNotSupported $e) {
-            Log::debug(sprintf("Could not retrieve message text. Error: %s", $e->getMessage()));
+            Log::debug(sprintf('Could not retrieve message text. Error: %s', $e->getMessage()));
         }
 
         try {
             $type = $utterance->getType();
         } catch (\Exception $e) {
-            Log::debug(sprintf("Could not retrieve message type. Error: %s", $e->getMessage()));
+            Log::debug(sprintf('Could not retrieve message type. Error: %s', $e->getMessage()));
         }
 
         try {
             $messageId = $utterance->getMessageId();
         } catch (\Exception $e) {
-            Log::debug(sprintf("Could not retrieve message ID. Error: %s", $e->getMessage()));
+            Log::debug(sprintf('Could not retrieve message ID. Error: %s', $e->getMessage()));
         }
 
         $timestamp = DateTime::createFromFormat('U.u', $utterance->getTimestamp())->format('Y-m-d H:i:s.u');
@@ -78,6 +61,7 @@ class ConversationLogService
      *
      * @param WebChatMessages $messageWrapper
      * @param UtteranceInterface $utterance
+     * @throws FieldNotSupported
      */
     public function logOutgoingMessages(
         WebChatMessages $messageWrapper,
@@ -87,16 +71,20 @@ class ConversationLogService
         foreach ($messageWrapper->getMessages() as $message) {
             $messageData = $message->getMessageToPost();
 
-            Message::create(
-                null,
-                $messageData['type'],
-                $this->getUserId($utterance),
-                $messageData['author'],
-                (isset($messageData['data']['text'])) ? $messageData['data']['text'] : '',
-                $messageData['data'],
-                null,
-                $this->getUser($utterance)
-            )->save();
+            if ($messageData) {
+                Message::create(
+                    null,
+                    $messageData['type'],
+                    $this->getUserId($utterance),
+                    $messageData['author'],
+                    (isset($messageData['data']['text'])) ? $messageData['data']['text'] : '',
+                    $messageData['data'],
+                    null,
+                    $this->getUser($utterance)
+                )->save();
+            } else {
+                Log::debug(sprintf("Not logging outgoing message, nothing to log for %s", get_class($message)));
+            }
         }
     }
 
@@ -119,6 +107,7 @@ class ConversationLogService
     /**
      * @param UtteranceInterface $utterance
      * @return array
+     * @throws FieldNotSupported
      */
     private function getUser(UtteranceInterface $utterance): array
     {
