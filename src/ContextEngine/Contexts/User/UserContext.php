@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\Contexts;
-
 
 use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
@@ -54,6 +52,17 @@ class UserContext extends AbstractContext
     public function addAttribute(AttributeInterface $attribute)
     {
         $this->getUser()->addAttribute($attribute);
+    }
+
+    /**
+     * @param string $attributeName
+     * @param $value
+     * @param null $type
+     * @return AttributeInterface
+     */
+    public function setAttribute(string $attributeName, $value, $type = null): AttributeInterface
+    {
+        return $this->getUser()->setAttribute($attributeName, $value, $type);
     }
 
     /**

@@ -4,13 +4,9 @@ namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\Condition\Condition;
-use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -68,6 +64,8 @@ class MessageTemplate extends Model
      */
     public function getConditions()
     {
+        $attributeResolver = app()->make(AttributeResolver::class);
+
         $conditions = [];
 
         if (isset($this->conditions)) {
@@ -97,23 +95,7 @@ class MessageTemplate extends Model
 
                     [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($condition['attribute']);
 
-                    switch (gettype($condition['value'])) {
-                        case 'boolean':
-                            $attribute = new BooleanAttribute($attributeName, $condition['value']);
-                            break;
-                        case 'double':
-                            $attribute = new FloatAttribute($attributeName, $condition['value']);
-                            break;
-                        case 'integer':
-                            $attribute = new IntAttribute($attributeName, $condition['value']);
-                            break;
-                        case 'string':
-                            $attribute = new StringAttribute($attributeName, $condition['value']);
-                            break;
-                        default:
-                            throw new UnsupportedAttributeTypeException(sprintf('Type %s is not supported', $type));
-                            break;
-                    }
+                    $attribute = $attributeResolver->getAttributeFor($attributeName, $condition['value']);
 
                     $conditions[$contextId][] = [$attributeName => new Condition($attribute, $condition['operation'])];
                 }
