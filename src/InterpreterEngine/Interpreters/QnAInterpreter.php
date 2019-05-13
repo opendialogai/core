@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -23,6 +23,10 @@ class QnAInterpreter extends BaseInterpreter
     /** @var AttributeResolver */
     private $attributeResolver;
 
+    /**
+     * QnAInterpreter constructor.
+     * @throws BindingResolutionException
+     */
     public function __construct()
     {
         $this->client = app()->make(QnAClient::class);
@@ -38,10 +42,10 @@ class QnAInterpreter extends BaseInterpreter
             $qnaResponse = $this->client->queryQnA($utterance->getText());
             $intent = $this->createOdIntent($qnaResponse);
         } catch (QnARequestFailedException $e) {
-            Log::warning(sprintf("QnA interpreter failed at a QnA client level with message %s", $e->getMessage()));
+            Log::warning(sprintf('QnA interpreter failed at a QnA client level with message %s', $e->getMessage()));
             $intent = new NoMatchIntent();
         } catch (FieldNotSupported $e) {
-            Log::warning("Trying to use QnA interpreter to interpret an utterance that does not support text ");
+            Log::warning('Trying to use QnA interpreter to interpret an utterance that does not support text ');
             $intent = new NoMatchIntent();
         }
 
@@ -49,11 +53,11 @@ class QnAInterpreter extends BaseInterpreter
     }
 
     /**
-     * Creates an @see Intent from the QnA response. If there is no intent in the response, a default NO_MATCH intent
+     * Creates an @param QnAResponse $response
+     * @return NoMatchIntent|Intent
+     * @see Intent from the QnA response. If there is no intent in the response, a default NO_MATCH intent
      * is returned
      *
-     * @param QnAResponse $response
-     * @return NoMatchIntent|Intent
      */
     private function createOdIntent(QnAResponse $response)
     {
@@ -62,7 +66,7 @@ class QnAInterpreter extends BaseInterpreter
         if (!empty($response->getAnswers())) {
             foreach ($response->getAnswers() as $answer) {
                 if ($answer->id >= 0) {
-                    $attribute = $this->attributeResolver->getAttributeFor('answer', $answer->answer);
+                    $attribute = $this->attributeResolver->getAttributeFor('qna_answer', $answer->answer);
 
                     $intent = new QnAQuestionMatchedIntent();
                     $intent->addAttribute($attribute);

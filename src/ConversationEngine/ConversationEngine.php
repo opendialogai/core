@@ -22,6 +22,7 @@ use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class ConversationEngine implements ConversationEngineInterface
@@ -369,6 +370,8 @@ class ConversationEngine implements ConversationEngineInterface
         // Check conditions for each conversation
         $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
 
+        $matchingIntents = $this->filterNoMatchIntents($matchingIntents);
+
         return $matchingIntents;
     }
 
@@ -413,6 +416,23 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         return $matchingIntents;
+    }
+
+    /**
+     * Filters out no match intents if we have more than 1 intent. Any non-no match intent should be considered more valid
+     *
+     * @param Map $matchingIntents
+     * @return mixed
+     */
+    private function filterNoMatchIntents($matchingIntents)
+    {
+        if ($matchingIntents->count() === 1) {
+            return $matchingIntents;
+        }
+
+        return $matchingIntents->filter(function ($intentName, $intent) {
+            return $intent->getIntentId() !== NoMatchIntent::NO_MATCH;
+        });
     }
 
     /**
