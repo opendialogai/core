@@ -83,19 +83,19 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         switch ($item->getName()) {
             case self::BUTTON_MESSAGE:
                 $template = [
-                    'text' => (string)$item->text,
+                    'text' => trim((string) $item->text),
                 ];
                 foreach ($item->button as $button) {
                     if (isset($button->tab_switch)) {
                         $template['buttons'][] = [
-                            'text' => (string)$button->text,
+                            'text' => trim((string) $button->text),
                             'tab_switch' => true,
                         ];
                     } else {
                         $template['buttons'][] = [
-                            'callback' => (string)$button->callback,
-                            'text' => (string)$button->text,
-                            'value' => (string)$button->value,
+                            'callback' => trim((string) $button->callback),
+                            'text' => trim((string) $button->text),
+                            'value' => trim((string) $button->value),
                         ];
                     }
                 }
@@ -108,8 +108,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 break;
             case self::IMAGE_MESSAGE:
                 $template = [
-                    'link' => (string)$item->link,
-                    'src' => (string)$item->src,
+                    'link' => trim((string) $item->link),
+                    'src' => trim((string) $item->src),
                 ];
                 $message = $this->generateImageMessage($template);
 
@@ -227,7 +227,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         foreach ($dom->childNodes as $node) {
             foreach ($node->childNodes as $item) {
                 if ($item->nodeType === XML_TEXT_NODE) {
-                    $text .= $item->textContent;
+                    $text .= trim($item->textContent);
                 } elseif ($item->nodeType === XML_ELEMENT_NODE) {
                     if ($item->nodeName == 'link') {
                         $link = [
@@ -237,7 +237,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                         ];
 
                         foreach ($item->childNodes as $t) {
-                            $link[$t->nodeName] = $t->nodeValue;
+                            $link[$t->nodeName] = trim($t->nodeValue);
                         }
 
                         if ($link['url']) {
