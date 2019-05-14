@@ -59,9 +59,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             }
 
             if (isset($message['disable_text'])) {
-                $disable_text = $message['disable_text'] == '1' ? true : false;
+                $disableText = $message['disable_text'] == '1' ? true : false;
                 foreach ($messages as $webChatMessage) {
-                    $webChatMessage->setDisableText($disable_text);
+                    $webChatMessage->setDisableText($disableText);
                 }
             }
         } catch (\Exception $e) {
@@ -106,7 +106,13 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     'link' => (string)$item->link,
                     'src' => (string)$item->src,
                 ];
-                return $this->generateImageMessage($template);
+                $message = $this->generateImageMessage($template);
+
+                if (isset($item['link_new_tab'])) {
+                    $linkNewTab = $item['link_new_tab'] == '1' ? true : false;
+                    $message->setLinkNewTab($linkNewTab);
+                }
+                return $message;
                 break;
             case self::TEXT_MESSAGE:
                 $text = $this->getMessageText($item);
