@@ -241,7 +241,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                         }
 
                         if ($link['url']) {
-                            $text .= $this->generateLink($link['url'], $link['text'], $link['open-new-tab']);
+                            $text .= ' ' . $this->generateLink($link['url'], $link['text'], $link['open-new-tab']);
                         } else {
                             Log::debug('Not adding link to message text, url is empty');
                         }
