@@ -14,7 +14,7 @@ namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 class EmptyMessage extends WebChatMessage
 {
     protected $messageType = 'empty';
-    
+
     public function __construct()
     {
         parent::__construct();

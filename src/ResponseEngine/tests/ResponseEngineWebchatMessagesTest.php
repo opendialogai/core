@@ -22,13 +22,17 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     public function testEmptyMessage()
     {
         $message = new EmptyMessage();
+        $message->setDisableText(true);
         $this->assertEquals(true, $message->isEmpty());
+        $this->assertEquals(1, $message->getData()['disable_text']);
     }
 
     public function testWebChatMessage()
     {
         $message = new WebChatMessage();
         $message->setText('This is a test, this is only a test.');
+        $message->setDisableText(true);
+        $this->assertEquals(1, $message->getData()['disable_text']);
         $this->assertEquals('This is a test, this is only a test.', $message->getText());
     }
 
@@ -38,6 +42,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $message->setInitialText('This is a test, this is only a test.');
         $message->setConfirmationText('This is a test, this is only a confirmation test.');
         $message->setSubmitText('This is a test, this is only a submission test.');
+        $message->setDisableText(true);
+        $this->assertEquals(1, $message->getData()['disable_text']);
         $this->assertEquals('This is a test, this is only a test.', $message->getInitialText());
         $this->assertEquals('This is a test, this is only a confirmation test.', $message->getConfirmationText());
         $this->assertEquals('This is a test, this is only a submission test.', $message->getSubmitText());
@@ -46,6 +52,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     public function testWebChatListMessage()
     {
         $message = new WebChatListMessage();
+        $message->setDisableText(false);
         $listElement1 = new WebChatListElement('Element title', 'Some subtext here', null);
         $message->addElement($listElement1);
         $listElement2 = new WebChatListElement('Second title', null, null);
@@ -78,6 +85,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
             ],
         ];
 
+        $this->assertEquals(0, $message->getData()['disable_text']);
         $this->assertEquals($expectedOutput, $message->getElementsArray());
     }
 
@@ -87,6 +95,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $message->setImgLink('http://www.opendialog.ai/');
         $message->setImgSrc('http://www.opendialog.ai/assets/images/logo.svg');
         $message->setLinkNewTab(false);
+        $message->setDisableText(false);
+        $this->assertEquals(0, $message->getData()['disable_text']);
         $this->assertEquals('http://www.opendialog.ai/', $message->getImgLink());
         $this->assertEquals('http://www.opendialog.ai/assets/images/logo.svg', $message->getImgSrc());
         $this->assertEquals(false, $message->getLinkNewTab());
@@ -98,6 +108,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $element1 = new WebChatFormTextElement('name', 'Enter your Name', true);
         $element2 = new WebChatFormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
         $element3 = new WebChatFormTextAreaElement('tell_more', 'Tell me more about yourself');
+        $message->setDisableText(false);
         $message->addElement($element1);
         $message->addElement($element2);
         $message->addElement($element3);
@@ -127,6 +138,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
             ],
         ];
 
+        $this->assertEquals(0, $message->getData()['disable_text']);
         $this->assertEquals($expectedOutput, $message->getElementsArray());
     }
 
@@ -137,6 +149,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $button2 = new WebchatCallbackButton('No', 'callback_no', false);
         $message->addButton($button1);
         $message->addButton($button2);
+        $message->setDisableText(false);
 
         $expectedOutput = [
             [
@@ -151,6 +164,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
             ],
         ];
 
+        $this->assertEquals(0, $message->getData()['disable_text']);
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 }
