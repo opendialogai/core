@@ -100,6 +100,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $this->assertEquals('http://www.opendialog.ai/', $message->getImgLink());
         $this->assertEquals('http://www.opendialog.ai/assets/images/logo.svg', $message->getImgSrc());
         $this->assertEquals(false, $message->getLinkNewTab());
+        $this->assertEquals(0, $message->getData()['link_new_tab']);
     }
 
     public function testWebChatFormMessage()
