@@ -99,7 +99,12 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                         ];
                     }
                 }
-                return $this->generateButtonMessage($template);
+                $message = $this->generateButtonMessage($template);
+                if (isset($item['clear_after_interaction'])) {
+                    $clearAfterInteraction = $item['clear_after_interaction'] == '1' ? true : false;
+                    $message->setClearAfterInteraction($clearAfterInteraction);
+                }
+                return $message;
                 break;
             case self::IMAGE_MESSAGE:
                 $template = [

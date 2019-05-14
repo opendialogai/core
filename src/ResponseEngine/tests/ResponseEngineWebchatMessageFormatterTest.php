@@ -57,4 +57,51 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
         $this->assertEquals(false, $message->getLinkNewTab());
         $this->assertEquals(0, $message->getData()['disable_text']);
     }
+
+    public function testButtonMessage()
+    {
+        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'text' => 'Yes',
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+            ],
+            [
+                'text' => 'No',
+                'callback_id' => 'callback_no',
+                'value' => 'false',
+            ],
+        ];
+
+        $this->assertEquals(true, $message->getData()['clear_after_interaction']);
+        $this->assertEquals(true, $message->getData()['disable_text']);
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+
+        $markup = '<message disable_text="0"><button-message clear_after_interaction="0"><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'text' => 'Yes',
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+            ],
+            [
+                'text' => 'No',
+                'callback_id' => 'callback_no',
+                'value' => 'false',
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['clear_after_interaction']);
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
 }
