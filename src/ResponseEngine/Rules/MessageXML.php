@@ -41,8 +41,13 @@ class MessageXML implements Rule
                         break;
 
                     case 'text-message':
-                        if (empty((string)$item)) {
+                        if (empty((string)$item) && empty($item->link)) {
                             return false;
+                        }
+                        foreach ($item->link as $link) {
+                            if (empty((string)$link->url) || empty((string)$link->text)) {
+                                return false;
+                            }
                         }
                         break;
 

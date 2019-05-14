@@ -322,4 +322,31 @@ class ResponseEngineTest extends TestCase
         $conditions = "---\nconditions:\n-\n    attribute: user.name\n    value: dummy";
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
     }
+
+    public function testWebChatTextMessageWithLink()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'This is an example <a target="_blank" href="http://www.example.com">This is a link</a>');
+    }
 }
