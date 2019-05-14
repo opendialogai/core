@@ -146,6 +146,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     public function testWebChatButtonMessage()
     {
         $message = new WebChatButtonMessage();
+        $message->setClearAfterInteraction(false);
         $button1 = new WebchatCallbackButton('Yes', 'callback_yes', true);
         $button2 = new WebchatCallbackButton('No', 'callback_no', false);
         $message->addButton($button1);
@@ -165,6 +166,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
             ],
         ];
 
+        $this->assertEquals(0, $message->getData()['clear_after_interaction']);
         $this->assertEquals(0, $message->getData()['disable_text']);
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
