@@ -46,8 +46,10 @@ class ImportConversation extends Command
             exit;
         }
 
+        $deletedModelText = '';
         $existingModelText = '';
         $newModelText = '';
+        $unmatchedMessageTemplateIds = [];
 
         // Check if there is an existing conversation with this name.
         if ($existingConversation = Conversation::where('name', $data['conversation']->name)->first()) {
@@ -63,6 +65,9 @@ class ImportConversation extends Command
             if ($existingIntent = OutgoingIntent::where('name', $outgoingIntent->name)->first()) {
                 $existingModelText .=
                     "* Outgoing Intent with ID " . $existingIntent->id . " and name " . $existingIntent->name . "\n";
+                foreach ($existingIntent->messageTemplates as $messageTemplate) {
+                    $unmatchedMessageTemplateIds[] = $messageTemplate->id;
+                }
             } else {
                 $newModelText .=
                     "* Outgoing Intent with name " . $outgoingIntent->name . "\n";
@@ -70,6 +75,10 @@ class ImportConversation extends Command
 
             foreach ($outgoingIntent->messageTemplates as $messageTemplate) {
                 if ($existingMessageTemplate = MessageTemplate::where('name', $messageTemplate->name)->first()) {
+                    if (($key = array_search($existingMessageTemplate->id, $unmatchedMessageTemplateIds)) !== false) {
+                        unset($unmatchedMessageTemplateIds[$key]);
+                    }
+
                     $existingModelText .=
                         "* Message Template with ID " . $existingMessageTemplate->id .
                         " and name " . $existingMessageTemplate->name . "\n";
@@ -77,6 +86,13 @@ class ImportConversation extends Command
                     $newModelText .=
                         "* Message Template with name " . $messageTemplate->name . "\n";
                 }
+            }
+
+            foreach ($unmatchedMessageTemplateIds as $unmatchedMessageTemplateId) {
+                $existingMessageTemplate = MessageTemplate::find($unmatchedMessageTemplateId);
+                $deletedModelText .=
+                    "* Message Template with ID " . $existingMessageTemplate->id .
+                    " and name " . $existingMessageTemplate->name . "\n";
             }
         }
 
@@ -87,6 +103,9 @@ class ImportConversation extends Command
         }
         if ($existingModelText) {
             $messageText .= "The following items will be OVERWRITTEN:\n\n" . $existingModelText . "\n\n";
+        }
+        if ($deletedModelText) {
+            $messageText .= "The following items will be DELETED:\n\n" . $deletedModelText . "\n\n";
         }
         $messageText .= "Do you wish to continue?";
 
@@ -102,6 +121,7 @@ class ImportConversation extends Command
         }
 
         /** @var Conversation $newConversation */
+        $this->info(sprintf('Adding/updating conversation with name %s', $data['conversation']->name));
         $newConversation = Conversation::updateOrCreate(['name' => $data['conversation']->name], $attributes);
         if ($this->option('publish')) {
             $this->info(sprintf('Publishing conversation with name %s', $newConversation->name));
@@ -113,6 +133,8 @@ class ImportConversation extends Command
             foreach ($outgoingIntent->getFillable() as $attribute) {
                 $attributes[$attribute] = $outgoingIntent->{$attribute};
             }
+
+            $this->info(sprintf('Adding/updating intent with name %s', $outgoingIntent->name));
             $newIntent = OutgoingIntent::updateOrCreate(['name' => $outgoingIntent->name], $attributes);
 
             foreach ($outgoingIntent->messageTemplates as $messageTemplate) {
@@ -121,7 +143,15 @@ class ImportConversation extends Command
                     $attributes[$attribute] = $messageTemplate->{$attribute};
                 }
                 $attributes['outgoing_intent_id'] = $newIntent->id;
+
+                $this->info(sprintf('Adding/updating message template with name %s', $messageTemplate->name));
                 MessageTemplate::updateOrCreate(['name' => $messageTemplate->name], $attributes);
+            }
+
+            foreach ($unmatchedMessageTemplateIds as $unmatchedMessageTemplateId) {
+                $existingMessageTemplate = MessageTemplate::find($unmatchedMessageTemplateId);
+                $this->info(sprintf('Deleting message template with name %s', $existingMessageTemplate->name));
+                $existingMessageTemplate->delete();
             }
         }
     }
