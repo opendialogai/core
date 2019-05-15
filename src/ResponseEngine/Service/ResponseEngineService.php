@@ -8,6 +8,7 @@ use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -25,6 +26,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      * @inheritdoc
      *
      * @return WebChatMessages $messageWrapper
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function getMessageForIntent(string $intentName): WebChatMessages
     {
@@ -124,16 +126,11 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $conditionsPass = false;
         foreach ($conditions as $contextId => $conditions) {
             foreach ($conditions as $conditionArray) {
-                try {
-                    $attributeName = array_keys($conditionArray)[0];
-                    $condition = array_values($conditionArray)[0];
-                    $attribute = $this->contextService->getAttribute($attributeName, $contextId);
-                    $conditionsPass = $condition->compareAgainst($attribute);
-                } catch (AttributeDoesNotExistException $e) {
-                    Log::warning(sprintf(
-                        'Could not get attribute %s when resolving condition on message template %s',
-                        $attributeName, $messageTemplate->name));
-                }
+                $condition = array_values($conditionArray)[0];
+                $attributeName = array_keys($conditionArray)[0];
+
+                $attribute = $this->getAttributeForCondition($attributeName, $contextId);
+                $conditionsPass = $condition->compareAgainst($attribute);
             }
         }
 
@@ -142,5 +139,24 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
 
         return false;
+    }
+
+    /**
+     * Tries to get the attribute from the right context. Or returns a null value attribute if it does not exist
+     *
+     * @param $attributeName
+     * @param $contextId
+     * @return AttributeInterface
+     */
+    protected function getAttributeForCondition($attributeName, $contextId): AttributeInterface
+    {
+        try {
+            $attribute = $this->contextService->getAttribute($attributeName, $contextId);
+        } catch (AttributeDoesNotExistException $e) {
+            // If the attribute does not exist, return a null value attribute
+            $attribute = $this->attributeResolver->getAttributeFor($attributeName, null);
+        }
+
+        return $attribute;
     }
 }
