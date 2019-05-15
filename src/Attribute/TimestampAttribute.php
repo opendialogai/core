@@ -22,13 +22,12 @@ class TimestampAttribute extends AbstractAttribute
             $this->setValue($value);
         } catch (UnsupportedAttributeTypeException $e) {
             Log::warning($e->getMessage());
-            return null;
         }
     }
 
     public function setValue($value)
     {
-        $this->value = filter_var($value, FILTER_VALIDATE_INT);
+        $this->value = $value === null ? $value : filter_var($value, FILTER_VALIDATE_INT);
     }
 
     /**
@@ -54,6 +53,12 @@ class TimestampAttribute extends AbstractAttribute
                 break;
             case AbstractAttribute::TIME_PASSED_EQUALS:
                 return $this->testEquivalence($attribute);
+                break;
+            case AbstractAttribute::IS_SET:
+                return $this->getValue() !== null;
+                break;
+            case AbstractAttribute::IS_NOT_SET:
+                return $this->getValue() === null;
                 break;
             default:
                 return false;
