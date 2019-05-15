@@ -12,6 +12,7 @@ use OpenDialogAi\Core\Utterances\Webchat\WebchatButtonResponseUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
 use OpenDialogAi\SensorEngine\BaseSensor;
 
 class WebchatSensor extends BaseSensor
@@ -82,6 +83,16 @@ class WebchatSensor extends BaseSensor
                 }
                 if (isset($request['content']['data']['value'])) {
                     $utterance->setValue($request['content']['data']['value']);
+                }
+                return $utterance;
+                break;
+
+            case 'url_click':
+                Log::debug('Received webchat url_click message.');
+                $utterance = new WebchatUrlClickUtterance();
+                $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 return $utterance;
                 break;

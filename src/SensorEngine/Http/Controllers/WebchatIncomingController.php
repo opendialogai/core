@@ -5,6 +5,7 @@ namespace OpenDialogAi\SensorEngine\Http\Controllers;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\SensorInterface;
@@ -46,6 +47,11 @@ class WebchatIncomingController extends BaseController
 
         // Get the Utterance.
         $utterance = $this->webchatSensor->interpret($request);
+
+        // Ignore "url_click" messages.
+        if ($utterance instanceof WebchatUrlClickUtterance) {
+            return response(null, 200);
+        }
 
         /** @var WebChatMessages $messageWrapper */
         $messageWrapper = $this->odController->runConversation($utterance);
