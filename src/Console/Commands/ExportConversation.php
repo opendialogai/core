@@ -40,7 +40,7 @@ class ExportConversation extends Command
             exit;
         }
 
-        $this->info(sprintf('Exporting conversation with id %s', $conversation->id));
+        $this->getOutput()->getErrorStyle()->success(sprintf('Exporting conversation with id %s', $conversation->id));
 
         // Find this conversation's intents.
         $outgoingIntents = [];
