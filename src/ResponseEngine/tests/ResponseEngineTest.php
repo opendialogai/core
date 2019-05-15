@@ -13,6 +13,7 @@ use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
+use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\Rules\MessageConditions;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
@@ -74,10 +75,10 @@ class ResponseEngineTest extends TestCase
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
-        $this->assertequals($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertequals($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getValue(), 10000);
-        $this->assertequals($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertequals($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getValue(), 20000);
+        $this->assertSame($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
+        $this->assertSame($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getValue(), 10000);
+        $this->assertSame($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
+        $this->assertSame($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getValue(), 20000);
 
         MessageTemplate::create([
             'name' => 'Unfriendly Hello',
@@ -395,5 +396,178 @@ class ResponseEngineTest extends TestCase
 
         $attribute = new TimestampAttribute('name', null);
         $this->assertSame(null, $attribute->getValue());
+    }
+
+    public function testTimeStampAttributeNotPresent()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition('user.last_seen', null, 'is_set');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+    }
+
+    public function testStringAttributeNotPresent()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', null, 'is_set');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+    }
+
+    public function testGreaterThanOperator()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_greater_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        print_r('ABOUT TO MAKE');
+        $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 700));
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
+    }
+
+    public function testGreaterThanOperatorWithNoAttribute()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_greater_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+    }
+
+    public function testLessThanOperator()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_less_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 300));
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
+    }
+
+    public function testLessThanOperatorWithNoAttribute()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_less_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
     }
 }
