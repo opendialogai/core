@@ -3,7 +3,11 @@
 namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\Core\Attribute\BooleanAttribute;
+use OpenDialogAi\Core\Attribute\FloatAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
@@ -373,5 +377,23 @@ class ResponseEngineTest extends TestCase
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'This is an example <a target="_blank" href="http://www.example.com">This is a link</a>');
+    }
+
+    public function testAllAttributesMayBeNull()
+    {
+        $attribute = new BooleanAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new FloatAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new IntAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new StringAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new TimestampAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
     }
 }

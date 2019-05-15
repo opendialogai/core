@@ -21,7 +21,7 @@ class IntAttribute extends BasicAttribute
 
     public function getValue()
     {
-        return intval(parent::getValue());
+        return parent::getValue();
     }
 
     /**
