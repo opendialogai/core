@@ -56,10 +56,10 @@ class Condition
 
 - condition:
     attribute: {$this->attribute}
-    value: {$this->value}
+    operation: {$this->operation}
 EOT;
-        if ($this->operation !== null) {
-            $yaml .= "\n    operation: {$this->operation}";
+        if ($this->value !== null) {
+            $yaml .= "\n    value: {$this->value}";
         }
 
         return $yaml;
