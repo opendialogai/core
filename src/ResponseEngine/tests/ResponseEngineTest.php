@@ -478,7 +478,6 @@ class ResponseEngineTest extends TestCase
         /* @var ContextService $contextService */
         $contextService = $this->app->make(ContextService::class);
         $userContext = $contextService->createContext('user');
-        print_r('ABOUT TO MAKE');
         $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 700));
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
