@@ -90,9 +90,8 @@ class ImportConversation extends Command
         }
         $messageText .= "Do you wish to continue?";
 
-
-        $noInteraction = $this->argument('no-interaction');
-        if (!$noInteraction && !$this->confirm($messageText)) {
+        // Confirm proceeding if the --yes flag was not given.
+        if (!$this->option('yes') && !$this->confirm($messageText)) {
             exit;
         }
 
@@ -104,7 +103,8 @@ class ImportConversation extends Command
 
         /** @var Conversation $newConversation */
         $newConversation = Conversation::updateOrCreate(['name' => $data['conversation']->name], $attributes);
-        if ($this->argument('publish')) {
+        if ($this->option('publish')) {
+            $this->info(sprintf('Publishing conversation with name %s', $newConversation->name));
             $newConversation->publishConversation($newConversation->buildConversation());
         }
 
