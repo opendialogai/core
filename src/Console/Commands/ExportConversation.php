@@ -14,7 +14,7 @@ class ExportConversation extends Command
      *
      * @var string
      */
-    protected $signature = 'export:conversation {conversation name} {--f|filename=}';
+    protected $signature = 'conversation:export {conversation name} {--f|filename=}';
 
     /**
      * The console command description.

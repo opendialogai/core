@@ -14,7 +14,7 @@ class ImportConversation extends Command
      *
      * @var string
      */
-    protected $signature = 'import:conversation {filename} {publish=false} {no-interaction=false}';
+    protected $signature = 'conversation:import {filename} {--publish} {--yes}';
 
     /**
      * The console command description.
