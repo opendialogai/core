@@ -87,11 +87,27 @@ class OpenDialogController
             $messageWrapper->addMessage($message);
         }
 
+        $this->processInternalMessages($messageWrapper);
+
         $this->conversationLogService->logOutgoingMessages($messageWrapper, $utterance);
 
         $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
         $userContext->updateUser();
 
         return $messageWrapper;
+    }
+
+    private function processInternalMessages(WebChatMessages $messageWrapper)
+    {
+        $messages = $messageWrapper->getMessages();
+
+        foreach ($messages as $i => $message) {
+            if ($i > 0) {
+                $message->setInternal(true);
+            }
+            if ($i < count($messages) - 1) {
+                $message->setHidetime(true);
+            }
+        }
     }
 }

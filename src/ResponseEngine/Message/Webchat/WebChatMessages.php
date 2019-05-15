@@ -40,14 +40,7 @@ class WebChatMessages
     public function getMessageToPost()
     {
         $messagesToPost = [];
-        foreach ($this->messages as $i => $message) {
-            if ($i > 0) {
-                $message->setInternal(true);
-            }
-            if ($i < count($this->messages) - 1) {
-                $message->setHidetime(true);
-            }
-
+        foreach ($this->messages as $message) {
             $messagesToPost[] = $message->getMessageToPost();
         }
 
