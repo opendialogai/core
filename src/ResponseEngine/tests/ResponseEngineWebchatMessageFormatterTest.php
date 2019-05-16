@@ -30,7 +30,14 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
         $this->assertEquals('hi there', $messages[0]->getText());
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
-        $markup = '<message disable_text="0"><text-message>hi there</text-message></message>';
+        $markup = <<<EOT
+<message disable_text="0">
+  <text-message>
+    hi there
+  </text-message>
+</message>
+EOT;
+
         $formatter = new WebChatMessageFormatter;
         $messages = $formatter->getMessages($markup);
         $this->assertEquals('hi there', $messages[0]->getText());
@@ -48,7 +55,19 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
         $this->assertEquals(true, $message->getLinkNewTab());
         $this->assertEquals(1, $message->getData()['disable_text']);
 
-        $markup = '<message disable_text="0"><image-message link_new_tab="0"><link>https://www.opendialog.ai</link><src>https://www.opendialog.ai/assets/images/logo.svg</src></image-message></message>';
+        $markup = <<<EOT
+<message disable_text="0">
+  <image-message link_new_tab="0">
+    <link>
+      https://www.opendialog.ai
+    </link>
+    <src>
+      https://www.opendialog.ai/assets/images/logo.svg
+    </src>
+  </image-message>
+</message>
+EOT;
+
         $formatter = new WebChatMessageFormatter;
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
@@ -82,7 +101,35 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
         $this->assertEquals(true, $message->getData()['disable_text']);
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
 
-        $markup = '<message disable_text="0"><button-message clear_after_interaction="0"><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
+        $markup = <<<EOT
+<message disable_text="0">
+  <button-message clear_after_interaction="0">
+    <button>
+      <text>
+        Yes
+      </text>
+      <callback>
+        callback_yes
+      </callback>
+      <value>
+        true
+      </value>
+    </button>
+    <button>
+      <text>
+        No
+      </text>
+      <callback>
+        callback_no
+      </callback>
+      <value>
+        false
+      </value>
+    </button>
+  </button-message>
+</message>
+EOT;
+
         $formatter = new WebChatMessageFormatter;
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
