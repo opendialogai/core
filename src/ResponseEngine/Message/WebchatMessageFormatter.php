@@ -54,14 +54,12 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     $attributeText = $this->getAttributeMessageText((string)$item);
                     return $this->getMessages($attributeText);
                 }
-
                 $messages[] = $this->parseMessage($item);
             }
 
-            if (isset($message[self::DISABLE_TEXT])) {
-                $disableText = $message[self::DISABLE_TEXT] == '1' ? true : false;
+            if (isset($message[self::DISABLE_TEXT]) && $message[self::DISABLE_TEXT] == '1') {
                 foreach ($messages as $webChatMessage) {
-                    $webChatMessage->setDisableText($disableText);
+                    $webChatMessage->setDisableText(true);
                 }
             }
         } catch (\Exception $e) {
@@ -82,42 +80,12 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     {
         switch ($item->getName()) {
             case self::BUTTON_MESSAGE:
-                $template = [
-                    self::TEXT => trim((string) $item->text),
-                ];
-                foreach ($item->button as $button) {
-                    if (isset($button->tab_switch)) {
-                        $template[self::BUTTONS][] = [
-                            self::TEXT => trim((string) $button->text),
-                            self::TAB_SWITCH => true,
-                        ];
-                    } else {
-                        $template[self::BUTTONS][] = [
-                            self::CALLBACK => trim((string) $button->callback),
-                            self::TEXT => trim((string) $button->text),
-                            self::VALUE => trim((string) $button->value),
-                        ];
-                    }
-                }
-                $message = $this->generateButtonMessage($template);
-                if (isset($item[self::CLEAR_AFTER_INTERACTION])) {
-                    $clearAfterInteraction = $item[self::CLEAR_AFTER_INTERACTION] == '1' ? true : false;
-                    $message->setClearAfterInteraction($clearAfterInteraction);
-                }
-                return $message;
+                $template = $this->formatButtonTemplate($item);
+                return $this->generateButtonMessage($template);
                 break;
             case self::IMAGE_MESSAGE:
-                $template = [
-                    self::LINK => trim((string) $item->link),
-                    self::SRC => trim((string) $item->src),
-                ];
-                $message = $this->generateImageMessage($template);
-
-                if (isset($item[self::LINK_NEW_TAB])) {
-                    $linkNewTab = $item[self::LINK_NEW_TAB] == '1' ? true : false;
-                    $message->setLinkNewTab($linkNewTab);
-                }
-                return $message;
+                $template = $this->formatImageTemplate($item);
+                return $this->generateImageMessage($template);
                 break;
             case self::TEXT_MESSAGE:
                 $text = $this->getMessageText($item);
@@ -151,6 +119,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 );
             }
         }
+
+        $message->setClearAfterInteraction($template[self::CLEAR_AFTER_INTERACTION]);
         return $message;
     }
 
@@ -179,7 +149,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      */
     public function generateImageMessage(array $template)
     {
-        $message = (new WebChatImageMessage())->setImgSrc($template[self::SRC])->setImgLink($template[self::LINK]);
+        $message = (new WebChatImageMessage())
+            ->setImgSrc($template[self::SRC])
+            ->setImgLink($template[self::LINK])
+            ->setLinkNewTab($template[self::LINK_NEW_TAB]);
+
         return $message;
     }
 
@@ -244,7 +218,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                         }
 
                         if ($link[self::URL]) {
-                            $text .= ' ' . $this->generateLink($link[self::URL], $link[self::TEXT], $link[self::OPEN_NEW_TAB]);
+                            $text .= ' ' . $this->generateLinkHtml(
+                                    $link[self::URL],
+                                    $link[self::TEXT],
+                                    $link[self::OPEN_NEW_TAB]
+                                );
                         } else {
                             Log::debug('Not adding link to message text, url is empty');
                         }
@@ -257,17 +235,75 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     }
 
     /**
+     * Generates the appropriate link based on the $openNewTab property
+     *
      * @param string $url
      * @param string $text
      * @param bool $openNewTab
      * @return string
      */
-    protected function generateLink($url, $text, $openNewTab)
+    protected function generateLinkHtml($url, $text, $openNewTab)
     {
         if ($openNewTab) {
             return '<a target="_blank" href="' . $url . '">' . $text . '</a>';
         }
 
         return '<a href="' . $url . '">' . $text . '</a>';
+    }
+
+    /**
+     * Formats the template for button message based
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatButtonTemplate(SimpleXMLElement $item): array
+    {
+        $clearAfterInteraction = false;
+        if (isset($item[self::CLEAR_AFTER_INTERACTION])) {
+            $clearAfterInteraction = $item[self::CLEAR_AFTER_INTERACTION] == '1' ? true : false;
+        }
+
+        $template = [
+            self::TEXT => trim((string)$item->text),
+            self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
+        ];
+
+        foreach ($item->button as $button) {
+            if (isset($button->tab_switch)) {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::TAB_SWITCH => true,
+                ];
+            } else {
+                $template[self::BUTTONS][] = [
+                    self::CALLBACK => trim((string)$button->callback),
+                    self::TEXT => trim((string)$button->text),
+                    self::VALUE => trim((string)$button->value),
+                ];
+            }
+        }
+        return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatImageTemplate(SimpleXMLElement $item): array
+    {
+        $linkNewTab = false;
+        if (isset($item[self::LINK_NEW_TAB])) {
+            $linkNewTab = $item[self::LINK_NEW_TAB] == '1' ? true : false;
+        }
+
+        $template = [
+            self::LINK_NEW_TAB => $linkNewTab,
+            self::LINK => trim((string)$item->link),
+            self::SRC => trim((string)$item->src),
+        ];
+        return $template;
     }
 }
