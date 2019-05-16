@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         verbose="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+
+        <testsuite name="ActionEngine">
+            <directory suffix="Test.php">./src/ActionEngine/tests</directory>
+        </testsuite>
+
+        <testsuite name="ContextEngine">
+            <directory suffix="Test.php">./src/ContextEngine/tests</directory>
+            <exclude>./src/ContextEngine/tests/UserServiceTest.php</exclude>
+        </testsuite>
+
+        <testsuite name="ResponseEngine">
+            <directory suffix="Test.php">./src/ResponseEngine/tests</directory>
+        </testsuite>
+
+        <testsuite name="InterpreterEngine">
+            <directory suffix="Test.php">./src/InterpreterEngine/tests</directory>
+        </testsuite>
+
+        <testsuite name="Graph">
+            <directory suffix="Test.php">./src/Graph/tests</directory>
+            <exclude>./src/Graph/tests/DGraph/DGraphTest.php</exclude>
+        </testsuite>
+
+        <testsuite name="ConversationBuilder">
+            <directory suffix="Test.php">./src/ConversationBuilder/tests</directory>
+        </testsuite>
+
+        <testsuite name="ConversationLog">
+            <directory suffix="Test.php">./src/ConversationLog/tests</directory>
+        </testsuite>
+
+        <testsuite name="SensorEngine">
+            <directory suffix="Test.php">./src/SensorEngine/tests</directory>
+        </testsuite>
+
+        <testsuite name="ConversationEngine">
+            <directory suffix="Test.php">./src/ConversationEngine/tests</directory>
+            <exclude>./src/ConversationEngine/tests/ConversationEngineTest.php</exclude>
+        </testsuite>
+
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+        </whitelist>
+    </filter>
+    <php>
+        <env name="PACKAGE_NAME" value="TestDialog"/>
+        <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
+        <env name="DGRAPH_URL" value="http://10.0.2.2"/>
+        <env name="DGRAPH_PORT" value="8080"/>
+    </php>
+    <logging>
+        <log type="coverage-text" target="build/coverage.txt"/>
+    </logging>
+</phpunit>

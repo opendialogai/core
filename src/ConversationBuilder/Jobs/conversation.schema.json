@@ -1,0 +1,39 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://www.greenshootlabs.com/open-dialog/conversation.schema.json",
+  "title": "Conversation",
+  "description": "An OpenDialog Conversation",
+  "type": "object",
+  "required": [
+    "conversation"
+  ],
+  "properties": {
+    "conversation": {
+      "$id": "#/properties/conversation",
+      "type": "object",
+      "title": "The Conversation Schema",
+      "required": [
+        "id",
+        "scenes"
+      ],
+      "properties": {
+        "id": {
+          "$id": "#/properties/conversation/properties/id",
+          "type": "string",
+          "title": "The Id Schema",
+          "default": "",
+          "examples": [
+            "hello_bot_world"
+          ],
+          "pattern": "^(.*)$"
+        },
+        "scenes": {
+          "$id": "#/properties/conversation/properties/scenes",
+          "type": "object",
+          "title": "The Scenes Schema"
+        }
+      }
+    }
+  }
+}

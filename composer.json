@@ -2,18 +2,32 @@
   "name": "opendialogai/core",
   "description": "The OpenDialog core package",
   "type": "library",
-  "license": "proprietary",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "Stuart Haigh",
       "email": "stuarth@greenshootlabs.com"
+    },
+    {
+      "name": "Ronald Ashri",
+      "email": "ronalda@greenshootlabs.com"
     }
   ],
   "require": {
-    "php": "^7.1.3"
+    "php": "^7.1.3",
+    "symfony/yaml": "^4.2",
+    "php-ds/php-ds": "~1.2.",
+    "guzzlehttp/guzzle": "~6.3",
+    "justinrainbow/json-schema": "^5.2",
+    "spatie/laravel-activitylog": "^3.2",
+    "doctrine/dbal": "^2.9"
+  },
+  "config": {
+    "preferred-install": "source"
   },
   "require-dev": {
     "phpunit/phpunit": "^7.5",
+    "mockery/mockery": "^1.2",
     "orchestra/testbench": "^3.8",
     "squizlabs/php_codesniffer": "^3.4"
   },
@@ -21,6 +35,13 @@
     "psr-4": {
       "OpenDialogAi\\Core\\": "src/",
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
+      "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
+      "OpenDialogAi\\ConversationBuilder\\": "src/ConversationBuilder",
+      "OpenDialogAi\\ConversationEngine\\": "src/ConversationEngine",
+      "OpenDialogAi\\ConversationLog\\": "src/ConversationLog",
+      "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
+      "OpenDialogAi\\InterpreterEngine\\": "src/InterpreterEngine",
+      "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
       "OpenDialogAi\\Core\\Database\\": "database/"
     }
   },
@@ -33,10 +54,17 @@
     "laravel": {
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
-        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider"
+        "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
+        "OpenDialogAi\\ConversationEngine\\ConversationEngineServiceProvider",
+        "OpenDialogAi\\ConversationLog\\ConversationLogServiceProvider",
+        "OpenDialogAi\\ResponseEngine\\ResponseEngineServiceProvider",
+        "OpenDialogAi\\InterpreterEngine\\InterpreterEngineServiceProvider",
+        "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
+        "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
+        "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider"
       ],
       "aliases": {
-        "ActionEngine": "OpenDialogAi\\ActionEngine\\Facades\\ActionEngine"
+        "AttributeResolver": "OpenDialogAi\\ContextEngine\\Facades\\AttributeResolver"
       }
     }
   }

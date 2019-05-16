@@ -5,16 +5,9 @@
 version: 2
 jobs:
   build:
-    branches:
-      only:
-        - develop
-        - master
-        - /.*feature.*/
-        - /.*bug.*/
-
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.1.21-fpm-browsers
+      - image: circleci/php:7.3-fpm
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -45,4 +38,9 @@ jobs:
       # run tests!
       - run: ./vendor/bin/phpunit
 
-      - run: ./vendor/bin/phpcs --standard=psr12 src/ --ignore=*/migrations/*
+      - run: ./vendor/bin/phpcs --standard=od-cs-ruleset.xml src/ --ignore=*/migrations/*,*/tests/*
+
+      - run:
+          name: Output logs on failure
+          command: cat ./vendor/orchestra/testbench-core/laravel/storage/logs/*
+          when: on_fail

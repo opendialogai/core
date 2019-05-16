@@ -3,15 +3,17 @@
 namespace OpenDialogAi\ActionEngine;
 
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\ActionEngine\Facades\ActionEngine;
-use OpenDialogAi\ActionEngine\Service\ActionEngineService;
+use OpenDialogAi\ActionEngine\Service\ActionEngine;
+use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 
 class ActionEngineServiceProvider extends ServiceProvider
 {
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/config/opendialog-actionengine.php' => base_path('config/opendialog-actionengine.php')
+            __DIR__ . '/config/opendialog-actionengine-custom.php' => config_path('opendialog/action_engine.php')
         ], 'config');
 
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
@@ -21,8 +23,19 @@ class ActionEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-actionengine.php', 'opendialog.action_engine');
 
-        $this->app->bind(ActionEngine::ACTION_ENGINE_SERVICE, function () {
-            return new ActionEngineService();
+        $this->app->bind(ActionEngineInterface::class, function () {
+            $actionEngineService = new ActionEngine();
+            $actionEngineService->setAttributeResolver(app()->make(AttributeResolver::class));
+            $actionEngineService->setContextService(app()->make(ContextService::class));
+            $actionEngineService->setAvailableActions(config('opendialog.action_engine.available_actions'));
+
+
+            // Sets the custom actions if they have been published
+            if (is_array(config('opendialog.action_engine.custom_actions'))) {
+                $actionEngineService->setAvailableActions(config('opendialog.action_engine.custom_actions'));
+            }
+
+            return $actionEngineService;
         });
     }
 }
