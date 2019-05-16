@@ -222,10 +222,6 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationPersist()
     {
-        if (!getenv('LOCAL')) {
-            $this->markTestSkipped('This test only runs on local environments.');
-        }
-
         $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
         $conversationModel = $conversation->buildConversation();
 

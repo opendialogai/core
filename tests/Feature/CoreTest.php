@@ -13,11 +13,6 @@ class CoreTest extends TestCase
      */
     public function testApiLogging()
     {
-        if (!getenv('LOCAL')) {
-            // This test depends on dGraph.
-            $this->markTestSkipped('This test only runs on local environments.');
-        }
-
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
             'user_id' => 'someuser',

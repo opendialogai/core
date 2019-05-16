@@ -122,11 +122,6 @@ class ConversationLogTest extends TestCase
      */
     public function testMessageLogging()
     {
-        if (!getenv('LOCAL')) {
-            // This test depends on dGraph.
-            $this->markTestSkipped('This test only runs on local environments.');
-        }
-
         // Test a valid message.
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',

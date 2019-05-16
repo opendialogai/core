@@ -18,6 +18,7 @@ jobs:
 
     steps:
       - checkout
+      - setup_remote_docker
       - run: sudo apt install -y libsqlite3-dev
       - run: sudo composer self-update
 
@@ -34,6 +35,9 @@ jobs:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.lock" }}
+
+      # Set up dgraph
+      - run: cd dgraph && docker-compose up -d
 
       # run tests!
       - run: ./vendor/bin/phpunit
