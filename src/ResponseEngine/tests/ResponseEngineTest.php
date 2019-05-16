@@ -3,11 +3,17 @@
 namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\Core\Attribute\BooleanAttribute;
+use OpenDialogAi\Core\Attribute\FloatAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
+use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\Rules\MessageConditions;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
@@ -57,18 +63,22 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.timestamp', 10000, 'ge');
+        $conditions->addCondition('user.timestamp', 20000, 'le');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.timestamp\n    value: 10000\n    operation: ge\n- condition:\n    attribute: user.timestamp\n    value: 20000\n    operation: le",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => 'Hi there!',
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
-        $this->assertequals($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertequals($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getValue(), 10000);
-        $this->assertequals($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertequals($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getValue(), 20000);
+        $this->assertSame($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
+        $this->assertSame($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getValue(), 10000);
+        $this->assertSame($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
+        $this->assertSame($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getValue(), 20000);
 
         MessageTemplate::create([
             'name' => 'Unfriendly Hello',
@@ -88,10 +98,13 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
@@ -116,10 +129,13 @@ class ResponseEngineTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessage('hi there');
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -146,10 +162,13 @@ class ResponseEngineTest extends TestCase
             'http://www.opendialog.ai'
         );
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -180,10 +199,13 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -213,10 +235,13 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -239,7 +264,6 @@ class ResponseEngineTest extends TestCase
         $userContext = $contextService->createContext('user');
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
-
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
@@ -254,10 +278,13 @@ class ResponseEngineTest extends TestCase
         $generator2 = (new MessageMarkUpGenerator())
             ->addAttributeMessage('user.message');
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
@@ -282,10 +309,13 @@ class ResponseEngineTest extends TestCase
 
         $generator2 = (new MessageMarkUpGenerator())->addAttributeMessage('user.message');
 
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
@@ -348,5 +378,195 @@ class ResponseEngineTest extends TestCase
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'This is an example <a target="_blank" href="http://www.example.com">This is a link</a>');
+    }
+
+    public function testAllAttributesMayBeNull()
+    {
+        $attribute = new BooleanAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new FloatAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new IntAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new StringAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+
+        $attribute = new TimestampAttribute('name', null);
+        $this->assertSame(null, $attribute->getValue());
+    }
+
+    public function testTimeStampAttributeNotPresent()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition('user.last_seen', null, 'is_set');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+    }
+
+    public function testStringAttributeNotPresent()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.name', null, 'is_set');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+    }
+
+    public function testGreaterThanOperator()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_greater_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 700));
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
+    }
+
+    public function testGreaterThanOperatorWithNoAttribute()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_greater_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+    }
+
+    public function testLessThanOperator()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_less_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $userContext = $contextService->createContext('user');
+        $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 300));
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
+    }
+
+    public function testLessThanOperatorWithNoAttribute()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition('user.last_seen', 600, 'time_passed_less_than');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $contextService = $this->app->make(ContextService::class);
+        $userContext = $contextService->createContext('user');
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
     }
 }

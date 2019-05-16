@@ -71,7 +71,7 @@ class TimestampAttribute extends AbstractAttribute
      */
     private function testGreaterThan(AttributeInterface $attribute)
     {
-        if ((now()->timestamp - $this->getValue()) > $attribute->getValue()) {
+        if ($this->getValue() && (now()->timestamp - $this->getValue()) > $attribute->getValue()) {
             return true;
         }
         return false;
@@ -83,7 +83,7 @@ class TimestampAttribute extends AbstractAttribute
      */
     private function testLessThan(AttributeInterface $attribute)
     {
-        if ((now()->timestamp - $this->getValue()) < $attribute->getValue()) {
+        if ($this->getValue() && (now()->timestamp - $this->getValue()) < $attribute->getValue()) {
             return true;
         }
         return false;
