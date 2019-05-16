@@ -12,7 +12,6 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeTest extends TestCase
 {
-
     public function testBooleanAttribute()
     {
         $a = new BooleanAttribute('testA', true);
@@ -25,7 +24,7 @@ class AttributeTest extends TestCase
 
             $this->assertTrue($a->compare($b, AbstractAttribute::EQUIVALENCE));
         } catch (UnsupportedAttributeTypeException $e) {
-            self::fail('Exception thrown');
+            $this->fail('Exception thrown');
         }
     }
 
@@ -46,20 +45,20 @@ class AttributeTest extends TestCase
 
             $this->assertTrue($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
         } catch (UnsupportedAttributeTypeException $e) {
-            self::fail('Exception thrown');
+            $this->fail('Exception thrown');
         }
     }
 
     public function testBooleanToString()
     {
         $a = new BooleanAttribute('a', false);
-        $this->assertTrue($a->toString() == 'false');
+        $this->assertEquals($a->toString(), 'false');
 
         $a->setValue(true);
-        $this->assertTrue($a->toString() == 'true');
+        $this->assertEquals($a->toString(), 'true');
 
         $b = new IntAttribute('b', 50);
-        $this->assertTrue($b->toString() == '50');
+        $this->assertEquals($b->toString(), '50');
     }
 
     public function testUnsupportedAttributeTypeException()

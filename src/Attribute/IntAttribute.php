@@ -15,7 +15,6 @@ class IntAttribute extends BasicAttribute
             parent::__construct($id, AbstractAttribute::INT, $value);
         } catch (UnsupportedAttributeTypeException $e) {
             Log::warning($e->getMessage());
-            return null;
         }
     }
 

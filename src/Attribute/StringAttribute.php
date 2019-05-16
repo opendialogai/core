@@ -15,7 +15,6 @@ class StringAttribute extends BasicAttribute
             parent::__construct($id, AbstractAttribute::STRING, $value);
         } catch (UnsupportedAttributeTypeException $e) {
             Log::warning($e->getMessage());
-            return null;
         }
     }
 }
