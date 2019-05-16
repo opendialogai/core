@@ -58,8 +58,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 $messages[] = $this->parseMessage($item);
             }
 
-            if (isset($message['disable_text'])) {
-                $disableText = $message['disable_text'] == '1' ? true : false;
+            if (isset($message[self::DISABLE_TEXT])) {
+                $disableText = $message[self::DISABLE_TEXT] == '1' ? true : false;
                 foreach ($messages as $webChatMessage) {
                     $webChatMessage->setDisableText($disableText);
                 }
@@ -83,52 +83,52 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         switch ($item->getName()) {
             case self::BUTTON_MESSAGE:
                 $template = [
-                    'text' => trim((string) $item->text),
+                    self::TEXT => trim((string) $item->text),
                 ];
                 foreach ($item->button as $button) {
                     if (isset($button->tab_switch)) {
-                        $template['buttons'][] = [
-                            'text' => trim((string) $button->text),
-                            'tab_switch' => true,
+                        $template[self::BUTTONS][] = [
+                            self::TEXT => trim((string) $button->text),
+                            self::TAB_SWITCH => true,
                         ];
                     } else {
-                        $template['buttons'][] = [
-                            'callback' => trim((string) $button->callback),
-                            'text' => trim((string) $button->text),
-                            'value' => trim((string) $button->value),
+                        $template[self::BUTTONS][] = [
+                            self::CALLBACK => trim((string) $button->callback),
+                            self::TEXT => trim((string) $button->text),
+                            self::VALUE => trim((string) $button->value),
                         ];
                     }
                 }
                 $message = $this->generateButtonMessage($template);
-                if (isset($item['clear_after_interaction'])) {
-                    $clearAfterInteraction = $item['clear_after_interaction'] == '1' ? true : false;
+                if (isset($item[self::CLEAR_AFTER_INTERACTION])) {
+                    $clearAfterInteraction = $item[self::CLEAR_AFTER_INTERACTION] == '1' ? true : false;
                     $message->setClearAfterInteraction($clearAfterInteraction);
                 }
                 return $message;
                 break;
             case self::IMAGE_MESSAGE:
                 $template = [
-                    'link' => trim((string) $item->link),
-                    'src' => trim((string) $item->src),
+                    self::LINK => trim((string) $item->link),
+                    self::SRC => trim((string) $item->src),
                 ];
                 $message = $this->generateImageMessage($template);
 
-                if (isset($item['link_new_tab'])) {
-                    $linkNewTab = $item['link_new_tab'] == '1' ? true : false;
+                if (isset($item[self::LINK_NEW_TAB])) {
+                    $linkNewTab = $item[self::LINK_NEW_TAB] == '1' ? true : false;
                     $message->setLinkNewTab($linkNewTab);
                 }
                 return $message;
                 break;
             case self::TEXT_MESSAGE:
                 $text = $this->getMessageText($item);
-                $template = ['text' => $text];
+                $template = [self::TEXT => $text];
                 return $this->generateTextMessage($template);
                 break;
             case self::EMPTY_MESSAGE:
                 return new EmptyMessage();
                 break;
             default:
-                $template = ['text' => 'Sorry, I did not understand this message type.'];
+                $template = [self::TEXT => 'Sorry, I did not understand this message type.'];
                 return $this->generateTextMessage($template);
                 break;
         }
@@ -141,12 +141,14 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     public function generateButtonMessage(array $template)
     {
         $message = new WebChatButtonMessage();
-        $message->setText($template['text']);
-        foreach ($template['buttons'] as $button) {
-            if (isset($button['tab_switch'])) {
-                $message->addButton(new WebchatTabSwitchButton($button['text']));
+        $message->setText($template[self::TEXT]);
+        foreach ($template[self::BUTTONS] as $button) {
+            if (isset($button[self::TAB_SWITCH])) {
+                $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
             } else {
-                $message->addButton(new WebchatCallbackButton($button['text'], $button['callback'], $button['value']));
+                $message->addButton(
+                    new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
+                );
             }
         }
         return $message;
@@ -177,7 +179,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      */
     public function generateImageMessage(array $template)
     {
-        $message = (new WebChatImageMessage())->setImgSrc($template['src'])->setImgLink($template['link']);
+        $message = (new WebChatImageMessage())->setImgSrc($template[self::SRC])->setImgLink($template[self::LINK]);
         return $message;
     }
 
@@ -195,7 +197,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function generateTextMessage(array $template)
     {
-        $message = (new WebChatMessage())->setText($template['text'], [], true);
+        $message = (new WebChatMessage())->setText($template[self::TEXT], [], true);
         return $message;
     }
 
@@ -229,10 +231,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 if ($item->nodeType === XML_TEXT_NODE) {
                     $text .= trim($item->textContent);
                 } elseif ($item->nodeType === XML_ELEMENT_NODE) {
-                    if ($item->nodeName == 'link') {
+                    if ($item->nodeName === self::LINK) {
                         $link = [
                             'open-new-tab' => false,
-                            'text' => '',
+                            self::TEXT => '',
                             'url' => '',
                         ];
 
@@ -241,7 +243,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                         }
 
                         if ($link['url']) {
-                            $text .= ' ' . $this->generateLink($link['url'], $link['text'], $link['open-new-tab']);
+                            $text .= ' ' . $this->generateLink($link['url'], $link[self::TEXT], $link['open-new-tab']);
                         } else {
                             Log::debug('Not adding link to message text, url is empty');
                         }
