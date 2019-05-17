@@ -9,6 +9,8 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
  */
 abstract class TriggerUtterance extends BaseUtterance
 {
+    const TYPE = 'trigger';
+
     /**
      * @inheritdoc
      */
