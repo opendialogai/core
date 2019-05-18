@@ -79,7 +79,7 @@ class WebchatSensor extends BaseSensor
                 Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
-                    $utterance->setUser($this->createUser($request['content']['user']));
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
                 }
                 if (isset($request['content']['data']['value'])) {
                     $utterance->setValue($request['content']['data']['value']);
