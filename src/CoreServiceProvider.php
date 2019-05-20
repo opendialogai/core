@@ -23,7 +23,7 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/opendialog.php' => base_path('config/opendialog/core.php')
-        ], 'od-config');
+        ], 'opendialog-config');
 
         $this->publishes([
             __DIR__ . '/../dgraph' => base_path('dgraph')

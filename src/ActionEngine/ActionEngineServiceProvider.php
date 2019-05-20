@@ -14,7 +14,7 @@ class ActionEngineServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/config/opendialog-actionengine-custom.php' => config_path('opendialog/action_engine.php')
-        ], 'od-config');
+        ], 'opendialog-config');
 
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
     }
