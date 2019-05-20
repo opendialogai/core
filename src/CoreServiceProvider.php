@@ -11,18 +11,19 @@ use OpenDialogAi\Core\Console\Commands\ExportConversation;
 use OpenDialogAi\Core\Console\Commands\ImportConversation;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
-    /** @var requestId */
+    /** @var string $requestId */
     private $requestId;
 
     public function boot()
     {
         $this->publishes([
             __DIR__ . '/../config/opendialog.php' => base_path('config/opendialog/core.php')
-        ], 'config');
+        ], 'od-config');
 
         $this->publishes([
             __DIR__ . '/../dgraph' => base_path('dgraph')
@@ -39,8 +40,8 @@ class CoreServiceProvider extends ServiceProvider
             ]);
         }
 
-        $this->requestId = uniqid();
-        $this->app->when('OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware')
+        $this->requestId = uniqid('od-', true);
+        $this->app->when(RequestLoggerMiddleware::class)
             ->needs('$requestId')
             ->give($this->requestId);
 
