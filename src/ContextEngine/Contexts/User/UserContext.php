@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\Contexts;
+namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
