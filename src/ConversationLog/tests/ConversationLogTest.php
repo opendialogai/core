@@ -89,6 +89,38 @@ class ConversationLogTest extends TestCase
     }
 
     /**
+     * Ensure that the webchat chat-init endpoint ignore param works.
+     */
+    public function testWebchatChatInitEndpointIgnoreParam()
+    {
+        ChatbotUser::create([
+          'user_id' => 'test@example.com',
+          'first_name' => 'Joe',
+          'last_name' => 'Cool',
+          'ip_address' => '127.0.0.1',
+          'country' => 'UK',
+          'browser_language' => 'en',
+          'os' => 'Mac OS X',
+          'browser' => 'Safari',
+          'timezone' => 'GMT',
+        ]);
+        $chatbotUser = ChatbotUser::where('user_id', 'test@example.com')->first();
+
+        $message = Message::create(microtime(), 'chat_open', $chatbotUser->user_id, 'me', '')->save();
+        $message2 = Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'test message')->save();
+        $message3 = Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'another test message')->save();
+        $message4 = Message::create(microtime(), 'trigger', $chatbotUser->user_id, 'me', '')->save();
+
+        $response = $this->get('/chat-init/webchat/test@example.com/10?ignore=chat_open,trigger')
+            ->assertStatus(200)
+            ->assertJsonCount(2);
+
+        $response = $this->get('/chat-init/webchat/test@example.com/10')
+            ->assertStatus(200)
+            ->assertJsonCount(4);
+    }
+
+    /**
      * Ensure that the webchat chat-init endpoint message limit works.
      */
     public function testWebchatChatInitEndpointLimit()
@@ -136,7 +168,7 @@ class ConversationLogTest extends TestCase
                 'author' => 'me',
                 'type' => 'text',
                 'data' => [
-                    'text' => 'test message'
+                    'text' => 'test message',
                 ],
                 'user' => [
                     'ipAddress' => '127.0.0.1',
