@@ -13,7 +13,7 @@ class ConversationBuilderServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/config/activitylog.php'
             => base_path('config/activitylog.php'),
-        ], 'config');
+        ], 'opendialog-config');
 
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
 
