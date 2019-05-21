@@ -24,7 +24,6 @@ return [
      * List of supported intents in the format 'callback_id' => 'intent_name'
      */
     'supported_callbacks' => [
-        'callback_example' => 'intent.core.exampleIntent',
-        'chat_open' => 'intent.core.chatOpen'
+//        'WELCOME' => 'intent.core.welcome',
     ]
 ];
