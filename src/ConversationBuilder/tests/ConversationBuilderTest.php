@@ -226,18 +226,15 @@ class ConversationBuilderTest extends TestCase
             $this->markTestSkipped('This test only runs on local environments.');
         }
 
-        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
+        $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
         $conversationModel = $conversation->buildConversation();
 
         // Assert that we think publishing was successful.
         $this->assertTrue($conversation->publishConversation($conversationModel));
 
-        /**
-         * TODO: Assert that the conversation exists in DGraph.
         $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
         $query = new DGraphQuery();
         $query->allofterms('ei_type', ['conversation'])
             ->setQueryGraph(['id' => 'hello_bot_world']);
-        */
     }
 }

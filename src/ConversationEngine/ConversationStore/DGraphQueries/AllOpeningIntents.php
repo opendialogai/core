@@ -71,7 +71,7 @@ class AllOpeningIntents extends DGraphQuery
 
             if (isset($datum[Model::HAS_CONDITION])) {
                 foreach ($datum[Model::HAS_CONDITION] as $conditionData) {
-                    $condition = ConversationQueryFactory::createCondition($conditionData, $this->attributeResolver, false);
+                    $condition = ConversationQueryFactory::createCondition($conditionData, false);
                     if (isset($condition)) {
                         $conditions->put($condition->getId(), $condition);
                     }

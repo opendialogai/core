@@ -40,7 +40,6 @@ class DGraphConversationStore implements ConversationStoreInterface
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationId,
             $this->dGraphClient,
-            $this->attributeResolver,
             true
         );
 
@@ -56,7 +55,6 @@ class DGraphConversationStore implements ConversationStoreInterface
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
             $conversationTemplateName,
             $this->dGraphClient,
-            $this->attributeResolver,
             true
         );
 

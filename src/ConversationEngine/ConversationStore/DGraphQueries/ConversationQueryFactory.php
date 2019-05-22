@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -44,14 +43,12 @@ class ConversationQueryFactory
     /**
      * @param string $conversationUid
      * @param DGraphClient $client
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return Conversation
      */
     public static function getConversationFromDGraphWithUid(
         string $conversationUid,
         DGraphClient $client,
-        AttributeResolver $attributeResolver,
         $clone = false
     ) {
         $dGraphQuery = new DGraphQuery();
@@ -60,20 +57,18 @@ class ConversationQueryFactory
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDGraphData($response, $attributeResolver, $clone);
+        return self::buildConversationFromDGraphData($response, $clone);
     }
 
     /**
      * @param string $templateName
      * @param DGraphClient $client
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return Conversation
      */
     public static function getConversationFromDGraphWithTemplateName(
         string $templateName,
         DGraphClient $client,
-        AttributeResolver $attributeResolver,
         $clone = false
     ) {
         $dGraphQuery = new DGraphQuery();
@@ -83,7 +78,7 @@ class ConversationQueryFactory
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDGraphData($response, $attributeResolver, $clone);
+        return self::buildConversationFromDGraphData($response, $clone);
     }
 
     /**
@@ -127,10 +122,10 @@ class ConversationQueryFactory
         return [
             Model::UID,
             Model::ID,
-            Model::ATTRIBUTE_NAME,
-            Model::ATTRIBUTE_VALUE,
             Model::CONTEXT,
-            Model::OPERATION
+            Model::OPERATION,
+            Model::ATTRIBUTES,
+            Model::PARAMETERS
         ];
     }
 
@@ -213,11 +208,10 @@ class ConversationQueryFactory
 
     /**
      * @param array $data
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return mixed
      */
-    public static function buildConversationFromDGraphData(array $data, AttributeResolver $attributeResolver, $clone = false)
+    public static function buildConversationFromDGraphData(array $data, $clone = false)
     {
         $cm = new ConversationManager($data[Model::ID]);
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
@@ -267,16 +261,15 @@ class ConversationQueryFactory
      * @param bool $clone
      * @return Condition
      */
-    public static function createCondition(array $conditionDatabool, $clone = false)
+    public static function createCondition(array $conditionData, bool $clone = false)
     {
         $uid = $conditionData[Model::UID];
         $id = $conditionData[Model::ID];
-        $context = $conditionData[Model::CONTEXT];
         $operation = $conditionData[Model::OPERATION];
-        $parameters = $conditionData[Model::PARAMETERS];
+        $parameters = (isset($conditionData[Model::PARAMETERS])) ? $conditionData[Model::PARAMETERS] : [];
+        $attributes = (isset($conditionData[Model::ATTRIBUTES])) ? $conditionData[Model::ATTRIBUTES] : [];
 
-        $condition = new Condition($operation, $parameters, $id);
-        $condition->setContextId($context);
+        $condition = new Condition($operation, $attributes, $parameters, $id);
         if ($clone) {
             $condition->setUid($uid);
         }

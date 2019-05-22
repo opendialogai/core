@@ -79,8 +79,7 @@ class UserService
         if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
             $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
                 $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID],
-                $this->dGraphClient,
-                $this->attributeResolver
+                $this->dGraphClient
             );
 
             $user->setCurrentConversation($conversation);
@@ -282,8 +281,7 @@ class UserService
 
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationUid,
-            $this->dGraphClient,
-            $this->attributeResolver
+            $this->dGraphClient
         );
         return $conversation;
     }

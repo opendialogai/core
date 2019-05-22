@@ -54,6 +54,7 @@ class Model
     const COMPLETES = 'core.attribute.completes';
     const CONFIDENCE = 'core.attribute.confidence';
     const CONTEXT = 'context';
+    const ATTRIBUTES = 'attributes';
     const OPERATION = 'operation';
     const PARAMETERS = 'parameters';
 
