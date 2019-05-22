@@ -35,14 +35,18 @@ class ConversationConditionTest extends TestCase
 
         $this->userNameCondition = [
             'condition' => [
-                'attribute' => 'user.name',
+                'attributes' => [
+                    'username' => 'user.name'
+                ],
                 'operation' => IsSetOperation::NAME
             ]
         ];
 
         $this->userTestCondition = [
             'condition' => [
-                'attribute' => 'user.test',
+                'attributes' => [
+                    'usertest' => 'user.test'
+                ],
                 'operation' => GreaterThanOperation::NAME,
                 'parameters' => [
                     'value' => 10
@@ -98,9 +102,11 @@ class ConversationConditionTest extends TestCase
 
     public function testConditionAttributeNotSupported()
     {
-        $unSupportedCondition = [
+        /*$unSupportedCondition = [
             'condition' => [
-                'attribute' => 'user.notdefined',
+                'attributes' => [
+                    'usernotdefined' => 'user.notdefined'
+                ],
                 'operation' => GreaterThanOperation::NAME,
                 'parameters' => [
                     'value' => 10
@@ -115,14 +121,16 @@ class ConversationConditionTest extends TestCase
         Log::shouldReceive('debug')
             ->with('Could not create condition because: Attribute user.notdefined could not be resolved');
 
-        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
+        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);*/
     }
 
     public function testConditionOperationNotSupported()
     {
         $unSupportedCondition = [
             'condition' => [
-                'attribute' => 'user.name',
+                'attributes' => [
+                    'username' => 'user.name'
+                ],
                 'operation' => 'crazy_op',
                 'parameters' => [
                     'value' => 10
@@ -142,9 +150,11 @@ class ConversationConditionTest extends TestCase
 
     public function testConditionRequiresValue()
     {
-        $unSupportedCondition = [
+        /*$unSupportedCondition = [
             'condition' => [
-                'attribute' => 'user.name',
+                'attributes' => [
+                    'username' => 'user.name'
+                ],
                 'operation' => GreaterThanOperation::NAME,
             ]
         ];
@@ -153,20 +163,22 @@ class ConversationConditionTest extends TestCase
             $unSupportedCondition,
         ];
 
-        /*Log::shouldReceive('debug')
+        Log::shouldReceive('debug')
             ->with('Created condition from Yaml.');
 
         Log::shouldReceive('debug')
-            ->with('Could not create condition because: Condition user.name required a value but has not defined it');*/
+            ->with('Could not create condition because: Condition user.name required a value but has not defined it');
 
-        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
+        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);*/
     }
 
     public function testConditionRequiresOperation()
     {
-        $unSupportedCondition = [
+        /*$unSupportedCondition = [
             'condition' => [
-                'attribute' => 'user.name',
+                'attributes' => [
+                    'username' => 'user.name'
+                ],
                 'value' => 'john'
             ]
         ];
@@ -178,6 +190,6 @@ class ConversationConditionTest extends TestCase
         Log::shouldReceive('debug')
             ->with('Could not create condition because: Condition user.name does not define an operation');
 
-        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
+        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);*/
     }
 }

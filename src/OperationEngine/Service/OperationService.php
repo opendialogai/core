@@ -3,6 +3,10 @@
 namespace OpenDialogAi\OperationEngine\Service;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\Core\Attribute\Condition\ConditionInterface;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
 
@@ -12,6 +16,28 @@ class OperationService implements OperationServiceInterface
      * @var OperationInterface[]
      */
     private $availableOperations = [];
+
+    /** @var AttributeResolver */
+    private $attributeResolver;
+
+    /** @var ContextService */
+    private $contextService;
+
+    /**
+     * @param AttributeResolver $attributeResolver
+     */
+    public function setAttributeResolver(AttributeResolver $attributeResolver): void
+    {
+        $this->attributeResolver = $attributeResolver;
+    }
+
+    /**
+     * @param ContextService $contextService
+     */
+    public function setContextService(ContextService $contextService)
+    {
+        $this->contextService = $contextService;
+    }
 
     /**
      * @inheritdoc
@@ -56,5 +82,32 @@ class OperationService implements OperationServiceInterface
 
             $this->availableOperations[$name] = new $operation();
         }
+    }
+
+    public function checkCondition(ConditionInterface $condition)
+    {
+        $attributes = [];
+
+        foreach ($condition->getAttributes() as $name => $attribute) {
+            [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attribute);
+
+            try {
+                $actualAttribute = $this->contextService->getAttribute($attributeName, $contextId);
+            } catch (Exception $e) {
+                Log::debug($e->getMessage());
+                // If the attribute does not exist create one with a null value since we may be testing
+                // for its existence.
+                $actualAttribute = $this->attributeResolver->getAttributeFor($attributeName, null);
+            }
+
+            $attributes[$name] = $actualAttribute;
+        }
+
+        $operation = $this->getOperation($condition->getEvaluationOperation());
+
+        $operation->setParameters($condition->getParameters());
+        $operation->setAttributes($attributes);
+
+        return $operation->execute();
     }
 }

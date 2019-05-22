@@ -310,39 +310,20 @@ class Conversation extends Model
      */
     private function createCondition(array $condition)
     {
-        $attributeName = isset($condition['attribute']) ? $condition['attribute'] : null;
-
-        // Confirm we have an attribute name to work with.
-        if (!isset($attributeName)) {
-            throw new ConditionDoesNotDefineAttributeException(
-                'Condition found in Yaml model without defined attribute name'
-            );
-        }
-
-        list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId($attributeName);
-
-        /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = resolve(AttributeResolver::class);
-        if (!array_key_exists($attributeId, $attributeResolver->getSupportedAttributes())) {
-            throw new AttributeIsNotSupported(
-                sprintf('Attribute %s could not be resolved', $attributeName)
-            );
-        }
-
         $operation = isset($condition['operation']) ? $condition['operation'] : null;
+        $attributes = isset($condition['attributes']) ? $condition['attributes'] : [];
         $parameters = isset($condition['parameters']) ? $condition['parameters'] : [];
 
         // Now check that we have a valid operation.
         if (!isset($operation)) {
             throw new ConditionDoesNotDefineOperationException(
-                sprintf('Condition %s does not define an operation', $condition['attribute'])
+                sprintf('Condition does not define an operation')
             );
         }
 
         // Now we can create the condition - we set an id as a helper
-        $id = sprintf('%s-%s-%s', $attributeName, $operation, implode($parameters));
-        $condition = new Condition($operation, $parameters, $id);
-        $condition->setContextId($contextId);
+        $id = sprintf('%s-%s-%s', implode($attributes), $operation, implode($parameters));
+        $condition = new Condition($operation, $attributes, $parameters, $id);
         Log::debug('Created condition from Yaml.');
         return $condition;
     }

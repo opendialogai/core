@@ -162,7 +162,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
 
         // There should be two conditions
-        //$this->assertCount(2, $conversationModel->getConditions());
+        $this->assertCount(2, $conversationModel->getConditions());
 
         // There should be two scenes
         $this->assertCount(3, $conversationModel->getAllScenes());

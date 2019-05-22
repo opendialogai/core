@@ -10,6 +10,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConversationEngineServiceProvider extends ServiceProvider
 {
@@ -33,11 +34,11 @@ class ConversationEngineServiceProvider extends ServiceProvider
             $interpreterService = $this->app->make(InterpreterServiceInterface::class);
             $conversationEngine->setInterpreterService($interpreterService);
 
+            $operationService = $this->app->make(OperationServiceInterface::class);
+            $conversationEngine->setOperationService($operationService);
+
             $actionEngine = $this->app->make(ActionEngineInterface::class);
             $conversationEngine->setActionEngine($actionEngine);
-
-            $attributeResolver = $this->app->make(AttributeResolver::class);
-            $conversationEngine->setAttributeResolver($attributeResolver);
 
             $contextService = $this->app->make(ContextService::class);
             $conversationEngine->setContextService($contextService);

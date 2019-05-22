@@ -11,6 +11,8 @@ class IsNotSetOperation extends AbstractOperation
 
     public function execute()
     {
+        $attribute = reset($this->attributes);
+
         return $attribute->getValue() === null || $attribute->getValue() === '';
     }
 

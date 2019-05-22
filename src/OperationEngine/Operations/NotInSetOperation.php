@@ -11,7 +11,9 @@ class NotInSetOperation extends AbstractOperation
 
     public function execute()
     {
-        return !in_array($parameters['value'], $attribute->getValue());
+        $attribute = reset($this->attributes);
+
+        return !in_array($this->parameters['value'], $attribute->getValue());
     }
 
     public static function getAllowedParameters(): array

@@ -8,6 +8,7 @@ use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -20,6 +21,9 @@ class ResponseEngineService implements ResponseEngineServiceInterface
 
     /** @var AttributeResolver */
     protected $attributeResolver;
+
+    /* @var OperationServiceInterface */
+    protected $operationService;
 
     /**
      * @inheritdoc
@@ -99,6 +103,14 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
+     * @param OperationServiceInterface $operationService
+     */
+    public function setOperationService(OperationServiceInterface $operationService): void
+    {
+        $this->operationService = $operationService;
+    }
+
+    /**
      * @param AttributeResolver $attributeResolver
      */
     public function setAttributeResolver(AttributeResolver $attributeResolver): void
@@ -121,12 +133,12 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             return true;
         }
 
-        $conditionsPass = false;
+        $conditionsPass = true;
         foreach ($conditions as $condition) {
             try {
-                //$attributeName = array_keys($conditionArray)[0];
-                //$attribute = $this->contextService->getAttribute($attributeName, $contextId);
-                //$conditionsPass = $condition->executeOperation($attribute);
+                if (!$this->operationService->checkCondition($condition)) {
+                    $conditionsPass = false;
+                }
             } catch (AttributeDoesNotExistException $e) {
                 Log::warning(sprintf(
                     'Could not get attribute %s when resolving condition on message template %s',
@@ -134,10 +146,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             }
         }
 
-        if ($conditionsPass) {
-            return true;
-        }
-
-        return false;
+        return $conditionsPass;
     }
 }

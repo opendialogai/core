@@ -11,5 +11,7 @@ interface ConditionInterface
 
     public function setEvaluationOperation(string $evaluationOperation);
 
+    public function getAttributes();
+
     public function getParameters();
 }

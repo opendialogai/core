@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
@@ -33,11 +32,6 @@ interface ConversationEngineInterface
      * @param ActionEngineInterface $actionEngine
      */
     public function setActionEngine(ActionEngineInterface $actionEngine);
-
-    /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver);
 
     /**
      * @param ContextService $contextService

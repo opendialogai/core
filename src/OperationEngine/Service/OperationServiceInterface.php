@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\OperationEngine\Service;
 
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\OperationEngine\OperationInterface;
 
 interface OperationServiceInterface
@@ -28,4 +29,9 @@ interface OperationServiceInterface
      * @return OperationInterface
      */
     public function getOperation($operationName) : OperationInterface;
+
+    /**
+     * @param AttributeResolver $attributeResolver
+     */
+    public function setAttributeResolver(AttributeResolver $attributeResolver);
 }

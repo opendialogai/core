@@ -13,44 +13,9 @@ use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 
 class AttributeTest extends TestCase
 {
-
-    public function testBooleanAttribute()
-    {
-        /*$a = new BooleanAttribute('testA', true);
-        $operation = new EquivalenceOperation();
-        $parameters = [ 'value' => false ];
-
-        try {
-            $this->assertFalse($a->executeOperation($operation, $parameters));
-
-            $parameters = [ 'value' => true ];
-
-            $this->assertTrue($a->executeOperation($operation, $parameters));
-        } catch (UnsupportedAttributeTypeException $e) {
-            self::fail('Exception thrown');
-        }*/
-    }
-
     public function testBooleanAttributeTypes()
     {
         $this->assertFalse((new BooleanAttribute('test', 'false'))->getValue());
-    }
-
-    public function testIntAttribute()
-    {
-        /*$a = new IntAttribute('testA', 50);
-        $operation = new GreaterThanOrEqualOperation();
-        $parameters = [ 'value' => 109 ];
-
-        try {
-            $this->assertFalse($a->executeOperation($operation, $parameters));
-
-            $parameters = [ 'value' => 49 ];
-
-            $this->assertTrue($a->executeOperation($operation, $parameters));
-        } catch (UnsupportedAttributeTypeException $e) {
-            self::fail('Exception thrown');
-        }*/
     }
 
     public function testBooleanToString()

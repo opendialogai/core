@@ -3,6 +3,8 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\OperationEngine\Service\OperationService;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
@@ -22,6 +24,12 @@ class OperationEngineServiceProvider extends ServiceProvider
         $this->app->singleton(OperationServiceInterface::class, function () {
             $operationService = new OperationService();
             $operationService->registerAvailableOperations(config('opendialog.operation_engine.available_operations'));
+
+            $attributeResolver = $this->app->make(AttributeResolver::class);
+            $operationService->setAttributeResolver($attributeResolver);
+
+            $contextService = $this->app->make(ContextService::class);
+            $operationService->setContextService($contextService);
 
             return $operationService;
         });

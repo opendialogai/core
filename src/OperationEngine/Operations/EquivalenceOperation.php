@@ -11,7 +11,9 @@ class EquivalenceOperation extends AbstractOperation
 
     public function execute()
     {
-        if ($attribute->getValue() === $parameters['value']) {
+        $attribute = reset($this->attributes);
+
+        if ($attribute->getValue() === $this->parameters['value']) {
             return true;
         }
         return false;

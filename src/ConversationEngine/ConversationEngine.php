@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
@@ -23,6 +22,7 @@ use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConversationEngine implements ConversationEngineInterface
 {
@@ -33,6 +33,9 @@ class ConversationEngine implements ConversationEngineInterface
 
     /* @var InterpreterServiceInterface */
     private $interpreterService;
+
+    /* @var OperationServiceInterface */
+    private $operationService;
 
     /* @var ActionEngineInterface */
     private $actionEngine;
@@ -68,19 +71,19 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
+     * @param OperationServiceInterface $operationService
+     */
+    public function setOperationService(OperationServiceInterface $operationService): void
+    {
+        $this->operationService = $operationService;
+    }
+
+    /**
      * @param ActionEngineInterface $actionEngine
      */
     public function setActionEngine(ActionEngineInterface $actionEngine): void
     {
         $this->actionEngine = $actionEngine;
-    }
-
-    /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -388,20 +391,9 @@ class ConversationEngine implements ConversationEngineInterface
 
                 /* @var Condition $condition */
                 foreach ($conditions as $condition) {
-                    $attributeName = $condition->getAttributeName();
-
-                    try {
-                        $actualAttribute = $this->contextService->getAttribute($attributeName, $condition->getContextId());
-                    } catch (Exception $e) {
-                        Log::debug($e->getMessage());
-                        // If the attribute does not exist create one with a null value since we may be testing
-                        // for its existence.
-                        $actualAttribute = $this->attributeResolver->getAttributeFor($attributeName, null);
-                    }
-
-                    /*if (!$condition->executeOperation($actualAttribute)) {
+                    if (!$this->operationService->checkCondition($condition)) {
                         $pass = false;
-                    }*/
+                    }
                 }
 
                 if ($pass) {

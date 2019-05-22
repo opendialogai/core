@@ -20,4 +20,9 @@ class Condition implements ConditionInterface
         $this->attributes = $attributes;
         $this->parameters = $parameters;
     }
+
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
 }
