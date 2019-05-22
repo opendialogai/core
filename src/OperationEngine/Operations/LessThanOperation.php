@@ -1,8 +1,9 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Operation;
+namespace OpenDialogAi\OperationEngine\Operations;
 
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class LessThanOperation extends AbstractOperation
 {

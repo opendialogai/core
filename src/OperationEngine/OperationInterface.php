@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Operation;
+namespace OpenDialogAi\OperationEngine;
 
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 

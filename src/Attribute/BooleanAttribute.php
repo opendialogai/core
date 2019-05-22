@@ -3,8 +3,6 @@
 namespace OpenDialogAi\Core\Attribute;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Attribute\Operation\EquivalenceOperation;
-use OpenDialogAi\Core\Attribute\Operation\OperationInterface;
 
 /**
  * A BooleanAttribute implementation.
@@ -34,21 +32,11 @@ class BooleanAttribute extends AbstractAttribute
     }
 
     /**
-     * @return array
-     */
-    public function allowedAttributeOperations()
-    {
-        return [
-            EquivalenceOperation::class,
-        ];
-    }
-
-    /**
-     * @param OperationInterface $operation
+     * @param string $operation
      * @return bool
      * @throws UnsupportedAttributeTypeException
      */
-    public function executeOperation(OperationInterface $operation, $parameters = []): bool
+    public function executeOperation($operation, $parameters = []): bool
     {
         return $operation->execute($this, $parameters);
     }

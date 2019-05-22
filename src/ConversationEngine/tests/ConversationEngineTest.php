@@ -12,8 +12,6 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\Operation\GreaterThanOperation;
-use OpenDialogAi\Core\Attribute\Operation\IsSetOperation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
@@ -23,6 +21,8 @@ use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
+use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
 
 class ConversationEngineTest extends TestCase
 {

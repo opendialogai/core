@@ -1,16 +1,17 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Operation;
+namespace OpenDialogAi\OperationEngine\Operations;
 
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\OperationEngine\AbstractOperation;
 
-class LessThanOrEqualOperation extends AbstractOperation
+class GreaterThanOperation extends AbstractOperation
 {
-    const NAME = 'lte';
+    const NAME = 'gt';
 
     public function execute(AttributeInterface $attribute, array $parameters)
     {
-        if ($attribute->getValue() <= $parameters['value']) {
+        if ($attribute->getValue() > $parameters['value']) {
             return true;
         }
         return false;

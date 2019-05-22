@@ -8,16 +8,16 @@ use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\Operation\EquivalenceOperation;
-use OpenDialogAi\Core\Attribute\Operation\GreaterThanOperation;
-use OpenDialogAi\Core\Attribute\Operation\GreaterThanOrEqualOperation;
-use OpenDialogAi\Core\Attribute\Operation\InSetOperation;
-use OpenDialogAi\Core\Attribute\Operation\IsNotSetOperation;
-use OpenDialogAi\Core\Attribute\Operation\IsSetOperation;
-use OpenDialogAi\Core\Attribute\Operation\LessThanOperation;
-use OpenDialogAi\Core\Attribute\Operation\LessThanOrEqualOperation;
-use OpenDialogAi\Core\Attribute\Operation\NotInSetOperation;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
+use OpenDialogAi\OperationEngine\Operations\InSetOperation;
+use OpenDialogAi\OperationEngine\Operations\IsNotSetOperation;
+use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
+use OpenDialogAi\OperationEngine\Operations\LessThanOperation;
+use OpenDialogAi\OperationEngine\Operations\LessThanOrEqualOperation;
+use OpenDialogAi\OperationEngine\Operations\NotInSetOperation;
 
 class ConditionTest extends TestCase
 {
@@ -26,7 +26,7 @@ class ConditionTest extends TestCase
         $parameters = [ 'value' => true ];
         $condition = new Condition(EquivalenceOperation::NAME, $parameters);
 
-        $this->assertTrue($condition->getEvaluationOperation()::NAME == EquivalenceOperation::NAME);
+        $this->assertTrue($condition->getEvaluationOperation() == EquivalenceOperation::NAME);
     }
 
     public function testConditionEquivalenceComparison()

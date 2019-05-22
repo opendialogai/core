@@ -8,9 +8,9 @@ use OpenDialogAi\Core\Attribute\BasicAttribute;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
-use OpenDialogAi\Core\Attribute\Operation\EquivalenceOperation;
-use OpenDialogAi\Core\Attribute\Operation\GreaterThanOrEqualOperation;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 
 class AttributeTest extends TestCase
 {

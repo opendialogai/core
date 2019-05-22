@@ -8,12 +8,12 @@ use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\Operation\GreaterThanOperation;
-use OpenDialogAi\Core\Attribute\Operation\IsSetOperation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
+use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
 
 class ConversationConditionTest extends TestCase
 {
