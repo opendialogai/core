@@ -17,7 +17,5 @@ interface AttributeInterface
 
     public function setValue($value);
 
-    public function executeOperation($operation): bool;
-
     public function toString(): string;
 }

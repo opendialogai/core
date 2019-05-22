@@ -9,7 +9,7 @@ class LessThanOrEqualOperation extends AbstractOperation
 {
     const NAME = 'lte';
 
-    public function execute(AttributeInterface $attribute, array $parameters)
+    public function execute()
     {
         if ($attribute->getValue() <= $parameters['value']) {
             return true;

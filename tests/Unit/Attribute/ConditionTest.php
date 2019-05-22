@@ -29,7 +29,7 @@ class ConditionTest extends TestCase
         $this->assertTrue($condition->getEvaluationOperation() == EquivalenceOperation::NAME);
     }
 
-    public function testConditionEquivalenceComparison()
+    /*public function testConditionEquivalenceComparison()
     {
         $parameters = [ 'value' => true ];
         $condition = new Condition(EquivalenceOperation::NAME, $parameters);
@@ -149,5 +149,5 @@ class ConditionTest extends TestCase
         $attributeToCompare->setValue(null);
 
         $this->assertTrue($condition->executeOperation($attributeToCompare));
-    }
+    }*/
 }

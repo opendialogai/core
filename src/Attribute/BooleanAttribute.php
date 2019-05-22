@@ -32,16 +32,6 @@ class BooleanAttribute extends AbstractAttribute
     }
 
     /**
-     * @param string $operation
-     * @return bool
-     * @throws UnsupportedAttributeTypeException
-     */
-    public function executeOperation($operation, $parameters = []): bool
-    {
-        return $operation->execute($this, $parameters);
-    }
-
-    /**
      * @param AttributeInterface $attribute
      * @return bool
      */

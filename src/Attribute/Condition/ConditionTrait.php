@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Attribute\Condition;
-
 
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 

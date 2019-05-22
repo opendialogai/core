@@ -9,7 +9,7 @@ class IsSetOperation extends AbstractOperation
 {
     const NAME = 'is_set';
 
-    public function execute(AttributeInterface $attribute, array $parameters)
+    public function execute()
     {
         return $attribute->getValue() !== null && $attribute->getValue() !== '';
     }

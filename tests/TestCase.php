@@ -82,11 +82,13 @@ conversation:
   id: hello_bot_world
   conditions:
     - condition:
-        attribute: user.name
         operation: is_not_set
+        attributes:
+          username: user.name
     - condition:
-        attribute: user.test
         operation: gt
+        attributes:
+          usertest: user.test
         parameters:
           value: 10
   scenes:

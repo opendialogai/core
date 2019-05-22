@@ -10,16 +10,6 @@ namespace OpenDialogAi\Core\Attribute;
 class BasicAttribute extends AbstractAttribute
 {
     /**
-     * @param string $operation
-     * @return bool
-     * @throws UnsupportedAttributeTypeException
-     */
-    public function executeOperation($operation, $parameters = []): bool
-    {
-        return $operation->execute($this, $parameters);
-    }
-
-    /**
      * @return string
      */
     public function toString(): string

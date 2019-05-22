@@ -4,27 +4,20 @@ namespace OpenDialogAi\Core\Attribute\Condition;
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\HasAttributesTrait;
 
 /**
  * Implementation of the Condition interface for Attributes.
  */
 class Condition implements ConditionInterface
 {
-    use HasAttributesTrait, ConditionTrait;
+    use ConditionTrait;
 
-    public function __construct($evaluationOperation, $parameters = [])
+    private $attributes;
+
+    public function __construct($evaluationOperation, $attributes = [], $parameters = [])
     {
-        $this->parameters = $parameters;
         $this->evaluationOperation = $evaluationOperation;
-    }
-
-    /**
-     * @param AttributeInterface $attribute
-     * @return bool
-     */
-    public function executeOperation(AttributeInterface $attribute)
-    {
-        return $attribute->executeOperation($this->evaluationOperation, $this->parameters);
+        $this->attributes = $attributes;
+        $this->parameters = $parameters;
     }
 }

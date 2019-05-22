@@ -9,7 +9,7 @@ class EquivalenceOperation extends AbstractOperation
 {
     const NAME = 'eq';
 
-    public function execute(AttributeInterface $attribute, array $parameters)
+    public function execute()
     {
         if ($attribute->getValue() === $parameters['value']) {
             return true;

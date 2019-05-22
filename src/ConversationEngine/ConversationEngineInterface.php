@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine;
 
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;

@@ -5,7 +5,6 @@ namespace OpenDialogAi\ResponseEngine;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\Condition\Condition;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -23,10 +22,10 @@ use Symfony\Component\Yaml\Yaml;
  */
 class MessageTemplate extends Model
 {
-    const CONDITIONS      = 'conditions';
-    const ATTRIBUTE_NAME  = 'attribute';
-    const PARAMETERS      = 'parameters';
-    const OPERATION       = 'operation';
+    const CONDITIONS = 'conditions';
+    const ATTRIBUTES = 'attributes';
+    const PARAMETERS = 'parameters';
+    const OPERATION  = 'operation';
 
     protected $fillable = [
         'name',
@@ -71,19 +70,19 @@ class MessageTemplate extends Model
             if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
                 foreach ($yaml[self::CONDITIONS] as $yamlCondition) {
                     $condition = [];
-                    $condition[self::ATTRIBUTE_NAME] = '';
+                    $condition[self::ATTRIBUTES] = '';
                     $condition[self::PARAMETERS] = '';
                     $condition[self::OPERATION] = '';
 
                     foreach ($yamlCondition['condition'] as $key => $val) {
                         switch ($key) {
-                            case ResponseEngineServiceInterface::ATTRIBUTE_NAME_KEY:
-                                $condition[self::ATTRIBUTE_NAME] = $val;
+                            case ResponseEngineServiceInterface::ATTRIBUTES_KEY:
+                                $condition[self::ATTRIBUTES] = $val;
                                 break;
-                            case ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY:
+                            case ResponseEngineServiceInterface::OPERATION_KEY:
                                 $condition[self::OPERATION] = $val;
                                 break;
-                            case ResponseEngineServiceInterface::ATTRIBUTE_PARAMETERS_KEY:
+                            case ResponseEngineServiceInterface::PARAMETERS_KEY:
                                 $condition[self::PARAMETERS] = $val;
                                 break;
                             default:
@@ -91,11 +90,10 @@ class MessageTemplate extends Model
                         }
                     }
 
-                    [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($condition['attribute']);
-
                     $operation = $condition[self::OPERATION];
+                    $attributes = $condition[self::ATTRIBUTES];
                     $parameters = $condition[self::PARAMETERS];
-                    $conditions[$contextId][] = [$attributeName => new Condition($operation, $parameters)];
+                    $conditions[] = new Condition($operation, $attributes, $parameters);
                 }
             }
         }

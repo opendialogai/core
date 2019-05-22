@@ -11,9 +11,9 @@ use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
  */
 interface ResponseEngineServiceInterface
 {
-    const ATTRIBUTE_OPERATION_KEY = 'operation';
-    const ATTRIBUTE_NAME_KEY = 'attribute';
-    const ATTRIBUTE_PARAMETERS_KEY = 'parameters';
+    const OPERATION_KEY = 'operation';
+    const ATTRIBUTES_KEY = 'attributes';
+    const PARAMETERS_KEY = 'parameters';
 
     /**
      * Gets messages from the given intent formatted correctly for the platform the user is on

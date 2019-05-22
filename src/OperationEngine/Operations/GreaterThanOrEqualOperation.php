@@ -9,7 +9,7 @@ class GreaterThanOrEqualOperation extends AbstractOperation
 {
     const NAME = 'gte';
 
-    public function execute(AttributeInterface $attribute, array $parameters)
+    public function execute()
     {
         if ($attribute->getValue() >= $parameters['value']) {
             return true;

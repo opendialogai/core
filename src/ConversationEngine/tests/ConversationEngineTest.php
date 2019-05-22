@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\tests;
-
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;

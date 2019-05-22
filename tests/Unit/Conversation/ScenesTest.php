@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;

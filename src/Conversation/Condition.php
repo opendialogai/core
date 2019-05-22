@@ -43,14 +43,4 @@ class Condition extends Node implements ConditionInterface
     {
         return $this->getAttribute(Model::CONTEXT)->getValue();
     }
-
-    /**
-     * @param AttributeInterface $attribute
-     * @return bool
-     */
-    public function executeOperation(AttributeInterface $attribute)
-    {
-        $conditionAttribute = $this->getAttribute($attribute->getId());
-        return $attribute->executeOperation($conditionAttribute, $this->evaluationOperation);
-    }
 }

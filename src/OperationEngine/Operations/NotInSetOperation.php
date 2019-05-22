@@ -9,7 +9,7 @@ class NotInSetOperation extends AbstractOperation
 {
     const NAME = 'not_in_set';
 
-    public function execute(AttributeInterface $attribute, array $parameters)
+    public function execute()
     {
         return !in_array($parameters['value'], $attribute->getValue());
     }

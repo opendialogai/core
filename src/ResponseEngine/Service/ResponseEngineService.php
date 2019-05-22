@@ -122,18 +122,15 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
 
         $conditionsPass = false;
-        foreach ($conditions as $contextId => $conditions) {
-            foreach ($conditions as $conditionArray) {
-                try {
-                    $attributeName = array_keys($conditionArray)[0];
-                    $condition = array_values($conditionArray)[0];
-                    $attribute = $this->contextService->getAttribute($attributeName, $contextId);
-                    $conditionsPass = $condition->executeOperation($attribute);
-                } catch (AttributeDoesNotExistException $e) {
-                    Log::warning(sprintf(
-                        'Could not get attribute %s when resolving condition on message template %s',
-                        $attributeName, $messageTemplate->name));
-                }
+        foreach ($conditions as $condition) {
+            try {
+                //$attributeName = array_keys($conditionArray)[0];
+                //$attribute = $this->contextService->getAttribute($attributeName, $contextId);
+                //$conditionsPass = $condition->executeOperation($attribute);
+            } catch (AttributeDoesNotExistException $e) {
+                Log::warning(sprintf(
+                    'Could not get attribute %s when resolving condition on message template %s',
+                    $attributeName, $messageTemplate->name));
             }
         }
 

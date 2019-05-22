@@ -9,7 +9,7 @@ class IsNotSetOperation extends AbstractOperation
 {
     const NAME = 'is_not_set';
 
-    public function execute(AttributeInterface $attribute, array $parameters)
+    public function execute()
     {
         return $attribute->getValue() === null || $attribute->getValue() === '';
     }
