@@ -57,6 +57,7 @@ class RequestLoggerMiddleware
 
         ResponseLog::create([
             'request_length' => $requestLength,
+            'request_id' => $this->requestId,
             'memory_usage' => $memoryUsage,
             'http_status' => $response->getStatusCode(),
             'headers' => $response->headers,
