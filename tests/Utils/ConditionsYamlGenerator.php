@@ -10,14 +10,14 @@ class ConditionsYamlGenerator
     private $conditions = [];
 
     /**
-     * @param String  $attribute
-     * @param Mixed  $value
+     * @param String  $attributes
+     * @param Mixed  $parameters
      * @param String  $operation
      * @return ConditionsYamlGenerator
      */
-    public function addCondition($attribute, $value = null, $operation = null)
+    public function addCondition($attributes, $parameters = null, $operation = null)
     {
-        $this->conditions[] = new Condition($attribute, $value, $operation);
+        $this->conditions[] = new Condition($attributes, $parameters, $operation);
         return $this;
     }
 
@@ -35,18 +35,18 @@ class ConditionsYamlGenerator
 
 class Condition
 {
-    public $attribute;
-    public $value;
+    public $attributes;
+    public $parameters;
     public $operation;
 
     /**
      * TextMessage constructor.
      * @param $text
      */
-    public function __construct($attribute, $value, $operation)
+    public function __construct($attributes, $parameters, $operation)
     {
-        $this->attribute = $attribute;
-        $this->value = $value;
+        $this->attributes = $attributes;
+        $this->parameters = $parameters;
         $this->operation = $operation;
     }
 
@@ -55,11 +55,16 @@ class Condition
         $yaml = <<<EOT
 
 - condition:
-    attribute: {$this->attribute}
     operation: {$this->operation}
+    attributes:
 EOT;
-        if ($this->value !== null) {
-            $yaml .= "\n    value: {$this->value}";
+        foreach ($this->attributes as $id => $attribute) {
+            $yaml .= "\n      {$id}: {$attribute}";
+        }
+
+        $yaml .= "\n    parameters:";
+        foreach ($this->parameters as $id => $parameter) {
+            $yaml .= "\n      {$id}: {$parameter}";
         }
 
         return $yaml;

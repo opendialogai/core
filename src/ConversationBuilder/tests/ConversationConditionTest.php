@@ -93,7 +93,7 @@ class ConversationConditionTest extends TestCase
 
         $conversation = $this->cm->getConversation();
 
-        $this->assertCount(2, $conversation->getConditions());
+        $this->assertCount(3, $conversation->getConditions());
 
         $conditions = $conversation->getConditions();
 
