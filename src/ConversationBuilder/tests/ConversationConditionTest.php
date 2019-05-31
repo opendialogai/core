@@ -14,6 +14,7 @@ use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
 use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
+use OpenDialogAi\OperationEngine\Operations\TimePassedGreaterThanOperation;
 
 class ConversationConditionTest extends TestCase
 {
@@ -59,7 +60,7 @@ class ConversationConditionTest extends TestCase
         $this->userLastSeenCondition = [
             'condition' => [
                 'attribute' => 'user.last_seen',
-                'operation' => AbstractAttribute::TIME_PASSED_GREATER_THAN,
+                'operation' => TimePassedGreaterThanOperation::NAME,
                 'value' => 600
             ]
         ];

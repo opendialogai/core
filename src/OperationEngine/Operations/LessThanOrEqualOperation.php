@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class LessThanOrEqualOperation extends AbstractOperation

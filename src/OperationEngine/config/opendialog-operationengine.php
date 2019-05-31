@@ -11,5 +11,8 @@ return [
         OpenDialogAi\OperationEngine\Operations\LessThanOperation::class,
         OpenDialogAi\OperationEngine\Operations\LessThanOrEqualOperation::class,
         OpenDialogAi\OperationEngine\Operations\NotInSetOperation::class,
+        OpenDialogAi\OperationEngine\Operations\TimePassedEqualsOperation::class,
+        OpenDialogAi\OperationEngine\Operations\TimePassedGreaterThanOperation::class,
+        OpenDialogAi\OperationEngine\Operations\TimePassedLessThanOperation::class,
     ]
 ];
