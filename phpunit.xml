@@ -48,6 +48,10 @@
             <directory suffix="Test.php">./src/ConversationLog/tests</directory>
         </testsuite>
 
+        <testsuite name="RequestLoggerMiddleware">
+            <directory suffix="Test.php">./src/Http/Middleware/tests</directory>
+        </testsuite>
+
         <testsuite name="SensorEngine">
             <directory suffix="Test.php">./src/SensorEngine/tests</directory>
         </testsuite>
