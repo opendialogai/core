@@ -20,6 +20,18 @@ class MessageMarkUpGenerator
     }
 
     /**
+     * @param $text
+     * @param $link_text
+     * @param $link_url
+     * @return MessageMarkUpGenerator
+     */
+    public function addTextMessageWithLink($text, $link_text, $link_url)
+    {
+        $this->messages[] = new TextMessageWithLink($text, $link_text, $link_url);
+        return $this;
+    }
+
+    /**
      * @param $src
      * @param $link
      * @return MessageMarkUpGenerator
@@ -99,13 +111,38 @@ EOT;
     }
 }
 
+class TextMessageWithLink
+{
+    public $text;
+    public $link_text;
+    public $link_url;
+
+    /**
+     * TextMessage constructor.
+     * @param $text
+     */
+    public function __construct($text, $link_text, $link_url)
+    {
+        $this->text = $text;
+        $this->link_text = $link_text;
+        $this->link_url = $link_url;
+    }
+
+    function getMarkUp()
+    {
+        return <<<EOT
+<text-message>{$this->text} <link><open-new-tab>true</open-new-tab><url>{$this->link_url}</url><text>{$this->link_text}</text></link></text-message>
+EOT;
+    }
+}
+
 class ImageMessage
 {
     public $src;
     public $link;
 
     /**
-     * TextMessage constructor.
+     * ImageMessage constructor.
      * @param $text
      */
     public function __construct($src, $link)

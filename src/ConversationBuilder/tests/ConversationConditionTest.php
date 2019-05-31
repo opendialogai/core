@@ -5,11 +5,11 @@ namespace OpenDialogAi\ConversationBuilder\tests;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ConversationManager;
-use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
@@ -22,6 +22,8 @@ class ConversationConditionTest extends TestCase
     private $userNameCondition;
 
     private $userTestCondition;
+
+    private $userLastSeenCondition;
 
     /* @var ConversationManager */
     private $cm;
@@ -54,10 +56,18 @@ class ConversationConditionTest extends TestCase
             ]
         ];
 
+        $this->userLastSeenCondition = [
+            'condition' => [
+                'attribute' => 'user.last_seen',
+                'operation' => AbstractAttribute::TIME_PASSED_GREATER_THAN,
+                'value' => 600
+            ]
+        ];
 
         $this->goodConditions = [
           $this->userNameCondition,
-          $this->userTestCondition
+          $this->userTestCondition,
+          $this->userLastSeenCondition
         ];
 
         Conversation::create(['name' => 'Test Conversation', 'model' => 'conversation:']);

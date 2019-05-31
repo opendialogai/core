@@ -18,7 +18,7 @@ class InterpreterEngineServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/config/opendialog-interpreterengine-custom.php' => config_path('opendialog/interpreter_engine.php')
-        ], 'config');
+        ], 'opendialog-config');
     }
 
     public function register()

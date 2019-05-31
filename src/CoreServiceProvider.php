@@ -5,26 +5,25 @@ namespace OpenDialogAi\Core;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
-use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
 use OpenDialogAi\Core\Console\Commands\ImportConversation;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
-use OpenDialogAi\Core\LoggingHelper;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
-    /** @var requestId */
+    /** @var string $requestId */
     private $requestId;
 
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../config/opendialog.php' => base_path('config/opendialog.php')
-        ], 'config');
+            __DIR__ . '/../config/opendialog.php' => base_path('config/opendialog/core.php')
+        ], 'opendialog-config');
 
         $this->publishes([
             __DIR__ . '/../dgraph' => base_path('dgraph')
@@ -41,8 +40,8 @@ class CoreServiceProvider extends ServiceProvider
             ]);
         }
 
-        $this->requestId = uniqid();
-        $this->app->when('OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware')
+        $this->requestId = uniqid('od-', true);
+        $this->app->when(RequestLoggerMiddleware::class)
             ->needs('$requestId')
             ->give($this->requestId);
 

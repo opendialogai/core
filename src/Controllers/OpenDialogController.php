@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Controllers;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -30,15 +31,15 @@ class OpenDialogController
     /**
      * @param ContextService $contextService
      */
-    public function setContextService(ContextService $contextService)
+    public function setContextService(ContextService $contextService): void
     {
         $this->contextService = $contextService;
     }
 
     /**
-     * @param ConversationLog $conversationLogService
+     * @param ConversationLogService $conversationLogService
      */
-    public function setConversationLogService(ConversationLogService $conversationLogService)
+    public function setConversationLogService(ConversationLogService $conversationLogService): void
     {
         $this->conversationLogService = $conversationLogService;
     }
@@ -46,12 +47,15 @@ class OpenDialogController
     /**
      * @param ConversationEngineInterface $conversationEngine
      */
-    public function setConversationEngine(ConversationEngineInterface $conversationEngine)
+    public function setConversationEngine(ConversationEngineInterface $conversationEngine): void
     {
         $this->conversationEngine = $conversationEngine;
     }
 
-    public function setResponseEngine(ResponseEngineServiceInterface $responseEngineService)
+    /**
+     * @param ResponseEngineServiceInterface $responseEngineService
+     */
+    public function setResponseEngine(ResponseEngineServiceInterface $responseEngineService): void
     {
         $this->responseEngineService = $responseEngineService;
     }
@@ -65,7 +69,7 @@ class OpenDialogController
      * @return WebChatMessages
      * @throws FieldNotSupported
      */
-    public function runConversation(UtteranceInterface $utterance)
+    public function runConversation(UtteranceInterface $utterance): WebChatMessages
     {
         $userContext = $this->contextService->createUserContext($utterance);
 
@@ -83,9 +87,27 @@ class OpenDialogController
             $messageWrapper->addMessage($message);
         }
 
-        // Log outgoing messages.
+        $this->processInternalMessages($messageWrapper);
+
         $this->conversationLogService->logOutgoingMessages($messageWrapper, $utterance);
 
+        $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
+        $userContext->updateUser();
+
         return $messageWrapper;
+    }
+
+    private function processInternalMessages(WebChatMessages $messageWrapper)
+    {
+        $messages = $messageWrapper->getMessages();
+
+        foreach ($messages as $i => $message) {
+            if ($i > 0) {
+                $message->setInternal(true);
+            }
+            if ($i < count($messages) - 1) {
+                $message->setHidetime(true);
+            }
+        }
     }
 }

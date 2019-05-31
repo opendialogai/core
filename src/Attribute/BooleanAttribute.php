@@ -28,7 +28,7 @@ class BooleanAttribute extends AbstractAttribute
 
     public function setValue($value)
     {
-        $this->value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        $this->value = is_null($value) ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**

@@ -15,7 +15,7 @@ class ContextEngineServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/config/opendialog-contextengine-custom.php' => config_path('opendialog/context_engine.php'),
 
-        ], 'config');
+        ], 'opendialog-config');
 
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
     }

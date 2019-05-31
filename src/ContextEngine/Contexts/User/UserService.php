@@ -166,6 +166,9 @@ class UserService
         $chatbotUser = $this->updateUser($user);
         MySqlUserRepository::persistUserToMySql($utterance->getUser());
 
+        // Set user 'firstseen' timestamp attribute.
+        $this->setUserAttribute($chatbotUser, 'firstseen', now()->timestamp);
+
         return $chatbotUser;
     }
 

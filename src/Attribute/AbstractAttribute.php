@@ -14,6 +14,7 @@ abstract class AbstractAttribute implements AttributeInterface
     const INT = 'attribute.core.int';
     const FLOAT = 'attribute.core.float';
     const DATETIME = 'attribute.core.dateTime';
+    const TIMESTAMP = 'attribute.core.timestamp';
 
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
@@ -53,7 +54,8 @@ abstract class AbstractAttribute implements AttributeInterface
             self::BOOLEAN,
             self::INT,
             self::FLOAT,
-            self::DATETIME
+            self::DATETIME,
+            self::TIMESTAMP
         ];
 
         if (!in_array($type, $types, true)) {

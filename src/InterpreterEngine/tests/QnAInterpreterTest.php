@@ -3,6 +3,7 @@
 namespace InterpreterEngine\tests;
 
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -83,11 +84,15 @@ class QnAInterpreterTest extends TestCase
         });
 
         $interpreter = new QnAInterpreter();
+        /** @var Intent[] $intents */
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
         $this->assertCount(1, $intents);
 
         $this->assertEquals(QnAQuestionMatchedIntent::QNA_QUESTION_MATCHED, $intents[0]->getLabel());
         $this->assertEquals(0.5, $intents[0]->getConfidence());
+
+        $answer = $intents[0]->getNonCoreAttributes()->get('qna_answer');
+        $this->assertEquals('People created me.', $answer->getValue());
     }
 
     private function createUtteranceWithText($text)

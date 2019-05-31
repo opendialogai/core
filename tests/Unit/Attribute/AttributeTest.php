@@ -21,13 +21,13 @@ class AttributeTest extends TestCase
     public function testBooleanToString()
     {
         $a = new BooleanAttribute('a', false);
-        $this->assertTrue($a->toString() == 'false');
+        $this->assertEquals($a->toString(), 'false');
 
         $a->setValue(true);
-        $this->assertTrue($a->toString() == 'true');
+        $this->assertEquals($a->toString(), 'true');
 
         $b = new IntAttribute('b', 50);
-        $this->assertTrue($b->toString() == '50');
+        $this->assertEquals($b->toString(), '50');
     }
 
     public function testUnsupportedAttributeTypeException()

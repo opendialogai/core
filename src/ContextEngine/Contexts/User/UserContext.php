@@ -55,6 +55,17 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * @param string $attributeName
+     * @param $value
+     * @param null $type
+     * @return AttributeInterface
+     */
+    public function setAttribute(string $attributeName, $value, $type = null): AttributeInterface
+    {
+        return $this->getUser()->setAttribute($attributeName, $value, $type);
+    }
+
+    /**
      * @return ChatbotUser
      */
     public function getUser(): ChatbotUser
