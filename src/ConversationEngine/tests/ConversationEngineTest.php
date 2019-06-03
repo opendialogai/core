@@ -86,7 +86,7 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(2, $conditions);
 
-        /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
+        /* @var \OpenDialogAi\Core\Conversation\Condition\Condition $condition */
         foreach ($conditions as $condition) {
             if ($condition->getId() == 'user.name-is_set-') {
                 $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'name');

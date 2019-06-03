@@ -1,10 +1,9 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Conversation;
 
-
 use Ds\Map;
+use OpenDialogAi\Core\Conversation\Condition\Condition;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\Node\Node;
 

@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\Core\Attribute\Condition\ConditionInterface;
+use OpenDialogAi\Core\Conversation\Condition\ConditionInterface;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
 
@@ -88,7 +89,7 @@ class OperationService implements OperationServiceInterface
     {
         $attributes = [];
 
-        foreach ($condition->getAttributes() as $name => $attribute) {
+        foreach ($condition->getOperationAttributes() as $name => $attribute) {
             [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attribute);
 
             try {

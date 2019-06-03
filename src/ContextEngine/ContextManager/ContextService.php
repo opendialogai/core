@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;

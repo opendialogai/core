@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationBuilder\tests;
 
 use Illuminate\Support\Facades\Log;
@@ -97,7 +96,7 @@ class ConversationConditionTest extends TestCase
 
         $conditions = $conversation->getConditions();
 
-        /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
+        /* @var \OpenDialogAi\Core\Conversation\Condition\Condition $condition */
         foreach ($conditions as $condition) {
             if ($condition->getId() == 'user.name-is_set-') {
                 $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::NAME);
@@ -113,7 +112,7 @@ class ConversationConditionTest extends TestCase
 
     public function testConditionAttributeNotSupported()
     {
-        /*$unSupportedCondition = [
+        $unSupportedCondition = [
             'condition' => [
                 'attributes' => [
                     'usernotdefined' => 'user.notdefined'
@@ -129,10 +128,10 @@ class ConversationConditionTest extends TestCase
             $unSupportedCondition,
         ];
 
-        Log::shouldReceive('debug')
-            ->with('Could not create condition because: Attribute user.notdefined could not be resolved');
+        /*Log::shouldReceive('debug')
+            ->with('Could not create condition because: Attribute user.notdefined could not be resolved');*/
 
-        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);*/
+        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
     }
 
     public function testConditionOperationNotSupported()
@@ -161,7 +160,7 @@ class ConversationConditionTest extends TestCase
 
     public function testConditionRequiresValue()
     {
-        /*$unSupportedCondition = [
+        $unSupportedCondition = [
             'condition' => [
                 'attributes' => [
                     'username' => 'user.name'
@@ -174,18 +173,18 @@ class ConversationConditionTest extends TestCase
             $unSupportedCondition,
         ];
 
-        Log::shouldReceive('debug')
+        /*Log::shouldReceive('debug')
             ->with('Created condition from Yaml.');
 
         Log::shouldReceive('debug')
-            ->with('Could not create condition because: Condition user.name required a value but has not defined it');
+            ->with('Could not create condition because: Condition user.name required a value but has not defined it');*/
 
-        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);*/
+        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
     }
 
     public function testConditionRequiresOperation()
     {
-        /*$unSupportedCondition = [
+        $unSupportedCondition = [
             'condition' => [
                 'attributes' => [
                     'username' => 'user.name'
@@ -198,9 +197,9 @@ class ConversationConditionTest extends TestCase
             $unSupportedCondition,
         ];
 
-        Log::shouldReceive('debug')
-            ->with('Could not create condition because: Condition user.name does not define an operation');
+        /*Log::shouldReceive('debug')
+            ->with('Could not create condition because: Condition user.name does not define an operation');*/
 
-        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);*/
+        $this->conversationModel->addConversationConditions($conditionsToAdd, $this->cm);
     }
 }

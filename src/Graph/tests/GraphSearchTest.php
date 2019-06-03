@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\Tests;
-
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\StringAttribute;

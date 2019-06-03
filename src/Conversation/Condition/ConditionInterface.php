@@ -1,9 +1,9 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Condition;
+namespace OpenDialogAi\Core\Conversation\Condition;
 
 /**
- * A condition is the combination of Attribute with a predefined value and a corresponding evaluation operation.
+ * A condition is the combination of attributes, parameters and an evaluation operation.
  */
 interface ConditionInterface
 {
@@ -11,7 +11,7 @@ interface ConditionInterface
 
     public function setEvaluationOperation(string $evaluationOperation);
 
-    public function getAttributes();
+    public function getOperationAttributes();
 
     public function getParameters();
 }

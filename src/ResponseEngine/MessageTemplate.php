@@ -5,7 +5,7 @@ namespace OpenDialogAi\ResponseEngine;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\Core\Attribute\Condition\Condition;
+use OpenDialogAi\Core\Conversation\Condition\Condition;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
 

@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use OpenDialogAi\Core\Conversation\Condition\Condition;
+
 /**
  * A conversation manager assists in managing conversations or creating them from scratch.
  */

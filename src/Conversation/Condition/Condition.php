@@ -1,11 +1,10 @@
 <?php
 
-namespace OpenDialogAi\Core\Conversation;
+namespace OpenDialogAi\Core\Conversation\Condition;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\Condition\ConditionInterface;
-use OpenDialogAi\Core\Attribute\Condition\ConditionTrait;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**

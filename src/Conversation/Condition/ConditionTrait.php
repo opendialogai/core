@@ -1,18 +1,17 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Condition;
+namespace OpenDialogAi\Core\Conversation\Condition;
 
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\Model;
 
 /**
  * ConditionInterface functions implemented as a trait to enable reuse in other packages.
  */
 trait ConditionTrait
 {
-    // The evaluation operation to be used to compare against the attribute to compare.
+    // The evaluation operation.
     private $evaluationOperation;
-
-    private $parameters;
 
     /**
      * @return string
@@ -33,8 +32,22 @@ trait ConditionTrait
     /**
      * @return array
      */
+    public function getOperationAttributes()
+    {
+        $attributes = $this->getAttribute(Model::ATTRIBUTES)->getValue();
+        $attributes = json_decode(htmlspecialchars_decode($attributes));
+
+        return (array) $attributes;
+    }
+
+    /**
+     * @return array
+     */
     public function getParameters()
     {
-        return $this->parameters;
+        $parameters = $this->getAttribute(Model::PARAMETERS)->getValue();
+        $parameters = json_decode(htmlspecialchars_decode($parameters));
+
+        return (array) $parameters;
     }
 }

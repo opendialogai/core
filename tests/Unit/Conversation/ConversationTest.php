@@ -6,7 +6,7 @@ use Ds\Map;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Action;
-use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\Conversation\Condition\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;

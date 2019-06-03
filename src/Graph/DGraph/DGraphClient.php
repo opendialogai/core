@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use GuzzleHttp\Client;
