@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\ContextManager;
-
 
 class BaseContext extends AbstractContext
 {

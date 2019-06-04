@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
@@ -16,6 +15,8 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService
 {
+    const SESSION_CONTEXT = 'session';
+
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
 
