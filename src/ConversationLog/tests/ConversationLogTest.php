@@ -65,9 +65,9 @@ class ConversationLogTest extends TestCase
     }
 
     /**
-     * Ensure that messages can be retrieved from the webchat chat-init endpoint.
+     * Ensure that messages can be retrieved from the webchat history endpoint.
      */
-    public function testWebchatChatInitEndpoint()
+    public function testWebchatHistoryEndpoint()
     {
         ChatbotUser::create([
           'user_id' => 'test@example.com',
@@ -85,7 +85,7 @@ class ConversationLogTest extends TestCase
         $message = Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'test message')->save();
         $message2 = Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'another test message')->save();
 
-        $response = $this->get('/chat-init/webchat/test@example.com/5')
+        $response = $this->get('/user/test@example.com/history?limit=5')
             ->assertStatus(200)
             ->assertJsonCount(2)
             ->assertJson([
@@ -94,9 +94,9 @@ class ConversationLogTest extends TestCase
     }
 
     /**
-     * Ensure that the webchat chat-init endpoint ignore param works.
+     * Ensure that the webchat history endpoint ignore param works.
      */
-    public function testWebchatChatInitEndpointIgnoreParam()
+    public function testWebchatHistoryEndpointIgnoreParam()
     {
         ChatbotUser::create([
           'user_id' => 'test@example.com',
@@ -116,19 +116,19 @@ class ConversationLogTest extends TestCase
         $message3 = Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'another test message')->save();
         $message4 = Message::create(microtime(), 'trigger', $chatbotUser->user_id, 'me', '')->save();
 
-        $response = $this->get('/chat-init/webchat/test@example.com/10?ignore=chat_open,trigger')
+        $response = $this->get('/user/test@example.com/history?limit=10&ignore=chat_open,trigger')
             ->assertStatus(200)
             ->assertJsonCount(2);
 
-        $response = $this->get('/chat-init/webchat/test@example.com/10')
+        $response = $this->get('/user/test@example.com/history?limit=10')
             ->assertStatus(200)
             ->assertJsonCount(4);
     }
 
     /**
-     * Ensure that the webchat chat-init endpoint message limit works.
+     * Ensure that the webchat history endpoint message limit works.
      */
-    public function testWebchatChatInitEndpointLimit()
+    public function testWebchatHistoryEndpointLimit()
     {
         ChatbotUser::create([
           'user_id' => 'test@example.com',
@@ -146,7 +146,7 @@ class ConversationLogTest extends TestCase
         $message = Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'test message')->save();
         $message2 = Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'another test message')->save();
 
-        $response = $this->get('/chat-init/webchat/test@example.com/1')
+        $response = $this->get('/user/test@example.com/history?limit=1')
             ->assertStatus(200)
             ->assertJsonCount(1)
             ->assertJson([
@@ -202,7 +202,7 @@ class ConversationLogTest extends TestCase
 				]);
 
         // Ensure that the correct history is returned
-        $response = $this->get('/chat-init/webchat/someuser/2')
+        $response = $this->get('/user/someuser/history?limit=2')
             ->assertStatus(200)
             ->assertJsonCount(2)
             ->assertJson([
@@ -273,7 +273,7 @@ class ConversationLogTest extends TestCase
             ->assertJson([2 => ['data' => ['internal' => true]]])
             ->assertJson([2 => ['data' => ['hidetime' => false]]]);
 
-        $response = $this->get('/chat-init/webchat/someuser/10?ignore=chat_open');
+        $response = $this->get('/user/someuser/history?limit=10&ignore=chat_open');
         $response
             ->assertStatus(200)
             ->assertJsonCount(3)
