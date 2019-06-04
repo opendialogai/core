@@ -182,4 +182,16 @@ class ContextService
     {
         return $this->activeContexts->toArray();
     }
+
+    /**
+     * Returns all custom contexts
+     *
+     * @return ContextInterface[]
+     */
+    public function getCustomContexts(): array
+    {
+        return $this->activeContexts->filter(static function ($context) {
+            return !in_array($context, [UserContext::USER_CONTEXT, self::SESSION_CONTEXT], true);
+        })->toArray();
+    }
 }
