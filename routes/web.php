@@ -14,7 +14,7 @@ Route::group(['middleware' => 'web'], function() {
     )->middleware(RequestLoggerMiddleware::class);
 
     Route::get(
-        '/chat-init/webchat/{user_id}/{limit}',
+        '/user/{user_id}/history',
         'OpenDialogAi\ConversationLog\Http\Controllers\WebchatInitController@receive'
     );
 });
