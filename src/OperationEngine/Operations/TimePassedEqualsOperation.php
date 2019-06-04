@@ -21,6 +21,9 @@ class TimePassedEqualsOperation extends AbstractOperation
     public static function getAllowedParameters(): array
     {
         return [
+            'required' => [
+                'value',
+            ],
         ];
     }
 }

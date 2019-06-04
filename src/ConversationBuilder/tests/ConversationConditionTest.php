@@ -96,7 +96,7 @@ class ConversationConditionTest extends TestCase
 
         $conditions = $conversation->getConditions();
 
-        /* @var \OpenDialogAi\Core\Conversation\Condition\Condition $condition */
+        /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
         foreach ($conditions as $condition) {
             if ($condition->getId() == 'user.name-is_set-') {
                 $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::NAME);

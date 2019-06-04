@@ -1,17 +1,31 @@
 <?php
 
-namespace OpenDialogAi\Core\Conversation\Condition;
+namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use Ds\Map;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
- * ConditionInterface functions implemented as a trait to enable reuse in other packages.
+ * A condition is the combination of attributes, parameters and an evaluation operation.
  */
-trait ConditionTrait
+class Condition extends Node
 {
     // The evaluation operation.
     private $evaluationOperation;
+
+    public function __construct($evaluationOperation, $attributes, $parameters = [], $id = null)
+    {
+        parent::__construct($id);
+        $this->attributes = new Map();
+        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONDITION));
+        $this->addAttribute(new StringAttribute(Model::OPERATION, $evaluationOperation));
+        $this->addAttribute(new StringAttribute(Model::ATTRIBUTES, htmlspecialchars(json_encode($attributes), ENT_QUOTES)));
+        $this->addAttribute(new StringAttribute(Model::PARAMETERS, htmlspecialchars(json_encode($parameters), ENT_QUOTES)));
+
+        $this->evaluationOperation = $evaluationOperation;
+    }
 
     /**
      * @return string

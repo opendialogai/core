@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Ds\Map;
-use OpenDialogAi\Core\Conversation\Condition\Condition;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 
 class OpeningIntent
