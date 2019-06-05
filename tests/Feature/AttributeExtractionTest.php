@@ -12,6 +12,8 @@ use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\TestNameInterpreter;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class AttributeExtractionTest extends TestCase
 {
@@ -72,7 +74,6 @@ class AttributeExtractionTest extends TestCase
     public function testAttributeStorage()
     {
         $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
-
         $this->odController->runConversation($utterance);
 
         try {
@@ -85,6 +86,24 @@ class AttributeExtractionTest extends TestCase
         } catch (AttributeDoesNotExistException $e) {
             $this->fail('Attribute should exist in the right context');
         }
+    }
+
+    public function testFullJourney()
+    {
+        $outgoingIntent = OutgoingIntent::create(['name' => 'hello_user']);
+        MessageTemplate::create([
+            'name' => 'message',
+            'message_markup' => '<message><text-message>{user.first_name} {session.last_name}</text-message></message>',
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
+        $messageWrapper = $this->odController->runConversation($utterance);
+
+        $this->assertCount(1, $messageWrapper->getMessages());
+
+        /** attributes as set in @see TestNameInterpreter */
+        $this->assertEquals('first_name last_name', $messageWrapper->getMessages()[0]->getText());
     }
 
     private function getExampleConversation()
