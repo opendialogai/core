@@ -3,7 +3,7 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -45,38 +45,33 @@ class ConversationQueryFactory
     /**
      * @param string $conversationUid
      * @param DGraphClient $client
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return Conversation
      */
     public static function getConversationFromDGraphWithUid(
         string $conversationUid,
         DGraphClient $client,
-        AttributeResolver $attributeResolver,
         $clone = false
-    ) {
+    ): Conversation {
         $dGraphQuery = new DGraphQuery();
 
-        $dGraphQuery->uid($conversationUid)
-            ->setQueryGraph(self::getConversationQueryGraph());
+        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDGraphData($response, $attributeResolver, $clone);
+        return self::buildConversationFromDGraphData($response, $clone);
     }
 
     /**
      * @param string $templateName
      * @param DGraphClient $client
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return Conversation
      */
     public static function getConversationFromDGraphWithTemplateName(
         string $templateName,
         DGraphClient $client,
-        AttributeResolver $attributeResolver,
         $clone = false
-    ) {
+    ): Conversation {
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->eq('id', $templateName)
@@ -84,17 +79,16 @@ class ConversationQueryFactory
             ->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDGraphData($response, $attributeResolver, $clone);
+        return self::buildConversationFromDGraphData($response, $clone);
     }
 
     /**
      * @param string $templateName
+     * @param DGraphClient $client
      * @return string
      */
-    public static function getConversationTemplateUid(
-        string $templateName,
-        DGraphClient $client
-    ) {
+    public static function getConversationTemplateUid(string $templateName, DGraphClient $client): string
+    {
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->eq('id', $templateName)
@@ -111,7 +105,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getConversationQueryGraph()
+    public static function getConversationQueryGraph(): array
     {
         return [
             Model::UID,
@@ -123,7 +117,10 @@ class ConversationQueryFactory
         ];
     }
 
-    public static function getConditionGraph()
+    /**
+     * @return array
+     */
+    public static function getConditionGraph(): array
     {
         return [
             Model::UID,
@@ -138,7 +135,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getSceneGraph()
+    public static function getSceneGraph(): array
     {
         return [
             Model::UID,
@@ -151,7 +148,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getParticipantGraph()
+    public static function getParticipantGraph(): array
     {
         return [
             Model::UID,
@@ -166,7 +163,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getIntentGraph()
+    public static function getIntentGraph(): array
     {
         return [
             Model::UID,
@@ -226,11 +223,10 @@ class ConversationQueryFactory
 
     /**
      * @param array $data
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return mixed
      */
-    public static function buildConversationFromDGraphData(array $data, AttributeResolver $attributeResolver, $clone = false)
+    public static function buildConversationFromDGraphData(array $data, $clone = false)
     {
         $cm = new ConversationManager($data[Model::ID]);
         $clone ? false : $cm->getConversation()->setUid($data[Model::UID]);
@@ -238,7 +234,7 @@ class ConversationQueryFactory
 
         // Add any conversation level conditions
         if (isset($data[Model::HAS_CONDITION])) {
-            self::createConversationConditions($data[Model::HAS_CONDITION], $cm, $attributeResolver);
+            self::createConversationConditions($data[Model::HAS_CONDITION], $cm);
         }
 
         // First create all the scenes
@@ -260,17 +256,12 @@ class ConversationQueryFactory
     /**
      * @param array $conditions
      * @param ConversationManager $cm
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      */
-    public static function createConversationConditions(
-        array $conditions,
-        ConversationManager $cm,
-        AttributeResolver $attributeResolver,
-        bool $clone = false
-    ) {
+    public static function createConversationConditions(array $conditions, ConversationManager $cm, bool $clone = false): void
+    {
         foreach ($conditions as $conditionData) {
-            $condition = self::createCondition($conditionData, $attributeResolver, $clone);
+            $condition = self::createCondition($conditionData, $clone);
             if (isset($condition)) {
                 $cm->addConditionToConversation($condition);
             }
@@ -279,11 +270,10 @@ class ConversationQueryFactory
 
     /**
      * @param array $conditionData
-     * @param AttributeResolver $attributeResolver
      * @param bool $clone
      * @return Condition
      */
-    public static function createCondition(array $conditionData, AttributeResolver $attributeResolver, bool $clone = false)
+    public static function createCondition(array $conditionData, bool $clone = false): Condition
     {
         $uid = $conditionData[Model::UID];
         $id = $conditionData[Model::ID];
@@ -294,8 +284,8 @@ class ConversationQueryFactory
             : $conditionData[Model::ATTRIBUTE_VALUE];
         $operation = $conditionData[Model::OPERATION];
 
-        if (array_key_exists($attributeName, $attributeResolver->getSupportedAttributes())) {
-            $attribute = $attributeResolver->getAttributeFor($attributeName, $attributeValue);
+        if (array_key_exists($attributeName, AttributeResolverFacade::getSupportedAttributes())) {
+            $attribute = AttributeResolverFacade::getAttributeFor($attributeName, $attributeValue);
             $condition = new Condition($attribute, $operation, $id);
             $condition->setContextId($context);
             if ($clone) {
@@ -311,7 +301,7 @@ class ConversationQueryFactory
      * @param ConversationManager $cm
      * @param $data
      */
-    public static function createScenesFromDGraphData(ConversationManager $cm, $data)
+    public static function createScenesFromDGraphData(ConversationManager $cm, $data): void
     {
         foreach ($data[Model::HAS_OPENING_SCENE] as $openingScene) {
             $cm->createScene($openingScene[Model::ID], true);
@@ -329,7 +319,7 @@ class ConversationQueryFactory
      * @param $data
      * @param bool $clone
      */
-    public static function createSceneFromDGraphData(ConversationManager $cm, $data, bool $clone = false)
+    public static function createSceneFromDGraphData(ConversationManager $cm, $data, bool $clone = false): void
     {
         $scene = $cm->getScene($data[Model::ID]);
         $clone ? false : $scene->setUid($data[Model::UID]);
@@ -358,7 +348,7 @@ class ConversationQueryFactory
         ConversationManager $cm,
         $data,
         bool $clone = false
-    ) {
+    ): void {
         if (isset($data[Model::SAYS])) {
             foreach ($data[Model::SAYS] as $intentData) {
                 $intent = new Intent($intentData[Model::ID]);

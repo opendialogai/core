@@ -5,26 +5,17 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 
 use Ds\Map;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 class AllOpeningIntents extends DGraphQuery
 {
-    private $dGraphClient;
-
-    /* @var AttributeResolver */
-    private $attributeResolver;
-
     private $data;
 
-    public function __construct(DGraphClient $client, AttributeResolver $attributeResolver)
+    public function __construct(DGraphClient $client)
     {
         parent::__construct();
-        $this->dGraphClient = $client;
-        $this->attributeResolver = $attributeResolver;
-
         $this->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph([
                 Model::EI_TYPE,
@@ -51,7 +42,7 @@ class AllOpeningIntents extends DGraphQuery
                 ]
             ]);
 
-        $response = $this->dGraphClient->query($this);
+        $response = $client->query($this);
         $this->data = $response->getData();
     }
 
@@ -73,7 +64,7 @@ class AllOpeningIntents extends DGraphQuery
 
             if (isset($datum[Model::HAS_CONDITION])) {
                 foreach ($datum[Model::HAS_CONDITION] as $conditionData) {
-                    $condition = ConversationQueryFactory::createCondition($conditionData, $this->attributeResolver, false);
+                    $condition = ConversationQueryFactory::createCondition($conditionData, false);
                     if (isset($condition)) {
                         $conditions->put($condition->getId(), $condition);
                     }
