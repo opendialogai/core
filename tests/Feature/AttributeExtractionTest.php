@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Tests\Feature;
 
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeExtractionTest extends TestCase
@@ -19,9 +20,22 @@ class AttributeExtractionTest extends TestCase
         $this->publishConversation($this->getExampleConversation());
     }
 
-    public function testInit()
+    public function testOpeningSceneCreated()
     {
-        $this->assertTrue(true);
+        $conversationStore = $this->conversationEngine->getConversationStore();
+        $openingIntents = $conversationStore->getAllOpeningIntents();
+
+        $this->assertCount(1, $openingIntents);
+
+        /** @var OpeningIntent $myNameIntent */
+        $myNameIntent = $openingIntents->first()->value;
+        $this->assertEquals('my_name_is', $myNameIntent->getIntentId());
+
+        $expectedAttributes = $myNameIntent->getExpectedAttributes();
+
+        $this->assertCount(2, $expectedAttributes);
+        $this->assertContains('user.first_name', $expectedAttributes->toArray());
+        $this->assertContains('user.last_name', $expectedAttributes->toArray());
     }
 
     private function getExampleConversation()

@@ -12,8 +12,6 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 class AllOpeningIntents extends DGraphQuery
 {
-    private $dGraphData;
-
     private $dGraphClient;
 
     /* @var AttributeResolver */
@@ -43,6 +41,10 @@ class AllOpeningIntents extends DGraphQuery
                             Model::HAS_INTERPRETER => [
                                 Model::ID,
                                 Model::UID,
+                            ],
+                            Model::HAS_EXPECTED_ATTRIBUTE => [
+                                Model::ID,
+                                Model::UID
                             ]
                         ]
                     ]
@@ -95,7 +97,15 @@ class AllOpeningIntents extends DGraphQuery
                                 $intent[Model::UID],
                                 $openingIntent
                             );
+
+                            if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                                foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                                    $openingIntent->addExpectedAttribute($expectedAttribute['id']);
+                                }
+                            }
                         }
+
+                        // TODO - this is not in the foreach loop and is just over writing what was set above?
                         if (isset($intent[Model::HAS_INTERPRETER])) {
                             $openingIntent = new OpeningIntent(
                                 $intent[Model::ID],
@@ -111,6 +121,12 @@ class AllOpeningIntents extends DGraphQuery
                                 $intent[Model::UID],
                                 $openingIntent
                             );
+
+                            if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                                foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                                    $openingIntent->addExpectedAttribute($expectedAttribute['id']);
+                                }
+                            }
                         }
                     }
                 }

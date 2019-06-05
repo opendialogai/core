@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Ds\Map;
+use Ds\Set;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 
@@ -22,12 +23,14 @@ class OpeningIntent
 
     private $interpreter;
 
+    /** @var Set */
+    private $expectedAttributes;
+
     /* @var Intent */
     private $interpretedIntent;
 
     /* @var Map */
     private $conditions;
-
 
     public function __construct(
         $intentId,
@@ -46,6 +49,7 @@ class OpeningIntent
         $this->confidence = $confidence;
         $this->interpreter = $interpreter;
         $this->conditions = new Map();
+        $this->expectedAttributes = new Set();
     }
 
     /**
@@ -222,5 +226,31 @@ class OpeningIntent
         }
 
         return false;
+    }
+
+    /**
+     * Adds the name of an expected attribute to the opening intent
+     *
+     * @param $expectedAttribute string
+     */
+    public function addExpectedAttribute($expectedAttribute): void
+    {
+        $this->expectedAttributes->add($expectedAttribute);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasExpectedAttributes(): bool
+    {
+        return $this->expectedAttributes->count() > 0;
+    }
+
+    /**
+     * @return Set
+     */
+    public function getExpectedAttributes(): Set
+    {
+        return $this->expectedAttributes;
     }
 }
