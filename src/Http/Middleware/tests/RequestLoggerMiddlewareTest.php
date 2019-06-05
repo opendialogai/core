@@ -6,14 +6,16 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class RequestLoggerMiddlewareTest extends TestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->initDDgraph();
+        $this->publishConversation($this->conversation4());
+    }
+
     public function testRequestLoggerMiddleware()
     {
-        if (!getenv('LOCAL')) {
-            // This test depends on dGraph.
-            $this->markTestSkipped('This test only runs on local environments.');
-        }
-
-        $response = $this->json('POST', '/incoming/webchat', [
+        $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
             'user_id' => 'someuser',
             'author' => 'me',
