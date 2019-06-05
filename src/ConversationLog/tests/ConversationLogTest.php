@@ -13,6 +13,13 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class ConversationLogTest extends TestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->initDDgraph();
+        $this->publishConversation($this->conversation4());
+    }
+
     /**
      * Test that a Chatbot User can be created.
      *
@@ -207,8 +214,6 @@ class ConversationLogTest extends TestCase
 
     public function testInternalProperty()
     {
-        $this->initDDgraph();
-
         $validCallback = ['welcome' => 'intent.core.welcome'];
         $this->setConfigValue('opendialog.interpreter_engine.supported_callbacks', $validCallback);
 
