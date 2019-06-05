@@ -6,6 +6,7 @@ use Faker\Factory;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 
 /**
  * Static methods to help generating utterances to use in tests
@@ -21,16 +22,12 @@ class UtteranceGenerator
      */
     public static function generateChatOpenUtterance($callbackId, User $user = null): WebchatChatOpenUtterance
     {
-        $generator = Factory::create();
-
         if ($user === null) {
-            $user = new User($generator->uuid);
-            $user->setFirstName($generator->firstName);
-            $user->setLastName($generator->lastName);
+            $user = self::generateUser();
         }
 
+        $utterance = new WebchatChatOpenUtterance();
         try {
-            $utterance = new WebchatChatOpenUtterance();
             $utterance->setCallbackId($callbackId);
             $utterance->setUser($user);
             $utterance->setUserId($user->getId());
@@ -39,5 +36,36 @@ class UtteranceGenerator
         }
 
         return $utterance;
+    }
+
+    public static function generateTextUtterance($text = '', $user = null)
+    {
+        if ($user === null) {
+            $user = self::generateUser();
+        }
+
+        $utterance = new WebchatTextUtterance();
+        try {
+            $utterance->setText($text);
+            $utterance->setUser($user);
+            $utterance->setUserId($user->getId());
+        } catch (FieldNotSupported $e) {
+            //
+        }
+
+        return $utterance;
+    }
+
+    /**
+     * @return User
+     */
+    public static function generateUser(): User
+    {
+        $generator = Factory::create();
+
+        $user = new User($generator->uuid);
+        $user->setFirstName($generator->firstName);
+        $user->setLastName($generator->lastName);
+        return $user;
     }
 }
