@@ -3,13 +3,13 @@
 namespace OpenDialogAi\Core\Tests\Unit;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\ConversationStateLog;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
-use OpenDialogAi\ConversationBuilder\Conversation;
-use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
 
@@ -186,7 +186,6 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         $this->assertEquals('hello_user', $openingScene->getIntentsSaidByBot()->first()->value->getId());
 
-
         // Intents should have actions and interpreters
         /* @var Intent $userIntent */
         $userIntent = $openingScene->getIntentsSaidByUser()->first()->value;
@@ -213,8 +212,6 @@ class ConversationBuilderTest extends TestCase
         // Bot replies
         $this->assertCount(1, $scene2->getIntentsSaidByBot());
         $this->assertEquals('doing_dandy', $scene2->getIntentsSaidByBot()->first()->value->getId());
-
-
     }
 
     /**
@@ -222,18 +219,16 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationPersist()
     {
-        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
-        $conversationModel = $conversation->buildConversation();
+        $this->publishConversation($this->conversation1());
 
-        // Assert that we think publishing was successful.
-        $this->assertTrue($conversation->publishConversation($conversationModel));
+        /** @var DGraphClient $client */
+        $client = $this->app->make(DGraphClient::class);
 
-        /**
-         * TODO: Assert that the conversation exists in DGraph.
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
-        $query = new DGraphQuery();
-        $query->allofterms('ei_type', ['conversation'])
-            ->setQueryGraph(['id' => 'hello_bot_world']);
-        */
+        $template = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
+            'hello_bot_world',
+            $client
+        );
+
+        $this->assertEquals('hello_bot_world', $template->getId());
     }
 }

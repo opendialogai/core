@@ -7,6 +7,13 @@ use OpenDialogAi\Core\ResponseLog;
 
 class CoreTest extends TestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->initDDgraph();
+        $this->publishConversation($this->conversation4());
+    }
+
     /**
      * Test that requests to the incoming endpoint are logged.
      */
