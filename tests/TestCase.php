@@ -11,6 +11,7 @@ use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
+use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 use Symfony\Component\Yaml\Yaml;
@@ -238,5 +239,31 @@ EOT;
         $conversationModel = $conversation->buildConversation();
 
         $this->assertTrue($conversation->publishConversation($conversationModel));
+    }
+
+    protected function registerInterpreter($interpreter, $defaultInterpreter = null): void
+    {
+        if ($defaultInterpreter === null) {
+            $defaultInterpreter = $interpreter;
+        }
+
+        $this->app['config']->set(
+            'opendialog.interpreter_engine.available_interpreters', [
+            get_class($interpreter),
+            get_class($defaultInterpreter)
+        ]);
+
+        $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
+    }
+    /**
+     * @param $interpreterName
+     * @return \Mockery\MockInterface|InterpreterInterface
+     */
+    protected function createMockInterpreter($interpreterName)
+    {
+        $mockInterpreter = \Mockery::mock(InterpreterInterface::class);
+        $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
+
+        return $mockInterpreter;
     }
 }

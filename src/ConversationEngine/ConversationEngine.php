@@ -12,6 +12,7 @@ use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -241,8 +242,8 @@ class ConversationEngine implements ConversationEngineInterface
             $nextIntent = $possibleNextIntents->first()->value;
             Log::debug(sprintf('We found a matching intent %s', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
-            // Check if the intent has non-core attributes and set those at the user context level
-            $this->storeIntentEntities($nextIntent, $userContext);
+
+            $this->storeIntentEntities($nextIntent);
 
             if ($nextIntent->causesAction()) {
                 Log::debug(
@@ -302,9 +303,7 @@ class ConversationEngine implements ConversationEngineInterface
         $intent = $matchingIntents->last()->value;
         Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
-        if ($interpretedIntent = $intent->getInterpretedIntent()) {
-            $this->storeIntentEntities($interpretedIntent, $userContext);
-        }
+        $this->storeIntentEntities($intent);
 
         $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
         $userContext->setCurrentConversation($conversation);
@@ -436,18 +435,33 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
-     * @param Intent $intent
-     * @param UserContext $context
+     * @param OpeningIntent $intent
      */
-    private function storeIntentEntities(Intent $intent, UserContext $context): void
+    private function storeIntentEntities(OpeningIntent $intent): void
     {
+        $interpretedIntent = $intent->getInterpretedIntent();
+        $expectedAttributeContexts = $intent->getExpectedAttributeContexts();
+
         /** @var AttributeInterface $attribute */
-        foreach ($intent->getNonCoreAttributes() as $attribute) {
-            Log::debug(sprintf('Storing attribute %s for user', $attribute->getId()));
+        foreach ($interpretedIntent->getNonCoreAttributes() as $attribute) {
+            $attributeName = $attribute->getValue();
+
+            $context = $this->contextService->getSessionContext();
+            if ($expectedAttributeContexts->hasKey($attributeName)) {
+                $contextId = $expectedAttributeContexts->get($attributeName);
+                try {
+                    $context = $this->contextService->getContext($contextId);
+                } catch (ContextDoesNotExistException $e) {
+                    Log::error(sprintf('Expected attribute context %s does not exist, using session context', $contextId));
+                }
+            }
+
+            Log::debug(sprintf('Storing attribute %s in %s context', $attribute->getId(), $context->getId()));
             $context->addAttribute($attribute);
         }
 
-        $context->updateUser();
+        // TODO - is there a better way of doing this? Each context could have it's own tear down method to deal with persisting
+        $this->contextService->getUserContext()->updateUser();
     }
 
     /**

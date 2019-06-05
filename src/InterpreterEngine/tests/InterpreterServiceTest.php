@@ -10,7 +10,6 @@ use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
-use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\DummyInterpreter;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\NoNameInterpreter;
@@ -146,31 +145,6 @@ class InterpreterServiceTest extends TestCase
         $this->assertCount(1, $intents);
         $intent = $intents[0];
         $this->assertTrue($intent->getId() == 'intent.core.chatOpen');
-    }
-
-    private function registerInterpreter($mockInterpreter): void
-    {
-        $defaultInterpreter = $this->createMockInterpreter('interpreter.core.default');
-
-        $this->app['config']->set(
-            'opendialog.interpreter_engine.available_interpreters', [
-                get_class($mockInterpreter),
-                get_class($defaultInterpreter)
-            ]);
-
-        $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
-    }
-
-    /**
-     * @param $interpreterName
-     * @return \Mockery\MockInterface|InterpreterInterface
-     */
-    protected function createMockInterpreter($interpreterName)
-    {
-        $mockInterpreter = \Mockery::mock(InterpreterInterface::class);
-        $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
-
-        return $mockInterpreter;
     }
 
     /**

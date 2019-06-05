@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
+use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Conversation\Model;
@@ -175,6 +176,7 @@ class ConversationQueryFactory
             Model::CONFIDENCE,
             Model::CAUSES_ACTION => self::getActionGraph(),
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
+            Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
             Model::LISTENED_BY_FROM_SCENES => [
                 Model::UID,
                 Model::ID,
@@ -191,7 +193,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getActionGraph()
+    public static function getActionGraph(): array
     {
         return [
             Model::UID,
@@ -202,7 +204,18 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getInterpreterGraph()
+    public static function getInterpreterGraph(): array
+    {
+        return [
+            Model::UID,
+            Model::ID
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getExpectedAttributesGraph(): array
     {
         return [
             Model::UID,
@@ -367,6 +380,15 @@ class ConversationQueryFactory
                     $intent->addInterpreter($interpreter);
                 }
 
+                if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                    foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                        $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
+                        $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
+
+                        $intent->addExpectedAttribute($expectedAttributeNode);
+                    }
+                }
+
                 if ($participant->isUser()) {
                     $cm->userSaysToBot($sceneId, $intent, $intentData[Model::ORDER]);
                 }
@@ -395,6 +417,15 @@ class ConversationQueryFactory
                     $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
                     $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
                     $intent->addInterpreter($interpreter);
+                }
+
+                if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                    foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                        $expectedAttribute = new ExpectedAttribute($expectedAttribute[Model::ID]);
+                        $clone ? false : $expectedAttribute->setUid($expectedAttribute[Model::UID]);
+
+                        $intent->addExpectedAttribute($expectedAttribute);
+                    }
                 }
 
                 $endingSceneId = $intentData[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID];

@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Ds\Map;
 use Ds\Set;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 
@@ -252,5 +253,23 @@ class OpeningIntent
     public function getExpectedAttributes(): Set
     {
         return $this->expectedAttributes;
+    }
+
+    /**
+     * Returns the expected attributes split out by context. Will return map with attribute names as keys and their
+     * associated context names as values
+     */
+    public function getExpectedAttributeContexts()
+    {
+        $attributesContexts = new Map();
+
+        foreach ($this->expectedAttributes as $expectedAttribute) {
+            $attributesContexts->put(
+                ContextParser::determineAttributeId($expectedAttribute),
+                ContextParser::determineContextId($expectedAttribute)
+            );
+        }
+
+        return $attributesContexts;
     }
 }
