@@ -207,6 +207,8 @@ class ConversationLogTest extends TestCase
 
     public function testInternalProperty()
     {
+        $this->initDDgraph();
+
         $validCallback = ['welcome' => 'intent.core.welcome'];
         $this->setConfigValue('opendialog.interpreter_engine.supported_callbacks', $validCallback);
 
