@@ -194,4 +194,25 @@ class ContextService
             return !in_array($context, [UserContext::USER_CONTEXT, self::SESSION_CONTEXT], true);
         })->toArray();
     }
+
+    /**
+     *  Helper method to return the session context
+     *
+     * @return BaseContext
+     */
+    public function getSessionContext(): ContextInterface
+    {
+        return $this->getContext(self::SESSION_CONTEXT);
+    }
+
+    /**
+     *  Helper method to return the user context
+     *
+     * @return UserContext
+     */
+    public function getUserContext(): ContextInterface
+    {
+        return $this->getContext(UserContext::USER_CONTEXT);
+    }
+
 }
