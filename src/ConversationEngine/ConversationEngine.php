@@ -243,7 +243,7 @@ class ConversationEngine implements ConversationEngineInterface
             Log::debug(sprintf('We found a matching intent %s', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
 
-            $this->storeIntentEntities($nextIntent);
+            $this->storeIntentEntities($nextIntent, new Map());
 
             if ($nextIntent->causesAction()) {
                 Log::debug(
@@ -303,7 +303,7 @@ class ConversationEngine implements ConversationEngineInterface
         $intent = $matchingIntents->last()->value;
         Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
-        $this->storeIntentEntities($intent);
+        $this->storeOpeningIntentEntities($intent);
 
         $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
         $userContext->setCurrentConversation($conversation);
@@ -437,13 +437,19 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param OpeningIntent $intent
      */
-    private function storeIntentEntities(OpeningIntent $intent): void
+    private function storeOpeningIntentEntities(OpeningIntent $intent)
     {
-        $interpretedIntent = $intent->getInterpretedIntent();
-        $expectedAttributeContexts = $intent->getExpectedAttributeContexts();
+        $this->storeIntentEntities($intent->getInterpretedIntent(), $intent->getExpectedAttributeContexts());
+    }
 
+    /**
+     * @param Intent $intent
+     * @param Map $expectedAttributeContexts
+     */
+    private function storeIntentEntities(Intent $intent, Map $expectedAttributeContexts): void
+    {
         /** @var AttributeInterface $attribute */
-        foreach ($interpretedIntent->getNonCoreAttributes() as $attribute) {
+        foreach ($intent->getNonCoreAttributes() as $attribute) {
             $attributeName = $attribute->getValue();
 
             $context = $this->contextService->getSessionContext();
