@@ -103,12 +103,8 @@ class InterpreterServiceTest extends TestCase
 
     public function testInterpreterNoNameNotRegistered()
     {
+        $this->expectException(InterpreterNameNotSetException::class);
         $this->registerInterpreter(new NoNameInterpreter());
-        $service = $this->getBoundInterpreterService();
-        $interpreters = $service->getAvailableInterpreters();
-
-
-        $this->assertCount(1, $interpreters);
     }
 
     public function testForLuisInterpreter()
