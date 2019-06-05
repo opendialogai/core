@@ -47,7 +47,7 @@ class Intent extends Node
      * @param float $confidence
      * @return Intent
      */
-    public static function createIntentWithConfidence(string $label, float $confidence)
+    public static function createIntentWithConfidence(string $label, float $confidence): Intent
     {
         $intent = new self($label);
         $intent->setConfidence($confidence);
@@ -61,7 +61,7 @@ class Intent extends Node
      * @param $confidence
      * @return Intent
      */
-    public function setConfidence($confidence)
+    public function setConfidence($confidence): Intent
     {
         $this->addAttribute(new FloatAttribute(Model::CONFIDENCE, $confidence));
         return $this;
@@ -72,7 +72,7 @@ class Intent extends Node
      *
      * @return float
      */
-    public function getConfidence()
+    public function getConfidence(): float
     {
         if ($this->hasAttribute(Model::CONFIDENCE)) {
             $confidence = $this->getAttribute(Model::CONFIDENCE);
@@ -87,7 +87,7 @@ class Intent extends Node
      *
      * @return string
      */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->id;
     }
@@ -118,7 +118,7 @@ class Intent extends Node
         return $this;
     }
 
-    public function getOrder():int
+    public function getOrder(): int
     {
         return $this->getAttribute(Model::ORDER)->getValue();
     }
@@ -138,21 +138,21 @@ class Intent extends Node
             $attribute->setValue($this->completes);
             $this->addAttribute($attribute);
             return $this;
-        } else {
-            try {
-                $attribute = new BooleanAttribute(Model::COMPLETES, $this->completes);
-                $this->addAttribute($attribute);
-                return $this;
-            } catch (UnsupportedAttributeTypeException $e) {
-                return false;
-            }
+        }
+
+        try {
+            $attribute = new BooleanAttribute(Model::COMPLETES, $this->completes);
+            $this->addAttribute($attribute);
+            return $this;
+        } catch (UnsupportedAttributeTypeException $e) {
+            return false;
         }
     }
 
     /**
      * @param Action $action
      */
-    public function addAction(Action $action)
+    public function addAction(Action $action): void
     {
         $this->createOutgoingEdge(Model::CAUSES_ACTION, $action);
     }
@@ -160,7 +160,7 @@ class Intent extends Node
     /**
      * @param Interpreter $interpreter
      */
-    public function addInterpreter(Interpreter $interpreter)
+    public function addInterpreter(Interpreter $interpreter): void
     {
         $this->createOutgoingEdge(Model::HAS_INTERPRETER, $interpreter);
     }
@@ -187,7 +187,7 @@ class Intent extends Node
             return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_INTERPRETER)->first()->value;
         }
 
-        throw new NodeDoesNotExistException();
+        throw new NodeDoesNotExistException('Interpreter not set for Intent');
     }
 
     /**
@@ -212,7 +212,15 @@ class Intent extends Node
             return $this->getNodesConnectedByOutgoingRelationship(Model::CAUSES_ACTION)->first()->value;
         }
 
-        throw new NodeDoesNotExistException();
+        throw new NodeDoesNotExistException('Action not set for Intent');
+    }
+
+    /**
+     * @param ExpectedAttribute $expectedAttribute
+     */
+    public function addExpectedAttribute($expectedAttribute): void
+    {
+        $this->createOutgoingEdge(Model::HAS_EXPECTED_ATTRIBUTE, $expectedAttribute);
     }
 
     public function completes(): bool
