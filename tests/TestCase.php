@@ -34,12 +34,16 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function setUp() :void
     {
-        if (getenv('LOCAL')) {
-            $this->app['config']->set('opendialog.core.DGRAPH_URL', 'http://10.0.2.2');
-        }
-
-
         parent::setUp();
+
+        try {
+            $env = parse_ini_file(__DIR__ . '/../.env');
+            if (isset($env['DGRAPH_URL'])) {
+                $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
+            }
+        } catch (\Exception $e) {
+            //
+        }
 
         if (!defined('LARAVEL_START')) {
             define('LARAVEL_START', microtime(true));
