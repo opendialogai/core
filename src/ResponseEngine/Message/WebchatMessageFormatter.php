@@ -12,6 +12,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatRichMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
@@ -92,6 +93,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 $template = [self::TEXT => $text];
                 return $this->generateTextMessage($template);
                 break;
+            case self::RICH_MESSAGE:
+                $template = $this->formatRichTemplate($item);
+                return $this->generateRichMessage($template);
+                break;
             case self::EMPTY_MESSAGE:
                 return new EmptyMessage();
                 break;
@@ -153,6 +158,24 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             ->setImgSrc($template[self::SRC])
             ->setImgLink($template[self::LINK])
             ->setLinkNewTab($template[self::LINK_NEW_TAB]);
+
+        return $message;
+    }
+
+    public function generateRichMessage(array $template)
+    {
+        $message = (new WebChatRichMessage())
+            ->setTitle($template[self::TITLE])
+            ->setSubTitle($template[self::SUBTITLE])
+            ->setText($template[self::TEXT])
+            ->setButtonText($template[self::BUTTON][self::TEXT])
+            ->setButtonTabSwitch($template[self::BUTTON][self::TAB_SWITCH])
+            ->setButtonCallback($template[self::BUTTON][self::CALLBACK])
+            ->setButtonValue($template[self::BUTTON][self::VALUE])
+            ->setButtonLink($template[self::BUTTON][self::LINK])
+            ->setImageSrc($template[self::IMAGE][self::SRC])
+            ->setImageLink($template[self::IMAGE][self::URL])
+            ->setImageLinkNewTab($template[self::IMAGE][self::LINK_NEW_TAB]);
 
         return $message;
     }
@@ -303,6 +326,31 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             self::LINK_NEW_TAB => $linkNewTab,
             self::LINK => trim((string)$item->link),
             self::SRC => trim((string)$item->src),
+        ];
+        return $template;
+    }
+
+    private function formatRichTemplate(SimpleXMLElement $item): array
+    {
+        $linkNewTab = ($item->image->url['new_tab']) ? true : false;
+        $tabSwitch = filter_var((string)$item->button->tab_switch, FILTER_VALIDATE_BOOLEAN);
+
+        $template = [
+            self::TITLE => trim((string)$item->title),
+            self::SUBTITLE => trim((string)$item->subtitle),
+            self::TEXT => trim((string)$item->text),
+            self::BUTTON => [
+                self::TEXT => trim((string)$item->button->text),
+                self::TAB_SWITCH => $tabSwitch,
+                self::CALLBACK => trim((string)$item->button->callback),
+                self::VALUE => trim((string)$item->button->value),
+                self::LINK => trim((string)$item->button->link),
+            ],
+            self::IMAGE => [
+                self::SRC => trim((string)$item->image->src),
+                self::URL => trim((string)$item->image->url),
+                self::LINK_NEW_TAB => $linkNewTab,
+            ],
         ];
         return $template;
     }

@@ -71,6 +71,25 @@ class MessageXML implements Rule
                             return false;
                         }
                         break;
+
+                    case 'rich-message':
+                        if (empty((string)$item->text)) {
+                            return false;
+                        }
+                        foreach ($item->button as $button) {
+                            if (empty((string)$button->text)) {
+                                return false;
+                            }
+                            if (empty((string)$button->callback) && empty((string)$button->link)) {
+                                return false;
+                            }
+                        }
+                        foreach ($item->image as $image) {
+                            if (empty((string)$button->src)) {
+                                return false;
+                            }
+                        }
+                        break;
                 }
             }
         } catch (\Exception $e) {

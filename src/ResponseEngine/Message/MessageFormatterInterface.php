@@ -12,11 +12,16 @@ interface MessageFormatterInterface
     public const BUTTON_MESSAGE    = 'button-message';
     public const IMAGE_MESSAGE     = 'image-message';
     public const TEXT_MESSAGE      = 'text-message';
+    public const RICH_MESSAGE      = 'rich-message';
     public const EMPTY_MESSAGE     = 'empty-message';
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';
+    public const BUTTON                  = 'button';
+    public const IMAGE                   = 'image';
     public const TEXT                    = 'text';
+    public const TITLE                   = 'title';
+    public const SUBTITLE                = 'subtitle';
     public const CALLBACK                = 'callback';
     public const VALUE                   = 'value';
     public const LINK                    = 'link';
@@ -41,6 +46,8 @@ interface MessageFormatterInterface
     public function generateListMessage(array $template);
 
     public function generateLongTextMessage(array $template);
+
+    public function generateRichMessage(array $template);
 
     public function generateTextMessage(array $template);
 }
