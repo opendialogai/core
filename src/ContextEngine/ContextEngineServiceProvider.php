@@ -15,7 +15,7 @@ class ContextEngineServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/config/opendialog-contextengine-custom.php' => config_path('opendialog/context_engine.php'),
 
-        ], 'config');
+        ], 'opendialog-config');
 
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
     }
@@ -27,6 +27,8 @@ class ContextEngineServiceProvider extends ServiceProvider
         $this->app->singleton(ContextService::class, function () {
             $contextService = new ContextService();
             $contextService->setUserService($this->app->make(UserService::class));
+
+            $contextService->createContext(ContextService::SESSION_CONTEXT);
 
             if (is_array(config('opendialog.context_engine.custom_contexts'))) {
                 $contextService->loadCustomContexts(config('opendialog.context_engine.custom_contexts'));

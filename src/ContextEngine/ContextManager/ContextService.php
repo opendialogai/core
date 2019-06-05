@@ -1,14 +1,13 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
+use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
-use OpenDialogAi\ContextEngine\Contexts\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -16,6 +15,8 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService
 {
+    const SESSION_CONTEXT = 'session';
+
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
 
@@ -181,4 +182,37 @@ class ContextService
     {
         return $this->activeContexts->toArray();
     }
+
+    /**
+     * Returns all custom contexts
+     *
+     * @return ContextInterface[]
+     */
+    public function getCustomContexts(): array
+    {
+        return $this->activeContexts->filter(static function ($context) {
+            return !in_array($context, [UserContext::USER_CONTEXT, self::SESSION_CONTEXT], true);
+        })->toArray();
+    }
+
+    /**
+     *  Helper method to return the session context
+     *
+     * @return BaseContext
+     */
+    public function getSessionContext(): ContextInterface
+    {
+        return $this->getContext(self::SESSION_CONTEXT);
+    }
+
+    /**
+     *  Helper method to return the user context
+     *
+     * @return UserContext
+     */
+    public function getUserContext(): ContextInterface
+    {
+        return $this->getContext(UserContext::USER_CONTEXT);
+    }
+
 }

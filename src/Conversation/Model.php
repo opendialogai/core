@@ -21,6 +21,7 @@ class Model
     const INTENT_INTERPRETER = 'intent_interpreter';
     const ACTION = 'action';
     const CHATBOT_USER = 'chatbot_user';
+    const EXPECTED_ATTRIBUTE = 'expected_attribute';
 
     // Conversations and scenes have conditions.
     const HAS_CONDITION = 'has_condition';
@@ -49,6 +50,9 @@ class Model
     // Intents can cause actions to be performed and can define interpreters.
     const CAUSES_ACTION = 'causes_action';
     const HAS_INTERPRETER = 'has_interpreter';
+
+    // Intents can define a number of expected attributes
+    const HAS_EXPECTED_ATTRIBUTE = 'has_expected_attribute';
 
     const ORDER = 'core.attribute.order';
     const COMPLETES = 'core.attribute.completes';

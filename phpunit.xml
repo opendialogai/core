@@ -16,6 +16,7 @@
 
         <testsuite name="Feature">
             <directory suffix="Test.php">./tests/Feature</directory>
+            <exclude>./tests/Feature/AttributeExtractionTest.php</exclude>
         </testsuite>
 
         <testsuite name="ActionEngine">
@@ -46,6 +47,10 @@
 
         <testsuite name="ConversationLog">
             <directory suffix="Test.php">./src/ConversationLog/tests</directory>
+        </testsuite>
+
+        <testsuite name="RequestLoggerMiddleware">
+            <directory suffix="Test.php">./src/Http/Middleware/tests</directory>
         </testsuite>
 
         <testsuite name="SensorEngine">

@@ -4,13 +4,17 @@ namespace OpenDialogAi\Core\Tests;
 
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
-use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
-use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
+use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
+use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
+use OpenDialogAi\Core\CoreServiceProvider;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
+use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
-use OpenDialogAi\Core\CoreServiceProvider;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Base TestCase class for setting up all package tests
@@ -23,6 +27,11 @@ use OpenDialogAi\Core\CoreServiceProvider;
  */
 class TestCase extends \Orchestra\Testbench\TestCase
 {
+    /**
+     * @var bool Whether DGraph has been initialised or not
+     */
+    private $dgraphInitialised = false;
+
     protected function setUp() :void
     {
         parent::setUp();
@@ -201,5 +210,60 @@ conversation:
             completes: true
 EOT;
 
+    }
+
+    protected function initDDgraph(): void
+    {
+        if (!$this->dgraphInitialised) {
+            /** @var DGraphClient $client */
+            $client = $this->app->make(DGraphClient::class);
+            $client->dropSchema();
+            $client->initSchema();
+            $this->dgraphInitialised = true;
+        }
+    }
+
+    /**
+     * Publish the given conversation YAML and assert that it publishes successfully.
+     */
+    protected function publishConversation($conversationYaml): void
+    {
+        if (!$this->dgraphInitialised) {
+            $this->initDDgraph();
+        }
+
+        $name = Yaml::parse($conversationYaml)['conversation']['id'];
+
+        /** @var Conversation $conversation */
+        $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
+        $conversationModel = $conversation->buildConversation();
+
+        $this->assertTrue($conversation->publishConversation($conversationModel));
+    }
+
+    protected function registerInterpreter($interpreter, $defaultInterpreter = null): void
+    {
+        if ($defaultInterpreter === null) {
+            $defaultInterpreter = $interpreter;
+        }
+
+        $this->app['config']->set(
+            'opendialog.interpreter_engine.available_interpreters', [
+            get_class($interpreter),
+            get_class($defaultInterpreter)
+        ]);
+
+        $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
+    }
+    /**
+     * @param $interpreterName
+     * @return \Mockery\MockInterface|InterpreterInterface
+     */
+    protected function createMockInterpreter($interpreterName)
+    {
+        $mockInterpreter = \Mockery::mock(InterpreterInterface::class);
+        $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
+
+        return $mockInterpreter;
     }
 }
