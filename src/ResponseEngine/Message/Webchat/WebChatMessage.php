@@ -131,6 +131,14 @@ class WebChatMessage
     }
 
     /**
+     * @return string
+     */
+    public function getMessageType()
+    {
+        return $this->messageType;
+    }
+
+    /**
      * @return bool
      */
     public function isEmpty(): bool

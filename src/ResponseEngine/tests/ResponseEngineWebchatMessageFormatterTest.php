@@ -151,4 +151,81 @@ EOT;
         $this->assertEquals(false, $message->getData()['disable_text']);
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
+
+    public function testListMessage()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <list-message view-type="vertical">
+    <item>
+      <button-message>
+        <text>button message text</text>
+        <button>
+          <text>Yes</text>
+        </button>
+      </button-message>
+    </item>
+    <item>
+      <image-message>
+        <src>
+          https://www.opendialog.ai/assets/images/logo.svg
+        </src>
+        <link new_tab="true">
+          https://www.opendialog.ai
+        </link>
+      </image-message>
+    </item>
+    <item>
+      <text-message>message-text</text-message>
+    </item>
+  </list-message>
+</message>
+EOT;
+
+        $expectedOutput = [
+            [
+                'text' => 'button message text',
+                'disable_text' => false,
+                'internal' => false,
+                'hidetime' => false,
+                'buttons' => [
+                    [
+                        'text' => 'Yes',
+                        'callback_id' => '',
+                        'value' => '',
+                    ],
+                ],
+                'clear_after_interaction' => false,
+                'message_type' => 'button',
+            ],
+            [
+                'img_src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                'img_link' => 'https://www.opendialog.ai',
+                'link_new_tab' => false,
+                'disable_text' => false,
+                'internal' => false,
+                'hidetime' => false,
+                'message_type' => 'image',
+            ],
+            [
+                'text' => 'message-text',
+                'disable_text' => false,
+                'internal' => false,
+                'hidetime' => false,
+                'message_type' => 'text',
+            ],
+        ];
+
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $data = $message->getData();
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertEquals('vertical', $data['view_type']);
+        $this->assertArraySubset($expectedOutput[0], $data['items'][0]);
+        $this->assertArraySubset($expectedOutput[1], $data['items'][1]);
+        $this->assertArraySubset($expectedOutput[2], $data['items'][2]);
+    }
 }
