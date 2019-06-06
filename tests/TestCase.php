@@ -250,7 +250,13 @@ EOT;
         $this->assertTrue($conversation->publishConversation($conversationModel));
     }
 
-    protected function registerInterpreter($interpreter, $defaultInterpreter = null): void
+    /**
+     * Register a single interpreter and default interpreter
+     *
+     * @param $interpreter
+     * @param null $defaultInterpreter
+     */
+    protected function registerSingleInterpreter($interpreter, $defaultInterpreter = null): void
     {
         if ($defaultInterpreter === null) {
             $defaultInterpreter = $interpreter;
@@ -264,6 +270,31 @@ EOT;
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }
+
+    /**
+     * @param $interpreters
+     * @param null $defaultInterpreter If not sent, the first interpreter in the array will be used as default
+     */
+    protected function registerMultipleInterpreters($interpreters, $defaultInterpreter = null)
+    {
+        $classes = [];
+
+        if ($defaultInterpreter === null) {
+            $defaultInterpreter = $interpreters[0];
+        } else {
+            $classes[] = get_class($defaultInterpreter);
+        }
+
+        foreach ($interpreters as $interpreter) {
+            $classes[] = get_class($interpreter);
+        }
+
+        $this->app['config']->set(
+            'opendialog.interpreter_engine.available_interpreters', $classes);
+
+        $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
+    }
+
     /**
      * @param $interpreterName
      * @return \Mockery\MockInterface|InterpreterInterface
