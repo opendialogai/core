@@ -8,9 +8,11 @@ use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\InterpreterEngine\tests\Interpreters\TestAgeInterpreter;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\TestNameInterpreter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
@@ -30,7 +32,14 @@ class AttributeExtractionTest extends TestCase
     {
         parent::setUp();
 
-        $this->registerInterpreter(new TestNameInterpreter());
+        $this->registerMultipleInterpreters([new TestNameInterpreter(), new TestAgeInterpreter()]);
+
+        // Add 'age' and 'dob_year' as a known attributes
+        $this->setConfigValue('opendialog.context_engine.custom_attributes',
+        [
+            'age' => IntAttribute::class,
+            'dob_year' => IntAttribute::class
+        ]);
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
         $this->contextService = $this->app->make(ContextService::class);
@@ -92,18 +101,34 @@ class AttributeExtractionTest extends TestCase
     {
         $outgoingIntent = OutgoingIntent::create(['name' => 'hello_user']);
         MessageTemplate::create([
-            'name' => 'message',
+            'name' => 'name message',
             'message_markup' => '<message><text-message>{user.first_name} {session.last_name}</text-message></message>',
             'outgoing_intent_id' => $outgoingIntent->id
         ]);
 
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
-        $messageWrapper = $this->odController->runConversation($utterance);
+        $outgoingIntent = OutgoingIntent::create(['name' => 'age_response']);
+        MessageTemplate::create([
+            'name' => 'age message',
+            'message_markup' => '<message><text-message>age: {user.age}. DOB: {session.dob_year}</text-message></message>',
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+
+        $utterance1 = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
+        $messageWrapper = $this->odController->runConversation($utterance1);
 
         $this->assertCount(1, $messageWrapper->getMessages());
 
         /** attributes as set in @see TestNameInterpreter */
         $this->assertEquals('first_name last_name', $messageWrapper->getMessages()[0]->getText());
+
+        // Now make a second utterance to test non opening intents
+        $utterance2 = UtteranceGenerator::generateChatOpenUtterance('my_age_is', $utterance1->getUser());
+        $messageWrapper = $this->odController->runConversation($utterance2);
+
+        // dob_year was not defined as an expected attribute, so should be saved in session context
+        // values come from the TestAgeInterpreter
+        $this->assertCount(1, $messageWrapper->getMessages());
+        $this->assertEquals('age: 21. DOB: 1994', $messageWrapper->getMessages()[0]->getText());
     }
 
     private function getExampleConversation()
@@ -122,6 +147,16 @@ conversation:
                 - id: session.last_name
         - b: 
             i: hello_user
+            scene: get_age
+    get_age:
+      intents:
+        - u:
+            i: my_age_is
+            interpreter: interpreter.test.age
+            expected_attributes:
+                - id: user.age
+        - b:
+            i: age_response
 EOT;
     }
 }

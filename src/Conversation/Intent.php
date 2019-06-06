@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use Ds\Map;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -92,7 +94,12 @@ class Intent extends Node
         return $this->id;
     }
 
-    public function getNonCoreAttributes()
+    /**
+     * Returns a map of all non-core attributes on the Intent - ie those not found in @see $coreAttributes
+     *
+     * @return Map
+     */
+    public function getNonCoreAttributes(): Map
     {
         return $this->attributes->filter(function ($key, $value) {
             if (!in_array($key, self::$coreAttributes)) {
@@ -221,6 +228,52 @@ class Intent extends Node
     public function addExpectedAttribute($expectedAttribute): void
     {
         $this->createOutgoingEdge(Model::HAS_EXPECTED_ATTRIBUTE, $expectedAttribute);
+    }
+
+    /**
+     * @return string[]
+     * @throws NodeDoesNotExistException
+     */
+    public function getExpectedAttributes(): array
+    {
+        if ($this->hasExpectedAttributes()) {
+            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_EXPECTED_ATTRIBUTE)->values()->toArray();
+        }
+
+        throw new NodeDoesNotExistException('Intent has no expected attributes');
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasExpectedAttributes(): bool
+    {
+        return $this->hasOutgoingEdgeWithRelationship(Model::HAS_EXPECTED_ATTRIBUTE);
+    }
+
+    /**
+     * Returns the expected attributes split out by context. Will return map with attribute names as keys and their
+     * associated context names as values
+     *
+     * @return Map
+     */
+    public function getExpectedAttributeContexts(): Map
+    {
+        $attributesContexts = new Map();
+
+        try {
+            /** @var ExpectedAttribute $expectedAttribute */
+            foreach ($this->getExpectedAttributes() as $expectedAttribute) {
+                $attributesContexts->put(
+                    ContextParser::determineAttributeId($expectedAttribute->getId()),
+                    ContextParser::determineContextId($expectedAttribute->getId())
+                );
+            }
+        } catch (NodeDoesNotExistException $e) {
+            // nothing
+        }
+
+        return $attributesContexts;
     }
 
     public function completes(): bool

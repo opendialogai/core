@@ -243,7 +243,7 @@ class ConversationEngine implements ConversationEngineInterface
             Log::debug(sprintf('We found a matching intent %s', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
 
-            $this->storeIntentEntities($nextIntent);
+            $this->storeIntentAttributes($nextIntent);
 
             if ($nextIntent->causesAction()) {
                 Log::debug(
@@ -303,7 +303,7 @@ class ConversationEngine implements ConversationEngineInterface
         $intent = $matchingIntents->last()->value;
         Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
-        $this->storeIntentEntities($intent);
+        $this->storeIntentAttributesFromOpeningIntent($intent);
 
         $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
         $userContext->setCurrentConversation($conversation);
@@ -429,26 +429,43 @@ class ConversationEngine implements ConversationEngineInterface
             return $matchingIntents;
         }
 
-        return $matchingIntents->filter(function ($intentName, $intent) {
+        return $matchingIntents->filter(function ($intentName, OpeningIntent $intent) {
             return $intent->getIntentId() !== NoMatchIntent::NO_MATCH;
         });
     }
 
     /**
+     * Stores the Intent entities from an opening intent by pulling out the interpreted intent which contains the
+     * interpreted attributes and the expected attributes that are set against the Opening Intent
+     *
      * @param OpeningIntent $intent
      */
-    private function storeIntentEntities(OpeningIntent $intent): void
+    public function storeIntentAttributesFromOpeningIntent(OpeningIntent $intent): void
     {
-        $interpretedIntent = $intent->getInterpretedIntent();
-        $expectedAttributeContexts = $intent->getExpectedAttributeContexts();
+        $this->storeIntentAttributes($intent->getInterpretedIntent(), $intent->getExpectedAttributeContexts());
+    }
+
+    /**
+     * Stores the non-core attributes from an Intent to a context.
+     * Expected attributes are passed into the function or retrieved from the Intent to determine which context each
+     * attribute should be saved to. If one is not defined for the attribute, it is saved to the session context
+     *
+     * @param Intent $intent
+     * @param Map|null $expectedAttributes
+     */
+    private function storeIntentAttributes(Intent $intent, Map $expectedAttributes = null): void
+    {
+        if ($expectedAttributes === null) {
+            $expectedAttributes = $intent->getExpectedAttributeContexts();
+        }
 
         /** @var AttributeInterface $attribute */
-        foreach ($interpretedIntent->getNonCoreAttributes() as $attribute) {
-            $attributeName = $attribute->getValue();
+        foreach ($intent->getNonCoreAttributes() as $attribute) {
+            $attributeName = $attribute->getId();
 
             $context = $this->contextService->getSessionContext();
-            if ($expectedAttributeContexts->hasKey($attributeName)) {
-                $contextId = $expectedAttributeContexts->get($attributeName);
+            if ($expectedAttributes->hasKey($attributeName)) {
+                $contextId = $expectedAttributes->get($attributeName);
                 try {
                     $context = $this->contextService->getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
