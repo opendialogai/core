@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
-use GuzzleHttp\Exception\GuzzleException;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -131,7 +130,7 @@ class UserContext extends AbstractContext
 
     /**
      * @param Intent $intent
-     * @throws GuzzleException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function setCurrentIntent(Intent $intent): void
     {
