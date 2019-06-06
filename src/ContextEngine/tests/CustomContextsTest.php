@@ -15,7 +15,7 @@ class CustomContextsTest extends TestCase
         $contextService = $this->app->make(ContextService::class);
 
         // No contexts loaded
-        $this->assertCount(0, $contextService->getContexts());
+        $this->assertCount(0, $contextService->getCustomContexts());
     }
 
     public function testNonClassContext()
@@ -26,7 +26,7 @@ class CustomContextsTest extends TestCase
         $contextService = $this->app->make(ContextService::class);
 
         // No contexts loaded
-        $this->assertCount(0, $contextService->getContexts());
+        $this->assertCount(0, $contextService->getCustomContexts());
     }
 
     public function testNoNameContext()
@@ -37,7 +37,7 @@ class CustomContextsTest extends TestCase
         $contextService = $this->app->make(ContextService::class);
 
         // No contexts loaded
-        $this->assertCount(0, $contextService->getContexts());
+        $this->assertCount(0, $contextService->getCustomContexts());
     }
 
     public function testValidCustomContext()
@@ -47,7 +47,7 @@ class CustomContextsTest extends TestCase
         /** @var ContextService $contextService */
         $contextService = $this->app->make(ContextService::class);
 
-        $this->assertCount(1, $contextService->getContexts());
+        $this->assertCount(1, $contextService->getCustomContexts());
 
         $context = $contextService->getContext(DummyCustomContext::$name);
         $this->assertCount(3, $context->getAttributes());

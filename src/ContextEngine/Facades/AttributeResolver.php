@@ -7,6 +7,7 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 /**
  * @method static AttributeInterface getAttributeFor(string $attributeId, mixed $value)
+ * @method static AttributeInterface[] getSupportedAttributes()
  */
 class AttributeResolver extends Facade
 {

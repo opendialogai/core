@@ -28,6 +28,8 @@ class ContextEngineServiceProvider extends ServiceProvider
             $contextService = new ContextService();
             $contextService->setUserService($this->app->make(UserService::class));
 
+            $contextService->createContext(ContextService::SESSION_CONTEXT);
+
             if (is_array(config('opendialog.context_engine.custom_contexts'))) {
                 $contextService->loadCustomContexts(config('opendialog.context_engine.custom_contexts'));
             }
