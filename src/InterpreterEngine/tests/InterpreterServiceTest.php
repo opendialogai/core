@@ -38,7 +38,7 @@ class InterpreterServiceTest extends TestCase
     {
         $interpreterName = 'interpreter.test.dummy';
         $mockInterpreter = $this->createMockInterpreter($interpreterName);
-        $this->registerInterpreter($mockInterpreter);
+        $this->registerSingleInterpreter($mockInterpreter);
 
         $interpreterService = $this->getBoundInterpreterService();
 
@@ -51,7 +51,7 @@ class InterpreterServiceTest extends TestCase
     public function testInterpreterWithBadName()
     {
         $mockInterpreter = $this->createMockInterpreter('bad name');
-        $this->registerInterpreter($mockInterpreter);
+        $this->registerSingleInterpreter($mockInterpreter);
 
         // Should not have been bound
         $this->expectException(DefaultInterpreterNotDefined::class);
@@ -65,7 +65,7 @@ class InterpreterServiceTest extends TestCase
     {
         $interpreterName = 'interpreter.test.dummy';
         $mockInterpreter = $this->createMockInterpreter($interpreterName);
-        $this->registerInterpreter($mockInterpreter);
+        $this->registerSingleInterpreter($mockInterpreter);
 
         $interpreterService = $this->getBoundInterpreterService();
 
@@ -77,7 +77,7 @@ class InterpreterServiceTest extends TestCase
      */
     public function testRealInterpreter()
     {
-        $this->registerInterpreter(new DummyInterpreter());
+        $this->registerSingleInterpreter(new DummyInterpreter());
         $service = $this->getBoundInterpreterService();
         $intents = $service->interpret(DummyInterpreter::getName(), new WebchatTextUtterance());
 
@@ -104,7 +104,7 @@ class InterpreterServiceTest extends TestCase
     public function testInterpreterNoNameNotRegistered()
     {
         $this->expectException(InterpreterNameNotSetException::class);
-        $this->registerInterpreter(new NoNameInterpreter());
+        $this->registerSingleInterpreter(new NoNameInterpreter());
     }
 
     public function testForLuisInterpreter()
@@ -125,7 +125,7 @@ class InterpreterServiceTest extends TestCase
         $service->setDefaultInterpreter('interpreter.core.callbackInterpreter');
         $defaultInterpreter = $service->getDefaultInterpreter();
 
-        $this->assertTrue($defaultInterpreter::getName() == 'interpreter.core.callbackInterpreter');
+        $this->assertEquals('interpreter.core.callbackInterpreter', $defaultInterpreter::getName());
     }
 
     public function testSupportedCallbacksForCallbackInterpreter()
@@ -140,7 +140,7 @@ class InterpreterServiceTest extends TestCase
         $intents = $defaultInterpreter->interpret($utterance);
         $this->assertCount(1, $intents);
         $intent = $intents[0];
-        $this->assertTrue($intent->getId() == 'intent.core.chatOpen');
+        $this->assertEquals('intent.core.chatOpen', $intent->getId());
     }
 
     /**
