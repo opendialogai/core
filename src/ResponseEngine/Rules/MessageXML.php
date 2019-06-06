@@ -85,7 +85,7 @@ class MessageXML implements Rule
                             }
                         }
                         foreach ($item->image as $image) {
-                            if (empty((string)$button->src)) {
+                            if (empty((string)$image->src)) {
                                 return false;
                             }
                         }
