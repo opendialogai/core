@@ -171,10 +171,11 @@ class Conversation extends Model
      *
      * @param ConversationNode $conversation
      * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function publishConversation(ConversationNode $conversation)
     {
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $dGraph = app()->make(DGraphClient::class);
         $mutation = new DGraphMutation($conversation);
 
         /* @var DGraphMutationResponse $mutationResponse */

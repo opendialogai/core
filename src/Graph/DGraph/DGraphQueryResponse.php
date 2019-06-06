@@ -3,26 +3,24 @@
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Support\Facades\Log;
 
 class DGraphQueryResponse
 {
-    private $response;
-
     private $data;
 
     private $extensions;
 
     public function __construct(Response $response)
     {
-        $this->response = $response;
+        $responseJson = json_decode($response->getBody(), true);
 
-        $responseJson = json_decode($this->response->getBody(), true);
-        try {
+        if (isset($responseJson['errors'])) {
+            Log::error('Error while running DGraph query', $responseJson['errors']);
+        } else {
             $this->data  = $responseJson['data'][DGraphQuery::FUNC_NAME];
-        } catch (\Exception $e) {
-            return "Error processing query - {$e->getMessage()}";
+            $this->extensions = $responseJson['extensions'];
         }
-        $this->extensions = $responseJson['extensions'];
     }
 
     /**

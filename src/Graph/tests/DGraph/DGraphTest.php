@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
-
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -17,9 +16,6 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class DGraphTest extends TestCase
 {
-    const DGRAPH_URL = 'http://10.0.2.2';
-    const DGRAPH_PORT = '8080';
-
     /* @var DGraphClient */
     private $dGraphClient;
 
@@ -30,7 +26,10 @@ class DGraphTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->dGraphClient = new DGraphClient(self::DGRAPH_URL, self::DGRAPH_PORT);
+
+        $this->initDDgraph();
+
+        $this->dGraphClient = $this->app->make(DGraphClient::class);
         $this->attributeResolver = $this->app->make(AttributeResolver::class);
     }
 
@@ -56,7 +55,7 @@ class DGraphTest extends TestCase
 
         /* @var DGraphQueryResponse $response */
         $response = $this->dGraphClient->query($query);
-        $this->assertTrue($response->getData()[0]['id'] == 'testNode');
+        $this->assertEquals('testNode', $response->getData()[0]['id']);
     }
 
     /**
