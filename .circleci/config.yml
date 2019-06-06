@@ -50,7 +50,10 @@ jobs:
           command: socat TCP-LISTEN:8080,reuseaddr,fork "EXEC:'docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec -i dgraph_server_1 socat STDIO TCP-CONNECT:localhost:8080'"
 
       # run tests!
-      - run: ./vendor/bin/phpunit
+      - run: phpdbg -qrr ./vendor/bin/phpunit --coverage-html build/coverage-report
+
+      - store_artifacts:
+          path:  build/coverage-report
 
       - run: ./vendor/bin/phpcs --standard=od-cs-ruleset.xml src/ --ignore=*/migrations/*,*/tests/*
 
