@@ -13,6 +13,7 @@ abstract class AbstractAttribute implements AttributeInterface
     const BOOLEAN = 'attribute.core.boolean';
     const INT = 'attribute.core.int';
     const FLOAT = 'attribute.core.float';
+    const ARRAY = 'attribute.core.array';
     const DATETIME = 'attribute.core.dateTime';
     const TIMESTAMP = 'attribute.core.timestamp';
 
@@ -54,6 +55,7 @@ abstract class AbstractAttribute implements AttributeInterface
             self::BOOLEAN,
             self::INT,
             self::FLOAT,
+            self::ARRAY,
             self::DATETIME,
             self::TIMESTAMP
         ];

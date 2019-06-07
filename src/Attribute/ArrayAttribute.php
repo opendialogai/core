@@ -5,12 +5,12 @@ namespace OpenDialogAi\Core\Attribute;
 use Illuminate\Support\Facades\Log;
 
 /**
- * A BooleanAttribute implementation.
+ * A ArrayAttribute implementation.
  */
-class BooleanAttribute extends AbstractAttribute
+class ArrayAttribute extends AbstractAttribute
 {
     /**
-     * BooleanAttribute constructor.
+     * ArrayAttribute constructor.
      * @param $id
      * @param $value
      * @throws UnsupportedAttributeTypeException
@@ -18,7 +18,7 @@ class BooleanAttribute extends AbstractAttribute
     public function __construct($id, $value)
     {
         try {
-            parent::__construct($id, AbstractAttribute::BOOLEAN, $this->value);
+            parent::__construct($id, AbstractAttribute::ARRAY, $this->value);
             $this->setValue($value);
         } catch (UnsupportedAttributeTypeException $e) {
             Log::warning($e->getMessage());
@@ -28,7 +28,12 @@ class BooleanAttribute extends AbstractAttribute
 
     public function setValue($value)
     {
-        $this->value = is_null($value) ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
+    }
+
+    public function getValue()
+    {
+        return json_decode(htmlspecialchars_decode($this->value));
     }
 
     /**
@@ -36,6 +41,6 @@ class BooleanAttribute extends AbstractAttribute
      */
     public function toString(): string
     {
-        return $this->getValue() ? 'true' : 'false';
+        return $this->value;
     }
 }
