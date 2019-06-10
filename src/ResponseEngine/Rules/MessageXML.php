@@ -90,6 +90,9 @@ class MessageXML implements Rule
                             }
                         }
                         break;
+
+                    default:
+                        return false;
                 }
             }
         } catch (\Exception $e) {
