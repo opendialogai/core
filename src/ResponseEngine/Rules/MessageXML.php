@@ -71,6 +71,14 @@ class MessageXML implements Rule
                             return false;
                         }
                         break;
+
+                    case 'list-message':
+                        foreach ($item->item as $i => $item) {
+                            if ($this->passes($attribute, $item->asXML()) === false) {
+                                return false;
+                            }
+                        }
+                        break;
                 }
             }
         } catch (\Exception $e) {
