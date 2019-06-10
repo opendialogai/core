@@ -72,6 +72,25 @@ class MessageXML implements Rule
                         }
                         break;
 
+                    case 'rich-message':
+                        if (empty((string)$item->text)) {
+                            return false;
+                        }
+                        foreach ($item->button as $button) {
+                            if (empty((string)$button->text)) {
+                                return false;
+                            }
+                            if (empty((string)$button->callback) && empty((string)$button->link)) {
+                                return false;
+                            }
+                        }
+                        foreach ($item->image as $image) {
+                            if (empty((string)$image->src)) {
+                                return false;
+                            }
+                        }
+                        break;
+
                     case 'list-message':
                         foreach ($item->item as $i => $item) {
                             if ($this->passes($attribute, $item->asXML()) === false) {
@@ -79,6 +98,9 @@ class MessageXML implements Rule
                             }
                         }
                         break;
+
+                    default:
+                        return false;
                 }
             }
         } catch (\Exception $e) {

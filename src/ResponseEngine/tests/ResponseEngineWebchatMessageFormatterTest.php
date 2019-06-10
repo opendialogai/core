@@ -152,6 +152,127 @@ EOT;
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 
+    public function testRichMessage1()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <rich-message>
+    <title>Message Title</title>
+    <subtitle>This is a subtitle</subtitle>
+    <text>Here is a bit of text about this thing</text>
+    <button>
+      <text>Test</text>
+      <tab_switch>false</tab_switch>
+      <callback>callback</callback>
+      <value>value</value>
+      <link>https://www.opendialog.ai</link>
+    </button>
+    <image>
+      <src>https://www.opendialog.ai/assets/images/logo.svg</src>
+      <url new_tab="true">https://www.opendialog.ai</url>
+    </image>
+  </rich-message>
+</message>
+EOT;
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $expectedOutput = [
+            'title' => 'Message Title',
+            'subtitle' => 'This is a subtitle',
+            'text' => 'Here is a bit of text about this thing',
+            'button' => [
+                'text' => 'Test',
+                'tab_switch' => false,
+                'callback' => 'callback',
+                'value' => 'value',
+                'link' => 'https://www.opendialog.ai',
+            ],
+            'image' => [
+                'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                'url' => 'https://www.opendialog.ai',
+                'link_new_tab' => true,
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertArraySubset($expectedOutput, $message->getData());
+    }
+
+    public function testRichMessage2()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <rich-message>
+    <title>Message Title</title>
+    <subtitle>This is a subtitle</subtitle>
+    <text>Here is a bit of text about this thing</text>
+    <button>
+      <text>Test</text>
+      <tab_switch>false</tab_switch>
+      <callback>callback</callback>
+      <value>value</value>
+      <link>https://www.opendialog.ai</link>
+    </button>
+  </rich-message>
+</message>
+EOT;
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $expectedOutput = [
+            'title' => 'Message Title',
+            'subtitle' => 'This is a subtitle',
+            'text' => 'Here is a bit of text about this thing',
+            'button' => [
+                'text' => 'Test',
+                'tab_switch' => false,
+                'callback' => 'callback',
+                'value' => 'value',
+                'link' => 'https://www.opendialog.ai',
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertArraySubset($expectedOutput, $message->getData());
+    }
+
+    public function testRichMessage3()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <rich-message>
+    <title>Message Title</title>
+    <subtitle>This is a subtitle</subtitle>
+    <text>Here is a bit of text about this thing</text>
+    <image>
+      <src>https://www.opendialog.ai/assets/images/logo.svg</src>
+      <url new_tab="true">https://www.opendialog.ai</url>
+    </image>
+  </rich-message>
+</message>
+EOT;
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $expectedOutput = [
+            'title' => 'Message Title',
+            'subtitle' => 'This is a subtitle',
+            'text' => 'Here is a bit of text about this thing',
+            'image' => [
+                'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                'url' => 'https://www.opendialog.ai',
+                'link_new_tab' => true,
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertArraySubset($expectedOutput, $message->getData());
+    }
+
     public function testListMessage()
     {
         $markup = <<<EOT
