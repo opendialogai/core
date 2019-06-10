@@ -11,6 +11,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatRichMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
@@ -87,6 +88,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             case self::IMAGE_MESSAGE:
                 $template = $this->formatImageTemplate($item);
                 return $this->generateImageMessage($template);
+                break;
+            case self::LIST_MESSAGE:
+                $template = $this->formatListTemplate($item);
+                return $this->generateListMessage($template);
                 break;
             case self::TEXT_MESSAGE:
                 $text = $this->getMessageText($item);
@@ -182,8 +187,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function generateListMessage(array $template)
     {
-        // @TODO
-        return '';
+        $message = (new WebChatListMessage())
+            ->addItems($template[self::ITEMS])
+            ->setViewType($template[self::VIEW_TYPE]);
+
+        return $message;
     }
 
     public function generateLongTextMessage(array $template)
@@ -351,6 +359,29 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 self::URL => trim((string)$item->image->url),
                 self::LINK_NEW_TAB => $linkNewTab,
             ],
+        ];
+        return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatListTemplate(SimpleXMLElement $item): array
+    {
+        $items = [];
+
+        $viewType = ($item['view-type']) ? (string)$item['view-type'] : 'horizontal';
+
+        foreach ($item->item as $i => $item) {
+            $items[] = $this->parseMessage($item->children()[0]);
+        }
+
+        $template = [
+            self::ITEMS => $items,
+            self::VIEW_TYPE => $viewType,
         ];
         return $template;
     }

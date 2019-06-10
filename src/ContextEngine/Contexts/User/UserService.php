@@ -79,8 +79,7 @@ class UserService
         if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
             $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
                 $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID],
-                $this->dGraphClient,
-                $this->attributeResolver
+                $this->dGraphClient
             );
 
             $user->setCurrentConversation($conversation);
@@ -167,8 +166,8 @@ class UserService
         $chatbotUser = $this->updateUser($user);
         MySqlUserRepository::persistUserToMySql($utterance->getUser());
 
-        // Set user 'firstseen' timestamp attribute.
-        $this->setUserAttribute($chatbotUser, 'firstseen', now()->timestamp);
+        // Set user 'first_seen' timestamp attribute.
+        $this->setUserAttribute($chatbotUser, 'first_seen', now()->timestamp);
 
         return $chatbotUser;
     }
@@ -184,6 +183,11 @@ class UserService
         return $this->updateUser($user);
     }
 
+    /**
+     * @param ChatbotUser $user
+     * @return ChatbotUser
+     * @throws GuzzleException
+     */
     public function moveCurrentConversationToPast(ChatbotUser $user): ChatbotUser
     {
         // Delete the current relationship from Dgraph.
@@ -285,8 +289,7 @@ class UserService
 
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationUid,
-            $this->dGraphClient,
-            $this->attributeResolver
+            $this->dGraphClient
         );
         return $conversation;
     }
@@ -419,6 +422,7 @@ class UserService
             return $data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID];
         }
 
+        // TODO throw an exception here
     }
 
     public function getCurrentSpeaker($intentUid): ?string
@@ -466,6 +470,8 @@ class UserService
         if (isset($data[Model::SAID_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
             return Model::USER;
         }
+
+        // TODO throw an exception here as there is nothing to return
     }
 
     /**

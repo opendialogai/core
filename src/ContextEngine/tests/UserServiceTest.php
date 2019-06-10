@@ -3,14 +3,13 @@
 namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
-use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 
 class UserServiceTest extends TestCase
 {
@@ -31,12 +30,7 @@ class UserServiceTest extends TestCase
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
-
-            /** @var Conversation $conversation */
-            $conversation = Conversation::create(['name' => 'Conversation1', 'model' => $this->$conversationId()]);
-            $conversationModel = $conversation->buildConversation();
-
-            $this->assertTrue($conversation->publishConversation($conversationModel));
+            $this->publishConversation($this->$conversationId());
         }
     }
 
@@ -45,12 +39,10 @@ class UserServiceTest extends TestCase
      */
     public function testUserCreation()
     {
-        $userId = 'newUser' . time();
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
 
-        $utterance = new WebchatTextUtterance();
-        $utterance->setUserId($userId);
-
-        $this->assertTrue(!$this->userService->userExists($userId));
+        $this->assertNotTrue($this->userService->userExists($userId));
 
         $this->userService->createOrUpdateUser($utterance);
 
@@ -59,31 +51,26 @@ class UserServiceTest extends TestCase
 
     public function testUserUpdate()
     {
-        // First create a user
-        $userId = 'newUser' . time();
-        $utterance = new WebchatTextUtterance();
-        $utterance->setUserId($userId);
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
 
         $user = $this->userService->createOrUpdateUser($utterance);
         $this->assertTrue($this->userService->userExists($userId));
 
-        // Let us get the uid of the user and the timestamp that was set first time
-        $uid = $user->getUid();
-        $timestamp = $user->getAttribute('timestamp');
-        $this->assertTrue(isset($uid));
-        $this->assertTrue(isset($timestamp));
+        $firstName = $user->getAttribute('first_name');
+        $this->assertTrue(isset($firstName));
+
+        $utterance->getUser()->setFirstName('updated');
 
         $user2 = $this->userService->createOrUpdateUser($utterance);
-        $this->assertTrue($user2->getUid() == $user->getUid());
-        $this->assertTrue($user2->getAttribute('timestamp')->getValue() != $user->getAttribute('timestamp')->getValue());
+        $this->assertEquals($user2->getUid(), $user->getUid());
+        $this->assertNotEquals($user2->getAttribute('first_name')->getValue(), $firstName);
     }
 
     public function testAssociatingStoredConversationToUser()
     {
-        // First create a user
-        $userId = 'abc123a';
-        $utterance = new WebchatTextUtterance();
-        $utterance->setUserId($userId);
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
 
         /* @var ChatbotUser $user */
         $user = $this->userService->createOrUpdateUser($utterance);
@@ -93,9 +80,7 @@ class UserServiceTest extends TestCase
 
         $conversationData = ConversationQueryFactory::getConversationTemplateIds($this->client)[0];
 
-        // Get the conversation so we can attach to the user
-
-        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationData['uid'], $this->client, true);
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -106,10 +91,8 @@ class UserServiceTest extends TestCase
 
     public function testSettingACurrentIntent()
     {
-        // First create a user
-        $userId = 'abc123a';
-        $utterance = new WebchatTextUtterance();
-        $utterance->setUserId($userId);
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
 
         /* @var ChatbotUser $user */
         $user = $this->userService->createOrUpdateUser($utterance);
@@ -120,7 +103,7 @@ class UserServiceTest extends TestCase
         $conversationData = ConversationQueryFactory::getConversationTemplateIds($this->client)[0];
 
         // Get the conversation so we can attach to the user
-        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationData['uid'], $this->client, true);
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client, true);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -138,15 +121,17 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $this->assertTrue($user->getCurrentIntent()->getId() == 'hello_bot');
+        $this->assertEquals('hello_bot', $user->getCurrentIntent()->getId());
     }
 
+    /**
+     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function testUnSettingACurrentIntent()
     {
-        // First create a user
-        $userId = 'abc123a';
-        $utterance = new WebchatTextUtterance();
-        $utterance->setUserId($userId);
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
 
         /* @var ChatbotUser $user */
         $user = $this->userService->createOrUpdateUser($utterance);
@@ -157,7 +142,7 @@ class UserServiceTest extends TestCase
         $conversationData = ConversationQueryFactory::getConversationTemplateIds($this->client)[0];
 
         // Get the conversation so we can attach to the user
-        $conversation = ConversationQueryFactory::getConversationFromDgraph($conversationData['uid'], $this->client, true);
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client, true);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -175,7 +160,7 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $this->assertTrue($user->getCurrentIntent()->getId() == 'hello_bot');
+        $this->assertEquals('hello_bot', $user->getCurrentIntent()->getId());
 
         $this->userService->unsetCurrentIntent($user);
 

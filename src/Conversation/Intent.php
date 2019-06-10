@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use Ds\Map;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -47,7 +49,7 @@ class Intent extends Node
      * @param float $confidence
      * @return Intent
      */
-    public static function createIntentWithConfidence(string $label, float $confidence)
+    public static function createIntentWithConfidence(string $label, float $confidence): Intent
     {
         $intent = new self($label);
         $intent->setConfidence($confidence);
@@ -61,7 +63,7 @@ class Intent extends Node
      * @param $confidence
      * @return Intent
      */
-    public function setConfidence($confidence)
+    public function setConfidence($confidence): Intent
     {
         $this->addAttribute(new FloatAttribute(Model::CONFIDENCE, $confidence));
         return $this;
@@ -72,7 +74,7 @@ class Intent extends Node
      *
      * @return float
      */
-    public function getConfidence()
+    public function getConfidence(): float
     {
         if ($this->hasAttribute(Model::CONFIDENCE)) {
             $confidence = $this->getAttribute(Model::CONFIDENCE);
@@ -87,12 +89,17 @@ class Intent extends Node
      *
      * @return string
      */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->id;
     }
 
-    public function getNonCoreAttributes()
+    /**
+     * Returns a map of all non-core attributes on the Intent - ie those not found in @see $coreAttributes
+     *
+     * @return Map
+     */
+    public function getNonCoreAttributes(): Map
     {
         return $this->attributes->filter(function ($key, $value) {
             if (!in_array($key, self::$coreAttributes)) {
@@ -118,7 +125,7 @@ class Intent extends Node
         return $this;
     }
 
-    public function getOrder():int
+    public function getOrder(): int
     {
         return $this->getAttribute(Model::ORDER)->getValue();
     }
@@ -138,21 +145,21 @@ class Intent extends Node
             $attribute->setValue($this->completes);
             $this->addAttribute($attribute);
             return $this;
-        } else {
-            try {
-                $attribute = new BooleanAttribute(Model::COMPLETES, $this->completes);
-                $this->addAttribute($attribute);
-                return $this;
-            } catch (UnsupportedAttributeTypeException $e) {
-                return false;
-            }
+        }
+
+        try {
+            $attribute = new BooleanAttribute(Model::COMPLETES, $this->completes);
+            $this->addAttribute($attribute);
+            return $this;
+        } catch (UnsupportedAttributeTypeException $e) {
+            return false;
         }
     }
 
     /**
      * @param Action $action
      */
-    public function addAction(Action $action)
+    public function addAction(Action $action): void
     {
         $this->createOutgoingEdge(Model::CAUSES_ACTION, $action);
     }
@@ -160,7 +167,7 @@ class Intent extends Node
     /**
      * @param Interpreter $interpreter
      */
-    public function addInterpreter(Interpreter $interpreter)
+    public function addInterpreter(Interpreter $interpreter): void
     {
         $this->createOutgoingEdge(Model::HAS_INTERPRETER, $interpreter);
     }
@@ -187,7 +194,7 @@ class Intent extends Node
             return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_INTERPRETER)->first()->value;
         }
 
-        throw new NodeDoesNotExistException();
+        throw new NodeDoesNotExistException('Interpreter not set for Intent');
     }
 
     /**
@@ -212,7 +219,61 @@ class Intent extends Node
             return $this->getNodesConnectedByOutgoingRelationship(Model::CAUSES_ACTION)->first()->value;
         }
 
-        throw new NodeDoesNotExistException();
+        throw new NodeDoesNotExistException('Action not set for Intent');
+    }
+
+    /**
+     * @param ExpectedAttribute $expectedAttribute
+     */
+    public function addExpectedAttribute($expectedAttribute): void
+    {
+        $this->createOutgoingEdge(Model::HAS_EXPECTED_ATTRIBUTE, $expectedAttribute);
+    }
+
+    /**
+     * @return string[]
+     * @throws NodeDoesNotExistException
+     */
+    public function getExpectedAttributes(): array
+    {
+        if ($this->hasExpectedAttributes()) {
+            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_EXPECTED_ATTRIBUTE)->values()->toArray();
+        }
+
+        throw new NodeDoesNotExistException('Intent has no expected attributes');
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasExpectedAttributes(): bool
+    {
+        return $this->hasOutgoingEdgeWithRelationship(Model::HAS_EXPECTED_ATTRIBUTE);
+    }
+
+    /**
+     * Returns the expected attributes split out by context. Will return map with attribute names as keys and their
+     * associated context names as values
+     *
+     * @return Map
+     */
+    public function getExpectedAttributeContexts(): Map
+    {
+        $attributesContexts = new Map();
+
+        try {
+            /** @var ExpectedAttribute $expectedAttribute */
+            foreach ($this->getExpectedAttributes() as $expectedAttribute) {
+                $attributesContexts->put(
+                    ContextParser::determineAttributeId($expectedAttribute->getId()),
+                    ContextParser::determineContextId($expectedAttribute->getId())
+                );
+            }
+        } catch (NodeDoesNotExistException $e) {
+            // nothing
+        }
+
+        return $attributesContexts;
     }
 
     public function completes(): bool

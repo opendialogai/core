@@ -24,7 +24,6 @@
 
         <testsuite name="ContextEngine">
             <directory suffix="Test.php">./src/ContextEngine/tests</directory>
-            <exclude>./src/ContextEngine/tests/UserServiceTest.php</exclude>
         </testsuite>
 
         <testsuite name="ResponseEngine">
@@ -37,7 +36,6 @@
 
         <testsuite name="Graph">
             <directory suffix="Test.php">./src/Graph/tests</directory>
-            <exclude>./src/Graph/tests/DGraph/DGraphTest.php</exclude>
         </testsuite>
 
         <testsuite name="ConversationBuilder">
@@ -58,7 +56,6 @@
 
         <testsuite name="ConversationEngine">
             <directory suffix="Test.php">./src/ConversationEngine/tests</directory>
-            <exclude>./src/ConversationEngine/tests/ConversationEngineTest.php</exclude>
         </testsuite>
 
     </testsuites>
@@ -70,7 +67,7 @@
     <php>
         <env name="PACKAGE_NAME" value="TestDialog"/>
         <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
-        <env name="DGRAPH_URL" value="http://10.0.2.2"/>
+        <env name="DGRAPH_URL" value="http://localhost"/>
         <env name="DGRAPH_PORT" value="8080"/>
     </php>
     <logging>

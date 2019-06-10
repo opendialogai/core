@@ -5,7 +5,6 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
-use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -17,10 +16,10 @@ class UserContext extends AbstractContext
 {
     const USER_CONTEXT = 'user';
 
-    /* @var \OpenDialogAi\Core\Conversation\ChatbotUser */
+    /* @var ChatbotUser */
     private $user;
 
-    /* @var \OpenDialogAi\ContextEngine\Contexts\User\UserService */
+    /* @var UserService */
     private $userService;
 
     public function __construct(ChatbotUser $user, UserService $userService)
@@ -95,9 +94,11 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * Updates the user in DGraph
      *
+     * @return ChatbotUser
      */
-    public function updateUser()
+    public function updateUser(): ChatbotUser
     {
         $this->user = $this->userService->updateUser($this->user);
         return $this->user;
@@ -122,7 +123,7 @@ class UserContext extends AbstractContext
     /**
      * @param Conversation $conversation
      */
-    public function setCurrentConversation(Conversation $conversation)
+    public function setCurrentConversation(Conversation $conversation): void
     {
         $this->user = $this->userService->setCurrentConversation($this->user, $conversation);
     }
@@ -131,24 +132,23 @@ class UserContext extends AbstractContext
      * @param Intent $intent
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function setCurrentIntent(Intent $intent)
+    public function setCurrentIntent(Intent $intent): void
     {
         $this->user = $this->userService->setCurrentIntent($this->user, $intent);
     }
 
     /**
-     *
+     * Moves the user's current conversation to a past conversation
      */
-    public function moveCurrentConversationToPast()
+    public function moveCurrentConversationToPast(): void
     {
         $this->user = $this->userService->moveCurrentConversationToPast($this->user);
     }
 
-
     /**
      * @return bool
      */
-    public function hasCurrentIntent()
+    public function hasCurrentIntent(): bool
     {
         if ($this->user->hasCurrentIntent()) {
             return true;
@@ -188,9 +188,9 @@ class UserContext extends AbstractContext
     /**
      * @return bool
      */
-    public function currentSpeakerIsBot()
+    public function currentSpeakerIsBot(): bool
     {
-        if ($this->userService->getCurrentSpeaker($this->getCurrentIntent()->getUid()) == Model::BOT) {
+        if ($this->userService->getCurrentSpeaker($this->getCurrentIntent()->getUid()) === Model::BOT) {
             return true;
         }
 
