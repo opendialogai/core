@@ -169,12 +169,17 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             ->setAutoSubmit($template[self::AUTO_SUBMIT]);
 
         foreach ($template[self::ELEMENTS] as $el) {
+            $name = $el[self::NAME];
+            $display = $el[self::DISPLAY];
+            $required = $el[self::REQUIRED];
+
             if ($el[self::ELEMENT_TYPE] == self::TEXTAREA) {
-                $element = new WebChatFormTextAreaElement($el[self::NAME], $el[self::DISPLAY], $el[self::REQUIRED]);
+                $element = new WebChatFormTextAreaElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
-                $element = new WebChatFormTextElement($el[self::NAME], $el[self::DISPLAY], $el[self::REQUIRED]);
+                $element = new WebChatFormTextElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
-                $element = new WebChatFormSelectElement($el[self::NAME], $el[self::DISPLAY], $el[self::REQUIRED], $el[self::OPTIONS]);
+                $options = $el[self::OPTIONS];
+                $element = new WebChatFormSelectElement($name, $display, $required, $options);
             }
             $message->addElement($element);
         }
