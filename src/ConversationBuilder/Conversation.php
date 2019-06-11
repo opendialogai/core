@@ -181,12 +181,9 @@ class Conversation extends Model
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->getData()['code'] === 'Success') {
-            // TODO can't we get this from the response above rather than going back to dgraph?
-            $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
-
             // Set conversation status to "published".
             $this->status = 'published';
-            $this->graph_uid = $uid;
+            $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
             $this->save(['validate' => false]);
 
             ConversationStateLog::create([
