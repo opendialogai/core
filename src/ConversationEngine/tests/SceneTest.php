@@ -9,7 +9,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
-class SceneTests extends TestCase
+class SceneTest extends TestCase
 {
     /* @var ConversationEngine */
     private $conversationEngine;
