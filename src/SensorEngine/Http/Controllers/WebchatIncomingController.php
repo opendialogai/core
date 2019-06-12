@@ -50,6 +50,11 @@ class WebchatIncomingController extends BaseController
 
         Log::debug(sprintf('Sending response: %s', json_encode($messageWrapper->getMessageToPost())));
 
+        $messages = $messageWrapper->getMessageToPost();
+        if (count($messages) == 1) {
+            return response(reset($messages), 200);
+        }
+
         return response($messageWrapper->getMessageToPost(), 200);
     }
 }
