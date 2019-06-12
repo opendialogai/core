@@ -136,7 +136,7 @@ class Scene extends NodeWithConditions
 
         $intents = $this->getIntentsSaidByBot()->filter( function ($key, $value) use ($currentOrder) {
             /* @var Intent $value */
-            if ($value->getOrder() > $currentOrder) {
+            if ($value->getOrder() === $currentOrder + 1) {
                 return true;
             }
         });

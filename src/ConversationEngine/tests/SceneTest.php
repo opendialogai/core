@@ -23,7 +23,8 @@ class SceneTest extends TestCase
         $this->initDDgraph();
 
         $this->setSupportedCallbacks([
-            'hello_bot' => 'hello_bot'
+            'hello_bot' => 'hello_bot',
+            'hello_again_bot' => 'hello_again_bot'
         ]);
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
@@ -48,6 +49,27 @@ class SceneTest extends TestCase
         $this->assertEquals('hello_human', $intent->getId());
     }
 
+    public function testSingleScene()
+    {
+        $this->publishConversation($this->singleSceneConv());
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
+
+        /* @var UserContext $userContext ; */
+        $userContext = $this->contextService->createUserContext($utterance);
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('hello_human', $intent->getId());
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_again_bot');
+
+        /* @var UserContext $userContext ; */
+        $userContext = $this->contextService->createUserContext($utterance);
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('hello_again_human', $intent->getId());
+    }
+
     private function scene2Conv()
     {
         return /** @lang yaml */
@@ -65,6 +87,25 @@ conversation:
         - b:
             i: hello_human
 EOT;
+    }
 
+    private function singleSceneConv()
+    {
+        return /** @lang yaml */
+            <<< EOT
+conversation:
+  id: scene_conversation
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+        - b:
+            i: hello_human
+        - u:
+            i: hello_again_bot
+        - b:
+            i: hello_again_human
+EOT;
     }
 }
