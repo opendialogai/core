@@ -306,4 +306,14 @@ EOT;
 
         return $mockInterpreter;
     }
+
+    /**
+     * Sets an array of supported callbacks
+     *
+     * @param $callbacks
+     */
+    protected function setSupportedCallbacks($callbacks)
+    {
+        $this->app['config']->set('opendialog.interpreter_engine.supported_callbacks', $callbacks);
+    }
 }
