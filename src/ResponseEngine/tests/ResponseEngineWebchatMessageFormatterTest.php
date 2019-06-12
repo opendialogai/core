@@ -349,4 +349,126 @@ EOT;
         $this->assertArraySubset($expectedOutput[1], $data['items'][1]);
         $this->assertArraySubset($expectedOutput[2], $data['items'][2]);
     }
+
+    public function testFormMessage()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <form-message>
+    <text>Here is a bit of text about this thing</text>
+    <submit_text>This is submit text</submit_text>
+    <callback>callback</callback>
+    <auto_submit>true</auto_submit>
+    <element>
+      <element_type>text</element_type>
+      <name>first_name</name>
+      <display>First name</display>
+      <required>false</required>
+    </element>
+    <element>
+      <element_type>text</element_type>
+      <name>last_name</name>
+      <display>Last name</display>
+      <required>true</required>
+    </element>
+    <element>
+      <element_type>select</element_type>
+      <name>age</name>
+      <display>Age</display>
+      <options>
+        <option>
+          <key>1</key>
+          <value>1 year</value>
+        </option>
+        <option>
+          <key>10</key>
+          <value>10 year</value>
+        </option>
+        <option>
+          <key>20</key>
+          <value>20 year</value>
+        </option>
+      </options>
+    </element>
+  </form-message>
+</message>
+EOT;
+
+        $expectedOutput = [
+            'text' => 'Here is a bit of text about this thing',
+            'disable_text' => false,
+            'callback_id' => 'callback',
+            'auto_submit' => true,
+            'submit_text' => 'This is submit text',
+            'elements' => [
+                [
+                    'name' => 'first_name',
+                    'display' => 'First name',
+                    'required' => true,
+                    'element_type' => 'text',
+                ],
+                [
+                    'name' => 'last_name',
+                    'display' => 'Last name',
+                    'required' => true,
+                    'element_type' => 'text',
+                ],
+                [
+                    'name' => 'age',
+                    'display' => 'Age',
+                    'required' => false,
+                    'element_type' => 'select',
+                    'options' => [
+                        '1' => '1 year',
+                        '10' => '10 year',
+                        '20' => '20 year',
+                    ],
+                ],
+            ],
+        ];
+
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $data = $message->getData();
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertArraySubset($expectedOutput, $message->getData());
+    }
+
+    public function testLongTextMessage()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <long-text-message>
+    <submit_text>This is submit text</submit_text>
+    <callback>callback</callback>
+    <initial_text>Initial text</initial_text>
+    <placeholder>Enter text</placeholder>
+    <confirmation_text>Thank you</confirmation_text>
+    <character_limit>200</character_limit>
+  </long-text-message>
+</message>
+EOT;
+
+        $expectedOutput = [
+            'disable_text' => false,
+            'character_limit' => '200',
+            'submit_text' => 'This is submit text',
+            'callback_id' => 'callback',
+            'initial_text' => 'Initial text',
+            'placeholder' => 'Enter text',
+            'confirmation_text' => 'Thank you',
+        ];
+
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $message = $messages[0];
+
+        $data = $message->getData();
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertArraySubset($expectedOutput, $message->getData());
+    }
 }

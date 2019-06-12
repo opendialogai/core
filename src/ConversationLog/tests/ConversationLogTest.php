@@ -189,7 +189,7 @@ class ConversationLogTest extends TestCase
         ]);
         $response
             ->assertStatus(200)
-            ->assertJson([0 => ['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]]);
+            ->assertJson(['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]);
 
         // Ensure that incoming messages are logged.
         $this->assertDatabaseHas('messages', [

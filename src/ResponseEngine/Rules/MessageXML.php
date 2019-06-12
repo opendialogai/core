@@ -99,6 +99,15 @@ class MessageXML implements Rule
                         }
                         break;
 
+                    case 'form-message':
+                        if (empty((string)$item->text)) {
+                            return false;
+                        }
+                        break;
+
+                    case 'long-text-message':
+                        break;
+
                     default:
                         return false;
                 }
