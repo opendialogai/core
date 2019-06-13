@@ -268,18 +268,7 @@ class ConversationEngine implements ConversationEngineInterface
         Log::debug(sprintf('Set current intent as %s', $currentIntent->getId()));
 
         if ($currentIntent->causesAction()) {
-            Log::debug(
-                sprintf(
-                    'Current intent %s causes action %s',
-                    $currentIntent->getId(),
-                    $currentIntent->getAction()->getId()
-                )
-            );
-
-            /* @var ActionResult $actionResult */
-            $actionResult = $this->actionEngine->performAction($currentIntent->getAction()->getId());
-            $userContext->addActionResult($actionResult);
-            Log::debug(sprintf('Adding action result to user context'));
+            $this->performIntentAction($userContext, $currentIntent);
         }
 
         // For this intent get the matching conversation - we are pulling this back out from the user
