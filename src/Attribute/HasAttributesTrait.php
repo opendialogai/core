@@ -119,7 +119,7 @@ trait HasAttributesTrait
      */
     public function removeAttribute(string $attributeName): bool
     {
-        if ($this->getAttribute($attributeName)) {
+        if ($this->hasAttribute($attributeName)) {
             $this->getAttribute($attributeName)->setValue(null);
             return true;
         }
