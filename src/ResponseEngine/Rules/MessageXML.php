@@ -3,10 +3,13 @@
 namespace OpenDialogAi\ResponseEngine\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 use SimpleXMLElement;
 
 class MessageXML implements Rule
 {
+    private $errorMessage = 'Invalid message mark up.';
+
     /**
      * Determine if the validation rule passes.
      *
@@ -35,6 +38,7 @@ class MessageXML implements Rule
                         }
 
                         if (!$attributeValid) {
+                            $this->setErrorMessage('Attribute not valid');
                             return false;
                         }
 
@@ -42,10 +46,12 @@ class MessageXML implements Rule
 
                     case 'text-message':
                         if (empty((string)$item) && empty($item->link)) {
+                            $this->setErrorMessage('Text messages must have text');
                             return false;
                         }
                         foreach ($item->link as $link) {
                             if (empty((string)$link->url) || empty((string)$link->text)) {
+                                $this->setErrorMessage('Link require not empty "text" and "url" attributes');
                                 return false;
                             }
                         }
@@ -53,14 +59,17 @@ class MessageXML implements Rule
 
                     case 'button-message':
                         if (empty((string)$item->text)) {
+                            $this->setErrorMessage('Button messages must have text');
                             return false;
                         }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->callback) && empty((string)$button->tab_switch)) {
+                                $this->setErrorMessage('Button require a not empty "callback" or "tab_switch" attribute');
                                 return false;
                             }
 
                             if (empty((string)$button->text)) {
+                                $this->setErrorMessage('Button require a not empty "text" attribute');
                                 return false;
                             }
                         }
@@ -68,24 +77,29 @@ class MessageXML implements Rule
 
                     case 'image-message':
                         if (empty((string)$item->src)) {
+                            $this->setErrorMessage('Image messages must have src');
                             return false;
                         }
                         break;
 
                     case 'rich-message':
                         if (empty((string)$item->text)) {
+                            $this->setErrorMessage('Rich messages must have text');
                             return false;
                         }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->text)) {
+                                $this->setErrorMessage('Button require a not empty "text" attribute');
                                 return false;
                             }
                             if (empty((string)$button->callback) && empty((string)$button->link)) {
+                                $this->setErrorMessage('Button require a not empty "callback" or "link" attribute');
                                 return false;
                             }
                         }
                         foreach ($item->image as $image) {
                             if (empty((string)$image->src)) {
+                                $this->setErrorMessage('Image require a not empty "src" attribute');
                                 return false;
                             }
                         }
@@ -101,6 +115,7 @@ class MessageXML implements Rule
 
                     case 'form-message':
                         if (empty((string)$item->text)) {
+                            $this->setErrorMessage('Form messages must have text');
                             return false;
                         }
                         break;
@@ -109,10 +124,12 @@ class MessageXML implements Rule
                         break;
 
                     default:
+                        $this->setErrorMessage('Unknown message type "' . $item->getName() . '"');
                         return false;
                 }
             }
         } catch (\Exception $e) {
+            $this->setErrorMessage('Insert a valid XML');
             return false;
         }
 
@@ -126,6 +143,12 @@ class MessageXML implements Rule
      */
     public function message()
     {
-        return 'Invalid message mark up.';
+        return $this->errorMessage;
+    }
+
+    private function setErrorMessage($errorMessage)
+    {
+        Log::debug($errorMessage);
+        $this->errorMessage = $errorMessage;
     }
 }
