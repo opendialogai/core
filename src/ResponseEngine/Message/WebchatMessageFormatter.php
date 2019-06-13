@@ -64,9 +64,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 $messages[] = $this->parseMessage($item);
             }
 
-            if (isset($message[self::DISABLE_TEXT]) && $message[self::DISABLE_TEXT] == '1') {
-                foreach ($messages as $webChatMessage) {
-                    $webChatMessage->setDisableText(true);
+            if (isset($message[self::DISABLE_TEXT])) {
+                if ($message[self::DISABLE_TEXT] == '1' || $message[self::DISABLE_TEXT] == 'true') {
+                    foreach ($messages as $webChatMessage) {
+                        $webChatMessage->setDisableText(true);
+                    }
                 }
             }
         } catch (\Exception $e) {
