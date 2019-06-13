@@ -71,6 +71,45 @@ class MessageXML implements Rule
                             return false;
                         }
                         break;
+
+                    case 'rich-message':
+                        if (empty((string)$item->text)) {
+                            return false;
+                        }
+                        foreach ($item->button as $button) {
+                            if (empty((string)$button->text)) {
+                                return false;
+                            }
+                            if (empty((string)$button->callback) && empty((string)$button->link)) {
+                                return false;
+                            }
+                        }
+                        foreach ($item->image as $image) {
+                            if (empty((string)$image->src)) {
+                                return false;
+                            }
+                        }
+                        break;
+
+                    case 'list-message':
+                        foreach ($item->item as $i => $item) {
+                            if ($this->passes($attribute, $item->asXML()) === false) {
+                                return false;
+                            }
+                        }
+                        break;
+
+                    case 'form-message':
+                        if (empty((string)$item->text)) {
+                            return false;
+                        }
+                        break;
+
+                    case 'long-text-message':
+                        break;
+
+                    default:
+                        return false;
                 }
             }
         } catch (\Exception $e) {

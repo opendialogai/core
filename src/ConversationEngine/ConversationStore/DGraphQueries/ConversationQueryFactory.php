@@ -306,12 +306,20 @@ class ConversationQueryFactory
     public static function createScenesFromDGraphData(ConversationManager $cm, $data): void
     {
         foreach ($data[Model::HAS_OPENING_SCENE] as $openingScene) {
-            $cm->createScene($openingScene[Model::ID], true);
+            if (isset($openingScene[Model::ID])) {
+                $cm->createScene($openingScene[Model::ID], true);
+            } else {
+                Log::error('Trying to create opening scene with no id', $openingScene);
+            }
         }
 
         if (isset($data[Model::HAS_SCENE])) {
             foreach ($data[Model::HAS_SCENE] as $scene) {
-                $cm->createScene($scene[Model::ID], false);
+                if (isset($scene[Model::ID])) {
+                    $cm->createScene($scene[Model::ID], false);
+                } else {
+                    Log::error('Trying to create scene with no id', $scene);
+                }
             }
         }
     }

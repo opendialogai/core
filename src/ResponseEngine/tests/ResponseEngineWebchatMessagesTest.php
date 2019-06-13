@@ -12,7 +12,6 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatListElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
@@ -53,40 +52,17 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     {
         $message = new WebChatListMessage();
         $message->setDisableText(false);
-        $listElement1 = new WebChatListElement('Element title', 'Some subtext here', null);
-        $message->addElement($listElement1);
-        $listElement2 = new WebChatListElement('Second title', null, null);
-        $listElement2->setButtonText('click me');
-        $listElement2->setButtonUrl('http://www.opendialog.ai');
-        $message->addElement($listElement2);
+        $message->addItem((new WebChatMessage())->setText('This is a test, this is only a test.'));
+        $message->addItem((new WebChatImageMessage()));
+        $message->addItem((new WebChatButtonMessage())->setText('Yes'));
 
-        $expectedOutput = [
-            [
-                'title' => 'Element title',
-                'subtitle' => 'Some subtext here',
-                'image' => null,
-                'button' => [
-                    'text' => null,
-                    'callback' => null,
-                    'url' => null,
-                    'link_new_tab' => true,
-                ],
-            ],
-            [
-                'title' => 'Second title',
-                'subtitle' => null,
-                'image' => null,
-                'button' => [
-                  'text' => 'click me',
-                  'callback' => null,
-                  'url' => 'http://www.opendialog.ai',
-                  'link_new_tab' => true,
-                ],
-            ],
-        ];
+        $items = $message->getItemsArray();
 
         $this->assertEquals(0, $message->getData()['disable_text']);
-        $this->assertEquals($expectedOutput, $message->getElementsArray());
+        $this->assertEquals(3, count($items));
+        $this->assertEquals('text', $items[0]['message_type']);
+        $this->assertEquals('image', $items[1]['message_type']);
+        $this->assertEquals('button', $items[2]['message_type']);
     }
 
     public function testWebChatImageMessage()
