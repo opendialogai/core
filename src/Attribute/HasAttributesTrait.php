@@ -111,4 +111,23 @@ trait HasAttributesTrait
         return $this->getAttribute($attributeName)->getValue();
     }
 
+    /**
+     * Rather than removing the attribute, we set the value to null
+     *
+     * @param string $attributeName
+     * @return bool
+     */
+    public function removeAttribute(string $attributeName): bool
+    {
+        if ($this->getAttribute($attributeName)) {
+            $this->getAttribute($attributeName)->setValue(null);
+            return true;
+        }
+
+        Log::warning(sprintf(
+            'Trying to remove non-existent attribute %s from %s',
+            $attributeName,
+            $this->getId()));
+        return false;
+    }
 }

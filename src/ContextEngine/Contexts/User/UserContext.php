@@ -65,6 +65,17 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * Removes an attribute from the user if there is one with the given ID
+     *
+     * @param string $attributeName
+     * @return bool true if removed, false if not
+     */
+    public function removeAttribute(string $attributeName): bool
+    {
+        return $this->getUser()->removeAttribute($attributeName);
+    }
+
+    /**
      * @return ChatbotUser
      */
     public function getUser(): ChatbotUser
