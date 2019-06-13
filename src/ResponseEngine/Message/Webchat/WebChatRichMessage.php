@@ -12,21 +12,14 @@ class WebChatRichMessage extends WebChatMessage
 
     private $subTitle;
 
-    private $btnText = null;
-
-    private $btnTabSwitch = false;
-
-    private $btnCallback = null;
-
-    private $btnValue = null;
-
-    private $btnLink = null;
-
     private $imgSrc = null;
 
     private $imgLink = null;
 
     private $imgLinkNewTab = false;
+
+    /** The message buttons. @var BaseWebchatButton[] */
+    private $buttons = [];
 
     /**
      * @param $title
@@ -45,56 +38,6 @@ class WebChatRichMessage extends WebChatMessage
     public function setSubTitle($subTitle)
     {
         $this->subTitle = $subTitle;
-        return $this;
-    }
-
-    /**
-     * @param $btnText
-     * @return $this
-     */
-    public function setButtonText($btnText)
-    {
-        $this->btnText = $btnText;
-        return $this;
-    }
-
-    /**
-     * @param $btnTabSwitch
-     * @return $this
-     */
-    public function setButtonTabSwitch($btnTabSwitch)
-    {
-        $this->btnTabSwitch = $btnTabSwitch;
-        return $this;
-    }
-
-    /**
-     * @param $btnCallback
-     * @return $this
-     */
-    public function setButtonCallback($btnCallback)
-    {
-        $this->btnCallback = $btnCallback;
-        return $this;
-    }
-
-    /**
-     * @param $btnValue
-     * @return $this
-     */
-    public function setButtonValue($btnValue)
-    {
-        $this->btnValue = $btnValue;
-        return $this;
-    }
-
-    /**
-     * @param $btnLink
-     * @return $this
-     */
-    public function setButtonLink($btnLink)
-    {
-        $this->btnLink = $btnLink;
         return $this;
     }
 
@@ -129,6 +72,16 @@ class WebChatRichMessage extends WebChatMessage
     }
 
     /**
+     * @param BaseWebchatButton $button
+     * @return $this
+     */
+    public function addButton(BaseWebchatButton $button)
+    {
+        $this->buttons[] = $button;
+        return $this;
+    }
+
+    /**
      * @return null|string
      */
     public function getTitle()
@@ -142,46 +95,6 @@ class WebChatRichMessage extends WebChatMessage
     public function getSubTitle()
     {
         return $this->subTitle;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getButtonText()
-    {
-        return $this->btnText;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getButtonTabSwitch()
-    {
-        return $this->btnTabSwitch;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getButtonCallback()
-    {
-        return $this->btnCallback;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getButtonValue()
-    {
-        return $this->btnValue;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getButtonLink()
-    {
-        return $this->btnLink;
     }
 
     /**
@@ -211,22 +124,21 @@ class WebChatRichMessage extends WebChatMessage
     /**
      * @return array
      */
+    public function getButtons()
+    {
+        return $this->buttons;
+    }
+
+    /**
+     * @return array
+     */
     public function getData()
     {
         $data = [
             'title' => $this->getTitle(),
             'subtitle' => $this->getSubTitle(),
+            'buttons' => $this->getButtonsArray(),
         ];
-
-        if ($this->getButtonText()) {
-            $data['button'] = [
-                'text' => $this->getButtonText(),
-                'tab_switch' => $this->getButtonTabSwitch(),
-                'callback' => $this->getButtonCallback(),
-                'value' => $this->getButtonValue(),
-                'link' => $this->getButtonLink(),
-            ];
-        }
 
         if ($this->getImageSrc()) {
             $data['image'] = [
@@ -237,5 +149,19 @@ class WebChatRichMessage extends WebChatMessage
         }
 
         return parent::getData() + $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getButtonsArray()
+    {
+        $buttons = [];
+
+        foreach ($this->buttons as $button) {
+            $buttons[] = $button->getData();
+        }
+
+        return $buttons;
     }
 }
