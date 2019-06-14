@@ -22,6 +22,29 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
 
+    public function testDisableTextProperty()
+    {
+        $markup = '<message disable_text="1"><empty-message></empty-message></message>';
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $this->assertEquals(1, $messages[0]->getData()['disable_text']);
+
+        $markup = '<message disable_text="true"><empty-message></empty-message></message>';
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $this->assertEquals(1, $messages[0]->getData()['disable_text']);
+
+        $markup = '<message disable_text="0"><empty-message></empty-message></message>';
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $this->assertEquals(0, $messages[0]->getData()['disable_text']);
+
+        $markup = '<message disable_text="false"><empty-message></empty-message></message>';
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $this->assertEquals(0, $messages[0]->getData()['disable_text']);
+    }
+
     public function testTextMessage()
     {
         $markup = '<message disable_text="1"><text-message>hi there</text-message></message>';
