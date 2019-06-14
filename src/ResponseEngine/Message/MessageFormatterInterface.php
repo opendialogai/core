@@ -20,7 +20,6 @@ interface MessageFormatterInterface
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';
-    public const BUTTON                  = 'button';
     public const IMAGE                   = 'image';
     public const ITEMS                   = 'items';
     public const ELEMENTS                = 'elements';

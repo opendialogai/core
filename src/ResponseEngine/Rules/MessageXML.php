@@ -56,10 +56,10 @@ class MessageXML implements Rule
                             return false;
                         }
                         foreach ($item->button as $button) {
-                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)) {
+                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
+                                && empty((string)$button->link)) {
                                 return false;
                             }
-
                             if (empty((string)$button->text)) {
                                 return false;
                             }
@@ -76,11 +76,15 @@ class MessageXML implements Rule
                         if (empty((string)$item->text)) {
                             return false;
                         }
+                        if ($item->button->count() > 3) {
+                            return false;
+                        }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->text)) {
                                 return false;
                             }
-                            if (empty((string)$button->callback) && empty((string)$button->link)) {
+                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
+                                && empty((string)$button->link)) {
                                 return false;
                             }
                         }

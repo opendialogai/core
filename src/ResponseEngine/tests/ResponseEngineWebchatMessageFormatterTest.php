@@ -140,6 +140,14 @@ EOT;
     </button>
     <button>
       <text>
+        This is a link
+      </text>
+      <link new_tab="true">
+        https://www.opendialog.ai
+      </link>
+    </button>
+    <button>
+      <text>
         No
       </text>
       <callback>
@@ -164,6 +172,11 @@ EOT;
                 'value' => 'true',
             ],
             [
+                'text' => 'This is a link',
+                'link' => 'https://www.opendialog.ai',
+                'link_new_tab' => true,
+            ],
+            [
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => 'false',
@@ -184,11 +197,21 @@ EOT;
     <subtitle>This is a subtitle</subtitle>
     <text>Here is a bit of text about this thing</text>
     <button>
-      <text>Test</text>
-      <tab_switch>false</tab_switch>
+      <text>Test 1</text>
+      <tab_switch>true</tab_switch>
+    </button>
+    <button>
+      <text>Test 2</text>
       <callback>callback</callback>
       <value>value</value>
+    </button>
+    <button>
+      <text>Test 3</text>
       <link>https://www.opendialog.ai</link>
+    </button>
+    <button>
+      <text>Test 4</text>
+      <link new_tab="true">https://www.opendialog.ai</link>
     </button>
     <image>
       <src>https://www.opendialog.ai/assets/images/logo.svg</src>
@@ -205,12 +228,26 @@ EOT;
             'title' => 'Message Title',
             'subtitle' => 'This is a subtitle',
             'text' => 'Here is a bit of text about this thing',
-            'button' => [
-                'text' => 'Test',
-                'tab_switch' => false,
-                'callback' => 'callback',
-                'value' => 'value',
-                'link' => 'https://www.opendialog.ai',
+            'buttons' => [
+                [
+                    'text' => 'Test 1',
+                    'tab_switch' => true,
+                ],
+                [
+                    'text' => 'Test 2',
+                    'callback_id' => 'callback',
+                    'value' => 'value',
+                ],
+                [
+                    'text' => 'Test 3',
+                    'link' => 'https://www.opendialog.ai',
+                    'link_new_tab' => false,
+                ],
+                [
+                    'text' => 'Test 4',
+                    'link' => 'https://www.opendialog.ai',
+                    'link_new_tab' => true,
+                ],
             ],
             'image' => [
                 'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
@@ -233,10 +270,8 @@ EOT;
     <text>Here is a bit of text about this thing</text>
     <button>
       <text>Test</text>
-      <tab_switch>false</tab_switch>
       <callback>callback</callback>
       <value>value</value>
-      <link>https://www.opendialog.ai</link>
     </button>
   </rich-message>
 </message>
@@ -249,12 +284,12 @@ EOT;
             'title' => 'Message Title',
             'subtitle' => 'This is a subtitle',
             'text' => 'Here is a bit of text about this thing',
-            'button' => [
-                'text' => 'Test',
-                'tab_switch' => false,
-                'callback' => 'callback',
-                'value' => 'value',
-                'link' => 'https://www.opendialog.ai',
+            'buttons' => [
+                [
+                    'text' => 'Test',
+                    'callback_id' => 'callback',
+                    'value' => 'value',
+                ],
             ],
         ];
 

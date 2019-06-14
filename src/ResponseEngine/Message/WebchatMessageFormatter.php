@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormSelectElement;
@@ -138,6 +139,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
+            } elseif (isset($button[self::LINK])) {
+                $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $button[self::LINK_NEW_TAB]));
             } else {
                 $message->addButton(
                     new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
@@ -209,14 +212,24 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             ->setTitle($template[self::TITLE])
             ->setSubTitle($template[self::SUBTITLE])
             ->setText($template[self::TEXT])
-            ->setButtonText($template[self::BUTTON][self::TEXT])
-            ->setButtonTabSwitch($template[self::BUTTON][self::TAB_SWITCH])
-            ->setButtonCallback($template[self::BUTTON][self::CALLBACK])
-            ->setButtonValue($template[self::BUTTON][self::VALUE])
-            ->setButtonLink($template[self::BUTTON][self::LINK])
             ->setImageSrc($template[self::IMAGE][self::SRC])
             ->setImageLink($template[self::IMAGE][self::URL])
             ->setImageLinkNewTab($template[self::IMAGE][self::LINK_NEW_TAB]);
+
+        if (isset($template[self::BUTTONS])) {
+            foreach ($template[self::BUTTONS] as $button) {
+                if (isset($button[self::TAB_SWITCH])) {
+                    $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
+                } elseif (isset($button[self::LINK])) {
+                    $linkNewTab = $button[self::LINK_NEW_TAB];
+                    $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab));
+                } else {
+                    $message->addButton(
+                        new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
+                    );
+                }
+            }
+        }
 
         return $message;
     }
@@ -349,6 +362,14 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,
                 ];
+            } elseif (isset($button->link)) {
+                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::LINK => trim((string)$button->link),
+                    self::LINK_NEW_TAB => $buttonLinkNewTab,
+                ];
             } else {
                 $template[self::BUTTONS][] = [
                     self::CALLBACK => trim((string)$button->callback),
@@ -384,25 +405,41 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     private function formatRichTemplate(SimpleXMLElement $item): array
     {
         $linkNewTab = ($item->image->url['new_tab']) ? true : false;
-        $tabSwitch = filter_var((string)$item->button->tab_switch, FILTER_VALIDATE_BOOLEAN);
 
         $template = [
             self::TITLE => trim((string)$item->title),
             self::SUBTITLE => trim((string)$item->subtitle),
             self::TEXT => trim((string)$item->text),
-            self::BUTTON => [
-                self::TEXT => trim((string)$item->button->text),
-                self::TAB_SWITCH => $tabSwitch,
-                self::CALLBACK => trim((string)$item->button->callback),
-                self::VALUE => trim((string)$item->button->value),
-                self::LINK => trim((string)$item->button->link),
-            ],
             self::IMAGE => [
                 self::SRC => trim((string)$item->image->src),
                 self::URL => trim((string)$item->image->url),
                 self::LINK_NEW_TAB => $linkNewTab,
             ],
         ];
+
+        foreach ($item->button as $button) {
+            if (isset($button->tab_switch)) {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::TAB_SWITCH => true,
+                ];
+            } elseif (isset($button->link)) {
+                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::LINK => trim((string)$button->link),
+                    self::LINK_NEW_TAB => $buttonLinkNewTab,
+                ];
+            } else {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::CALLBACK => trim((string)$button->callback),
+                    self::VALUE => trim((string)$button->value),
+                ];
+            }
+        }
+
         return $template;
     }
 
