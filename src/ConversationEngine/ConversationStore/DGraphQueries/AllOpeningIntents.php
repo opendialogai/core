@@ -37,8 +37,22 @@ class AllOpeningIntents extends DGraphQuery
                                 Model::ID,
                                 Model::UID
                             ]
+                        ],
+                        Model::SAYS_ACROSS_SCENES => [
+                            Model::ID,
+                            Model::UID,
+                            Model::ORDER,
+                            Model::CONFIDENCE,
+                            Model::HAS_INTERPRETER => [
+                                Model::ID,
+                                Model::UID,
+                            ],
+                            Model::HAS_EXPECTED_ATTRIBUTE => [
+                                Model::ID,
+                                Model::UID
+                            ]
                         ]
-                    ]
+                    ],
                 ]
             ]);
 
@@ -73,50 +87,50 @@ class AllOpeningIntents extends DGraphQuery
 
             if (isset($datum[Model::HAS_OPENING_SCENE])) {
                 if (isset($datum[Model::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT])) {
-                    if (isset($datum[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0][Model::SAYS])) {
-                        foreach ($datum[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0][Model::SAYS] as $intent) {
-                            $openingIntent = new OpeningIntent(
-                                $intent[Model::ID],
-                                $intent[Model::UID],
-                                $datum[Model::ID],
-                                $datum[Model::UID],
-                                $intent[Model::ORDER],
-                                isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1
-                            );
-                            $openingIntent->setConditions($conditions);
-                            $intents->put(
-                                $intent[Model::UID],
-                                $openingIntent
-                            );
+                    $matchedIntents = $this->extractIntentsFromParticipant(
+                        $datum[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0]
+                    );
+                    foreach ($matchedIntents as $intent) {
+                        $openingIntent = new OpeningIntent(
+                            $intent[Model::ID],
+                            $intent[Model::UID],
+                            $datum[Model::ID],
+                            $datum[Model::UID],
+                            $intent[Model::ORDER],
+                            isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1
+                        );
+                        $openingIntent->setConditions($conditions);
+                        $intents->put(
+                            $intent[Model::UID],
+                            $openingIntent
+                        );
 
-                            if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
-                                foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                                    $openingIntent->addExpectedAttribute($expectedAttribute['id']);
-                                }
+                        if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                            foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                                $openingIntent->addExpectedAttribute($expectedAttribute['id']);
                             }
                         }
+                    }
 
-                        // TODO - this is not in the foreach loop and is just over writing what was set above?
-                        if (isset($intent[Model::HAS_INTERPRETER])) {
-                            $openingIntent = new OpeningIntent(
-                                $intent[Model::ID],
-                                $intent[Model::UID],
-                                $datum[Model::ID],
-                                $datum[Model::UID],
-                                $intent[Model::ORDER],
-                                isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1,
-                                $intent[Model::HAS_INTERPRETER][0][Model::ID]
-                            );
-                            $openingIntent->setConditions($conditions);
-                            $intents->put(
-                                $intent[Model::UID],
-                                $openingIntent
-                            );
+                    if (isset($intent[Model::HAS_INTERPRETER])) {
+                        $openingIntent = new OpeningIntent(
+                            $intent[Model::ID],
+                            $intent[Model::UID],
+                            $datum[Model::ID],
+                            $datum[Model::UID],
+                            $intent[Model::ORDER],
+                            isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1,
+                            $intent[Model::HAS_INTERPRETER][0][Model::ID]
+                        );
+                        $openingIntent->setConditions($conditions);
+                        $intents->put(
+                            $intent[Model::UID],
+                            $openingIntent
+                        );
 
-                            if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
-                                foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                                    $openingIntent->addExpectedAttribute($expectedAttribute['id']);
-                                }
+                        if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                            foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                                $openingIntent->addExpectedAttribute($expectedAttribute['id']);
                             }
                         }
                     }
@@ -125,5 +139,24 @@ class AllOpeningIntents extends DGraphQuery
         }
 
         return $intents;
+    }
+
+    /**
+     * Extract intents from a participant in an opening scene. Looks for says or says_across_scenes relationships
+     *
+     * @param $participant
+     * @return array
+     */
+    private function extractIntentsFromParticipant($participant)
+    {
+        if (isset($participant[Model::SAYS])) {
+            return $participant[Model::SAYS];
+        }
+
+        if (isset($participant[Model::SAYS_ACROSS_SCENES])) {
+            return $participant[Model::SAYS_ACROSS_SCENES];
+        }
+
+        return [];
     }
 }
