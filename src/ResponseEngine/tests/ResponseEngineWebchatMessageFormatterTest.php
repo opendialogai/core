@@ -117,6 +117,14 @@ EOT;
     </button>
     <button>
       <text>
+        This is a link
+      </text>
+      <link new_tab="true">
+        https://www.opendialog.ai
+      </link>
+    </button>
+    <button>
+      <text>
         No
       </text>
       <callback>
@@ -139,6 +147,11 @@ EOT;
                 'text' => 'Yes',
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
+            ],
+            [
+                'text' => 'This is a link',
+                'link' => 'https://www.opendialog.ai',
+                'link_new_tab' => true,
             ],
             [
                 'text' => 'No',
@@ -173,6 +186,10 @@ EOT;
       <text>Test 3</text>
       <link>https://www.opendialog.ai</link>
     </button>
+    <button>
+      <text>Test 4</text>
+      <link new_tab="true">https://www.opendialog.ai</link>
+    </button>
     <image>
       <src>https://www.opendialog.ai/assets/images/logo.svg</src>
       <url new_tab="true">https://www.opendialog.ai</url>
@@ -201,6 +218,12 @@ EOT;
                 [
                     'text' => 'Test 3',
                     'link' => 'https://www.opendialog.ai',
+                    'link_new_tab' => false,
+                ],
+                [
+                    'text' => 'Test 4',
+                    'link' => 'https://www.opendialog.ai',
+                    'link_new_tab' => true,
                 ],
             ],
             'image' => [

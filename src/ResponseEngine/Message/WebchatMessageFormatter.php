@@ -137,6 +137,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
+            } elseif (isset($button[self::LINK])) {
+                $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $button[self::LINK_NEW_TAB]));
             } else {
                 $message->addButton(
                     new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
@@ -217,7 +219,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 if (isset($button[self::TAB_SWITCH])) {
                     $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
                 } elseif (isset($button[self::LINK])) {
-                    $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK]));
+                    $linkNewTab = $button[self::LINK_NEW_TAB];
+                    $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab));
                 } else {
                     $message->addButton(
                         new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
@@ -357,6 +360,14 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,
                 ];
+            } elseif (isset($button->link)) {
+                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::LINK => trim((string)$button->link),
+                    self::LINK_NEW_TAB => $buttonLinkNewTab,
+                ];
             } else {
                 $template[self::BUTTONS][] = [
                     self::CALLBACK => trim((string)$button->callback),
@@ -411,9 +422,12 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     self::TAB_SWITCH => true,
                 ];
             } elseif (isset($button->link)) {
+                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::LINK => trim((string)$button->link),
+                    self::LINK_NEW_TAB => $buttonLinkNewTab,
                 ];
             } else {
                 $template[self::BUTTONS][] = [

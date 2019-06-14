@@ -56,10 +56,10 @@ class MessageXML implements Rule
                             return false;
                         }
                         foreach ($item->button as $button) {
-                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)) {
+                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
+                                && empty((string)$button->link)) {
                                 return false;
                             }
-
                             if (empty((string)$button->text)) {
                                 return false;
                             }

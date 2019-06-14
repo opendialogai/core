@@ -6,14 +6,17 @@ class WebchatLinkButton extends BaseWebchatButton
 {
     protected $link = null;
 
+    protected $linkNewTab = true;
+
     /**
      * @param $text
      * @param $link
      */
-    public function __construct($text, $link)
+    public function __construct($text, $link, $linkNewTab = false)
     {
         $this->text = $text;
         $this->link = $link;
+        $this->linkNewTab = $linkNewTab;
     }
 
     /**
@@ -27,6 +30,16 @@ class WebchatLinkButton extends BaseWebchatButton
     }
 
     /**
+     * @param $linkNewTab
+     * @return $this
+     */
+    public function setLinkNewTab($linkNewTab)
+    {
+        $this->linkNewTab = $linkNewTab;
+        return $this;
+    }
+
+    /**
      * @return null|string
      */
     public function getLink()
@@ -34,10 +47,19 @@ class WebchatLinkButton extends BaseWebchatButton
         return $this->link;
     }
 
+    /**
+     * @return bool
+     */
+    public function getLinkNewTab()
+    {
+        return $this->linkNewTab;
+    }
+
     public function getData()
     {
         return parent::getData() + [
-            'link' => $this->getLink()
+            'link' => $this->getLink(),
+            'link_new_tab' => $this->getLinkNewTab(),
         ];
     }
 }
