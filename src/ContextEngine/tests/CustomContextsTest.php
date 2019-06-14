@@ -5,6 +5,7 @@ namespace OpenDialogAi\ContextEngine\tests;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\tests\contexts\BadlyNamedCustomContext;
 use OpenDialogAi\ContextEngine\tests\contexts\DummyCustomContext;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class CustomContextsTest extends TestCase
@@ -54,6 +55,18 @@ class CustomContextsTest extends TestCase
 
         $value = $contextService->getAttributeValue('1', DummyCustomContext::$name);
         $this->assertEquals(1, $value);
+    }
+
+    public function testRemovingContext()
+    {
+        $context = new DummyCustomContext();
+
+        $context->addAttribute(new StringAttribute('test_string', 'hello_test'));
+
+        $this->assertTrue($context->removeAttribute('test_string'));
+
+        $this->assertNull($context->getAttributeValue('test_string'));
+
     }
 
     private function addCustomContextToConfig($customContext)

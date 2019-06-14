@@ -48,7 +48,7 @@ class LuisEntity
             $this->endIndex = $entity->endIndex;
         }
 
-        if (isset($entity->resolution)) {
+        if (isset($entity->resolution->values)) {
             $this->extractValues($entity);
         }
 
