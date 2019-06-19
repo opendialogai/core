@@ -144,7 +144,17 @@ conversation:
         - b: 
             i: doing_dandy
             action: action.core.example
-            completes: true           
+            completes: true  
+    scene4:
+      intents:
+        - b:
+            i: intent.core.example
+        - u:
+            i: intent.core.example
+            interpreter: interpreter.core.callbackInterpreter
+            expected_attributes:
+              - id: user.name
+            scene: scene3
 EOT;
     }
 
