@@ -21,6 +21,10 @@ return [
 
         'qna_answer' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
 
+        'conversation.currentConversation' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'conversation.currentScene' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'conversation.currentIntent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+
         // Intents
         \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class
     ],

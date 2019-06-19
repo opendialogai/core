@@ -137,6 +137,14 @@ class ConversationEngine implements ConversationEngineInterface
     {
         if ($userContext->isUserHavingConversation()) {
             $ongoingConversation = $userContext->getCurrentConversation();
+
+            if (!$this->contextService->hasContext('conversation')) {
+                $this->contextService->createContext('conversation');
+            }
+
+            $currentConversationAttribute = $this->attributeResolver->getAttributeFor('conversation.currentConversation', $ongoingConversation->getId());
+            $this->contextService->getContext('conversation')->addAttribute($currentConversationAttribute);
+
             Log::debug(
                 sprintf(
                     'User %s is having a conversation with id %s',
@@ -190,6 +198,19 @@ class ConversationEngine implements ConversationEngineInterface
     {
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
+
+        /* @var Intent $currentIntent */
+        $currentIntent = $userContext->getCurrentIntent();
+
+        if (!$this->contextService->hasContext('conversation')) {
+            $this->contextService->createContext('conversation');
+        }
+
+        $currentSceneAttribute = $this->attributeResolver->getAttributeFor('conversation.currentScene', $currentScene->getId());
+        $this->contextService->getContext('conversation')->addAttribute($currentSceneAttribute);
+
+        $currentIntentAttribute = $this->attributeResolver->getAttributeFor('conversation.currentIntent', $currentIntent->getId());
+        $this->contextService->getContext('conversation')->addAttribute($currentIntentAttribute);
 
         $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
