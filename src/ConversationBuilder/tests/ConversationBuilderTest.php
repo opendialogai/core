@@ -165,7 +165,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(2, $conversationModel->getConditions());
 
         // There should be two scenes
-        $this->assertCount(3, $conversationModel->getAllScenes());
+        $this->assertCount(4, $conversationModel->getAllScenes());
 
         // The opening scene should be called opening_scene
         $this->assertEquals('opening_scene', $conversationModel->getScene('opening_scene')->getId());

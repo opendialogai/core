@@ -421,10 +421,10 @@ class ConversationQueryFactory
 
                 if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
                     foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                        $expectedAttribute = new ExpectedAttribute($expectedAttribute[Model::ID]);
-                        $clone ? false : $expectedAttribute->setUid($expectedAttribute[Model::UID]);
+                        $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
+                        $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
 
-                        $intent->addExpectedAttribute($expectedAttribute);
+                        $intent->addExpectedAttribute($expectedAttributeNode);
                     }
                 }
 
