@@ -38,7 +38,7 @@ class MessageXML implements Rule
                         }
 
                         if (!$attributeValid) {
-                            $this->setErrorMessage('Attribute not valid');
+                            $this->setErrorMessage('Invalid attribute message structure');
                             return false;
                         }
 
@@ -46,12 +46,12 @@ class MessageXML implements Rule
 
                     case 'text-message':
                         if (empty((string)$item) && empty($item->link)) {
-                            $this->setErrorMessage('Text messages must have text');
+                            $this->setErrorMessage('Text messages must have "text"');
                             return false;
                         }
                         foreach ($item->link as $link) {
                             if (empty((string)$link->url) || empty((string)$link->text)) {
-                                $this->setErrorMessage('Link require not empty "text" and "url" attributes');
+                                $this->setErrorMessage('Text message links require "text" and "url"');
                                 return false;
                             }
                         }
@@ -59,17 +59,17 @@ class MessageXML implements Rule
 
                     case 'button-message':
                         if (empty((string)$item->text)) {
-                            $this->setErrorMessage('Button messages must have text');
+                            $this->setErrorMessage('Button messages must have "text"');
                             return false;
                         }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->callback) && empty((string)$button->tab_switch)
                                 && empty((string)$button->link)) {
+                                $this->setErrorMessage('All buttons must have with a "callback", "link" or "tab_switch" set');
                                 return false;
-                                $this->setErrorMessage('Button require a not empty "callback" or "tab_switch" attribute');
                             }
                             if (empty((string)$button->text)) {
-                                $this->setErrorMessage('Button require a not empty "text" attribute');
+                                $this->setErrorMessage('Button must have "text"');
                                 return false;
                             }
                         }
@@ -77,33 +77,34 @@ class MessageXML implements Rule
 
                     case 'image-message':
                         if (empty((string)$item->src)) {
-                            $this->setErrorMessage('Image messages must have src');
+                            $this->setErrorMessage('Image messages must have a "src"');
                             return false;
                         }
                         break;
 
                     case 'rich-message':
                         if (empty((string)$item->text)) {
-                            $this->setErrorMessage('Rich messages must have text');
+                            $this->setErrorMessage('Rich messages must have "text"');
                             return false;
                         }
                         if ($item->button->count() > 3) {
+                            $this->setErrorMessage('Rich messages can only have up to 3 buttons');
                             return false;
                         }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->text)) {
-                                $this->setErrorMessage('Button require a not empty "text" attribute');
+                                $this->setErrorMessage('Rich message buttons must have "text"');
                                 return false;
                             }
                             if (empty((string)$button->callback) && empty((string)$button->tab_switch)
                                 && empty((string)$button->link)) {
-                                $this->setErrorMessage('Button require a not empty "callback" or "link" attribute');
+                                $this->setErrorMessage('All buttons must have with a "callback", "link" or "tab_switch" set');
                                 return false;
                             }
                         }
                         foreach ($item->image as $image) {
                             if (empty((string)$image->src)) {
-                                $this->setErrorMessage('Image require a not empty "src" attribute');
+                                $this->setErrorMessage('Images must have a "src"');
                                 return false;
                             }
                         }
@@ -119,7 +120,7 @@ class MessageXML implements Rule
 
                     case 'form-message':
                         if (empty((string)$item->text)) {
-                            $this->setErrorMessage('Form messages must have text');
+                            $this->setErrorMessage('Form messages must have "text"');
                             return false;
                         }
                         break;
@@ -133,7 +134,7 @@ class MessageXML implements Rule
                 }
             }
         } catch (\Exception $e) {
-            $this->setErrorMessage('Insert a valid XML');
+            $this->setErrorMessage(sprintf('Message XML structure is invalid - %s', $e->getMessage()));
             return false;
         }
 
