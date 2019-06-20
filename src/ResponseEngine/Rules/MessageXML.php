@@ -2,14 +2,11 @@
 
 namespace OpenDialogAi\ResponseEngine\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Rules\BaseRule;
 use SimpleXMLElement;
 
-class MessageXML implements Rule
+class MessageXML extends BaseRule
 {
-    private $errorMessage = 'Invalid message mark up.';
-
     /**
      * Determine if the validation rule passes.
      *
@@ -139,21 +136,5 @@ class MessageXML implements Rule
         }
 
         return true;
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return $this->errorMessage;
-    }
-
-    private function setErrorMessage($errorMessage)
-    {
-        Log::debug($errorMessage);
-        $this->errorMessage = $errorMessage;
     }
 }
