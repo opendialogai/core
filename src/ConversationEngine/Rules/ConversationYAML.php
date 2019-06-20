@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\ConversationEngine\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use OpenDialogAi\Core\Rules\BaseRule;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-class ConversationYAML implements Rule
+class ConversationYAML extends BaseRule
 {
     /**
      * Determine if the validation rule passes.
@@ -20,23 +20,20 @@ class ConversationYAML implements Rule
         try {
             $yaml = Yaml::parse($value);
 
+            if (!isset($yaml['conversation']['id'])) {
+                $this->setErrorMessage('Conversation have must an ID');
+                return false;
+            }
+
             if (!isset($yaml['conversation']['scenes'])) {
+                $this->setErrorMessage('Conversation must have at least 1 scene');
                 return false;
             }
         } catch (ParseException $e) {
+            $this->setErrorMessage(sprintf('Invalid YAML - %s', $e->getMessage()));
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return 'Invalid YAML';
     }
 }
