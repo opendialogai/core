@@ -4,7 +4,6 @@ namespace OpenDialogAi\ConversationBuilder;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ConversationBuilder\Observers\ConversationObserver;
-use OpenDialogAi\ConversationBuilder\Service\ConversationBuilder;
 
 class ConversationBuilderServiceProvider extends ServiceProvider
 {
@@ -24,9 +23,5 @@ class ConversationBuilderServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/config/activitylog.php', 'activitylog');
-
-        $this->app->bind(ConversationBuilder::class, function () {
-            return new ConversationBuilder();
-        });
     }
 }
