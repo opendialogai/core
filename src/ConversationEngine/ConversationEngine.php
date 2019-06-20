@@ -13,6 +13,7 @@ use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -138,12 +139,7 @@ class ConversationEngine implements ConversationEngineInterface
         if ($userContext->isUserHavingConversation()) {
             $ongoingConversation = $userContext->getCurrentConversation();
 
-            if (!$this->contextService->hasContext('conversation')) {
-                $this->contextService->createContext('conversation');
-            }
-
-            $currentConversationAttribute = $this->attributeResolver->getAttributeFor('conversation.currentConversation', $ongoingConversation->getId());
-            $this->contextService->getContext('conversation')->addAttribute($currentConversationAttribute);
+            ContextServiceFacade::saveAttribute('conversation.current_conversation', $ongoingConversation->getId());
 
             Log::debug(
                 sprintf(
@@ -206,11 +202,8 @@ class ConversationEngine implements ConversationEngineInterface
             $this->contextService->createContext('conversation');
         }
 
-        $currentSceneAttribute = $this->attributeResolver->getAttributeFor('conversation.currentScene', $currentScene->getId());
-        $this->contextService->getContext('conversation')->addAttribute($currentSceneAttribute);
-
-        $currentIntentAttribute = $this->attributeResolver->getAttributeFor('conversation.currentIntent', $currentIntent->getId());
-        $this->contextService->getContext('conversation')->addAttribute($currentIntentAttribute);
+        ContextServiceFacade::saveAttribute('conversation.current_scene', $currentScene->getId());
+        ContextServiceFacade::saveAttribute('conversation.current_intent', $currentIntent->getId());
 
         $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));

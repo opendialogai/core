@@ -2,7 +2,7 @@
 
 return [
     'supported_attributes' => [
-        'attribute_name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'attribute_name'   => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'attribute_value' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'callback_value' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'context' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
@@ -21,9 +21,9 @@ return [
 
         'qna_answer' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
 
-        'conversation.currentConversation' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'conversation.currentScene' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'conversation.currentIntent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'current_conversation' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'current_scene' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'current_intent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
 
         // Intents
         \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class
