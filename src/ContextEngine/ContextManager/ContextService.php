@@ -22,6 +22,8 @@ class ContextService
     const SESSION_CONTEXT      = 'session';
     const CONVERSATION_CONTEXT = 'conversation';
 
+    public static $coreContexts = [UserContext::USER_CONTEXT, self::SESSION_CONTEXT, self::CONVERSATION_CONTEXT];
+
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
 
@@ -225,7 +227,7 @@ class ContextService
     public function getCustomContexts(): array
     {
         return $this->activeContexts->filter(static function ($context) {
-            return !in_array($context, [UserContext::USER_CONTEXT, self::SESSION_CONTEXT], true);
+            return !in_array($context, self::$coreContexts, true);
         })->toArray();
     }
 
