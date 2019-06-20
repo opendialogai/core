@@ -16,6 +16,7 @@ use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Participant;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
 /**
  * Helper methods for forming queries to extract information from DGraph.
@@ -420,14 +421,14 @@ class ConversationQueryFactory
 
                 if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
                     foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                        $expectedAttribute = new ExpectedAttribute($expectedAttribute[Model::ID]);
-                        $clone ? false : $expectedAttribute->setUid($expectedAttribute[Model::UID]);
+                        $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
+                        $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
 
-                        $intent->addExpectedAttribute($expectedAttribute);
+                        $intent->addExpectedAttribute($expectedAttributeNode);
                     }
                 }
 
-                $endingSceneId = $intentData[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID];
+                $endingSceneId = self::getEndingSceneId($intentData);
 
                 if ($participant->isUser()) {
                     $cm->userSaysToBotAcrossScenes($sceneId, $endingSceneId, $intent, $intentData[Model::ORDER]);
@@ -438,5 +439,28 @@ class ConversationQueryFactory
                 }
             }
         }
+    }
+
+    /**
+     * Tries to work out the ending scene ID from the intent data
+     *
+     * @param $intentData
+     * @return mixed
+     * @throws NodeDoesNotExistException
+     */
+    public static function getEndingSceneId($intentData)
+    {
+        $listenedBy = $intentData[Model::LISTENED_BY_FROM_SCENES][0];
+
+        if (isset($listenedBy[Model::USER_PARTICIPATES_IN][0][Model::ID])) {
+            return $listenedBy[Model::USER_PARTICIPATES_IN][0][Model::ID];
+        }
+
+        if (isset($listenedBy[Model::BOT_PARTICIPATES_IN][0][Model::ID])) {
+            return $listenedBy[Model::BOT_PARTICIPATES_IN][0][Model::ID];
+        }
+
+        Log::error('Could not extract ending scene id', $listenedBy);
+        throw new NodeDoesNotExistException('Could not extract ending scene id');
     }
 }

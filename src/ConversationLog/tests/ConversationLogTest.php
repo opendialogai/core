@@ -215,7 +215,7 @@ class ConversationLogTest extends TestCase
     public function testInternalProperty()
     {
         $validCallback = ['welcome' => 'intent.core.welcome'];
-        $this->setConfigValue('opendialog.interpreter_engine.supported_callbacks', $validCallback);
+        $this->setSupportedCallbacks($validCallback);
 
         $intent = OutgoingIntent::create(['name' => 'intent.core.chat_open_response']);
 

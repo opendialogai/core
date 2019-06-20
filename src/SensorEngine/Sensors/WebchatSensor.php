@@ -77,6 +77,7 @@ class WebchatSensor extends BaseSensor
             case 'button_response':
                 Log::debug('Received webchat button_response message.');
                 $utterance = new WebchatButtonResponseUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
                 $utterance->setUserId($request['user_id']);
@@ -92,6 +93,7 @@ class WebchatSensor extends BaseSensor
             case 'url_click':
                 Log::debug('Received webchat url_click message.');
                 $utterance = new WebchatUrlClickUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
                     $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
@@ -102,6 +104,7 @@ class WebchatSensor extends BaseSensor
             case 'longtext_response':
                 Log::debug('Received webchat longtext_response message.');
                 $utterance = new WebchatLongtextResponseUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
                     $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
@@ -112,6 +115,7 @@ class WebchatSensor extends BaseSensor
             case 'webchat_form_response':
                 Log::debug('Received webchat webchat_form_response message.');
                 $utterance = new WebchatFormResponseUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
                     $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));

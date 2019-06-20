@@ -144,7 +144,17 @@ conversation:
         - b: 
             i: doing_dandy
             action: action.core.example
-            completes: true           
+            completes: true  
+    scene4:
+      intents:
+        - b:
+            i: intent.core.example
+        - u:
+            i: intent.core.example
+            interpreter: interpreter.core.callbackInterpreter
+            expected_attributes:
+              - id: user.name
+            scene: scene3
 EOT;
     }
 
@@ -305,5 +315,15 @@ EOT;
         $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
 
         return $mockInterpreter;
+    }
+
+    /**
+     * Sets an array of supported callbacks
+     *
+     * @param $callbacks
+     */
+    protected function setSupportedCallbacks($callbacks)
+    {
+        $this->app['config']->set('opendialog.interpreter_engine.supported_callbacks', $callbacks);
     }
 }

@@ -205,7 +205,7 @@ class ConversationEngineTest extends TestCase
 
         // Ensure that the $conversation is the right one.
         $this->assertEquals($conversation->getId(), 'hello_bot_world');
-        $this->assertCount(3, $conversation->getAllScenes());
+        $this->assertCount(4, $conversation->getAllScenes());
         $this->assertEquals('opening_scene', $conversation->getScene('opening_scene')->getId());
         $this->assertEquals('scene2', $conversation->getScene('scene2')->getId());
 

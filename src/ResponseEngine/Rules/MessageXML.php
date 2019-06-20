@@ -63,11 +63,11 @@ class MessageXML implements Rule
                             return false;
                         }
                         foreach ($item->button as $button) {
-                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)) {
-                                $this->setErrorMessage('Button require a not empty "callback" or "tab_switch" attribute');
+                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
+                                && empty((string)$button->link)) {
                                 return false;
+                                $this->setErrorMessage('Button require a not empty "callback" or "tab_switch" attribute');
                             }
-
                             if (empty((string)$button->text)) {
                                 $this->setErrorMessage('Button require a not empty "text" attribute');
                                 return false;
@@ -87,12 +87,16 @@ class MessageXML implements Rule
                             $this->setErrorMessage('Rich messages must have text');
                             return false;
                         }
+                        if ($item->button->count() > 3) {
+                            return false;
+                        }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->text)) {
                                 $this->setErrorMessage('Button require a not empty "text" attribute');
                                 return false;
                             }
-                            if (empty((string)$button->callback) && empty((string)$button->link)) {
+                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
+                                && empty((string)$button->link)) {
                                 $this->setErrorMessage('Button require a not empty "callback" or "link" attribute');
                                 return false;
                             }

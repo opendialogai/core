@@ -284,4 +284,29 @@ class Intent extends Node
 
         return false;
     }
+
+    /**
+     * Checks if the intent passed in matches this intent by checking id and confidence
+     *
+     * @param Intent $intent
+     * @return bool
+     */
+    public function matches(Intent $intent): bool
+    {
+        return
+            $this->getId() === $intent->getId() &&
+            $this->getConfidence() >= $intent->getConfidence();
+    }
+
+    /**
+     * Copies all non-core attributes from the passed intent to this intent
+     *
+     * @param Intent $intent
+     */
+    public function copyNonCoreAttributes(Intent $intent): void
+    {
+        foreach ($intent->getNonCoreAttributes() as $attribute) {
+            $this->addAttribute($attribute);
+        }
+    }
 }
