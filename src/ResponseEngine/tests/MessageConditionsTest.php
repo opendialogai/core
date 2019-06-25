@@ -45,9 +45,9 @@ class MessageConditionsTest extends TestCase
             ->addCondition('session.false', 'false', 'eq');
 
         $this->intent->messageTemplates()->create([
-                'name' => 'should not pass',
-                'conditions' => $failingCondition->getYaml(),
-                'message_markup' => $failingMessage->getMarkUp()]
+            'name' => 'should not pass',
+            'conditions' => $failingCondition->getYaml(),
+            'message_markup' => $failingMessage->getMarkUp()]
         );
 
         // Should throw No Matching Message Exception
@@ -63,9 +63,9 @@ class MessageConditionsTest extends TestCase
             ->addCondition('session.false', 'true', 'eq');
 
         $this->intent->messageTemplates()->create([
-                'name' => 'should not pass',
-                'conditions' => $failingCondition->getYaml(),
-                'message_markup' => $failingMessage->getMarkUp()]
+            'name' => 'should not pass',
+            'conditions' => $failingCondition->getYaml(),
+            'message_markup' => $failingMessage->getMarkUp()]
         );
 
         // Should throw No Matching Message Exception
@@ -80,15 +80,14 @@ class MessageConditionsTest extends TestCase
             ->addCondition('session.false', 'true', 'eq');
 
         $this->intent->messageTemplates()->create([
-                'name' => 'should not pass',
-                'conditions' => $failingCondition->getYaml(),
-                'message_markup' => $failingMessage->getMarkUp()]
+            'name' => 'should not pass',
+            'conditions' => $failingCondition->getYaml(),
+            'message_markup' => $failingMessage->getMarkUp()]
         );
 
         // Should throw No Matching Message Exception
         $this->expectException(NoMatchingMessagesException::class);
         $this->responseEngineService->getMessageForIntent('test');
     }
-
 
 }
