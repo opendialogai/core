@@ -6,7 +6,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
-use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
@@ -231,8 +231,11 @@ class UserService
     }
 
     /**
+     * Updates the user in DGraph.
+     *
      * @param ChatbotUser $user
      * @return ChatbotUser
+     * @throws CouldNotPersistUserRecordException
      */
     public function updateUser(ChatbotUser $user): ChatbotUser
     {
@@ -240,10 +243,10 @@ class UserService
         $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
 
         if ($mutationResponse->isSuccessful()) {
-            return $this->getUser($user->getId());
+            return $user;
         }
 
-        throw new CouldNotRetrieveUserRecordException(sprintf("Couldn't retrieve user from dgraph %s", $user->getId()));
+        throw new CouldNotPersistUserRecordException(sprintf("Couldn't persist user to dgraph %s", $user->getId()));
     }
 
     /**
