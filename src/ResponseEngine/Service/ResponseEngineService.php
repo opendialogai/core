@@ -119,7 +119,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     {
         $conditions = $messageTemplate->getConditions();
 
-        $conditionsPass = true;
         foreach ($conditions as $contextId => $conditions) {
             foreach ($conditions as $conditionArray) {
                 $condition = array_values($conditionArray)[0];
@@ -128,12 +127,12 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 $attribute = $this->getAttributeForCondition($attributeName, $contextId);
 
                 if (!$condition->compareAgainst($attribute)) {
-                    $conditionsPass = false;
+                    return false;
                 }
             }
         }
 
-        return $conditionsPass;
+        return true;
     }
 
     /**
