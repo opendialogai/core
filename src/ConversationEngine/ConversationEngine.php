@@ -135,8 +135,8 @@ class ConversationEngine implements ConversationEngineInterface
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
-        if ($userContext->isUserHavingConversation()) {
-            $ongoingConversation = $userContext->getCurrentConversation();
+        if ($userContext->isUserHavingConversation()) { // this can be taken from the user object
+            $ongoingConversation = $userContext->getCurrentConversation(); // can be consolidated to user context
             Log::debug(
                 sprintf(
                     'User %s is having a conversation with id %s',
@@ -400,6 +400,7 @@ class ConversationEngine implements ConversationEngineInterface
             $expectedAttributes = $intent->getExpectedAttributeContexts();
         }
 
+        $userContextUpdated = false;
         /** @var AttributeInterface $attribute */
         foreach ($intent->getNonCoreAttributes() as $attribute) {
             $attributeName = $attribute->getId();
@@ -407,6 +408,9 @@ class ConversationEngine implements ConversationEngineInterface
             $context = $this->contextService->getSessionContext();
             if ($expectedAttributes->hasKey($attributeName)) {
                 $contextId = $expectedAttributes->get($attributeName);
+                if ($contextId === UserContext::USER_CONTEXT) {
+                    $userContextUpdated = true;
+                }
                 try {
                     $context = $this->contextService->getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
@@ -419,7 +423,9 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         // TODO - is there a better way of doing this? Each context could have it's own tear down method to deal with persisting
-        $this->contextService->getUserContext()->updateUser();
+        if ($userContextUpdated) {
+            $this->contextService->getUserContext()->updateUser();
+        }
     }
 
     /**
