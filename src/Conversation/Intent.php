@@ -277,7 +277,7 @@ class Intent extends Node
 
     public function completes(): bool
     {
-        $this->completes;
+        return $this->completes;
     }
 
     /**
