@@ -243,7 +243,7 @@ class UserService
         $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
 
         if ($mutationResponse->isSuccessful()) {
-            return $user;
+            return $this->getUser($user->getId());
         }
 
         throw new CouldNotPersistUserRecordException(sprintf("Couldn't persist user to dgraph %s", $user->getId()));
