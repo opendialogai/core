@@ -4,7 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -25,6 +25,9 @@ class Intent extends Node
     ];
 
     private $completes = false;
+
+    /** @var int */
+    private $order;
 
     /**
      * Intent constructor.
@@ -116,6 +119,8 @@ class Intent extends Node
      */
     public function setOrderAttribute($order)
     {
+        $this->order = $order;
+
         try {
             $attribute = new IntAttribute(Model::ORDER, $order);
         } catch (UnsupportedAttributeTypeException $e) {
@@ -125,9 +130,12 @@ class Intent extends Node
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getOrder(): int
     {
-        return $this->getAttribute(Model::ORDER)->getValue();
+        return $this->order;
     }
 
     /**
@@ -138,17 +146,8 @@ class Intent extends Node
     {
         $this->completes = $completes;
 
-        // Check if we've already set the attribute and change it's value if so.
-        if ($this->attributes->hasKey(Model::COMPLETES)) {
-            /* @var BooleanAttribute $attribute */
-            $attribute = $this->attributes->get(Model::COMPLETES);
-            $attribute->setValue($this->completes);
-            $this->addAttribute($attribute);
-            return $this;
-        }
-
         try {
-            $attribute = new BooleanAttribute(Model::COMPLETES, $this->completes);
+            $attribute = AttributeResolver::getAttributeFor(Model::COMPLETES, $this->completes);
             $this->addAttribute($attribute);
             return $this;
         } catch (UnsupportedAttributeTypeException $e) {
@@ -278,11 +277,7 @@ class Intent extends Node
 
     public function completes(): bool
     {
-        if ($this->getAttribute(Model::COMPLETES)->getValue()) {
-            return true;
-        }
-
-        return false;
+        $this->completes;
     }
 
     /**
