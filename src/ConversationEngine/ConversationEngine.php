@@ -13,6 +13,7 @@ use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -138,6 +139,9 @@ class ConversationEngine implements ConversationEngineInterface
     {
         if ($userContext->isUserHavingConversation()) {
             $ongoingConversation = $userContext->getCurrentConversation();
+
+            ContextServiceFacade::saveAttribute('conversation.current_conversation', $ongoingConversation->getId());
+
             Log::debug(
                 sprintf(
                     'User %s is having a conversation with id %s',
@@ -191,6 +195,16 @@ class ConversationEngine implements ConversationEngineInterface
     {
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
+
+        /* @var Intent $currentIntent */
+        $currentIntent = $userContext->getCurrentIntent();
+
+        if (!$this->contextService->hasContext('conversation')) {
+            $this->contextService->createContext('conversation');
+        }
+
+        ContextServiceFacade::saveAttribute('conversation.current_scene', $currentScene->getId());
+        ContextServiceFacade::saveAttribute('conversation.current_intent', $currentIntent->getId());
 
         $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
