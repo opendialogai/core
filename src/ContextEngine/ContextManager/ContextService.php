@@ -9,6 +9,7 @@ use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -22,6 +23,9 @@ class ContextService
 
     /* @var UserService */
     private $userService;
+
+    /** @var ConversationStoreInterface */
+    private $conversationStore;
 
     /**
      * ContextService constructor.
@@ -37,6 +41,14 @@ class ContextService
     public function setUserService(UserService $userService): void
     {
         $this->userService = $userService;
+    }
+
+    /**
+     * @param ConversationStoreInterface $conversationStore
+     */
+    public function setConversationStore(ConversationStoreInterface $conversationStore): void
+    {
+        $this->conversationStore = $conversationStore;
     }
 
     /**
@@ -168,7 +180,8 @@ class ContextService
      */
     public function createUserContext(UtteranceInterface $utterance): UserContext
     {
-        $userContext = new UserContext($this->userService->createOrUpdateUser($utterance), $this->userService);
+        $chatbotUser = $this->userService->createOrUpdateUser($utterance);
+        $userContext = new UserContext($chatbotUser, $this->userService, $this->conversationStore);
         $this->addContext($userContext);
         return $userContext;
     }
@@ -215,4 +228,13 @@ class ContextService
         return $this->getContext(UserContext::USER_CONTEXT);
     }
 
+    /**
+     * Allows a custom user context to be set
+     *
+     * @param UserContext $userContext
+     */
+    public function setUserContext(UserContext $userContext)
+    {
+        $this->addContext($userContext);
+    }
 }
