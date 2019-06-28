@@ -5,6 +5,7 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
+use OpenDialogAi\ConversationEngine\Transformers\IntentTransformer;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -49,6 +50,7 @@ class ConversationQueryFactory
      * @param DGraphClient $client
      * @param bool $clone
      * @return Conversation
+     * @throws NodeDoesNotExistException
      */
     public static function getConversationFromDGraphWithUid(
         string $conversationUid,
@@ -68,6 +70,7 @@ class ConversationQueryFactory
      * @param DGraphClient $client
      * @param bool $clone
      * @return Conversation
+     * @throws NodeDoesNotExistException
      */
     public static function getConversationFromDGraphWithTemplateName(
         string $templateName,
@@ -102,6 +105,59 @@ class ConversationQueryFactory
 
         $response = $client->query($dGraphQuery)->getData()[0];
         return $response['uid'];
+    }
+
+    /**
+     * Gets a user conversation by uid
+     *
+     * @param string $conversationId
+     * @param DGraphClient $client
+     * @return UserConversation
+     */
+    public static function getUserConversation(string $conversationId, DGraphClient $client): UserConversation
+    {
+        $dGraphQuery = new DGraphQuery();
+
+        $dGraphQuery->uid($conversationId)
+            ->filterEq('ei_type', Model::CONVERSATION_USER)
+            ->setQueryGraph(self::getConversationQueryGraph());
+
+        $response = $client->query($dGraphQuery)->getData()[0];
+
+        return new UserConversation($response);
+    }
+
+    /**
+     * Gets an intent from the user's conversation graph with matching order
+     *
+     * @param string $conversationId
+     * @param int $order
+     * @param DGraphClient $client
+     * @return bool|mixed
+     */
+    public static function getConversationIntentByOrder(string $conversationId, int $order, DGraphClient $client): Intent
+    {
+        $userConversation = self::getUserConversation($conversationId, $client);
+        return $userConversation->getIntentIdByOrder($order);
+    }
+
+    /**
+     * Gets an intent by uid
+     *
+     * @param string $intentUid
+     * @param DGraphClient $client
+     * @return Intent
+     */
+    public static function getIntentByUid(string $intentUid, DGraphClient $client)
+    {
+        $dGraphQuery = new DGraphQuery();
+        $dGraphQuery->uid($intentUid)
+            ->filterEq(Model::EI_TYPE, Model::INTENT)
+            ->setQueryGraph(self::getIntentGraph());
+
+        $response = $client->query($dGraphQuery)->getData()[0];
+
+        return IntentTransformer::toIntent($response);
     }
 
     /**
@@ -227,6 +283,7 @@ class ConversationQueryFactory
      * @param array $data
      * @param bool $clone
      * @return mixed
+     * @throws NodeDoesNotExistException
      */
     public static function buildConversationFromDGraphData(array $data, $clone = false)
     {
@@ -328,6 +385,7 @@ class ConversationQueryFactory
      * @param ConversationManager $cm
      * @param $data
      * @param bool $clone
+     * @throws NodeDoesNotExistException
      */
     public static function createSceneFromDGraphData(ConversationManager $cm, $data, bool $clone = false): void
     {
@@ -351,6 +409,7 @@ class ConversationQueryFactory
      * @param ConversationManager $cm
      * @param $data
      * @param bool $clone
+     * @throws NodeDoesNotExistException
      */
     public static function updateParticipantFromDGraphData(
         $sceneId,
@@ -361,33 +420,7 @@ class ConversationQueryFactory
     ): void {
         if (isset($data[Model::SAYS])) {
             foreach ($data[Model::SAYS] as $intentData) {
-                $intent = new Intent($intentData[Model::ID]);
-                $clone ? false : $intent->setUid($intentData[Model::UID]);
-                $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
-
-                if (isset($intentData[Model::CONFIDENCE])) {
-                    $intent->setConfidence($intentData[Model::CONFIDENCE]);
-                }
-
-                if (isset($intentData[Model::CAUSES_ACTION])) {
-                    $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
-                    $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
-                    $intent->addAction($action);
-                }
-                if (isset($intentData[Model::HAS_INTERPRETER])) {
-                    $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
-                    $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
-                    $intent->addInterpreter($interpreter);
-                }
-
-                if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
-                    foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                        $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
-                        $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
-
-                        $intent->addExpectedAttribute($expectedAttributeNode);
-                    }
-                }
+                $intent = self::createIntent($clone, $intentData);
 
                 if ($participant->isUser()) {
                     $cm->userSaysToBot($sceneId, $intent, $intentData[Model::ORDER]);
@@ -400,33 +433,7 @@ class ConversationQueryFactory
         }
         if (isset($data[Model::SAYS_ACROSS_SCENES])) {
             foreach ($data[Model::SAYS_ACROSS_SCENES] as $intentData) {
-                $intent = new Intent($intentData[Model::ID]);
-                $clone ? false : $intent->setUid($intentData[Model::UID]);
-                $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
-
-                if (isset($intentData[Model::CONFIDENCE])) {
-                    $intent->setConfidence($intentData[Model::CONFIDENCE]);
-                }
-
-                if (isset($intentData[Model::CAUSES_ACTION])) {
-                    $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
-                    $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
-                    $intent->addAction($action);
-                }
-                if (isset($intentData[Model::HAS_INTERPRETER])) {
-                    $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
-                    $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
-                    $intent->addInterpreter($interpreter);
-                }
-
-                if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
-                    foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                        $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
-                        $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
-
-                        $intent->addExpectedAttribute($expectedAttributeNode);
-                    }
-                }
+                $intent = self::createIntent($clone, $intentData);
 
                 $endingSceneId = self::getEndingSceneId($intentData);
 
@@ -462,5 +469,48 @@ class ConversationQueryFactory
 
         Log::error('Could not extract ending scene id', $listenedBy);
         throw new NodeDoesNotExistException('Could not extract ending scene id');
+    }
+
+    /**
+     * Creates an intent with the provided intent data
+     *
+     * @param bool $clone
+     * @param $intentData
+     * @return Intent
+     */
+    private static function createIntent(bool $clone, $intentData): Intent
+    {
+        $intent = new Intent($intentData[Model::ID]);
+        $clone ? false : $intent->setUid($intentData[Model::UID]);
+        $intent->setAttribute(Model::COMPLETES, $intentData[MODEL::COMPLETES]);
+
+        if (isset($intentData[Model::CONFIDENCE])) {
+            $intent->setConfidence($intentData[Model::CONFIDENCE]);
+        }
+        if (isset($intentData[Model::COMPLETES])) {
+            $intent->setCompletesAttribute((bool)$intentData[Model::COMPLETES]);
+        }
+
+        if (isset($intentData[Model::CAUSES_ACTION])) {
+            $action = new Action($intentData[Model::CAUSES_ACTION][0][Model::ID]);
+            $clone ? false : $action->setUid($intentData[Model::CAUSES_ACTION][0][Model::UID]);
+            $intent->addAction($action);
+        }
+        if (isset($intentData[Model::HAS_INTERPRETER])) {
+            $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
+            $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
+            $intent->addInterpreter($interpreter);
+        }
+
+        if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
+            foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
+                $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
+
+                $intent->addExpectedAttribute($expectedAttributeNode);
+            }
+        }
+
+        return $intent;
     }
 }

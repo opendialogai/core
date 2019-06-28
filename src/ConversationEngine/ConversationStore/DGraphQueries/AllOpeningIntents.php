@@ -29,6 +29,10 @@ class AllOpeningIntents extends DGraphQuery
                             Model::UID,
                             Model::ORDER,
                             Model::CONFIDENCE,
+                            Model::CAUSES_ACTION => [
+                                Model::UID,
+                                Model::ID
+                            ],
                             Model::HAS_INTERPRETER => [
                                 Model::ID,
                                 Model::UID,
@@ -43,6 +47,10 @@ class AllOpeningIntents extends DGraphQuery
                             Model::UID,
                             Model::ORDER,
                             Model::CONFIDENCE,
+                            Model::CAUSES_ACTION => [
+                                Model::UID,
+                                Model::ID
+                            ],
                             Model::HAS_INTERPRETER => [
                                 Model::ID,
                                 Model::UID,
