@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use Ds\Map;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\AllOpeningIntents;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -13,12 +12,9 @@ class DGraphConversationStore implements ConversationStoreInterface
 {
     private $dGraphClient;
 
-    private $attributeResolver;
-
-    public function __construct(DGraphClient $dGraphClient, AttributeResolver $attributeResolver)
+    public function __construct(DGraphClient $dGraphClient)
     {
         $this->dGraphClient = $dGraphClient;
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -26,7 +22,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getAllOpeningIntents(): Map
     {
-        $query = new AllOpeningIntents($this->dGraphClient, $this->attributeResolver);
+        $query = new AllOpeningIntents($this->dGraphClient);
 
         return $query->getIntents();
     }

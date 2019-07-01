@@ -21,10 +21,7 @@ class ConversationEngineServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(ConversationStoreInterface::class, function () {
-            return new DGraphConversationStore(
-                $this->app->make(DGraphClient::class),
-                $this->app->make(AttributeResolver::class)
-            );
+            return new DGraphConversationStore($this->app->make(DGraphClient::class));
         });
 
         $this->app->singleton(ConversationEngineInterface::class, function () {

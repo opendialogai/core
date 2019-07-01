@@ -10,6 +10,8 @@ use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatButtonResponseUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatFormResponseUtterance;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatLongtextResponseUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
@@ -75,6 +77,7 @@ class WebchatSensor extends BaseSensor
             case 'button_response':
                 Log::debug('Received webchat button_response message.');
                 $utterance = new WebchatButtonResponseUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setCallbackId($request['content']['data']['callback_id']);
                 Log::debug(sprintf('Set callback id as %s', $utterance->getCallbackId()));
                 $utterance->setUserId($request['user_id']);
@@ -90,6 +93,29 @@ class WebchatSensor extends BaseSensor
             case 'url_click':
                 Log::debug('Received webchat url_click message.');
                 $utterance = new WebchatUrlClickUtterance();
+                $utterance->setData($request['content']['data']);
+                $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
+                }
+                return $utterance;
+                break;
+
+            case 'longtext_response':
+                Log::debug('Received webchat longtext_response message.');
+                $utterance = new WebchatLongtextResponseUtterance();
+                $utterance->setData($request['content']['data']);
+                $utterance->setUserId($request['user_id']);
+                if (isset($request['content']['user'])) {
+                    $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));
+                }
+                return $utterance;
+                break;
+
+            case 'webchat_form_response':
+                Log::debug('Received webchat webchat_form_response message.');
+                $utterance = new WebchatFormResponseUtterance();
+                $utterance->setData($request['content']['data']);
                 $utterance->setUserId($request['user_id']);
                 if (isset($request['content']['user'])) {
                     $utterance->setUser($this->createUser($request['user_id'], $request['content']['user']));

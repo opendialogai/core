@@ -17,7 +17,7 @@ class CallbackInterpreterTest extends TestCase
     {
         parent::setUp();
         $validCallback = ['valid' => 'valid'];
-        $this->setConfigValue('opendialog.interpreter_engine.supported_callbacks', $validCallback);
+        $this->setSupportedCallbacks($validCallback);
     }
 
     public function testBinding()

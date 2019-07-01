@@ -155,10 +155,10 @@ class DGraphMutation
     {
         if ($update) {
             return sprintf('<%s> <%s> "%s" .', $subject, $predicate, $this->escapeCharacters($object));
-        } else {
-            $subject = $this->normalizeString($subject);
-            return sprintf('_:%s <%s> "%s" .', $subject, $predicate, $object);
         }
+
+        $subject = $this->normalizeString($subject);
+        return sprintf('_:%s <%s> "%s" .', $subject, $predicate, $object);
     }
 
     /**

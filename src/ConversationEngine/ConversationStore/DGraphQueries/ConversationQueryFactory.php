@@ -2,16 +2,20 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
+use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
+use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Participant;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
 /**
  * Helper methods for forming queries to extract information from DGraph.
@@ -49,11 +53,10 @@ class ConversationQueryFactory
         string $conversationUid,
         DGraphClient $client,
         $clone = false
-    ) {
+    ): Conversation {
         $dGraphQuery = new DGraphQuery();
 
-        $dGraphQuery->uid($conversationUid)
-            ->setQueryGraph(self::getConversationQueryGraph());
+        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getConversationQueryGraph());
 
         $response = $client->query($dGraphQuery)->getData()[0];
         return self::buildConversationFromDGraphData($response, $clone);
@@ -69,7 +72,7 @@ class ConversationQueryFactory
         string $templateName,
         DGraphClient $client,
         $clone = false
-    ) {
+    ): Conversation {
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->eq('id', $templateName)
@@ -82,12 +85,11 @@ class ConversationQueryFactory
 
     /**
      * @param string $templateName
+     * @param DGraphClient $client
      * @return string
      */
-    public static function getConversationTemplateUid(
-        string $templateName,
-        DGraphClient $client
-    ) {
+    public static function getConversationTemplateUid(string $templateName, DGraphClient $client): string
+    {
         $dGraphQuery = new DGraphQuery();
 
         $dGraphQuery->eq('id', $templateName)
@@ -104,7 +106,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getConversationQueryGraph()
+    public static function getConversationQueryGraph(): array
     {
         return [
             Model::UID,
@@ -116,7 +118,10 @@ class ConversationQueryFactory
         ];
     }
 
-    public static function getConditionGraph()
+    /**
+     * @return array
+     */
+    public static function getConditionGraph(): array
     {
         return [
             Model::UID,
@@ -131,7 +136,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getSceneGraph()
+    public static function getSceneGraph(): array
     {
         return [
             Model::UID,
@@ -144,7 +149,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getParticipantGraph()
+    public static function getParticipantGraph(): array
     {
         return [
             Model::UID,
@@ -159,7 +164,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getIntentGraph()
+    public static function getIntentGraph(): array
     {
         return [
             Model::UID,
@@ -169,6 +174,7 @@ class ConversationQueryFactory
             Model::CONFIDENCE,
             Model::CAUSES_ACTION => self::getActionGraph(),
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
+            Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
             Model::LISTENED_BY_FROM_SCENES => [
                 Model::UID,
                 Model::ID,
@@ -185,7 +191,7 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getActionGraph()
+    public static function getActionGraph(): array
     {
         return [
             Model::UID,
@@ -196,7 +202,18 @@ class ConversationQueryFactory
     /**
      * @return array
      */
-    public static function getInterpreterGraph()
+    public static function getInterpreterGraph(): array
+    {
+        return [
+            Model::UID,
+            Model::ID
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getExpectedAttributesGraph(): array
     {
         return [
             Model::UID,
@@ -242,11 +259,8 @@ class ConversationQueryFactory
      * @param ConversationManager $cm
      * @param bool $clone
      */
-    public static function createConversationConditions(
-        array $conditions,
-        ConversationManager $cm,
-        bool $clone = false
-    ) {
+    public static function createConversationConditions(array $conditions, ConversationManager $cm, bool $clone = false): void
+    {
         foreach ($conditions as $conditionData) {
             $condition = self::createCondition($conditionData, $clone);
             if (isset($condition)) {
@@ -260,7 +274,7 @@ class ConversationQueryFactory
      * @param bool $clone
      * @return Condition
      */
-    public static function createCondition(array $conditionData, bool $clone = false)
+    public static function createCondition(array $conditionData, bool $clone = false): Condition
     {
         $uid = $conditionData[Model::UID];
         $id = $conditionData[Model::ID];
@@ -268,9 +282,14 @@ class ConversationQueryFactory
         $parameters = (isset($conditionData[Model::PARAMETERS])) ? $conditionData[Model::PARAMETERS] : [];
         $attributes = (isset($conditionData[Model::ATTRIBUTES])) ? $conditionData[Model::ATTRIBUTES] : [];
 
-        $condition = new Condition($operation, $attributes, $parameters, $id);
-        if ($clone) {
-            $condition->setUid($uid);
+        if (array_key_exists($attributeName, AttributeResolverFacade::getSupportedAttributes())) {
+            $attribute = AttributeResolverFacade::getAttributeFor($attributeName, $attributeValue);
+            $condition = new Condition($attribute, $operation, $id);
+            $condition->setContextId($context);
+            if ($clone) {
+                $condition->setUid($uid);
+            }
+            return $condition;
         }
         return $condition;
     }
@@ -279,15 +298,23 @@ class ConversationQueryFactory
      * @param ConversationManager $cm
      * @param $data
      */
-    public static function createScenesFromDGraphData(ConversationManager $cm, $data)
+    public static function createScenesFromDGraphData(ConversationManager $cm, $data): void
     {
         foreach ($data[Model::HAS_OPENING_SCENE] as $openingScene) {
-            $cm->createScene($openingScene[Model::ID], true);
+            if (isset($openingScene[Model::ID])) {
+                $cm->createScene($openingScene[Model::ID], true);
+            } else {
+                Log::error('Trying to create opening scene with no id', $openingScene);
+            }
         }
 
         if (isset($data[Model::HAS_SCENE])) {
             foreach ($data[Model::HAS_SCENE] as $scene) {
-                $cm->createScene($scene[Model::ID], false);
+                if (isset($scene[Model::ID])) {
+                    $cm->createScene($scene[Model::ID], false);
+                } else {
+                    Log::error('Trying to create scene with no id', $scene);
+                }
             }
         }
     }
@@ -297,7 +324,7 @@ class ConversationQueryFactory
      * @param $data
      * @param bool $clone
      */
-    public static function createSceneFromDGraphData(ConversationManager $cm, $data, bool $clone = false)
+    public static function createSceneFromDGraphData(ConversationManager $cm, $data, bool $clone = false): void
     {
         $scene = $cm->getScene($data[Model::ID]);
         $clone ? false : $scene->setUid($data[Model::UID]);
@@ -326,7 +353,7 @@ class ConversationQueryFactory
         ConversationManager $cm,
         $data,
         bool $clone = false
-    ) {
+    ): void {
         if (isset($data[Model::SAYS])) {
             foreach ($data[Model::SAYS] as $intentData) {
                 $intent = new Intent($intentData[Model::ID]);
@@ -346,6 +373,15 @@ class ConversationQueryFactory
                     $interpreter = new Interpreter($intentData[Model::HAS_INTERPRETER][0][Model::ID]);
                     $clone ? false : $interpreter->setUid($intentData[Model::HAS_INTERPRETER][0][Model::UID]);
                     $intent->addInterpreter($interpreter);
+                }
+
+                if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                    foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                        $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
+                        $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
+
+                        $intent->addExpectedAttribute($expectedAttributeNode);
+                    }
                 }
 
                 if ($participant->isUser()) {
@@ -378,7 +414,16 @@ class ConversationQueryFactory
                     $intent->addInterpreter($interpreter);
                 }
 
-                $endingSceneId = $intentData[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID];
+                if (isset($intentData[Model::HAS_EXPECTED_ATTRIBUTE])) {
+                    foreach ($intentData[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+                        $expectedAttributeNode = new ExpectedAttribute($expectedAttribute[Model::ID]);
+                        $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
+
+                        $intent->addExpectedAttribute($expectedAttributeNode);
+                    }
+                }
+
+                $endingSceneId = self::getEndingSceneId($intentData);
 
                 if ($participant->isUser()) {
                     $cm->userSaysToBotAcrossScenes($sceneId, $endingSceneId, $intent, $intentData[Model::ORDER]);
@@ -389,5 +434,28 @@ class ConversationQueryFactory
                 }
             }
         }
+    }
+
+    /**
+     * Tries to work out the ending scene ID from the intent data
+     *
+     * @param $intentData
+     * @return mixed
+     * @throws NodeDoesNotExistException
+     */
+    public static function getEndingSceneId($intentData)
+    {
+        $listenedBy = $intentData[Model::LISTENED_BY_FROM_SCENES][0];
+
+        if (isset($listenedBy[Model::USER_PARTICIPATES_IN][0][Model::ID])) {
+            return $listenedBy[Model::USER_PARTICIPATES_IN][0][Model::ID];
+        }
+
+        if (isset($listenedBy[Model::BOT_PARTICIPATES_IN][0][Model::ID])) {
+            return $listenedBy[Model::BOT_PARTICIPATES_IN][0][Model::ID];
+        }
+
+        Log::error('Could not extract ending scene id', $listenedBy);
+        throw new NodeDoesNotExistException('Could not extract ending scene id');
     }
 }

@@ -115,13 +115,24 @@ class Scene extends NodeWithConditions
     public function getIntentByOrder($order):Intent
     {
         $intents =  $this->getAllIntents()->filter( function ($key, $value) use ($order) {
-           /* @var Intent $value */
+            /* @var Intent $value */
             if ($value->getOrder() == $order) {
                 return true;
             }
         });
 
         return $intents->first()->value;
+    }
+
+    /**
+     * Checks whether the given intent is in the this scene
+     *
+     * @param Intent $intent
+     * @return bool
+     */
+    private function hasIntent(Intent $intent)
+    {
+        return $this->getAllIntents()->hasKey($intent->getId());
     }
 
     /**
@@ -132,13 +143,18 @@ class Scene extends NodeWithConditions
      */
     public function getNextPossibleBotIntents(Intent $currentIntent): Map
     {
-        $currentOrder = $currentIntent->getOrder();
-
-        $intents = $this->getIntentsSaidByBot()->filter( function ($key, $value) use ($currentOrder) {
-            /* @var Intent $value */
-            if ($value->getOrder() > $currentOrder) {
+        $intents = $this->getIntentsSaidByBot()->filter( function ($key, Intent $possibleIntent) use ($currentIntent) {
+            if (!$this->hasIntent($currentIntent)) {
+                // TODO We have moved scenes, not able to determine the correct ordering
                 return true;
             }
+
+            /* @var Intent $value */
+            if ($possibleIntent->getOrder() === $currentIntent->getOrder() + 1) {
+                return true;
+            }
+
+            return false;
         });
 
         return $intents;

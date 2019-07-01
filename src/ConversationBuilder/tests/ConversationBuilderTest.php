@@ -3,13 +3,13 @@
 namespace OpenDialogAi\Core\Tests\Unit;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationBuilder\ConversationStateLog;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
-use OpenDialogAi\ConversationBuilder\Conversation;
-use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
 
@@ -165,7 +165,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(2, $conversationModel->getConditions());
 
         // There should be two scenes
-        $this->assertCount(3, $conversationModel->getAllScenes());
+        $this->assertCount(4, $conversationModel->getAllScenes());
 
         // The opening scene should be called opening_scene
         $this->assertEquals('opening_scene', $conversationModel->getScene('opening_scene')->getId());
@@ -185,7 +185,6 @@ class ConversationBuilderTest extends TestCase
         // Bot replies
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         $this->assertEquals('hello_user', $openingScene->getIntentsSaidByBot()->first()->value->getId());
-
 
         // Intents should have actions and interpreters
         /* @var Intent $userIntent */
@@ -213,8 +212,6 @@ class ConversationBuilderTest extends TestCase
         // Bot replies
         $this->assertCount(1, $scene2->getIntentsSaidByBot());
         $this->assertEquals('doing_dandy', $scene2->getIntentsSaidByBot()->first()->value->getId());
-
-
     }
 
     /**
@@ -222,19 +219,16 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationPersist()
     {
-        if (!getenv('LOCAL')) {
-            $this->markTestSkipped('This test only runs on local environments.');
-        }
+        $this->publishConversation($this->conversation1());
 
-        $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
-        $conversationModel = $conversation->buildConversation();
+        /** @var DGraphClient $client */
+        $client = $this->app->make(DGraphClient::class);
 
-        // Assert that we think publishing was successful.
-        $this->assertTrue($conversation->publishConversation($conversationModel));
+        $template = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
+            'hello_bot_world',
+            $client
+        );
 
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
-        $query = new DGraphQuery();
-        $query->allofterms('ei_type', ['conversation'])
-            ->setQueryGraph(['id' => 'hello_bot_world']);
+        $this->assertEquals('hello_bot_world', $template->getId());
     }
 }

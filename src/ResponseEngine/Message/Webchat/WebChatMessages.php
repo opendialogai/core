@@ -25,7 +25,7 @@ class WebChatMessages
     /**
      * Return the message objects.
      *
-     * @return WebChatMessage|Array $messages
+     * @return WebChatMessage|array $messages
      */
     public function getMessages()
     {
@@ -35,7 +35,7 @@ class WebChatMessages
     /**
      * Get the messages to post.
      *
-     * @return Array $messagesToPost
+     * @return array $messagesToPost
      */
     public function getMessageToPost()
     {

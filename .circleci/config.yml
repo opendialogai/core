@@ -18,6 +18,7 @@ jobs:
 
     steps:
       - checkout
+      - setup_remote_docker
       - run: sudo apt install -y libsqlite3-dev
       - run: sudo composer self-update
 
@@ -35,8 +36,24 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.lock" }}
 
+      # Set up dgraph
+      - run: cd dgraph && docker-compose up -d
+
+      # Set up port forwarding from dgraph server
+      - run: sudo apt-get -y update; sleep 1; sudo apt-get -y install socat
+      - run: docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec dgraph_server_1 apt-get -y update
+      - run: docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec dgraph_server_1 apt-get -y install socat
+      - run: sleep 5
+      - run:
+          name: dgraph tunnel
+          background: true
+          command: socat TCP-LISTEN:8080,reuseaddr,fork "EXEC:'docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec -i dgraph_server_1 socat STDIO TCP-CONNECT:localhost:8080'"
+
       # run tests!
-      - run: ./vendor/bin/phpunit
+      - run: phpdbg -qrr ./vendor/bin/phpunit --coverage-html build/coverage-report -d memory_limit=512M
+
+      - store_artifacts:
+          path:  build/coverage-report
 
       - run: ./vendor/bin/phpcs --standard=od-cs-ruleset.xml src/ --ignore=*/migrations/*,*/tests/*
 

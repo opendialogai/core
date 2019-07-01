@@ -4,18 +4,21 @@ namespace OpenDialogAi\ConversationEngine\tests;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ConversationBuilder\Conversation;
+use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Utterances\User;
+use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -24,11 +27,8 @@ use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
 
 class ConversationEngineTest extends TestCase
 {
-    /* @var \OpenDialogAi\ConversationEngine\ConversationEngine */
+    /* @var ConversationEngine */
     private $conversationEngine;
-
-    /* @var \OpenDialogAi\Core\Graph\DGraph\DGraphClient */
-    private $client;
 
     /* @var WebchatChatOpenUtterance */
     private $utterance;
@@ -43,29 +43,14 @@ class ConversationEngineTest extends TestCase
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
 
-        $this->client = $this->app->make(DGraphClient::class);
-        $this->client->dropSchema();
-        $this->client->initSchema();
+        $this->initDDgraph();
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
-
-            // Now create and store three conversations
-            $conversation = Conversation::create(['name' => 'Conversation1', 'model' => $this->$conversationId()]);
-            $conversationModel = $conversation->buildConversation();
-
-            $this->assertTrue($conversation->publishConversation($conversationModel));
+            $this->publishConversation($this->$conversationId());
         }
 
-        // Create an utterance
-        $user = new User('1');
-        $user->setFirstName('John');
-        $user->setLastName('Smith');
-        $utterance = new WebchatChatOpenUtterance();
-        $utterance->setCallbackId('hello_bot');
-        $utterance->setUser($user);
-        $this->utterance = $utterance;
-
+        $this->utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
     }
 
     public function testConversationStoreIntents()
@@ -86,64 +71,90 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(2, $conditions);
 
-        /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
+        /* @var Condition $condition */
         foreach ($conditions as $condition) {
-            if ($condition->getId() == 'user.name-is_set-') {
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'name');
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === null);
-                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::NAME);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::NAME);
+            if ($condition->getId() === 'user.name-is_set-') {
+                $this->assertInstanceOf(StringAttribute::class, $condition->getAttributeToCompareAgainst());
+                $this->assertNull($condition->getAttributeToCompareAgainst()->getValue());
+                $this->assertEquals('name', $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue());
+                $this->assertNull($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
+                $this->assertEquals(AbstractAttribute::IS_SET, $condition->getEvaluationOperation());
+                $this->assertEquals(AbstractAttribute::IS_SET, $condition->getAttribute(Model::OPERATION)->getValue());
             }
 
-            if ($condition->getId() == 'user.test-gt-10') {
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue() === 10);
-                $this->assertTrue($condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue() === 'test');
-                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::NAME);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::NAME);
+            if ($condition->getId() === 'user.test-gt-10') {
+                $this->assertInstanceOf(IntAttribute::class, $condition->getAttributeToCompareAgainst());
+                $this->assertEquals(10, $condition->getAttributeToCompareAgainst()->getValue());
+                $this->assertEquals(10, $condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
+                $this->assertEquals('test', $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue());
+                $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getEvaluationOperation());
+                $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getAttribute(Model::OPERATION)->getValue());
             }
-
         }
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
     public function testConversationEngineNoOngoingConversation()
     {
-        /* @var \OpenDialogAi\ContextEngine\Contexts\UserContext $userContext; */
-        $userContext = $this->createUserContext('abc123a');
-        $this->assertTrue($userContext->getUserId() == 'abc123a');
+        $userContext = $this->createUserContext();
+        $this->assertEquals($this->utterance->getUserId(), $userContext->getUserId());
         $this->assertFalse($userContext->isUserHavingConversation());
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
     public function testConversationEngineOngoingConversation()
     {
-        /* @var \OpenDialogAi\ContextEngine\Contexts\UserContext $userContext; */
-        $userContext = $this->createConversationAndAttachToUser('abc123b');
-        $this->assertTrue($userContext->getUserId() == 'abc123b');
+        /* @var UserContext $userContext; */
+        $userContext = $this->createConversationAndAttachToUser();
+        $this->assertEquals($this->utterance->getUserId(), $userContext->getUserId());
         $this->assertTrue($userContext->isUserHavingConversation());
     }
 
+    /**
+     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     */
     public function testDeterminingCurrentConversationWithoutOngoingConversation()
     {
-        $userContext = $this->createUserContext('abc123a');
+        $userContext = $this->createUserContext();
 
         $conversation = $this->conversationEngine->determineCurrentConversation($userContext, $this->utterance);
-        $this->assertTrue($conversation->getId() == 'no_match_conversation');
-        $this->assertTrue($userContext->getCurrentConversation()->getId() == 'no_match_conversation');
+        $this->assertEquals('no_match_conversation', $conversation->getId());
+        $this->assertEquals('no_match_conversation', $userContext->getCurrentConversation()->getId());
     }
 
+    /**
+     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     */
     public function testDeterminingNextIntentWithoutOngoingConversation()
     {
         // This is setup to match the NoMatch conversation
 
-        $userContext = $this->createUserContext('abc123a');
+        $userContext = $this->createUserContext();
 
         $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
-        $this->assertTrue($intent->getId() == 'intent.core.NoMatchResponse');
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
         $this->assertFalse($userContext->isUserHavingConversation());
     }
 
+    /**
+     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     */
     public function testDeterminingNextIntentsInMultiSceneConversation()
     {
-        $userContext = $this->createUserContext('abc123a');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new IntAttribute('test', 11));
 
         $this->utterance->setCallbackId('hello_bot');
@@ -158,37 +169,43 @@ class ConversationEngineTest extends TestCase
         // Let's see if we get the right next intent for the first step.
         $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
         $validIntents = ['hello_user','hello_registered_user'];
-        $this->assertTrue(in_array($intent->getId(), $validIntents));
+        $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertTrue(in_array($userContext->getCurrentIntent()->getId(), $validIntents));
+        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
         $nextUtterance = new WebchatChatOpenUtterance();
-        if ($intent->getId() == 'hello_user') {
+        if ($intent->getId() === 'hello_user') {
             $nextUtterance->setCallbackId('how_are_you');
             $intent = $this->conversationEngine->getNextIntent($userContext, $nextUtterance);
-            $this->assertTrue($intent->getId()=='doing_dandy');
+            $this->assertEquals('doing_dandy', $intent->getId());
         }
-        if ($intent->getId() == 'hello_registered_user') {
+        if ($intent->getId() === 'hello_registered_user') {
             $nextUtterance->setCallbackId('weather_question');
             $intent = $this->conversationEngine->getNextIntent($userContext, $nextUtterance);
-            $this->assertTrue($intent->getId() =='intent.core.NoMatchResponse');
+            $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
         }
     }
 
 
+    /**
+     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     */
     public function testDeterminingCurrentConversationWithOngoingConversation()
     {
-        $userContext = $this->createConversationAndAttachToUser('abc123a');
+        $userContext = $this->createConversationAndAttachToUser();
 
         $conversation = $this->conversationEngine->determineCurrentConversation($userContext, $this->utterance);
 
         // Ensure that the $conversation is the right one.
-        $this->assertTrue($conversation->getId() == 'hello_bot_world');
-        $this->assertCount(3, $conversation->getAllScenes());
-        $this->assertTrue($conversation->getScene('opening_scene')->getId() == 'opening_scene');
-        $this->assertTrue($conversation->getScene('scene2')->getId() == 'scene2');
+        $this->assertEquals($conversation->getId(), 'hello_bot_world');
+        $this->assertCount(4, $conversation->getAllScenes());
+        $this->assertEquals('opening_scene', $conversation->getScene('opening_scene')->getId());
+        $this->assertEquals('scene2', $conversation->getScene('scene2')->getId());
 
         $openingScene = $conversation->getScene('opening_scene');
         $this->assertCount(1, $openingScene->getIntentsSaidByUser());
@@ -196,15 +213,15 @@ class ConversationEngineTest extends TestCase
         $userIntent = $openingScene->getIntentsSaidByUser()->get('hello_bot');
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
-        $this->assertTrue($userIntent->getAction()->getId() == 'action.core.example');
-        $this->assertTrue($userIntent->getInterpreter()->getId() == 'interpreter.core.callbackInterpreter');
+        $this->assertEquals($userIntent->getAction()->getId(), 'action.core.example');
+        $this->assertEquals($userIntent->getInterpreter()->getId(), 'interpreter.core.callbackInterpreter');
 
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
         $botIntent = $openingScene->getIntentsSaidByBot()->get('hello_user');
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
-        $this->assertTrue($botIntent->getAction()->getId() == 'action.core.example');
+        $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
 
         $secondScene = $conversation->getScene('scene2');
 
@@ -213,51 +230,41 @@ class ConversationEngineTest extends TestCase
         $userIntent = $secondScene->getIntentsSaidByUser()->get('how_are_you');
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
-        $this->assertTrue($userIntent->getAction()->getId() == 'action.core.example');
-        $this->assertTrue($userIntent->getInterpreter()->getId() == 'interpreter.core.callbackInterpreter');
+        $this->assertEquals('action.core.example', $userIntent->getAction()->getId());
+        $this->assertEquals('interpreter.core.callbackInterpreter', $userIntent->getInterpreter()->getId());
 
         $this->assertCount(1, $secondScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
         $botIntent = $secondScene->getIntentsSaidByBot()->get('doing_dandy');
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
-        $this->assertTrue($botIntent->getAction()->getId() == 'action.core.example');
+        $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
     }
 
-    /**
-     * @param $userId
-     * @return \OpenDialogAi\ContextEngine\Contexts\UserContext
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
-     */
-    private function createUserContext($userId)
+    private function createUserContext()
     {
-        $this->utterance->setUserId($userId);
-
-        /* @var \OpenDialogAi\ContextEngine\ContextManager\ContextService $contextService */
+        /* @var ContextService $contextService */
         $contextService = $this->app->make(ContextService::class);
 
-        /* @var \OpenDialogAi\ContextEngine\Contexts\UserContext $userContext; */
+        /* @var UserContext $userContext ; */
         $userContext = $contextService->createUserContext($this->utterance);
 
         return $userContext;
     }
 
     /**
-     * @param $userId
-     * @return \OpenDialogAi\ContextEngine\Contexts\UserContext
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @return UserContext
+     * @throws FieldNotSupported
      */
-    private function createConversationAndAttachToUser($userId)
+    private function createConversationAndAttachToUser()
     {
-        $this->utterance->setUserId($userId);
-
-        /* @var \OpenDialogAi\ConversationBuilder\Conversation $conversation */
+        /* @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'Conversation1', 'model' => $this->conversation1()]);
         /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
         $conversationModel = $conversation->buildConversation();
 
-        /* @var \OpenDialogAi\ContextEngine\Contexts\UserContext $userContext */
-        $userContext = $this->createUserContext($userId);
+        /* @var UserContext $userContext */
+        $userContext = $this->createUserContext();
         $user = $userContext->getUser();
 
         $user->setCurrentConversation($conversationModel);

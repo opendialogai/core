@@ -12,9 +12,6 @@ class ContextEngineServiceTest extends TestCase
     /** @var ContextService */
     private $contextService;
 
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
     public function setUp(): void
     {
         parent::setUp();
@@ -24,7 +21,7 @@ class ContextEngineServiceTest extends TestCase
 
     public function testContextServiceCreation()
     {
-        $this->assertTrue($this->contextService instanceof ContextService);
+        $this->assertInstanceOf(ContextService::class, $this->contextService);
     }
 
     public function testAddingANewContext()
@@ -43,8 +40,8 @@ class ContextEngineServiceTest extends TestCase
         $newContextA = $this->contextService->getContext('new_context');
         $attribute = $newContextA->getAttribute('new_context.test');
 
-        $this->assertTrue($attribute->getId() == 'new_context.test');
-        $this->assertTrue($attribute->getValue() == 'value');
+        $this->assertSame($attribute->getId(), 'new_context.test');
+        $this->assertSame($attribute->getValue(), 'value');
     }
 
     public function testRetrievingAnAttributeDirectly()
@@ -55,14 +52,18 @@ class ContextEngineServiceTest extends TestCase
 
         $attribute = $this->contextService->getAttribute('test', 'new_context');
 
-        $this->assertTrue($attribute->getId() == 'test');
-        $this->assertTrue($attribute->getValue() == 'value');
+        $this->assertSame($attribute->getId(), 'test');
+        $this->assertSame($attribute->getValue(), 'value');
 
         $this->expectException(ContextDoesNotExistException::class);
         $this->expectExceptionMessage('Context new_context1 for attribute test not available.');
 
         // Now try for a context that is not set
         $this->contextService->getAttribute('test', 'new_context1');
+    }
 
+    public function testSessionContextCreated()
+    {
+        $this->assertTrue($this->contextService->hasContext(ContextService::SESSION_CONTEXT));
     }
 }
