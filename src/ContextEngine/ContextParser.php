@@ -65,4 +65,15 @@ abstract class ContextParser
     {
         return self::determineContextAndAttributeId($attribute)[1];
     }
+
+    /**
+     * Checks whether the provided $attribute name contains a context ID
+     *
+     * @param string $attribute
+     * @return bool
+     */
+    public static function containsContextName(string $attribute):  bool
+    {
+         return self::determineContextId($attribute) !== AbstractAttribute::UNDEFINED_CONTEXT;
+    }
 }

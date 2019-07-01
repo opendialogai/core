@@ -326,4 +326,14 @@ EOT;
     {
         $this->app['config']->set('opendialog.interpreter_engine.supported_callbacks', $callbacks);
     }
+
+    /**
+     * Adds the custom attributes and unsets the ContextService to unbind from the service layer
+     *
+     * @param array $customAttribute
+     */
+    protected function setCustomAttributes(array $customAttribute)
+    {
+        $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+    }
 }

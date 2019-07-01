@@ -5,17 +5,24 @@ namespace OpenDialogAi\ContextEngine\ContextManager;
 use Ds\Map;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService
 {
-    const SESSION_CONTEXT = 'session';
+    const SESSION_CONTEXT      = 'session';
+    const CONVERSATION_CONTEXT = 'conversation';
+
+    public static $coreContexts = [UserContext::USER_CONTEXT, self::SESSION_CONTEXT, self::CONVERSATION_CONTEXT];
 
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
@@ -60,6 +67,7 @@ class ContextService
 
     /**
      * @param string $contextId
+     * @throws ContextDoesNotExistException
      * @return ContextInterface
      */
     public function getContext(string $contextId): ContextInterface
@@ -128,6 +136,34 @@ class ContextService
     }
 
     /**
+     * Saves the attribute provided against a context.
+     * If the $attributeName is namespace with a context name, will try to save in the named context.
+     * If the named context does not exist or the attribute name is not namespaced, will save against the session context
+     *
+     * @param string $attributeName
+     * @param $attributeValue
+     */
+    public function saveAttribute(string $attributeName, $attributeValue): void
+    {
+        try {
+            $context = $this->getContext(ContextParser::determineContextId($attributeName));
+        } catch (ContextDoesNotExistException $e) {
+            Log::debug(sprintf('Trying to save attribute without context id, using session context %s', $attributeName));
+            $context = $this->getSessionContext();
+        }
+
+        $attributeId = ContextParser::determineAttributeId($attributeName);
+        try {
+            $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
+        } catch (AttributeIsNotSupported $e) {
+            Log::debug(sprintf('Trying to save unsupported attribute, using StringAttribute %s', $attributeName));
+            $attribute = new StringAttribute($attributeId, $attributeValue);
+        }
+
+        $context->addAttribute($attribute);
+    }
+
+    /**
      * @param string $attributeId
      * @param string $contextId
      * @return AttributeInterface
@@ -191,7 +227,7 @@ class ContextService
     public function getCustomContexts(): array
     {
         return $this->activeContexts->filter(static function ($context) {
-            return !in_array($context, [UserContext::USER_CONTEXT, self::SESSION_CONTEXT], true);
+            return !in_array($context, self::$coreContexts, true);
         })->toArray();
     }
 
@@ -215,4 +251,13 @@ class ContextService
         return $this->getContext(UserContext::USER_CONTEXT);
     }
 
+    /**
+     *  Helper method to return the conversation context
+     *
+     * @return BaseContext
+     */
+    public function getConversationContext(): ContextInterface
+    {
+        return $this->getContext(self::CONVERSATION_CONTEXT);
+    }
 }
