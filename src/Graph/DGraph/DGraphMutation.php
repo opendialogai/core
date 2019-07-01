@@ -93,7 +93,7 @@ class DGraphMutation
             $attributeStatement[] = $this->prepareAttributeTriple(
                 $id,
                 $attribute->getId(),
-                $attribute->getValue(),
+                $attribute->toString(),
                 $update
             );
         }

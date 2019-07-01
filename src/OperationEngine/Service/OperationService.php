@@ -94,7 +94,7 @@ class OperationService implements OperationServiceInterface
 
             try {
                 $actualAttribute = $this->contextService->getAttribute($attributeName, $contextId);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Log::debug($e->getMessage());
                 // If the attribute does not exist create one with a null value since we may be testing
                 // for its existence.

@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -279,17 +278,20 @@ class ConversationQueryFactory
         $uid = $conditionData[Model::UID];
         $id = $conditionData[Model::ID];
         $operation = $conditionData[Model::OPERATION];
-        $parameters = (isset($conditionData[Model::PARAMETERS])) ? $conditionData[Model::PARAMETERS] : [];
-        $attributes = (isset($conditionData[Model::ATTRIBUTES])) ? $conditionData[Model::ATTRIBUTES] : [];
 
-        if (array_key_exists($attributeName, AttributeResolverFacade::getSupportedAttributes())) {
-            $attribute = AttributeResolverFacade::getAttributeFor($attributeName, $attributeValue);
-            $condition = new Condition($attribute, $operation, $id);
-            $condition->setContextId($context);
-            if ($clone) {
-                $condition->setUid($uid);
-            }
-            return $condition;
+        $parameters = [];
+        if (isset($conditionData[Model::PARAMETERS])) {
+            $parameters = json_decode(htmlspecialchars_decode($conditionData[Model::PARAMETERS]));
+        }
+
+        $attributes = [];
+        if (isset($conditionData[Model::ATTRIBUTES])) {
+            $attributes = json_decode(htmlspecialchars_decode($conditionData[Model::ATTRIBUTES]));
+        }
+
+        $condition = new Condition($operation, $attributes, $parameters, $id);
+        if ($clone) {
+            $condition->setUid($uid);
         }
         return $condition;
     }

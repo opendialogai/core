@@ -296,7 +296,7 @@ class Conversation extends Model
             try {
                 $conditionObject = $this->createCondition($condition['condition']);
                 $cm->addConditionToConversation($conditionObject);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 Log::debug(
                     sprintf(
                         'Could not create condition because: %s',
