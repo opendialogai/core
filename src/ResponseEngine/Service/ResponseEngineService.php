@@ -119,26 +119,20 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     {
         $conditions = $messageTemplate->getConditions();
 
-        if (empty($conditions)) {
-            return true;
-        }
-
-        $conditionsPass = false;
         foreach ($conditions as $contextId => $conditions) {
             foreach ($conditions as $conditionArray) {
                 $condition = array_values($conditionArray)[0];
                 $attributeName = array_keys($conditionArray)[0];
 
                 $attribute = $this->getAttributeForCondition($attributeName, $contextId);
-                $conditionsPass = $condition->compareAgainst($attribute);
+
+                if (!$condition->compareAgainst($attribute)) {
+                    return false;
+                }
             }
         }
 
-        if ($conditionsPass) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
