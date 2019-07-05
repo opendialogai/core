@@ -448,6 +448,25 @@ EOT;
         </option>
       </options>
     </element>
+    <element>
+      <element_type>auto_complete_select</element_type>
+      <name>year</name>
+      <display>Year</display>
+      <options>
+        <option>
+          <key>1</key>
+          <value>2019</value>
+        </option>
+        <option>
+          <key>2</key>
+          <value>2020</value>
+        </option>
+        <option>
+          <key>3</key>
+          <value>2021</value>
+        </option>
+      </options>
+    </element>
   </form-message>
 </message>
 EOT;
@@ -480,6 +499,26 @@ EOT;
                         '1' => '1 year',
                         '10' => '10 year',
                         '20' => '20 year',
+                    ],
+                ],
+                [
+                    'name' => 'year',
+                    'display' => 'Year',
+                    'required' => false,
+                    'element_type' => 'auto-select',
+                    'options' => [
+                        [
+                            'key' => 1,
+                            'value' => '2019',
+                        ],
+                        [
+                            'key' => 2,
+                            'value' => '2020',
+                        ],
+                        [
+                            'key' => 3,
+                            'value' => '2021',
+                        ],
                     ],
                 ],
             ],
