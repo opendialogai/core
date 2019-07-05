@@ -11,6 +11,7 @@ use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -30,6 +31,9 @@ class ContextService
     /* @var UserService */
     private $userService;
 
+    /** @var ConversationStoreInterface */
+    private $conversationStore;
+
     /**
      * ContextService constructor.
      */
@@ -44,6 +48,14 @@ class ContextService
     public function setUserService(UserService $userService): void
     {
         $this->userService = $userService;
+    }
+
+    /**
+     * @param ConversationStoreInterface $conversationStore
+     */
+    public function setConversationStore(ConversationStoreInterface $conversationStore): void
+    {
+        $this->conversationStore = $conversationStore;
     }
 
     /**
@@ -204,7 +216,8 @@ class ContextService
      */
     public function createUserContext(UtteranceInterface $utterance): UserContext
     {
-        $userContext = new UserContext($this->userService->createOrUpdateUser($utterance), $this->userService);
+        $chatbotUser = $this->userService->createOrUpdateUser($utterance);
+        $userContext = new UserContext($chatbotUser, $this->userService, $this->conversationStore);
         $this->addContext($userContext);
         return $userContext;
     }
@@ -259,5 +272,14 @@ class ContextService
     public function getConversationContext(): ContextInterface
     {
         return $this->getContext(self::CONVERSATION_CONTEXT);
+    }
+    /**
+     * Allows a custom user context to be set
+     *
+     * @param UserContext $userContext
+     */
+    public function setUserContext(UserContext $userContext)
+    {
+        $this->addContext($userContext);
     }
 }

@@ -111,7 +111,8 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
-        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($userContext->getCurrentIntent());
+        $currentIntent = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
+        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentIntent);
 
         /* @var Intent $nextIntent */
         $nextIntent = $possibleNextIntents->first()->value;
@@ -272,13 +273,21 @@ class ConversationEngine implements ConversationEngineInterface
         $this->storeIntentAttributesFromOpeningIntent($intent);
 
         $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
+
+        // TODO can we avoid building, cloning and re-persisting the conversation here. EG clone directly in DGRAPH
+        // TODO and store the resulting ID against the user
+
         $userContext->setCurrentConversation($conversation);
-        $userContext->setCurrentIntent(
-            $userContext->getUser()->getCurrentConversation()->getIntentByOrder($intent->getOrder())
+
+        /** @var Intent $currentIntent */
+        $currentIntent = $this->conversationStore->getIntentByConversationIdAndOrder(
+            $userContext->getUser()->getCurrentConversationUid(),
+            $intent->getOrder()
         );
 
+        $userContext->setCurrentIntent($currentIntent);
+
         /* @var Intent $currentIntent */
-        $currentIntent = $userContext->getCurrentIntent();
         Log::debug(sprintf('Set current intent as %s', $currentIntent->getId()));
 
         if ($currentIntent->causesAction()) {
@@ -287,6 +296,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         // For this intent get the matching conversation - we are pulling this back out from the user
         // so that we have the copy from the graph.
+        // TODO do we need to get the entire conversation again?
         return $this->conversationStore->getConversation($intent->getConversationUid());
     }
 
@@ -414,6 +424,7 @@ class ConversationEngine implements ConversationEngineInterface
             $expectedAttributes = $intent->getExpectedAttributeContexts();
         }
 
+        $userContextUpdated = false;
         /** @var AttributeInterface $attribute */
         foreach ($intent->getNonCoreAttributes() as $attribute) {
             $attributeName = $attribute->getId();
@@ -421,6 +432,9 @@ class ConversationEngine implements ConversationEngineInterface
             $context = $this->contextService->getSessionContext();
             if ($expectedAttributes->hasKey($attributeName)) {
                 $contextId = $expectedAttributes->get($attributeName);
+                if ($contextId === UserContext::USER_CONTEXT) {
+                    $userContextUpdated = true;
+                }
                 try {
                     $context = $this->contextService->getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
@@ -433,7 +447,9 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         // TODO - is there a better way of doing this? Each context could have it's own tear down method to deal with persisting
-        $this->contextService->getUserContext()->updateUser();
+        if ($userContextUpdated) {
+            $this->contextService->getUserContext()->updateUser();
+        }
     }
 
     /**

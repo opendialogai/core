@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Tests\Feature;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
@@ -130,6 +131,27 @@ class AttributeExtractionTest extends TestCase
         // values come from the TestAgeInterpreter
         $this->assertCount(1, $messageWrapper->getMessages());
         $this->assertEquals('age: 21. DOB: 1994', $messageWrapper->getMessages()[0]->getText());
+    }
+
+    public function testUserContextPersisted()
+    {
+        $utterance1 = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
+
+        /** @var UserService $userService */
+        $userService = app()->make(UserService::class);
+        $user = $userService->getUser($utterance1->getUser()->getId());
+
+        try {
+            $user->getAttributeValue('first_name');
+            $this->fail('should have thrown exception');
+        } catch (AttributeDoesNotExistException $e) {
+            //
+        }
+
+        $this->odController->runConversation($utterance1);
+
+        $user = $userService->getUser($utterance1->getUser()->getId());
+        $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
     }
 
     private function getExampleConversation()

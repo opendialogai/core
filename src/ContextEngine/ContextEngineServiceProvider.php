@@ -6,6 +6,7 @@ use Carbon\Laravel\ServiceProvider;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 class ContextEngineServiceProvider extends ServiceProvider
@@ -27,6 +28,7 @@ class ContextEngineServiceProvider extends ServiceProvider
         $this->app->singleton(ContextService::class, function () {
             $contextService = new ContextService();
             $contextService->setUserService($this->app->make(UserService::class));
+            $contextService->setConversationStore($this->app->make(ConversationStoreInterface::class));
 
             $contextService->createContext(ContextService::SESSION_CONTEXT);
 

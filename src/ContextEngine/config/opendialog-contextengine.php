@@ -26,6 +26,7 @@ return [
         'current_intent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
 
         // Intents
-        \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class
+        \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class,
+        \OpenDialogAi\Core\Conversation\Model::COMPLETES => \OpenDialogAi\Core\Attribute\BooleanAttribute::class
     ],
 ];

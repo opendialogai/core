@@ -33,7 +33,7 @@ class LuisInterpreterTest extends TestCase
             'first_name' => StringAttribute::class,
             'age' => IntAttribute::class
         ];
-        $this->setConfigValue('opendialog.context_engine.supported_attributes', $knownAttributes);
+        $this->setConfigValue('opendialog.context_engine.custom_attributes', $knownAttributes);
 
     }
 

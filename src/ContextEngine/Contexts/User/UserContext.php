@@ -5,6 +5,7 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -22,11 +23,15 @@ class UserContext extends AbstractContext
     /* @var UserService */
     private $userService;
 
-    public function __construct(ChatbotUser $user, UserService $userService)
+    /** @var ConversationStoreInterface */
+    private $conversationStore;
+
+    public function __construct(ChatbotUser $user, UserService $userService, ConversationStoreInterface $conversationStore)
     {
         parent::__construct(self::USER_CONTEXT);
         $this->user = $user;
         $this->userService = $userService;
+        $this->conversationStore = $conversationStore;
     }
 
     /**
@@ -120,7 +125,7 @@ class UserContext extends AbstractContext
      */
     public function isUserHavingConversation() : bool
     {
-        return $this->userService->userIsHavingConversation($this->user->getId());
+        return $this->user->isHavingConversation();
     }
 
     /**
@@ -132,11 +137,26 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * Sets the current conversation against the user, persists the user and returns the conversation id
+     *
      * @param Conversation $conversation
+     * @return string
      */
-    public function setCurrentConversation(Conversation $conversation): void
+    public function setCurrentConversation(Conversation $conversation): string
     {
         $this->user = $this->userService->setCurrentConversation($this->user, $conversation);
+        return $this->user->getCurrentConversationUid();
+    }
+
+    /**
+     * Gets just the current intent unconnected
+     *
+     * @return Intent
+     */
+    public function getCurrentIntent()
+    {
+        $currentIntentId = $this->user->getCurrentIntentUid();
+        return $this->conversationStore->getIntentByUid($currentIntentId);
     }
 
     /**
@@ -161,19 +181,7 @@ class UserContext extends AbstractContext
      */
     public function hasCurrentIntent(): bool
     {
-        if ($this->user->hasCurrentIntent()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return Intent
-     */
-    public function getCurrentIntent(): ?Intent
-    {
-        return $this->user->getCurrentIntent();
+        return $this->user->hasCurrentIntent();
     }
 
     /**
@@ -182,15 +190,20 @@ class UserContext extends AbstractContext
     public function getCurrentScene(): Scene
     {
         if ($this->user->hasCurrentIntent()) {
+            $currentIntent = $this->conversationStore->getIntentByUid($this->user->getCurrentIntentUid());
+
             // Get the scene for the current intent
-            $sceneId = $this->userService->getSceneForIntent($this->user->getCurrentIntent()->getUid());
+            $sceneId = $this->userService->getSceneForIntent($currentIntent->getUid());
+
+            // use the conversation that is against the user
             $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
         } else {
             // Set the current intent as the first intent of the opening scene
             /* @var Scene $currentScene */
             $currentScene = $this->user->getCurrentConversation()->getOpeningScenes()->first()->value;
-            $this->user->setCurrentIntent($currentScene->getIntentByOrder(1));
-            $this->updateUser();
+
+            $intent = $currentScene->getIntentByOrder(1);
+            $this->setCurrentIntent($intent);
         }
 
         return $currentScene;
@@ -201,7 +214,7 @@ class UserContext extends AbstractContext
      */
     public function currentSpeakerIsBot(): bool
     {
-        if ($this->userService->getCurrentSpeaker($this->getCurrentIntent()->getUid()) === Model::BOT) {
+        if ($this->userService->getCurrentSpeaker($this->user->getCurrentIntentUid()) === Model::BOT) {
             return true;
         }
 
