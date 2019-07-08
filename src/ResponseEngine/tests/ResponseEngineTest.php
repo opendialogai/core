@@ -2,7 +2,8 @@
 
 namespace OpenDialogAi\ResponseEngine\Tests;
 
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -11,12 +12,12 @@ use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
-use OpenDialogAi\ResponseEngine\MessageTemplate;
-use OpenDialogAi\ResponseEngine\OutgoingIntent;
-use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
-use OpenDialogAi\ResponseEngine\Rules\MessageConditions;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
+use OpenDialogAi\ResponseEngine\Rules\MessageConditions;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class ResponseEngineTest extends TestCase
@@ -73,12 +74,18 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => 'Hi there!',
         ]);
+
+        /** @var MessageTemplate $messageTemplate */
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
-        $this->assertSame($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertSame($messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp')->getValue(), 10000);
-        $this->assertSame($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getId(), 'timestamp');
-        $this->assertSame($messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp')->getValue(), 20000);
+        /** @var TimestampAttribute $timestamp */
+        $timestamp = $messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp');
+        $this->assertSame($timestamp->getId(), 'timestamp');
+        $this->assertSame($timestamp->getValue(), 10000);
+
+        $timestamp = $messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp');
+        $this->assertSame($timestamp->getId(), 'timestamp');
+        $this->assertSame($timestamp->getValue(), 20000);
 
         MessageTemplate::create([
             'name' => 'Unfriendly Hello',
@@ -110,9 +117,7 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -141,8 +146,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -174,8 +178,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -211,8 +214,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -247,8 +249,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -260,8 +261,7 @@ class ResponseEngineTest extends TestCase
     public function testWebChatAttributeMessage()
     {
         /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         OutgoingIntent::create(['name' => 'Hello']);
@@ -320,9 +320,7 @@ class ResponseEngineTest extends TestCase
         ]);
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
         $userContext->addAttribute(new StringAttribute('message', $generator->getMarkUp()));
 
@@ -369,9 +367,7 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -418,9 +414,7 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -447,9 +441,7 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
@@ -475,9 +467,7 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 700));
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
@@ -503,9 +493,7 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
@@ -531,12 +519,10 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();;
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 300));
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
@@ -561,12 +547,19 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $userContext = $contextService->createContext('user');
+        $userContext = $this->createUserContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
+    }
+
+    /**
+     * @return ContextInterface
+     */
+    public function createUserContext(): ContextInterface
+    {
+        $userContext = ContextService::createContext('user');
+        return $userContext;
     }
 }

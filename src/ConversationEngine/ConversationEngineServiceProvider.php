@@ -4,7 +4,6 @@ namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -31,9 +30,6 @@ class ConversationEngineServiceProvider extends ServiceProvider
 
             $actionEngine = $this->app->make(ActionEngineInterface::class);
             $conversationEngine->setActionEngine($actionEngine);
-
-            $contextService = $this->app->make(ContextService::class);
-            $conversationEngine->setContextService($contextService);
 
             return $conversationEngine;
         });

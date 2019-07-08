@@ -9,11 +9,10 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -39,9 +38,6 @@ class ConversationEngine implements ConversationEngineInterface
 
     /* @var ActionEngineInterface */
     private $actionEngine;
-
-    /* @var ContextService */
-    private $contextService;
 
     /**
      * @param ConversationStoreInterface $conversationStore
@@ -73,14 +69,6 @@ class ConversationEngine implements ConversationEngineInterface
     public function setActionEngine(ActionEngineInterface $actionEngine): void
     {
         $this->actionEngine = $actionEngine;
-    }
-
-    /**
-     * @param ContextService $contextService
-     */
-    public function setContextService(ContextService $contextService): void
-    {
-        $this->contextService = $contextService;
     }
 
     /**
@@ -129,7 +117,7 @@ class ConversationEngine implements ConversationEngineInterface
         if ($userContext->isUserHavingConversation()) {
             $ongoingConversation = $userContext->getCurrentConversation();
 
-            ContextServiceFacade::saveAttribute('conversation.current_conversation', $ongoingConversation->getId());
+            ContextService::saveAttribute('conversation.current_conversation', $ongoingConversation->getId());
 
             Log::debug(
                 sprintf(
@@ -188,12 +176,12 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Intent $currentIntent */
         $currentIntent = $userContext->getCurrentIntent();
 
-        if (!$this->contextService->hasContext('conversation')) {
-            $this->contextService->createContext('conversation');
+        if (!ContextService::hasContext('conversation')) {
+            ContextService::createContext('conversation');
         }
 
-        ContextServiceFacade::saveAttribute('conversation.current_scene', $currentScene->getId());
-        ContextServiceFacade::saveAttribute('conversation.current_intent', $currentIntent->getId());
+        ContextService::saveAttribute('conversation.current_scene', $currentScene->getId());
+        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getId());
 
         $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
@@ -347,7 +335,7 @@ class ConversationEngine implements ConversationEngineInterface
                     $attributeName = $condition->getAttributeName();
 
                     try {
-                        $actualAttribute = $this->contextService->getAttribute($attributeName, $condition->getContextId());
+                        $actualAttribute = ContextService::getAttribute($attributeName, $condition->getContextId());
                     } catch (Exception $e) {
                         Log::debug($e->getMessage());
                         // If the attribute does not exist create one with a null value since we may be testing
@@ -418,14 +406,14 @@ class ConversationEngine implements ConversationEngineInterface
         foreach ($intent->getNonCoreAttributes() as $attribute) {
             $attributeName = $attribute->getId();
 
-            $context = $this->contextService->getSessionContext();
+            $context = ContextService::getSessionContext();
             if ($expectedAttributes->hasKey($attributeName)) {
                 $contextId = $expectedAttributes->get($attributeName);
                 if ($contextId === UserContext::USER_CONTEXT) {
                     $userContextUpdated = true;
                 }
                 try {
-                    $context = $this->contextService->getContext($contextId);
+                    $context = ContextService::getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
                     Log::error(sprintf('Expected attribute context %s does not exist, using session context', $contextId));
                 }
@@ -437,7 +425,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         // TODO - is there a better way of doing this? Each context could have it's own tear down method to deal with persisting
         if ($userContextUpdated) {
-            $this->contextService->getUserContext()->updateUser();
+            ContextService::getUserContext()->updateUser();
         }
     }
 

@@ -8,14 +8,11 @@ use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 
 class ActionEngine implements ActionEngineInterface
 {
-    /** @var ContextService */
-    private $contextService;
-
     /** @var ActionInterface[] */
     private $availableActions = [];
 
@@ -49,14 +46,6 @@ class ActionEngine implements ActionEngineInterface
                 );
             }
         }
-    }
-
-    /**
-     * @param ContextService $contextService
-     */
-    public function setContextService(ContextService $contextService)
-    {
-        $this->contextService = $contextService;
     }
 
     /**
@@ -116,7 +105,7 @@ class ActionEngine implements ActionEngineInterface
         $actionInput = new ActionInput();
         foreach ($requiredAttributes as $attributeId) {
             list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId($attributeId);
-            $attribute = $this->contextService->getAttribute($attributeId, $contextId);
+            $attribute = ContextService::getAttribute($attributeId, $contextId);
             $actionInput->addAttribute($attribute);
         }
         return $actionInput;

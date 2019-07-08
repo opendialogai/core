@@ -3,8 +3,8 @@
 namespace OpenDialogAi\ConversationEngine\tests;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
@@ -248,11 +248,7 @@ class ConversationEngineTest extends TestCase
 
     private function createUserContext()
     {
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-
-        /* @var UserContext $userContext ; */
-        $userContext = $contextService->createUserContext($this->utterance);
+        $userContext = ContextService::createUserContext($this->utterance);
 
         return $userContext;
     }

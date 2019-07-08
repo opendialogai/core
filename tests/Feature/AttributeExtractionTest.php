@@ -2,9 +2,10 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
@@ -23,9 +24,6 @@ class AttributeExtractionTest extends TestCase
     /* @var ConversationEngine */
     private $conversationEngine;
 
-    /** @var ContextService */
-    private $contextService;
-
     /** @var OpenDialogController */
     private $odController;
 
@@ -43,7 +41,6 @@ class AttributeExtractionTest extends TestCase
         ]);
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
-        $this->contextService = $this->app->make(ContextService::class);
         $this->odController = $this->app->make(OpenDialogController::class);
 
 
@@ -72,10 +69,10 @@ class AttributeExtractionTest extends TestCase
     {
         $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
 
-        $this->assertCount(2, $this->contextService->getContexts());
+        $this->assertCount(2, ContextService::getContexts());
         /* @var UserContext $userContext; */
-        $userContext = $this->contextService->createUserContext($utterance);
-        $this->assertCount(3, $this->contextService->getContexts());
+        $userContext = ContextService::createUserContext($utterance);
+        $this->assertCount(3, ContextService::getContexts());
 
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
@@ -89,10 +86,10 @@ class AttributeExtractionTest extends TestCase
 
         try {
             // Check that the attributes were stored in the right contexts
-            $firstName = $this->contextService->getAttribute('first_name', UserContext::USER_CONTEXT);
+            $firstName = ContextService::getAttribute('first_name', UserContext::USER_CONTEXT);
             $this->assertEquals('first_name', $firstName->getValue());
 
-            $lastName = $this->contextService->getAttribute('last_name', ContextService::SESSION_CONTEXT);
+            $lastName = ContextService::getAttribute('last_name', ContextServiceInterface::SESSION_CONTEXT);
             $this->assertEquals('last_name', $lastName->getValue());
         } catch (AttributeDoesNotExistException $e) {
             $this->fail('Attribute should exist in the right context');

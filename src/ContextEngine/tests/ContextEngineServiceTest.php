@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -18,12 +19,12 @@ class ContextEngineServiceTest extends TestCase
 
     private function contextService(): ContextService
     {
-        return $this->app->make(ContextService::class);
+        return $this->app->make(ContextServiceInterface::class);
     }
 
     public function testContextServiceCreation()
     {
-        $this->assertInstanceOf(ContextService::class, $this->contextService());
+        $this->assertInstanceOf(ContextServiceInterface::class, $this->contextService());
     }
 
     public function testAddingANewContext()
