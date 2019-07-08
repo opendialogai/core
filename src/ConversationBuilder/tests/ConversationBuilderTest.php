@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
@@ -150,12 +150,11 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationCreation()
     {
+        /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
 
-        /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = $this->app->make(AttributeResolver::class);
         $attributes = ['test' => IntAttribute::class];
-        $attributeResolver->registerAttributes($attributes);
+        AttributeResolver::registerAttributes($attributes);
 
         /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
         $conversationModel = $conversation->buildConversation();

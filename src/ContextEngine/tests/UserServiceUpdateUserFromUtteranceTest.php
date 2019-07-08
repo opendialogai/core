@@ -3,8 +3,8 @@
 namespace OpenDialogAi\ContextManager\Tests;
 
 use Mockery;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -17,9 +17,6 @@ use OpenDialogAi\Core\Utterances\Webchat\WebchatTriggerUtterance;
 
 class UserServiceUpdateUserFromUtteranceTest extends TestCase
 {
-    /* @var AttributeResolver */
-    private $attributeResolver;
-
     /* @var DGraphClient */
     private $dGraphClient;
 
@@ -29,14 +26,12 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 
         Mockery::globalHelpers();
 
-        $this->attributeResolver = new AttributeResolver();
-
         $attributes = [
             'custom_1' => StringAttribute::class,
             'custom_2' => StringAttribute::class,
         ];
 
-        $this->attributeResolver->registerAttributes($attributes);
+        AttributeResolver::registerAttributes($attributes);
 
         $dGraphMutationResponse = mock(DGraphMutationResponse::class)->makePartial();
         $dGraphMutationResponse->shouldReceive('isSuccessful')->andReturn(true);
@@ -48,7 +43,6 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
     public function testUpdateUserFromUtteranceWithWebchatChatOpenUtterance()
     {
         $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
-        $userService->setAttributeResolver($this->attributeResolver);
 
         $chatbotUser = new ChatbotUser();
 
@@ -98,7 +92,6 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
     public function testUpdateUserFromUtteranceWithWebchatTextUtterance()
     {
         $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
-        $userService->setAttributeResolver($this->attributeResolver);
 
         $chatbotUser = new ChatbotUser();
 
@@ -140,7 +133,6 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
     public function testUpdateUserFromUtteranceWithWebchatTriggerUtterance()
     {
         $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
-        $userService->setAttributeResolver($this->attributeResolver);
 
         $chatbotUser = new ChatbotUser();
 

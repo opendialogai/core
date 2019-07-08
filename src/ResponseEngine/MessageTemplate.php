@@ -4,8 +4,8 @@ namespace OpenDialogAi\ResponseEngine;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\Condition\Condition;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -64,8 +64,6 @@ class MessageTemplate extends Model
      */
     public function getConditions()
     {
-        $attributeResolver = app()->make(AttributeResolver::class);
-
         $conditions = [];
 
         if (isset($this->conditions)) {
@@ -95,7 +93,7 @@ class MessageTemplate extends Model
 
                     [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($condition['attribute']);
 
-                    $attribute = $attributeResolver->getAttributeFor($attributeName, $condition['value']);
+                    $attribute = AttributeResolver::getAttributeFor($attributeName, $condition['value']);
 
                     $conditions[$contextId][] = [$attributeName => new Condition($attribute, $condition['operation'])];
                 }

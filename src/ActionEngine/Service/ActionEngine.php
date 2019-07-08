@@ -8,15 +8,11 @@ use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 
 class ActionEngine implements ActionEngineInterface
 {
-    /** @var AttributeResolver */
-    private $attributeResolver;
-
     /** @var ContextService */
     private $contextService;
 
@@ -53,14 +49,6 @@ class ActionEngine implements ActionEngineInterface
                 );
             }
         }
-    }
-
-    /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver)
-    {
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**

@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
@@ -39,9 +39,6 @@ class ConversationEngine implements ConversationEngineInterface
 
     /* @var ActionEngineInterface */
     private $actionEngine;
-
-    /* @var AttributeResolver */
-    private $attributeResolver;
 
     /* @var ContextService */
     private $contextService;
@@ -76,14 +73,6 @@ class ConversationEngine implements ConversationEngineInterface
     public function setActionEngine(ActionEngineInterface $actionEngine): void
     {
         $this->actionEngine = $actionEngine;
-    }
-
-    /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -363,7 +352,7 @@ class ConversationEngine implements ConversationEngineInterface
                         Log::debug($e->getMessage());
                         // If the attribute does not exist create one with a null value since we may be testing
                         // for its existence.
-                        $actualAttribute = $this->attributeResolver->getAttributeFor($attributeName, null);
+                        $actualAttribute = AttributeResolver::getAttributeFor($attributeName, null);
                     }
 
                     if (!$condition->compareAgainst($actualAttribute)) {

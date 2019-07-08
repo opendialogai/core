@@ -3,12 +3,13 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -18,9 +19,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
 {
     /** @var ContextService */
     protected $contextService;
-
-    /** @var AttributeResolver */
-    protected $attributeResolver;
 
     /**
      * @inheritdoc
@@ -101,14 +99,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
-    }
-
-    /**
      * Checks whether a message's conditions are met. Returns true if there are no conditions, or if all conditions on
      * the message template are met
      *
@@ -117,10 +107,9 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     protected function messageMeetsConditions(MessageTemplate $messageTemplate): bool
     {
-        $conditions = $messageTemplate->getConditions();
-
-        foreach ($conditions as $contextId => $conditions) {
+        foreach ($messageTemplate->getConditions() as $contextId => $conditions) {
             foreach ($conditions as $conditionArray) {
+                /** @var Condition $condition */
                 $condition = array_values($conditionArray)[0];
                 $attributeName = array_keys($conditionArray)[0];
 
@@ -148,7 +137,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             $attribute = $this->contextService->getAttribute($attributeName, $contextId);
         } catch (AttributeDoesNotExistException $e) {
             // If the attribute does not exist, return a null value attribute
-            $attribute = $this->attributeResolver->getAttributeFor($attributeName, null);
+            $attribute = AttributeResolver::getAttributeFor($attributeName, null);
         }
 
         return $attribute;
