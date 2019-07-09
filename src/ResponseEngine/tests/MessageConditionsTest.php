@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\ResponseEngine\tests;
 
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
@@ -30,9 +30,7 @@ class MessageConditionsTest extends TestCase
         $this->setConfigValue('opendialog.context_engine.custom_attributes',
             ['false' => BooleanAttribute::class]);
 
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-        $contextService->getContext('session')->addAttribute(AttributeResolver::getAttributeFor('false', false));
+        ContextService::getContext('session')->addAttribute(AttributeResolver::getAttributeFor('false', false));
 
         $this->responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
     }

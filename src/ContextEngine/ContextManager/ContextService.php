@@ -11,18 +11,14 @@ use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
-use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
-class ContextService
+class ContextService implements ContextServiceInterface
 {
-    const SESSION_CONTEXT      = 'session';
-    const CONVERSATION_CONTEXT = 'conversation';
-
     public static $coreContexts = [UserContext::USER_CONTEXT, self::SESSION_CONTEXT, self::CONVERSATION_CONTEXT];
 
     /* @var Map $activeContexts - a container for contexts that the service is managing */
@@ -43,7 +39,7 @@ class ContextService
     }
 
     /**
-     * @param UserService $userService
+     * @inheritDoc
      */
     public function setUserService(UserService $userService): void
     {
@@ -51,7 +47,7 @@ class ContextService
     }
 
     /**
-     * @param ConversationStoreInterface $conversationStore
+     * @inheritDoc
      */
     public function setConversationStore(ConversationStoreInterface $conversationStore): void
     {
@@ -59,8 +55,7 @@ class ContextService
     }
 
     /**
-     * @param string $contextId
-     * @return ContextInterface
+     * @inheritDoc
      */
     public function createContext(string $contextId): ContextInterface
     {
@@ -70,7 +65,7 @@ class ContextService
     }
 
     /**
-     * @param ContextInterface $context
+     * @inheritDoc
      */
     public function addContext(ContextInterface $context): void
     {
@@ -78,9 +73,7 @@ class ContextService
     }
 
     /**
-     * @param string $contextId
-     * @throws ContextDoesNotExistException
-     * @return ContextInterface
+     * @inheritDoc
      */
     public function getContext(string $contextId): ContextInterface
     {
@@ -94,7 +87,7 @@ class ContextService
     }
 
     /**
-     * @param AbstractCustomContext[] $contexts
+     * @inheritDoc
      */
     public function loadCustomContexts(array $contexts): void
     {
@@ -104,7 +97,7 @@ class ContextService
     }
 
     /**
-     * @param AbstractCustomContext $customContext
+     * @inheritDoc
      */
     public function loadCustomContext($customContext): void
     {
@@ -139,8 +132,7 @@ class ContextService
     }
 
     /**
-     * @param string $contextId
-     * @return bool
+     * @inheritDoc
      */
     public function hasContext(string $contextId): bool
     {
@@ -148,12 +140,7 @@ class ContextService
     }
 
     /**
-     * Saves the attribute provided against a context.
-     * If the $attributeName is namespace with a context name, will try to save in the named context.
-     * If the named context does not exist or the attribute name is not namespaced, will save against the session context
-     *
-     * @param string $attributeName
-     * @param $attributeValue
+     * @inheritDoc
      */
     public function saveAttribute(string $attributeName, $attributeValue): void
     {
@@ -176,10 +163,7 @@ class ContextService
     }
 
     /**
-     * @param string $attributeId
-     * @param string $contextId
-     * @return AttributeInterface
-     * @throws ContextDoesNotExistException
+     * @inheritDoc
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface
     {
@@ -198,11 +182,7 @@ class ContextService
     }
 
     /**
-     * Calls @see ContextService::getAttribute() to resolve an attribute and returns its concrete value
-     *
-     * @param string $attributeId
-     * @param string $contextId
-     * @return mixed
+     * @inheritDoc
      */
     public function getAttributeValue(string $attributeId, string $contextId)
     {
@@ -210,9 +190,7 @@ class ContextService
     }
 
     /**
-     * @param UtteranceInterface $utterance
-     * @return UserContext
-     * @throws FieldNotSupported
+     * @inheritDoc
      */
     public function createUserContext(UtteranceInterface $utterance): UserContext
     {
@@ -223,9 +201,7 @@ class ContextService
     }
 
     /**
-     * Returns all available contexts as an array
-     *
-     * @return ContextInterface[]
+     * @inheritDoc
      */
     public function getContexts(): array
     {
@@ -233,9 +209,7 @@ class ContextService
     }
 
     /**
-     * Returns all custom contexts
-     *
-     * @return ContextInterface[]
+     * @inheritDoc
      */
     public function getCustomContexts(): array
     {
@@ -245,9 +219,7 @@ class ContextService
     }
 
     /**
-     *  Helper method to return the session context
-     *
-     * @return BaseContext
+     * @inheritDoc
      */
     public function getSessionContext(): ContextInterface
     {
@@ -255,9 +227,7 @@ class ContextService
     }
 
     /**
-     *  Helper method to return the user context
-     *
-     * @return UserContext
+     * @inheritDoc
      */
     public function getUserContext(): ContextInterface
     {
@@ -265,18 +235,15 @@ class ContextService
     }
 
     /**
-     *  Helper method to return the conversation context
-     *
-     * @return BaseContext
+     * @inheritDoc
      */
     public function getConversationContext(): ContextInterface
     {
         return $this->getContext(self::CONVERSATION_CONTEXT);
     }
+
     /**
-     * Allows a custom user context to be set
-     *
-     * @param UserContext $userContext
+     * @inheritDoc
      */
     public function setUserContext(UserContext $userContext)
     {

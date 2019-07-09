@@ -4,10 +4,10 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -17,6 +17,7 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\Node\Node;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -26,17 +27,9 @@ class UserService
     /* @var DGraphClient */
     private $dGraphClient;
 
-    /* @var AttributeResolver */
-    private $attributeResolver;
-
     public function __construct(DGraphClient $dGraphClient)
     {
         $this->dGraphClient = $dGraphClient;
-    }
-
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -67,7 +60,7 @@ class UserService
                 }
 
                 try {
-                    $attribute = $this->attributeResolver->getAttributeFor($name, $value);
+                    $attribute = AttributeResolver::getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
                 } catch (AttributeIsNotSupported $e) {
                     Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
@@ -296,7 +289,7 @@ class UserService
     /**
      * @param $userId
      * @return mixed
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws NodeDoesNotExistException
      */
     public function getCurrentConversation($userId)
     {
@@ -514,7 +507,7 @@ class UserService
             $chatbotUser->setAttribute($attributeName, $attributeValue);
         } else {
             try {
-                $attribute = $this->attributeResolver->getAttributeFor($attributeName, $attributeValue);
+                $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
                 $chatbotUser->addAttribute($attribute);
             } catch (AttributeIsNotSupported $e) {
                 Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));

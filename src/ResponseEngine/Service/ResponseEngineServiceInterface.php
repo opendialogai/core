@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
@@ -29,11 +28,4 @@ interface ResponseEngineServiceInterface
      * @return string The message text with attributes filled
      */
     public function fillAttributes($text) : string;
-
-    /**
-     * Sets the Attribute Resolver dependency to use
-     *
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver) : void;
 }

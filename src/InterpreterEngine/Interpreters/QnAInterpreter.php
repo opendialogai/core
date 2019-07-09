@@ -4,7 +4,7 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -20,9 +20,6 @@ class QnAInterpreter extends BaseInterpreter
     /** @var QnAClient */
     private $client;
 
-    /** @var AttributeResolver */
-    private $attributeResolver;
-
     /**
      * QnAInterpreter constructor.
      * @throws BindingResolutionException
@@ -30,7 +27,6 @@ class QnAInterpreter extends BaseInterpreter
     public function __construct()
     {
         $this->client = app()->make(QnAClient::class);
-        $this->attributeResolver = app()->make(AttributeResolver::class);
     }
 
     /**
@@ -66,7 +62,7 @@ class QnAInterpreter extends BaseInterpreter
         if (!empty($response->getAnswers())) {
             foreach ($response->getAnswers() as $answer) {
                 if ($answer->id >= 0) {
-                    $attribute = $this->attributeResolver->getAttributeFor('qna_answer', $answer->answer);
+                    $attribute = AttributeResolver::getAttributeFor('qna_answer', $answer->answer);
 
                     $intent = new QnAQuestionMatchedIntent();
                     $intent->addAttribute($attribute);

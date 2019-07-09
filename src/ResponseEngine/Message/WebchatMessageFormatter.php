@@ -4,8 +4,8 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
@@ -29,8 +29,6 @@ use SimpleXMLElement;
  */
 class WebChatMessageFormatter implements MessageFormatterInterface
 {
-    /** @var ContextService */
-    private $contextService;
 
     /** @var ResponseEngineService */
     private $responseEngineService;
@@ -41,7 +39,6 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      */
     public function __construct()
     {
-        $this->contextService = app()->make(ContextService::class);
         $this->responseEngineService = app()->make(ResponseEngineServiceInterface::class);
     }
 
@@ -272,7 +269,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     protected function getAttributeMessageText($attributeName): string
     {
         [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId($attributeName);
-        $attributeValue = $this->contextService->getAttributeValue($attributeId, $contextId);
+        $attributeValue = ContextService::getAttributeValue($attributeId, $contextId);
 
         return $this->responseEngineService->fillAttributes($attributeValue);
     }

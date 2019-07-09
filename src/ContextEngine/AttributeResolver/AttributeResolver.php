@@ -34,7 +34,7 @@ class AttributeResolver
      *
      * @param $attributes AttributeInterface[]
      */
-    public function registerAttributes($attributes)
+    public function registerAttributes($attributes): void
     {
         foreach ($attributes as $name => $type) {
             if (class_exists($type) && in_array(AttributeInterface::class, class_implements($type))) {

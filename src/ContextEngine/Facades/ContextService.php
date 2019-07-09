@@ -7,6 +7,7 @@ use OpenDialogAi\ContextEngine\ContextManager\BaseContext;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 /**
  * @method static ContextInterface createContext(string $contextId)
@@ -17,14 +18,16 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
  * @method static ContextInterface[] getContexts()
  * @method static ContextInterface[] getCustomContexts()
  * @method static BaseContext getSessionContext()
+ * @method static UserContext createUserContext(UtteranceInterface $utterance)
  * @method static UserContext getUserContext()
  * @method static BaseContext getConversationContext()
  * @method static void saveAttribute(string $attributeName, $attributeValue)
+ * @method static ContextInterface getContext(string $contextId)
  */
 class ContextService extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \OpenDialogAi\ContextEngine\ContextManager\ContextService::class;
+        return \OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface::class;
     }
 }

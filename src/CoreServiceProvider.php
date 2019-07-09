@@ -4,7 +4,6 @@ namespace OpenDialogAi\Core;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
@@ -66,7 +65,6 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton(OpenDialogController::class, function () {
             $odController = new OpenDialogController();
 
-            $odController->setContextService($this->app->make(ContextService::class));
             $odController->setConversationLogService($this->app->make(ConversationLogService::class));
             $odController->setConversationEngine($this->app->make(ConversationEngineInterface::class));
             $odController->setResponseEngine($this->app->make(ResponseEngineServiceInterface::class));

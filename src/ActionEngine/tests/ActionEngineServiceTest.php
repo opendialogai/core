@@ -8,7 +8,7 @@ use OpenDialogAi\ActionEngine\Service\ActionEngine;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
 use OpenDialogAi\ActionEngine\Tests\Actions\DummyAction;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -19,14 +19,10 @@ class ActionEngineServiceTest extends TestCase
     /** @var ActionEngine */
     private $actionEngine;
 
-    /** @var ContextService */
-    private $contextService;
-
     public function setUp(): void
     {
         parent::setUp();
         $this->actionEngine = $this->app->make(ActionEngineInterface::class);
-        $this->contextService = $this->app->make(ContextService::class);
     }
 
     public function testSettingNonExistentAction()
@@ -85,7 +81,7 @@ class ActionEngineServiceTest extends TestCase
     public function testPerformActionWithoutRequiredAction()
     {
         $this->setDummyAction();
-        $this->contextService->createContext('test');
+        ContextService::createContext('test');
 
 
         $this->expectException(AttributeDoesNotExistException::class);
@@ -100,7 +96,7 @@ class ActionEngineServiceTest extends TestCase
     public function testPerformActionWithRequiredAction()
     {
         $this->setDummyAction();
-        $this->contextService->createContext('test');
+        ContextService::createContext('test');
 
         $input = new ActionInput();
         $input->addAttribute(new IntAttribute('dummy', 1));
@@ -120,9 +116,9 @@ class ActionEngineServiceTest extends TestCase
     public function testGetAttributesFromAction()
     {
         $this->setDummyAction();
-        $this->contextService->createContext('test');
+        ContextService::createContext('test');
         $testAttribute = new StringAttribute('name', 'John');
-        $this->contextService->getContext('test')->addAttribute($testAttribute);
+        ContextService::getContext('test')->addAttribute($testAttribute);
 
         $result = $this->actionEngine->performAction('actions.core.dummy');
         $this->assertTrue($result->isSuccessful());

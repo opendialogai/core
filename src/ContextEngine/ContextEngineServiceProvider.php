@@ -5,6 +5,7 @@ namespace OpenDialogAi\ContextEngine;
 use Carbon\Laravel\ServiceProvider;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -25,7 +26,7 @@ class ContextEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-contextengine.php', 'opendialog.context_engine');
 
-        $this->app->singleton(ContextService::class, function () {
+        $this->app->singleton(ContextServiceInterface::class, function () {
             $contextService = new ContextService();
             $contextService->setUserService($this->app->make(UserService::class));
             $contextService->setConversationStore($this->app->make(ConversationStoreInterface::class));
@@ -54,7 +55,6 @@ class ContextEngineServiceProvider extends ServiceProvider
 
         $this->app->singleton(UserService::class, function () {
             $userService = new UserService($this->app->make(DGraphClient::class));
-            $userService->setAttributeResolver($this->app->make(AttributeResolver::class));
             return $userService;
         });
     }

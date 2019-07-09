@@ -5,9 +5,9 @@ namespace OpenDialogAi\ConversationBuilder;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineAttributeException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineValidOperationException;
@@ -327,9 +327,7 @@ class Conversation extends Model
 
         list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId($attributeName);
 
-        /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = resolve(AttributeResolver::class);
-        if (!array_key_exists($attributeId, $attributeResolver->getSupportedAttributes())) {
+        if (!array_key_exists($attributeId, AttributeResolver::getSupportedAttributes())) {
             throw new AttributeIsNotSupported(
                 sprintf('Attribute %s could not be resolved', $attributeName)
             );
@@ -357,7 +355,7 @@ class Conversation extends Model
             );
         }
 
-        $attribute = $attributeResolver->getAttributeFor($attributeId, $value);
+        $attribute = AttributeResolver::getAttributeFor($attributeId, $value);
 
         // Now we can create the condition - we set an id as a helper
         $id = sprintf('%s-%s-%s', $attributeName, $operation, $value);

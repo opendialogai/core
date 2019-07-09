@@ -4,7 +4,7 @@
 namespace OpenDialogAi\ConversationBuilder\tests;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -68,10 +68,8 @@ class ConversationConditionTest extends TestCase
 
         $this->cm = new ConversationManager('TestConversation');
 
-        /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = $this->app->make(AttributeResolver::class);
         $attributes = ['test' => IntAttribute::class];
-        $attributeResolver->registerAttributes($attributes);
+        AttributeResolver::registerAttributes($attributes);
     }
 
     public function testConditionsAreCreatedCorrectly()
