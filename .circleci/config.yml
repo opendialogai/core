@@ -18,6 +18,7 @@ jobs:
 
     steps:
       - checkout
+      - run: sudo apt-get update
       - run: sudo apt install -y libsqlite3-dev
       - run: sudo composer self-update
       - setup_remote_docker
