@@ -38,8 +38,8 @@ class ConversationObserver
      */
     public function deleted(Conversation $conversation)
     {
-        if (!app()->runningUnitTests()) {
-            // Unpublish the conversation from DGraph.
+        // Unpublish the conversation from DGraph.
+        if ($conversation->status == 'published') {
             $conversation->unPublishConversation(false);
         }
 
