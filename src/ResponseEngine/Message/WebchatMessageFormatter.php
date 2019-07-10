@@ -10,6 +10,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormAutoCompleteSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextElement;
@@ -182,6 +183,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
                 $element = new WebChatFormSelectElement($name, $display, $required, $options);
+            } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
+                $options = $el[self::OPTIONS];
+                $element = new WebChatFormAutoCompleteSelectElement($name, $display, $required, $options);
             }
             $message->addElement($element);
         }
@@ -483,7 +487,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 self::REQUIRED => $required,
             ];
 
-            if ($el[self::ELEMENT_TYPE] == self::SELECT) {
+            if ($el[self::ELEMENT_TYPE] == self::SELECT || $el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = [];
 
                 foreach ($element->options->children() as $option) {
