@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\SensorEngine\Tests;
 
-use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\SensorEngine\tests\WebchatSensorTestBase;
 
-class IncomingWebchatEndpointTest extends TestCase
+class IncomingWebchatEndpointTest extends WebchatSensorTestBase
 {
     /**
      * Test top-level parameter validation.
@@ -102,26 +102,9 @@ class IncomingWebchatEndpointTest extends TestCase
     public function testMessageResponse()
     {
         // Test a valid message.
-        $response = $this->json('POST', '/incoming/webchat', [
-            'notification' => 'message',
-            'user_id' => 'someuser',
-            'author' => 'me',
-            'content' => [
-                'author' => 'me',
-                'type' => 'text',
-                'data' => [
-                    'text' => 'test'
-                ],
-                'user' => [
-                    'ipAddress' => '127.0.0.1',
-                    'country' => 'UK',
-                    'browserLanguage' => 'en-gb',
-                    'os' => 'macos',
-                    'browser' => 'safari',
-                    'timezone' => 'GMT',
-                ],
-            ],
-        ]);
+        $response = $this->json('POST', '/incoming/webchat', $this->generateResponseMessage('text', [
+            'text' => 'test'
+        ]));
         $response
             ->assertStatus(200)
             ->assertJson(['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]);

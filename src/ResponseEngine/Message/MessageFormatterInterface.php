@@ -28,6 +28,7 @@ interface MessageFormatterInterface
     public const SELECT                  = 'select';
     public const TEXTAREA                = 'textarea';
     public const TEXT                    = 'text';
+    public const NUMBER                  = 'number';
     public const TITLE                   = 'title';
     public const SUBTITLE                = 'subtitle';
     public const CALLBACK                = 'callback';

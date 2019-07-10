@@ -11,6 +11,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormAutoCompleteSelectElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormNumberElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextElement;
@@ -161,7 +162,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return string
+     * @return WebChatFormMessage
      */
     public function generateFormMessage(array $template)
     {
@@ -180,6 +181,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 $element = new WebChatFormTextAreaElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
                 $element = new WebChatFormTextElement($name, $display, $required);
+            } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
+                $element = new WebChatFormNumberElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
                 $element = new WebChatFormSelectElement($name, $display, $required, $options);
