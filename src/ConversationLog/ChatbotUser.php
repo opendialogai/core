@@ -34,7 +34,7 @@ class ChatbotUser extends Model
         'platform',
     ];
 
-    protected $appends = ['registered'];
+    protected $appends = ['registered', 'first_seen', 'last_seen'];
 
     public function messages()
     {
@@ -77,5 +77,19 @@ class ChatbotUser extends Model
     public function getRegisteredAttribute()
     {
         return $this->email == null;
+    }
+
+    public function getFirstSeenAttribute()
+    {
+        return $this->created_at->format('Y-m-d H:i:s');
+    }
+
+    public function getLastSeenAttribute()
+    {
+        if ($this->messages()->count()) {
+            return $this->messages()->first()->created_at->format('Y-m-d H:i:s');
+        }
+
+        return $this->created_at->format('Y-m-d H:i:s');
     }
 }

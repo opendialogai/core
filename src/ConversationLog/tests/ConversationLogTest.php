@@ -284,4 +284,33 @@ class ConversationLogTest extends TestCase
             ->assertJson([0 => ['data' => ['internal' => true]]])
             ->assertJson([0 => ['data' => ['hidetime' => false]]]);
     }
+
+    public function testChatbotUserFirstLastSeen()
+    {
+        ChatbotUser::create([
+            'user_id' => 'test@example.com',
+            'first_name' => 'Joe',
+            'last_name' => 'Cool',
+            'ip_address' => '127.0.0.1',
+            'country' => 'UK',
+            'browser_language' => 'en',
+            'os' => 'Mac OS X',
+            'browser' => 'Safari',
+            'timezone' => 'GMT',
+        ]);
+        $chatbotUser = ChatbotUser::where('user_id', 'test@example.com')->first();
+
+        Message::create(microtime(), 'chat_open', $chatbotUser->user_id, 'me', '')->save();
+        Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'test message')->save();
+        Message::create(microtime(), 'text', $chatbotUser->user_id, 'me', 'another test message')->save();
+        Message::create(microtime(), 'trigger', $chatbotUser->user_id, 'me', '')->save();
+
+        $chatbotUser = ChatbotUser::where('user_id', 'test@example.com')->first();
+        $message = $chatbotUser->messages()->first();
+        $message->created_at = date('Y-m-d H:i:s', time() + 600);
+        $message->save();
+
+        $this->assertEquals($chatbotUser->first_seen, $chatbotUser->created_at->format('Y-m-d H:i:s'));
+        $this->assertEquals($chatbotUser->last_seen, $message->created_at);
+    }
 }
