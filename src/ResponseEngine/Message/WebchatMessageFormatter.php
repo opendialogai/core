@@ -10,6 +10,8 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormAutoCompleteSelectElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormNumberElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextElement;
@@ -160,15 +162,18 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return string
+     * @return WebChatFormMessage
      */
     public function generateFormMessage(array $template)
     {
         $message = (new WebChatFormMessage())
             ->setText($template[self::TEXT])
-            ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setCallbackId($template[self::CALLBACK])
             ->setAutoSubmit($template[self::AUTO_SUBMIT]);
+
+        if ($template[self::SUBMIT_TEXT]) {
+            $message->setSubmitText($template[self::SUBMIT_TEXT]);
+        }
 
         foreach ($template[self::ELEMENTS] as $el) {
             $name = $el[self::NAME];
@@ -179,9 +184,14 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 $element = new WebChatFormTextAreaElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
                 $element = new WebChatFormTextElement($name, $display, $required);
+            } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
+                $element = new WebChatFormNumberElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
                 $element = new WebChatFormSelectElement($name, $display, $required, $options);
+            } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
+                $options = $el[self::OPTIONS];
+                $element = new WebChatFormAutoCompleteSelectElement($name, $display, $required, $options);
             }
             $message->addElement($element);
         }
@@ -483,7 +493,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 self::REQUIRED => $required,
             ];
 
-            if ($el[self::ELEMENT_TYPE] == self::SELECT) {
+            if ($el[self::ELEMENT_TYPE] == self::SELECT || $el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = [];
 
                 foreach ($element->options->children() as $option) {

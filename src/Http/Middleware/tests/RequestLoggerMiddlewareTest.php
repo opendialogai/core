@@ -22,9 +22,8 @@ class RequestLoggerMiddlewareTest extends TestCase
             'content' => [
                 'author' => 'me',
                 'type' => 'chat_open',
-                'data' => [
-                    'callback_id' => 'welcome',
-                ],
+                'callback_id' => 'welcome',
+                'data' => [],
                 'user' => [
                     'ipAddress' => '127.0.0.1',
                     'country' => 'UK',
@@ -40,7 +39,7 @@ class RequestLoggerMiddlewareTest extends TestCase
             'url' => 'http://localhost/incoming/webchat',
             'method' => 'POST',
             'source_ip' => '127.0.0.1',
-            'raw_request' => '{"notification":"message","user_id":"someuser","author":"me","content":{"author":"me","type":"chat_open","data":{"callback_id":"welcome"},"user":{"ipAddress":"127.0.0.1","country":"UK","browserLanguage":"en-gb","os":"macos","browser":"safari","timezone":"GMT"}}}',
+            'raw_request' => '{"notification":"message","user_id":"someuser","author":"me","content":{"author":"me","type":"chat_open","callback_id":"welcome","data":[],"user":{"ipAddress":"127.0.0.1","country":"UK","browserLanguage":"en-gb","os":"macos","browser":"safari","timezone":"GMT"}}}',
         ]);
 
         $this->assertDatabaseHas('response_logs', [

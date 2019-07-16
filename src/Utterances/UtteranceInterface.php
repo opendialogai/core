@@ -16,7 +16,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    public function getUserId() : ?string;
+    public function getUserId(): ?string;
 
     /**
      * @param string $userId
@@ -30,7 +30,7 @@ interface UtteranceInterface
      * @return string
      * @throws FieldNotSupported
      */
-    public function getText() : ?string;
+    public function getText(): ?string;
 
     /**
      * @param string $text
@@ -79,14 +79,14 @@ interface UtteranceInterface
      *
      * @return string
      */
-    public function getPlatform() : string;
+    public function getPlatform(): string;
 
     /**
      * Returns the type of utterance
      *
      * @return string
      */
-    public function getType() : string;
+    public function getType(): string;
 
     /**
      * @return string
@@ -121,4 +121,16 @@ interface UtteranceInterface
      * @param array $data
      */
     public function setData(array $data): void;
+
+    /**
+     * @param array $data
+     * @throws FieldNotSupported
+     */
+    public function setFormValues(array $data): void;
+
+    /**
+     * @return array
+     * @throws FieldNotSupported
+     */
+    public function getFormValues(): array;
 }
