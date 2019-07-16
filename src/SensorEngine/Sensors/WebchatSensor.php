@@ -113,8 +113,8 @@ class WebchatSensor extends BaseSensor
                 return $utterance;
                 break;
 
-            case 'webchat_form_response':
-                Log::debug('Received webchat webchat_form_response message.');
+            case 'form_response':
+                Log::debug('Received webchat form_response message.');
                 $utterance = new WebchatFormResponseUtterance();
                 $utterance->setData($content['data']);
                 $utterance->setUserId($request['user_id']);
