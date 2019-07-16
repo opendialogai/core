@@ -16,7 +16,7 @@ class WebchatFormResponseUtterance extends FormResponseUtterance
     public function setFormValues(array $formValues): void
     {
         foreach ($formValues as $name => $value) {
-            if (!in_array($name, [WebChatMessage::DATE, WebChatMessage::TIME, 'callback_id'])) {
+            if (!in_array($name, [WebChatMessage::DATE, WebChatMessage::TIME, 'text'])) {
                 $this->formValues[$name] = $value;
             }
         }
