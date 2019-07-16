@@ -21,10 +21,10 @@ class WebChatSensorTest extends WebchatSensorTestBase
     public function testFormResponse()
     {
         $data = [
-            'name' => 'value',
-            'callback_id' => 'callback_id'
+            'name' => 'value'
         ];
-        $body = $this->generateResponseMessage('webchat_form_response', $data);
+
+        $body = $this->generateResponseMessage('webchat_form_response', $data, 'callback_id');
 
         $utterance = $this->sensor->interpret(new Request($body));
 

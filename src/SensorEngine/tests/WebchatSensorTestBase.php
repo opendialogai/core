@@ -9,9 +9,10 @@ Abstract class WebchatSensorTestBase extends TestCase
     /**
      * @param $type
      * @param $data
+     * @param null $callbackId
      * @return array
      */
-    protected function generateResponseMessage($type, $data): array
+    protected function generateResponseMessage($type, $data, $callbackId = null): array
     {
         return [
             'notification' => 'message',
@@ -21,6 +22,7 @@ Abstract class WebchatSensorTestBase extends TestCase
                 'author' => 'me',
                 'type' => $type,
                 'data' => $data,
+                'callback_id' => $callbackId,
                 'user' => [
                     'ipAddress' => '127.0.0.1',
                     'country' => 'UK',
