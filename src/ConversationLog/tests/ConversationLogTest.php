@@ -245,9 +245,8 @@ class ConversationLogTest extends TestCase
             'content' => [
                 'author' => 'me',
                 'type' => 'chat_open',
-                'data' => [
-                    'callback_id' => 'welcome',
-                ],
+                'callback_id' => 'welcome',
+                'data' => [],
                 'user' => [
                     'ipAddress' => '127.0.0.1',
                     'country' => 'UK',
