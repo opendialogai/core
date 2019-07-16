@@ -166,9 +166,12 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     {
         $message = (new WebChatFormMessage())
             ->setText($template[self::TEXT])
-            ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setCallbackId($template[self::CALLBACK])
             ->setAutoSubmit($template[self::AUTO_SUBMIT]);
+
+        if ($template[self::SUBMIT_TEXT]) {
+            $message->setSubmitText($template[self::SUBMIT_TEXT]);
+        }
 
         foreach ($template[self::ELEMENTS] as $el) {
             $name = $el[self::NAME];
