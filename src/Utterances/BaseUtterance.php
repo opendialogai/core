@@ -37,7 +37,7 @@ abstract class BaseUtterance implements UtteranceInterface
     protected $value;
 
     /** @var string[] */
-    protected $formValues;
+    protected $formValues = [];
 
     /** @var array */
     protected $data = [];
