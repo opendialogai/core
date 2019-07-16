@@ -4,6 +4,10 @@ namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
 class WebChatMessage
 {
+    const TIME = 'time';
+
+    const DATE = 'date';
+
     protected $messageType = 'text';
 
     /** The message text. */
@@ -161,8 +165,8 @@ class WebChatMessage
             'disable_text' => $this->getDisableText(),
             'internal' => $this->getInternal(),
             'hidetime' => $this->getHidetime(),
-            'time' => $this->getTime(),
-            'date' => $this->getDate()
+            self::TIME => $this->getTime(),
+            self::DATE => $this->getDate()
         ];
     }
 

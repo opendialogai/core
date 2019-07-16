@@ -66,8 +66,8 @@ class WebChatListMessage extends WebChatMessage
             'disable_text' => $this->getDisableText(),
             'internal' => $this->getInternal(),
             'hidetime' => $this->getHidetime(),
-            'time' => $this->getTime(),
-            'date' => $this->getDate()
+            self::TIME => $this->getTime(),
+            self::DATE => $this->getDate()
         ];
     }
 

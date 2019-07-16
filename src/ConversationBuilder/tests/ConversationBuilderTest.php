@@ -143,6 +143,17 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(0, $activities);
     }
 
+    public function testConversationPublishedDeletion()
+    {
+        $this->publishConversation($this->conversation1());
+
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertEquals($conversation->status, 'published');
+
+        $conversation->delete();
+    }
+
     /**
      * Ensure that a conversation representation can be made from a YAML file.
      *
