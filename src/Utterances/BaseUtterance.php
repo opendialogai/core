@@ -36,6 +36,9 @@ abstract class BaseUtterance implements UtteranceInterface
     /** @var string */
     protected $value;
 
+    /** @var string[] */
+    protected $formValues = [];
+
     /** @var array */
     protected $data = [];
 
@@ -196,4 +199,21 @@ abstract class BaseUtterance implements UtteranceInterface
     {
         $this->data = $data;
     }
+
+    /**
+     * @param array $data
+     */
+    public function setFormValues(array $formValues): void
+    {
+        $this->formValues = $formValues;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFormValues(): array
+    {
+        return $this->formValues;
+    }
+
 }
