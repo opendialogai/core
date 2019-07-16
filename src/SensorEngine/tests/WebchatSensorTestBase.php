@@ -14,7 +14,7 @@ Abstract class WebchatSensorTestBase extends TestCase
      */
     protected function generateResponseMessage($type, $data, $callbackId = null): array
     {
-        return [
+        $arr = [
             'notification' => 'message',
             'user_id' => 'someuser',
             'author' => 'me',
@@ -22,7 +22,6 @@ Abstract class WebchatSensorTestBase extends TestCase
                 'author' => 'me',
                 'type' => $type,
                 'data' => $data,
-                'callback_id' => $callbackId,
                 'user' => [
                     'ipAddress' => '127.0.0.1',
                     'country' => 'UK',
@@ -33,5 +32,11 @@ Abstract class WebchatSensorTestBase extends TestCase
                 ],
             ],
         ];
+
+        if ($callbackId) {
+            $arr['content']['callback_id'] = $callbackId;
+        }
+
+        return $arr;
     }
 }
