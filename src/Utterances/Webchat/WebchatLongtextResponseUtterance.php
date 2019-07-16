@@ -2,11 +2,9 @@
 
 namespace OpenDialogAi\Core\Utterances\Webchat;
 
-use OpenDialogAi\Core\Utterances\ButtonResponseUtterance;
+use OpenDialogAi\Core\Utterances\LongtextResponseUtterance;
 
-class WebchatLongtextResponseUtterance extends ButtonResponseUtterance
+class WebchatLongtextResponseUtterance extends LongtextResponseUtterance
 {
     const PLATFORM = 'webchat';
-
-    const TYPE = 'longtext_response';
 }

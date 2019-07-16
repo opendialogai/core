@@ -30,9 +30,9 @@ class IncomingWebchatMessage extends FormRequest
             // The content array is required for all messages.
             'content' => 'required|array',
             // Validate the message type.
-            'content.type' => 'in:button_response,longtext_response,chat_open,text,trigger,url_click,webchat_form_response',
+            'content.type' => 'in:button_response,longtext_response,chat_open,text,trigger,url_click,form_response',
             // The callback_id is required for chat_opens.
-            'content.callback_id' => 'required_if:content.type,in:button_response,chat_open,webchat_form_response|string',
+            'content.callback_id' => 'required_if:content.type,in:button_response,chat_open,form_response|string',
             // The user array is required for chat_opens.
             'content.user' => 'required_if:content.type,==,chat_open|array',
         ];

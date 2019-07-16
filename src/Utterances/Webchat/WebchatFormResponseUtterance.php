@@ -9,8 +9,6 @@ class WebchatFormResponseUtterance extends FormResponseUtterance
 {
     const PLATFORM = 'webchat';
 
-    const TYPE = 'webchat_form_response';
-
     /**
      * Sets form values avoiding date and time
      * @param array $formValues
