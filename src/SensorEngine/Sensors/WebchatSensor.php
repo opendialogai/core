@@ -118,7 +118,7 @@ class WebchatSensor extends BaseSensor
                 $utterance = new WebchatFormResponseUtterance();
                 $utterance->setData($content['data']);
                 $utterance->setUserId($request['user_id']);
-                $utterance->setCallbackId($content['data']['callback_id']);
+                $utterance->setCallbackId($content['callback_id']);
                 $utterance->setFormValues($content['data']);
 
                 if (isset($content['user'])) {

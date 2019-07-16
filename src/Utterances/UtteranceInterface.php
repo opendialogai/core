@@ -124,11 +124,13 @@ interface UtteranceInterface
 
     /**
      * @param array $data
+     * @throws FieldNotSupported
      */
     public function setFormValues(array $data): void;
 
     /**
      * @return array
+     * @throws FieldNotSupported
      */
     public function getFormValues(): array;
 }
