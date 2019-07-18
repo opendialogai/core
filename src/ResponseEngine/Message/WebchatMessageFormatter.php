@@ -300,12 +300,13 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     $text .= trim($item->textContent);
                 } elseif ($item->nodeType === XML_ELEMENT_NODE) {
                     if ($item->nodeName === self::LINK) {
+                        $openNewTab = ($item->getAttribute('new_tab')) ? true : false;
+
                         $link = [
-                            self::OPEN_NEW_TAB => false,
+                            self::OPEN_NEW_TAB => $openNewTab,
                             self::TEXT => '',
                             self::URL => '',
                         ];
-
 
                         foreach ($item->childNodes as $t) {
                             $link[$t->nodeName] = trim($t->nodeValue);

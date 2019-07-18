@@ -67,6 +67,24 @@ EOT;
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
 
+    public function testTextMessageWithLink()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <text-message>
+    hi there
+    <link><url>http://www.opendialog.ai</url><text>Link 1</text></link>
+    <link new_tab="true"><url>http://www.opendialog.ai</url><text>Link 2</text></link>
+    <link new_tab="0"><url>http://www.opendialog.ai</url><text>Link 3</text></link>
+  </text-message>
+</message>
+EOT;
+
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $this->assertEquals('hi there <a href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> <a href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
+    }
+
     public function testImageMessage()
     {
         $markup = '<message disable_text="1"><image-message link_new_tab="1"><link>https://www.opendialog.ai</link><src>https://www.opendialog.ai/assets/images/logo.svg</src></image-message></message>';
