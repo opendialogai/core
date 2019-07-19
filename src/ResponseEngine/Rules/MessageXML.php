@@ -120,6 +120,24 @@ class MessageXML extends BaseRule
                             $this->setErrorMessage('Form messages must have "text"');
                             return false;
                         }
+                        foreach ($item->element as $element) {
+                            if (empty((string)$element->element_type)) {
+                                $this->setErrorMessage('Form message elements must have "element_type"');
+                                return false;
+                            }
+                            if (empty((string)$element->name)) {
+                                $this->setErrorMessage('Form message elements must have "name"');
+                                return false;
+                            }
+                            if ((string)$element->element_type == 'select' ||
+                                (string)$element->element_type == 'auto_complete_select') {
+                                if (empty((string)$element->options)) {
+                                    // @codingStandardsIgnoreLine
+                                    $this->setErrorMessage('Form message elements of type "select" or "auto_complete_select" must have "options"');
+                                    return false;
+                                }
+                            }
+                        }
                         break;
 
                     case 'long-text-message':
