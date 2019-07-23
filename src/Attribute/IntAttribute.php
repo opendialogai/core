@@ -20,7 +20,7 @@ class IntAttribute extends BasicAttribute
 
     public function getValue()
     {
-        return parent::getValue();
+        return intval($this->value);
     }
 
     /**
