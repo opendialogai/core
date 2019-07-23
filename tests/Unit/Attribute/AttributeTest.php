@@ -49,6 +49,14 @@ class AttributeTest extends TestCase
         }
     }
 
+    public function testEmptyStringInt()
+    {
+        $a = new IntAttribute("test", "");
+
+        $this->assertEquals(0, $a->getValue());
+    }
+
+
     public function testBooleanToString()
     {
         $a = new BooleanAttribute('a', false);
