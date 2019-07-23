@@ -75,7 +75,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 try {
                     [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attributeId);
                     $replacement = ContextService::getAttributeValue($attributeName, $contextId);
-                    $replacement = htmlspecialchars($replacement, ENT_XML1);
+                    $replacement = $this->escapeCharacters($replacement);
                 } catch (ContextDoesNotExistException $e) {
                     Log::warning($e->getMessage());
                 } catch (AttributeDoesNotExistException $e) {
@@ -131,5 +131,18 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
 
         return $attribute;
+    }
+
+    /**
+     * Escapes the ampersand character (& => &amp;)
+     *
+     * @param $replacement
+     * @return string
+     */
+    private function escapeCharacters($replacement): string
+    {
+        $replacement = str_replace('&', '&amp;', $replacement);
+
+        return $replacement;
     }
 }
