@@ -21,12 +21,12 @@ class ResponseEngineHTMLCharactersTest extends TestCase
 
     public function testHtmlCharacterReplacement()
     {
-        ContextService::saveAttribute('session.test1', "&");
+        ContextService::saveAttribute('session.test1', "<option>&</option>");
 
         $message = "<message><text-message>{session.test1}</text-message></message>";
 
         $message = $this->responseEngineService->fillAttributes($message);
 
-        $this->assertEquals('<message><text-message>&amp;</text-message></message>', $message);
+        $this->assertEquals('<message><text-message><option>&amp;</option></text-message></message>', $message);
     }
 }
