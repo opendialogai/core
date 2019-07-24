@@ -25,7 +25,7 @@ class IntAttribute extends BasicAttribute
      */
     public function getValue()
     {
-        $this->value === null ? $this->value : intval($this->value);
+        return $this->value === null ? $this->value : intval($this->value);
     }
 
     /**
