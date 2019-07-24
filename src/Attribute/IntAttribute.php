@@ -18,9 +18,14 @@ class IntAttribute extends BasicAttribute
         }
     }
 
+    /**
+     * Returns null or an intval
+     *
+     * @return mixed|void
+     */
     public function getValue()
     {
-        return intval($this->value);
+        return $this->value === null ? $this->value : intval($this->value);
     }
 
     /**
