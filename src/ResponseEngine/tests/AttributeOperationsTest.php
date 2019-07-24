@@ -137,14 +137,14 @@ class AttributeOperationsTest extends TestCase
         $this->assertSame(true, $a1->compare($a2, 'lt'));
 
         // In set.
-        $a1 = new IntAttribute('test', [1, 2]);
+        $a1 = new StringAttribute('test', [1, 2]);
         $a2 = new IntAttribute('test', 1);
         $this->assertSame(true, $a1->compare($a2, 'in_set'));
         $a2 = new IntAttribute('test', 0);
         $this->assertSame(false, $a1->compare($a2, 'in_set'));
 
         // Not in set.
-        $a1 = new IntAttribute('test', [1, 2]);
+        $a1 = new StringAttribute('test', [1, 2]);
         $a2 = new IntAttribute('test', 1);
         $this->assertSame(false, $a1->compare($a2, 'not_in_set'));
         $a2 = new IntAttribute('test', 0);
