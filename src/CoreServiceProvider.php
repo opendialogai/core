@@ -8,6 +8,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
 use OpenDialogAi\Core\Console\Commands\ImportConversation;
+use OpenDialogAi\Core\Console\Commands\UserAttributesCache;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
@@ -36,6 +37,7 @@ class CoreServiceProvider extends ServiceProvider
             $this->commands([
                 ExportConversation::class,
                 ImportConversation::class,
+                UserAttributesCache::class
             ]);
         }
 
