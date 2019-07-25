@@ -270,6 +270,7 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Intent $currentIntent */
         Log::debug(sprintf('Set current intent as %s', $currentIntent->getId()));
         ContextService::saveAttribute('conversation.interpreted_intent', $currentIntent->getId());
+        ContextService::saveAttribute('conversation.current_scene', 'opening_scene');
 
         if ($currentIntent->causesAction()) {
             $this->performIntentAction($userContext, $currentIntent);
