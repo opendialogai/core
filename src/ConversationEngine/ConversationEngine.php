@@ -93,6 +93,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var Intent $nextIntent */
         $nextIntent = $possibleNextIntents->first()->value;
+        ContextService::saveAttribute('conversation.next_intent', $nextIntent->getId());
 
         if ($nextIntent->completes()) {
             $userContext->moveCurrentConversationToPast();
@@ -198,6 +199,8 @@ class ConversationEngine implements ConversationEngineInterface
             Log::debug(sprintf('We found a matching intent %s', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
 
+            ContextService::saveAttribute('conversation.interpreted_intent', $nextIntent->getId());
+
             $this->storeIntentAttributes($nextIntent);
 
             if ($nextIntent->causesAction()) {
@@ -266,6 +269,8 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var Intent $currentIntent */
         Log::debug(sprintf('Set current intent as %s', $currentIntent->getId()));
+        ContextService::saveAttribute('conversation.interpreted_intent', $currentIntent->getId());
+        ContextService::saveAttribute('conversation.current_scene', 'opening_scene');
 
         if ($currentIntent->causesAction()) {
             $this->performIntentAction($userContext, $currentIntent);
