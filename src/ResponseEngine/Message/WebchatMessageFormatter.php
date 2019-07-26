@@ -297,7 +297,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         foreach ($dom->childNodes as $node) {
             foreach ($node->childNodes as $item) {
                 if ($item->nodeType === XML_TEXT_NODE) {
-                    $text .= trim($item->textContent);
+                    if (!empty(trim($item->textContent))) {
+                        $text .= ' ' . trim($item->textContent);
+                    }
                 } elseif ($item->nodeType === XML_ELEMENT_NODE) {
                     if ($item->nodeName === self::LINK) {
                         $openNewTab = ($item->getAttribute('new_tab')) ? true : false;
@@ -326,7 +328,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             }
         }
 
-        return $text;
+        return trim($text);
     }
 
     /**
@@ -343,7 +345,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             return '<a target="_blank" href="' . $url . '">' . $text . '</a>';
         }
 
-        return '<a href="' . $url . '">' . $text . '</a>';
+        return '<a target="_parent" href="' . $url . '">' . $text . '</a>';
     }
 
     /**

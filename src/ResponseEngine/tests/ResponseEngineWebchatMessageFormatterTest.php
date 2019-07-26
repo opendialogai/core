@@ -75,6 +75,7 @@ EOT;
     hi there
     <link><url>http://www.opendialog.ai</url><text>Link 1</text></link>
     <link new_tab="true"><url>http://www.opendialog.ai</url><text>Link 2</text></link>
+    test
     <link new_tab="0"><url>http://www.opendialog.ai</url><text>Link 3</text></link>
   </text-message>
 </message>
@@ -82,7 +83,7 @@ EOT;
 
         $formatter = new WebChatMessageFormatter;
         $messages = $formatter->getMessages($markup);
-        $this->assertEquals('hi there <a href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> <a href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
+        $this->assertEquals('hi there <a target="_parent" href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
 
     public function testImageMessage()
