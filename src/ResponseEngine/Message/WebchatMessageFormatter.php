@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
@@ -140,6 +141,8 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
             } elseif (isset($button[self::LINK])) {
                 $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $button[self::LINK_NEW_TAB]));
+            } elseif (isset($button[self::CLICK_TO_CALL])) {
+                $message->addButton(new WebchatClickToCallButton($button[self::TEXT], $button[self::CLICK_TO_CALL]));
             } else {
                 $message->addButton(
                     new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
@@ -377,6 +380,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     self::TEXT => trim((string)$button->text),
                     self::LINK => trim((string)$button->link),
                     self::LINK_NEW_TAB => $buttonLinkNewTab,
+                ];
+            } elseif (isset($button->click_to_call)) {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::CLICK_TO_CALL => trim((string)$button->click_to_call),
                 ];
             } else {
                 $template[self::BUTTONS][] = [

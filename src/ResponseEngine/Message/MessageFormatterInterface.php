@@ -38,6 +38,7 @@ interface MessageFormatterInterface
     public const SRC                     = 'src';
     public const OPEN_NEW_TAB            = 'open-new-tab';
     public const LINK_NEW_TAB            = 'link_new_tab';
+    public const CLICK_TO_CALL           = 'click_to_call';
     public const TAB_SWITCH              = 'tab_switch';
     public const PLACEHOLDER             = 'placeholder';
     public const INITIAL_TEXT            = 'initial_text';

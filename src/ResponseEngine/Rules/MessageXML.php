@@ -61,8 +61,9 @@ class MessageXML extends BaseRule
                         }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->callback) && empty((string)$button->tab_switch)
-                                && empty((string)$button->link)) {
-                                $this->setErrorMessage('All buttons must have with a "callback", "link" or "tab_switch" set');
+                                && empty((string)$button->link) && empty((string)$button->click_to_call)) {
+                                // @codingStandardsIgnoreLine
+                                $this->setErrorMessage('All buttons must have with a "callback", "link", "tab_switch" or "click_to_call" set');
                                 return false;
                             }
                             if (empty((string)$button->text)) {
