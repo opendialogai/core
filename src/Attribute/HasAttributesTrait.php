@@ -48,8 +48,6 @@ trait HasAttributesTrait
     }
 
     /**
-     * TODO I still really think this should be sending and accepting an attribute bag rather than a raw map
-     *
      * @return Map
      */
     public function getAttributes(): Map
@@ -58,8 +56,6 @@ trait HasAttributesTrait
     }
 
     /**
-     *  TODO I still really think this should be sending and accepting an attribute bag rather than a raw map
-     *
      * @param Map $attributes
      * @return $this
      */
@@ -95,12 +91,13 @@ trait HasAttributesTrait
     public function getAttribute(string $attributeName) : AttributeInterface
     {
         if ($this->hasAttribute($attributeName)) {
-            Log::debug(sprintf("Returning attribute with name %s", $attributeName));
             return $this->attributes->get($attributeName);
         }
 
         Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
-        throw new AttributeDoesNotExistException();
+        throw new AttributeDoesNotExistException(
+            sprintf("Cannot return attribute with name %s - does not exist", $attributeName)
+        );
     }
 
     /**
