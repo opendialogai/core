@@ -134,7 +134,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     public function generateButtonMessage(array $template)
     {
         $message = new WebChatButtonMessage();
-        $message->setText($template[self::TEXT]);
+        $message->setText($template[self::TEXT], [], true);
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
@@ -362,7 +362,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         }
 
         $template = [
-            self::TEXT => trim((string)$item->text),
+            self::TEXT => $this->getMessageText($item->text),
             self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
         ];
 
