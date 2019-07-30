@@ -121,7 +121,7 @@ EOT;
 
     public function testButtonMessage()
     {
-        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
+        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
         $formatter = new WebChatMessageFormatter;
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
@@ -146,6 +146,7 @@ EOT;
         $markup = <<<EOT
 <message disable_text="0">
   <button-message clear_after_interaction="0">
+    <text>test</text>
     <button>
       <text>
         Yes
