@@ -177,6 +177,14 @@ EOT;
         false
       </value>
     </button>
+    <button>
+      <text>
+        Click to call
+      </text>
+      <click_to_call>
+        12312412
+      </click_to_call>
+    </button>
   </button-message>
 </message>
 EOT;
@@ -200,6 +208,10 @@ EOT;
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => 'false',
+            ],
+            [
+                'text' => 'Click to call',
+                'phone_number' => '12312412',
             ],
         ];
 
