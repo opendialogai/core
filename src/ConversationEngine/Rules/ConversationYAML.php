@@ -29,6 +29,25 @@ class ConversationYAML extends BaseRule
                 $this->setErrorMessage('Conversation must have at least 1 scene');
                 return false;
             }
+
+            foreach ($yaml['conversation']['scenes'] as $scene) {
+                if (isset($scene['intents'])) {
+                    foreach ($scene['intents'] as $intent) {
+                        if (isset($intent['u']['i'])) {
+                            if ($intent['u']['i'] == $yaml['conversation']['id']) {
+                                $this->setErrorMessage('Conversation can not have the same name as an intent');
+                                return false;
+                            }
+                        }
+                        if (isset($intent['b']['i'])) {
+                            if ($intent['b']['i'] == $yaml['conversation']['id']) {
+                                $this->setErrorMessage('Conversation can not have the same name as an intent');
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
         } catch (ParseException $e) {
             $this->setErrorMessage(sprintf('Invalid YAML - %s', $e->getMessage()));
             return false;
