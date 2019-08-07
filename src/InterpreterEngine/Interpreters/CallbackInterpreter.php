@@ -47,12 +47,20 @@ class CallbackInterpreter extends BaseInterpreter
         $intent = new NoMatchIntent();
         try {
             $callbackId = $utterance->getCallbackId();
-            if (isset($callbackId) && array_key_exists($callbackId, $this->supportedCallbacks)) {
-                $intent = new Intent($this->supportedCallbacks[$utterance->getCallbackId()]);
-                $intent->setConfidence(1);
+            if (isset($callbackId)) {
+                if (array_key_exists($callbackId, $this->supportedCallbacks)) {
+                    $intent = new Intent($this->supportedCallbacks[$utterance->getCallbackId()]);
+                    $intent->setConfidence(1);
 
-                $this->setValue($utterance, $intent);
-                $this->setFormValues($utterance, $intent);
+                    $this->setValue($utterance, $intent);
+                    $this->setFormValues($utterance, $intent);
+                } elseif ($utterance->getValue()) {
+                    $intent = new Intent($utterance->getValue());
+                    $intent->setConfidence(1);
+
+                    $this->setValue($utterance, $intent);
+                    $this->setFormValues($utterance, $intent);
+                }
             }
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf('Utterance %s does not support callbacks or callback values', $utterance->getType()));
