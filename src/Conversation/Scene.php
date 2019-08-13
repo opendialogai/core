@@ -93,6 +93,16 @@ class Scene extends NodeWithConditions
         return $this->bot->getAllIntentsSaid();
     }
 
+    public function getIntentsSaidByUserInOrder()
+    {
+        return $this->user->getAllIntentsSaidInOrder();
+    }
+
+    public function getIntentsSaidByBotInOrder()
+    {
+        return $this->bot->getAllIntentsSaidInOrder();
+    }
+
     public function getIntentsListenedByUser()
     {
         return $this->user->getAllIntentsListenedFor();
@@ -142,19 +152,33 @@ class Scene extends NodeWithConditions
      */
     public function getNextPossibleBotIntents(Intent $currentIntent): Map
     {
-        $intents = $this->getIntentsSaidByBot()->filter( function ($key, Intent $possibleIntent) use ($currentIntent) {
-            if (!$this->hasIntent($currentIntent)) {
-                // TODO We have moved scenes, not able to determine the correct ordering
-                return true;
-            }
+        // If the current intent is in this scene, use its order. If not (because it's said across scenes), we use 0
+        // because the new scene's ordering is independent of the previous scene.
+        $currentOrder = $this->hasIntent($currentIntent) ? $currentIntent->getOrder() : 0;
 
-            /* @var Intent $value */
-            if ($possibleIntent->getOrder() === $currentIntent->getOrder() + 1) {
-                return true;
-            }
 
-            return false;
-        });
+        /** @var Intent $previousKeptIntent */
+        $previousKeptIntent = null;
+
+        $intents = $this->getIntentsSaidByBotInOrder()->filter(
+            function ($key, Intent $possibleIntent) use ($currentOrder, &$previousKeptIntent) {
+                // Intents are considered sequential if its the first intent or if it's order directly follows the
+                // previously kept intent
+                $intentsAreSequential = is_null($previousKeptIntent)
+                    || $previousKeptIntent->getOrder() + 1 == $possibleIntent->getOrder();
+
+                // Keep the intent if its order is higher and the previous bot intent was sequential
+                $shouldKeep = $possibleIntent->getOrder() > $currentOrder
+                    && $intentsAreSequential;
+
+                // Set previousIntent to determine whether there is a block of sequential bot intents
+                if ($shouldKeep) {
+                    $previousKeptIntent = $possibleIntent;
+                }
+
+                return $shouldKeep;
+            }
+        );
 
         return $intents;
     }
