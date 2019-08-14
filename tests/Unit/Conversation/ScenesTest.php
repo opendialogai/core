@@ -30,62 +30,62 @@ class ScenesTest extends TestCase
     /**
      * @var Intent
      */
-    private $_intent1;
+    private $intent1;
 
     /**
      * @var Intent
      */
-    private $_intent2;
+    private $intent2;
 
     /**
      * @var Intent
      */
-    private $_intent3;
+    private $intent3;
 
     /**
      * @var Intent
      */
-    private $_intent4;
+    private $intent4;
 
     /**
      * @var Intent
      */
-    private $_intent5;
+    private $intent5;
 
     /**
      * @var Intent
      */
-    private $_intent6;
+    private $intent6;
 
     /**
      * @var Intent
      */
-    private $_intent7;
+    private $intent7;
 
     /**
      * @var Intent
      */
-    private $_intent8;
+    private $intent8;
 
     /**
      * @var Intent
      */
-    private $_intent9;
+    private $intent9;
 
     /**
      * @var Intent
      */
-    private $_intent10;
+    private $intent10;
 
     /**
      * @var Intent
      */
-    private $_intent11;
+    private $intent11;
 
     /**
      * @var Intent
      */
-    private $_intent12;
+    private $intent12;
 
     public function setupConversation()
     {
@@ -96,54 +96,54 @@ class ScenesTest extends TestCase
         $cm->createScene(self::LATEST_NEWS_SCENE, false);
 
         // Add an intent from one participant to the other
-        $this->_intent1 = new Intent(self::INTENT_USER_TO_BOT_1);
-        $this->_intent1->setOrderAttribute(1);
+        $this->intent1 = new Intent(self::INTENT_USER_TO_BOT_1);
+        $this->intent1->setOrderAttribute(1);
 
-        $this->_intent2 = new Intent(self::INTENT_BOT_TO_USER_2);
-        $this->_intent2->setOrderAttribute(2);
+        $this->intent2 = new Intent(self::INTENT_BOT_TO_USER_2);
+        $this->intent2->setOrderAttribute(2);
 
-        $this->_intent3 = new Intent(self::INTENT_USER_TO_BOT_3);
-        $this->_intent3->setOrderAttribute(3);
+        $this->intent3 = new Intent(self::INTENT_USER_TO_BOT_3);
+        $this->intent3->setOrderAttribute(3);
 
-        $this->_intent4 = new Intent(self::INTENT_USER_TO_BOT_4);
-        $this->_intent4->setOrderAttribute(4);
+        $this->intent4 = new Intent(self::INTENT_USER_TO_BOT_4);
+        $this->intent4->setOrderAttribute(4);
 
-        $this->_intent5 = new Intent(self::INTENT_BOT_TO_USER_5);
-        $this->_intent5->setOrderAttribute(1);
+        $this->intent5 = new Intent(self::INTENT_BOT_TO_USER_5);
+        $this->intent5->setOrderAttribute(1);
 
-        $this->_intent6 = new Intent(self::INTENT_BOT_TO_USER_7);
-        $this->_intent6->setOrderAttribute(2);
+        $this->intent6 = new Intent(self::INTENT_BOT_TO_USER_7);
+        $this->intent6->setOrderAttribute(2);
 
-        $this->_intent7 = new Intent(self::INTENT_USER_TO_BOT_6);
-        $this->_intent7->setOrderAttribute(3);
+        $this->intent7 = new Intent(self::INTENT_USER_TO_BOT_6);
+        $this->intent7->setOrderAttribute(3);
 
-        $this->_intent8 = new Intent(self::INTENT_BOT_TO_USER_8, true);
-        $this->_intent8->setOrderAttribute(4);
+        $this->intent8 = new Intent(self::INTENT_BOT_TO_USER_8, true);
+        $this->intent8->setOrderAttribute(4);
 
-        $this->_intent9 = new Intent(self::INTENT_BOT_TO_USER_9);
-        $this->_intent9->setOrderAttribute(6);
+        $this->intent9 = new Intent(self::INTENT_BOT_TO_USER_9);
+        $this->intent9->setOrderAttribute(6);
 
-        $this->_intent10 = new Intent(self::INTENT_BOT_TO_USER_10);
-        $this->_intent10->setOrderAttribute(7);
+        $this->intent10 = new Intent(self::INTENT_BOT_TO_USER_10);
+        $this->intent10->setOrderAttribute(7);
 
-        $this->_intent11 = new Intent(self::INTENT_USER_TO_BOT_11);
-        $this->_intent11->setOrderAttribute(8);
+        $this->intent11 = new Intent(self::INTENT_USER_TO_BOT_11);
+        $this->intent11->setOrderAttribute(8);
 
-        $this->_intent12 = new Intent(self::INTENT_BOT_TO_USER_12, true);
-        $this->_intent12->setOrderAttribute(9);
+        $this->intent12 = new Intent(self::INTENT_BOT_TO_USER_12, true);
+        $this->intent12->setOrderAttribute(9);
 
-        $cm->userSaysToBot(self::OPENING_SCENE, $this->_intent1, 1)
-            ->botSaysToUser(self::OPENING_SCENE, $this->_intent2, 2)
-            ->userSaysToBot(self::OPENING_SCENE, $this->_intent3, 3)
-            ->userSaysToBotAcrossScenes(self::OPENING_SCENE, self::LATEST_NEWS_SCENE, $this->_intent4, 4)
-            ->botSaysToUser(self::LATEST_NEWS_SCENE, $this->_intent5, 1)
-            ->botSaysToUser(self::LATEST_NEWS_SCENE, $this->_intent6, 2)
-            ->userSaysToBot(self::LATEST_NEWS_SCENE, $this->_intent7, 3)
-            ->botSaysToUser(self::LATEST_NEWS_SCENE, $this->_intent8, 4)
-            ->botSaysToUser(self::OPENING_SCENE, $this->_intent9, 6)
-            ->botSaysToUser(self::OPENING_SCENE, $this->_intent10, 7)
-            ->userSaysToBot(self::OPENING_SCENE, $this->_intent11, 8)
-            ->botSaysToUser(self::OPENING_SCENE, $this->_intent12, 9);
+        $cm->userSaysToBot(self::OPENING_SCENE, $this->intent1, 1)
+            ->botSaysToUser(self::OPENING_SCENE, $this->intent2, 2)
+            ->userSaysToBot(self::OPENING_SCENE, $this->intent3, 3)
+            ->userSaysToBotAcrossScenes(self::OPENING_SCENE, self::LATEST_NEWS_SCENE, $this->intent4, 4)
+            ->botSaysToUser(self::LATEST_NEWS_SCENE, $this->intent5, 1)
+            ->botSaysToUser(self::LATEST_NEWS_SCENE, $this->intent6, 2)
+            ->userSaysToBot(self::LATEST_NEWS_SCENE, $this->intent7, 3)
+            ->botSaysToUser(self::LATEST_NEWS_SCENE, $this->intent8, 4)
+            ->botSaysToUser(self::OPENING_SCENE, $this->intent9, 6)
+            ->botSaysToUser(self::OPENING_SCENE, $this->intent10, 7)
+            ->userSaysToBot(self::OPENING_SCENE, $this->intent11, 8)
+            ->botSaysToUser(self::OPENING_SCENE, $this->intent12, 9);
 
         return $cm;
     }
@@ -172,21 +172,21 @@ class ScenesTest extends TestCase
         $latestNewsScene = $cm->getScene(self::LATEST_NEWS_SCENE);
 
         // Test that to begin with it returns just intent2
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->_intent1);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->intent1);
         $this->assertEquals(1, $possibleIntents->count());
-        $this->assertEquals($this->_intent2->getId(), $possibleIntents->first()->value->getId());
+        $this->assertEquals($this->intent2->getId(), $possibleIntents->first()->value->getId());
 
         // Test that it returns the correct intents when the current intent is intent3 and that they are in the right order
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->_intent3);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->intent3);
         $this->assertEquals(2, $possibleIntents->count());
-        $this->assertEquals($this->_intent9->getId(), $possibleIntents->first()->value->getId());
-        $this->assertEquals($this->_intent10->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_10)->getId());
+        $this->assertEquals($this->intent9->getId(), $possibleIntents->first()->value->getId());
+        $this->assertEquals($this->intent10->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_10)->getId());
 
         // Test that it returns the correct intents when the current intent is said across scenes and that they are in the right order
-        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents($this->_intent4);
+        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents($this->intent4);
         $this->assertEquals(2, $possibleIntents->count());
-        $this->assertEquals($this->_intent5->getId(), $possibleIntents->first()->value->getId());
-        $this->assertEquals($this->_intent6->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_7)->getId());
+        $this->assertEquals($this->intent5->getId(), $possibleIntents->first()->value->getId());
+        $this->assertEquals($this->intent6->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_7)->getId());
     }
 
 }
