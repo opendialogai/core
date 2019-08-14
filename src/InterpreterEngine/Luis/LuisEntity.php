@@ -4,6 +4,10 @@ namespace OpenDialogAi\InterpreterEngine\Luis;
 
 class LuisEntity
 {
+    private const NO_RESOLUTION_VALUE = 0;
+    private const ONE_RESOLUTION_VALUE = 1;
+    private const MANY_RESOLUTION_VALUES = 2;
+
     /* @var string */
     private $type;
 
@@ -48,9 +52,7 @@ class LuisEntity
             $this->endIndex = $entity->endIndex;
         }
 
-        if (isset($entity->resolution->values)) {
-            $this->extractValues($entity);
-        }
+        $this->extractValues($entity);
 
         if (isset($entity->score)) {
             $this->score = floatval($entity->score);
@@ -110,8 +112,41 @@ class LuisEntity
      */
     private function extractValues($entity): void
     {
-        foreach ($entity->resolution->values as $value) {
+        $resolutionStructure = $this->detectResolutionStructure($entity);
+
+        switch ($resolutionStructure) {
+            case self::ONE_RESOLUTION_VALUE:
+                $values[] = $entity->resolution->value;
+                break;
+
+            case self::MANY_RESOLUTION_VALUES:
+                $values = $entity->resolution->values;
+                break;
+
+            case self::NO_RESOLUTION_VALUE:
+            default:
+                $values[] = $this->entityString;
+        }
+
+        foreach ($values as $value) {
             $this->resolutionValues[] = $value;
         }
+    }
+
+    /**
+     * @param $entity
+     * @return int
+     */
+    private function detectResolutionStructure($entity): int
+    {
+        if (isset($entity->resolution->values)) {
+            return self::MANY_RESOLUTION_VALUES;
+        }
+
+        if (isset($entity->resolution->value)) {
+            return self::ONE_RESOLUTION_VALUE;
+        }
+
+        return self::NO_RESOLUTION_VALUE;
     }
 }
