@@ -5,9 +5,9 @@ namespace OpenDialogAi\ConversationBuilder;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineAttributeException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineValidOperationException;
@@ -22,6 +22,7 @@ use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\ConversationManager;
+use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -120,17 +121,17 @@ class Conversation extends Model
             throw $exception;
         }
 
-        $cm = new ConversationManager($yaml['id']);
+        $conversationManager = new ConversationManager($yaml['id']);
 
         if (isset($yaml['conditions'])) {
-            $this->addConversationConditions($yaml['conditions'], $cm);
+            $this->addConversationConditions($yaml['conditions'], $conversationManager);
         }
 
         // Build the conversation in two steps. First all the scenes and then all the intents as
         // intents may connect between scenes.
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             $sceneIsOpeningScene = $sceneId === 'opening_scene';
-            $cm->createScene($sceneId, $sceneIsOpeningScene);
+            $conversationManager->createScene($sceneId, $sceneIsOpeningScene);
         }
 
         // Now cycle through the scenes again and identifying intents that cut across scenes.
@@ -144,27 +145,25 @@ class Conversation extends Model
 
                 if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
-                        $cm->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
+                        $conversationManager->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
-                        $cm->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
+                        $conversationManager->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
                     }
+                } else if ($speaker === 'u') {
+                    $conversationManager->userSaysToBot($sceneId, $intentNode, $intentIdx);
+                } else if ($speaker === 'b') {
+                    $conversationManager->botSaysToUser($sceneId, $intentNode, $intentIdx);
                 } else {
-                    if ($speaker === 'u') {
-                        $cm->userSaysToBot($sceneId, $intentNode, $intentIdx);
-                    } elseif ($speaker === 'b') {
-                        $cm->botSaysToUser($sceneId, $intentNode, $intentIdx);
-                    } else {
-                        Log::debug("I don't know about the speaker type '{$speaker}'");
-                    }
+                    Log::debug("I don't know about the speaker type '{$speaker}'");
                 }
 
                 $intentIdx++;
             }
         }
 
-        return $cm->getConversation();
+        return $conversationManager->getConversation();
     }
 
     /**
@@ -172,20 +171,19 @@ class Conversation extends Model
      *
      * @param ConversationNode $conversation
      * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function publishConversation(ConversationNode $conversation)
     {
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $dGraph = app()->make(DGraphClient::class);
         $mutation = new DGraphMutation($conversation);
 
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->getData()['code'] === 'Success') {
-            $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
-
             // Set conversation status to "published".
             $this->status = 'published';
-            $this->graph_uid = $uid;
+            $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
             $this->save(['validate' => false]);
 
             ConversationStateLog::create([
@@ -244,7 +242,7 @@ class Conversation extends Model
      * @param $intentSceneId
      * @return Intent
      */
-    private function createIntent($intent, &$speaker, &$intentSceneId)
+    private function createIntent($intent, &$speaker, &$intentSceneId): Intent
     {
         $speaker = array_keys($intent)[0];
         $intentValue = $intent[$speaker];
@@ -253,14 +251,16 @@ class Conversation extends Model
         $interpreterLabel = null;
         $confidence = null;
         $completes = false;
+        $expectedAttributes = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
-            $actionLabel = isset($intentValue['action']) ? $intentValue['action'] : null;
-            $interpreterLabel = isset($intentValue['interpreter']) ? $intentValue['interpreter'] : null;
-            $completes = isset($intentValue['completes']) ? $intentValue['completes'] : false;
-            $confidence = isset($intentValue['confidence']) ? $intentValue['confidence'] : false;
-            $intentSceneId = isset($intent[$speaker]['scene']) ? $intent[$speaker]['scene'] : null;
+            $actionLabel = $intentValue['action'] ?? null;
+            $interpreterLabel = $intentValue['interpreter'] ?? null;
+            $completes = $intentValue['completes'] ?? false;
+            $confidence = $intentValue['confidence'] ?? false;
+            $intentSceneId = $intent[$speaker]['scene'] ?? null;
+            $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
         } else {
             $intentLabel = $intentValue;
         }
@@ -278,6 +278,12 @@ class Conversation extends Model
 
         if ($confidence) {
             $intentNode->setConfidence($confidence);
+        }
+
+        if (is_array($expectedAttributes)) {
+            foreach ($expectedAttributes as $expectedAttribute) {
+                $intentNode->addExpectedAttribute(new ExpectedAttribute($expectedAttribute['id']));
+            }
         }
 
         return $intentNode;
@@ -321,9 +327,7 @@ class Conversation extends Model
 
         list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId($attributeName);
 
-        /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = resolve(AttributeResolver::class);
-        if (!array_key_exists($attributeId, $attributeResolver->getSupportedAttributes())) {
+        if (!array_key_exists($attributeId, AttributeResolver::getSupportedAttributes())) {
             throw new AttributeIsNotSupported(
                 sprintf('Attribute %s could not be resolved', $attributeName)
             );
@@ -351,7 +355,7 @@ class Conversation extends Model
             );
         }
 
-        $attribute = $attributeResolver->getAttributeFor($attributeId, $value);
+        $attribute = AttributeResolver::getAttributeFor($attributeId, $value);
 
         // Now we can create the condition - we set an id as a helper
         $id = sprintf('%s-%s-%s', $attributeName, $operation, $value);

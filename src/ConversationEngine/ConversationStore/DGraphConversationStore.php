@@ -3,22 +3,19 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use Ds\Map;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\AllOpeningIntents;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 class DGraphConversationStore implements ConversationStoreInterface
 {
     private $dGraphClient;
 
-    private $attributeResolver;
-
-    public function __construct(DGraphClient $dGraphClient, AttributeResolver $attributeResolver)
+    public function __construct(DGraphClient $dGraphClient)
     {
         $this->dGraphClient = $dGraphClient;
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -26,22 +23,23 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getAllOpeningIntents(): Map
     {
-        $query = new AllOpeningIntents($this->dGraphClient, $this->attributeResolver);
+        $query = new AllOpeningIntents($this->dGraphClient);
 
         return $query->getIntents();
     }
 
     /**
      * @param $conversationId
+     * @param bool $clone
      * @return Conversation
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
-    public function getConversation($conversationId): Conversation
+    public function getConversation($conversationId, $clone = true): Conversation
     {
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationId,
             $this->dGraphClient,
-            $this->attributeResolver,
-            true
+            $clone
         );
 
         return $conversation;
@@ -50,16 +48,37 @@ class DGraphConversationStore implements ConversationStoreInterface
     /**
      * @param $conversationTemplateName
      * @return Conversation
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function getConversationTemplate($conversationTemplateName): Conversation
     {
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
             $conversationTemplateName,
             $this->dGraphClient,
-            $this->attributeResolver,
             true
         );
 
         return $conversation;
+    }
+
+    /**
+     * Gets the intent ID within a conversation with the given id with a matching order
+     *
+     * @param $conversationId
+     * @param $order
+     * @return Intent
+     */
+    public function getIntentByConversationIdAndOrder($conversationId, $order): Intent
+    {
+        return ConversationQueryFactory::getConversationIntentByOrder(
+            $conversationId,
+            $order,
+            $this->dGraphClient
+        );
+    }
+
+    public function getIntentByUid($intentUid): Intent
+    {
+        return ConversationQueryFactory::getIntentByUid($intentUid, $this->dGraphClient);
     }
 }

@@ -6,36 +6,29 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\LinkClickInterface;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\SensorInterface;
 use OpenDialogAi\SensorEngine\Service\SensorService;
 
 class WebchatIncomingController extends BaseController
 {
-    /** @var SensorService */
-    private $sensorService;
-
     /** @var OpenDialogController */
     private $odController;
 
     /** @var SensorInterface */
     private $webchatSensor;
 
-
     /**
      * WebchatIncomingController constructor.
      * @param SensorService $sensorService
      * @param OpenDialogController $odController
      */
-    public function __construct(
-        SensorService $sensorService,
-        OpenDialogController $odController
-    ) {
-        $this->sensorService = $sensorService;
+    public function __construct(SensorService $sensorService, OpenDialogController $odController)
+    {
         $this->odController = $odController;
-
-        $this->webchatSensor = $this->sensorService->getSensor('sensor.core.webchat');
+        $this->webchatSensor = $sensorService->getSensor('sensor.core.webchat');
     }
 
     public function receive(IncomingWebchatMessage $request)
@@ -48,15 +41,23 @@ class WebchatIncomingController extends BaseController
         // Get the Utterance.
         $utterance = $this->webchatSensor->interpret($request);
 
-        // Ignore "url_click" messages.
+        // Save "url_click" messages.
         if ($utterance instanceof WebchatUrlClickUtterance) {
+            $linkClick = app()->make(LinkClickInterface::class);
+            $linkClick->save($utterance);
+
             return response(null, 200);
         }
 
         /** @var WebChatMessages $messageWrapper */
         $messageWrapper = $this->odController->runConversation($utterance);
 
-        Log::debug(sprintf("Sending response: %s", json_encode($messageWrapper->getMessageToPost())));
+        Log::debug(sprintf('Sending response: %s', json_encode($messageWrapper->getMessageToPost())));
+
+        $messages = $messageWrapper->getMessageToPost();
+        if (count($messages) == 1) {
+            return response(reset($messages), 200);
+        }
 
         return response($messageWrapper->getMessageToPost(), 200);
     }

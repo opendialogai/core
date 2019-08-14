@@ -17,7 +17,7 @@ class CallbackInterpreterTest extends TestCase
     {
         parent::setUp();
         $validCallback = ['valid' => 'valid'];
-        $this->setConfigValue('opendialog.interpreter_engine.supported_callbacks', $validCallback);
+        $this->setSupportedCallbacks($validCallback);
     }
 
     public function testBinding()
@@ -68,7 +68,7 @@ class CallbackInterpreterTest extends TestCase
     public function testGetButtonValueWithAttributeName()
     {
         $customAttribute = ['age' => IntAttribute::class];
-        $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+        $this->setCustomAttributes($customAttribute);
 
         $callbackInterpreter = $this->getCallbackInterpreter();
 

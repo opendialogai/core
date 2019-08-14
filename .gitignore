@@ -2,3 +2,6 @@
 /.idea
 /build
 .DS_Store
+.env
+/storage/*
+/bootstrap/*

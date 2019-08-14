@@ -4,10 +4,10 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
-use OpenDialogAi\ContextEngine\Exceptions\CouldNotRetrieveUserRecordException;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -17,6 +17,7 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\Node\Node;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -26,17 +27,9 @@ class UserService
     /* @var DGraphClient */
     private $dGraphClient;
 
-    /* @var AttributeResolver */
-    private $attributeResolver;
-
     public function __construct(DGraphClient $dGraphClient)
     {
         $this->dGraphClient = $dGraphClient;
-    }
-
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -52,6 +45,10 @@ class UserService
         $user = new ChatbotUser();
         if (isset($response->getData()[0]['id'])) {
             foreach ($response->getData()[0] as $name => $value) {
+                if (in_array($name, [Model::HAVING_CONVERSATION, Model::HAD_CONVERSATION, Model::CURRENT_INTENT])) {
+                    continue;
+                }
+
                 if ($name === 'id') {
                     $user->setId($value);
                     continue;
@@ -62,12 +59,8 @@ class UserService
                     continue;
                 }
 
-                if ($name === Model::HAVING_CONVERSATION || $name === Model::HAD_CONVERSATION) {
-                    continue;
-                }
-
                 try {
-                    $attribute = $this->attributeResolver->getAttributeFor($name, $value);
+                    $attribute = AttributeResolver::getAttributeFor($name, $value);
                     $user->addAttribute($attribute);
                 } catch (AttributeIsNotSupported $e) {
                     Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
@@ -77,20 +70,12 @@ class UserService
         }
 
         if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
-            $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
-                $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID],
-                $this->dGraphClient,
-                $this->attributeResolver
-            );
-
-            $user->setCurrentConversation($conversation);
+            $user->setCurrentConversationUid($response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID]);
         }
 
         if (isset($response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT])) {
-            $intent = $user->getIntentByUid(
-                $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT][0][Model::UID]
-            );
-            $user->setCurrentIntent($intent);
+            $intentId = $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT][0][Model::UID];
+            $user->setCurrentIntentUid($intentId);
         }
         return $user;
     }
@@ -167,8 +152,8 @@ class UserService
         $chatbotUser = $this->updateUser($user);
         MySqlUserRepository::persistUserToMySql($utterance->getUser());
 
-        // Set user 'firstseen' timestamp attribute.
-        $this->setUserAttribute($chatbotUser, 'firstseen', now()->timestamp);
+        // Set user 'first_seen' timestamp attribute.
+        $this->setUserAttribute($chatbotUser, 'first_seen', now()->timestamp);
 
         return $chatbotUser;
     }
@@ -184,18 +169,28 @@ class UserService
         return $this->updateUser($user);
     }
 
+    /**
+     * @param ChatbotUser $user
+     * @return ChatbotUser
+     * @throws GuzzleException
+     */
     public function moveCurrentConversationToPast(ChatbotUser $user): ChatbotUser
     {
         // Delete the current relationship from Dgraph.
         $this->dGraphClient->deleteRelationship(
             $user->getUid(),
-            $user->getCurrentConversation()->getUid(),
+            $user->getCurrentConversationUid(),
             Model::HAVING_CONVERSATION
         );
 
-        // Update the user model
-        $user->moveCurrentConversationToPast();
-        return $this->updateUser($user);
+        $this->dGraphClient->createRelationship(
+            $user->getUid(),
+            $user->getCurrentConversationUid(),
+            Model::HAD_CONVERSATION
+        );
+
+        $user->unsetCurrentConversation();
+        return $user;
     }
 
     /**
@@ -207,28 +202,50 @@ class UserService
     public function setCurrentIntent(ChatbotUser $user, Intent $intent): Node
     {
         if ($user->hasCurrentIntent()) {
-            $currentIntentId = $user->getCurrentIntent()->getUid();
-
-            $this->dGraphClient->createRelationship(
-              $currentIntentId,
-              $intent->getUid(),
-              Model::FOLLOWED_BY
-            );
-
-            // Delete the current relationship from Dgraph
+            // From conversation to current intent
             $this->dGraphClient->deleteRelationship(
-                $user->getCurrentConversation()->getUid(),
-                $currentIntentId,
+                $user->getCurrentConversationUid(),
+                $user->getCurrentIntentUid(),
                 Model::CURRENT_INTENT
             );
+
+            // From user to current intent
+            $this->dGraphClient->deleteRelationship(
+                $user->getUid(),
+                $user->getCurrentIntentUid(),
+                Model::CURRENT_INTENT
+            );
+
+            // From previous intent to current intent
+            $this->dGraphClient->createRelationship(
+                $user->getCurrentIntentUid(),
+                $intent->getUid(),
+                Model::FOLLOWED_BY
+            );
         }
-        $user->setCurrentIntent($intent);
-        return $this->updateUser($user);
+
+        $this->dGraphClient->createRelationship(
+            $user->getCurrentConversationUid(),
+            $intent->getUid(),
+            Model::CURRENT_INTENT
+        );
+
+        // Add a relationship from user to current intent directly
+        $this->dGraphClient->createRelationship(
+            $user->getUid(),
+            $intent->getUid(),
+            Model::CURRENT_INTENT
+        );
+
+        return $user->setCurrentIntentUid($intent->getUid());
     }
 
     /**
+     * Updates the user in DGraph.
+     *
      * @param ChatbotUser $user
      * @return ChatbotUser
+     * @throws CouldNotPersistUserRecordException
      */
     public function updateUser(ChatbotUser $user): ChatbotUser
     {
@@ -239,7 +256,7 @@ class UserService
             return $this->getUser($user->getId());
         }
 
-        throw new CouldNotRetrieveUserRecordException(sprintf("Couldn't retrieve user from dgraph %s", $user->getId()));
+        throw new CouldNotPersistUserRecordException(sprintf("Couldn't persist user to dgraph %s", $user->getId()));
     }
 
     /**
@@ -272,6 +289,7 @@ class UserService
     /**
      * @param $userId
      * @return mixed
+     * @throws NodeDoesNotExistException
      */
     public function getCurrentConversation($userId)
     {
@@ -285,8 +303,7 @@ class UserService
 
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationUid,
-            $this->dGraphClient,
-            $this->attributeResolver
+            $this->dGraphClient
         );
         return $conversation;
     }
@@ -298,8 +315,14 @@ class UserService
     public function unsetCurrentIntent(ChatbotUser $user): void
     {
         $this->dGraphClient->deleteRelationship(
-            $user->getCurrentConversation()->getUid(),
-            $user->getCurrentIntent()->getUid(),
+            $user->getCurrentConversationUid(),
+            $user->getCurrentIntentUid(),
+            Model::CURRENT_INTENT
+        );
+
+        $this->dGraphClient->deleteRelationship(
+            $user->getUid(),
+            $user->getCurrentIntentUid(),
             Model::CURRENT_INTENT
         );
     }
@@ -311,13 +334,13 @@ class UserService
     public function unsetCurrentConversation(ChatbotUser $user): void
     {
         $this->dGraphClient->createRelationship(
-            $user->getCurrentConversation()->getUid(),
+            $user->getCurrentConversationUid(),
             $user->getUid(),
             Model::HAD_CONVERSATION
         );
 
         $this->dGraphClient->deleteRelationship(
-            $user->getCurrentConversation()->getUid(),
+            $user->getCurrentConversationUid(),
             $user->getUid(),
             Model::HAVING_CONVERSATION
         );
@@ -346,7 +369,6 @@ class UserService
         return $dGraphQuery;
     }
 
-
     /**
      * @param $userId
      * @return array
@@ -372,6 +394,7 @@ class UserService
     /**
      * @param $intentUid
      * @return string
+     * TODO - should this be in the user service or the conversation store?
      */
     public function getSceneForIntent($intentUid): string
     {
@@ -419,6 +442,7 @@ class UserService
             return $data[Model::LISTENED_BY_FROM_SCENES][0][Model::USER_PARTICIPATES_IN][0][Model::ID];
         }
 
+        // TODO throw an exception here
     }
 
     public function getCurrentSpeaker($intentUid): ?string
@@ -466,6 +490,8 @@ class UserService
         if (isset($data[Model::SAID_FROM_SCENES][0][Model::USER_PARTICIPATES_IN])) {
             return Model::USER;
         }
+
+        // TODO throw an exception here as there is nothing to return
     }
 
     /**
@@ -481,7 +507,7 @@ class UserService
             $chatbotUser->setAttribute($attributeName, $attributeValue);
         } else {
             try {
-                $attribute = $this->attributeResolver->getAttributeFor($attributeName, $attributeValue);
+                $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
                 $chatbotUser->addAttribute($attribute);
             } catch (AttributeIsNotSupported $e) {
                 Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));

@@ -4,9 +4,7 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
-use OpenDialogAi\ContextEngine\Contexts\UserContext;
+use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -34,16 +32,6 @@ interface ConversationEngineInterface
      * @param ActionEngineInterface $actionEngine
      */
     public function setActionEngine(ActionEngineInterface $actionEngine);
-
-    /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver);
-
-    /**
-     * @param ContextService $contextService
-     */
-    public function setContextService(ContextService $contextService);
 
     /**
      * Given a user context and an utterance determine what the next intent should be.

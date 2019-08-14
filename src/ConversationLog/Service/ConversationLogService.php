@@ -4,7 +4,9 @@ namespace OpenDialogAi\ConversationLog\Service;
 
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
@@ -23,6 +25,9 @@ class ConversationLogService
         $message = '';
         $type = '';
         $messageId = '';
+        $intent = null;
+        $conversation = null;
+        $scene = null;
 
         try {
             $message = $utterance->getText();
@@ -44,6 +49,14 @@ class ConversationLogService
 
         $timestamp = DateTime::createFromFormat('U.u', $utterance->getTimestamp())->format('Y-m-d H:i:s.u');
 
+        try {
+            $intent = ContextService::getAttributeValue('interpreted_intent', 'conversation');
+            $conversation = ContextService::getAttributeValue('current_conversation', 'conversation');
+            $scene = ContextService::getAttributeValue('current_scene', 'conversation');
+        } catch (AttributeDoesNotExistException $e) {
+            //
+        }
+
         Message::create(
             $timestamp,
             $type,
@@ -52,7 +65,10 @@ class ConversationLogService
             $message,
             $utterance->getData(),
             $messageId,
-            $this->getUser($utterance)
+            $this->getUser($utterance),
+            $intent,
+            $conversation,
+            $scene
         )->save();
     }
 
@@ -67,10 +83,21 @@ class ConversationLogService
         WebChatMessages $messageWrapper,
         UtteranceInterface $utterance
     ): void {
+
+        $intent = null;
+        $conversation = null;
+        $scene = null;
+
+        try {
+            $intent = ContextService::getAttributeValue('next_intent', 'conversation');
+            $conversation = ContextService::getAttributeValue('current_conversation', 'conversation');
+            $scene = ContextService::getAttributeValue('current_scene', 'conversation');
+        } catch (AttributeDoesNotExistException $e) {
+        }
+
         /** @var WebChatMessage $message */
         foreach ($messageWrapper->getMessages() as $message) {
             $messageData = $message->getMessageToPost();
-
             if ($messageData) {
                 Message::create(
                     null,
@@ -80,7 +107,10 @@ class ConversationLogService
                     (isset($messageData['data']['text'])) ? $messageData['data']['text'] : '',
                     $messageData['data'],
                     null,
-                    $this->getUser($utterance)
+                    $this->getUser($utterance),
+                    $intent,
+                    $conversation,
+                    $scene
                 )->save();
             } else {
                 Log::debug(sprintf("Not logging outgoing message, nothing to log for %s", get_class($message)));

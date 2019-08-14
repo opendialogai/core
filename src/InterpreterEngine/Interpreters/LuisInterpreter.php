@@ -4,8 +4,8 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -26,16 +26,12 @@ class LuisInterpreter extends BaseInterpreter
     /** @var LuisClient */
     private $client;
 
-    /** @var AttributeResolver */
-    private $attributeResolver;
-
     /**
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __construct()
     {
         $this->client = app()->make(LuisClient::class);
-        $this->attributeResolver = app()->make(AttributeResolver::class);
     }
 
     /**
@@ -118,7 +114,7 @@ class LuisInterpreter extends BaseInterpreter
         }
 
         try {
-            return $this->attributeResolver->getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
+            return AttributeResolver::getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
         } catch (AttributeIsNotSupported $e) {
             Log::warning(
                 sprintf(

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\ContextManager;
-
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
@@ -46,4 +44,12 @@ interface ContextInterface
      * @return mixed
      */
     public function addAttribute(AttributeInterface $attribute);
+
+    /**
+     * Removes an attribute from the context if there is one with the given ID
+     *
+     * @param string $attributeName
+     * @return bool true if removed, false if not
+     */
+    public function removeAttribute(string $attributeName): bool;
 }

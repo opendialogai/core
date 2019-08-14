@@ -4,7 +4,6 @@ namespace OpenDialogAi\InterpreterEngine;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
@@ -56,7 +55,6 @@ class InterpreterEngineServiceProvider extends ServiceProvider
             if ($interpreterService->isInterpreterAvailable(CallbackInterpreter::getName())) {
                 /* @var CallbackInterpreter $interpreter */
                 $interpreter = $interpreterService->getInterpreter(CallbackInterpreter::getName());
-                $interpreter->setAttributeResolver($this->app->make(AttributeResolver::class));
                 $interpreter->setSupportedCallbacks(config('opendialog.interpreter_engine.supported_callbacks'));
             }
             return $interpreterService;

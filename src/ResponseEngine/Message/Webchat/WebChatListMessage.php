@@ -6,59 +6,84 @@ class WebChatListMessage extends WebChatMessage
 {
     protected $messageType = 'list';
 
-    private $elements = [];
+    private $items = [];
+
+    private $viewType = 'horizontal';
 
     /**
-     * @param WebChatListElement $element
+     * @param WebChatMessage $message
      * @return $this
      */
-    public function addElement(WebChatListElement $element)
+    public function addItem(WebChatMessage $message)
     {
-        $this->elements[] = $element;
+        $this->items[] = $message;
+        return $this;
+    }
+
+    /**
+     * @param array $message
+     * @return $this
+     */
+    public function addItems(array $messages)
+    {
+        foreach ($messages as $message) {
+            $this->items[] = $message;
+        }
         return $this;
     }
 
     /**
      * @return array
      */
-    public function getElements()
+    public function getItems()
     {
-        return $this->elements;
+        return $this->items;
+    }
+
+    /**
+     * @param $viewType
+     * @return $this
+     */
+    public function setViewType($viewType)
+    {
+        $this->viewType = $viewType;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getViewType()
+    {
+        return $this->viewType;
     }
 
     public function getData()
     {
         return [
-            'elements' => $this->getElementsArray(),
+            'items' => $this->getItemsArray(),
+            'view_type' => $this->getViewType(),
             'disable_text' => $this->getDisableText(),
             'internal' => $this->getInternal(),
             'hidetime' => $this->getHidetime(),
-            'time' => $this->getTime(),
-            'date' => $this->getDate()
+            self::TIME => $this->getTime(),
+            self::DATE => $this->getDate()
         ];
     }
 
     /**
      * @return array
      */
-    public function getElementsArray()
+    public function getItemsArray()
     {
-        $elements = [];
+        $items = [];
 
-        foreach ($this->elements as $element) {
-            $elements[] = [
-                'title' => $element->getTitle(),
-                'subtitle' => $element->getSubTitle(),
-                'image' => $element->getImage(),
-                'button' => [
-                    'text' => $element->getButtonText(),
-                    'callback' => $element->getButtonCallback(),
-                    'url' => $element->getButtonUrl(),
-                    'link_new_tab' => $element->getButtonLinkNewTab()
-                ]
+        foreach ($this->items as $message) {
+            $items[] = $message->getData() + [
+                'message_type' => $message->getMessageType(),
             ];
         }
 
-        return $elements;
+        return $items;
     }
 }

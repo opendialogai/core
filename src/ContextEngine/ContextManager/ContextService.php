@@ -1,26 +1,34 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
+use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
-use OpenDialogAi\ContextEngine\Contexts\UserContext;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
-class ContextService
+class ContextService implements ContextServiceInterface
 {
+    public static $coreContexts = [UserContext::USER_CONTEXT, self::SESSION_CONTEXT, self::CONVERSATION_CONTEXT];
+
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
 
     /* @var UserService */
     private $userService;
+
+    /** @var ConversationStoreInterface */
+    private $conversationStore;
 
     /**
      * ContextService constructor.
@@ -31,7 +39,7 @@ class ContextService
     }
 
     /**
-     * @param UserService $userService
+     * @inheritDoc
      */
     public function setUserService(UserService $userService): void
     {
@@ -39,8 +47,15 @@ class ContextService
     }
 
     /**
-     * @param string $contextId
-     * @return ContextInterface
+     * @inheritDoc
+     */
+    public function setConversationStore(ConversationStoreInterface $conversationStore): void
+    {
+        $this->conversationStore = $conversationStore;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function createContext(string $contextId): ContextInterface
     {
@@ -50,7 +65,7 @@ class ContextService
     }
 
     /**
-     * @param ContextInterface $context
+     * @inheritDoc
      */
     public function addContext(ContextInterface $context): void
     {
@@ -58,8 +73,7 @@ class ContextService
     }
 
     /**
-     * @param string $contextId
-     * @return ContextInterface
+     * @inheritDoc
      */
     public function getContext(string $contextId): ContextInterface
     {
@@ -73,7 +87,7 @@ class ContextService
     }
 
     /**
-     * @param AbstractCustomContext[] $contexts
+     * @inheritDoc
      */
     public function loadCustomContexts(array $contexts): void
     {
@@ -83,7 +97,7 @@ class ContextService
     }
 
     /**
-     * @param AbstractCustomContext $customContext
+     * @inheritDoc
      */
     public function loadCustomContext($customContext): void
     {
@@ -118,8 +132,7 @@ class ContextService
     }
 
     /**
-     * @param string $contextId
-     * @return bool
+     * @inheritDoc
      */
     public function hasContext(string $contextId): bool
     {
@@ -127,10 +140,30 @@ class ContextService
     }
 
     /**
-     * @param string $attributeId
-     * @param string $contextId
-     * @return AttributeInterface
-     * @throws ContextDoesNotExistException
+     * @inheritDoc
+     */
+    public function saveAttribute(string $attributeName, $attributeValue): void
+    {
+        try {
+            $context = $this->getContext(ContextParser::determineContextId($attributeName));
+        } catch (ContextDoesNotExistException $e) {
+            Log::debug(sprintf('Trying to save attribute without context id, using session context %s', $attributeName));
+            $context = $this->getSessionContext();
+        }
+
+        $attributeId = ContextParser::determineAttributeId($attributeName);
+        try {
+            $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
+        } catch (AttributeIsNotSupported $e) {
+            Log::debug(sprintf('Trying to save unsupported attribute, using StringAttribute %s', $attributeName));
+            $attribute = new StringAttribute($attributeId, $attributeValue);
+        }
+
+        $context->addAttribute($attribute);
+    }
+
+    /**
+     * @inheritDoc
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface
     {
@@ -149,11 +182,7 @@ class ContextService
     }
 
     /**
-     * Calls @see ContextService::getAttribute() to resolve an attribute and returns its concrete value
-     *
-     * @param string $attributeId
-     * @param string $contextId
-     * @return mixed
+     * @inheritDoc
      */
     public function getAttributeValue(string $attributeId, string $contextId)
     {
@@ -161,24 +190,63 @@ class ContextService
     }
 
     /**
-     * @param UtteranceInterface $utterance
-     * @return UserContext
-     * @throws FieldNotSupported
+     * @inheritDoc
      */
     public function createUserContext(UtteranceInterface $utterance): UserContext
     {
-        $userContext = new UserContext($this->userService->createOrUpdateUser($utterance), $this->userService);
+        $chatbotUser = $this->userService->createOrUpdateUser($utterance);
+        $userContext = new UserContext($chatbotUser, $this->userService, $this->conversationStore);
         $this->addContext($userContext);
         return $userContext;
     }
 
     /**
-     * Returns all available contexts as an array
-     *
-     * @return ContextInterface[]
+     * @inheritDoc
      */
     public function getContexts(): array
     {
         return $this->activeContexts->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCustomContexts(): array
+    {
+        return $this->activeContexts->filter(static function ($context) {
+            return !in_array($context, self::$coreContexts, true);
+        })->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSessionContext(): ContextInterface
+    {
+        return $this->getContext(self::SESSION_CONTEXT);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUserContext(): ContextInterface
+    {
+        return $this->getContext(UserContext::USER_CONTEXT);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getConversationContext(): ContextInterface
+    {
+        return $this->getContext(self::CONVERSATION_CONTEXT);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setUserContext(UserContext $userContext)
+    {
+        $this->addContext($userContext);
     }
 }

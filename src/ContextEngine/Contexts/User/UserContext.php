@@ -1,11 +1,11 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\Contexts;
+namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
-use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -17,17 +17,21 @@ class UserContext extends AbstractContext
 {
     const USER_CONTEXT = 'user';
 
-    /* @var \OpenDialogAi\Core\Conversation\ChatbotUser */
+    /* @var ChatbotUser */
     private $user;
 
-    /* @var \OpenDialogAi\ContextEngine\Contexts\User\UserService */
+    /* @var UserService */
     private $userService;
 
-    public function __construct(ChatbotUser $user, UserService $userService)
+    /** @var ConversationStoreInterface */
+    private $conversationStore;
+
+    public function __construct(ChatbotUser $user, UserService $userService, ConversationStoreInterface $conversationStore)
     {
         parent::__construct(self::USER_CONTEXT);
         $this->user = $user;
         $this->userService = $userService;
+        $this->conversationStore = $conversationStore;
     }
 
     /**
@@ -66,6 +70,17 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * Removes an attribute from the user if there is one with the given ID
+     *
+     * @param string $attributeName
+     * @return bool true if removed, false if not
+     */
+    public function removeAttribute(string $attributeName): bool
+    {
+        return $this->getUser()->removeAttribute($attributeName);
+    }
+
+    /**
      * @return ChatbotUser
      */
     public function getUser(): ChatbotUser
@@ -95,9 +110,11 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * Updates the user in DGraph
      *
+     * @return ChatbotUser
      */
-    public function updateUser()
+    public function updateUser(): ChatbotUser
     {
         $this->user = $this->userService->updateUser($this->user);
         return $this->user;
@@ -108,7 +125,7 @@ class UserContext extends AbstractContext
      */
     public function isUserHavingConversation() : bool
     {
-        return $this->userService->userIsHavingConversation($this->user->getId());
+        return $this->user->isHavingConversation();
     }
 
     /**
@@ -120,49 +137,51 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * Sets the current conversation against the user, persists the user and returns the conversation id
+     *
      * @param Conversation $conversation
+     * @return string
      */
-    public function setCurrentConversation(Conversation $conversation)
+    public function setCurrentConversation(Conversation $conversation): string
     {
         $this->user = $this->userService->setCurrentConversation($this->user, $conversation);
+        return $this->user->getCurrentConversationUid();
+    }
+
+    /**
+     * Gets just the current intent unconnected
+     *
+     * @return Intent
+     */
+    public function getCurrentIntent()
+    {
+        $currentIntentId = $this->user->getCurrentIntentUid();
+        return $this->conversationStore->getIntentByUid($currentIntentId);
     }
 
     /**
      * @param Intent $intent
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function setCurrentIntent(Intent $intent)
+    public function setCurrentIntent(Intent $intent): void
     {
         $this->user = $this->userService->setCurrentIntent($this->user, $intent);
     }
 
     /**
-     *
+     * Moves the user's current conversation to a past conversation
      */
-    public function moveCurrentConversationToPast()
+    public function moveCurrentConversationToPast(): void
     {
         $this->user = $this->userService->moveCurrentConversationToPast($this->user);
     }
 
-
     /**
      * @return bool
      */
-    public function hasCurrentIntent()
+    public function hasCurrentIntent(): bool
     {
-        if ($this->user->hasCurrentIntent()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return Intent
-     */
-    public function getCurrentIntent(): ?Intent
-    {
-        return $this->user->getCurrentIntent();
+        return $this->user->hasCurrentIntent();
     }
 
     /**
@@ -171,15 +190,20 @@ class UserContext extends AbstractContext
     public function getCurrentScene(): Scene
     {
         if ($this->user->hasCurrentIntent()) {
+            $currentIntent = $this->conversationStore->getIntentByUid($this->user->getCurrentIntentUid());
+
             // Get the scene for the current intent
-            $sceneId = $this->userService->getSceneForIntent($this->user->getCurrentIntent()->getUid());
+            $sceneId = $this->userService->getSceneForIntent($currentIntent->getUid());
+
+            // use the conversation that is against the user
             $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
         } else {
             // Set the current intent as the first intent of the opening scene
             /* @var Scene $currentScene */
             $currentScene = $this->user->getCurrentConversation()->getOpeningScenes()->first()->value;
-            $this->user->setCurrentIntent($currentScene->getIntentByOrder(1));
-            $this->updateUser();
+
+            $intent = $currentScene->getIntentByOrder(1);
+            $this->setCurrentIntent($intent);
         }
 
         return $currentScene;
@@ -188,9 +212,9 @@ class UserContext extends AbstractContext
     /**
      * @return bool
      */
-    public function currentSpeakerIsBot()
+    public function currentSpeakerIsBot(): bool
     {
-        if ($this->userService->getCurrentSpeaker($this->getCurrentIntent()->getUid()) == Model::BOT) {
+        if ($this->userService->getCurrentSpeaker($this->user->getCurrentIntentUid()) === Model::BOT) {
             return true;
         }
 

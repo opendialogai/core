@@ -3,66 +3,122 @@
 namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
+use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ContextEngineServiceTest extends TestCase
 {
-    /** @var ContextService */
-    private $contextService;
-
-    /**
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
     public function setUp(): void
     {
         parent::setUp();
+    }
 
-        $this->contextService = $this->app->make(ContextService::class);
+    private function contextService(): ContextService
+    {
+        return $this->app->make(ContextServiceInterface::class);
     }
 
     public function testContextServiceCreation()
     {
-        $this->assertTrue($this->contextService instanceof ContextService);
+        $this->assertInstanceOf(ContextServiceInterface::class, $this->contextService());
     }
 
     public function testAddingANewContext()
     {
-        $this->contextService->createContext('new_context');
-        $this->assertTrue($this->contextService->hasContext('new_context'));
+        $this->contextService()->createContext('new_context');
+        $this->assertTrue($this->contextService()->hasContext('new_context'));
     }
 
     public function testAddingAnAttributeToAContext()
     {
         // Create a context and add an attribute to it.
-        $newContext = $this->contextService->createContext('new_context');
+        $newContext = $this->contextService()->createContext('new_context');
         $newContext->addAttribute(new StringAttribute('new_context.test', 'value'));
 
         // Retrieve the context and retrieve the attribute.
-        $newContextA = $this->contextService->getContext('new_context');
+        $newContextA = $this->contextService()->getContext('new_context');
         $attribute = $newContextA->getAttribute('new_context.test');
 
-        $this->assertTrue($attribute->getId() == 'new_context.test');
-        $this->assertTrue($attribute->getValue() == 'value');
+        $this->assertSame($attribute->getId(), 'new_context.test');
+        $this->assertSame($attribute->getValue(), 'value');
     }
 
     public function testRetrievingAnAttributeDirectly()
     {
         // Create a context and add an attribute to it.
-        $newContext = $this->contextService->createContext('new_context');
+        $newContext = $this->contextService()->createContext('new_context');
         $newContext->addAttribute(new StringAttribute('test', 'value'));
 
-        $attribute = $this->contextService->getAttribute('test', 'new_context');
+        $attribute = $this->contextService()->getAttribute('test', 'new_context');
 
-        $this->assertTrue($attribute->getId() == 'test');
-        $this->assertTrue($attribute->getValue() == 'value');
+        $this->assertSame($attribute->getId(), 'test');
+        $this->assertSame($attribute->getValue(), 'value');
 
         $this->expectException(ContextDoesNotExistException::class);
         $this->expectExceptionMessage('Context new_context1 for attribute test not available.');
 
         // Now try for a context that is not set
-        $this->contextService->getAttribute('test', 'new_context1');
+        $this->contextService()->getAttribute('test', 'new_context1');
+    }
 
+    public function testSessionContextCreated()
+    {
+        $this->assertTrue($this->contextService()->hasContext(ContextService::SESSION_CONTEXT));
+    }
+
+    public function testConversationContextCreated()
+    {
+        $this->assertTrue($this->contextService()->hasContext(ContextService::CONVERSATION_CONTEXT));
+    }
+
+    public function testContextFacade()
+    {
+        ContextServiceFacade::createContext('test');
+        $this->assertTrue(ContextServiceFacade::hasContext('test'));
+    }
+
+    public function testSavingUnsupportedAttributeNoContext()
+    {
+        $attributeName = 'test_attribute';
+        $attributeValue = 1;
+
+        $this->contextService()->saveAttribute($attributeName, $attributeValue);
+
+        $attribute = $this->contextService()->getAttribute('test_attribute', 'session');
+        $this->assertInstanceOf(StringAttribute::class, $attribute);
+        $this->assertSame(1, $attribute->getValue());
+    }
+
+    public function testSavingSupportedAttributeUnknownContext()
+    {
+        $attributeName = 'test_context.test_attribute';
+        $attributeValue = 1;
+
+        $this->setCustomAttributes(['test_attribute' => IntAttribute::class]);
+
+        ContextServiceFacade::saveAttribute($attributeName, $attributeValue);
+
+        $attribute = $this->contextService()->getAttribute('test_attribute', 'session');
+        $this->assertInstanceOf(IntAttribute::class, $attribute);
+        $this->assertSame(1, $attribute->getValue());
+    }
+
+    public function testSavingSupportedAttributeKnownContext()
+    {
+        $attributeName = 'test_context.test_attribute';
+        $attributeValue = 1;
+
+        $this->setCustomAttributes(['test_attribute' => IntAttribute::class]);
+
+        ContextServiceFacade::createContext('test_context');
+        ContextServiceFacade::saveAttribute($attributeName, $attributeValue);
+
+        $attribute = $this->contextService()->getAttribute('test_attribute', 'test_context');
+        $this->assertInstanceOf(IntAttribute::class, $attribute);
+        $this->assertSame(1, $attribute->getValue());
     }
 }

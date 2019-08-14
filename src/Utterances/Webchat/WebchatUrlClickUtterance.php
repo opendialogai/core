@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\Core\Utterances\Webchat;
 
-use OpenDialogAi\Core\Utterances\ChatOpenUtterance;
+use OpenDialogAi\Core\Utterances\UrlClickUtterance;
 
-class WebchatUrlClickUtterance extends ChatOpenUtterance
+class WebchatUrlClickUtterance extends UrlClickUtterance
 {
     const PLATFORM = 'webchat';
 }

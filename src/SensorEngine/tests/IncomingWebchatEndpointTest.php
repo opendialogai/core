@@ -2,10 +2,17 @@
 
 namespace OpenDialogAi\SensorEngine\Tests;
 
-use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\SensorEngine\tests\WebchatSensorTestBase;
 
-class IncomingWebchatEndpointTest extends TestCase
+class IncomingWebchatEndpointTest extends WebchatSensorTestBase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->initDDgraph();
+        $this->publishConversation($this->conversation4());
+    }
+
     /**
      * Test top-level parameter validation.
      */
@@ -93,7 +100,7 @@ class IncomingWebchatEndpointTest extends TestCase
         ]);
         $response
             ->assertStatus(422)
-            ->assertJson(['errors' => ['content.data.callback_id' => ['The content.data.callback id field is required when content.type is chat_open.']]]);
+            ->assertJson(['errors' => ['content.callback_id' => ['The content.callback id field is required when content.type is chat_open.']]]);
     }
 
     /**
@@ -101,35 +108,13 @@ class IncomingWebchatEndpointTest extends TestCase
      */
     public function testMessageResponse()
     {
-        if (!getenv('LOCAL')) {
-            // This test depends on dGraph.
-            $this->markTestSkipped('This test only runs on local environments.');
-        }
-
         // Test a valid message.
-        $response = $this->json('POST', '/incoming/webchat', [
-            'notification' => 'message',
-            'user_id' => 'someuser',
-            'author' => 'me',
-            'content' => [
-                'author' => 'me',
-                'type' => 'text',
-                'data' => [
-                    'text' => 'test'
-                ],
-                'user' => [
-                    'ipAddress' => '127.0.0.1',
-                    'country' => 'UK',
-                    'browserLanguage' => 'en-gb',
-                    'os' => 'macos',
-                    'browser' => 'safari',
-                    'timezone' => 'GMT',
-                ],
-            ],
-        ]);
+        $response = $this->json('POST', '/incoming/webchat', $this->generateResponseMessage('text', [
+            'text' => 'test'
+        ]));
         $response
             ->assertStatus(200)
-            ->assertJson([0 => ['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]]);
+            ->assertJson(['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]);
 
         //@todo full valid tests need to mock ODController responses.
     }

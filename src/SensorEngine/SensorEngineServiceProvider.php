@@ -3,6 +3,8 @@
 namespace OpenDialogAi\SensorEngine;
 
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\ResponseEngine\LinkClickInterface;
+use OpenDialogAi\ResponseEngine\MySqlLinkClick;
 use OpenDialogAi\SensorEngine\Service\SensorService;
 
 class SensorEngineServiceProvider extends ServiceProvider
@@ -19,6 +21,11 @@ class SensorEngineServiceProvider extends ServiceProvider
             $sensorEngine = new SensorService();
             $sensorEngine->registerAvailableSensors();
             return $sensorEngine;
+        });
+
+        $this->app->bind(LinkClickInterface::class, function () {
+            $mysqlLinkClick = new MySqlLinkClick();
+            return $mysqlLinkClick;
         });
     }
 }

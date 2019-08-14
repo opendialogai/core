@@ -34,11 +34,10 @@ class AttributeResolver
      *
      * @param $attributes AttributeInterface[]
      */
-    public function registerAttributes($attributes)
+    public function registerAttributes($attributes): void
     {
         foreach ($attributes as $name => $type) {
             if (class_exists($type) && in_array(AttributeInterface::class, class_implements($type))) {
-                Log::debug(sprintf("Registering attribute %s", $name));
                 $this->supportedAttributes[$name] = $type;
             } else {
                 Log::error(sprintf("Not registering attribute %s - has unknown type %s", $name, $type));
