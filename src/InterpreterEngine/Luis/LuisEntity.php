@@ -74,49 +74,49 @@ class LuisEntity
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getEntityString()
+    public function getEntityString(): string
     {
         return $this->entityString;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getStartIndex()
+    public function getStartIndex(): int
     {
         return $this->startIndex;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getEndIndex()
+    public function getEndIndex(): int
     {
         return $this->endIndex;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getResolutionValues()
+    public function getResolutionValues(): array
     {
         return $this->resolutionValues;
     }
 
     /**
-     * @return mixed
+     * @return float
      */
-    public function getScore()
+    public function getScore(): float
     {
         return $this->score;
     }
@@ -170,7 +170,7 @@ class LuisEntity
      * and from the entity string otherwise.
      * @return string
      */
-    private function extractValueWhenNoResolution()
+    private function extractValueWhenNoResolution(): string
     {
         $entityValue = $this->getEntityString();
 
