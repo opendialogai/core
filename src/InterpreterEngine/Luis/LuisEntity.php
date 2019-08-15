@@ -134,6 +134,7 @@ class LuisEntity
     }
 
     /**
+     * Returns a constant representing the structure (or existence) of the entity's resolution object
      * @param $entity
      * @return int
      */
