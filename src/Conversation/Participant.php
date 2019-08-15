@@ -69,6 +69,16 @@ class Participant extends Node
     /**
      * @return \Ds\Map
      */
+    public function getAllIntentsSaidInOrder()
+    {
+        return $this->getAllIntentsSaid()->sorted(function (Node $a, Node $b) {
+            return $a->getAttributeValue(Model::ORDER) > $b->getAttributeValue(Model::ORDER);
+        });
+    }
+
+    /**
+     * @return \Ds\Map
+     */
     public function getAllIntentsListenedFor()
     {
         $allIntentsSaid = new Map();
