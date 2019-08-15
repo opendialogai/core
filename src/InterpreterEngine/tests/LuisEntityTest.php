@@ -13,26 +13,38 @@ class LuisEntityTest extends TestCase
 {
     "entity": "LGW",
     "type": "airport",
-    "startIndex": 10,
-    "endIndex": 12
+    "startIndex": 20,
+    "endIndex": 22
 }
 EOT;
-        $simpleLUISEntity = new LuisEntity(json_decode($simpleEntity));
+        $simpleLUISEntity = new LuisEntity(json_decode($simpleEntity), "Book me a flight to LGW");
         $this->assertEquals(1, count($simpleLUISEntity->getResolutionValues()));
         $this->assertEquals("LGW", $simpleLUISEntity->getResolutionValues()[0]);
+
+        $simpleEntityWithCaseSensitivity = <<<EOT
+{
+    "entity": "john",
+    "type": "built.personName",
+    "startIndex": 0,
+    "endIndex": 3
+}
+EOT;
+        $simpleLUISEntity = new LuisEntity(json_decode($simpleEntityWithCaseSensitivity), "John");
+        $this->assertEquals(1, count($simpleLUISEntity->getResolutionValues()));
+        $this->assertEquals("John", $simpleLUISEntity->getResolutionValues()[0]);
 
         $prebuiltEntity = <<<EOT
 {
     "entity": "test@example.com",
     "type": "builtin.email",
-    "startIndex": 10,
-    "endIndex": 25,
+    "startIndex": 12,
+    "endIndex": 27,
     "resolution": {
         "value": "test@example.com"
     }
 }
 EOT;
-        $prebuiltLUISEntity = new LuisEntity(json_decode($prebuiltEntity));
+        $prebuiltLUISEntity = new LuisEntity(json_decode($prebuiltEntity), "My email is test@example.com");
         $this->assertEquals(1, count($prebuiltLUISEntity->getResolutionValues()));
         $this->assertEquals("test@example.com", $prebuiltLUISEntity->getResolutionValues()[0]);
 
@@ -40,8 +52,8 @@ EOT;
 {
     "entity": "six foot",
     "type": "height",
-    "startIndex": 10,
-    "endIndex": 17,
+    "startIndex": 5,
+    "endIndex": 12,
     "resolution": {
         "values": [
             "tall"
@@ -49,7 +61,7 @@ EOT;
     }
 }
 EOT;
-        $listLUISEntity = new LuisEntity(json_decode($listEntity));
+        $listLUISEntity = new LuisEntity(json_decode($listEntity), "I am six foot tall");
         $this->assertEquals(1, count($listLUISEntity->getResolutionValues()));
         $this->assertEquals("tall", $listLUISEntity->getResolutionValues()[0]);
 
@@ -57,8 +69,8 @@ EOT;
 {
     "entity": "something ambiguous",
     "type": "some_type",
-    "startIndex": 10,
-    "endIndex": 28,
+    "startIndex": 0,
+    "endIndex": 18,
     "resolution": {
         "values": [
             "value_1",
@@ -68,7 +80,7 @@ EOT;
     }
 }
 EOT;
-        $listLUISEntityWithManyResolutions = new LuisEntity(json_decode($listEntityWithManyResolutions));
+        $listLUISEntityWithManyResolutions = new LuisEntity(json_decode($listEntityWithManyResolutions), "something ambiguous");
         $this->assertEquals(3, count($listLUISEntityWithManyResolutions->getResolutionValues()));
         $this->assertEquals("value_1", $listLUISEntityWithManyResolutions->getResolutionValues()[0]);
         $this->assertEquals("value_2", $listLUISEntityWithManyResolutions->getResolutionValues()[1]);

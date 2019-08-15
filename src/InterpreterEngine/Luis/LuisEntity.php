@@ -8,6 +8,12 @@ class LuisEntity
     private const ONE_RESOLUTION_VALUE = 1;
     private const MANY_RESOLUTION_VALUES = 2;
 
+    /**
+     * The user's input
+     * @var string
+     */
+    private $query;
+
     /* @var string */
     private $type;
 
@@ -41,10 +47,10 @@ class LuisEntity
      */
     private $score;
 
-    public function __construct($entity)
+    public function __construct($entity, $query)
     {
+        $this->query = $query;
         $this->type = $entity->type;
-
         $this->entityString = $entity->entity;
 
         if (isset($entity->startIndex)) {
@@ -60,49 +66,57 @@ class LuisEntity
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    public function getType()
+    public function getQuery(): ?string
+    {
+        return $this->query;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
     {
         return $this->type;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getEntityString()
+    public function getEntityString(): string
     {
         return $this->entityString;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getStartIndex()
+    public function getStartIndex(): int
     {
         return $this->startIndex;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getEndIndex()
+    public function getEndIndex(): int
     {
         return $this->endIndex;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getResolutionValues()
+    public function getResolutionValues(): array
     {
         return $this->resolutionValues;
     }
 
     /**
-     * @return mixed
+     * @return float
      */
-    public function getScore()
+    public function getScore(): float
     {
         return $this->score;
     }
@@ -125,7 +139,7 @@ class LuisEntity
 
             case self::NO_RESOLUTION_VALUE:
             default:
-                $values[] = $this->entityString;
+                $values[] = $this->extractValueWhenNoResolution();
         }
 
         foreach ($values as $value) {
@@ -149,5 +163,21 @@ class LuisEntity
         }
 
         return self::NO_RESOLUTION_VALUE;
+    }
+
+    /**
+     * Extracts a value when the entity has no resolution value. The value is extracted from the the query if possible
+     * and from the entity string otherwise.
+     * @return string
+     */
+    private function extractValueWhenNoResolution(): string
+    {
+        $entityValue = $this->getEntityString();
+
+        if (!is_null($this->getQuery()) && !is_null($this->getStartIndex()) && !is_null($this->getEndIndex())) {
+            $entityValue = substr($this->getQuery(), $this->getStartIndex(), 1 + $this->getEndIndex() - $this->getStartIndex());
+        }
+
+        return $entityValue;
     }
 }
