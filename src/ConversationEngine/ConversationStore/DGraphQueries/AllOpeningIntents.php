@@ -5,6 +5,7 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 
 use Ds\Map;
+use Ds\Set;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
@@ -95,7 +96,7 @@ class AllOpeningIntents extends DGraphQuery
 
             if (isset($conversation[Model::HAS_OPENING_SCENE])) {
                 if (isset($conversation[Model::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT])) {
-                    $matchedIntents = $this->extractIntentsFromParticipant(
+                    $matchedIntents = $this->extractOpeningIntentsFromParticipant(
                         $conversation[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0]
                     );
                     foreach ($matchedIntents as $intent) {
@@ -128,28 +129,14 @@ class AllOpeningIntents extends DGraphQuery
     }
 
     /**
-     * Extract intents from a participant in an opening scene. Looks for says or says_across_scenes relationships
+     * Extract opening intents from a participant in an opening scene. Looks for says and says_across_scenes relationships
      *
      * @param $participant
-     * @return Map
+     * @return Set
      */
-    private function extractIntentsFromParticipant($participant): Map
+    private function extractOpeningIntentsFromParticipant($participant): Set
     {
-        $intents = new Map();
-        $intentsArray = [];
-
-        if (isset($participant[Model::SAYS])) {
-            $intentsArray = array_merge($intentsArray, $participant[Model::SAYS]);
-        }
-
-        if (isset($participant[Model::SAYS_ACROSS_SCENES])) {
-            $intentsArray = array_merge($intentsArray, $participant[Model::SAYS_ACROSS_SCENES]);
-        }
-
-        // We need to use the array before the Map to ensure that there are no issues with duplicate keys
-        for ($i = 0; $i < count($intentsArray); $i++) {
-            $intents->put($i, $intentsArray[$i]);
-        }
+        $intents = $this->extractAllIntentsFromParticipant($participant);
 
         $previousKeptIntent = null;
 
@@ -159,7 +146,7 @@ class AllOpeningIntents extends DGraphQuery
                 return $a[Model::ORDER] > $b[Model::ORDER];
             }
         )->filter(
-            function ($key, $possibleIntent) use (&$previousKeptIntent) {
+            function ($possibleIntent) use (&$previousKeptIntent) {
                 // Intents are considered sequential if its the first or if it directly follows the previously kept intent
                 $intentsAreSequential = is_null($previousKeptIntent)
                     || $previousKeptIntent[Model::ORDER] + 1 == $possibleIntent[Model::ORDER];
@@ -173,6 +160,25 @@ class AllOpeningIntents extends DGraphQuery
                 return $shouldKeep;
             }
         );
+
+        return $intents;
+    }
+
+    /**
+     * @param $participant
+     * @return Set
+     */
+    private function extractAllIntentsFromParticipant($participant): Set
+    {
+        $intents = new Set();
+
+        if (isset($participant[Model::SAYS])) {
+            $intents->add(...$participant[Model::SAYS]);
+        }
+
+        if (isset($participant[Model::SAYS_ACROSS_SCENES])) {
+            $intents->add(...$participant[Model::SAYS_ACROSS_SCENES]);
+        }
 
         return $intents;
     }
