@@ -11,7 +11,7 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 class AllOpeningIntents extends DGraphQuery
 {
-    private $data;
+    private $conversations;
 
     public function __construct(DGraphClient $client)
     {
@@ -65,12 +65,12 @@ class AllOpeningIntents extends DGraphQuery
             ]);
 
         $response = $client->query($this);
-        $this->data = $response->getData();
+        $this->conversations = $response->getData();
     }
 
     public function getData()
     {
-        return $this->data;
+        return $this->conversations;
     }
 
     /**
@@ -81,11 +81,11 @@ class AllOpeningIntents extends DGraphQuery
     public function getIntents()
     {
         $intents = new Map();
-        foreach ($this->data as $datum) {
+        foreach ($this->conversations as $conversation) {
             $conditions = new Map();
 
-            if (isset($datum[Model::HAS_CONDITION])) {
-                foreach ($datum[Model::HAS_CONDITION] as $conditionData) {
+            if (isset($conversation[Model::HAS_CONDITION])) {
+                foreach ($conversation[Model::HAS_CONDITION] as $conditionData) {
                     $condition = ConversationQueryFactory::createCondition($conditionData, false);
                     if (isset($condition)) {
                         $conditions->put($condition->getId(), $condition);
@@ -93,42 +93,20 @@ class AllOpeningIntents extends DGraphQuery
                 }
             }
 
-            if (isset($datum[Model::HAS_OPENING_SCENE])) {
-                if (isset($datum[Model::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT])) {
+            if (isset($conversation[Model::HAS_OPENING_SCENE])) {
+                if (isset($conversation[Model::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT])) {
                     $matchedIntents = $this->extractIntentsFromParticipant(
-                        $datum[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0]
+                        $conversation[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0]
                     );
                     foreach ($matchedIntents as $intent) {
                         $openingIntent = new OpeningIntent(
                             $intent[Model::ID],
                             $intent[Model::UID],
-                            $datum[Model::ID],
-                            $datum[Model::UID],
-                            $intent[Model::ORDER],
-                            isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1
-                        );
-                        $openingIntent->setConditions($conditions);
-                        $intents->put(
-                            $intent[Model::UID],
-                            $openingIntent
-                        );
-
-                        if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
-                            foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                                $openingIntent->addExpectedAttribute($expectedAttribute['id']);
-                            }
-                        }
-                    }
-
-                    if (isset($intent[Model::HAS_INTERPRETER])) {
-                        $openingIntent = new OpeningIntent(
-                            $intent[Model::ID],
-                            $intent[Model::UID],
-                            $datum[Model::ID],
-                            $datum[Model::UID],
+                            $conversation[Model::ID],
+                            $conversation[Model::UID],
                             $intent[Model::ORDER],
                             isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1,
-                            $intent[Model::HAS_INTERPRETER][0][Model::ID]
+                            isset($intent[Model::HAS_INTERPRETER]) ? $intent[Model::HAS_INTERPRETER][0][Model::ID] : null
                         );
                         $openingIntent->setConditions($conditions);
                         $intents->put(
@@ -153,18 +131,49 @@ class AllOpeningIntents extends DGraphQuery
      * Extract intents from a participant in an opening scene. Looks for says or says_across_scenes relationships
      *
      * @param $participant
-     * @return array
+     * @return Map
      */
-    private function extractIntentsFromParticipant($participant)
+    private function extractIntentsFromParticipant($participant): Map
     {
+        $intents = new Map();
+        $intentsArray = [];
+
         if (isset($participant[Model::SAYS])) {
-            return $participant[Model::SAYS];
+            $intentsArray = array_merge($intentsArray, $participant[Model::SAYS]);
         }
 
         if (isset($participant[Model::SAYS_ACROSS_SCENES])) {
-            return $participant[Model::SAYS_ACROSS_SCENES];
+            $intentsArray = array_merge($intentsArray, $participant[Model::SAYS_ACROSS_SCENES]);
         }
 
-        return [];
+        // We need to use the array before the Map to ensure that there are no issues with duplicate keys
+        for ($i = 0; $i < count($intentsArray); $i++) {
+            $intents->put($i, $intentsArray[$i]);
+        }
+
+        $previousKeptIntent = null;
+
+        // Sort the intents by order and then filter them so that we get just the first user intent(s)
+        $intents = $intents->sorted(
+            function ($a, $b) {
+                return $a[Model::ORDER] > $b[Model::ORDER];
+            }
+        )->filter(
+            function ($key, $possibleIntent) use (&$previousKeptIntent) {
+                // Intents are considered sequential if its the first or if it directly follows the previously kept intent
+                $intentsAreSequential = is_null($previousKeptIntent)
+                    || $previousKeptIntent[Model::ORDER] + 1 == $possibleIntent[Model::ORDER];
+
+                $shouldKeep = $possibleIntent[Model::ORDER] > 0 && $intentsAreSequential;
+
+                if ($shouldKeep) {
+                    $previousKeptIntent = $possibleIntent;
+                }
+
+                return $shouldKeep;
+            }
+        );
+
+        return $intents;
     }
 }
