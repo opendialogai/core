@@ -12,6 +12,9 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 class AllOpeningIntents extends DGraphQuery
 {
+    /**
+     * @var array
+     */
     private $conversations;
 
     public function __construct(DGraphClient $client)
@@ -66,10 +69,22 @@ class AllOpeningIntents extends DGraphQuery
             ]);
 
         $response = $client->query($this);
-        $this->conversations = $response->getData();
+        $this->setConversations($response->getData());
     }
 
-    public function getData()
+    private function setConversations($conversations): void
+    {
+        if (is_null($conversations) || count($conversations) < 1) {
+            $this->conversations = [];
+        } else {
+            $this->conversations = $conversations;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getConversations(): array
     {
         return $this->conversations;
     }
@@ -82,7 +97,7 @@ class AllOpeningIntents extends DGraphQuery
     public function getIntents()
     {
         $intents = new Map();
-        foreach ($this->conversations as $conversation) {
+        foreach ($this->getConversations() as $conversation) {
             $conditions = new Map();
 
             if (isset($conversation[Model::HAS_CONDITION])) {
