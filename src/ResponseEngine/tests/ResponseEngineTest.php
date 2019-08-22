@@ -66,10 +66,16 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
+        $attributes = ['usertimestamp' => 'user.timestamp'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, ['value' => 10000], 'gte');
+        $conditions->addCondition($attributes, ['value' => 20000], 'lte');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      usertimestamp: user.timestamp\n    parameters:\n      value: 10000\n    operation: gte\n- condition:\n    attributes:\n      usertimestamp: user.timestamp\n    parameters:\n      value: 20000\n    operation: lte",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => 'Hi there!',
         ]);
 
@@ -102,10 +108,16 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
@@ -128,10 +140,16 @@ class ResponseEngineTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessage('hi there');
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -157,10 +175,16 @@ class ResponseEngineTest extends TestCase
             'http://www.opendialog.ai'
         );
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -190,10 +214,16 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -222,10 +252,16 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator->getMarkUp(),
         ]);
 
@@ -261,10 +297,16 @@ class ResponseEngineTest extends TestCase
         $generator2 = (new MessageMarkUpGenerator())
             ->addAttributeMessage('user.message');
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
@@ -289,10 +331,16 @@ class ResponseEngineTest extends TestCase
 
         $generator2 = (new MessageMarkUpGenerator())->addAttributeMessage('user.message');
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $generator2->getMarkUp(),
         ]);
 
@@ -335,10 +383,16 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
