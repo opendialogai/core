@@ -36,14 +36,14 @@ class LuisResponse
     private function createEntities($entities)
     {
         foreach ($entities as $entity) {
-            $this->entities[] = new LuisEntity($entity);
+            $this->entities[] = new LuisEntity($entity, $this->getQuery());
         }
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getQuery(): string
+    public function getQuery(): ?string
     {
         return $this->query;
     }

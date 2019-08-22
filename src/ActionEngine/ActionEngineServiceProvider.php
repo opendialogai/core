@@ -5,8 +5,6 @@ namespace OpenDialogAi\ActionEngine;
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngine;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 
 class ActionEngineServiceProvider extends ServiceProvider
 {
@@ -25,8 +23,6 @@ class ActionEngineServiceProvider extends ServiceProvider
 
         $this->app->bind(ActionEngineInterface::class, function () {
             $actionEngineService = new ActionEngine();
-            $actionEngineService->setAttributeResolver(app()->make(AttributeResolver::class));
-            $actionEngineService->setContextService(app()->make(ContextService::class));
             $actionEngineService->setAvailableActions(config('opendialog.action_engine.available_actions'));
 
 

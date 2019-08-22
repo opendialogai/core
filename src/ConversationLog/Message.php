@@ -34,6 +34,9 @@ class Message extends Model
         'data',
         'microtime',
         'user',
+        'intent',
+        'conversation',
+        'scene'
     ];
 
     /**
@@ -89,7 +92,10 @@ class Message extends Model
         $message,
         $data = null,
         $messageId = null,
-        $user = null
+        $user = null,
+        $intent = null,
+        $conversation = null,
+        $scene = null
     ) {
         // Generate a message ID if we weren't given one.
         if (empty($messageId)) {
@@ -110,6 +116,9 @@ class Message extends Model
             'data'            => $data ? serialize($data) : null,
             'message_id'      => $messageId,
             'user'            => $user ? serialize($user) : null,
+            'intent'          => $intent,
+            'conversation'    => $conversation,
+            'scene'           => $scene
         ]);
 
         return $message;

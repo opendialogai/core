@@ -10,6 +10,12 @@ use OpenDialogAi\Core\Attribute\StringAttribute;
  */
 class Conversation extends NodeWithConditions
 {
+    /** @var Map */
+    private $allScenes;
+
+    /** @var Map */
+    private $allIntents;
+
     public function __construct($id)
     {
         parent::__construct($id);
@@ -23,6 +29,7 @@ class Conversation extends NodeWithConditions
     public function addOpeningScene(Scene $scene)
     {
         $this->createOutgoingEdge(Model::HAS_OPENING_SCENE, $scene);
+        $this->refresh();
         return $this;
     }
 
@@ -45,6 +52,7 @@ class Conversation extends NodeWithConditions
     public function addScene(Scene $scene)
     {
         $this->createOutgoingEdge(Model::HAS_SCENE, $scene);
+        $this->refresh();
         return $this;
     }
 
@@ -69,13 +77,15 @@ class Conversation extends NodeWithConditions
      */
     public function getAllScenes()
     {
-        $openingScenes = $this->getOpeningScenes();
-        $nonOpeningScenes = $this->getNonOpeningScenes();
+        if (!isset($this->allScenes)) {
+            $openingScenes = $this->getOpeningScenes();
+            $nonOpeningScenes = $this->getNonOpeningScenes();
 
-        /* @var Map $allScenes */
-        $allScenes = $openingScenes->merge($nonOpeningScenes);
+            /* @var Map $allScenes */
+            $this->allScenes = $openingScenes->merge($nonOpeningScenes);
+        }
 
-        return $allScenes;
+        return $this->allScenes;
     }
 
     /**
@@ -109,15 +119,18 @@ class Conversation extends NodeWithConditions
      */
     public function getAllIntents(): Map
     {
-        $intents = new Map();
-        $scenes = $this->getAllScenes();
-        /* @var Scene $scene */
-        foreach ($scenes as $scene) {
-            $sceneIntents = $scene->getAllIntents();
-            $intents = $intents->merge($sceneIntents);
+        if (!isset($this->allIntents)) {
+            $intents = new Map();
+            $scenes = $this->getAllScenes();
+            /* @var Scene $scene */
+            foreach ($scenes as $scene) {
+                $sceneIntents = $scene->getAllIntents();
+                $intents = $intents->merge($sceneIntents);
+            }
+            $this->allIntents = $intents;
         }
 
-        return $intents;
+        return $this->allIntents;
     }
 
     /**
@@ -158,6 +171,14 @@ class Conversation extends NodeWithConditions
         }
 
         return null;
+    }
+
+    /**
+     * Clears out the local cache of scenes and intents
+     */
+    public function refresh()
+    {
+        unset($this->allScenes, $this->allIntents);
     }
 
 }

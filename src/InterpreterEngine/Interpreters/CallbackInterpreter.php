@@ -3,8 +3,8 @@
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\CallbackValueParser;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -17,21 +17,10 @@ class CallbackInterpreter extends BaseInterpreter
 {
     protected static $name = 'interpreter.core.callbackInterpreter';
 
-    /** @var AttributeResolver */
-    private $attributeResolver;
-
     /**
      * @var array - the callbacks supported by the application.
      */
     private $supportedCallbacks = [];
-
-    /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
-    }
 
     /**
      * @param $supportedCallbacks
@@ -62,9 +51,8 @@ class CallbackInterpreter extends BaseInterpreter
                 $intent = new Intent($this->supportedCallbacks[$utterance->getCallbackId()]);
                 $intent->setConfidence(1);
 
-                if ($utterance->getValue()) {
-                    $intent->addAttribute($this->getCallbackValueAttribute($utterance->getValue()));
-                }
+                $this->setValue($utterance, $intent);
+                $this->setFormValues($utterance, $intent);
             }
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf('Utterance %s does not support callbacks or callback values', $utterance->getType()));
@@ -82,7 +70,7 @@ class CallbackInterpreter extends BaseInterpreter
         $parsed = CallbackValueParser::parseCallbackValue($value);
 
         try {
-            $attribute = $this->attributeResolver->getAttributeFor(
+            $attribute = AttributeResolver::getAttributeFor(
                 $parsed[CallbackValueParser::ATTRIBUTE_NAME],
                 $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             );
@@ -100,5 +88,39 @@ class CallbackInterpreter extends BaseInterpreter
         ));
 
         return $attribute;
+    }
+
+    /**
+     * @param UtteranceInterface $utterance
+     * @param Intent $intent
+     * @throws FieldNotSupported
+     */
+    public function setValue(UtteranceInterface $utterance, Intent $intent): void
+    {
+        try {
+            if ($utterance->getValue()) {
+                $intent->addAttribute($this->getCallbackValueAttribute($utterance->getValue()));
+            }
+        } catch (FieldNotSupported $e) {
+            // do nothing
+        }
+    }
+
+    /**
+     * @param UtteranceInterface $utterance
+     * @param Intent $intent
+     * @throws FieldNotSupported
+     */
+    public function setFormValues(UtteranceInterface $utterance, Intent $intent): void
+    {
+        try {
+            if ($utterance->getFormValues()) {
+                foreach ($utterance->getFormValues() as $name => $value) {
+                    $intent->addAttribute(AttributeResolver::getAttributeFor($name, $value));
+                }
+            }
+        } catch (FieldNotSupported $e) {
+            // do nothing
+        }
     }
 }

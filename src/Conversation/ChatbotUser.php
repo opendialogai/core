@@ -3,11 +3,16 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 class ChatbotUser extends Node
 {
+    /** @var string Id of the current conversation */
+    private $currentConversationUid;
+
+    /** @var string */
+    private $currentIntentUid;
+
     public function __construct($id = null)
     {
         parent::__construct($id);
@@ -19,13 +24,12 @@ class ChatbotUser extends Node
      */
     public function isHavingConversation() : bool
     {
-        if ($this->hasOutgoingEdgeWithRelationship(Model::HAVING_CONVERSATION)) {
-            return true;
-        }
-        return false;
+        return isset($this->currentConversationUid);
     }
 
     /**
+     * Attaches an entire conversation to the user
+     *
      * @param Conversation $conversation
      */
     public function setCurrentConversation(Conversation $conversation)
@@ -36,76 +40,66 @@ class ChatbotUser extends Node
     }
 
     /**
+     * Sets just the uid of the current conversation
      *
+     * @param string $currentConversationUid
+     * @return ChatbotUser
      */
-    public function moveCurrentConversationToPast()
+    public function setCurrentConversationUid(string $currentConversationUid): ChatbotUser
     {
-        $currentConversation = $this->getCurrentConversation();
-        $this->outgoingEdges->remove(Model::HAVING_CONVERSATION);
-        $this->createOutgoingEdge(Model::HAD_CONVERSATION, $currentConversation);
+        $this->currentConversationUid = $currentConversationUid;
+        return $this;
     }
 
     /**
-     * @return Conversation
+     * Returns the uid of the users current intent
+     *
+     * @return string
      */
-    public function getCurrentConversation(): Conversation
+    public function getCurrentConversationUid(): string
     {
-        return $this->getNodesConnectedByOutgoingRelationship(Model::HAVING_CONVERSATION)->first()->value;
+        return $this->currentConversationUid;
     }
 
     /**
-     * Creates a new outgoing edge if there is no current intent otherwise changes the pointer
-     * @param Intent $intent
+     * Sets just the uid of the current intent
+     *
+     * @param string $intentUid
+     * @return ChatbotUser
      */
-    public function setCurrentIntent(Intent $intent)
+    public function setCurrentIntentUid(string $intentUid): ChatbotUser
     {
-        if ($this->hasCurrentIntent()) {
-            /* @var DirectedEdge $existingEdge */
-            $existingEdge = $this->getCurrentConversation()
-                ->getOutgoingEdgesWithRelationship(Model::CURRENT_INTENT)->getFirstEdge();
-            $existingEdge->setToNode($intent);
-        } else {
-            $this->getCurrentConversation()->createOutgoingEdge(Model::CURRENT_INTENT, $intent);
-        }
+        $this->currentIntentUid = $intentUid;
+        return $this;
     }
 
     /**
-     * @return Intent
+     * Returns the ID of the user's current intent
+     *
+     * @return string
      */
-    public function getCurrentIntent(): Intent
+    public function getCurrentIntentUid(): string
     {
-        if ($this->isHavingConversation()) {
-            if ($this->getCurrentConversation()->hasOutgoingEdgeWithRelationship(Model::CURRENT_INTENT)) {
-                return $this->getCurrentConversation()
-                    ->getNodesConnectedByOutgoingRelationship(Model::CURRENT_INTENT)
-                    ->first()
-                    ->value;
-            }
-        }
-
-        return null;
+        return $this->currentIntentUid;
     }
 
     /**
+     * Removes the current conversation and current intent IDs from the user
+     * @return void
+     */
+    public function unsetCurrentConversation(): void
+    {
+        unset($this->currentIntentUid);
+        unset($this->currentConversationUid);
+    }
+
+    /**
+     * Checks whether the user has a current intent id
+     *
      * @return bool
      */
-    public function hasCurrentIntent() : bool
+    public function hasCurrentIntent(): bool
     {
-        if ($this->isHavingConversation()) {
-            if ($this->getCurrentConversation()->hasOutgoingEdgeWithRelationship(Model::CURRENT_INTENT)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param $uid
-     * @return Intent
-     */
-    public function getIntentByUid($uid): Intent
-    {
-        return $this->getCurrentConversation()->getIntentByUid($uid);
+        return isset($this->currentIntentUid);
     }
 }

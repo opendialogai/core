@@ -3,8 +3,8 @@
 namespace OpenDialogAi\Core\Controllers;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -16,9 +16,6 @@ use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class OpenDialogController
 {
-    /** @var ContextService */
-    private $contextService;
-
     /** @var ConversationLogService */
     private $conversationLogService;
 
@@ -27,14 +24,6 @@ class OpenDialogController
 
     /** @var ResponseEngineServiceInterface */
     private $responseEngineService;
-
-    /**
-     * @param ContextService $contextService
-     */
-    public function setContextService(ContextService $contextService): void
-    {
-        $this->contextService = $contextService;
-    }
 
     /**
      * @param ConversationLogService $conversationLogService
@@ -71,7 +60,7 @@ class OpenDialogController
      */
     public function runConversation(UtteranceInterface $utterance): WebChatMessages
     {
-        $userContext = $this->contextService->createUserContext($utterance);
+        $userContext = ContextService::createUserContext($utterance);
 
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 

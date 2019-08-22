@@ -24,9 +24,11 @@ interface MessageFormatterInterface
     public const ITEMS                   = 'items';
     public const ELEMENTS                = 'elements';
     public const ELEMENT_TYPE            = 'element_type';
+    public const AUTO_COMPLETE_SELECT    = 'auto_complete_select';
     public const SELECT                  = 'select';
     public const TEXTAREA                = 'textarea';
     public const TEXT                    = 'text';
+    public const NUMBER                  = 'number';
     public const TITLE                   = 'title';
     public const SUBTITLE                = 'subtitle';
     public const CALLBACK                = 'callback';
@@ -36,6 +38,7 @@ interface MessageFormatterInterface
     public const SRC                     = 'src';
     public const OPEN_NEW_TAB            = 'open-new-tab';
     public const LINK_NEW_TAB            = 'link_new_tab';
+    public const CLICK_TO_CALL           = 'click_to_call';
     public const TAB_SWITCH              = 'tab_switch';
     public const PLACEHOLDER             = 'placeholder';
     public const INITIAL_TEXT            = 'initial_text';

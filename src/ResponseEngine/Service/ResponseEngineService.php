@@ -3,10 +3,10 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
@@ -16,12 +16,6 @@ use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
-    /** @var ContextService */
-    protected $contextService;
-
-    /** @var AttributeResolver */
-    protected $attributeResolver;
-
     /* @var OperationServiceInterface */
     protected $operationService;
 
@@ -81,7 +75,8 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 $replacement = ' ';
                 try {
                     [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attributeId);
-                    $replacement = $this->contextService->getAttributeValue($attributeName, $contextId);
+                    $replacement = ContextService::getAttributeValue($attributeName, $contextId);
+                    $replacement = $this->escapeCharacters($replacement);
                 } catch (ContextDoesNotExistException $e) {
                     Log::warning($e->getMessage());
                 } catch (AttributeDoesNotExistException $e) {
@@ -95,27 +90,11 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function setContextService(ContextService $contextService): void
-    {
-        $this->contextService = $contextService;
-    }
-
-    /**
      * @param OperationServiceInterface $operationService
      */
     public function setOperationService(OperationServiceInterface $operationService): void
     {
         $this->operationService = $operationService;
-    }
-
-    /**
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
     }
 
     /**
@@ -127,25 +106,52 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     protected function messageMeetsConditions(MessageTemplate $messageTemplate): bool
     {
-        $conditions = $messageTemplate->getConditions();
+        foreach ($messageTemplate->getConditions() as $contextId => $conditions) {
+            foreach ($conditions as $conditionArray) {
+                /** @var Condition $condition */
+                $condition = array_values($conditionArray)[0];
+                $attributeName = array_keys($conditionArray)[0];
 
-        if (empty($conditions)) {
-            return true;
-        }
+                $attribute = $this->getAttributeForCondition($attributeName, $contextId);
 
-        $conditionsPass = true;
-        foreach ($conditions as $condition) {
-            try {
-                if (!$this->operationService->checkCondition($condition)) {
-                    $conditionsPass = false;
+                if (!$condition->compareAgainst($attribute)) {
+                    return false;
                 }
-            } catch (AttributeDoesNotExistException $e) {
-                Log::warning(sprintf(
-                    'Could not get attribute %s when resolving condition on message template %s',
-                    $attributeName, $messageTemplate->name));
             }
         }
 
-        return $conditionsPass;
+        return true;
+    }
+
+    /**
+     * Tries to get the attribute from the right context. Or returns a null value attribute if it does not exist
+     *
+     * @param $attributeName
+     * @param $contextId
+     * @return AttributeInterface
+     */
+    protected function getAttributeForCondition($attributeName, $contextId): AttributeInterface
+    {
+        try {
+            $attribute = ContextService::getAttribute($attributeName, $contextId);
+        } catch (AttributeDoesNotExistException $e) {
+            // If the attribute does not exist, return a null value attribute
+            $attribute = AttributeResolver::getAttributeFor($attributeName, null);
+        }
+
+        return $attribute;
+    }
+
+    /**
+     * Escapes the ampersand character (& => &amp;)
+     *
+     * @param $replacement
+     * @return string
+     */
+    private function escapeCharacters($replacement): string
+    {
+        $replacement = str_replace('&', '&amp;', $replacement);
+
+        return $replacement;
     }
 }

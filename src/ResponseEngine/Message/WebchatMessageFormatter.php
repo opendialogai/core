@@ -4,12 +4,15 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormAutoCompleteSelectElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormNumberElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextElement;
@@ -29,8 +32,6 @@ use SimpleXMLElement;
  */
 class WebChatMessageFormatter implements MessageFormatterInterface
 {
-    /** @var ContextService */
-    private $contextService;
 
     /** @var ResponseEngineService */
     private $responseEngineService;
@@ -41,7 +42,6 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      */
     public function __construct()
     {
-        $this->contextService = app()->make(ContextService::class);
         $this->responseEngineService = app()->make(ResponseEngineServiceInterface::class);
     }
 
@@ -135,12 +135,14 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     public function generateButtonMessage(array $template)
     {
         $message = new WebChatButtonMessage();
-        $message->setText($template[self::TEXT]);
+        $message->setText($template[self::TEXT], [], true);
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
             } elseif (isset($button[self::LINK])) {
                 $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $button[self::LINK_NEW_TAB]));
+            } elseif (isset($button[self::CLICK_TO_CALL])) {
+                $message->addButton(new WebchatClickToCallButton($button[self::TEXT], $button[self::CLICK_TO_CALL]));
             } else {
                 $message->addButton(
                     new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
@@ -163,15 +165,18 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return string
+     * @return WebChatFormMessage
      */
     public function generateFormMessage(array $template)
     {
         $message = (new WebChatFormMessage())
             ->setText($template[self::TEXT])
-            ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setCallbackId($template[self::CALLBACK])
             ->setAutoSubmit($template[self::AUTO_SUBMIT]);
+
+        if ($template[self::SUBMIT_TEXT]) {
+            $message->setSubmitText($template[self::SUBMIT_TEXT]);
+        }
 
         foreach ($template[self::ELEMENTS] as $el) {
             $name = $el[self::NAME];
@@ -182,9 +187,14 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 $element = new WebChatFormTextAreaElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
                 $element = new WebChatFormTextElement($name, $display, $required);
+            } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
+                $element = new WebChatFormNumberElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
                 $element = new WebChatFormSelectElement($name, $display, $required, $options);
+            } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
+                $options = $el[self::OPTIONS];
+                $element = new WebChatFormAutoCompleteSelectElement($name, $display, $required, $options);
             }
             $message->addElement($element);
         }
@@ -272,7 +282,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     protected function getAttributeMessageText($attributeName): string
     {
         [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId($attributeName);
-        $attributeValue = $this->contextService->getAttributeValue($attributeId, $contextId);
+        $attributeValue = ContextService::getAttributeValue($attributeId, $contextId);
 
         return $this->responseEngineService->fillAttributes($attributeValue);
     }
@@ -290,15 +300,18 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         foreach ($dom->childNodes as $node) {
             foreach ($node->childNodes as $item) {
                 if ($item->nodeType === XML_TEXT_NODE) {
-                    $text .= trim($item->textContent);
+                    if (!empty(trim($item->textContent))) {
+                        $text .= ' ' . trim($item->textContent);
+                    }
                 } elseif ($item->nodeType === XML_ELEMENT_NODE) {
                     if ($item->nodeName === self::LINK) {
+                        $openNewTab = ($item->getAttribute('new_tab')) ? true : false;
+
                         $link = [
-                            self::OPEN_NEW_TAB => false,
+                            self::OPEN_NEW_TAB => $openNewTab,
                             self::TEXT => '',
                             self::URL => '',
                         ];
-
 
                         foreach ($item->childNodes as $t) {
                             $link[$t->nodeName] = trim($t->nodeValue);
@@ -318,7 +331,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             }
         }
 
-        return $text;
+        return trim($text);
     }
 
     /**
@@ -335,7 +348,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             return '<a target="_blank" href="' . $url . '">' . $text . '</a>';
         }
 
-        return '<a href="' . $url . '">' . $text . '</a>';
+        return '<a target="_parent" href="' . $url . '">' . $text . '</a>';
     }
 
     /**
@@ -352,7 +365,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         }
 
         $template = [
-            self::TEXT => trim((string)$item->text),
+            self::TEXT => $this->getMessageText($item->text),
             self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
         ];
 
@@ -369,6 +382,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     self::TEXT => trim((string)$button->text),
                     self::LINK => trim((string)$button->link),
                     self::LINK_NEW_TAB => $buttonLinkNewTab,
+                ];
+            } elseif (isset($button->click_to_call)) {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::CLICK_TO_CALL => trim((string)$button->click_to_call),
                 ];
             } else {
                 $template[self::BUTTONS][] = [
@@ -486,7 +504,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 self::REQUIRED => $required,
             ];
 
-            if ($el[self::ELEMENT_TYPE] == self::SELECT) {
+            if ($el[self::ELEMENT_TYPE] == self::SELECT || $el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = [];
 
                 foreach ($element->options->children() as $option) {

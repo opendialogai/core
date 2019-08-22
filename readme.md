@@ -70,3 +70,9 @@ All queries are logged at info level
 
 By default, all incoming and outgoing API calls will be logged to the request and response mysql tables.
 To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`
+
+## Local Artisan
+
+If you need to use artisan commands in the development of this pacakge, you can use `/vendor/bin/artisan` in it's place.
+This also works if you set up a symlink from the project root:
+```ln -s vendor/bin/artisan artisan```

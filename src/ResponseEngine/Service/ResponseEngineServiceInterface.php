@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
@@ -25,15 +24,11 @@ interface ResponseEngineServiceInterface
     public function getMessageForIntent(string $intentName): WebChatMessages;
 
     /**
+     * Takes the input text and replaces named attributes with in curly braces.
+     * Attribute filling may happen before a message is parsed as XML, so attribute values should be encoded appropriately
+     *
      * @param $text string The message test to fill
      * @return string The message text with attributes filled
      */
     public function fillAttributes($text) : string;
-
-    /**
-     * Sets the Attribute Resolver dependency to use
-     *
-     * @param AttributeResolver $attributeResolver
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver) : void;
 }

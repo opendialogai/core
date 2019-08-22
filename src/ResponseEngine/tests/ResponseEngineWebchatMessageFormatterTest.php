@@ -67,6 +67,25 @@ EOT;
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
 
+    public function testTextMessageWithLink()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <text-message>
+    hi there
+    <link><url>http://www.opendialog.ai</url><text>Link 1</text></link>
+    <link new_tab="true"><url>http://www.opendialog.ai</url><text>Link 2</text></link>
+    test
+    <link new_tab="0"><url>http://www.opendialog.ai</url><text>Link 3</text></link>
+  </text-message>
+</message>
+EOT;
+
+        $formatter = new WebChatMessageFormatter;
+        $messages = $formatter->getMessages($markup);
+        $this->assertEquals('hi there <a target="_parent" href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
+    }
+
     public function testImageMessage()
     {
         $markup = '<message disable_text="1"><image-message link_new_tab="1"><link>https://www.opendialog.ai</link><src>https://www.opendialog.ai/assets/images/logo.svg</src></image-message></message>';
@@ -102,7 +121,7 @@ EOT;
 
     public function testButtonMessage()
     {
-        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
+        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
         $formatter = new WebChatMessageFormatter;
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
@@ -127,6 +146,7 @@ EOT;
         $markup = <<<EOT
 <message disable_text="0">
   <button-message clear_after_interaction="0">
+    <text>test</text>
     <button>
       <text>
         Yes
@@ -157,6 +177,14 @@ EOT;
         false
       </value>
     </button>
+    <button>
+      <text>
+        Click to call
+      </text>
+      <click_to_call>
+        12312412
+      </click_to_call>
+    </button>
   </button-message>
 </message>
 EOT;
@@ -180,6 +208,10 @@ EOT;
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => 'false',
+            ],
+            [
+                'text' => 'Click to call',
+                'phone_number' => '12312412',
             ],
         ];
 
@@ -448,6 +480,25 @@ EOT;
         </option>
       </options>
     </element>
+    <element>
+      <element_type>auto_complete_select</element_type>
+      <name>year</name>
+      <display>Year</display>
+      <options>
+        <option>
+          <key>1</key>
+          <value>2019</value>
+        </option>
+        <option>
+          <key>2</key>
+          <value>2020</value>
+        </option>
+        <option>
+          <key>3</key>
+          <value>2021</value>
+        </option>
+      </options>
+    </element>
   </form-message>
 </message>
 EOT;
@@ -480,6 +531,26 @@ EOT;
                         '1' => '1 year',
                         '10' => '10 year',
                         '20' => '20 year',
+                    ],
+                ],
+                [
+                    'name' => 'year',
+                    'display' => 'Year',
+                    'required' => false,
+                    'element_type' => 'auto-select',
+                    'options' => [
+                        [
+                            'key' => 1,
+                            'value' => '2019',
+                        ],
+                        [
+                            'key' => 2,
+                            'value' => '2020',
+                        ],
+                        [
+                            'key' => 3,
+                            'value' => '2021',
+                        ],
                     ],
                 ],
             ],

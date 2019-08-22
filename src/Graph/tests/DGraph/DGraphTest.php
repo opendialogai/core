@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
@@ -18,10 +18,6 @@ class DGraphTest extends TestCase
     /* @var DGraphClient */
     private $dGraphClient;
 
-    /* @var AttributeResolver */
-    private $attributeResolver;
-
-
     public function setUp(): void
     {
         parent::setUp();
@@ -29,7 +25,6 @@ class DGraphTest extends TestCase
         $this->initDDgraph();
 
         $this->dGraphClient = $this->app->make(DGraphClient::class);
-        $this->attributeResolver = $this->app->make(AttributeResolver::class);
     }
 
     /**
@@ -99,7 +94,7 @@ class DGraphTest extends TestCase
             }
 
             try {
-                $attribute = $this->attributeResolver->getAttributeFor($name, $value);
+                $attribute = AttributeResolver::getAttributeFor($name, $value);
                 $node1->addAttribute($attribute);
             } catch (AttributeIsNotSupported $e) {
                 // Simply skip attributes we can't deal with.
@@ -111,7 +106,7 @@ class DGraphTest extends TestCase
         $node1->setAttribute('name', 'Mario Rossi');
 
         $mutation = new DGraphMutation($node1);
-        $mutationResponse = $this->dGraphClient->tripleMutation($mutation);
+        $this->dGraphClient->tripleMutation($mutation);
 
         // Now retrieve the node using the uid and check that the name is Mario Rossi
         $query = new DGraphQuery();

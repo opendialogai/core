@@ -3,13 +3,17 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Ds\Map;
+use Ds\Set;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 class AllOpeningIntents extends DGraphQuery
 {
-    private $data;
+    /**
+     * @var array
+     */
+    private $conversations;
 
     public function __construct(DGraphClient $client)
     {
@@ -27,6 +31,10 @@ class AllOpeningIntents extends DGraphQuery
                             Model::UID,
                             Model::ORDER,
                             Model::CONFIDENCE,
+                            Model::CAUSES_ACTION => [
+                                Model::UID,
+                                Model::ID
+                            ],
                             Model::HAS_INTERPRETER => [
                                 Model::ID,
                                 Model::UID,
@@ -41,6 +49,10 @@ class AllOpeningIntents extends DGraphQuery
                             Model::UID,
                             Model::ORDER,
                             Model::CONFIDENCE,
+                            Model::CAUSES_ACTION => [
+                                Model::UID,
+                                Model::ID
+                            ],
                             Model::HAS_INTERPRETER => [
                                 Model::ID,
                                 Model::UID,
@@ -55,12 +67,24 @@ class AllOpeningIntents extends DGraphQuery
             ]);
 
         $response = $client->query($this);
-        $this->data = $response->getData();
+        $this->setConversations($response->getData());
     }
 
-    public function getData()
+    private function setConversations($conversations): void
     {
-        return $this->data;
+        if (is_null($conversations) || count($conversations) < 1) {
+            $this->conversations = [];
+        } else {
+            $this->conversations = $conversations;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getConversations(): array
+    {
+        return $this->conversations;
     }
 
     /**
@@ -71,11 +95,11 @@ class AllOpeningIntents extends DGraphQuery
     public function getIntents()
     {
         $intents = new Map();
-        foreach ($this->data as $datum) {
+        foreach ($this->getConversations() as $conversation) {
             $conditions = new Map();
 
-            if (isset($datum[Model::HAS_CONDITION])) {
-                foreach ($datum[Model::HAS_CONDITION] as $conditionData) {
+            if (isset($conversation[Model::HAS_CONDITION])) {
+                foreach ($conversation[Model::HAS_CONDITION] as $conditionData) {
                     $condition = ConversationQueryFactory::createCondition($conditionData, false);
                     if (isset($condition)) {
                         $conditions->put($condition->getId(), $condition);
@@ -83,42 +107,20 @@ class AllOpeningIntents extends DGraphQuery
                 }
             }
 
-            if (isset($datum[Model::HAS_OPENING_SCENE])) {
-                if (isset($datum[Model::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT])) {
-                    $matchedIntents = $this->extractIntentsFromParticipant(
-                        $datum[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0]
+            if (isset($conversation[Model::HAS_OPENING_SCENE])) {
+                if (isset($conversation[Model::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT])) {
+                    $matchedIntents = $this->extractOpeningIntentsFromParticipant(
+                        $conversation[MODEL::HAS_OPENING_SCENE][0][Model::HAS_USER_PARTICIPANT][0]
                     );
                     foreach ($matchedIntents as $intent) {
                         $openingIntent = new OpeningIntent(
                             $intent[Model::ID],
                             $intent[Model::UID],
-                            $datum[Model::ID],
-                            $datum[Model::UID],
-                            $intent[Model::ORDER],
-                            isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1
-                        );
-                        $openingIntent->setConditions($conditions);
-                        $intents->put(
-                            $intent[Model::UID],
-                            $openingIntent
-                        );
-
-                        if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
-                            foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                                $openingIntent->addExpectedAttribute($expectedAttribute['id']);
-                            }
-                        }
-                    }
-
-                    if (isset($intent[Model::HAS_INTERPRETER])) {
-                        $openingIntent = new OpeningIntent(
-                            $intent[Model::ID],
-                            $intent[Model::UID],
-                            $datum[Model::ID],
-                            $datum[Model::UID],
+                            $conversation[Model::ID],
+                            $conversation[Model::UID],
                             $intent[Model::ORDER],
                             isset($intent[Model::CONFIDENCE]) ? $intent[Model::CONFIDENCE] : 1,
-                            $intent[Model::HAS_INTERPRETER][0][Model::ID]
+                            isset($intent[Model::HAS_INTERPRETER]) ? $intent[Model::HAS_INTERPRETER][0][Model::ID] : null
                         );
                         $openingIntent->setConditions($conditions);
                         $intents->put(
@@ -140,21 +142,57 @@ class AllOpeningIntents extends DGraphQuery
     }
 
     /**
-     * Extract intents from a participant in an opening scene. Looks for says or says_across_scenes relationships
+     * Extract opening intents from a participant in an opening scene. Looks for says and says_across_scenes relationships
      *
      * @param $participant
-     * @return array
+     * @return Set
      */
-    private function extractIntentsFromParticipant($participant)
+    private function extractOpeningIntentsFromParticipant($participant): Set
     {
+        $intents = $this->extractAllIntentsFromParticipant($participant);
+
+        $previousKeptIntent = null;
+
+        // Sort the intents by order and then filter them so that we get just the first user intent(s)
+        $intents = $intents->sorted(
+            function ($a, $b) {
+                return $a[Model::ORDER] > $b[Model::ORDER];
+            }
+        )->filter(
+            function ($possibleIntent) use (&$previousKeptIntent) {
+                // Intents are considered sequential if its the first or if it directly follows the previously kept intent
+                $intentsAreSequential = is_null($previousKeptIntent)
+                    || $previousKeptIntent[Model::ORDER] + 1 == $possibleIntent[Model::ORDER];
+
+                $shouldKeep = $possibleIntent[Model::ORDER] > 0 && $intentsAreSequential;
+
+                if ($shouldKeep) {
+                    $previousKeptIntent = $possibleIntent;
+                }
+
+                return $shouldKeep;
+            }
+        );
+
+        return $intents;
+    }
+
+    /**
+     * @param $participant
+     * @return Set
+     */
+    private function extractAllIntentsFromParticipant($participant): Set
+    {
+        $intents = new Set();
+
         if (isset($participant[Model::SAYS])) {
-            return $participant[Model::SAYS];
+            $intents->add(...$participant[Model::SAYS]);
         }
 
         if (isset($participant[Model::SAYS_ACROSS_SCENES])) {
-            return $participant[Model::SAYS_ACROSS_SCENES];
+            $intents->add(...$participant[Model::SAYS_ACROSS_SCENES]);
         }
 
-        return [];
+        return $intents;
     }
 }

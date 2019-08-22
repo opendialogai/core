@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -13,9 +13,6 @@ class SceneTest extends TestCase
 {
     /* @var ConversationEngine */
     private $conversationEngine;
-
-    /** @var ContextService */
-    private $contextService;
 
     public function setUp(): void
     {
@@ -28,7 +25,6 @@ class SceneTest extends TestCase
         ]);
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
-        $this->contextService = $this->app->make(ContextService::class);
     }
 
     /**
@@ -43,7 +39,7 @@ class SceneTest extends TestCase
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
 
         /* @var UserContext $userContext ; */
-        $userContext = $this->contextService->createUserContext($utterance);
+        $userContext = ContextService::createUserContext($utterance);
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
         $this->assertEquals('hello_human', $intent->getId());
@@ -56,15 +52,15 @@ class SceneTest extends TestCase
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
 
         /* @var UserContext $userContext ; */
-        $userContext = $this->contextService->createUserContext($utterance);
+        $userContext = ContextService::createUserContext($utterance);
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
         $this->assertEquals('hello_human', $intent->getId());
 
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_again_bot');
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_again_bot', $utterance->getUser());
 
         /* @var UserContext $userContext ; */
-        $userContext = $this->contextService->createUserContext($utterance);
+        $userContext = ContextService::createUserContext($utterance);
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
         $this->assertEquals('hello_again_human', $intent->getId());

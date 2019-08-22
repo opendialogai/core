@@ -61,8 +61,9 @@ class MessageXML extends BaseRule
                         }
                         foreach ($item->button as $button) {
                             if (empty((string)$button->callback) && empty((string)$button->tab_switch)
-                                && empty((string)$button->link)) {
-                                $this->setErrorMessage('All buttons must have with a "callback", "link" or "tab_switch" set');
+                                && empty((string)$button->link) && empty((string)$button->click_to_call)) {
+                                // @codingStandardsIgnoreLine
+                                $this->setErrorMessage('All buttons must have with a "callback", "link", "tab_switch" or "click_to_call" set');
                                 return false;
                             }
                             if (empty((string)$button->text)) {
@@ -119,6 +120,24 @@ class MessageXML extends BaseRule
                         if (empty((string)$item->text)) {
                             $this->setErrorMessage('Form messages must have "text"');
                             return false;
+                        }
+                        foreach ($item->element as $element) {
+                            if (empty((string)$element->element_type)) {
+                                $this->setErrorMessage('Form message elements must have "element_type"');
+                                return false;
+                            }
+                            if (empty((string)$element->name)) {
+                                $this->setErrorMessage('Form message elements must have "name"');
+                                return false;
+                            }
+                            if ((string)$element->element_type == 'select' ||
+                                (string)$element->element_type == 'auto_complete_select') {
+                                if (empty((string)$element->options)) {
+                                    // @codingStandardsIgnoreLine
+                                    $this->setErrorMessage('Form message elements of type "select" or "auto_complete_select" must have "options"');
+                                    return false;
+                                }
+                            }
                         }
                         break;
 

@@ -3,12 +3,13 @@
 namespace OpenDialogAi\ConversationEngine\tests;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -16,6 +17,7 @@ use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -135,6 +137,7 @@ class ConversationEngineTest extends TestCase
 
         $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
+
         $this->assertFalse($userContext->isUserHavingConversation());
     }
 
@@ -235,11 +238,7 @@ class ConversationEngineTest extends TestCase
 
     private function createUserContext()
     {
-        /* @var ContextService $contextService */
-        $contextService = $this->app->make(ContextService::class);
-
-        /* @var UserContext $userContext ; */
-        $userContext = $contextService->createUserContext($this->utterance);
+        $userContext = ContextService::createUserContext($this->utterance);
 
         return $userContext;
     }
@@ -260,10 +259,17 @@ class ConversationEngineTest extends TestCase
         $user = $userContext->getUser();
 
         $user->setCurrentConversation($conversationModel);
+        $userContext->updateUser();
+
+        /** @var DGraphClient $client */
+        $client = app()->make(DGraphClient::class);
+        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($userContext->getUser()->getCurrentConversationUid(), $client);
+
         /* @var Scene $scene */
-        $scene = $user->getCurrentConversation()->getOpeningScenes()->first()->value;
+        $scene = $conversation->getOpeningScenes()->first()->value;
         $intent = $scene->getIntentByOrder(1);
-        $user->setCurrentIntent($intent);
+
+        $userContext->setCurrentIntent($intent);
         $userContext->updateUser();
 
         return $userContext;

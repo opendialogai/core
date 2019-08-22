@@ -6,6 +6,7 @@ use Ds\Map;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\AllOpeningIntents;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 class DGraphConversationStore implements ConversationStoreInterface
@@ -29,14 +30,16 @@ class DGraphConversationStore implements ConversationStoreInterface
 
     /**
      * @param $conversationId
+     * @param bool $clone
      * @return Conversation
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
-    public function getConversation($conversationId): Conversation
+    public function getConversation($conversationId, $clone = true): Conversation
     {
         $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationId,
             $this->dGraphClient,
-            true
+            $clone
         );
 
         return $conversation;
@@ -45,6 +48,7 @@ class DGraphConversationStore implements ConversationStoreInterface
     /**
      * @param $conversationTemplateName
      * @return Conversation
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function getConversationTemplate($conversationTemplateName): Conversation
     {
@@ -55,5 +59,26 @@ class DGraphConversationStore implements ConversationStoreInterface
         );
 
         return $conversation;
+    }
+
+    /**
+     * Gets the intent ID within a conversation with the given id with a matching order
+     *
+     * @param $conversationId
+     * @param $order
+     * @return Intent
+     */
+    public function getIntentByConversationIdAndOrder($conversationId, $order): Intent
+    {
+        return ConversationQueryFactory::getConversationIntentByOrder(
+            $conversationId,
+            $order,
+            $this->dGraphClient
+        );
+    }
+
+    public function getIntentByUid($intentUid): Intent
+    {
+        return ConversationQueryFactory::getIntentByUid($intentUid, $this->dGraphClient);
     }
 }

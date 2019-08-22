@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Scene;
@@ -19,10 +20,14 @@ class UserServiceTest extends TestCase
     /* @var DGraphClient */
     private $client;
 
+    /** @var ConversationStoreInterface */
+    private $conversationStore;
+
     public function setUp(): void
     {
         parent::setUp();
 
+        $this->conversationStore = $this->app->make(ConversationStoreInterface::class);
         $this->userService = $this->app->make(UserService::class);
         $this->client = $this->app->make(DGraphClient::class);
         $this->client->dropSchema();
@@ -110,18 +115,18 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $user->getCurrentConversation()->getOpeningScenes()->first()->value;
+        $scene = $this->conversationStore->getConversation($user->getCurrentConversationUid(), false)->getOpeningScenes()->first()->value;
 
         /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
-        $user->setCurrentIntent($intent);
         $this->userService->setCurrentIntent($user, $intent);
 
         // Get the user back from dgraph
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $this->assertEquals('hello_bot', $user->getCurrentIntent()->getId());
+        $currentIntent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
+        $this->assertEquals('hello_bot', $currentIntent->getId());
     }
 
     /**
@@ -149,18 +154,18 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $user->getCurrentConversation()->getOpeningScenes()->first()->value;
+        $scene = $this->conversationStore->getConversation($user->getCurrentConversationUid(), false)->getOpeningScenes()->first()->value;
 
         /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
-        $user->setCurrentIntent($intent);
         $this->userService->setCurrentIntent($user, $intent);
 
         // Get the user back from dgraph
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $this->assertEquals('hello_bot', $user->getCurrentIntent()->getId());
+        $intent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
+        $this->assertEquals('hello_bot', $intent->getId());
 
         $this->userService->unsetCurrentIntent($user);
 

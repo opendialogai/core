@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
@@ -143,6 +143,17 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(0, $activities);
     }
 
+    public function testConversationPublishedDeletion()
+    {
+        $this->publishConversation($this->conversation1());
+
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertEquals($conversation->status, 'published');
+
+        $conversation->delete();
+    }
+
     /**
      * Ensure that a conversation representation can be made from a YAML file.
      *
@@ -150,12 +161,11 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationCreation()
     {
+        /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => $this->conversation1()]);
 
-        /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = $this->app->make(AttributeResolver::class);
         $attributes = ['test' => IntAttribute::class];
-        $attributeResolver->registerAttributes($attributes);
+        AttributeResolver::registerAttributes($attributes);
 
         /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
         $conversationModel = $conversation->buildConversation();
