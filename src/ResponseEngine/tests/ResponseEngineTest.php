@@ -379,8 +379,8 @@ class ResponseEngineTest extends TestCase
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
-        $conditions->addCondition('user.last_seen', null, 'is_set');
+        $conditions->addCondition(['username' => 'user.name'], ['value' => 'dummy'], 'eq');
+        $conditions->addCondition(['userlastseen' => 'user.last_seen'], [], 'is_set');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -406,8 +406,10 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['username' => 'user.name'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', null, 'is_set');
+        $conditions->addCondition($attributes, [], 'is_set');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -461,8 +463,11 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['userlastseen' => 'user.last_seen'];
+        $parameters = ['value' => 600];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.last_seen', 600, 'time_passed_greater_than');
+        $conditions->addCondition($attributes, $parameters, 'time_passed_greater_than');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -518,8 +523,11 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['userlastseen' => 'user.last_seen'];
+        $parameters = ['value' => 600];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.last_seen', 600, 'time_passed_less_than');
+        $conditions->addCondition($attributes, $parameters, 'time_passed_less_than');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',

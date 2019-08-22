@@ -17,5 +17,4 @@ class StringAttribute extends BasicAttribute
             Log::warning($e->getMessage());
         }
     }
-
 }

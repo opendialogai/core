@@ -106,40 +106,13 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     protected function messageMeetsConditions(MessageTemplate $messageTemplate): bool
     {
-        foreach ($messageTemplate->getConditions() as $contextId => $conditions) {
-            foreach ($conditions as $conditionArray) {
-                /** @var Condition $condition */
-                $condition = array_values($conditionArray)[0];
-                $attributeName = array_keys($conditionArray)[0];
-
-                $attribute = $this->getAttributeForCondition($attributeName, $contextId);
-
-                if (!$condition->compareAgainst($attribute)) {
-                    return false;
-                }
+        foreach ($messageTemplate->getConditions() as $condition) {
+            if (!$this->operationService->checkCondition($condition)) {
+                return false;
             }
         }
 
         return true;
-    }
-
-    /**
-     * Tries to get the attribute from the right context. Or returns a null value attribute if it does not exist
-     *
-     * @param $attributeName
-     * @param $contextId
-     * @return AttributeInterface
-     */
-    protected function getAttributeForCondition($attributeName, $contextId): AttributeInterface
-    {
-        try {
-            $attribute = ContextService::getAttribute($attributeName, $contextId);
-        } catch (AttributeDoesNotExistException $e) {
-            // If the attribute does not exist, return a null value attribute
-            $attribute = AttributeResolver::getAttributeFor($attributeName, null);
-        }
-
-        return $attribute;
     }
 
     /**
