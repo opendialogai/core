@@ -4,8 +4,8 @@ namespace OpenDialogAi\OperationEngine\Service;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
@@ -21,23 +21,12 @@ class OperationService implements OperationServiceInterface
     /** @var AttributeResolver */
     private $attributeResolver;
 
-    /** @var ContextService */
-    private $contextService;
-
     /**
      * @param AttributeResolver $attributeResolver
      */
     public function setAttributeResolver(AttributeResolver $attributeResolver): void
     {
         $this->attributeResolver = $attributeResolver;
-    }
-
-    /**
-     * @param ContextService $contextService
-     */
-    public function setContextService(ContextService $contextService)
-    {
-        $this->contextService = $contextService;
     }
 
     /**
@@ -93,7 +82,7 @@ class OperationService implements OperationServiceInterface
             [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attribute);
 
             try {
-                $actualAttribute = $this->contextService->getAttribute($attributeName, $contextId);
+                $actualAttribute = ContextService::getAttribute($attributeName, $contextId);
             } catch (\Exception $e) {
                 Log::debug($e->getMessage());
                 // If the attribute does not exist create one with a null value since we may be testing
