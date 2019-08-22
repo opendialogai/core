@@ -91,11 +91,9 @@ class OpenDialogController
         $messages = $messageWrapper->getMessages();
 
         foreach ($messages as $i => $message) {
-            if ($i > 0) {
-                $message->setInternal(true);
-            }
             if ($i < count($messages) - 1) {
                 $message->setHidetime(true);
+                $message->setInternal(true);
             }
         }
     }
