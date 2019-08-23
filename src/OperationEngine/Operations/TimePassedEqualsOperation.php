@@ -12,6 +12,10 @@ class TimePassedEqualsOperation extends AbstractOperation
     {
         $attribute = reset($this->attributes);
 
+        if ($attribute->getValue() === null) {
+            return false;
+        }
+
         if ((now()->timestamp - $this->parameters['value']) === $attribute->getValue()) {
             return true;
         }
