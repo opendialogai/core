@@ -246,6 +246,22 @@ class ConversationEngineTest extends TestCase
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
     }
 
+    public function testPerformIntentAction()
+    {
+        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $callbackInterpreter = $interpreterService->getDefaultInterpreter();
+        $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
+
+        $this->publishConversation($this->conversationWithNonBindedAction());
+
+        try {
+            $this->conversationEngine->determineCurrentConversation($this->createUserContext(), $this->utterance);
+        }
+        catch(\Exception $e) {
+            $this->fail("No exception should be thrown when calling an unbound action.");
+        }
+    }
+
     private function createUserContext()
     {
         $userContext = ContextService::createUserContext($this->utterance);
@@ -255,7 +271,9 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @return UserContext
-     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     private function createConversationAndAttachToUser()
     {
@@ -285,4 +303,21 @@ class ConversationEngineTest extends TestCase
         return $userContext;
     }
 
+    private function conversationWithNonBindedAction()
+    {
+        return <<<EOT
+conversation:
+  id: non_binded
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+            action: action.test.not_bound
+        - b: 
+            i: hello_user
+            completes: true
+EOT;
+
+    }
 }
