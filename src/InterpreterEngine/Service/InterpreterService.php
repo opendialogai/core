@@ -27,7 +27,42 @@ class InterpreterService implements InterpreterServiceInterface
      */
     public function interpret(string $interpreterName, UtteranceInterface $utterance): array
     {
-        return $this->getInterpreter($interpreterName)->interpret($utterance);
+        if ($cachedResult = $this->getInterpreterResultFromCache($interpreterName, $utterance)) {
+            Log::info(sprintf("Getting result from the cache for interpreter %s", $interpreterName));
+            return $cachedResult;
+        }
+
+        $intepreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
+        $this->putInterpreterResultToCache($interpreterName, $utterance, $intepreterResult);
+
+        return $intepreterResult;
+    }
+
+    private function getInterpreterResultFromCache(string $interpreterName, UtteranceInterface $utterance)
+    {
+        $cacheKey = $interpreterName . '|' . serialize($utterance);
+
+        return cache($cacheKey, false);
+    }
+
+    private function putInterpreterResultToCache(string $interpreterName, UtteranceInterface $utterance, array $intepreterResult)
+    {
+        $cacheKey = $interpreterName . '|' . serialize($utterance);
+
+        $cacheTime = $this->getInterpreterCacheTime($interpreterName);
+        cache([$cacheKey => $intepreterResult], $cacheTime);
+    }
+
+    public function getInterpreterCacheTime(string $interpreterName): int
+    {
+        $interpreterCacheTimes = config('opendialog.interpreter_engine.interpreter_cache_times');
+
+        if (is_array($interpreterCacheTimes) && isset($interpreterCacheTimes[$interpreterName])) {
+            return $interpreterCacheTimes[$interpreterName];
+        }
+
+        $defaultCacheTime = config('opendialog.interpreter_engine.default_cache_time');
+        return $defaultCacheTime;
     }
 
     /**

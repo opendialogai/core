@@ -23,6 +23,14 @@ interface InterpreterServiceInterface
     public function interpret(string $interpreterName, UtteranceInterface $utterance) : array;
 
     /**
+     * Return the interpreter cache time if set or the global default cache time
+     *
+     * @param string $interpreterName Should be in the format interpreter.{namespace}.{name}
+     * @return int
+     */
+    public function getInterpreterCacheTime(string $interpreterName): int;
+
+    /**
      * Returns a list of all available interpreters keyed by name
      *
      * @return InterpreterInterface[]
