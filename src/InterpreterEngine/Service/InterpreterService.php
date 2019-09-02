@@ -169,9 +169,9 @@ class InterpreterService implements InterpreterServiceInterface
      * @param string $interpreterName
      * @param UtteranceInterface $utterance
      * @param array $intents
-     * @return array
+     * @return bool
      */
-    private function putInterpreterResultToCache(string $interpreterName, UtteranceInterface $utterance, array $intents): array
+    private function putInterpreterResultToCache(string $interpreterName, UtteranceInterface $utterance, array $intents): bool
     {
         $cacheKey = $this->generateCacheKey($interpreterName, $utterance);
         $cacheTime = $this->getInterpreterCacheTime($interpreterName);
@@ -180,7 +180,7 @@ class InterpreterService implements InterpreterServiceInterface
             return cache([$cacheKey => $intents], $cacheTime);
         } catch (Exception $e) {
             Log::error(sprintf('Unable to save cache interpreter with name %s - %s', $cacheKey, $e->getMessage()));
-            return [];
+            return false;
         }
     }
 
