@@ -17,6 +17,9 @@ class MessageXML extends BaseRule
     public function passes($attribute, $value)
     {
         try {
+            // Replace unescaped ampersands with &amp;
+            $value = preg_replace('/&(?!;{6})/', '&amp;', $value);
+
             $message = new SimpleXMLElement($value);
 
             foreach ($message->children() as $item) {
