@@ -149,9 +149,9 @@ class InterpreterService implements InterpreterServiceInterface
      *
      * @param string $interpreterName
      * @param UtteranceInterface $utterance
-     * @return array
+     * @return array|false
      */
-    private function getInterpreterResultFromCache(string $interpreterName, UtteranceInterface $utterance): array
+    private function getInterpreterResultFromCache(string $interpreterName, UtteranceInterface $utterance)
     {
         $cacheKey = $this->generateCacheKey($interpreterName, $utterance);
 
@@ -159,7 +159,7 @@ class InterpreterService implements InterpreterServiceInterface
             return cache($cacheKey, false);
         } catch (Exception $e) {
             Log::error(sprintf('Unable to retrieve interpreter cache with name %s - %s', $cacheKey, $e->getMessage()));
-            return [];
+            return false;
         }
     }
 
