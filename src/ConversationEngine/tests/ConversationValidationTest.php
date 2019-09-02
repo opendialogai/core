@@ -35,63 +35,25 @@ EOT;
         $this->assertStringContainsString('Invalid YAML', $rule->message());
     }
 
-    public function testConversationNameSameAsIntent()
+    public function testIncomingIntentAndOutgoingIntentSameName()
     {
         $rule = new ConversationYAML();
 
         $invalidYaml = /** yaml */
-            <<< EOT
+            <<<EOT
 conversation:
-  id: conversation_1
+  id: hello_bot_world
   scenes:
     opening_scene:
       intents:
         - u: 
-            i: intent.core.hello
-        - b: 
-            i: conversation_1
-            completes: true
-    scene2:
-      intents:
-        - u: 
-            i: how_are_you
+            i: hello_bot
             interpreter: interpreter.core.callbackInterpreter
-            confidence: 1
-            action: action.core.example
         - b: 
-            i: doing_dandy
-            action: action.core.example
+            i: hello_bot
             completes: true
 EOT;
-
         $this->assertFalse($rule->passes('test', $invalidYaml));
-        $this->assertStringContainsString('Conversation can not have the same name as an intent', $rule->message());
-
-        $validYaml = /** yaml */
-            <<< EOT
-conversation:
-  id: conversation_1
-  scenes:
-    opening_scene:
-      intents:
-        - u: 
-            i: intent.core.hello
-        - b: 
-            i: intent.core.hello_response
-            completes: true
-    scene2:
-      intents:
-        - u: 
-            i: how_are_you
-            interpreter: interpreter.core.callbackInterpreter
-            confidence: 1
-            action: action.core.example
-        - b: 
-            i: doing_dandy
-            action: action.core.example
-            completes: true
-EOT;
-
-        $this->assertTrue($rule->passes('test', $validYaml));
+        $this->assertStringContainsString('Incoming intent and Outgoing intent can not have the same name', $rule->message());
     }
 }

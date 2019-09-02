@@ -32,16 +32,27 @@ class ConversationYAML extends BaseRule
 
             foreach ($yaml['conversation']['scenes'] as $scene) {
                 if (isset($scene['intents'])) {
+                    $incomingIntent = '';
                     foreach ($scene['intents'] as $intent) {
                         if (isset($intent['u']['i'])) {
+                            $incomingIntent = $intent['u']['i'];
+
                             if ($intent['u']['i'] == $yaml['conversation']['id']) {
                                 $this->setErrorMessage('Conversation can not have the same name as an intent');
                                 return false;
                             }
                         }
+                    }
+
+                    foreach ($scene['intents'] as $intent) {
                         if (isset($intent['b']['i'])) {
                             if ($intent['b']['i'] == $yaml['conversation']['id']) {
                                 $this->setErrorMessage('Conversation can not have the same name as an intent');
+                                return false;
+                            }
+
+                            if ($intent['b']['i'] == $incomingIntent) {
+                                $this->setErrorMessage('Incoming intent and Outgoing intent can not have the same name');
                                 return false;
                             }
                         }
