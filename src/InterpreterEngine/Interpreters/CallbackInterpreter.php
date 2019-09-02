@@ -46,21 +46,18 @@ class CallbackInterpreter extends BaseInterpreter
     {
         $intent = new NoMatchIntent();
         try {
-            $callbackId = $utterance->getCallbackId();
-            if (isset($callbackId)) {
-                if (array_key_exists($callbackId, $this->supportedCallbacks)) {
-                    $intent = new Intent($this->supportedCallbacks[$utterance->getCallbackId()]);
-                    $intent->setConfidence(1);
+            if ($utterance->getCallbackId()) {
+                $intentName = $utterance->getCallbackId();
 
-                    $this->setValue($utterance, $intent);
-                    $this->setFormValues($utterance, $intent);
-                } elseif ($utterance->getValue()) {
-                    $intent = new Intent($utterance->getValue());
-                    $intent->setConfidence(1);
-
-                    $this->setValue($utterance, $intent);
-                    $this->setFormValues($utterance, $intent);
+                if (array_key_exists($intentName, $this->supportedCallbacks)) {
+                    $intentName = $this->supportedCallbacks[$utterance->getCallbackId()];
                 }
+
+                $intent = new Intent($intentName);
+                $intent->setConfidence(1);
+
+                $this->setValue($utterance, $intent);
+                $this->setFormValues($utterance, $intent);
             }
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf('Utterance %s does not support callbacks or callback values', $utterance->getType()));
@@ -101,7 +98,6 @@ class CallbackInterpreter extends BaseInterpreter
     /**
      * @param UtteranceInterface $utterance
      * @param Intent $intent
-     * @throws FieldNotSupported
      */
     public function setValue(UtteranceInterface $utterance, Intent $intent): void
     {
@@ -110,14 +106,16 @@ class CallbackInterpreter extends BaseInterpreter
                 $intent->addAttribute($this->getCallbackValueAttribute($utterance->getValue()));
             }
         } catch (FieldNotSupported $e) {
-            // do nothing
+            Log::debug(sprintf(
+                    'Callback interpreter trying to extract value from unsupported utterance %s',
+                    get_class($utterance))
+            );
         }
     }
 
     /**
      * @param UtteranceInterface $utterance
      * @param Intent $intent
-     * @throws FieldNotSupported
      */
     public function setFormValues(UtteranceInterface $utterance, Intent $intent): void
     {
@@ -128,7 +126,10 @@ class CallbackInterpreter extends BaseInterpreter
                 }
             }
         } catch (FieldNotSupported $e) {
-            // do nothing
+            Log::debug(sprintf(
+                    'Callback interpreter trying to extract form values from unsupported utterance %s',
+                    get_class($utterance))
+            );
         }
     }
 }
