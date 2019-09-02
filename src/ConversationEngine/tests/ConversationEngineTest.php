@@ -193,7 +193,6 @@ class ConversationEngineTest extends TestCase
         }
     }
 
-
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -244,6 +243,25 @@ class ConversationEngineTest extends TestCase
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
+    }
+
+    public function testCallbackIdNotMappedToIntent()
+    {
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new IntAttribute('test', 11));
+
+        $utterance = UtteranceGenerator::generateButtonResponseUtterance('howdy_bot');
+        /* @var InterpreterServiceInterface $interpreterService */
+        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        /* @var CallbackInterpreter $callbackInterpeter */
+        $callbackInterpeter = $interpreterService->getDefaultInterpreter();
+        $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
+        $callbackInterpeter->addCallback('how_are_you', 'how_are_you');
+        $callbackInterpeter->addCallback('hello_registered_user', 'hello_registered_user');
+
+        // Let's see if we get the right next intent for the first step.
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals('hello_user', $intent->getId());
     }
 
     private function createUserContext()
