@@ -250,7 +250,7 @@ class ConversationEngineTest extends TestCase
         $userContext = $this->createUserContext();
         $userContext->addAttribute(new IntAttribute('test', 11));
 
-        $utterance = UtteranceGenerator::generateButtonResponseUtterance('hello', 'howdy_bot');
+        $utterance = UtteranceGenerator::generateButtonResponseUtterance('howdy_bot');
         /* @var InterpreterServiceInterface $interpreterService */
         $interpreterService = $this->app->make(InterpreterServiceInterface::class);
         /* @var CallbackInterpreter $callbackInterpeter */
@@ -261,7 +261,7 @@ class ConversationEngineTest extends TestCase
 
         // Let's see if we get the right next intent for the first step.
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
-        $this->assertEquals($intent->getId(), 'hello_user');
+        $this->assertEquals('hello_user', $intent->getId());
     }
 
     private function createUserContext()
