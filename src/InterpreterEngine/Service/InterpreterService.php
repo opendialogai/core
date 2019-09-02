@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\InterpreterEngine\Service;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
@@ -38,21 +39,9 @@ class InterpreterService implements InterpreterServiceInterface
         return $intepreterResult;
     }
 
-    private function getInterpreterResultFromCache(string $interpreterName, UtteranceInterface $utterance)
-    {
-        $cacheKey = $interpreterName . '|' . serialize($utterance);
-
-        return cache($cacheKey, false);
-    }
-
-    private function putInterpreterResultToCache(string $interpreterName, UtteranceInterface $utterance, array $intepreterResult)
-    {
-        $cacheKey = $interpreterName . '|' . serialize($utterance);
-
-        $cacheTime = $this->getInterpreterCacheTime($interpreterName);
-        cache([$cacheKey => $intepreterResult], $cacheTime);
-    }
-
+    /**
+     * @inheritDoc
+     */
     public function getInterpreterCacheTime(string $interpreterName): int
     {
         $interpreterCacheTimes = config('opendialog.interpreter_engine.interpreter_cache_times');
@@ -153,5 +142,58 @@ class InterpreterService implements InterpreterServiceInterface
     private function isValidName(string $name): bool
     {
         return preg_match($this->validNamePattern, $name) === 1;
+    }
+
+    /**
+     * Gets a cached value from
+     *
+     * @param string $interpreterName
+     * @param UtteranceInterface $utterance
+     * @return array
+     */
+    private function getInterpreterResultFromCache(string $interpreterName, UtteranceInterface $utterance): array
+    {
+        $cacheKey = $this->generateCacheKey($interpreterName, $utterance);
+
+        try {
+            return cache($cacheKey, false);
+        } catch (Exception $e) {
+            Log::error(sprintf('Unable to retrieve interpreter cache with name %s - %s', $cacheKey, $e->getMessage()));
+            return [];
+        }
+    }
+
+    /**
+     * Saves the interpreter result to cache
+     *
+     * @param string $interpreterName
+     * @param UtteranceInterface $utterance
+     * @param array $intents
+     * @return array
+     */
+    private function putInterpreterResultToCache(string $interpreterName, UtteranceInterface $utterance, array $intents): array
+    {
+        $cacheKey = $this->generateCacheKey($interpreterName, $utterance);
+        $cacheTime = $this->getInterpreterCacheTime($interpreterName);
+
+        try {
+            return cache([$cacheKey => $intents], $cacheTime);
+        } catch (Exception $e) {
+            Log::error(sprintf('Unable to save cache interpreter with name %s - %s', $cacheKey, $e->getMessage()));
+            return [];
+        }
+    }
+
+    /**
+     * Returns the name of the interpreter and a serialisation of the entire utterance.
+     *
+     * @param string $interpreterName
+     * @param UtteranceInterface $utterance
+     * @return string
+     */
+    private function generateCacheKey(string $interpreterName, UtteranceInterface $utterance): string
+    {
+        $cacheKey = $interpreterName . '|' . serialize($utterance);
+        return $cacheKey;
     }
 }
