@@ -8,7 +8,7 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -301,7 +301,7 @@ class UserService
             throw new NoOngoingConversationException();
         }
 
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
+        $conversation = DGraphConversationQueryFactory::getConversationFromDGraphWithUid(
             $conversationUid,
             $this->dGraphClient
         );

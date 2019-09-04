@@ -1,11 +1,11 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 
 class AddGraphUidToConversationsTable extends Migration
 {
@@ -37,12 +37,13 @@ class AddGraphUidToConversationsTable extends Migration
 
     private function updateGraphUid()
     {
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
-
         $rows = DB::table('conversations')->get(['id', 'name', 'status']);
         foreach ($rows as $row) {
             if ($row->status == 'published') {
-                $uid = ConversationQueryFactory::getConversationTemplateUid($row->name, $dGraph);
+                /* @var EIModelConversation $conversationModel */
+                $conversationModel = DGraphConversationQueryFactory::getConversationTemplateUid($row->name);
+
+                $uid = $conversationModel->getUid();
 
                 DB::table('conversations')
                     ->where('id', $row->id)

@@ -1,163 +1,162 @@
 <?php
 
 
-namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
+namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
-use OpenDialogAi\ConversationEngine\Transformers\IntentTransformer;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Participant;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
 /**
  * Helper methods for forming queries to extract information from DGraph.
- *
- * TODO this isn't a query factory as its actually running the queries.
- * TODO Move the running of the queries into the conversation store
  */
-class ConversationQueryFactory
+class DGraphConversationQueryFactory implements ConversationQueryFactoryInterface
 {
-    /**
-     * @param DGraphClient $client
-     * @return mixed
-     */
-    public static function getConversationTemplateIds(DGraphClient $client)
+    public static function getAllOpeningIntents(): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
+        $dGraphQuery->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
+            ->setQueryGraph([
+                Model::EI_TYPE,
+                Model::ID,
+                Model::UID,
+                Model::HAS_CONDITION => self::getConditionGraph(),
+                Model::HAS_OPENING_SCENE => [
+                    Model::HAS_USER_PARTICIPANT => [
+                        Model::SAYS => [
+                            Model::ID,
+                            Model::UID,
+                            Model::ORDER,
+                            Model::CONFIDENCE,
+                            Model::CAUSES_ACTION => [
+                                Model::UID,
+                                Model::ID
+                            ],
+                            Model::HAS_INTERPRETER => [
+                                Model::ID,
+                                Model::UID,
+                            ],
+                            Model::HAS_EXPECTED_ATTRIBUTE => [
+                                Model::ID,
+                                Model::UID
+                            ]
+                        ],
+                        Model::SAYS_ACROSS_SCENES => [
+                            Model::ID,
+                            Model::UID,
+                            Model::ORDER,
+                            Model::CONFIDENCE,
+                            Model::CAUSES_ACTION => [
+                                Model::UID,
+                                Model::ID
+                            ],
+                            Model::HAS_INTERPRETER => [
+                                Model::ID,
+                                Model::UID,
+                            ],
+                            Model::HAS_EXPECTED_ATTRIBUTE => [
+                                Model::ID,
+                                Model::UID
+                            ]
+                        ]
+                    ],
+                ]
+            ]);
+        return $dGraphQuery;
+    }
 
+    /**
+     * @return DGraphQuery
+     */
+    public static function getConversationTemplateIds(): DGraphQuery
+    {
+        $dGraphQuery = new DGraphQuery();
         $dGraphQuery->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph([
                Model::UID,
                MODEL::ID
             ]);
-
-        $response = $client->query($dGraphQuery)->getData();
-        return $response;
+        return $dGraphQuery;
     }
 
     /**
      * @param string $conversationUid
-     * @param DGraphClient $client
-     * @param bool $clone
-     * @return Conversation
-     * @throws NodeDoesNotExistException
+     * @return DGraphQuery
      */
-    public static function getConversationFromDGraphWithUid(
-        string $conversationUid,
-        DGraphClient $client,
-        $clone = false
-    ): Conversation {
+    public static function getConversationFromDGraphWithUid(string $conversationUid): DGraphQuery
+    {
         $dGraphQuery = new DGraphQuery();
-
         $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getConversationQueryGraph());
-
-        $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDGraphData($response, $clone);
+        return $dGraphQuery;
     }
 
     /**
      * @param string $templateName
-     * @param DGraphClient $client
-     * @param bool $clone
-     * @return Conversation
-     * @throws NodeDoesNotExistException
+     * @return DGraphQuery
      */
-    public static function getConversationFromDGraphWithTemplateName(
-        string $templateName,
-        DGraphClient $client,
-        $clone = false
-    ): Conversation {
+    public static function getConversationFromDGraphWithTemplateName(string $templateName): DGraphQuery
+    {
         $dGraphQuery = new DGraphQuery();
-
         $dGraphQuery->eq('id', $templateName)
             ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph(self::getConversationQueryGraph());
-
-        $response = $client->query($dGraphQuery)->getData()[0];
-        return self::buildConversationFromDGraphData($response, $clone);
+        return $dGraphQuery;
     }
 
     /**
      * @param string $templateName
-     * @param DGraphClient $client
-     * @return string
+     * @return DGraphQuery
      */
-    public static function getConversationTemplateUid(string $templateName, DGraphClient $client): string
+    public static function getConversationTemplateUid(string $templateName): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-
         $dGraphQuery->eq('id', $templateName)
             ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph([
                 Model::UID,
                 Model::ID
             ]);
-
-        $response = $client->query($dGraphQuery)->getData()[0];
-        return $response['uid'];
+        return $dGraphQuery;
     }
 
     /**
      * Gets a user conversation by uid
      *
      * @param string $conversationId
-     * @param DGraphClient $client
-     * @return UserConversation
+     * @return DGraphQuery
      */
-    public static function getUserConversation(string $conversationId, DGraphClient $client): UserConversation
+    public static function getUserConversation(string $conversationId): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-
         $dGraphQuery->uid($conversationId)
             ->filterEq('ei_type', Model::CONVERSATION_USER)
             ->setQueryGraph(self::getConversationQueryGraph());
 
-        $response = $client->query($dGraphQuery)->getData()[0];
-
-        return new UserConversation($response);
-    }
-
-    /**
-     * Gets an intent from the user's conversation graph with matching order
-     *
-     * @param string $conversationId
-     * @param int $order
-     * @param DGraphClient $client
-     * @return bool|mixed
-     */
-    public static function getConversationIntentByOrder(string $conversationId, int $order, DGraphClient $client): Intent
-    {
-        $userConversation = self::getUserConversation($conversationId, $client);
-        return $userConversation->getIntentIdByOrder($order);
+        return $dGraphQuery;
     }
 
     /**
      * Gets an intent by uid
      *
      * @param string $intentUid
-     * @param DGraphClient $client
-     * @return Intent
+     * @return DGraphQuery
      */
-    public static function getIntentByUid(string $intentUid, DGraphClient $client)
+    public static function getIntentByUid(string $intentUid): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
         $dGraphQuery->uid($intentUid)
             ->filterEq(Model::EI_TYPE, Model::INTENT)
             ->setQueryGraph(self::getIntentGraph());
-
-        $response = $client->query($dGraphQuery)->getData()[0];
-
-        return IntentTransformer::toIntent($response);
+        return $dGraphQuery;
     }
 
     /**

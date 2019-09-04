@@ -3,19 +3,19 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
-use Ds\Map;
-use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningIntents;
 
 interface ConversationStoreInterface
 {
-    public function getAllOpeningIntents(): Map;
+    public function getAllOpeningIntents(): EIModelOpeningIntents;
 
-    public function getConversation($conversationId, $clone = true): Conversation;
+    public function getConversation($conversationId, $clone = true): EIModelConversation;
 
-    public function getConversationTemplate($conversationTemplateName): Conversation;
+    public function getConversationTemplate($conversationTemplateName): EIModelConversation;
 
-    public function getIntentByConversationIdAndOrder($conversationId, $order): Intent;
+    public function getIntentByConversationIdAndOrder($conversationId, $order): EIModelIntent;
 
-    public function getIntentByUid($intentUid): Intent;
+    public function getIntentByUid($intentUid): EIModelIntent;
 }

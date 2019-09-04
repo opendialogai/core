@@ -9,7 +9,8 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -17,7 +18,6 @@ use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -109,6 +109,8 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function testConversationEngineOngoingConversation()
     {
@@ -255,7 +257,8 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @return UserContext
-     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     private function createConversationAndAttachToUser()
     {
@@ -271,9 +274,8 @@ class ConversationEngineTest extends TestCase
         $user->setCurrentConversation($conversationModel);
         $userContext->updateUser();
 
-        /** @var DGraphClient $client */
-        $client = app()->make(DGraphClient::class);
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($userContext->getUser()->getCurrentConversationUid(), $client);
+        /* @var EIModelConversation $conversation */
+        $conversation = DGraphConversationQueryFactory::getConversationFromDGraphWithUid($userContext->getUser()->getCurrentConversationUid());
 
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;

@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ConversationBuildingTest extends TestCase
@@ -10,7 +10,7 @@ class ConversationBuildingTest extends TestCase
     public function testBuildComplicatedConversation()
     {
         $conversation = $this->getComplicatedConversation();
-        $conversation = ConversationQueryFactory::buildConversationFromDGraphData($conversation, false);
+        $conversation = DGraphConversationQueryFactory::buildConversationFromDGraphData($conversation, false);
         $this->assertTrue(true);
     }
 

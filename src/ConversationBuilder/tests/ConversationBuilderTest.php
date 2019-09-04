@@ -5,11 +5,11 @@ namespace OpenDialogAi\Core\Tests\Unit;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
 
@@ -231,13 +231,8 @@ class ConversationBuilderTest extends TestCase
     {
         $this->publishConversation($this->conversation1());
 
-        /** @var DGraphClient $client */
-        $client = $this->app->make(DGraphClient::class);
-
-        $template = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
-            'hello_bot_world',
-            $client
-        );
+        /* @var EIModelConversation $template */
+        $template = DGraphConversationQueryFactory::getConversationFromDGraphWithTemplateName('hello_bot_world');
 
         $this->assertEquals('hello_bot_world', $template->getId());
     }
