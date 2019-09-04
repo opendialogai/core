@@ -254,6 +254,16 @@ class UserService
 
         if ($mutationResponse->isSuccessful()) {
             return $this->getUser($user->getId());
+        } else {
+            foreach ($mutationResponse->getErrors() as $error) {
+                Log::debug(
+                    sprintf(
+                        'DGraph error - %s: %s',
+                        $error['code'],
+                        $error['message']
+                    )
+                );
+            }
         }
 
         throw new CouldNotPersistUserRecordException(sprintf("Couldn't persist user to dgraph %s", $user->getId()));
