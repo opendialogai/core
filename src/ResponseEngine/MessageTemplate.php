@@ -57,6 +57,18 @@ class MessageTemplate extends Model
             ->where('outgoing_intents.name', $intentName);
     }
 
+    public function getConditionsNumber()
+    {
+        if (isset($this->conditions)) {
+            $yaml = Yaml::parse($this->conditions);
+            if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
+                return count($yaml[self::CONDITIONS]);
+            }
+        }
+
+        return 0;
+    }
+
     /**
      * Helper method: return an array of conditions
      *
