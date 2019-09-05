@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use GuzzleHttp\Client;
@@ -57,7 +56,12 @@ class DGraphClient
         $response = $this->client->request(
             'POST',
             self::QUERY,
-            ['body' => $prepared]
+            [
+                'body' => $prepared,
+                'headers' => [
+                    'Content-Type' => 'application/graphql+-'
+                ]
+            ]
         );
 
         return new DGraphQueryResponse($response);
@@ -70,11 +74,11 @@ class DGraphClient
 
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE . '?commitNow=true',
             [
                 'body' => $tripleMutation,
                 'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
+                    'Content-Type' => 'application/rdf'
                 ]
             ]
         );
@@ -88,12 +92,11 @@ class DGraphClient
 
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE . '?commitNow=true',
             [
                 'body' => $jsonMutation,
                 'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
-                    'X-Dgraph-MutationType' => 'json'
+                    'Content-Type' => 'application/json'
                 ]
             ]
         );
@@ -156,12 +159,9 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE . '?commitNow=true',
             [
-                'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship),
-                'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
-                ]
+                'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
             ]
         );
 
@@ -178,12 +178,9 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE . '?commitNow=true',
             [
-                'body' => $this->prepareDeleteNodeStatement($nodeUid),
-                'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
-                ]
+                'body' => $this->prepareDeleteNodeStatement($nodeUid)
             ]
         );
 
@@ -207,12 +204,9 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE . '?commitNow=true',
             [
-                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship),
-                'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
-                ]
+                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
             ]
         );
 
@@ -265,22 +259,22 @@ class DGraphClient
     private function schema()
     {
         return "
-            <causes_action>: uid .
+            <causes_action>: [uid] .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
             <ei_type>: string @index(exact) .
-            <has_bot_participant>: uid @reverse .
-            <has_interpreter>: uid .
-            <has_opening_scene>: uid @reverse .
-            <has_scene>: uid .
-            <has_user_participant>: uid @reverse .
+            <has_bot_participant>: [uid] @reverse .
+            <has_interpreter>: [uid] .
+            <has_opening_scene>: [uid] @reverse .
+            <has_scene>: [uid] .
+            <has_user_participant>: [uid] @reverse .
             <id>: string @index(exact) .
-            <listens_for>: uid @reverse .
+            <listens_for>: [uid] @reverse .
             <name>: default .
-            <says>: uid @reverse .
-            <having_conversation>: uid @reverse .
-            <says_across_scenes>: uid @reverse .
-            <listens_for_across_scenes>: uid @reverse .
+            <says>: [uid] @reverse .
+            <having_conversation>: [uid] @reverse .
+            <says_across_scenes>: [uid] @reverse .
+            <listens_for_across_scenes>: [uid] @reverse .
         ";
     }
 
