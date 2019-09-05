@@ -259,7 +259,7 @@ class UserService
                 Log::debug(
                     sprintf(
                         'DGraph error - %s: %s',
-                        $error['code'],
+                        $error['extensions']['code'],
                         $error['message']
                     )
                 );
