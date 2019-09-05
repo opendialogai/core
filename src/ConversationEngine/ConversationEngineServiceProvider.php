@@ -8,6 +8,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryIn
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -33,6 +34,8 @@ class ConversationEngineServiceProvider extends ServiceProvider
                 $this->app->make(ConversationQueryFactoryInterface::class)
             );
         });
+
+        $this->app->singleton(EIModelConversationConverter::class);
 
         $this->app->singleton(ConversationEngineInterface::class, function () {
             $conversationEngine = new ConversationEngine();

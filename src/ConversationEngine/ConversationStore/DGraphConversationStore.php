@@ -50,7 +50,7 @@ class DGraphConversationStore implements ConversationStoreInterface
         $response = $this->dGraphClient->query($query);
 
         /* @var EIModelConversation $model */
-        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData());
+        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
 
         return $model;
     }

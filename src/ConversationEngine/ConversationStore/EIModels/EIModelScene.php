@@ -67,6 +67,7 @@ class EIModelScene extends EIModelBase
         $scene->botSaysAcrossScenesIntents = new Set();
 
         if ($response[Model::HAS_USER_PARTICIPANT]) {
+            $scene->setUserUid($response[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
             self::handleIntents($response, $additionalParameter, $eiModelCreator, $scene,
                 Model::HAS_USER_PARTICIPANT, Model::SAYS);
             self::handleIntents($response, $additionalParameter, $eiModelCreator, $scene,
@@ -74,6 +75,7 @@ class EIModelScene extends EIModelBase
         }
 
         if ($response[Model::HAS_BOT_PARTICIPANT]) {
+            $scene->setBotUid($response[Model::HAS_BOT_PARTICIPANT][0][Model::UID]);
             self::handleIntents($response, $additionalParameter, $eiModelCreator, $scene,
                 Model::HAS_BOT_PARTICIPANT, Model::SAYS);
             self::handleIntents($response, $additionalParameter, $eiModelCreator, $scene,

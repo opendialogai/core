@@ -91,7 +91,8 @@ class EIModelIntent extends EIModelBase
             $intent->setInterpreter(
                 new Pair(
                     $additionalParameter[Model::HAS_INTERPRETER][0][Model::ID],
-                    $additionalParameter[Model::HAS_INTERPRETER][0][Model::UID])
+                    $additionalParameter[Model::HAS_INTERPRETER][0][Model::UID]
+                )
             );
         }
 

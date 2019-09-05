@@ -39,11 +39,12 @@ class EIModelCondition extends EIModelBase
     public static function handle(array $response, $additionalParameter = null): EIModel
     {
         $attributeName = $response[Model::ATTRIBUTE_NAME];
-        $attributeValue = $response[Model::ATTRIBUTE_VALUE] === ''
-            ? null
-            : $response[Model::ATTRIBUTE_VALUE];
 
         if (array_key_exists($attributeName, AttributeResolverFacade::getSupportedAttributes())) {
+            $attributeValue = $response[Model::ATTRIBUTE_VALUE] === ''
+                ? null
+                : $response[Model::ATTRIBUTE_VALUE];
+
             $condition = new self();
 
             $condition->setUid($response[Model::UID]);
@@ -117,27 +118,11 @@ class EIModelCondition extends EIModelBase
     }
 
     /**
-     * @param mixed $attributeName
-     */
-    public function setAttributeName($attributeName): void
-    {
-        $this->attributeName = $attributeName;
-    }
-
-    /**
      * @return mixed
      */
     public function getAttributeValue()
     {
         return $this->attributeValue;
-    }
-
-    /**
-     * @param mixed $attributeValue
-     */
-    public function setAttributeValue($attributeValue): void
-    {
-        $this->attributeValue = $attributeValue;
     }
 
     /**
@@ -157,9 +142,9 @@ class EIModelCondition extends EIModelBase
     }
 
     /**
-     * @return AttributeInterface
+     * @return AttributeInterface|null
      */
-    public function getAttribute(): AttributeInterface
+    public function getAttribute(): ?AttributeInterface
     {
         return $this->attribute;
     }
