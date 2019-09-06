@@ -215,6 +215,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
         return [
             Model::UID,
             Model::ID,
+            Model::EI_TYPE,
             Model::ORDER,
             Model::COMPLETES,
             Model::CONFIDENCE,

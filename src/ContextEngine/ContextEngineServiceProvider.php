@@ -8,6 +8,7 @@ use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 class ContextEngineServiceProvider extends ServiceProvider
@@ -54,8 +55,11 @@ class ContextEngineServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(UserService::class, function () {
-            $userService = new UserService($this->app->make(DGraphClient::class));
-            return $userService;
+            return new UserService(
+                $this->app->make(DGraphClient::class),
+                $this->app->make(ConversationStoreInterface::class),
+                $this->app->make(EIModelConversationConverter::class)
+            );
         });
     }
 }

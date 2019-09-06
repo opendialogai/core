@@ -33,10 +33,6 @@ abstract class EIModelBase implements EIModel
      */
     public static function hasEIType(array $response, string ...$eiTypes): bool
     {
-        if (!is_null($response) && count($response) > 0) {
-            return key_exists(Model::EI_TYPE, $response) && in_array($response[Model::EI_TYPE], $eiTypes);
-        } else {
-            return true;
-        }
+        return key_exists(Model::EI_TYPE, $response) && in_array($response[Model::EI_TYPE], $eiTypes);
     }
 }

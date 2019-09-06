@@ -47,6 +47,9 @@ class ConversationEngineServiceProvider extends ServiceProvider
             $actionEngine = $this->app->make(ActionEngineInterface::class);
             $conversationEngine->setActionEngine($actionEngine);
 
+            $conversationConverter = $this->app->make(EIModelConversationConverter::class);
+            $conversationEngine->setConversationConverter($conversationConverter);
+
             return $conversationEngine;
         });
     }

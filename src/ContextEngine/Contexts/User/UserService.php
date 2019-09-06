@@ -8,7 +8,8 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -27,9 +28,24 @@ class UserService
     /* @var DGraphClient */
     private $dGraphClient;
 
-    public function __construct(DGraphClient $dGraphClient)
-    {
+    /**
+     * @var ConversationStoreInterface
+     */
+    private $conversationStore;
+
+    /**
+     * @var EIModelConversationConverter
+     */
+    private $conversationConverter;
+
+    public function __construct(
+        DGraphClient $dGraphClient,
+        ConversationStoreInterface $conversationStore,
+        EIModelConversationConverter $conversationConverter
+    ) {
         $this->dGraphClient = $dGraphClient;
+        $this->conversationStore = $conversationStore;
+        $this->conversationConverter = $conversationConverter;
     }
 
     /**
@@ -290,6 +306,7 @@ class UserService
      * @param $userId
      * @return mixed
      * @throws NodeDoesNotExistException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     public function getCurrentConversation($userId)
     {
@@ -301,11 +318,8 @@ class UserService
             throw new NoOngoingConversationException();
         }
 
-        $conversation = DGraphConversationQueryFactory::getConversationFromDGraphWithUid(
-            $conversationUid,
-            $this->dGraphClient
-        );
-        return $conversation;
+        $conversationModel = $this->conversationStore->getConversation($conversationUid);
+        return $this->conversationConverter::buildConversationFromEIModel($conversationModel);
     }
 
     /**

@@ -38,7 +38,7 @@ class EIModelScene extends EIModelBase
     public static function validate(array $response, $additionalParameter = null): bool
     {
         if (key_exists(Model::ID, $response)) {
-            return true;
+            return key_exists(Model::UID, $response);
         } else {
             Log::error('Trying to create scene with no id', $response);
             return false;

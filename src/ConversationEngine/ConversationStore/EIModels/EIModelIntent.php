@@ -55,8 +55,20 @@ class EIModelIntent extends EIModelBase
      */
     public static function validate(array $response, $additionalParameter = null): bool
     {
-        return EIModelBase::hasEIType($response, Model::CONVERSATION_TEMPLATE, Model::CONVERSATION_USER)
-            && key_exists(Model::ID, $additionalParameter);
+        if (is_null($additionalParameter)) {
+            // If there is no additional parameter, presume we are dealing with just an intent
+            $eiType = EIModelBase::hasEIType($response, Model::INTENT);
+            $intentResponse = $response;
+        } else {
+            // Otherwise presume we are dealing with a conversation response and an intent
+            $eiType =  EIModelBase::hasEIType($response, Model::CONVERSATION_TEMPLATE, Model::CONVERSATION_USER);
+            $intentResponse = $additionalParameter;
+        }
+
+        return $eiType
+            && key_exists(Model::ID, $intentResponse)
+            && key_exists(Model::UID, $intentResponse)
+            && key_exists(Model::ORDER, $intentResponse);
     }
 
     /**
@@ -68,43 +80,50 @@ class EIModelIntent extends EIModelBase
      */
     public static function handle(array $response, $additionalParameter = null): EIModel
     {
+        $intentResponse = is_null($additionalParameter) ? $response : $additionalParameter;
+
         $intent = new self();
 
-        $intent->setIntentId($additionalParameter[Model::ID]);
-        $intent->setIntentUid($additionalParameter[Model::UID]);
-        $intent->setOrder($additionalParameter[Model::ORDER]);
-        $intent->setConfidence(isset($additionalParameter[Model::CONFIDENCE]) ? $additionalParameter[Model::CONFIDENCE] : 1);
+        $intent->setIntentId($intentResponse[Model::ID]);
+        $intent->setIntentUid($intentResponse[Model::UID]);
+        $intent->setOrder($intentResponse[Model::ORDER]);
+        $intent->setConfidence(isset($intentResponse[Model::CONFIDENCE]) ? $intentResponse[Model::CONFIDENCE] : 1);
         $intent->setConditions(new Map());
-        $intent->setConversationId($response[Model::ID]);
-        $intent->setConversationUid($response[Model::UID]);
-        $intent->setCompletes(isset($response[Model::COMPLETES]) ? (bool) $response[Model::COMPLETES] : false);
 
-        if (isset($additionalParameter[Model::CAUSES_ACTION])) {
+        if (!is_null($additionalParameter)) {
+            // If there is an additional parameter it means that $response contains the conversation data
+            $intent->setConversationId($response[Model::ID]);
+            $intent->setConversationUid($response[Model::UID]);
+        }
+
+        $intent->setCompletes(isset($intentResponse[Model::COMPLETES]) ? (bool) $intentResponse[Model::COMPLETES] : false);
+
+        if (isset($intentResponse[Model::CAUSES_ACTION])) {
             $intent->setAction(
-                new Pair($additionalParameter[Model::CAUSES_ACTION][0][Model::ID],
-                    $additionalParameter[Model::CAUSES_ACTION][0][Model::UID]
+                new Pair($intentResponse[Model::CAUSES_ACTION][0][Model::ID],
+                    $intentResponse[Model::CAUSES_ACTION][0][Model::UID]
                 )
             );
         }
 
-        if (isset($additionalParameter[Model::HAS_INTERPRETER])) {
+        if (isset($intentResponse[Model::HAS_INTERPRETER])) {
             $intent->setInterpreter(
                 new Pair(
-                    $additionalParameter[Model::HAS_INTERPRETER][0][Model::ID],
-                    $additionalParameter[Model::HAS_INTERPRETER][0][Model::UID]
+                    $intentResponse[Model::HAS_INTERPRETER][0][Model::ID],
+                    $intentResponse[Model::HAS_INTERPRETER][0][Model::UID]
                 )
             );
         }
 
         $intent->expectedAttributes = new Map();
-        if (isset($additionalParameter[Model::HAS_EXPECTED_ATTRIBUTE])) {
-            foreach ($additionalParameter[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
+        if (isset($intentResponse[Model::HAS_EXPECTED_ATTRIBUTE])) {
+            foreach ($intentResponse[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
                 $intent->setExpectedAttribute($expectedAttribute[Model::ID], $expectedAttribute[Model::UID]);
             }
         }
 
-        if (isset($additionalParameter[Model::LISTENED_BY_FROM_SCENES])) {
-            $intent->setNextScene(self::getEndingSceneId($additionalParameter));
+        if (isset($intentResponse[Model::LISTENED_BY_FROM_SCENES])) {
+            $intent->setNextScene(self::getEndingSceneId($intentResponse));
         }
 
         return $intent;
@@ -219,6 +238,14 @@ class EIModelIntent extends EIModelBase
     }
 
     /**
+     * @return string|null
+     */
+    public function getInterpreterId(): ?string
+    {
+        return is_null($this->interpreter) ? null : $this->interpreter->key;
+    }
+
+    /**
      * @param Pair $interpreter
      */
     public function setInterpreter(Pair $interpreter): void
@@ -279,11 +306,7 @@ class EIModelIntent extends EIModelBase
      */
     public function hasInterpreter(): bool
     {
-        if (isset($this->interpreter)) {
-            return true;
-        }
-
-        return false;
+        return isset($this->interpreter);
     }
 
     /**
@@ -352,7 +375,7 @@ class EIModelIntent extends EIModelBase
 
     public function setExpectedAttribute($id, $uid): void
     {
-        $this->expectedAttributes->put($id, $uid);
+        $this->expectedAttributes->put($uid, $id);
     }
 
     /**

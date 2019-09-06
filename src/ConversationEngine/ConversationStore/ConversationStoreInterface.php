@@ -9,13 +9,40 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningInt
 
 interface ConversationStoreInterface
 {
+    /**
+     * @return EIModelOpeningIntents
+     * @throws EIModelCreatorException
+     */
     public function getAllOpeningIntents(): EIModelOpeningIntents;
 
-    public function getConversation($conversationId, $clone = true): EIModelConversation;
+    /**
+     * @param $conversationId
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
+    public function getConversation($conversationId): EIModelConversation;
 
+    /**
+     * @param $conversationTemplateName
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
     public function getConversationTemplate($conversationTemplateName): EIModelConversation;
 
-    public function getIntentByConversationIdAndOrder($conversationId, $order): EIModelIntent;
+    /**
+     * Gets the opening intent ID within a conversation with the given id with a matching order
+     *
+     * @param $conversationId
+     * @param int $order
+     * @return EIModelIntent
+     * @throws EIModelCreatorException
+     */
+    public function getOpeningIntentByConversationIdAndOrder($conversationId, int $order): EIModelIntent;
 
+    /**
+     * @param $intentUid
+     * @return EIModelIntent
+     * @throws EIModelCreatorException
+     */
     public function getIntentByUid($intentUid): EIModelIntent;
 }

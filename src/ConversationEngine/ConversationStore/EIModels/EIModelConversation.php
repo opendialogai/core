@@ -32,7 +32,9 @@ class EIModelConversation extends EIModelBase
      */
     public static function validate(array $response, $additionalParameter = null): bool
     {
-        return EIModelBase::hasEIType($response, Model::CONVERSATION_USER, Model::CONVERSATION_TEMPLATE);
+        return EIModelBase::hasEIType($response, Model::CONVERSATION_USER, Model::CONVERSATION_TEMPLATE)
+            && key_exists(Model::ID, $response)
+            && key_exists(Model::UID, $response);
     }
 
     /**
@@ -64,27 +66,23 @@ class EIModelConversation extends EIModelBase
             }
         }
 
+        $openingScenes = new Set();
         if (isset($response[Model::HAS_OPENING_SCENE])) {
-            $openingScenes = new Set();
-
             foreach ($response[Model::HAS_OPENING_SCENE] as $s) {
                 $openingScene = $eiModelCreator->createEIModel(EIModelScene::class, $s, $response);
                 $openingScenes->add($openingScene);
             }
-
-            $conversation->setOpeningScenes($openingScenes);
         }
+        $conversation->setOpeningScenes($openingScenes);
 
+        $scenes = new Set();
         if (isset($response[Model::HAS_SCENE])) {
-            $scenes = new Set();
-
             foreach ($response[Model::HAS_SCENE] as $s) {
                 $scene = $eiModelCreator->createEIModel(EIModelScene::class, $s, $response);
                 $scenes->add($scene);
             }
-
-            $conversation->setScenes($scenes);
         }
+        $conversation->setScenes($scenes);
 
         return $conversation;
     }
@@ -175,5 +173,43 @@ class EIModelConversation extends EIModelBase
     public function setScenes(Set $scenes): void
     {
         $this->scenes = $scenes;
+    }
+
+    /**
+     * @param $order
+     * @return EIModelIntent
+     */
+    public function getIntentIdByOrder($order): ?EIModelIntent
+    {
+        /* @var EIModelIntent $intent */
+        foreach ($this->getAllUserSaysIntents() as $intent) {
+            if ($intent->getOrder() == $order) {
+                return $intent;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets all the intents said by user across the opening scene and all other scenes
+     *
+     * @return Set
+     */
+    private function getAllUserSaysIntents(): Set
+    {
+        $intents = new Set();
+
+        /* @var EIModelScene $scene */
+        foreach ($this->getOpeningScenes() as $scene) {
+            $intents = $intents->merge($scene->getAllUserIntents());
+        }
+
+        /* @var EIModelScene $scene */
+        foreach ($this->getScenes() as $scene) {
+            $intents = $intents->merge($scene->getAllUserIntents());
+        }
+
+        return $intents;
     }
 }

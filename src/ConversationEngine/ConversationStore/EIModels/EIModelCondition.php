@@ -13,8 +13,6 @@ class EIModelCondition extends EIModelBase
     private $id;
     private $uid;
     private $context;
-    private $attributeName;
-    private $attributeValue;
     private $operation;
     private $attribute;
 
@@ -27,7 +25,11 @@ class EIModelCondition extends EIModelBase
      */
     public static function validate(array $response, $additionalParameter = null): bool
     {
-        return key_exists(Model::ID, $response);
+        return key_exists(Model::ID, $response)
+            && key_exists(Model::UID, $response)
+            && key_exists(Model::ATTRIBUTE_NAME, $response)
+            && key_exists(Model::CONTEXT, $response)
+            && key_exists(Model::OPERATION, $response);
     }
 
     /**
@@ -102,6 +104,14 @@ class EIModelCondition extends EIModelBase
     }
 
     /**
+     * @return string
+     */
+    public function getContextId() : string
+    {
+        return $this->getContext();
+    }
+
+    /**
      * @param mixed $context
      */
     public function setContext($context): void
@@ -114,7 +124,7 @@ class EIModelCondition extends EIModelBase
      */
     public function getAttributeName()
     {
-        return $this->attributeName;
+        return $this->getAttribute()->getId();
     }
 
     /**
@@ -122,7 +132,7 @@ class EIModelCondition extends EIModelBase
      */
     public function getAttributeValue()
     {
-        return $this->attributeValue;
+        return $this->getAttribute()->getValue();
     }
 
     /**

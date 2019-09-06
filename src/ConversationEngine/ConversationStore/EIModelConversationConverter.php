@@ -18,7 +18,6 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Participant;
-use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
 class EIModelConversationConverter
 {
@@ -26,7 +25,6 @@ class EIModelConversationConverter
      * @param EIModelConversation $conversation
      * @param bool $clone
      * @return mixed
-     * @throws NodeDoesNotExistException
      */
     public static function buildConversationFromEIModel(EIModelConversation $conversation, $clone = false)
     {
@@ -130,7 +128,6 @@ class EIModelConversationConverter
      * @param ConversationManager $cm
      * @param EIModelScene $data
      * @param bool $clone
-     * @throws NodeDoesNotExistException
      */
     public static function createSceneFromEIModel(ConversationManager $cm, EIModelScene $data, bool $clone = false): void
     {
@@ -175,7 +172,7 @@ class EIModelConversationConverter
         /* @var EIModelIntent $intentData */
         foreach ($intents as $intentData) {
             /* @var Intent $intent */
-            $intent = self::createIntent($clone, $intentData);
+            $intent = self::createIntent($intentData, $clone);
 
             if ($isSaidAcrossScenes) {
                 if ($participant->isUser()) {
@@ -204,13 +201,14 @@ class EIModelConversationConverter
      * @param EIModelIntent $intentData
      * @return Intent
      */
-    private static function createIntent(bool $clone, EIModelIntent $intentData): Intent
+    public static function createIntent(EIModelIntent $intentData, bool $clone = false): Intent
     {
         $intent = new Intent($intentData->getIntentId());
         $clone ? false : $intent->setUid($intentData->getIntentUid());
         $intent->setAttribute(Model::COMPLETES, $intentData->getCompletes());
         $intent->setCompletesAttribute($intentData->getCompletes());
         $intent->setConfidence($intentData->getConfidence());
+        $intent->setOrderAttribute($intentData->getOrder());
 
         /* @var Pair $action */
         $actionPair = $intentData->getAction();
@@ -228,7 +226,7 @@ class EIModelConversationConverter
             $intent->addInterpreter($interpreter);
         }
 
-        foreach ($intentData->getExpectedAttributes() as $expectedAttributeId => $expectedAttributeUid) {
+        foreach ($intentData->getExpectedAttributes() as $expectedAttributeUid => $expectedAttributeId) {
             $expectedAttributeNode = new ExpectedAttribute($expectedAttributeId);
             $clone ? false : $expectedAttributeNode->setUid($expectedAttributeUid);
             $intent->addExpectedAttribute($expectedAttributeNode);
