@@ -21,6 +21,7 @@ class DGraphClient
     const MUTATE = 'mutate';
     const ALTER  = 'alter';
     const DELETE = 'delete';
+    const MUTATE_COMMIT_NOW = 'mutate?commitNow=true';
 
     public function __construct($dgraphUrl, $dGraphPort)
     {
@@ -74,7 +75,7 @@ class DGraphClient
 
         $response = $this->client->request(
             'POST',
-            self::MUTATE . '?commitNow=true',
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $tripleMutation,
                 'headers' => [
@@ -92,7 +93,7 @@ class DGraphClient
 
         $response = $this->client->request(
             'POST',
-            self::MUTATE . '?commitNow=true',
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $jsonMutation,
                 'headers' => [
@@ -159,7 +160,7 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE . '?commitNow=true',
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
             ]
@@ -178,7 +179,7 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE . '?commitNow=true',
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $this->prepareDeleteNodeStatement($nodeUid)
             ]
@@ -204,7 +205,7 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE . '?commitNow=true',
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
             ]
