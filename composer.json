@@ -20,6 +20,7 @@
     "guzzlehttp/guzzle": "~6.3",
     "justinrainbow/json-schema": "^5.2",
     "spatie/laravel-activitylog": "^3.2",
+    "opendialogai/dgraph-docker": "dev-master",
     "doctrine/dbal": "^2.9"
   },
   "config": {
@@ -69,5 +70,11 @@
         "AttributeResolver": "OpenDialogAi\\ContextEngine\\Facades\\AttributeResolver"
       }
     }
-  }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/opendialogai/dgraph-docker.git"
+    }
+  ]
 }
