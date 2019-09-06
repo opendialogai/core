@@ -252,15 +252,22 @@ class Conversation extends Model
         $confidence = null;
         $completes = false;
         $expectedAttributes = null;
+        $expectedActionAttributes = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
-            $actionLabel = $intentValue['action'] ?? null;
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
             $intentSceneId = $intent[$speaker]['scene'] ?? null;
             $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
+
+            if (isset($intentValue['action']) && is_array($intentValue['action'])) {
+                $actionLabel = $intentValue['action']['id'] ?? null;
+                $expectedActionAttributes = $intentValue['action']['attributes'] ?? null;
+            } else {
+                $actionLabel = $intentValue['action'] ?? null;
+            }
         } else {
             $intentLabel = $intentValue;
         }
@@ -283,6 +290,12 @@ class Conversation extends Model
         if (is_array($expectedAttributes)) {
             foreach ($expectedAttributes as $expectedAttribute) {
                 $intentNode->addExpectedAttribute(new ExpectedAttribute($expectedAttribute['id']));
+            }
+        }
+
+        if (is_array($expectedActionAttributes)) {
+            foreach ($expectedActionAttributes as $expectedActionAttribute) {
+                $intentNode->addExpectedActionAttribute(new ExpectedAttribute($expectedActionAttribute));
             }
         }
 

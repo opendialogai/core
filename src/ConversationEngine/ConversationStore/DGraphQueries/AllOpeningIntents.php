@@ -44,6 +44,10 @@ class AllOpeningIntents extends DGraphQuery
                             Model::HAS_EXPECTED_ATTRIBUTE => [
                                 Model::ID,
                                 Model::UID
+                            ],
+                            Model::HAS_EXPECTED_ACTION_ATTRIBUTE => [
+                                Model::ID,
+                                Model::UID
                             ]
                         ],
                         Model::SAYS_ACROSS_SCENES => [
@@ -60,6 +64,10 @@ class AllOpeningIntents extends DGraphQuery
                                 Model::UID,
                             ],
                             Model::HAS_EXPECTED_ATTRIBUTE => [
+                                Model::ID,
+                                Model::UID
+                            ],
+                            Model::HAS_EXPECTED_ACTION_ATTRIBUTE => [
                                 Model::ID,
                                 Model::UID
                             ]
@@ -133,6 +141,12 @@ class AllOpeningIntents extends DGraphQuery
                         if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {
                             foreach ($intent[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
                                 $openingIntent->addExpectedAttribute($expectedAttribute['id']);
+                            }
+                        }
+
+                        if (isset($intent[Model::HAS_EXPECTED_ACTION_ATTRIBUTE])) {
+                            foreach ($intent[Model::HAS_EXPECTED_ACTION_ATTRIBUTE] as $expectedActionAttribute) {
+                                $openingIntent->addExpectedActionAttribute($expectedActionAttribute['id']);
                             }
                         }
                     }

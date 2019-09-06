@@ -27,6 +27,9 @@ class OpeningIntent
     /** @var Set */
     private $expectedAttributes;
 
+    /** @var Set */
+    private $expectedActionAttributes;
+
     /* @var Intent */
     private $interpretedIntent;
 
@@ -51,6 +54,7 @@ class OpeningIntent
         $this->interpreter = $interpreter;
         $this->conditions = new Map();
         $this->expectedAttributes = new Set();
+        $this->expectedActionAttributes = new Set();
     }
 
     /**
@@ -240,6 +244,16 @@ class OpeningIntent
     }
 
     /**
+     * Adds the name of an expected action attribute to the opening intent
+     *
+     * @param $expectedActionAttribute string
+     */
+    public function addExpectedActionAttribute($expectedActionAttribute): void
+    {
+        $this->expectedActionAttributes->add($expectedActionAttribute);
+    }
+
+    /**
      * @return bool
      */
     public function hasExpectedAttributes(): bool
@@ -248,11 +262,27 @@ class OpeningIntent
     }
 
     /**
+     * @return bool
+     */
+    public function hasExpectedActionAttributes(): bool
+    {
+        return $this->expectedActionAttributes->count() > 0;
+    }
+
+    /**
      * @return Set
      */
     public function getExpectedAttributes(): Set
     {
         return $this->expectedAttributes;
+    }
+
+    /**
+     * @return Set
+     */
+    public function getExpectedActionAttributes(): Set
+    {
+        return $this->expectedActionAttributes;
     }
 
     /**
@@ -271,5 +301,19 @@ class OpeningIntent
         }
 
         return $attributesContexts;
+    }
+
+    public function getExpectedActionAttributeContexts()
+    {
+        $attributesActionContexts = new Map();
+
+        foreach ($this->expectedActionAttributes as $expectedActionAttribute) {
+            $attributesActionContexts->put(
+                ContextParser::determineAttributeId($expectedActionAttribute),
+                ContextParser::determineContextId($expectedActionAttribute)
+            );
+        }
+
+        return $attributesActionContexts;
     }
 }

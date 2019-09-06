@@ -54,6 +54,8 @@ class Model
     // Intents can define a number of expected attributes
     const HAS_EXPECTED_ATTRIBUTE = 'has_expected_attribute';
 
+    const HAS_EXPECTED_ACTION_ATTRIBUTE = 'has_expected_action_attribute';
+
     const ORDER = 'core.attribute.order';
     const COMPLETES = 'core.attribute.completes';
     const CONFIDENCE = 'core.attribute.confidence';

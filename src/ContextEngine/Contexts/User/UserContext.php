@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
-use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -94,19 +93,6 @@ class UserContext extends AbstractContext
     public function getUserId(): string
     {
         return $this->user->getId();
-    }
-
-    /**
-     * @param ActionResult $actionResult
-     * @return ChatbotUser
-     */
-    public function addActionResult(ActionResult $actionResult): ChatbotUser
-    {
-        foreach ($actionResult->getResultAttributes()->getAttributes() as $attribute) {
-            $this->user->addAttribute($attribute);
-        }
-
-        return $this->updateUser();
     }
 
     /**

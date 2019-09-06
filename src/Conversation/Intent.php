@@ -230,6 +230,14 @@ class Intent extends Node
     }
 
     /**
+     * @param ExpectedAttribute $expectedActionAttribute
+     */
+    public function addExpectedActionAttribute($expectedActionAttribute): void
+    {
+        $this->createOutgoingEdge(Model::HAS_EXPECTED_ACTION_ATTRIBUTE, $expectedActionAttribute);
+    }
+
+    /**
      * @return string[]
      * @throws NodeDoesNotExistException
      */
@@ -243,11 +251,32 @@ class Intent extends Node
     }
 
     /**
+     * @return string[]
+     * @throws NodeDoesNotExistException
+     */
+    public function getExpectedActionAttributes(): array
+    {
+        if ($this->hasExpectedActionAttributes()) {
+            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_EXPECTED_ACTION_ATTRIBUTE)->values()->toArray();
+        }
+
+        throw new NodeDoesNotExistException('Intent has no expected action attributes');
+    }
+
+    /**
      * @return bool
      */
     public function hasExpectedAttributes(): bool
     {
         return $this->hasOutgoingEdgeWithRelationship(Model::HAS_EXPECTED_ATTRIBUTE);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasExpectedActionAttributes(): bool
+    {
+        return $this->hasOutgoingEdgeWithRelationship(Model::HAS_EXPECTED_ACTION_ATTRIBUTE);
     }
 
     /**
@@ -273,6 +302,31 @@ class Intent extends Node
         }
 
         return $attributesContexts;
+    }
+
+    /**
+     * Returns the expected action attributes split out by context.
+     * Will return map with attribute names as keys and their associated context names as values
+     *
+     * @return Map
+     */
+    public function getExpectedActionAttributeContexts(): Map
+    {
+        $attributesActionContexts = new Map();
+
+        try {
+            /** @var ExpectedAttribute $expectedActionAttribute */
+            foreach ($this->getExpectedActionAttributes() as $expectedActionAttribute) {
+                $attributesActionContexts->put(
+                    ContextParser::determineAttributeId($expectedActionAttribute->getId()),
+                    ContextParser::determineContextId($expectedActionAttribute->getId())
+                );
+            }
+        } catch (NodeDoesNotExistException $e) {
+            // nothing
+        }
+
+        return $attributesActionContexts;
     }
 
     public function completes(): bool

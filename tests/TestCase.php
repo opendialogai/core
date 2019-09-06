@@ -125,7 +125,11 @@ conversation:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             confidence: 1
-            action: action.core.example
+            action:
+              id: action.core.example
+              attributes:
+                - user.first_name
+                - session.last_name
         - b: 
             i: doing_dandy
             action: action.core.example

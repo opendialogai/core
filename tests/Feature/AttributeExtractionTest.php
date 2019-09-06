@@ -151,6 +151,24 @@ class AttributeExtractionTest extends TestCase
         $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
     }
 
+    public function testConversationSaveActionResultsAttributes()
+    {
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
+
+        $messageWrapper = $this->odController->runConversation($utterance);
+
+        $this->assertCount(1, $messageWrapper->getMessages());
+
+        /** @var UserService $userService */
+        $userService = app()->make(UserService::class);
+        $user = $userService->getUser($utterance->getUser()->getId());
+
+        $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
+
+        $fullName = ContextService::getAttribute('full_name', ContextServiceInterface::SESSION_CONTEXT);
+        $this->assertNotEquals('last_name', $fullName->getValue());
+    }
+
     private function getExampleConversation()
     {
         return <<<EOT
@@ -162,10 +180,15 @@ conversation:
         - u: 
             i: my_name_is
             interpreter: interpreter.test.name
+            action:
+              id: action.core.example
+              attributes:
+                - user.first_name
+                - session.full_name
             expected_attributes:
                 - id: user.first_name
                 - id: session.last_name
-        - b: 
+        - b:
             i: hello_user
             scene: get_age
     get_age:

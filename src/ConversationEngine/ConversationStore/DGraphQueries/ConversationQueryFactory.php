@@ -232,6 +232,7 @@ class ConversationQueryFactory
             Model::CAUSES_ACTION => self::getActionGraph(),
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
+            Model::HAS_EXPECTED_ACTION_ATTRIBUTE => self::getExpectedActionAttributesGraph(),
             Model::LISTENED_BY_FROM_SCENES => [
                 Model::UID,
                 Model::ID,
@@ -271,6 +272,17 @@ class ConversationQueryFactory
      * @return array
      */
     public static function getExpectedAttributesGraph(): array
+    {
+        return [
+            Model::UID,
+            Model::ID
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getExpectedActionAttributesGraph(): array
     {
         return [
             Model::UID,
@@ -508,6 +520,15 @@ class ConversationQueryFactory
                 $clone ? false : $expectedAttributeNode->setUid($expectedAttribute[Model::UID]);
 
                 $intent->addExpectedAttribute($expectedAttributeNode);
+            }
+        }
+
+        if (isset($intentData[Model::HAS_EXPECTED_ACTION_ATTRIBUTE])) {
+            foreach ($intentData[Model::HAS_EXPECTED_ACTION_ATTRIBUTE] as $expectedActionAttribute) {
+                $expectedActionAttributeNode = new ExpectedAttribute($expectedActionAttribute[Model::ID]);
+                $clone ? false : $expectedActionAttributeNode->setUid($expectedActionAttribute[Model::UID]);
+
+                $intent->addExpectedActionAttribute($expectedActionAttributeNode);
             }
         }
 

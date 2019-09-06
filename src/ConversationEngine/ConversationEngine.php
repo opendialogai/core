@@ -16,6 +16,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -201,7 +202,9 @@ class ConversationEngine implements ConversationEngineInterface
             $this->storeIntentAttributes($nextIntent);
 
             if ($nextIntent->causesAction()) {
-                $this->performIntentAction($userContext, $nextIntent);
+                $expectedActionAttributes = $nextIntent->getExpectedActionAttributeContexts();
+
+                $this->performIntentAction($userContext, $nextIntent, $expectedActionAttributes);
             }
 
             return $userContext->getCurrentConversation();
@@ -269,7 +272,9 @@ class ConversationEngine implements ConversationEngineInterface
         ContextService::saveAttribute('conversation.current_scene', 'opening_scene');
 
         if ($currentIntent->causesAction()) {
-            $this->performIntentAction($userContext, $currentIntent);
+            $expectedActionAttributes = $intent->getExpectedActionAttributeContexts();
+
+            $this->performIntentAction($userContext, $currentIntent, $expectedActionAttributes);
         }
 
         // For this intent get the matching conversation - we are pulling this back out from the user
@@ -476,13 +481,13 @@ class ConversationEngine implements ConversationEngineInterface
 
     /**
      * Performs the action associated with the intent and stores the outcome against the user
-     * TODO - a conversation should be able to decide where to store attributes
      *
      * @param UserContext $userContext
      * @param Intent $nextIntent
+     * @param Map $expectedActionAttributes
      * @throws NodeDoesNotExistException
      */
-    public function performIntentAction(UserContext $userContext, Intent $nextIntent): void
+    public function performIntentAction(UserContext $userContext, Intent $nextIntent, Map $expectedActionAttributes): void
     {
         Log::debug(
             sprintf(
@@ -492,13 +497,57 @@ class ConversationEngine implements ConversationEngineInterface
             )
         );
 
+        $action = $nextIntent->getAction();
+
         try {
             /* @var ActionResult $actionResult */
-            $actionResult = $this->actionEngine->performAction($nextIntent->getAction()->getId());
-            $userContext->addActionResult($actionResult);
-            Log::debug(sprintf('Adding action result to user context'));
+            $actionResult = $this->actionEngine->performAction($action->getId());
+
+            $this->storeActionResult($actionResult, $userContext, $expectedActionAttributes);
+            //$userContext->addActionResult($actionResult);
+            Log::debug(sprintf('Adding action result to the right context'));
         } catch (ActionNotAvailableException $e) {
-            Log::warning(sprintf('Action %s has not been bound.', $nextIntent->getAction()->getId()));
+            Log::warning(sprintf('Action %s has not been bound.', $action->getId()));
+        }
+    }
+
+    /**
+     * Stores the attributes from an Action to a context.
+     * Expected action attributes are retrieved from the Intent to determine which context each
+     * attribute should be saved to.
+     * If one is not defined for the attribute, it is saved to the user context
+     *
+     * @param ActionResult $actionResult
+     * @param UserContext $userContext
+     * @param Map $expectedActionAttributes
+     */
+    private function storeActionResult(ActionResult $actionResult, UserContext $userContext, Map $expectedActionAttributes)
+    {
+        $userContextUpdated = false;
+        foreach ($actionResult->getResultAttributes()->getAttributes() as $attribute) {
+            $attributeName = $attribute->getId();
+
+            $context = $userContext;
+
+            if ($expectedActionAttributes->hasKey($attributeName)) {
+                $contextId = $expectedActionAttributes->get($attributeName);
+                if ($contextId === UserContext::USER_CONTEXT) {
+                    $userContextUpdated = true;
+                } else {
+                    try {
+                        $context = ContextService::getContext($contextId);
+                    } catch (ContextDoesNotExistException $e) {
+                        Log::error(sprintf('Attribute context %s does not exist, using user context', $contextId));
+                    }
+                }
+            }
+
+            $context->addAttribute($attribute);
+        }
+
+        // TODO - is there a better way of doing this? Each context could have it's own tear down method to deal with persisting
+        if ($userContextUpdated) {
+            ContextService::getUserContext()->updateUser();
         }
     }
 }
