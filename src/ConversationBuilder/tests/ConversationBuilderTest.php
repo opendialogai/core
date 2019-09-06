@@ -5,7 +5,9 @@ namespace OpenDialogAi\Core\Tests\Unit;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -232,8 +234,12 @@ class ConversationBuilderTest extends TestCase
         $this->publishConversation($this->conversation1());
 
         /* @var EIModelConversation $template */
-        $template = DGraphConversationQueryFactory::getConversationFromDGraphWithTemplateName('hello_bot_world');
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelConversationConverter::class);
 
-        $this->assertEquals('hello_bot_world', $template->getId());
+        $conversationModel = $conversationStore->getConversationTemplate('hello_bot_world');
+        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+
+        $this->assertEquals('hello_bot_world', $conversation->getId());
     }
 }

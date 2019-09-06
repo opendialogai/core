@@ -5,6 +5,7 @@ namespace OpenDialogAi\ContextEngine\Tests;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -83,9 +84,15 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $conversationData = DGraphConversationQueryFactory::getConversationTemplateIds($this->client)[0];
+        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
+        $conversationResponse = $this->client->query($conversationQuery);
 
-        $conversation = DGraphConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client);
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelConversationConverter::class);
+
+        $conversationModel = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
+        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -105,17 +112,23 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $conversationData = DGraphConversationQueryFactory::getConversationTemplateIds($this->client)[0];
-
         // Get the conversation so we can attach to the user
-        $conversation = DGraphConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client, true);
+        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
+        $conversationResponse = $this->client->query($conversationQuery);
+
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelConversationConverter::class);
+
+        $conversationModel = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
+        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $this->conversationStore->getConversation($user->getCurrentConversationUid(), false)->getOpeningScenes()->first()->value;
+        $scene = $conversation->getOpeningScenes()->first()->value;
 
         /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
@@ -126,7 +139,7 @@ class UserServiceTest extends TestCase
 
         $this->assertTrue($user->hasCurrentIntent());
         $currentIntent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
-        $this->assertEquals('hello_bot', $currentIntent->getId());
+        $this->assertEquals('hello_bot', $currentIntent->getIntentId());
     }
 
     /**
@@ -144,17 +157,22 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $conversationData = DGraphConversationQueryFactory::getConversationTemplateIds($this->client)[0];
+        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
+        $conversationResponse = $this->client->query($conversationQuery);
 
-        // Get the conversation so we can attach to the user
-        $conversation = DGraphConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client, true);
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelConversationConverter::class);
+
+        $conversationModel = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
+        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $this->conversationStore->getConversation($user->getCurrentConversationUid(), false)->getOpeningScenes()->first()->value;
+        $scene = $conversation->getOpeningScenes()->first()->value;
 
         /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
@@ -165,7 +183,7 @@ class UserServiceTest extends TestCase
 
         $this->assertTrue($user->hasCurrentIntent());
         $intent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
-        $this->assertEquals('hello_bot', $intent->getId());
+        $this->assertEquals('hello_bot', $intent->getIntentId());
 
         $this->userService->unsetCurrentIntent($user);
 

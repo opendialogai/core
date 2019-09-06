@@ -5,6 +5,8 @@ namespace OpenDialogAi\ContextManager\Tests;
 use Mockery;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -19,6 +21,16 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 {
     /* @var DGraphClient */
     private $dGraphClient;
+
+    /**
+     * @var ConversationStoreInterface
+     */
+    private $conversationStore;
+
+    /**
+     * @var EIModelConversationConverter
+     */
+    private $conversationConverter;
 
     public function setUp(): void
     {
@@ -38,11 +50,18 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 
         $this->dGraphClient = mock(DGraphClient::class)->makePartial();
         $this->dGraphClient->shouldReceive('tripleMutation')->andReturn($dGraphMutationResponse);
+
+        $this->conversationStore = mock(ConversationStoreInterface::class)->makePartial();
+        $this->conversationConverter = mock(EIModelConversationConverter::class)->makePartial();
     }
 
     public function testUpdateUserFromUtteranceWithWebchatChatOpenUtterance()
     {
-        $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
+        $userService = mock(UserService::class, [
+            $this->dGraphClient,
+            $this->conversationStore,
+            $this->conversationConverter
+        ])->makePartial();
 
         $chatbotUser = new ChatbotUser();
 
@@ -91,7 +110,11 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 
     public function testUpdateUserFromUtteranceWithWebchatTextUtterance()
     {
-        $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
+        $userService = mock(UserService::class, [
+            $this->dGraphClient,
+            $this->conversationStore,
+            $this->conversationConverter
+        ])->makePartial();
 
         $chatbotUser = new ChatbotUser();
 
@@ -132,7 +155,11 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 
     public function testUpdateUserFromUtteranceWithWebchatTriggerUtterance()
     {
-        $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
+        $userService = mock(UserService::class, [
+            $this->dGraphClient,
+            $this->conversationStore,
+            $this->conversationConverter
+        ])->makePartial();
 
         $chatbotUser = new ChatbotUser();
 

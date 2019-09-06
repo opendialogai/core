@@ -9,8 +9,7 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -66,7 +65,11 @@ class ConversationEngineTest extends TestCase
         /* @var ConversationStoreInterface $conversationStore */
         $conversationStore = $this->conversationEngine->getConversationStore();
 
-        $conversation = $conversationStore->getConversationTemplate('hello_bot_world');
+        $conversationModel = $conversationStore->getConversationTemplate('hello_bot_world');
+
+        $conversationConverter = app()->make(EIModelConversationConverter::class);
+        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+
         $conditions = $conversation->getConditions();
 
         $this->assertCount(2, $conditions);
@@ -178,7 +181,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
@@ -199,7 +202,9 @@ class ConversationEngineTest extends TestCase
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function testDeterminingCurrentConversationWithOngoingConversation()
@@ -274,8 +279,11 @@ class ConversationEngineTest extends TestCase
         $user->setCurrentConversation($conversationModel);
         $userContext->updateUser();
 
-        /* @var EIModelConversation $conversation */
-        $conversation = DGraphConversationQueryFactory::getConversationFromDGraphWithUid($userContext->getUser()->getCurrentConversationUid());
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationModel = $conversationStore->getConversation($userContext->getUser()->getCurrentConversationUid());
+
+        $conversationConverter = app()->make(EIModelConversationConverter::class);
+        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
 
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;
