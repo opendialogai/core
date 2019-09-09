@@ -7,6 +7,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -91,14 +92,35 @@ class UserServiceTest extends TestCase
         $conversationConverter = app()->make(EIModelConversationConverter::class);
 
         $conversationModel = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
 
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversation */
+        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel, true);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->isHavingConversation());
+
+        $conversationUserModel = $conversationStore->getConversation($user->getCurrentConversationUid());
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationUser */
+        $conversationUser = $conversationConverter::buildConversationFromEIModel($conversationUserModel);
+
+        $this->assertEquals($conversation->getId(), $conversationUser->getId());
+        $this->assertEquals(Model::CONVERSATION_USER, $conversationUser->getAttribute(Model::EI_TYPE)->getValue());
+
+        // Ensure that the conversation was properly cloned by checking that the template & user conversation UIDs are different
+        $this->assertNotEquals($conversation->getUid(), $conversationUser->getUid());
+        $this->assertEquals($user->getCurrentConversationUid(), $conversationUser->getUid());
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+
+        /** @var Scene $openingUserScene */
+        $openingUserScene = $conversationUser->getOpeningScenes()->first()->value;
+
+        $this->assertNotEquals($openingScene->getUid(), $openingUserScene->getUid());
     }
 
     public function testSettingACurrentIntent()
