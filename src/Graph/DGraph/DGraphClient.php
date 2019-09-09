@@ -162,7 +162,10 @@ class DGraphClient
             'POST',
             self::MUTATE_COMMIT_NOW,
             [
-                'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship)
+                'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship),
+                'headers' => [
+                    'Content-Type' => 'application/rdf'
+                ]
             ]
         );
 
@@ -181,7 +184,10 @@ class DGraphClient
             'POST',
             self::MUTATE_COMMIT_NOW,
             [
-                'body' => $this->prepareDeleteNodeStatement($nodeUid)
+                'body' => $this->prepareDeleteNodeStatement($nodeUid),
+                'headers' => [
+                    'Content-Type' => 'application/rdf'
+                ]
             ]
         );
 
@@ -207,7 +213,10 @@ class DGraphClient
             'POST',
             self::MUTATE_COMMIT_NOW,
             [
-                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
+                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship),
+                'headers' => [
+                    'Content-Type' => 'application/rdf'
+                ]
             ]
         );
 
@@ -253,12 +262,27 @@ class DGraphClient
         $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
         return $statement;
     }
-    
+
+    /**
+     * @return string
+     */
+    private function prepareUserAttributes()
+    {
+        $userAttributes = '';
+        foreach (config('opendialog.context_engine.supported_attributes') as $name => $type) {
+            $userAttributes .= "{$name}: default\n";
+        }
+
+        return $userAttributes;
+    }
+
     /**
      * @return string
      */
     private function schema()
     {
+        $userAttributes = $this->prepareUserAttributes();
+
         return "
             <causes_action>: [uid] .
             <core.attribute.completes>: default .
@@ -276,6 +300,7 @@ class DGraphClient
             <having_conversation>: [uid] @reverse .
             <says_across_scenes>: [uid] @reverse .
             <listens_for_across_scenes>: [uid] @reverse .
+            type User {{$userAttributes}}
         ";
     }
 

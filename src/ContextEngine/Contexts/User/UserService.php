@@ -368,6 +368,12 @@ class UserService
             ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
             ->setQueryGraph([
                 Model::UID,
+                Model::HAVING_CONVERSATION => [
+                    Model::UID,
+                    Model::CURRENT_INTENT => [
+                        Model::UID,
+                    ]
+                ],
                 'expand(_all_)' => [
                     Model::UID,
                     'expand(_all_)' => [
