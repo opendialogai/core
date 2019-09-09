@@ -402,7 +402,7 @@ class ConversationEngine implements ConversationEngineInterface
             $expectedAttributes = $intent->getExpectedAttributeContexts();
         }
 
-        $userContextUpdated = false;
+        $contextsUpdated = [];
         /** @var AttributeInterface $attribute */
         foreach ($intent->getNonCoreAttributes() as $attribute) {
             $attributeName = $attribute->getId();
@@ -410,9 +410,6 @@ class ConversationEngine implements ConversationEngineInterface
             $context = ContextService::getSessionContext();
             if ($expectedAttributes->hasKey($attributeName)) {
                 $contextId = $expectedAttributes->get($attributeName);
-                if ($contextId === UserContext::USER_CONTEXT) {
-                    $userContextUpdated = true;
-                }
                 try {
                     $context = ContextService::getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
@@ -422,11 +419,13 @@ class ConversationEngine implements ConversationEngineInterface
 
             Log::debug(sprintf('Storing attribute %s in %s context', $attribute->getId(), $context->getId()));
             $context->addAttribute($attribute);
+
+            $contextsUpdated[$context->getId()] = $context->getId();
         }
 
-        // TODO - is there a better way of doing this? Each context could have it's own tear down method to deal with persisting
-        if ($userContextUpdated) {
-            ContextService::getUserContext()->updateUser();
+        foreach ($contextsUpdated as $contextId) {
+            $context = ContextService::getContext($contextId);
+            $context->persist();
         }
     }
 

@@ -220,4 +220,9 @@ class UserContext extends AbstractContext
 
         return false;
     }
+
+    public function persist()
+    {
+        $this->updateUser();
+    }
 }
