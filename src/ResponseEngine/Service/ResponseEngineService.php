@@ -38,7 +38,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $selectedMessageConditionsNumber = -1;
         foreach ($messageTemplates as $messageTemplate) {
             if ($this->messageMeetsConditions($messageTemplate)) {
-                $messageConditionsNumber = $messageTemplate->getConditionsNumber();
+                $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
 
                 if ($messageConditionsNumber > $selectedMessageConditionsNumber) {
                     $selectedMessageTemplate = $messageTemplate;
