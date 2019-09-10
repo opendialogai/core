@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\Core\Graph\Tests;
 
-
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
@@ -12,7 +11,6 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class GraphSearchTest extends TestCase
 {
-
     public function createGraph()
     {
         $a = new Node('a');

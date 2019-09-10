@@ -40,7 +40,7 @@ class ImportConversation extends Command
      */
     public function handle()
     {
-        $data = unserialize(file_get_contents($this->argument('filename')));
+        $data = json_decode(file_get_contents($this->argument('filename')), true);
         if (!is_array($data) || !isset($data['conversation'])) {
             $this->error('Sorry, I could not read that file!');
             exit;
@@ -51,18 +51,20 @@ class ImportConversation extends Command
         $newModelText = '';
         $unmatchedMessageTemplateIds = [];
 
+        $conversationName = $data['conversation']['name'];
+
         // Check if there is an existing conversation with this name.
-        if ($existingConversation = Conversation::where('name', $data['conversation']->name)->first()) {
+        if ($existingConversation = Conversation::where('name', $conversationName)->first()) {
             $existingModelText .=
                 "* Conversation with ID " . $existingConversation->id . " and name " . $existingConversation->name . "\n";
         } else {
             $newModelText .=
-                "* Conversation with name " . $data['conversation']->name . "\n";
+                "* Conversation with name " . $conversationName . "\n";
         }
 
         // Check for existing intents with this name.
         foreach ($data['outgoingIntents'] as $outgoingIntent) {
-            if ($existingIntent = OutgoingIntent::where('name', $outgoingIntent->name)->first()) {
+            if ($existingIntent = OutgoingIntent::where('name', $outgoingIntent['name'])->first()) {
                 $existingModelText .=
                     "* Outgoing Intent with ID " . $existingIntent->id . " and name " . $existingIntent->name . "\n";
                 foreach ($existingIntent->messageTemplates as $messageTemplate) {
@@ -70,11 +72,11 @@ class ImportConversation extends Command
                 }
             } else {
                 $newModelText .=
-                    "* Outgoing Intent with name " . $outgoingIntent->name . "\n";
+                    "* Outgoing Intent with name " . $outgoingIntent['name'] . "\n";
             }
 
-            foreach ($outgoingIntent->messageTemplates as $messageTemplate) {
-                if ($existingMessageTemplate = MessageTemplate::where('name', $messageTemplate->name)->first()) {
+            foreach ($outgoingIntent['message_templates'] as $messageTemplate) {
+                if ($existingMessageTemplate = MessageTemplate::where('name', $messageTemplate['name'])->first()) {
                     if (($key = array_search($existingMessageTemplate->id, $unmatchedMessageTemplateIds)) !== false) {
                         unset($unmatchedMessageTemplateIds[$key]);
                     }
@@ -84,7 +86,7 @@ class ImportConversation extends Command
                         " and name " . $existingMessageTemplate->name . "\n";
                 } else {
                     $newModelText .=
-                        "* Message Template with name " . $messageTemplate->name . "\n";
+                        "* Message Template with name " . $messageTemplate['name'] . "\n";
                 }
             }
 
@@ -114,38 +116,29 @@ class ImportConversation extends Command
             exit;
         }
 
-        // Import the models.
-        $attributes = [];
-        foreach ($data['conversation']->getFillable() as $attribute) {
-            $attributes[$attribute] = $data['conversation']->{$attribute};
-        }
-
         /** @var Conversation $newConversation */
-        $this->info(sprintf('Adding/updating conversation with name %s', $data['conversation']->name));
-        $newConversation = Conversation::updateOrCreate(['name' => $data['conversation']->name], $attributes);
+        $this->info(sprintf('Adding/updating conversation with name %s', $conversationName));
+        $newConversation = Conversation::firstOrNew(['name' => $conversationName]);
+        $newConversation->fill($data['conversation']);
+        $newConversation->save();
+
         if ($this->option('publish')) {
             $this->info(sprintf('Publishing conversation with name %s', $newConversation->name));
             $newConversation->publishConversation($newConversation->buildConversation());
         }
 
         foreach ($data['outgoingIntents'] as $outgoingIntent) {
-            $attributes = [];
-            foreach ($outgoingIntent->getFillable() as $attribute) {
-                $attributes[$attribute] = $outgoingIntent->{$attribute};
-            }
+            $this->info(sprintf('Adding/updating intent with name %s', $outgoingIntent['name']));
+            $newIntent = OutgoingIntent::firstOrNew(['name' => $outgoingIntent['name']]);
+            $newIntent->fill($outgoingIntent);
+            $newIntent->save();
 
-            $this->info(sprintf('Adding/updating intent with name %s', $outgoingIntent->name));
-            $newIntent = OutgoingIntent::updateOrCreate(['name' => $outgoingIntent->name], $attributes);
-
-            foreach ($outgoingIntent->messageTemplates as $messageTemplate) {
-                $attributes = [];
-                foreach ($messageTemplate->getFillable() as $attribute) {
-                    $attributes[$attribute] = $messageTemplate->{$attribute};
-                }
-                $attributes['outgoing_intent_id'] = $newIntent->id;
-
-                $this->info(sprintf('Adding/updating message template with name %s', $messageTemplate->name));
-                MessageTemplate::updateOrCreate(['name' => $messageTemplate->name], $attributes);
+            foreach ($outgoingIntent['message_templates'] as $messageTemplate) {
+                $this->info(sprintf('Adding/updating message template with name %s', $messageTemplate['name']));
+                $message = MessageTemplate::firstOrNew(['name' => $messageTemplate['name']]);
+                $message->fill($messageTemplate);
+                $message->outgoing_intent_id = $newIntent->id;
+                $message->save();
             }
 
             foreach ($unmatchedMessageTemplateIds as $unmatchedMessageTemplateId) {

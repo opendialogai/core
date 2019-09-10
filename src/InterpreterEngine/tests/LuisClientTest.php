@@ -98,6 +98,5 @@ EOT;
 
         $this->assertEquals('Define Canton', $intent->getLabel());
         $this->assertEquals(0.96, $intent->getConfidence());
-
     }
 }

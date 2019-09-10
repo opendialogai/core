@@ -13,13 +13,13 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
     public function testEmptyMessage()
     {
         $markup = '<message disable_text="1"><empty-message></empty-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals(true, $messages[0]->isEmpty());
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="0"><empty-message></empty-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals(true, $messages[0]->isEmpty());
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
@@ -28,22 +28,22 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
     public function testDisableTextProperty()
     {
         $markup = '<message disable_text="1"><empty-message></empty-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="true"><empty-message></empty-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="0"><empty-message></empty-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="false"><empty-message></empty-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
@@ -51,7 +51,7 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
     public function testTextMessage()
     {
         $markup = '<message disable_text="1"><text-message>hi there</text-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals('hi there', $messages[0]->getText());
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
@@ -64,7 +64,7 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
 </message>
 EOT;
 
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals('hi there', $messages[0]->getText());
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
@@ -84,7 +84,7 @@ EOT;
 </message>
 EOT;
 
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $this->assertEquals('hi there <a target="_parent" href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
@@ -92,7 +92,7 @@ EOT;
     public function testImageMessage()
     {
         $markup = '<message disable_text="1"><image-message link_new_tab="1"><link>https://www.opendialog.ai</link><src>https://www.opendialog.ai/assets/images/logo.svg</src></image-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
         $this->assertEquals('https://www.opendialog.ai', $message->getImgLink());
@@ -113,7 +113,7 @@ EOT;
 </message>
 EOT;
 
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
         $this->assertEquals('https://www.opendialog.ai', $message->getImgLink());
@@ -125,7 +125,7 @@ EOT;
     public function testButtonMessage()
     {
         $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 
@@ -192,7 +192,7 @@ EOT;
 </message>
 EOT;
 
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 
@@ -255,7 +255,7 @@ EOT;
   </rich-message>
 </message>
 EOT;
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 
@@ -311,7 +311,7 @@ EOT;
   </rich-message>
 </message>
 EOT;
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 
@@ -347,7 +347,7 @@ EOT;
   </rich-message>
 </message>
 EOT;
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 
@@ -430,7 +430,7 @@ EOT;
             ],
         ];
 
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 
@@ -559,7 +559,7 @@ EOT;
             ],
         ];
 
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 
@@ -594,7 +594,7 @@ EOT;
             'confirmation_text' => 'Thank you',
         ];
 
-        $formatter = new WebChatMessageFormatter;
+        $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
         $message = $messages[0];
 

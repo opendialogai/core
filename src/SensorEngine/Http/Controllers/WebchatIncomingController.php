@@ -2,17 +2,20 @@
 
 namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Controllers\OpenDialogController;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
-use OpenDialogAi\ResponseEngine\LinkClickInterface;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
-use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\SensorInterface;
+use OpenDialogAi\ResponseEngine\LinkClickInterface;
+use Illuminate\Routing\Controller as BaseController;
 use OpenDialogAi\SensorEngine\Service\SensorService;
+use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
+use OpenDialogAi\SensorEngine\Contracts\IncomingMessageInterface;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
+use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
+use OpenDialogAi\SensorEngine\Contracts\IncomingControllerInterface;
 
-class WebchatIncomingController extends BaseController
+class WebchatIncomingController extends BaseController implements IncomingControllerInterface
 {
     /** @var OpenDialogController */
     private $odController;
@@ -31,7 +34,10 @@ class WebchatIncomingController extends BaseController
         $this->webchatSensor = $sensorService->getSensor('sensor.core.webchat');
     }
 
-    public function receive(IncomingWebchatMessage $request)
+    /**
+     * {@inheritdoc}
+     */
+    public function receive(IncomingMessageInterface $request): Response
     {
         $messageType = $request->input('notification');
 

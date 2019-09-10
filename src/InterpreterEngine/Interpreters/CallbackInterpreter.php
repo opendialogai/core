@@ -106,9 +106,11 @@ class CallbackInterpreter extends BaseInterpreter
                 $intent->addAttribute($this->getCallbackValueAttribute($utterance->getValue()));
             }
         } catch (FieldNotSupported $e) {
-            Log::debug(sprintf(
+            Log::debug(
+                sprintf(
                     'Callback interpreter trying to extract value from unsupported utterance %s',
-                    get_class($utterance))
+                    get_class($utterance)
+                )
             );
         }
     }
@@ -126,9 +128,11 @@ class CallbackInterpreter extends BaseInterpreter
                 }
             }
         } catch (FieldNotSupported $e) {
-            Log::debug(sprintf(
+            Log::debug(
+                sprintf(
                     'Callback interpreter trying to extract form values from unsupported utterance %s',
-                    get_class($utterance))
+                    get_class($utterance)
+                )
             );
         }
     }

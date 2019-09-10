@@ -112,7 +112,8 @@ class ContextService implements ContextServiceInterface
         }
 
         if ($this->hasContext($customContext::$name)) {
-            Log::warning(sprintf(
+            Log::warning(
+                sprintf(
                     'Not adding custom context %s, context with that name is already registered',
                     $customContext
                 )

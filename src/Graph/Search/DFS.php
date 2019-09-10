@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\Core\Graph\Search;
 
-
 use Ds\Map;
 use OpenDialogAi\Core\Graph\Node\Node;
 
