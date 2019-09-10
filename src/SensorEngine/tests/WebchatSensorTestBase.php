@@ -4,7 +4,7 @@ namespace OpenDialogAi\Core\SensorEngine\tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
 
-Abstract class WebchatSensorTestBase extends TestCase
+abstract class WebchatSensorTestBase extends TestCase
 {
     /**
      * @param $type

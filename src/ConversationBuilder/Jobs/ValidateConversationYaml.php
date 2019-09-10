@@ -26,7 +26,7 @@ class ValidateConversationYaml implements ShouldQueue
      */
     public function __construct($conversation)
     {
-          $this->conversation = $conversation;
+        $this->conversation = $conversation;
     }
 
     /**

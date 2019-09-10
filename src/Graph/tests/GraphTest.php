@@ -10,7 +10,6 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class GraphTest extends TestCase
 {
-
     public function testNodeCreation()
     {
         $n1 = new Node();
@@ -74,5 +73,4 @@ class GraphTest extends TestCase
         $this->assertTrue($fromNodes->get('test.node1')->getId() == 'test.node1');
         $this->assertFalse($n3->hasIncomingEdgeWithRelationship('r1'));
     }
-
 }

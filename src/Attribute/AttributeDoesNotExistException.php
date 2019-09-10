@@ -7,5 +7,4 @@ namespace OpenDialogAi\Core\Attribute;
  */
 class AttributeDoesNotExistException extends \RuntimeException
 {
-
 }

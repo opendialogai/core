@@ -29,8 +29,8 @@ class ValidateConversationModel implements ShouldQueue
      */
     public function __construct($conversation)
     {
-          $this->conversation = $conversation;
-          $this->jobName = 'model_validation_status';
+        $this->conversation = $conversation;
+        $this->jobName = 'model_validation_status';
     }
 
     /**

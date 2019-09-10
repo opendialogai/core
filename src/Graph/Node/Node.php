@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Graph\Node;
 
-
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\HasAttributesTrait;
 use OpenDialogAi\Core\Graph\Edge\DirectedEdge;

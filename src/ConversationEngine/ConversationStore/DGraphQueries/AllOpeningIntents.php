@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
-
 use Ds\Map;
 use Ds\Set;
 use OpenDialogAi\Core\Conversation\Model;

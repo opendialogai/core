@@ -10,7 +10,7 @@ use OpenDialogAi\Core\Conversation\Model;
  */
 class ActionTransformer
 {
-    static public function toAction($data): Action
+    public static function toAction($data): Action
     {
         $action = new Action($data[Model::ID]);
         return $action;
