@@ -193,7 +193,7 @@ class Conversation extends Model
 
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
-        if ($mutationResponse->getData()['code'] === 'Success') {
+        if ($mutationResponse->isSuccessful()) {
             // Set conversation status to "published".
             $this->status = 'published';
             $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
@@ -206,6 +206,16 @@ class Conversation extends Model
             ])->save();
 
             return true;
+        } else {
+            foreach ($mutationResponse->getErrors() as $error) {
+                Log::debug(
+                    sprintf(
+                        'DGraph error - %s: %s',
+                        $error['extensions']['code'],
+                        $error['message']
+                    )
+                );
+            }
         }
 
         return false;
