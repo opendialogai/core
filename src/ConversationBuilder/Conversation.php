@@ -52,6 +52,19 @@ class Conversation extends Model
         'notes',
     ];
 
+    protected $visible = [
+        'name',
+        'status',
+        'yaml_validation_status',
+        'yaml_schema_validation_status',
+        'scenes_validation_status',
+        'model_validation_status',
+        'model',
+        'notes',
+        'created_at',
+        'updated_at',
+    ];
+
     // Create activity logs when the model or notes attribute is updated.
     protected static $logAttributes = ['model', 'notes'];
 

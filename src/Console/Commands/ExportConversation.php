@@ -49,12 +49,12 @@ class ExportConversation extends Command
         foreach ($parsedConversation->getAllIntents() as $intent) {
             $outgoingIntent = OutgoingIntent::where('name', $intent->getLabel())->with('messageTemplates')->first();
             if ($outgoingIntent && !isset($outgoingIntents[$outgoingIntent->id])) {
-                $outgoingIntents[$outgoingIntent->id] = $outgoingIntent;
+                $outgoingIntents[$outgoingIntent->id] = $outgoingIntent->toArray();
             }
         }
 
-        $output = serialize([
-            'conversation' => $conversation,
+        $output = json_encode([
+            'conversation' => $conversation->toArray(),
             'outgoingIntents' => $outgoingIntents,
         ]);
 
