@@ -16,7 +16,9 @@ use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
-    /** @var string $requestId */
+    /**
+     * @var string $requestId
+     */
     private $requestId;
 
     public function boot()
