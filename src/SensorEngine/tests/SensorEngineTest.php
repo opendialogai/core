@@ -9,6 +9,7 @@ use OpenDialogAi\SensorEngine\Sensors\WebchatSensor;
 use OpenDialogAi\SensorEngine\Service\SensorService;
 use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
+
 class SensorServiceTest extends TestCase
 {
     public function testService()
