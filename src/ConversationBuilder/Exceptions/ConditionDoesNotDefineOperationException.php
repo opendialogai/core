@@ -3,8 +3,6 @@
 
 namespace OpenDialogAi\ConversationBuilder\Exceptions;
 
-
 class ConditionDoesNotDefineOperationException extends \RuntimeException
 {
-
 }

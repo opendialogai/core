@@ -45,8 +45,10 @@ class AttributeResolverServiceTest extends TestCase
 
     public function testBindingCustomAttributes()
     {
-        $this->setConfigValue('opendialog.context_engine.custom_attributes',
-            ['test_attribute' => StringAttribute::class]);
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['test_attribute' => StringAttribute::class]
+        );
 
         $attributeResolver = $this->getAttributeResolver();
         $this->assertEquals(StringAttribute::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
@@ -55,8 +57,10 @@ class AttributeResolverServiceTest extends TestCase
     public function testBadBinding()
     {
         // Bind attribute to non-class
-        $this->setConfigValue('opendialog.context_engine.custom_attributes',
-            ['test_attribute' => 'nothing']);
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['test_attribute' => 'nothing']
+        );
 
         $attributeResolver = $this->getAttributeResolver();
 
@@ -71,5 +75,4 @@ class AttributeResolverServiceTest extends TestCase
     {
         return $this->app->make(AttributeResolver::class);
     }
-
 }

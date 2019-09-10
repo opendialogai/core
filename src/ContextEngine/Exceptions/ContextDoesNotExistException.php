@@ -7,5 +7,4 @@ namespace OpenDialogAi\ContextEngine\Exceptions;
  */
 class ContextDoesNotExistException extends \RuntimeException
 {
-
 }

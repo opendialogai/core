@@ -22,6 +22,7 @@ class Model
     const ACTION = 'action';
     const CHATBOT_USER = 'chatbot_user';
     const EXPECTED_ATTRIBUTE = 'expected_attribute';
+    const LAST_SEEN = 'last_seen';
 
     // Conversations and scenes have conditions.
     const HAS_CONDITION = 'has_condition';

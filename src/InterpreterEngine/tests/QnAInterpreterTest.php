@@ -74,8 +74,10 @@ class QnAInterpreterTest extends TestCase
 
     public function testMatch()
     {
-        $this->setConfigValue('opendialog.context_engine.custom_attributes',
-            ['answer' => StringAttribute::class]);
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['answer' => StringAttribute::class]
+        );
 
         $this->mock(QnAClient::class, function ($mock) {
             $mock->shouldReceive('queryQnA')->andReturn(

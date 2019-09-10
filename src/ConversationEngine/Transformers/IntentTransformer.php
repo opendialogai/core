@@ -14,7 +14,7 @@ class IntentTransformer
      * @param array $data
      * @return Intent
      */
-    static public function toIntent(array $data)
+    public static function toIntent(array $data)
     {
         $node = new Intent($data[Model::ID], $data[Model::COMPLETES]);
         $node->setUid($data[Model::UID]);

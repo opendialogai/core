@@ -180,5 +180,4 @@ class Conversation extends NodeWithConditions
     {
         unset($this->allScenes, $this->allIntents);
     }
-
 }
