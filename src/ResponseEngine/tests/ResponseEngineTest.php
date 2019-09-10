@@ -10,19 +10,55 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\Core\ResponseEngine\tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use OpenDialogAi\ResponseEngine\Rules\MessageConditions;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class ResponseEngineTest extends TestCase
 {
+    public function testService()
+    {
+        $formatters = $this->app->make(ResponseEngineService::class)->getAvailableFormatters();
+        $this->assertCount(1, $formatters);
+        $this->assertContains('formatter.core.webchat', array_keys($formatters));
+    }
+
+    public function testUnknownService()
+    {
+        $sensorService = $this->app->make(ResponseEngineService::class);
+        $this->expectException(FormatterNotRegisteredException::class);
+        $sensorService->getFormatter('formatter.core.unknown');
+    }
+
+    public function testWebchatFormatter()
+    {
+        $webchatFormatter = new WebChatMessageFormatter();
+        $this->assertEquals('formatter.core.webchat', $webchatFormatter->getName());
+    }
+
+    public function testBadlyNamedSensor()
+    {
+        $this->app['config']->set(
+            'opendialog.response_engine.available_filters',
+            [DummyFormatter::class]
+        );
+
+        $formatterService = $this->app->make(ResponseEngineService::class);
+
+        $this->assertCount(1, $formatterService->getAvailableFormatters());
+    }
+
     public function testResponseDb()
     {
         // Ensure that we can create an intent.
