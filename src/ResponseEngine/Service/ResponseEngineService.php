@@ -10,22 +10,45 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\ResponseEngine\Contracts\OpenDialogMessageContract;
+use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
 use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
+use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
+    /** @var string A regex pattern for a valid formatter name */
+    private $validNamePattern = "/^formatter\.[a-z]*\.[a-z_]*$/";
+
+    /**
+     * A place to store a cache of available formatters
+     * @var []
+     */
+    private $availableFormatters = [];
+
+    /**
+     * @todo figure out type
+     */
+    protected $formatter;
+
     /**
      * @inheritdoc
      *
      * @return OpenDialogMessages $messageWrapper
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function getMessageForIntent(string $intentName): OpenDialogMessages
+    public function getMessageForIntent(string $formatter, string $intentName): OpenDialogMessages
     {
+        try {
+            $this->formatter = $this->getFormatter($formatter);
+        } catch (FormatterNotRegisteredException $e) {
+            throw new FormatterNotRegisteredException("Formatter with name $formatter is not available");
+        }
+
+
         $selectedMessageTemplate = null;
 
         /** @var MessageTemplate[] $messageTemplates */
@@ -145,5 +168,93 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $replacement = str_replace('&', '&amp;', $replacement);
 
         return $replacement;
+    }
+
+    /**
+     * Loops through all available formatters from config, and creates a local array keyed by the name of the
+     * formatter
+     */
+    public function registerAvailableFormatters()
+    {
+        foreach ($this->getAvailableFormatterConfig() as $formatter) {
+            try {
+                $name = $formatter::getName();
+
+                if ($this->isValidName($name)) {
+                    $this->availableFormatters[$name] = new $formatter();
+                } else {
+                    Log::warning(
+                        sprintf("Not adding formatter with name %s. Name is in wrong format", $name)
+                    );
+                }
+            } catch (FormatterNameNotSetException $e) {
+                Log::warning(
+                    sprintf("Not adding formatter %s. It has not defined a name", $formatter)
+                );
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAvailableFormatters(): array
+    {
+        Log::debug('Getting available formatters');
+        if (empty($this->availableFormatters)) {
+            $this->registerAvailableFormatters();
+        }
+
+        return $this->availableFormatters;
+    }
+
+    /**
+     * @param string $formatterName
+     * @return @todo
+     */
+    public function getFormatter(string $formatterName)
+    {
+        Log::debug("Getting formatter: {$formatterName}");
+        if ($this->isFormatterAvailable($formatterName)) {
+            Log::debug(sprintf("Getting formatter with name %s", $formatterName));
+            return $this->availableFormatters[$formatterName];
+        }
+
+        throw new FormatterNotRegisteredException("Formatter with name $formatterName is not available");
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isFormatterAvailable(string $formatterName): bool
+    {
+        if (in_array($formatterName, array_keys($this->getAvailableFormatters()))) {
+            Log::debug(sprintf("Formatter with name %s is available", $formatterName));
+            return true;
+        }
+
+        Log::debug(sprintf("Formatter with name %s is not available", $formatterName));
+        return false;
+    }
+
+    /**
+     * Checks if the name of the formatter is in the right format
+     *
+     * @param string $name
+     * @return bool
+     */
+    private function isValidName(string $name) : bool
+    {
+        return preg_match($this->validNamePattern, $name) === 1;
+    }
+
+    /**
+     * Returns the list of available formatters as registered in the available_formatters config
+     *
+     * @return []
+     */
+    private function getAvailableFormatterConfig()
+    {
+        return config('opendialog.response_engine.available_formatters');
     }
 }
