@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\SensorEngine\tests\Sensors;
 
-
 use Illuminate\Http\Request;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\SensorEngine\BaseSensor;

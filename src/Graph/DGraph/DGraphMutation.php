@@ -45,7 +45,7 @@ class DGraphMutation
      */
     public function prepareTripleMutation()
     {
-         /* @var Map $visited - Keeps track of which nodes have been visited in the DFS. */
+        /* @var Map $visited - Keeps track of which nodes have been visited in the DFS. */
         $visited = new Map();
 
         /* Stores the final statement to be POSTed */
