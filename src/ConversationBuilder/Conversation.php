@@ -151,9 +151,9 @@ class Conversation extends Model
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
                     }
-                } else if ($speaker === 'u') {
+                } elseif ($speaker === 'u') {
                     $conversationManager->userSaysToBot($sceneId, $intentNode, $intentIdx);
-                } else if ($speaker === 'b') {
+                } elseif ($speaker === 'b') {
                     $conversationManager->botSaysToUser($sceneId, $intentNode, $intentIdx);
                 } else {
                     Log::debug("I don't know about the speaker type '{$speaker}'");
@@ -364,5 +364,4 @@ class Conversation extends Model
         Log::debug('Created condition from Yaml.');
         return $condition;
     }
-
 }

@@ -13,7 +13,7 @@ class UpdateMessageLogTable extends Migration
      */
     public function up()
     {
-        Schema::table('messages', function(Blueprint $table) {
+        Schema::table('messages', function (Blueprint $table) {
             $table->string('intent')->nullable();
             $table->string('conversation')->nullable();
             $table->string('scene')->nullable();
@@ -27,7 +27,7 @@ class UpdateMessageLogTable extends Migration
      */
     public function down()
     {
-        Schema::table('messages', function(Blueprint $table) {
+        Schema::table('messages', function (Blueprint $table) {
             $table->dropColumn('intent');
             $table->dropColumn('conversation');
             $table->dropColumn('scene');

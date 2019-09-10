@@ -1,5 +1,11 @@
 parameters:
   tasks:
+    phpcsfixer:
+      config_file: ~
+      config: ~
+      fixers: []
+      level: ~
+      verbose: true
     phpcs:
       standard: ['PSR12']
       severity: ~
