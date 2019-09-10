@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 
 class ConversationLogService
 {
@@ -75,12 +75,12 @@ class ConversationLogService
     /**
      * Log outgoing message.
      *
-     * @param WebChatMessages $messageWrapper
+     * @param OpenDialogMessages $messageWrapper
      * @param UtteranceInterface $utterance
      * @throws FieldNotSupported
      */
     public function logOutgoingMessages(
-        WebChatMessages $messageWrapper,
+        OpenDialogMessages $messageWrapper,
         UtteranceInterface $utterance
     ): void {
 

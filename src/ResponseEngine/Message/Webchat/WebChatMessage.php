@@ -2,7 +2,9 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-class WebChatMessage
+use OpenDialogAi\Core\ResponseEngine\Contracts\OpenDialogMessageContract;
+
+class WebChatMessage implements OpenDialogMessageContract
 {
     const TIME = 'time';
 
@@ -51,9 +53,9 @@ class WebChatMessage
     }
 
     /**
-     * @return null|string
+     * {@inheritDoc}
      */
-    public function getText()
+    public function getText():?  string
     {
         return $this->text;
     }
@@ -156,9 +158,9 @@ class WebChatMessage
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    public function getData()
+    public function getData():? array
     {
         return [
             'text' => $this->getText(),
@@ -170,6 +172,9 @@ class WebChatMessage
         ];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getMessageToPost()
     {
         if ($this->isEmpty) {

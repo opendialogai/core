@@ -10,6 +10,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -20,10 +21,10 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     /**
      * @inheritdoc
      *
-     * @return WebChatMessages $messageWrapper
+     * @return OpenDialogMessages $messageWrapper
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function getMessageForIntent(string $intentName): WebChatMessages
+    public function getMessageForIntent(string $intentName): OpenDialogMessages
     {
         $selectedMessageTemplate = null;
 
@@ -53,7 +54,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $formatter = new WebchatMessageFormatter();
         $messages = $formatter->getMessages($markup);
 
-        $messageWrapper = new WebChatMessages();
+        $messageWrapper = new OpenDialogMessages();
         foreach ($messages as $message) {
             $messageWrapper->addMessage($message);
         }
