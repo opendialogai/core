@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
-
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
@@ -35,5 +34,4 @@ class ExampleAction extends BaseAction
         $result->addAttribute($fullNameAttribute);
         return $result;
     }
-
 }

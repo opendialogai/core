@@ -93,7 +93,6 @@ class ConversationEngineTest extends TestCase
                 $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getEvaluationOperation());
                 $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getAttribute(Model::OPERATION)->getValue());
             }
-
         }
     }
 
@@ -255,8 +254,7 @@ class ConversationEngineTest extends TestCase
 
         try {
             $this->conversationEngine->determineCurrentConversation($this->createUserContext(), $this->utterance);
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->fail("No exception should be thrown when calling an unbound action.");
         }
     }
@@ -336,6 +334,5 @@ conversation:
             i: hello_user
             completes: true
 EOT;
-
     }
 }

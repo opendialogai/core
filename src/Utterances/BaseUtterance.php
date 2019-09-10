@@ -215,5 +215,4 @@ abstract class BaseUtterance implements UtteranceInterface
     {
         return $this->formValues;
     }
-
 }

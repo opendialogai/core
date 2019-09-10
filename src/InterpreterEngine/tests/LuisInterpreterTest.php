@@ -34,7 +34,6 @@ class LuisInterpreterTest extends TestCase
             'age' => IntAttribute::class
         ];
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $knownAttributes);
-
     }
 
     public function testSetUp()
@@ -108,11 +107,12 @@ class LuisInterpreterTest extends TestCase
     {
         $this->mock(LuisClient::class, function ($mock) {
             $mock->shouldReceive('queryLuis')->andReturn(
-                new LuisResponse($this->createLuisResponseObject(
-                    'MATCH',
-                    0.5,
-                    'age_in_years',
-                    'entity'
+                new LuisResponse(
+                    $this->createLuisResponseObject(
+                        'MATCH',
+                        0.5,
+                        'age_in_years',
+                        'entity'
                     )
                 )
             );
@@ -130,12 +130,13 @@ class LuisInterpreterTest extends TestCase
     {
         $this->mock(LuisClient::class, function ($mock) {
             $mock->shouldReceive('queryLuis')->andReturn(
-                new LuisResponse($this->createLuisResponseObject(
-                    'MATCH',
-                    0.5,
-                    'unknownEntity',
-                    'entity'
-                )
+                new LuisResponse(
+                    $this->createLuisResponseObject(
+                        'MATCH',
+                        0.5,
+                        'unknownEntity',
+                        'entity'
+                    )
                 )
             );
         });
@@ -148,7 +149,7 @@ class LuisInterpreterTest extends TestCase
 
         $this->assertCount(1, $intents[0]->getNonCoreAttributes());
 
-        $matchedAttribute = $intents[0]->getAttribute( 'unknownEntity');
+        $matchedAttribute = $intents[0]->getAttribute('unknownEntity');
         $this->assertEquals(StringAttribute::class, get_class($matchedAttribute));
     }
 

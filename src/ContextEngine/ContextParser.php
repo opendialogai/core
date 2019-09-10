@@ -74,6 +74,6 @@ abstract class ContextParser
      */
     public static function containsContextName(string $attribute):  bool
     {
-         return self::determineContextId($attribute) !== AbstractAttribute::UNDEFINED_CONTEXT;
+        return self::determineContextId($attribute) !== AbstractAttribute::UNDEFINED_CONTEXT;
     }
 }
