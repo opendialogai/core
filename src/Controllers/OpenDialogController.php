@@ -68,7 +68,10 @@ class OpenDialogController
         $this->conversationLogService->logIncomingMessage($utterance);
 
         try {
-            $messageWrapper = $this->responseEngineService->getMessageForIntent($intent->getId());
+            $messageWrapper = $this->responseEngineService->getMessageForIntent(
+                'formatter.core.webchat',
+                $intent->getId()
+            );
         } catch (NoMatchingMessagesException $e) {
             Log::error($e->getMessage());
             $message = (new WebChatMessage())->setText($e->getMessage());

@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
 use OpenDialogAi\Core\ResponseEngine\Contracts\OpenDialogMessageContract;
+use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
 
 class WebChatMessage implements OpenDialogMessageContract
 {
