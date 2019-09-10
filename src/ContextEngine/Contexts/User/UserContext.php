@@ -26,8 +26,11 @@ class UserContext extends AbstractContext
     /** @var ConversationStoreInterface */
     private $conversationStore;
 
-    public function __construct(ChatbotUser $user, UserService $userService, ConversationStoreInterface $conversationStore)
-    {
+    public function __construct(
+        ChatbotUser $user,
+        UserService $userService,
+        ConversationStoreInterface $conversationStore
+    ) {
         parent::__construct(self::USER_CONTEXT);
         $this->user = $user;
         $this->userService = $userService;
@@ -221,8 +224,12 @@ class UserContext extends AbstractContext
         return false;
     }
 
-    public function persist()
+    /**
+     * @return bool
+     */
+    public function persist(): bool
     {
         $this->updateUser();
+        return true;
     }
 }

@@ -166,8 +166,10 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      */
-    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
-    {
+    public function updateConversationFollowingUserInput(
+        UserContext $userContext,
+        UtteranceInterface $utterance
+    ): ?Conversation {
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
 
@@ -284,8 +286,11 @@ class ConversationEngine implements ConversationEngineInterface
      * @param Map $validOpeningIntents
      * @return Map
      */
-    private function matchOpeningIntents(Intent $defaultIntent, UtteranceInterface $utterance, Map $validOpeningIntents): Map
-    {
+    private function matchOpeningIntents(
+        Intent $defaultIntent,
+        UtteranceInterface $utterance,
+        Map $validOpeningIntents
+    ): Map {
         $matchingIntents = new Map();
 
         /* @var OpeningIntent $validIntent */
@@ -361,7 +366,8 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
-     * Filters out no match intents if we have more than 1 intent. Any non-no match intent should be considered more valid
+     * Filters out no match intents if we have more than 1 intent.
+     * Any non-no match intent should be considered more valid.
      *
      * @param Map $matchingIntents
      * @return mixed
@@ -413,6 +419,7 @@ class ConversationEngine implements ConversationEngineInterface
                 try {
                     $context = ContextService::getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
+                    // phpcs:ignore
                     Log::error(sprintf('Expected attribute context %s does not exist, using session context', $contextId));
                 }
             }
@@ -423,7 +430,15 @@ class ConversationEngine implements ConversationEngineInterface
             $contextsUpdated[$context->getId()] = $context->getId();
         }
 
-        foreach ($contextsUpdated as $contextId) {
+        $this->persistContexts($contextsUpdated);
+    }
+
+    /**
+     * @param array $contexts
+     */
+    private function persistContexts(array $contexts)
+    {
+        foreach ($contexts as $contextId) {
             $context = ContextService::getContext($contextId);
             $context->persist();
         }
@@ -449,8 +464,11 @@ class ConversationEngine implements ConversationEngineInterface
      * @return MatchingIntents
      * @throws NodeDoesNotExistException
      */
-    private function getMatchingIntents(UtteranceInterface $utterance, Map $nextIntents, Intent $defaultIntent): MatchingIntents
-    {
+    private function getMatchingIntents(
+        UtteranceInterface $utterance,
+        Map $nextIntents,
+        Intent $defaultIntent
+    ): MatchingIntents {
         $matchingIntents = new MatchingIntents();
 
         /* @var Intent $validIntent */

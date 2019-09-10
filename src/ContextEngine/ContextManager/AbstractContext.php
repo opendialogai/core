@@ -33,8 +33,8 @@ class AbstractContext implements ContextInterface
         $this->id = $id;
     }
 
-    public function persist()
+    public function persist(): bool
     {
-        // nothing
+        return true;
     }
 }
