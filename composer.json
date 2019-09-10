@@ -20,6 +20,7 @@
     "guzzlehttp/guzzle": "~6.3",
     "justinrainbow/json-schema": "^5.2",
     "spatie/laravel-activitylog": "^3.2",
+    "opendialogai/dgraph-docker": "dev-master",
     "doctrine/dbal": "^2.9"
   },
   "config": {
@@ -31,7 +32,9 @@
     "orchestra/testbench": "^3.8",
     "squizlabs/php_codesniffer": "^3.4",
     "barryvdh/laravel-ide-helper": "^2.6",
-    "matthewbdaly/artisan-standalone": "^0.0.8"
+    "matthewbdaly/artisan-standalone": "^0.0.8",
+    "phpro/grumphp": "^0.16.0",
+    "friendsofphp/php-cs-fixer": "^2.15"
   },
   "autoload": {
     "psr-4": {
@@ -69,5 +72,14 @@
         "AttributeResolver": "OpenDialogAi\\ContextEngine\\Facades\\AttributeResolver"
       }
     }
-  }
+  },
+  "scripts": {
+    "test": "./vendor/bin/phpunit"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/opendialogai/dgraph-docker.git"
+    }
+  ]
 }

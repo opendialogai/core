@@ -83,7 +83,6 @@ class ConversationLogService
         WebChatMessages $messageWrapper,
         UtteranceInterface $utterance
     ): void {
-
         $intent = null;
         $conversation = null;
         $scene = null;

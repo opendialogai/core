@@ -2,10 +2,13 @@
 
 namespace OpenDialogAi\SensorEngine;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\ResponseEngine\LinkClickInterface;
 use OpenDialogAi\ResponseEngine\MySqlLinkClick;
+use OpenDialogAi\ResponseEngine\LinkClickInterface;
+use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\Service\SensorService;
+use OpenDialogAi\SensorEngine\Contracts\IncomingMessageInterface;
 
 class SensorEngineServiceProvider extends ServiceProvider
 {
@@ -27,5 +30,7 @@ class SensorEngineServiceProvider extends ServiceProvider
             $mysqlLinkClick = new MySqlLinkClick();
             return $mysqlLinkClick;
         });
+
+        $this->app->bind(IncomingMessageInterface::class, IncomingWebchatMessage::class);
     }
 }

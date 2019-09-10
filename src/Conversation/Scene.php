@@ -124,7 +124,7 @@ class Scene extends NodeWithConditions
 
     public function getIntentByOrder($order):Intent
     {
-        $intents =  $this->getAllIntents()->filter( function ($key, $value) use ($order) {
+        $intents =  $this->getAllIntents()->filter(function ($key, $value) use ($order) {
             /* @var Intent $value */
             if ($value->getOrder() == $order) {
                 return true;
@@ -188,7 +188,7 @@ class Scene extends NodeWithConditions
     {
         $currentOrder = $currentIntent->getOrder();
 
-        $intents = $this->getIntentsSaidByUser()->filter( function ($key, $value) use ($currentOrder) {
+        $intents = $this->getIntentsSaidByUser()->filter(function ($key, $value) use ($currentOrder) {
             /* @var Intent $value */
             if ($value->getOrder() > $currentOrder) {
                 return true;

@@ -293,7 +293,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      */
     protected function getMessageText(SimpleXMLElement $element): string
     {
-        $dom = new \DOMDocument;
+        $dom = new \DOMDocument();
         $dom->loadXML($element->asXml());
 
         $text = '';
@@ -319,10 +319,10 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
                         if ($link[self::URL]) {
                             $text .= ' ' . $this->generateLinkHtml(
-                                    $link[self::URL],
-                                    $link[self::TEXT],
-                                    $link[self::OPEN_NEW_TAB]
-                                );
+                                $link[self::URL],
+                                $link[self::TEXT],
+                                $link[self::OPEN_NEW_TAB]
+                            );
                         } else {
                             Log::debug('Not adding link to message text, url is empty');
                         }

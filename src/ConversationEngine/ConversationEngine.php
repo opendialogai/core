@@ -88,7 +88,6 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Intent
-     * @throws ActionNotAvailableException
      * @throws FieldNotSupported
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
@@ -126,7 +125,6 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws FieldNotSupported
-     * @throws ActionNotAvailableException
      * @throws ConversationStore\EIModelCreatorException
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
@@ -182,7 +180,6 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UtteranceInterface $utterance
      * @return Conversation
      * @throws GuzzleException
-     * @throws ActionNotAvailableException
      * @throws NodeDoesNotExistException
      * @throws ConversationStore\EIModelCreatorException
      */
@@ -246,7 +243,6 @@ class ConversationEngine implements ConversationEngineInterface
      * @return Conversation | null
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
-     * @throws ActionNotAvailableException
      * @throws ConversationStore\EIModelCreatorException
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
@@ -512,7 +508,6 @@ class ConversationEngine implements ConversationEngineInterface
      *
      * @param UserContext $userContext
      * @param Intent $nextIntent
-     * @throws ActionNotAvailableException
      * @throws NodeDoesNotExistException
      */
     public function performIntentAction(UserContext $userContext, Intent $nextIntent): void
@@ -525,9 +520,13 @@ class ConversationEngine implements ConversationEngineInterface
             )
         );
 
-        /* @var ActionResult $actionResult */
-        $actionResult = $this->actionEngine->performAction($nextIntent->getAction()->getId());
-        $userContext->addActionResult($actionResult);
-        Log::debug(sprintf('Adding action result to user context'));
+        try {
+            /* @var ActionResult $actionResult */
+            $actionResult = $this->actionEngine->performAction($nextIntent->getAction()->getId());
+            $userContext->addActionResult($actionResult);
+            Log::debug(sprintf('Adding action result to user context'));
+        } catch (ActionNotAvailableException $e) {
+            Log::warning(sprintf('Action %s has not been bound.', $nextIntent->getAction()->getId()));
+        }
     }
 }

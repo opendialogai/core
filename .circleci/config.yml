@@ -32,6 +32,8 @@ jobs:
 
       - run: composer install -n --prefer-dist --no-scripts
 
+      - run: cp -r vendor/opendialogai/dgraph-docker dgraph
+
       - save_cache:
           paths:
             - ./vendor

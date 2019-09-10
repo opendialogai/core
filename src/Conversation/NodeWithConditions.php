@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-
 use Ds\Map;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\Node\Node;

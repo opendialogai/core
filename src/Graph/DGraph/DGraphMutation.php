@@ -45,7 +45,7 @@ class DGraphMutation
      */
     public function prepareTripleMutation()
     {
-         /* @var Map $visited - Keeps track of which nodes have been visited in the DFS. */
+        /* @var Map $visited - Keeps track of which nodes have been visited in the DFS. */
         $visited = new Map();
 
         /* Stores the final statement to be POSTed */
@@ -158,7 +158,7 @@ class DGraphMutation
         }
 
         $subject = $this->normalizeString($subject);
-        return sprintf('_:%s <%s> "%s" .', $subject, $predicate, $object);
+        return sprintf('_:%s <%s> "%s" .', $subject, $predicate, $this->escapeCharacters($object));
     }
 
     /**
@@ -177,23 +177,23 @@ class DGraphMutation
         bool $updateTo = false
     ) {
         if ($updateFrom && $updateTo) {
-            return sprintf('<%s> <%s> <%s> .', $subject, $predicate, $object);
+            return sprintf('<%s> <%s> <%s> .', $subject, $predicate, $this->escapeCharacters($object));
         }
 
         if ($updateFrom && !$updateTo) {
             $object = $this->normalizeString($object);
-            return sprintf('<%s> <%s> _:%s .', $subject, $predicate, $object);
+            return sprintf('<%s> <%s> _:%s .', $subject, $predicate, $this->escapeCharacters($object));
         }
 
         if (!$updateFrom && $updateTo) {
             $subject = $this->normalizeString($subject);
-            return sprintf('_:%s <%s> <%s> .', $subject, $predicate, $object);
+            return sprintf('_:%s <%s> <%s> .', $subject, $predicate, $this->escapeCharacters($object));
         }
 
         if (!$updateFrom && !$updateTo) {
             $subject = $this->normalizeString($subject);
             $object = $this->normalizeString($object);
-            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $object);
+            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $this->escapeCharacters($object));
         }
     }
 
@@ -232,6 +232,6 @@ class DGraphMutation
      */
     private function escapeCharacters($input)
     {
-        return str_replace("\n", "\\n", $input);
+        return str_replace('*', '\*', str_replace("\n", "\\n", $input));
     }
 }

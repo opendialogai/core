@@ -26,7 +26,7 @@ class CoreServiceProvider extends ServiceProvider
         ], 'opendialog-config');
 
         $this->publishes([
-            __DIR__ . '/../dgraph' => base_path('dgraph')
+            __DIR__ . '/../../dgraph-docker' => base_path('dgraph')
         ], 'dgraph');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
