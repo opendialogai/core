@@ -35,6 +35,15 @@ class MessageTemplate extends Model
         'outgoing_intent_id',
     ];
 
+    protected $visible = [
+        'name',
+        'conditions',
+        'message_markup',
+        'outgoing_intent_id',
+        'created_at',
+        'updated_at',
+    ];
+
     /**
      * Get the outgoing intent that owns the message template.
      */

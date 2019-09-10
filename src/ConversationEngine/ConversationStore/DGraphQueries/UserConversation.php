@@ -81,4 +81,3 @@ class UserConversation
         return $intents;
     }
 }
-
