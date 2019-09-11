@@ -361,7 +361,7 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
-     * Filters out no match intents if we have more than 1 intent. Any non-no match intent should be considered more valid
+     * Formatters out no match intents if we have more than 1 intent. Any non-no match intent should be considered more valid
      *
      * @param Map $matchingIntents
      * @return mixed
