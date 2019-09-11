@@ -158,7 +158,7 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
         $this->assertInstanceOf(
             OpenDialogMessages::class,
             $messageWrapper
@@ -191,7 +191,7 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Message', $messageWrapper->getMessages()[0]);
     }
@@ -223,7 +223,7 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage', $messageWrapper->getMessages()[0]);
     }
@@ -259,7 +259,7 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage', $messageWrapper->getMessages()[0]);
     }
@@ -294,7 +294,7 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage', $messageWrapper->getMessages()[0]);
     }
@@ -330,7 +330,7 @@ class ResponseEngineTest extends TestCase
         ]);
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
         $this->assertInstanceOf(Message::class, $messageWrapper->getMessages()[0]);
         $this->assertInstanceOf(ImageMessage::class, $messageWrapper->getMessages()[1]);
@@ -366,7 +366,7 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('message', $generator->getMarkUp()));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi dummy there   welcome');
     }
@@ -412,7 +412,7 @@ class ResponseEngineTest extends TestCase
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
         $this->assertInstanceOf(
             OpenDialogMessages::class,
             $messageWrapper
@@ -467,7 +467,7 @@ class ResponseEngineTest extends TestCase
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
     }
 
     public function testStringAttributeNotPresent()
@@ -493,7 +493,7 @@ class ResponseEngineTest extends TestCase
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
     }
 
     public function testGreaterThanOperator()
@@ -518,7 +518,7 @@ class ResponseEngineTest extends TestCase
         $userContext = $this->createUserContext();
         $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 700));
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
     }
 
@@ -545,7 +545,7 @@ class ResponseEngineTest extends TestCase
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
     }
 
     public function testLessThanOperator()
@@ -573,7 +573,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $userContext = $this->createUserContext();
         $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 300));
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
     }
 
@@ -600,7 +600,7 @@ class ResponseEngineTest extends TestCase
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat','Hello');
+        $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
     }
 
     /**

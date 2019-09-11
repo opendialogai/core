@@ -75,6 +75,7 @@
     }
   },
   "scripts": {
-    "test": "./vendor/bin/phpunit"
+    "test": "./vendor/bin/phpunit",
+    "cs": "./vendor/bin/php-cs-fixer fix src/"
   }
 }
