@@ -1,6 +1,7 @@
 /vendor
 /.idea
 /build
+/dgraph
 .DS_Store
 .env
 /storage/*

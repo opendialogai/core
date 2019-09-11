@@ -7,5 +7,4 @@ namespace OpenDialogAi\Core\Utterances\Exceptions;
  */
 class FieldNotSupported extends \Exception
 {
-
 }

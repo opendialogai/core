@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
-
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;

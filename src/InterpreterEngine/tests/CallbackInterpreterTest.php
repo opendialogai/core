@@ -87,4 +87,3 @@ class CallbackInterpreterTest extends TestCase
         return app()->make(InterpreterServiceInterface::class)->getDefaultInterpreter();
     }
 }
-

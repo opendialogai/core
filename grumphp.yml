@@ -1,0 +1,22 @@
+parameters:
+  tasks:
+    phpcsfixer:
+      config_file: ~
+      config: ~
+      fixers: []
+      level: ~
+      verbose: true
+    phpcs:
+      standard: ['PSR12']
+      severity: ~
+      error_severity: ~
+      warning_severity: ~
+      tab_width: ~
+      report: full
+      report_width: ~
+      whitelist_patterns: []
+      encoding: ~
+      ignore_patterns: []
+      sniffs: []
+      triggered_by: [php]
+      exclude: []

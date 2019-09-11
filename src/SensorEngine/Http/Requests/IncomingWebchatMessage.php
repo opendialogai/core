@@ -3,15 +3,16 @@
 namespace OpenDialogAi\SensorEngine\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenDialogAi\SensorEngine\Contracts\IncomingMessageInterface;
 
-class IncomingWebchatMessage extends FormRequest
+class IncomingWebchatMessage extends FormRequest implements IncomingMessageInterface
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -21,7 +22,7 @@ class IncomingWebchatMessage extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'notification' => 'required|string|in:message',

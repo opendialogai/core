@@ -391,15 +391,23 @@ class ConversationQueryFactory
     {
         $scene = $cm->getScene($data[Model::ID]);
         $clone ? false : $scene->setUid($data[Model::UID]);
-        $clone ? false: $scene->getUser()->setUid($data[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
-        $clone ? false: $scene->getBot()->setUid($data[Model::HAS_BOT_PARTICIPANT][0][Model::UID]);
+        $clone ? false : $scene->getUser()->setUid($data[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
+        $clone ? false : $scene->getBot()->setUid($data[Model::HAS_BOT_PARTICIPANT][0][Model::UID]);
 
         self::updateParticipantFromDGraphData(
-            $scene->getId(), $scene->getUser(), $cm, $data[Model::HAS_USER_PARTICIPANT][0], $clone
+            $scene->getId(),
+            $scene->getUser(),
+            $cm,
+            $data[Model::HAS_USER_PARTICIPANT][0],
+            $clone
         );
 
         self::updateParticipantFromDGraphData(
-            $scene->getId(), $scene->getBot(), $cm, $data[Model::HAS_BOT_PARTICIPANT][0], $clone
+            $scene->getId(),
+            $scene->getBot(),
+            $cm,
+            $data[Model::HAS_BOT_PARTICIPANT][0],
+            $clone
         );
     }
 

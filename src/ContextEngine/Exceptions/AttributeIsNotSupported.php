@@ -7,5 +7,4 @@ namespace OpenDialogAi\ContextEngine\Exceptions;
 */
 class AttributeIsNotSupported extends \InvalidArgumentException
 {
-
 }

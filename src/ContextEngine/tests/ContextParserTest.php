@@ -47,4 +47,3 @@ class ContextParserTest extends TestCase
         $this->assertEquals(AbstractAttribute::INVALID_ATTRIBUTE_NAME, $attributeId);
     }
 }
-

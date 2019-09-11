@@ -11,7 +11,6 @@ use OpenDialogAi\Core\Graph\Node\Node;
  */
 class Participant extends Node
 {
-
     public function __construct($id)
     {
         parent::__construct($id);
@@ -97,7 +96,7 @@ class Participant extends Node
      */
     public function isBot()
     {
-        if (preg_match("/".Model::BOT."/", $this->id)) {
+        if (preg_match("/" . Model::BOT . "/", $this->id)) {
             return true;
         }
         return false;
@@ -108,7 +107,7 @@ class Participant extends Node
      */
     public function isUser()
     {
-        if (preg_match("/".Model::USER."/", $this->id)) {
+        if (preg_match("/" . Model::USER . "/", $this->id)) {
             return true;
         }
         return false;
