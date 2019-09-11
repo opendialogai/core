@@ -82,7 +82,6 @@ class ConversationLogService
         OpenDialogMessages $messageWrapper,
         UtteranceInterface $utterance
     ): void {
-
         $intent = null;
         $conversation = null;
         $scene = null;

@@ -10,5 +10,4 @@ namespace OpenDialogAi\Core\Attribute;
  */
 class UnsupportedAttributeTypeException extends \InvalidArgumentException
 {
-
 }

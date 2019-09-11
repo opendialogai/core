@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use OpenDialogAi\ContextEngine\ContextParser;
@@ -12,8 +13,8 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * @property int $id
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property int $outgoing_intent_id
  * @property String $name
  * @property String $conditions
@@ -33,6 +34,15 @@ class MessageTemplate extends Model
         'conditions',
         'message_markup',
         'outgoing_intent_id',
+    ];
+
+    protected $visible = [
+        'name',
+        'conditions',
+        'message_markup',
+        'outgoing_intent_id',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -55,6 +65,23 @@ class MessageTemplate extends Model
         return $query
             ->join('outgoing_intents', 'outgoing_intents.id', '=', 'message_templates.outgoing_intent_id')
             ->where('outgoing_intents.name', $intentName);
+    }
+
+    /**
+     * Counts the number of conditions on the message template
+     *
+     * @return int
+     */
+    public function getNumberOfConditions(): int
+    {
+        if (isset($this->conditions)) {
+            $yaml = Yaml::parse($this->conditions);
+            if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
+                return count($yaml[self::CONDITIONS]);
+            }
+        }
+
+        return 0;
     }
 
     /**

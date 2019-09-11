@@ -3,11 +3,14 @@
 namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\Message;
 
 class ResponseEngineWebchatMessageWrapperTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function testMessageWrapperEmpty()
     {
         $messageWrapper = new OpenDialogMessages();

@@ -303,7 +303,7 @@ class ConversationEngine implements ConversationEngineInterface
                         $matchingIntents->put($validIntent->getConversationId(), $validIntent);
                     }
                 }
-            } else if ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
+            } elseif ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
                 $validIntent->setInterpretedIntent($defaultIntent);
                 $matchingIntents->put($validIntent->getConversationId(), $validIntent);
             }

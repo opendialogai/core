@@ -567,7 +567,8 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();;
+        $userContext = $this->createUserContext();
+        ;
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $userContext = $this->createUserContext();

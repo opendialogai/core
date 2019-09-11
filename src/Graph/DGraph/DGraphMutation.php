@@ -45,7 +45,7 @@ class DGraphMutation
      */
     public function prepareTripleMutation()
     {
-         /* @var Map $visited - Keeps track of which nodes have been visited in the DFS. */
+        /* @var Map $visited - Keeps track of which nodes have been visited in the DFS. */
         $visited = new Map();
 
         /* Stores the final statement to be POSTed */
@@ -80,6 +80,8 @@ class DGraphMutation
 
         // Add the ID value.
         $attributeStatement[] = $this->prepareAttributeTriple($id, 'id', $node->getId(), $update);
+
+        $attributeStatement[] = $this->prepareAttributeTriple($id, 'dgraph.type', 'User', $update);
 
         // Add all the attributes related to this node.
         $attributes = $node->getAttributes();

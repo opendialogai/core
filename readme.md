@@ -14,9 +14,9 @@ In the meantime if you would like a preview please [get in touch](https://www.gr
 
 ## Installing
 
-Install in composer with the following block:
+To install using [Composer](https://getcomposer.org/) run the following command:
 
-```"opendialogai/core"```
+`composer require opendialogai/core`
 
 ## Local Config
 To publish config files for local set up and customisation, run

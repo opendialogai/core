@@ -124,7 +124,8 @@ trait HasAttributesTrait
         Log::warning(sprintf(
             'Trying to remove non-existent attribute %s from %s',
             $attributeName,
-            $this->getId()));
+            $this->getId()
+        ));
         return false;
     }
 }

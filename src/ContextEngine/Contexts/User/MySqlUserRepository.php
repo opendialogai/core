@@ -31,7 +31,5 @@ class MySqlUserRepository
                 'email' => $user->getEmail(),
             ]
         );
-
     }
-
 }
