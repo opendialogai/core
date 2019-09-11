@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
@@ -67,7 +68,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      * Convert the template to the appropriate message types.
      *
      * @param String $markup
-     * @return Message[]
+     * @return OpenDialogMessage[]
      */
     public function getMessages(string $markup): array
     {
@@ -102,7 +103,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      * Parse XML markup and convert to the appropriate Message class.
      *
      * @param SimpleXMLElement $item
-     * @return Message
+     * @return OpenDialogMessage
      */
     private function parseMessage(SimpleXMLElement $item)
     {
@@ -284,9 +285,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateTextMessage(array $template): Message
+    public function generateTextMessage(array $template): OpenDialogMessage
     {
-        $message = (new Message())->setText($template[self::TEXT], [], true);
+        $message = (new OpenDialogMessage())->setText($template[self::TEXT], [], true);
         return $message;
     }
 

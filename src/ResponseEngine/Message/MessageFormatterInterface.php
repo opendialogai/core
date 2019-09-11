@@ -8,7 +8,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\LongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\RichMessage;
 
 /**
@@ -79,5 +79,5 @@ interface MessageFormatterInterface
 
     public function generateRichMessage(array $template): RichMessage;
 
-    public function generateTextMessage(array $template): Message;
+    public function generateTextMessage(array $template): OpenDialogMessage;
 }

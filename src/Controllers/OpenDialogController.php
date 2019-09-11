@@ -10,7 +10,7 @@ use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
@@ -74,7 +74,7 @@ class OpenDialogController
             );
         } catch (NoMatchingMessagesException $e) {
             Log::error($e->getMessage());
-            $message = (new Message())->setText($e->getMessage());
+            $message = (new OpenDialogMessage())->setText($e->getMessage());
             $messageWrapper = new OpenDialogMessages();
             $messageWrapper->addMessage($message);
         }

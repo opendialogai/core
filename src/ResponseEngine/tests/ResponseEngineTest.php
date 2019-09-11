@@ -16,7 +16,7 @@ use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -193,7 +193,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Message', $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\OpenDialogMessage', $messageWrapper->getMessages()[0]);
     }
 
     public function testWebChatImageMessage()
@@ -332,7 +332,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('formatter.core.webchat', 'Hello');
 
-        $this->assertInstanceOf(Message::class, $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf(OpenDialogMessage::class, $messageWrapper->getMessages()[0]);
         $this->assertInstanceOf(ImageMessage::class, $messageWrapper->getMessages()[1]);
     }
 

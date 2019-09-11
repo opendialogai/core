@@ -1,6 +1,7 @@
 <?php
 
-namespace OpenDialogAi\Core\Tests\Unit\Attribute;;
+namespace OpenDialogAi\Core\Tests\Unit\Attribute;
+;
 
 use OpenDialogAi\Core\Attribute\Condition\Condition;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;

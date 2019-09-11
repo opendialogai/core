@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
@@ -21,6 +22,8 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class AttributeExtractionTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /* @var ConversationEngine */
     private $conversationEngine;
 
@@ -34,11 +37,13 @@ class AttributeExtractionTest extends TestCase
         $this->registerMultipleInterpreters([new TestNameInterpreter(), new TestAgeInterpreter()]);
 
         // Add 'age' and 'dob_year' as a known attributes
-        $this->setConfigValue('opendialog.context_engine.custom_attributes',
-        [
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            [
             'age' => IntAttribute::class,
             'dob_year' => IntAttribute::class
-        ]);
+            ]
+        );
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
         $this->odController = $this->app->make(OpenDialogController::class);

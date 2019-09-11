@@ -122,5 +122,4 @@ class ConversationTest extends TestCase
         $this->assertTrue($scene->getCondition(self::CONDITION2)->getId() == self::CONDITION2);
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
     }
-
 }

@@ -292,7 +292,7 @@ EOT;
         ];
 
         $this->assertEquals(false, $message->getData()['disable_text']);
-        $this->assertArraySubset($expectedOutput, $message->getData());
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
 
     public function testRichMessage2()
@@ -329,7 +329,8 @@ EOT;
         ];
 
         $this->assertEquals(false, $message->getData()['disable_text']);
-        $this->assertArraySubset($expectedOutput, $message->getData());
+
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
 
     public function testRichMessage3()
@@ -363,7 +364,7 @@ EOT;
         ];
 
         $this->assertEquals(false, $message->getData()['disable_text']);
-        $this->assertArraySubset($expectedOutput, $message->getData());
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
 
     public function testListMessage()
@@ -438,9 +439,9 @@ EOT;
 
         $this->assertEquals(false, $message->getData()['disable_text']);
         $this->assertEquals('vertical', $data['view_type']);
-        $this->assertArraySubset($expectedOutput[0], $data['items'][0]);
-        $this->assertArraySubset($expectedOutput[1], $data['items'][1]);
-        $this->assertArraySubset($expectedOutput[2], $data['items'][2]);
+        self::assertArraySubset($expectedOutput, $data['items'][0]);
+        self::assertArraySubset($expectedOutput, $data['items'][1]);
+        self::assertArraySubset($expectedOutput, $data['items'][2]);
     }
 
     public function testFormMessage()
@@ -566,7 +567,7 @@ EOT;
         $data = $message->getData();
 
         $this->assertEquals(false, $message->getData()['disable_text']);
-        $this->assertArraySubset($expectedOutput, $message->getData());
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
 
     public function testLongTextMessage()
@@ -601,6 +602,6 @@ EOT;
         $data = $message->getData();
 
         $this->assertEquals(false, $message->getData()['disable_text']);
-        $this->assertArraySubset($expectedOutput, $message->getData());
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
 }

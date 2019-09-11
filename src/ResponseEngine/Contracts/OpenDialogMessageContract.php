@@ -11,14 +11,14 @@ interface OpenDialogMessageContract
      *
      * @return null|string
      */
-    public function getText():? string;
+    public function getText():?string;
 
     /**
      * Get the message data
      *
      * @return null|array
      */
-    public function getData():? array;
+    public function getData():?array;
 
     /**
      * Get the message to post back

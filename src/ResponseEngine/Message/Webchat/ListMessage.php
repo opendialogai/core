@@ -16,7 +16,7 @@ class ListMessage extends OpenDialogMessage
      * @param Message $message
      * @return $this
      */
-    public function addItem(Message $message)
+    public function addItem(OpenDialogMessage $message)
     {
         $this->items[] = $message;
         return $this;
@@ -63,7 +63,7 @@ class ListMessage extends OpenDialogMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():? array
+    public function getData():?array
     {
         return [
             'items' => $this->getItemsArray(),

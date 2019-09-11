@@ -184,9 +184,8 @@ class ButtonMessage
     {
         $buttonMarkUp = "";
 
-        foreach ($this->buttons as $button)
-        {
-            $buttonMarkUp.= $button->getMarkUp();
+        foreach ($this->buttons as $button) {
+            $buttonMarkUp .= $button->getMarkUp();
         }
 
         return <<<EOT
@@ -198,7 +197,8 @@ EOT;
     }
 }
 
-abstract class Button {
+abstract class Button
+{
 }
 
 class CallbackButton extends Button

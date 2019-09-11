@@ -131,7 +131,7 @@ class LongTextMessage extends OpenDialogMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():? array
+    public function getData():?array
     {
         return parent::getData() + [
             'character_limit' => $this->getCharacterLimit(),

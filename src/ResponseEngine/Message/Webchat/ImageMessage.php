@@ -71,7 +71,7 @@ class ImageMessage extends OpenDialogMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():? array
+    public function getData():?array
     {
         return [
             'img_src' => $this->getImgSrc(),

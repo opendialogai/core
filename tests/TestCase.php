@@ -228,7 +228,6 @@ conversation:
             i: intent.core.NoMatchResponse
             completes: true
 EOT;
-
     }
 
     protected function initDDgraph(): void
@@ -273,10 +272,12 @@ EOT;
         }
 
         $this->app['config']->set(
-            'opendialog.interpreter_engine.available_interpreters', [
+            'opendialog.interpreter_engine.available_interpreters',
+            [
             get_class($interpreter),
             get_class($defaultInterpreter)
-        ]);
+            ]
+        );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }
@@ -300,7 +301,9 @@ EOT;
         }
 
         $this->app['config']->set(
-            'opendialog.interpreter_engine.available_interpreters', $classes);
+            'opendialog.interpreter_engine.available_interpreters',
+            $classes
+        );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }

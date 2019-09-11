@@ -107,7 +107,7 @@ class FormMessage extends OpenDialogMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():? array
+    public function getData():?array
     {
         return parent::getData() + [
             'callback_id' => $this->getCallbackId(),

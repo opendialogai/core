@@ -53,7 +53,7 @@ class ButtonMessage extends OpenDialogMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():? array
+    public function getData():?array
     {
         return parent::getData() + [
             'buttons' => $this->getButtonsArray(),
