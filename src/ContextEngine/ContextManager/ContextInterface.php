@@ -52,4 +52,12 @@ interface ContextInterface
      * @return bool true if removed, false if not
      */
     public function removeAttribute(string $attributeName): bool;
+
+    /**
+     * Persist context value.
+     * In the case where a context does not need to be persisted, it can do nothing, or just create a log message.
+     *
+     * @return bool true if successful, false if not
+     */
+    public function persist(): bool;
 }

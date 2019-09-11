@@ -166,8 +166,10 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      */
-    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
-    {
+    public function updateConversationFollowingUserInput(
+        UserContext $userContext,
+        UtteranceInterface $utterance
+    ): ?Conversation {
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
 
@@ -284,8 +286,11 @@ class ConversationEngine implements ConversationEngineInterface
      * @param Map $validOpeningIntents
      * @return Map
      */
-    private function matchOpeningIntents(Intent $defaultIntent, UtteranceInterface $utterance, Map $validOpeningIntents): Map
-    {
+    private function matchOpeningIntents(
+        Intent $defaultIntent,
+        UtteranceInterface $utterance,
+        Map $validOpeningIntents
+    ): Map {
         $matchingIntents = new Map();
 
         /* @var OpeningIntent $validIntent */
@@ -361,7 +366,8 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
-     * Filters out no match intents if we have more than 1 intent. Any non-no match intent should be considered more valid
+     * Filters out no match intents if we have more than 1 intent.
+     * Any non-no match intent should be considered more valid.
      *
      * @param Map $matchingIntents
      * @return mixed
@@ -402,7 +408,7 @@ class ConversationEngine implements ConversationEngineInterface
             $expectedAttributes = $intent->getExpectedAttributeContexts();
         }
 
-        $userContextUpdated = false;
+        $contextsUpdated = [];
         /** @var AttributeInterface $attribute */
         foreach ($intent->getNonCoreAttributes() as $attribute) {
             $attributeName = $attribute->getId();
@@ -410,23 +416,33 @@ class ConversationEngine implements ConversationEngineInterface
             $context = ContextService::getSessionContext();
             if ($expectedAttributes->hasKey($attributeName)) {
                 $contextId = $expectedAttributes->get($attributeName);
-                if ($contextId === UserContext::USER_CONTEXT) {
-                    $userContextUpdated = true;
-                }
                 try {
                     $context = ContextService::getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
+                    // phpcs:ignore
                     Log::error(sprintf('Expected attribute context %s does not exist, using session context', $contextId));
                 }
             }
 
             Log::debug(sprintf('Storing attribute %s in %s context', $attribute->getId(), $context->getId()));
             $context->addAttribute($attribute);
+
+            $contextsUpdated[$context->getId()] = $context->getId();
         }
 
-        // TODO - is there a better way of doing this? Each context could have it's own tear down method to deal with persisting
-        if ($userContextUpdated) {
-            ContextService::getUserContext()->updateUser();
+        $this->persistContexts($contextsUpdated);
+    }
+
+    /**
+     * Persists the contexts given.
+     *
+     * @param array $contexts Array of context IDs to be persisted
+     */
+    private function persistContexts(array $contexts)
+    {
+        foreach ($contexts as $contextId) {
+            $context = ContextService::getContext($contextId);
+            $context->persist();
         }
     }
 
@@ -450,8 +466,11 @@ class ConversationEngine implements ConversationEngineInterface
      * @return MatchingIntents
      * @throws NodeDoesNotExistException
      */
-    private function getMatchingIntents(UtteranceInterface $utterance, Map $nextIntents, Intent $defaultIntent): MatchingIntents
-    {
+    private function getMatchingIntents(
+        UtteranceInterface $utterance,
+        Map $nextIntents,
+        Intent $defaultIntent
+    ): MatchingIntents {
         $matchingIntents = new MatchingIntents();
 
         /* @var Intent $validIntent */
