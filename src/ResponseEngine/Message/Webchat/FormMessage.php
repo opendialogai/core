@@ -2,10 +2,10 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormElement;
 
-class FormMessage extends Message
+class FormMessage extends OpenDialogMessage
 {
     protected $messageType = 'webchat_form';
 

@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
 class WebChatMessages
 {
-    /** @var Message[] */
+    /** @var OpenDialogMessage[] */
     protected $messages;
 
     public function __construct()
@@ -17,9 +17,9 @@ class WebChatMessages
     /**
      * Adds a message object.
      *
-     * @param Message $message - a message to add.
+     * @param OpenDialogMessage $message - a message to add.
      */
-    public function addMessage(Message $message)
+    public function addMessage(OpenDialogMessage $message)
     {
         $this->messages[] = $message;
     }
@@ -27,7 +27,7 @@ class WebChatMessages
     /**
      * Return the message objects.
      *
-     * @return Message|array $messages
+     * @return OpenDialogMessage|array $messages
      */
     public function getMessages()
     {

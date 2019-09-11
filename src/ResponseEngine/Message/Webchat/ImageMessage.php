@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
-class ImageMessage extends Message
+class ImageMessage extends OpenDialogMessage
 {
     protected $messageType = 'image';
 

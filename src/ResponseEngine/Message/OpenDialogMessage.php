@@ -4,7 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use OpenDialogAi\Core\ResponseEngine\Contracts\OpenDialogMessageContract;
 
-class Message implements OpenDialogMessageContract
+class OpenDialogMessage implements OpenDialogMessageContract
 {
     const TIME = 'time';
 

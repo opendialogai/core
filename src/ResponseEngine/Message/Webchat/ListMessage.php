@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
-class ListMessage extends Message
+class ListMessage extends OpenDialogMessage
 {
     protected $messageType = 'list';
 

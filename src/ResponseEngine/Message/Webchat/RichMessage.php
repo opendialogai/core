@@ -2,10 +2,10 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
-class RichMessage extends Message
+class RichMessage extends OpenDialogMessage
 {
     protected $messageType = 'rich';
 
