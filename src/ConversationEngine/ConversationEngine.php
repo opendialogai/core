@@ -434,7 +434,9 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
-     * @param array $contexts
+     * Persists the contexts given.
+     * 
+     * @param array $contexts Array of context IDs to be persister
      */
     private function persistContexts(array $contexts)
     {
