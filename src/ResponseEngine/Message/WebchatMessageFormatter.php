@@ -7,23 +7,22 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatClickToCallButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatLinkButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatTabSwitchButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormAutoCompleteSelectElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormNumberElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormSelectElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextAreaElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatFormMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatListMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatLongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatRichMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormAutoCompleteSelectElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormNumberElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\ListMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\RichMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
@@ -68,7 +67,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      * Convert the template to the appropriate message types.
      *
      * @param String $markup
-     * @return WebChatMessage[]
+     * @return Message[]
      */
     public function getMessages(string $markup): array
     {
@@ -103,7 +102,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      * Parse XML markup and convert to the appropriate Message class.
      *
      * @param SimpleXMLElement $item
-     * @return WebChatMessage
+     * @return Message
      */
     private function parseMessage(SimpleXMLElement $item)
     {
@@ -149,22 +148,22 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return WebChatButtonMessage
+     * @return ButtonMessage
      */
-    public function generateButtonMessage(array $template)
+    public function generateButtonMessage(array $template): ButtonMessage
     {
-        $message = new WebChatButtonMessage();
+        $message = new ButtonMessage();
         $message->setText($template[self::TEXT], [], true);
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
-                $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
+                $message->addButton(new TabSwitchButton($button[self::TEXT]));
             } elseif (isset($button[self::LINK])) {
-                $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $button[self::LINK_NEW_TAB]));
+                $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $button[self::LINK_NEW_TAB]));
             } elseif (isset($button[self::CLICK_TO_CALL])) {
-                $message->addButton(new WebchatClickToCallButton($button[self::TEXT], $button[self::CLICK_TO_CALL]));
+                $message->addButton(new ClickToCallButton($button[self::TEXT], $button[self::CLICK_TO_CALL]));
             } else {
                 $message->addButton(
-                    new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
+                    new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
                 );
             }
         }
@@ -176,7 +175,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     /**
      * @return EmptyMessage
      */
-    public function generateEmptyMessage()
+    public function generateEmptyMessage(): EmptyMessage
     {
         $message = new EmptyMessage();
         return $message;
@@ -184,11 +183,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return WebChatFormMessage
+     * @return FormMessage
      */
-    public function generateFormMessage(array $template)
+    public function generateFormMessage(array $template): FormMessage
     {
-        $message = (new WebChatFormMessage())
+        $message = (new FormMessage())
             ->setText($template[self::TEXT])
             ->setCallbackId($template[self::CALLBACK])
             ->setAutoSubmit($template[self::AUTO_SUBMIT]);
@@ -203,17 +202,17 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             $required = $el[self::REQUIRED];
 
             if ($el[self::ELEMENT_TYPE] == self::TEXTAREA) {
-                $element = new WebChatFormTextAreaElement($name, $display, $required);
+                $element = new FormTextAreaElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
-                $element = new WebChatFormTextElement($name, $display, $required);
+                $element = new FormTextElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
-                $element = new WebChatFormNumberElement($name, $display, $required);
+                $element = new FormNumberElement($name, $display, $required);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new WebChatFormSelectElement($name, $display, $required, $options);
+                $element = new FormSelectElement($name, $display, $required, $options);
             } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new WebChatFormAutoCompleteSelectElement($name, $display, $required, $options);
+                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options);
             }
             $message->addElement($element);
         }
@@ -223,11 +222,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return WebChatImageMessage
+     * @return ImageMessage
      */
-    public function generateImageMessage(array $template)
+    public function generateImageMessage(array $template): ImageMessage
     {
-        $message = (new WebChatImageMessage())
+        $message = (new ImageMessage())
             ->setImgSrc($template[self::SRC])
             ->setImgLink($template[self::LINK])
             ->setLinkNewTab($template[self::LINK_NEW_TAB]);
@@ -235,9 +234,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateRichMessage(array $template)
+    public function generateRichMessage(array $template): RichMessage
     {
-        $message = (new WebChatRichMessage())
+        $message = (new RichMessage())
             ->setTitle($template[self::TITLE])
             ->setSubTitle($template[self::SUBTITLE])
             ->setText($template[self::TEXT])
@@ -248,13 +247,13 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         if (isset($template[self::BUTTONS])) {
             foreach ($template[self::BUTTONS] as $button) {
                 if (isset($button[self::TAB_SWITCH])) {
-                    $message->addButton(new WebchatTabSwitchButton($button[self::TEXT]));
+                    $message->addButton(new TabSwitchButton($button[self::TEXT]));
                 } elseif (isset($button[self::LINK])) {
                     $linkNewTab = $button[self::LINK_NEW_TAB];
-                    $message->addButton(new WebchatLinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab));
+                    $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab));
                 } else {
                     $message->addButton(
-                        new WebchatCallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
+                        new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
                     );
                 }
             }
@@ -263,18 +262,18 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateListMessage(array $template)
+    public function generateListMessage(array $template): ListMessage
     {
-        $message = (new WebChatListMessage())
+        $message = (new ListMessage())
             ->addItems($template[self::ITEMS])
             ->setViewType($template[self::VIEW_TYPE]);
 
         return $message;
     }
 
-    public function generateLongTextMessage(array $template)
+    public function generateLongTextMessage(array $template): LongTextMessage
     {
-        $message = (new WebChatLongTextMessage())
+        $message = (new LongTextMessage())
             ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setCharacterLimit($template[self::CHARACTER_LIMIT])
             ->setCallbackId($template[self::CALLBACK])
@@ -285,9 +284,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateTextMessage(array $template)
+    public function generateTextMessage(array $template): Message
     {
-        $message = (new WebChatMessage())->setText($template[self::TEXT], [], true);
+        $message = (new Message())->setText($template[self::TEXT], [], true);
         return $message;
     }
 

@@ -2,7 +2,9 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-class WebChatLongTextMessage extends WebChatMessage
+use OpenDialogAi\ResponseEngine\Message\Message;
+
+class LongTextMessage extends Message
 {
     protected $messageType = 'longtext';
 

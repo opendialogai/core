@@ -10,7 +10,6 @@ use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 
 class ConversationLogService
 {
@@ -95,7 +94,7 @@ class ConversationLogService
         } catch (AttributeDoesNotExistException $e) {
         }
 
-        /** @var WebChatMessage $message */
+        /** @var Message $message */
         foreach ($messageWrapper->getMessages() as $message) {
             $messageData = $message->getMessageToPost();
             if ($messageData) {

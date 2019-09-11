@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
+use OpenDialogAi\ResponseEngine\Message\Message;
+
 /**
  * Class EmptyMessage
  *
@@ -11,7 +13,7 @@ namespace OpenDialogAi\ResponseEngine\Message\Webchat;
  *
  * @package OpenDialogAi\ResponseEngine\Message\Webchat
  */
-class EmptyMessage extends WebChatMessage
+class EmptyMessage extends Message
 {
     protected $messageType = 'empty';
 

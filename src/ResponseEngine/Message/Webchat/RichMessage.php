@@ -2,9 +2,10 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseWebchatButton;
+use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
-class WebChatRichMessage extends WebChatMessage
+class RichMessage extends Message
 {
     protected $messageType = 'rich';
 
@@ -18,7 +19,7 @@ class WebChatRichMessage extends WebChatMessage
 
     private $imgLinkNewTab = false;
 
-    /** The message buttons. @var BaseWebchatButton[] */
+    /** The message buttons. @var BaseButton[] */
     private $buttons = [];
 
     /**
@@ -72,10 +73,10 @@ class WebChatRichMessage extends WebChatMessage
     }
 
     /**
-     * @param BaseWebchatButton $button
+     * @param BaseButton $button
      * @return $this
      */
-    public function addButton(BaseWebchatButton $button)
+    public function addButton(BaseButton $button)
     {
         $this->buttons[] = $button;
         return $this;
