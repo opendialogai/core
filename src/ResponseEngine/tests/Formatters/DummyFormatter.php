@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\ResponseEngine\tests\Formatters;
 
-use OpenDialogAi\ResponseEngine\Message\Message;
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\FormMessage;
@@ -56,7 +56,7 @@ class DummyFormatter implements MessageFormatterInterface
         //
     }
 
-    public function generateTextMessage(array $template): Message
+    public function generateTextMessage(array $template): OpenDialogMessage
     {
         //
     }
