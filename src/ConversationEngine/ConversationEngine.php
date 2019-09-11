@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
@@ -413,29 +414,10 @@ class ConversationEngine implements ConversationEngineInterface
             $expectedAttributes = $intent->getExpectedAttributeContexts();
         }
 
-        $contextsUpdated = [];
-        /** @var AttributeInterface $attribute */
-        foreach ($intent->getNonCoreAttributes() as $attribute) {
-            $attributeName = $attribute->getId();
+        $attributes = $intent->getNonCoreAttributes();
+        $context = ContextService::getSessionContext();
 
-            $context = ContextService::getSessionContext();
-            if ($expectedAttributes->hasKey($attributeName)) {
-                $contextId = $expectedAttributes->get($attributeName);
-                try {
-                    $context = ContextService::getContext($contextId);
-                } catch (ContextDoesNotExistException $e) {
-                    // phpcs:ignore
-                    Log::error(sprintf('Expected attribute context %s does not exist, using session context', $contextId));
-                }
-            }
-
-            Log::debug(sprintf('Storing attribute %s in %s context', $attribute->getId(), $context->getId()));
-            $context->addAttribute($attribute);
-
-            $contextsUpdated[$context->getId()] = $context->getId();
-        }
-
-        $this->persistContexts($contextsUpdated);
+        $this->storeAttributes($attributes, $context, $expectedAttributes);
     }
 
     /**
@@ -548,17 +530,34 @@ class ConversationEngine implements ConversationEngineInterface
         UserContext $userContext,
         Map $expectedActionAttributes
     ) {
-        $userContextUpdated = false;
-        foreach ($actionResult->getResultAttributes()->getAttributes() as $attribute) {
+        $attributes = $actionResult->getResultAttributes()->getAttributes();
+
+        $this->storeAttributes($attributes, $userContext, $expectedActionAttributes);
+    }
+
+    /**
+     * Store attributes values to the right context.
+     *
+     * @param Map $attributes
+     * @param ContextInterface $defaultContext
+     * @param Map $expectedAttributes
+     */
+    private function storeAttributes(
+        Map $attributes,
+        ContextInterface $defaultContext,
+        Map $expectedAttributes
+    ) {
+        $contextsUpdated = [];
+
+        /** @var AttributeInterface $attribute */
+        foreach ($attributes as $attribute) {
             $attributeName = $attribute->getId();
 
-            $context = $userContext;
+            $context = $defaultContext;
 
-            if ($expectedActionAttributes->hasKey($attributeName)) {
-                $contextId = $expectedActionAttributes->get($attributeName);
-                if ($contextId === UserContext::USER_CONTEXT) {
-                    $userContextUpdated = true;
-                } else {
+            if ($expectedAttributes->hasKey($attributeName)) {
+                $contextId = $expectedAttributes->get($attributeName);
+                if ($context->getId() != $contextId) {
                     try {
                         $context = ContextService::getContext($contextId);
                     } catch (ContextDoesNotExistException $e) {
@@ -567,11 +566,12 @@ class ConversationEngine implements ConversationEngineInterface
                 }
             }
 
+            Log::debug(sprintf('Storing attribute %s in %s context', $attribute->getId(), $context->getId()));
             $context->addAttribute($attribute);
+
+            $contextsUpdated[$context->getId()] = $context->getId();
         }
 
-        if ($userContextUpdated) {
-            ContextService::getUserContext()->updateUser();
-        }
+        $this->persistContexts($contextsUpdated);
     }
 }

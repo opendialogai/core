@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
@@ -257,7 +258,8 @@ class Intent extends Node
     public function getExpectedActionAttributes(): array
     {
         if ($this->hasExpectedActionAttributes()) {
-            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_EXPECTED_ACTION_ATTRIBUTE)->values()->toArray();
+            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_EXPECTED_ACTION_ATTRIBUTE)
+                ->values()->toArray();
         }
 
         throw new NodeDoesNotExistException('Intent has no expected action attributes');
@@ -298,7 +300,7 @@ class Intent extends Node
                 );
             }
         } catch (NodeDoesNotExistException $e) {
-            // nothing
+            Log::warning($e->getMessage());
         }
 
         return $attributesContexts;
@@ -323,7 +325,7 @@ class Intent extends Node
                 );
             }
         } catch (NodeDoesNotExistException $e) {
-            // nothing
+            Log::warning($e->getMessage());
         }
 
         return $attributesActionContexts;
