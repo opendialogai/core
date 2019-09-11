@@ -439,9 +439,9 @@ EOT;
 
         $this->assertEquals(false, $message->getData()['disable_text']);
         $this->assertEquals('vertical', $data['view_type']);
-        self::assertArraySubset($expectedOutput, $data['items'][0]);
-        self::assertArraySubset($expectedOutput, $data['items'][1]);
-        self::assertArraySubset($expectedOutput, $data['items'][2]);
+        self::assertArraySubset($expectedOutput[0], $data['items'][0]);
+        self::assertArraySubset($expectedOutput[1], $data['items'][1]);
+        self::assertArraySubset($expectedOutput[2], $data['items'][2]);
     }
 
     public function testFormMessage()
