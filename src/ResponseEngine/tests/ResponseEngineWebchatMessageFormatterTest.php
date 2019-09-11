@@ -2,11 +2,14 @@
 
 namespace OpenDialogAi\ResponseEngine\Tests;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function testEmptyMessage()
     {
         $markup = '<message disable_text="1"><empty-message></empty-message></message>';
@@ -83,11 +86,13 @@ EOT;
 
         $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
+        // phpcs:ignore
         $this->assertEquals('hi there <a target="_parent" href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
 
     public function testImageMessage()
     {
+        // phpcs:ignore
         $markup = '<message disable_text="1"><image-message link_new_tab="1"><link>https://www.opendialog.ai</link><src>https://www.opendialog.ai/assets/images/logo.svg</src></image-message></message>';
         $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);
@@ -121,6 +126,7 @@ EOT;
 
     public function testButtonMessage()
     {
+        // phpcs:ignore
         $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
         $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup);

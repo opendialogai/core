@@ -1,8 +1,10 @@
 /vendor
 /.idea
 /build
+/dgraph
 .DS_Store
 .env
 /storage/*
 /bootstrap/*
 .php_cs.cache
+.phpunit.result.cache

@@ -2,12 +2,15 @@
 
 namespace OpenDialogAi\ResponseEngine\Tests;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 
 class ResponseEngineWebchatMessageWrapperTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function testMessageWrapperEmpty()
     {
         $messageWrapper = new WebChatMessages();
@@ -37,7 +40,14 @@ class ResponseEngineWebchatMessageWrapperTest extends TestCase
         $message2 = new WebChatMessage();
         $message2->setText('This is another test, this is only another test.');
         $messageWrapper->addMessage($message2);
-        $this->assertArraySubset([0 => ['data' => ['text' => 'This is a test, this is only a test.']]], $messageWrapper->getMessageToPost());
-        $this->assertArraySubset([1 => ['data' => ['text' => 'This is another test, this is only another test.']]], $messageWrapper->getMessageToPost());
+
+        $this->assertArraySubset(
+            [0 => ['data' => ['text' => 'This is a test, this is only a test.']]],
+            $messageWrapper->getMessageToPost()
+        );
+        $this->assertArraySubset(
+            [1 => ['data' => ['text' => 'This is another test, this is only another test.']]],
+            $messageWrapper->getMessageToPost()
+        );
     }
 }

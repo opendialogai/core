@@ -158,8 +158,10 @@ class Conversation extends Model
 
                 if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
+                        // phpcs:ignore
                         $conversationManager->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
+                        // phpcs:ignore
                         $conversationManager->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
@@ -229,7 +231,7 @@ class Conversation extends Model
      */
     public function unPublishConversation($reValidate = true)
     {
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $dGraph = app()->make(DGraphClient::class);
 
         $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
 

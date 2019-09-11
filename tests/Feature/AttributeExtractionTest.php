@@ -34,8 +34,7 @@ class AttributeExtractionTest extends TestCase
         $this->registerMultipleInterpreters([new TestNameInterpreter(), new TestAgeInterpreter()]);
 
         // Add 'age' and 'dob_year' as a known attributes
-        $this->setConfigValue('opendialog.context_engine.custom_attributes',
-        [
+        $this->setConfigValue('opendialog.context_engine.custom_attributes', [
             'age' => IntAttribute::class,
             'dob_year' => IntAttribute::class
         ]);
@@ -108,6 +107,7 @@ class AttributeExtractionTest extends TestCase
         $outgoingIntent = OutgoingIntent::create(['name' => 'age_response']);
         MessageTemplate::create([
             'name' => 'age message',
+            // phpcs:ignore
             'message_markup' => '<message><text-message>age: {user.age}. DOB: {session.dob_year}</text-message></message>',
             'outgoing_intent_id' => $outgoingIntent->id
         ]);
@@ -167,6 +167,39 @@ class AttributeExtractionTest extends TestCase
 
         $fullName = ContextService::getAttribute('full_name', ContextServiceInterface::SESSION_CONTEXT);
         $this->assertNotEquals('last_name', $fullName->getValue());
+    }
+
+    public function testMultipleMatchedMessageTemplates()
+    {
+        $outgoingIntent = OutgoingIntent::create(['name' => 'hello_user']);
+        MessageTemplate::create([
+            'name' => 'message 1',
+            'message_markup' => '<message><text-message>message no conditions</text-message></message>',
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+
+        MessageTemplate::create([
+            'name' => 'message 2',
+            'message_markup' => '<message><text-message>message with one condition</text-message></message>',
+            'conditions' => "conditions:\n  - condition:\n      attribute: user.name\n      operation: is_not_set",
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+
+        // phpcs:disable
+        MessageTemplate::create([
+            'name' => 'message 3',
+            'message_markup' => '<message><text-message>message with two conditions</text-message></message>',
+            'conditions' => "conditions:\n  - condition:\n      attribute: user.name\n      operation: is_not_set\n  - condition:\n      attribute: session.last_name\n      operation: is_set",
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+        // phpcs:enable
+
+        $utterance1 = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
+        $messageWrapper = $this->odController->runConversation($utterance1);
+
+        $this->assertCount(1, $messageWrapper->getMessages());
+
+        $this->assertEquals('message with two conditions', $messageWrapper->getMessages()[0]->getText());
     }
 
     private function getExampleConversation()
