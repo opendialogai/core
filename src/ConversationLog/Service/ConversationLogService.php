@@ -75,12 +75,12 @@ class ConversationLogService
     /**
      * Log outgoing message.
      *
-     * @param WebChatMessages $messageWrapper
+     * @param OpenDialogMessages $messageWrapper
      * @param UtteranceInterface $utterance
      * @throws FieldNotSupported
      */
     public function logOutgoingMessages(
-        WebChatMessages $messageWrapper,
+        OpenDialogMessages $messageWrapper,
         UtteranceInterface $utterance
     ): void {
         $intent = null;

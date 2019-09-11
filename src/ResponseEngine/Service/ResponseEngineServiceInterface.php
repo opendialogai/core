@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
+use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
@@ -18,10 +19,10 @@ interface ResponseEngineServiceInterface
      * Gets messages from the given intent formatted correctly for the platform the user is on
      *
      * @param string $intentName
-     * @return WebChatMessages $messageWrapper
+     * @return OpenDialogMessages $messageWrapper
      * @throws NoMatchingMessagesException
      */
-    public function getMessageForIntent(string $intentName): WebChatMessages;
+    public function getMessageForIntent(string $intentName): OpenDialogMessages;
 
     /**
      * Takes the input text and replaces named attributes with in curly braces.
@@ -30,5 +31,5 @@ interface ResponseEngineServiceInterface
      * @param $text string The message test to fill
      * @return string The message text with attributes filled
      */
-    public function fillAttributes($text) : string;
+    public function fillAttributes($text): string;
 }

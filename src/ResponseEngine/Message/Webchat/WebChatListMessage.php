@@ -58,7 +58,10 @@ class WebChatListMessage extends WebChatMessage
         return $this->viewType;
     }
 
-    public function getData()
+    /**
+     * {@inheritDoc}
+     */
+    public function getData():? array
     {
         return [
             'items' => $this->getItemsArray(),

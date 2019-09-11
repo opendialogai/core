@@ -20,10 +20,10 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     /**
      * @inheritdoc
      *
-     * @return WebChatMessages $messageWrapper
+     * @return OpenDialogMessages $messageWrapper
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function getMessageForIntent(string $intentName): WebChatMessages
+    public function getMessageForIntent(string $intentName): OpenDialogMessages
     {
         $selectedMessageTemplate = null;
 
@@ -59,7 +59,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $formatter = new WebchatMessageFormatter();
         $messages = $formatter->getMessages($markup);
 
-        $messageWrapper = new WebChatMessages();
+        $messageWrapper = new OpenDialogMessages();
         foreach ($messages as $message) {
             $messageWrapper->addMessage($message);
         }

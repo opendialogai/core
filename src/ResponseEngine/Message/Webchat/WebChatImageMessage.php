@@ -66,7 +66,10 @@ class WebChatImageMessage extends WebChatMessage
         return $this->linkNewTab;
     }
 
-    public function getData()
+    /**
+     * {@inheritDoc}
+     */
+    public function getData():? array
     {
         return [
             'img_src' => $this->getImgSrc(),

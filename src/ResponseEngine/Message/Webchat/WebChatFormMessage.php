@@ -104,9 +104,9 @@ class WebChatFormMessage extends WebChatMessage
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    public function getData()
+    public function getData():? array
     {
         return parent::getData() + [
             'callback_id' => $this->getCallbackId(),

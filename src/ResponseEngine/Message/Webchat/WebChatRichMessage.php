@@ -82,9 +82,9 @@ class WebChatRichMessage extends WebChatMessage
     }
 
     /**
-     * @return null|string
+     * {@inheritDoc}
      */
-    public function getTitle()
+    public function getTitle():? string
     {
         return $this->title;
     }
@@ -130,9 +130,9 @@ class WebChatRichMessage extends WebChatMessage
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    public function getData()
+    public function getData():? array
     {
         $data = [
             'title' => $this->getTitle(),

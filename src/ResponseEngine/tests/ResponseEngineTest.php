@@ -9,6 +9,7 @@ use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\TimestampAttribute;
+use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
@@ -122,7 +123,11 @@ class ResponseEngineTest extends TestCase
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
+        $this->assertInstanceOf(
+            OpenDialogMessages::class,
+            $messageWrapper
+        );
+
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there dummy!');
     }
 
@@ -372,8 +377,15 @@ class ResponseEngineTest extends TestCase
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
-        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'This is an example <a target="_blank" href="http://www.example.com">This is a link</a>');
+        $this->assertInstanceOf(
+            OpenDialogMessages::class,
+            $messageWrapper
+        );
+
+        $this->assertEquals(
+            $messageWrapper->getMessages()[0]->getText(),
+            'This is an example <a target="_blank" href="http://www.example.com">This is a link</a>'
+        );
     }
 
     public function testAllAttributesMayBeNull()
