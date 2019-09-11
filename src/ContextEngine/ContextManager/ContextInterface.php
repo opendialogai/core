@@ -57,7 +57,7 @@ interface ContextInterface
      * Persist context value.
      * In the case where a context does not need to be persisted, it can do nothing, or just create a log message.
      *
-     * @return bool true if successfully, false if not
+     * @return bool true if successful, false if not
      */
     public function persist(): bool;
 }
