@@ -229,7 +229,7 @@ class Conversation extends Model
      */
     public function unPublishConversation($reValidate = true)
     {
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $dGraph = app()->make(DGraphClient::class);
 
         $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
 

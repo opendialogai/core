@@ -34,10 +34,16 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             throw new NoMatchingMessagesException(sprintf("No messages found for intent %s", $intentName));
         }
 
+        // Get the message with the most conditions matched.
+        $selectedMessageConditionsNumber = -1;
         foreach ($messageTemplates as $messageTemplate) {
             if ($this->messageMeetsConditions($messageTemplate)) {
-                $selectedMessageTemplate = $messageTemplate;
-                break;
+                $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
+
+                if ($messageConditionsNumber > $selectedMessageConditionsNumber) {
+                    $selectedMessageTemplate = $messageTemplate;
+                    $selectedMessageConditionsNumber = $messageConditionsNumber;
+                }
             }
         }
 
