@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b332c448ecbdbfe0c4c4f83053eb679d",
+    "content-hash": "7c8923c505f820911a7fe739ab961eb3",
     "packages": [
         {
             "name": "anahkiasen/underscore-php",
@@ -1206,19 +1206,20 @@
         },
         {
             "name": "opendialogai/dgraph-docker",
-            "version": "1.0.17",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opendialogai/dgraph-docker.git",
-                "reference": "7af3e5129d529638090b8f66469927a015c8a875"
+                "reference": "646b9b0dec42b6bced5a6b7687574c4db5b19de7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/7af3e5129d529638090b8f66469927a015c8a875",
-                "reference": "7af3e5129d529638090b8f66469927a015c8a875",
+                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/646b9b0dec42b6bced5a6b7687574c4db5b19de7",
+                "reference": "646b9b0dec42b6bced5a6b7687574c4db5b19de7",
                 "shasum": ""
             },
             "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
@@ -1233,11 +1234,7 @@
                 }
             ],
             "description": "The OpenDialog DGraph Docker compose file",
-            "support": {
-                "source": "https://github.com/opendialogai/dgraph-docker/tree/master",
-                "issues": "https://github.com/opendialogai/dgraph-docker/issues"
-            },
-            "time": "2019-09-05T18:55:43+00:00"
+            "time": "2019-09-10T19:22:02+00:00"
         },
         {
             "name": "opis/closure",
@@ -4711,18 +4708,18 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "role": "Developer",
-                    "email": "arne@blankerts.de"
+                    "email": "arne@blankerts.de",
+                    "role": "Developer"
                 },
                 {
                     "name": "Sebastian Heuer",
-                    "role": "Developer",
-                    "email": "sebastian@phpeople.de"
+                    "email": "sebastian@phpeople.de",
+                    "role": "Developer"
                 },
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "Developer",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "Developer"
                 }
             ],
             "description": "Library for handling version information and constraints",
@@ -5149,8 +5146,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Library that provides collection, processing, and rendering functionality for PHP code coverage information.",
@@ -5200,8 +5197,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "FilterIterator implementation that filters files based on a list of suffixes.",
@@ -5242,8 +5239,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Simple template engine.",
@@ -5291,8 +5288,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Utility class for timing",
@@ -5993,8 +5990,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
@@ -6528,8 +6525,8 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "email": "arne@blankerts.de",
-                    "role": "Developer"
+                    "role": "Developer",
+                    "email": "arne@blankerts.de"
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
