@@ -10,7 +10,6 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\Core\ResponseEngine\Contracts\OpenDialogMessageContract;
 use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
 use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
@@ -48,7 +47,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             throw new FormatterNotRegisteredException("Formatter with name $formatter is not available");
         }
 
-
         $selectedMessageTemplate = null;
 
         /** @var MessageTemplate[] $messageTemplates */
@@ -58,10 +56,16 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             throw new NoMatchingMessagesException(sprintf("No messages found for intent %s", $intentName));
         }
 
+        // Get the message with the most conditions matched.
+        $selectedMessageConditionsNumber = -1;
         foreach ($messageTemplates as $messageTemplate) {
             if ($this->messageMeetsConditions($messageTemplate)) {
-                $selectedMessageTemplate = $messageTemplate;
-                break;
+                $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
+
+                if ($messageConditionsNumber > $selectedMessageConditionsNumber) {
+                    $selectedMessageTemplate = $messageTemplate;
+                    $selectedMessageConditionsNumber = $messageConditionsNumber;
+                }
             }
         }
 
