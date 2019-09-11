@@ -2,7 +2,9 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-class WebChatListMessage extends WebChatMessage
+use OpenDialogAi\ResponseEngine\Message\Message;
+
+class ListMessage extends Message
 {
     protected $messageType = 'list';
 
@@ -11,10 +13,10 @@ class WebChatListMessage extends WebChatMessage
     private $viewType = 'horizontal';
 
     /**
-     * @param WebChatMessage $message
+     * @param Message $message
      * @return $this
      */
-    public function addItem(WebChatMessage $message)
+    public function addItem(Message $message)
     {
         $this->items[] = $message;
         return $this;

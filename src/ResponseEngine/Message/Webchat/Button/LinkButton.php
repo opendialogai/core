@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Button;
 
-class WebchatLinkButton extends BaseWebchatButton
+class LinkButton extends BaseButton
 {
     protected $link = null;
 

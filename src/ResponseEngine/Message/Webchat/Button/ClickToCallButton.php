@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Button;
 
-class WebchatClickToCallButton extends BaseWebchatButton
+class ClickToCallButton extends BaseButton
 {
     protected $phoneNumber = null;
 

@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Button;
 
-abstract class BaseWebchatButton
+abstract class BaseButton
 {
     protected $text = null;
 

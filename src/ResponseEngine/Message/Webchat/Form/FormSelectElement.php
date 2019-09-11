@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Form;
 
-class WebChatFormSelectElement extends WebChatFormElement
+class FormSelectElement extends FormElement
 {
     /**
      * @var array The options for the select element [name => value]

@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Form;
 
-class WebChatFormNumberElement extends WebChatFormElement
+class FormTextAreaElement extends FormElement
 {
     /**
      * @return array
@@ -10,7 +10,7 @@ class WebChatFormNumberElement extends WebChatFormElement
     public function getData()
     {
         return parent::getData() + [
-            'element_type' => 'number'
+            'element_type' => 'textarea'
         ];
     }
 }

@@ -1,11 +1,10 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message\Webchat;
+namespace OpenDialogAi\ResponseEngine\Message;
 
 use OpenDialogAi\Core\ResponseEngine\Contracts\OpenDialogMessageContract;
-use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
 
-class WebChatMessage implements OpenDialogMessageContract
+class Message implements OpenDialogMessageContract
 {
     const TIME = 'time';
 

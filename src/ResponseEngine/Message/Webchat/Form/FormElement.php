@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Form;
 
-abstract class WebChatFormElement
+abstract class FormElement
 {
     private $name = null;
 

@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Button;
 
-class WebchatCallbackButton extends BaseWebchatButton
+class CallbackButton extends BaseButton
 {
     protected $callbackId = null;
 

@@ -2,13 +2,14 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseWebchatButton;
+use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
-class WebChatButtonMessage extends WebChatMessage
+class ButtonMessage extends Message
 {
     protected $messageType = 'button';
 
-    /** The message buttons. @var BaseWebchatButton[] */
+    /** The message buttons. @var BaseButton[] */
     private $buttons = [];
 
     private $clearAfterInteraction = true;
@@ -32,10 +33,10 @@ class WebChatButtonMessage extends WebChatMessage
     }
 
     /**
-     * @param BaseWebchatButton $button
+     * @param BaseButton $button
      * @return $this
      */
-    public function addButton(BaseWebchatButton $button)
+    public function addButton(BaseButton $button)
     {
         $this->buttons[] = $button;
         return $this;

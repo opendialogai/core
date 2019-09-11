@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat\Button;
 
-class WebchatTabSwitchButton extends BaseWebchatButton
+class TabSwitchButton extends BaseButton
 {
     /**
      * @param $text

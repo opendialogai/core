@@ -2,9 +2,10 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormElement;
+use OpenDialogAi\ResponseEngine\Message\Message;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormElement;
 
-class WebChatFormMessage extends WebChatMessage
+class FormMessage extends Message
 {
     protected $messageType = 'webchat_form';
 
@@ -12,16 +13,16 @@ class WebChatFormMessage extends WebChatMessage
 
     private $autoSubmit = false;
 
-    /** @var WebChatFormElement[] */
+    /** @var FormElement[] */
     private $elements = [];
 
     private $callbackId = null;
 
     /**
-     * @param WebChatFormElement $element
+     * @param FormElement $element
      * @return $this
      */
-    public function addElement(WebChatFormElement $element)
+    public function addElement(FormElement $element)
     {
         $this->elements[] = $element;
         return $this;
@@ -58,7 +59,7 @@ class WebChatFormMessage extends WebChatMessage
     }
 
     /**
-     * @return WebChatFormElement[]
+     * @return FormElement[]
      */
     public function getElements()
     {
