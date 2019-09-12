@@ -22,7 +22,6 @@ class ResponseEngineServiceProvider extends ServiceProvider
 
         $this->app->bind(ResponseEngineServiceInterface::class, function () {
             $service = new ResponseEngineService();
-//            $service->registerAvailableFormatters();
             return $service;
         });
     }
