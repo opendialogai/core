@@ -69,7 +69,7 @@ class OpenDialogController
 
         try {
             $messageWrapper = $this->responseEngineService->getMessageForIntent(
-                'formatter.core.webchat',
+                $utterance->getPlatform(),
                 $intent->getId()
             );
         } catch (NoMatchingMessagesException $e) {

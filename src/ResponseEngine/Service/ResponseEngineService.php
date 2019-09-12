@@ -20,7 +20,7 @@ use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
     /** @var string A regex pattern for a valid formatter name */
-    private $validNamePattern = "/^formatter\.[a-z]*\.[a-z_]*$/";
+    private $validNamePattern = "/^formatter\.core.[a-z_]*$/";
 
     /**
      * A place to store a cache of available formatters
@@ -39,12 +39,14 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      * @return OpenDialogMessages $messageWrapper
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function getMessageForIntent(string $formatter, string $intentName): OpenDialogMessages
+    public function getMessageForIntent(string $platform, string $intentName): OpenDialogMessages
     {
+        $this->registerAvailableFormatters();
+
         try {
-            $this->formatter = $this->getFormatter($formatter);
+            $this->platform = $this->getFormatter("formatter.core.{$platform}");
         } catch (FormatterNotRegisteredException $e) {
-            throw new FormatterNotRegisteredException("Formatter with name $formatter is not available");
+            throw new FormatterNotRegisteredException("Formatter with name $platform is not available");
         }
 
         $selectedMessageTemplate = null;
@@ -218,6 +220,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     public function getFormatter(string $formatterName)
     {
+//        dd(collect($this->availableFormatters)->contains($formatterName));
         Log::debug("Getting formatter: {$formatterName}");
         if ($this->isFormatterAvailable($formatterName)) {
             Log::debug(sprintf("Getting formatter with name %s", $formatterName));
