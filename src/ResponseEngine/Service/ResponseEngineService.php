@@ -29,11 +29,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     private $availableFormatters = [];
 
     /**
-     * @todo figure out type
-     */
-    protected $formatter;
-
-    /**
      * @inheritdoc
      *
      * @return OpenDialogMessages $messageWrapper
@@ -44,7 +39,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $this->registerAvailableFormatters();
 
         try {
-            $this->platform = $this->getFormatter("formatter.core.{$platform}");
+            $formatter = $this->getFormatter("formatter.core.{$platform}");
         } catch (FormatterNotRegisteredException $e) {
             throw new FormatterNotRegisteredException("Formatter with name $platform is not available");
         }
@@ -80,7 +75,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         // Resolve all attributes in the markup.
         $markup = $this->fillAttributes($selectedMessageTemplate->message_markup);
 
-        $formatter = new WebchatMessageFormatter();
         $messages = $formatter->getMessages($markup);
 
         $messageWrapper = new OpenDialogMessages();
