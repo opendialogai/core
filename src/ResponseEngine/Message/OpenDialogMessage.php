@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
-use OpenDialogAi\Core\ResponseEngine\Contracts\OpenDialogMessageContract;
+use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
 
 class OpenDialogMessage implements OpenDialogMessageContract
 {

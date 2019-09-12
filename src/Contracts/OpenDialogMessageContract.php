@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenDialogAi\Core\ResponseEngine\Contracts;
+namespace OpenDialogAi\Core\Contracts;
 
 interface OpenDialogMessageContract
 {
