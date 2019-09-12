@@ -161,7 +161,7 @@ class UserContext extends AbstractContext
     public function getCurrentIntent()
     {
         $currentIntentId = $this->user->getCurrentIntentUid();
-        return $this->conversationStore->getIntentByUid($currentIntentId);
+        return $this->conversationStore->getEIModelIntentByUid($currentIntentId);
     }
 
     /**
@@ -199,7 +199,7 @@ class UserContext extends AbstractContext
     public function getCurrentScene(): Scene
     {
         if ($this->user->hasCurrentIntent()) {
-            $currentIntent = $this->conversationStore->getIntentByUid($this->user->getCurrentIntentUid());
+            $currentIntent = $this->conversationStore->getEIModelIntentByUid($this->user->getCurrentIntentUid());
 
             // Get the scene for the current intent
             $sceneId = $this->userService->getSceneForIntent($currentIntent->getIntentUid());

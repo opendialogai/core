@@ -6,7 +6,7 @@ use Mockery;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -28,7 +28,7 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
     private $conversationStore;
 
     /**
-     * @var EIModelConversationConverter
+     * @var EIModelToGraphConverter
      */
     private $conversationConverter;
 
@@ -52,7 +52,7 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $this->dGraphClient->shouldReceive('tripleMutation')->andReturn($dGraphMutationResponse);
 
         $this->conversationStore = mock(ConversationStoreInterface::class)->makePartial();
-        $this->conversationConverter = mock(EIModelConversationConverter::class)->makePartial();
+        $this->conversationConverter = mock(EIModelToGraphConverter::class)->makePartial();
     }
 
     public function testUpdateUserFromUtteranceWithWebchatChatOpenUtterance()

@@ -258,7 +258,7 @@ class DGraphClient
         $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
         return $statement;
     }
-    
+
     /**
      * @return string
      */

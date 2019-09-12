@@ -9,7 +9,7 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -55,7 +55,7 @@ class ConversationEngineTest extends TestCase
     public function testConversationStoreIntents()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
-        $openingIntents = $conversationStore->getAllOpeningIntents();
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
 
         $this->assertCount(4, $openingIntents);
     }
@@ -65,10 +65,10 @@ class ConversationEngineTest extends TestCase
         /* @var ConversationStoreInterface $conversationStore */
         $conversationStore = $this->conversationEngine->getConversationStore();
 
-        $conversationModel = $conversationStore->getConversationTemplate('hello_bot_world');
+        $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
-        $conversationConverter = app()->make(EIModelConversationConverter::class);
-        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversation = $conversationConverter::convertConversation($conversationModel);
 
         $conditions = $conversation->getConditions();
 
@@ -313,10 +313,10 @@ class ConversationEngineTest extends TestCase
         $userContext->updateUser();
 
         $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationModel = $conversationStore->getConversation($userContext->getUser()->getCurrentConversationUid());
+        $conversationModel = $conversationStore->getEIModelConversation($userContext->getUser()->getCurrentConversationUid());
 
-        $conversationConverter = app()->make(EIModelConversationConverter::class);
-        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversation = $conversationConverter::convertConversation($conversationModel);
 
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;

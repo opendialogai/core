@@ -5,6 +5,8 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningIntents;
+use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 class DGraphConversationStore implements ConversationStoreInterface
@@ -13,21 +15,26 @@ class DGraphConversationStore implements ConversationStoreInterface
     private $eiModelCreator;
     private $queryFactory;
 
+    /* @var EIModelToGraphConverter */
+    private $conversationConverter;
+
     public function __construct(
         DGraphClient $dGraphClient,
         EIModelCreator $eiModelCreator,
-        ConversationQueryFactoryInterface $queryFactory
+        ConversationQueryFactoryInterface $queryFactory,
+        EIModelToGraphConverter $conversationConverter
     ) {
         $this->dGraphClient = $dGraphClient;
         $this->eiModelCreator = $eiModelCreator;
         $this->queryFactory = $queryFactory;
+        $this->conversationConverter = $conversationConverter;
     }
 
     /**
      * @return EIModelOpeningIntents
      * @throws EIModelCreatorException
      */
-    public function getAllOpeningIntents(): EIModelOpeningIntents
+    public function getAllEIModelOpeningIntents(): EIModelOpeningIntents
     {
         $query = $this->queryFactory::getAllOpeningIntents();
         $response = $this->dGraphClient->query($query);
@@ -43,7 +50,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      * @return EIModelConversation
      * @throws EIModelCreatorException
      */
-    public function getConversation($conversationId): EIModelConversation
+    public function getEIModelConversation($conversationId): EIModelConversation
     {
         $query = $this->queryFactory::getConversationFromDGraphWithUid($conversationId);
         $response = $this->dGraphClient->query($query);
@@ -55,11 +62,23 @@ class DGraphConversationStore implements ConversationStoreInterface
     }
 
     /**
+     * @param $conversationId
+     * @param bool $clone
+     * @return Conversation
+     * @throws EIModelCreatorException
+     */
+    public function getConversation($conversationId, bool $clone = false): Conversation
+    {
+        $conversationModel = $this->getEIModelConversation($conversationId);
+        return $this->conversationConverter->convertConversation($conversationModel, $clone);
+    }
+
+    /**
      * @param $conversationTemplateName
      * @return EIModelConversation
      * @throws EIModelCreatorException
      */
-    public function getConversationTemplate($conversationTemplateName): EIModelConversation
+    public function getEIModelConversationTemplate($conversationTemplateName): EIModelConversation
     {
         $query = DGraphConversationQueryFactory::getConversationFromDGraphWithTemplateName($conversationTemplateName);
         $response = $this->dGraphClient->query($query);
@@ -78,7 +97,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      * @return EIModelIntent
      * @throws EIModelCreatorException
      */
-    public function getOpeningIntentByConversationIdAndOrder($conversationId, int $order): EIModelIntent
+    public function getEIModelOpeningIntentByConversationIdAndOrder($conversationId, int $order): EIModelIntent
     {
         $query = $this->queryFactory::getUserConversation($conversationId);
         $response = $this->dGraphClient->query($query);
@@ -90,11 +109,28 @@ class DGraphConversationStore implements ConversationStoreInterface
     }
 
     /**
+     * Gets the opening intent ID within a conversation with the given id with a matching order
+     *
+     * @param $conversationId
+     * @param int $order
+     * @return Intent
+     * @throws EIModelCreatorException
+     */
+    public function getOpeningIntentByConversationIdAndOrder($conversationId, int $order): Intent
+    {
+        $currentIntentModel = $this->getEIModelOpeningIntentByConversationIdAndOrder(
+            $conversationId,
+            $order
+        );
+        return $this->conversationConverter->convertIntent($currentIntentModel);
+    }
+
+    /**
      * @param $intentUid
      * @return EIModelIntent
      * @throws EIModelCreatorException
      */
-    public function getIntentByUid($intentUid): EIModelIntent
+    public function getEIModelIntentByUid($intentUid): EIModelIntent
     {
         $query = DGraphConversationQueryFactory::getIntentByUid($intentUid);
         $response = $this->dGraphClient->query($query);
@@ -103,5 +139,24 @@ class DGraphConversationStore implements ConversationStoreInterface
         $model = $this->eiModelCreator->createEIModel(EIModelIntent::class, $response->getData()[0]);
 
         return $model;
+    }
+
+    /**
+     * @param $intentUid
+     * @return Intent
+     * @throws EIModelCreatorException
+     */
+    public function getIntentByUid($intentUid): Intent
+    {
+        $currentIntentModel = $this->getEIModelIntentByUid($intentUid);
+        return $this->conversationConverter->convertIntent($currentIntentModel);
+    }
+
+    /**
+     * @return EIModelToGraphConverter
+     */
+    public function getConversationConverter(): EIModelToGraphConverter
+    {
+        return $this->conversationConverter;
     }
 }

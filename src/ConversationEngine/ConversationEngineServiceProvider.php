@@ -8,7 +8,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryIn
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -31,11 +31,12 @@ class ConversationEngineServiceProvider extends ServiceProvider
             return new DGraphConversationStore(
                 $this->app->make(DGraphClient::class),
                 $this->app->make(EIModelCreator::class),
-                $this->app->make(ConversationQueryFactoryInterface::class)
+                $this->app->make(ConversationQueryFactoryInterface::class),
+                $this->app->make(EIModelToGraphConverter::class)
             );
         });
 
-        $this->app->singleton(EIModelConversationConverter::class);
+        $this->app->singleton(EIModelToGraphConverter::class);
 
         $this->app->singleton(ConversationEngineInterface::class, function () {
             $conversationEngine = new ConversationEngine();
@@ -46,9 +47,6 @@ class ConversationEngineServiceProvider extends ServiceProvider
 
             $actionEngine = $this->app->make(ActionEngineInterface::class);
             $conversationEngine->setActionEngine($actionEngine);
-
-            $conversationConverter = $this->app->make(EIModelConversationConverter::class);
-            $conversationEngine->setConversationConverter($conversationConverter);
 
             return $conversationEngine;
         });

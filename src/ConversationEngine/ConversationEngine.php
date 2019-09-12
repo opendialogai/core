@@ -14,7 +14,6 @@ use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -40,9 +39,6 @@ class ConversationEngine implements ConversationEngineInterface
 
     /* @var ActionEngineInterface */
     private $actionEngine;
-
-    /* @var EIModelConversationConverter */
-    private $conversationConverter;
 
     /**
      * @param ConversationStoreInterface $conversationStore
@@ -77,14 +73,6 @@ class ConversationEngine implements ConversationEngineInterface
     }
 
     /**
-     * @param EIModelConversationConverter $conversationConverter
-     */
-    public function setConversationConverter(EIModelConversationConverter $conversationConverter): void
-    {
-        $this->conversationConverter = $conversationConverter;
-    }
-
-    /**
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Intent
@@ -101,8 +89,10 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
-        $currentIntentModel = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
-        $currentIntent = $this->conversationConverter::createIntent($currentIntentModel);
+
+        /** @var Intent $currentIntent */
+        $currentIntent = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
+
         $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentIntent);
 
         /* @var Intent $nextIntent */
@@ -250,7 +240,7 @@ class ConversationEngine implements ConversationEngineInterface
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
-        $openingIntents = $this->conversationStore->getAllOpeningIntents();
+        $openingIntents = $this->conversationStore->getAllEIModelOpeningIntents();
         Log::debug(sprintf('Found %s opening intents.', count($openingIntents)));
 
         $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents->getIntents());
@@ -266,24 +256,20 @@ class ConversationEngine implements ConversationEngineInterface
 
         $this->storeIntentAttributesFromOpeningIntent($intent);
 
-        $conversationModel = $this->conversationStore->getConversation($intent->getConversationUid());
-
         // We specify the conversation to be cloned as we will be re-persisting it as a user conversation next
-        $conversation = $this->conversationConverter::buildConversationFromEIModel($conversationModel, true);
+        /** @var Conversation $conversation */
+        $conversation = $this->conversationStore->getConversation($intent->getConversationUid(), true);
 
         // TODO can we avoid building, cloning and re-persisting the conversation here. EG clone directly in DGRAPH
         // TODO and store the resulting ID against the user
 
         $userContext->setCurrentConversation($conversation);
 
-        /** @var EIModelIntent $currentIntentModel */
-        $currentIntentModel = $this->conversationStore->getOpeningIntentByConversationIdAndOrder(
+        /** @var Intent $currentIntent */
+        $currentIntent = $this->conversationStore->getOpeningIntentByConversationIdAndOrder(
             $userContext->getUser()->getCurrentConversationUid(),
             $intent->getOrder()
         );
-
-        /** @var Intent $currentIntent */
-        $currentIntent = $this->conversationConverter::createIntent($currentIntentModel);
 
         $userContext->setCurrentIntent($currentIntent);
 
@@ -299,8 +285,7 @@ class ConversationEngine implements ConversationEngineInterface
         // For this intent get the matching conversation - we are pulling this back out from the user
         // so that we have the copy from the graph.
         // TODO do we need to get the entire conversation again?
-        $conversationModel = $this->conversationStore->getConversation($intent->getConversationUid());
-        return $this->conversationConverter::buildConversationFromEIModel($conversationModel);
+        return $this->conversationStore->getConversation($intent->getConversationUid());
     }
 
     /**
@@ -370,7 +355,7 @@ class ConversationEngine implements ConversationEngineInterface
                     }
 
                     /* @var Condition $condition */
-                    $condition = $this->conversationConverter::createCondition($conditionModel);
+                    $condition = $this->conversationStore->getConversationConverter()->convertCondition($conditionModel);
 
                     if (!$condition->compareAgainst($actualAttribute)) {
                         $pass = false;

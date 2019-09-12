@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -18,8 +18,8 @@ class ConversationBuildingTest extends TestCase
         /* @var EIModelConversation $conversationModel */
         $conversationModel = $modelCreator->createEIModel(EIModelConversation::class, $conversation);
 
-        $conversationConverter = app()->make(EIModelConversationConverter::class);
-        $conversationConverter::buildConversationFromEIModel($conversationModel, false);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter::convertConversation($conversationModel, false);
 
         $this->assertTrue(true);
     }

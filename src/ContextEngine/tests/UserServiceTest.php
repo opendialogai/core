@@ -5,7 +5,7 @@ namespace OpenDialogAi\ContextEngine\Tests;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
@@ -89,12 +89,12 @@ class UserServiceTest extends TestCase
         $conversationResponse = $this->client->query($conversationQuery);
 
         $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelConversationConverter::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
-        $conversationModel = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
+        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
 
         /** @var \OpenDialogAi\Core\Conversation\Conversation $conversation */
-        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel, true);
+        $conversation = $conversationConverter::convertConversation($conversationModel, true);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -102,10 +102,10 @@ class UserServiceTest extends TestCase
 
         $this->assertTrue($user->isHavingConversation());
 
-        $conversationUserModel = $conversationStore->getConversation($user->getCurrentConversationUid());
+        $conversationUserModel = $conversationStore->getEIModelConversation($user->getCurrentConversationUid());
 
         /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationUser */
-        $conversationUser = $conversationConverter::buildConversationFromEIModel($conversationUserModel);
+        $conversationUser = $conversationConverter::convertConversation($conversationUserModel);
 
         $this->assertEquals($conversation->getId(), $conversationUser->getId());
         $this->assertEquals(Model::CONVERSATION_USER, $conversationUser->getAttribute(Model::EI_TYPE)->getValue());
@@ -139,10 +139,10 @@ class UserServiceTest extends TestCase
         $conversationResponse = $this->client->query($conversationQuery);
 
         $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelConversationConverter::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
-        $conversationModel = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+        $conversation = $conversationConverter::convertConversation($conversationModel);
 
         $this->userService->setCurrentConversation($user, $conversation);
 
@@ -160,7 +160,7 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $currentIntent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($user->getCurrentIntentUid());
         $this->assertEquals('hello_bot', $currentIntent->getIntentId());
     }
 
@@ -183,10 +183,10 @@ class UserServiceTest extends TestCase
         $conversationResponse = $this->client->query($conversationQuery);
 
         $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelConversationConverter::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
-        $conversationModel = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter::buildConversationFromEIModel($conversationModel);
+        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+        $conversation = $conversationConverter::convertConversation($conversationModel);
 
         $this->userService->setCurrentConversation($user, $conversation);
 
@@ -204,7 +204,7 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $intent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
+        $intent = $this->conversationStore->getEIModelIntentByUid($user->getCurrentIntentUid());
         $this->assertEquals('hello_bot', $intent->getIntentId());
 
         $this->userService->unsetCurrentIntent($user);

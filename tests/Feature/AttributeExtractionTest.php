@@ -50,7 +50,7 @@ class AttributeExtractionTest extends TestCase
     public function testOpeningSceneCreated()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
-        $openingIntents = $conversationStore->getAllOpeningIntents();
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
 
         $this->assertCount(1, $openingIntents);
 

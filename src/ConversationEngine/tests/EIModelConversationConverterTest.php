@@ -7,7 +7,7 @@ namespace OpenDialogAi\ConversationEngine\tests;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelConversationConverter;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -59,13 +59,13 @@ class EIModelConversationConverterTest extends TestCase
         $conversationModel = \OpenDialogAi\ConversationBuilder\Conversation::where('name', 'hello_bot_world')->first();
 
         /* @var EIModelConversation $conversationModel */
-        $conversationEIModel = $conversationStore->getConversation($conversationModel->graph_uid);
+        $conversationEIModel = $conversationStore->getEIModelConversation($conversationModel->graph_uid);
 
-        /* @var EIModelConversationConverter $converter */
-        $converter = app()->make(EIModelConversationConverter::class);
+        /* @var EIModelToGraphConverter $converter */
+        $converter = app()->make(EIModelToGraphConverter::class);
 
         /* @var Conversation $conversation */
-        $conversation = $converter::buildConversationFromEIModel($conversationEIModel);
+        $conversation = $converter->convertConversation($conversationEIModel);
 
         // General
         $this->assertInstanceOf(Conversation::class, $conversation);
