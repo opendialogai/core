@@ -68,7 +68,7 @@ class ConversationEngineTest extends TestCase
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
-        $conversation = $conversationConverter::convertConversation($conversationModel);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $conditions = $conversation->getConditions();
 
@@ -297,6 +297,7 @@ class ConversationEngineTest extends TestCase
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     private function createConversationAndAttachToUser()
     {
@@ -316,7 +317,7 @@ class ConversationEngineTest extends TestCase
         $conversationModel = $conversationStore->getEIModelConversation($userContext->getUser()->getCurrentConversationUid());
 
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
-        $conversation = $conversationConverter::convertConversation($conversationModel);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
 
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;

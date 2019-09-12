@@ -19,7 +19,7 @@ class ConversationBuildingTest extends TestCase
         $conversationModel = $modelCreator->createEIModel(EIModelConversation::class, $conversation);
 
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
-        $conversationConverter::convertConversation($conversationModel, false);
+        $conversationConverter->convertConversation($conversationModel, false);
 
         $this->assertTrue(true);
     }

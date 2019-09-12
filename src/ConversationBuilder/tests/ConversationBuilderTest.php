@@ -237,7 +237,7 @@ class ConversationBuilderTest extends TestCase
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
-        $conversation = $conversationConverter::convertConversation($conversationModel);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $this->assertEquals('hello_bot_world', $conversation->getId());
     }

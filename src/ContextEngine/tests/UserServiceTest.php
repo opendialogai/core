@@ -94,7 +94,7 @@ class UserServiceTest extends TestCase
         $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
 
         /** @var \OpenDialogAi\Core\Conversation\Conversation $conversation */
-        $conversation = $conversationConverter::convertConversation($conversationModel, true);
+        $conversation = $conversationConverter->convertConversation($conversationModel, true);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -105,7 +105,7 @@ class UserServiceTest extends TestCase
         $conversationUserModel = $conversationStore->getEIModelConversation($user->getCurrentConversationUid());
 
         /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationUser */
-        $conversationUser = $conversationConverter::convertConversation($conversationUserModel);
+        $conversationUser = $conversationConverter->convertConversation($conversationUserModel);
 
         $this->assertEquals($conversation->getId(), $conversationUser->getId());
         $this->assertEquals(Model::CONVERSATION_USER, $conversationUser->getAttribute(Model::EI_TYPE)->getValue());
@@ -142,7 +142,7 @@ class UserServiceTest extends TestCase
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter::convertConversation($conversationModel);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $this->userService->setCurrentConversation($user, $conversation);
 
@@ -186,7 +186,7 @@ class UserServiceTest extends TestCase
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter::convertConversation($conversationModel);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $this->userService->setCurrentConversation($user, $conversation);
 

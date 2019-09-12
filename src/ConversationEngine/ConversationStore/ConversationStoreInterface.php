@@ -26,10 +26,10 @@ interface ConversationStoreInterface
 
     /**
      * @param $conversationId
+     * @param bool $clone
      * @return Conversation
-     * @throws EIModelCreatorException
      */
-    public function getConversation($conversationId): Conversation;
+    public function getConversation($conversationId, bool $clone = false): Conversation;
 
     /**
      * @param $conversationTemplateName
