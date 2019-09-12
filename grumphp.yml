@@ -1,5 +1,14 @@
 parameters:
   tasks:
+    git_blacklist:
+      keywords:
+        - "die("
+        - "var_dump("
+        - "dd("
+        - "exit;"
+      whitelist_patterns: []
+      triggered_by: ['php']
+      regexp_type: G
     phpcsfixer:
       config_file: ~
       config: ~

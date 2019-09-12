@@ -220,7 +220,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     public function getFormatter(string $formatterName)
     {
-//        dd(collect($this->availableFormatters)->contains($formatterName));
         Log::debug("Getting formatter: {$formatterName}");
         if ($this->isFormatterAvailable($formatterName)) {
             Log::debug(sprintf("Getting formatter with name %s", $formatterName));
