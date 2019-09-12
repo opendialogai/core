@@ -261,6 +261,16 @@ class UserService
 
         if ($mutationResponse->isSuccessful()) {
             return $this->getUser($user->getId());
+        } else {
+            foreach ($mutationResponse->getErrors() as $error) {
+                Log::debug(
+                    sprintf(
+                        'DGraph error - %s: %s',
+                        $error['extensions']['code'],
+                        $error['message']
+                    )
+                );
+            }
         }
 
         throw new CouldNotPersistUserRecordException(sprintf("Couldn't persist user to dgraph %s", $user->getId()));
@@ -361,6 +371,12 @@ class UserService
             ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
             ->setQueryGraph([
                 Model::UID,
+                Model::HAVING_CONVERSATION => [
+                    Model::UID,
+                    Model::CURRENT_INTENT => [
+                        Model::UID,
+                    ]
+                ],
                 'expand(_all_)' => [
                     Model::UID,
                     'expand(_all_)' => [

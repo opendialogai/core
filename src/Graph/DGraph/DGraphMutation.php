@@ -81,6 +81,8 @@ class DGraphMutation
         // Add the ID value.
         $attributeStatement[] = $this->prepareAttributeTriple($id, 'id', $node->getId(), $update);
 
+        $attributeStatement[] = $this->prepareAttributeTriple($id, 'dgraph.type', 'User', $update);
+
         // Add all the attributes related to this node.
         $attributes = $node->getAttributes();
         /* @var AttributeInterface $attribute */

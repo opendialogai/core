@@ -52,6 +52,19 @@ class Conversation extends Model
         'notes',
     ];
 
+    protected $visible = [
+        'name',
+        'status',
+        'yaml_validation_status',
+        'yaml_schema_validation_status',
+        'scenes_validation_status',
+        'model_validation_status',
+        'model',
+        'notes',
+        'created_at',
+        'updated_at',
+    ];
+
     // Create activity logs when the model or notes attribute is updated.
     protected static $logAttributes = ['model', 'notes'];
 
@@ -180,7 +193,7 @@ class Conversation extends Model
 
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
-        if ($mutationResponse->getData()['code'] === 'Success') {
+        if ($mutationResponse->isSuccessful()) {
             // Set conversation status to "published".
             $this->status = 'published';
             $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
@@ -193,6 +206,16 @@ class Conversation extends Model
             ])->save();
 
             return true;
+        } else {
+            foreach ($mutationResponse->getErrors() as $error) {
+                Log::debug(
+                    sprintf(
+                        'DGraph error - %s: %s',
+                        $error['extensions']['code'],
+                        $error['message']
+                    )
+                );
+            }
         }
 
         return false;
@@ -206,7 +229,7 @@ class Conversation extends Model
      */
     public function unPublishConversation($reValidate = true)
     {
-        $dGraph = new DGraphClient(env('DGRAPH_URL'), env('DGRAPH_PORT'));
+        $dGraph = app()->make(DGraphClient::class);
 
         $uid = DGraphConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
 

@@ -2,11 +2,14 @@
 
 namespace OpenDialogAi\ResponseEngine\Tests;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function testEmptyMessage()
     {
         $markup = '<message disable_text="1"><empty-message></empty-message></message>';
