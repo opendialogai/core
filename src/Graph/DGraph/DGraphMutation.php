@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use Ds\Map;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
@@ -81,7 +82,11 @@ class DGraphMutation
         // Add the ID value.
         $attributeStatement[] = $this->prepareAttributeTriple($id, 'id', $node->getId(), $update);
 
-        $attributeStatement[] = $this->prepareAttributeTriple($id, 'dgraph.type', 'User', $update);
+        $nodeType = $this->prepareNodeType($node, $id, $update);
+
+        if ($nodeType) {
+            $attributeStatement[] = $nodeType;
+        }
 
         // Add all the attributes related to this node.
         $attributes = $node->getAttributes();
@@ -235,5 +240,48 @@ class DGraphMutation
     private function escapeCharacters($input)
     {
         return str_replace('*', '\*', str_replace("\n", "\\n", $input));
+    }
+
+    /**
+     * @param Node $node
+     * @param string $id
+     * @param bool $update
+     * @return string|null
+     */
+    private function prepareNodeType(Node $node, $id, bool $update): ?string
+    {
+        try {
+            $attribute = $node->getAttribute(Model::EI_TYPE)->getValue();
+        } catch (AttributeDoesNotExistException $e) {
+            return null;
+        }
+
+        switch ($attribute) {
+            case Model::CHATBOT_USER:
+                $type = DGraphClient::USER;
+                break;
+
+            case Model::CONVERSATION_USER:
+            case Model::CONVERSATION_TEMPLATE:
+                $type = DGraphClient::CONVERSATION;
+                break;
+
+            case Model::SCENE:
+                $type = DGraphClient::SCENE;
+                break;
+
+            case Model::PARTICIPANT:
+                $type = DGraphClient::PARTICIPANT;
+                break;
+
+            case Model::INTENT:
+                $type = DGraphClient::INTENT;
+                break;
+
+            default:
+                return null;
+        }
+
+        return $this->prepareAttributeTriple($id, 'dgraph.type', $type, $update);
     }
 }

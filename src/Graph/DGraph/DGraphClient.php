@@ -23,6 +23,13 @@ class DGraphClient
     const DELETE = 'delete';
     const MUTATE_COMMIT_NOW = 'mutate?commitNow=true';
 
+    const INTENT = 'Intent';
+    const PARTICIPANT = 'Participant';
+    const SCENE = 'Scene';
+    const CONVERSATION = 'Conversation';
+    const USER = 'User';
+
+
     public function __construct($dgraphUrl, $dGraphPort)
     {
         $client = new Client([
@@ -285,6 +292,8 @@ class DGraphClient
 
         return "
             <causes_action>: [uid] .
+            <conversation_status>: string .
+            <conversation_version>: int .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
             <ei_type>: string @index(exact) .
@@ -294,13 +303,47 @@ class DGraphClient
             <has_scene>: [uid] .
             <has_user_participant>: [uid] @reverse .
             <id>: string @index(exact) .
+            <instance_of>: uid @reverse .
+            <update_of>: uid @reverse .
             <listens_for>: [uid] @reverse .
             <name>: default .
             <says>: [uid] @reverse .
             <having_conversation>: [uid] @reverse .
             <says_across_scenes>: [uid] @reverse .
             <listens_for_across_scenes>: [uid] @reverse .
-            type User {{$userAttributes}}
+            type " . self::INTENT . " {
+                causes_action: [uid]
+                core.attribute.completes: default
+                core.attribute.order: default
+                ei_type: string
+                has_interpreter: [uid]
+                id: string
+            }
+            type " . self::PARTICIPANT . " {
+                ei_type: string
+                id: string
+                listens_for: [uid]
+                says: [uid]
+                says_across_scenes: [uid]
+                listens_for_across_scenes: [uid]
+            }
+            type " . self::SCENE . " {
+                ei_type: string
+                id: string
+                has_bot_participant: [uid]
+                has_user_participant: [uid]
+            }
+            type " . self::CONVERSATION . " {
+                conversation_status: string
+                conversation_version: int
+                ei_type: string
+                has_opening_scene: [uid]
+                has_scene: [uid]
+                id: string
+                instance_of: uid
+                update_of: uid
+            }
+            type " . self::USER . " {{$userAttributes}}
         ";
     }
 
