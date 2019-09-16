@@ -2,95 +2,79 @@
 
 namespace OpenDialogAi\Core\Graph\DGraph;
 
+use Closure;
+use Ds\Set;
+
 /**
  * A DGraph Query.
  */
-class DGraphQuery
+class DGraphQuery extends DGraphQueryAbstract
 {
-    const FUNC_NAME = 'dGraphQuery';
-    const FUNC_TYPE = 'func_type';
-
-    const FUNC = 'func';
-    const FILTER = 'filter';
-    const ALLOFTERMS = 'allofterms';
-    const EQ = 'eq';
-    const UID = 'uid';
-
-
-    const PREDICATE = 'predicate';
-    const TERM_LIST = 'term_list';
-    const VALUE = 'value';
-
-    private $query;
-
     private $queryGraph;
 
-    private $queryString;
+    /** @var Set $filters */
+    private $filters;
 
     public function __construct()
     {
         $this->query = [];
+        $this->filters = new Set();
     }
 
     /**
      * @see https://docs.dgraph.io/query-language/#term-matching
      * @param $predicate
-     * @param array $termList
-     * @return $this
-     */
-    public function allofterms($predicate, array $termList)
-    {
-        $this->query[self::FUNC] = [
-            self::FUNC_TYPE => self::ALLOFTERMS,
-            self::PREDICATE => $predicate,
-            self::TERM_LIST => implode(" ", $termList)
-        ];
-
-        return $this;
-    }
-
-    /**
-     * @param $predicate
      * @param $value
      * @return $this
      */
-    public function eq($predicate, $value)
+    public function filterEq($predicate, $value): DGraphQueryAbstract
     {
-        $this->query[self::FUNC] = [
-            self::FUNC_TYPE => self::EQ,
-            self::PREDICATE => $predicate,
-            self::VALUE => $value
-        ];
+        $filter = new DGraphQueryFilter();
+        $filter->eq($predicate, $value);
+
+        $this->filters->add($filter);
 
         return $this;
     }
 
     /**
-     * @param $uid
+     * @param Closure $filterFn
      * @return $this
      */
-    public function uid($uid)
+    public function filter(Closure $filterFn): DGraphQueryAbstract
     {
-        $this->query[self::FUNC] = [
-            self::FUNC_TYPE => self::UID,
-            self::VALUE => $uid
-        ];
+        $filter = new DGraphQueryFilter();
+        $filterFn($filter);
+
+        $this->filters->add($filter);
 
         return $this;
     }
 
     /**
-     * @param $predicate
-     * @param $value
+     * @param Closure $filterFn
      * @return $this
      */
-    public function filterEq($predicate, $value)
+    public function andFilter(Closure $filterFn): DGraphQueryAbstract
     {
-        $this->query[self::FILTER] = [
-            self::FUNC_TYPE => self::EQ,
-            self::PREDICATE => $predicate,
-            self::VALUE => $value
-        ];
+        $filter = new DGraphQueryFilter(DGraphQueryFilter::AND);
+        $filterFn($filter);
+
+        $this->filters->add($filter);
+
+        return $this;
+    }
+
+    /**
+     * @param Closure $filterFn
+     * @return $this
+     */
+    public function orFilter(Closure $filterFn): DGraphQueryAbstract
+    {
+        $filter = new DGraphQueryFilter(DGraphQueryFilter::OR);
+        $filterFn($filter);
+
+        $this->filters->add($filter);
 
         return $this;
     }
@@ -130,15 +114,20 @@ class DGraphQuery
     /**
      * @return string
      */
-    public function prepare()
+    public function prepare(): string
     {
         $this->queryString = '{ ' . self::FUNC_NAME . '( ' . self::FUNC . ':';
 
         $this->queryString .= $this->getFunction($this->query[self::FUNC]) . ')';
 
-        if (isset($this->query[self::FILTER])) {
+        if ($this->filters->count() > 0) {
             $this->queryString .= '@filter(';
-            $this->queryString .= $this->getFunction($this->query[self::FILTER]);
+
+            /** @var DGraphQueryFilter $filter */
+            foreach ($this->filters as $filter) {
+                $this->queryString .= $filter->prepare();
+            }
+
             $this->queryString .= ')';
         }
 
@@ -146,33 +135,5 @@ class DGraphQuery
 
         $this->queryString .= '}';
         return $this->queryString;
-    }
-
-    /**
-     * @param $queryFunction
-     * @return string
-     */
-    private function getFunction($queryFunction)
-    {
-        switch ($queryFunction[self::FUNC_TYPE]) {
-            case self::ALLOFTERMS:
-                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
-                $queryFunctionString .= $queryFunction[self::PREDICATE] . ',';
-                $queryFunctionString .= '"' . $queryFunction[self::TERM_LIST] . '")';
-                break;
-
-            case self::EQ:
-                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
-                $queryFunctionString .= $queryFunction[self::PREDICATE] . ',';
-                $queryFunctionString .= '"' . $queryFunction[self::VALUE] . '")';
-                break;
-
-            case self::UID:
-                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
-                $queryFunctionString .= $queryFunction[self::VALUE] . ')';
-                break;
-        }
-
-        return $queryFunctionString;
     }
 }
