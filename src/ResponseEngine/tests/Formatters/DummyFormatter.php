@@ -4,13 +4,13 @@ namespace OpenDialogAi\Core\ResponseEngine\tests\Formatters;
 
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\RichMessage;
 
 class DummyFormatter implements MessageFormatterInterface
 {
@@ -21,37 +21,37 @@ class DummyFormatter implements MessageFormatterInterface
         //
     }
 
-    public function generateButtonMessage(array $template): WebchatButtonMessage
+    public function generateButtonMessage(array $template): ButtonMessage
     {
         //
     }
 
-    public function generateEmptyMessage(): WebchatEmptyMessage
+    public function generateEmptyMessage(): EmptyMessage
     {
         //
     }
 
-    public function generateFormMessage(array $template): WebchatFormMessage
+    public function generateFormMessage(array $template): FormMessage
     {
         //
     }
 
-    public function generateImageMessage(array $template): WebchatImageMessage
+    public function generateImageMessage(array $template): ImageMessage
     {
         //
     }
 
-    public function generateListMessage(array $template): WebchatListMessage
+    public function generateListMessage(array $template): ListMessage
     {
         //
     }
 
-    public function generateLongTextMessage(array $template): WebchatLongTextMessage
+    public function generateLongTextMessage(array $template): LongTextMessage
     {
         //
     }
 
-    public function generateRichMessage(array $template): WebchatRichMessage
+    public function generateRichMessage(array $template): RichMessage
     {
         //
     }
