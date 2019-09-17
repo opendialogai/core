@@ -6,9 +6,9 @@ use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\RichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
 
 /**
  * Message formatter interface.
@@ -74,9 +74,9 @@ interface MessageFormatterInterface
 
     public function generateListMessage(array $template): ListMessage;
 
-    public function generateLongTextMessage(array $template): WebchatLongTextMessage;
+    public function generateLongTextMessage(array $template): LongTextMessage;
 
-    public function generateRichMessage(array $template): WebchatRichMessage;
+    public function generateRichMessage(array $template): RichMessage;
 
     public function generateTextMessage(array $template): OpenDialogMessage;
 }

@@ -11,6 +11,8 @@ use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\RichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -223,7 +225,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateRichMessage(array $template): WebchatRichMessage
+    public function generateRichMessage(array $template): RichMessage
     {
         $message = (new WebchatRichMessage())
             ->setTitle($template[self::TITLE])
@@ -260,7 +262,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateLongTextMessage(array $template): WebchatLongTextMessage
+    public function generateLongTextMessage(array $template): LongTextMessage
     {
         $message = (new WebchatLongTextMessage())
             ->setSubmitText($template[self::SUBMIT_TEXT])
