@@ -7,7 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
@@ -36,7 +36,7 @@ class DummyFormatter implements MessageFormatterInterface
         //
     }
 
-    public function generateImageMessage(array $template): ImageMessage
+    public function generateImageMessage(array $template): WebchatImageMessage
     {
         //
     }
