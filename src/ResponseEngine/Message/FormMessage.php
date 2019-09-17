@@ -1,13 +1,15 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message\Webchat;
+declare(strict_types=1);
+
+namespace OpenDialogAi\Core\ResponseEngine\Message;
 
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormElement;
 
 class FormMessage extends OpenDialogMessage
 {
-    protected $messageType = 'webchat_form';
+    protected $messageType = 'form';
 
     private $submitText = 'Submit';
 
@@ -110,10 +112,10 @@ class FormMessage extends OpenDialogMessage
     public function getData():?array
     {
         return parent::getData() + [
-            'callback_id' => $this->getCallbackId(),
-            'elements' => $this->getElementsArray(),
-            'auto_submit' => $this->getAutoSubmit(),
-            'submit_text' => $this->getSubmitText()
-        ];
+                'callback_id' => $this->getCallbackId(),
+                'elements' => $this->getElementsArray(),
+                'auto_submit' => $this->getAutoSubmit(),
+                'submit_text' => $this->getSubmitText()
+            ];
     }
 }

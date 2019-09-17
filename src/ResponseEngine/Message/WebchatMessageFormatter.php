@@ -4,7 +4,6 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
@@ -12,18 +11,18 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TabSwitchButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormAutoCompleteSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormNumberElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\FormMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ListMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\LongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\RichMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
@@ -138,7 +137,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                 return $this->generateLongTextMessage($template);
                 break;
             case self::EMPTY_MESSAGE:
-                return new EmptyMessage();
+                return new WebchatEmptyMessage();
                 break;
             default:
                 $template = [self::TEXT => 'Sorry, I did not understand this message type.'];
@@ -149,11 +148,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return ButtonMessage
+     * @return WebchatButtonMessage
      */
-    public function generateButtonMessage(array $template): ButtonMessage
+    public function generateButtonMessage(array $template): WebchatButtonMessage
     {
-        $message = new ButtonMessage();
+        $message = new WebchatButtonMessage();
         $message->setText($template[self::TEXT], [], true);
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
@@ -174,21 +173,21 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     }
 
     /**
-     * @return EmptyMessage
+     * @return WebchatEmptyMessage
      */
-    public function generateEmptyMessage(): EmptyMessage
+    public function generateEmptyMessage(): WebchatEmptyMessage
     {
-        $message = new EmptyMessage();
+        $message = new WebchatEmptyMessage();
         return $message;
     }
 
     /**
      * @param array $template
-     * @return FormMessage
+     * @return WebchatFormMessage
      */
-    public function generateFormMessage(array $template): FormMessage
+    public function generateFormMessage(array $template): WebchatFormMessage
     {
-        $message = (new FormMessage())
+        $message = (new WebchatFormMessage())
             ->setText($template[self::TEXT])
             ->setCallbackId($template[self::CALLBACK])
             ->setAutoSubmit($template[self::AUTO_SUBMIT]);
@@ -223,11 +222,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return ImageMessage
+     * @return WebchatImageMessage
      */
-    public function generateImageMessage(array $template): ImageMessage
+    public function generateImageMessage(array $template): WebchatImageMessage
     {
-        $message = (new ImageMessage())
+        $message = (new WebchatImageMessage())
             ->setImgSrc($template[self::SRC])
             ->setImgLink($template[self::LINK])
             ->setLinkNewTab($template[self::LINK_NEW_TAB]);
@@ -235,9 +234,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateRichMessage(array $template): RichMessage
+    public function generateRichMessage(array $template): WebchatRichMessage
     {
-        $message = (new RichMessage())
+        $message = (new WebchatRichMessage())
             ->setTitle($template[self::TITLE])
             ->setSubTitle($template[self::SUBTITLE])
             ->setText($template[self::TEXT])
@@ -263,18 +262,18 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateListMessage(array $template): ListMessage
+    public function generateListMessage(array $template): WebchatListMessage
     {
-        $message = (new ListMessage())
+        $message = (new WebchatListMessage())
             ->addItems($template[self::ITEMS])
             ->setViewType($template[self::VIEW_TYPE]);
 
         return $message;
     }
 
-    public function generateLongTextMessage(array $template): LongTextMessage
+    public function generateLongTextMessage(array $template): WebchatLongTextMessage
     {
-        $message = (new LongTextMessage())
+        $message = (new WebchatLongTextMessage())
             ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setCharacterLimit($template[self::CHARACTER_LIMIT])
             ->setCallbackId($template[self::CALLBACK])

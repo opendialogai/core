@@ -103,7 +103,7 @@ class TextMessage
         $this->text = $text;
     }
 
-    function getMarkUp()
+    public function getMarkUp()
     {
         return <<<EOT
 <text-message>{$this->text}</text-message>
@@ -128,7 +128,7 @@ class TextMessageWithLink
         $this->link_url = $link_url;
     }
 
-    function getMarkUp()
+    public function getMarkUp()
     {
         return <<<EOT
 <text-message>{$this->text} <link><open-new-tab>true</open-new-tab><url>{$this->link_url}</url><text>{$this->link_text}</text></link></text-message>
@@ -151,7 +151,7 @@ class ImageMessage
         $this->link = $link;
     }
 
-    function getMarkUp()
+    public function getMarkUp()
     {
         return <<<EOT
 <image-message><link>{$this->link}</link><src>{$this->src}</src></image-message>
@@ -167,7 +167,7 @@ class ButtonMessage
     public $buttons = [];
 
     /**
-     * ButtonMessage constructor.
+     * WebchatButtonMessage constructor.
      * @param $text
      */
     public function __construct($text)
@@ -269,7 +269,7 @@ class AttributeMessage
         $this->text = $text;
     }
 
-    function getMarkUp()
+    public function getMarkUp()
     {
         return <<<EOT
 <attribute-message>{$this->text}</attribute-message>
