@@ -5,6 +5,7 @@ namespace OpenDialogAi\ResponseEngine\Service;
 use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 /**
@@ -28,10 +29,23 @@ interface ResponseEngineServiceInterface
 
     /**
      * Takes the input text and replaces named attributes with in curly braces.
-     * Attribute filling may happen before a message is parsed as XML, so attribute values should be encoded appropriately
+     * Attribute filling may happen before a message is parsed as XML, so attribute
+     * values should be encoded appropriately
      *
      * @param $text string The message test to fill
      * @return string The message text with attributes filled
      */
     public function fillAttributes($text): string;
+
+    /**
+     * Loops through all available formatters from config, and creates a local array keyed by the name of the
+     * formatter
+     */
+    public function registerAvailableFormatters(): void;
+
+    public function getAvailableFormatters(): array;
+
+    public function getFormatter(string $formatterName): MessageFormatterInterface;
+
+    public function isFormatterAvailable(string $formatterName): bool;
 }

@@ -175,7 +175,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      * Loops through all available formatters from config, and creates a local array keyed by the name of the
      * formatter
      */
-    public function registerAvailableFormatters()
+    public function registerAvailableFormatters(): void
     {
         foreach ($this->getAvailableFormatterConfig() as $formatter) {
             try {
@@ -196,9 +196,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getAvailableFormatters(): array
     {
         Log::debug('Getting available formatters');
