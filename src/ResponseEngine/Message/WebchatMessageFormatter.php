@@ -10,6 +10,7 @@ use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -250,7 +251,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateListMessage(array $template): WebchatListMessage
+    public function generateListMessage(array $template): ListMessage
     {
         $message = (new WebchatListMessage())
             ->addItems($template[self::ITEMS])
