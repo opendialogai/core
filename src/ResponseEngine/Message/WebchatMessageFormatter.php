@@ -8,6 +8,7 @@ use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
@@ -139,9 +140,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return WebchatButtonMessage
+     * @return ButtonMessage
      */
-    public function generateButtonMessage(array $template): WebchatButtonMessage
+    public function generateButtonMessage(array $template): ButtonMessage
     {
         $message = new WebchatButtonMessage();
         $message->setText($template[self::TEXT], [], true);
