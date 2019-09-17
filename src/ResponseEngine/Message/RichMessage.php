@@ -1,9 +1,12 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message\Webchat;
+declare(strict_types=1);
+
+namespace OpenDialogAi\Core\ResponseEngine\Message;
 
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
 
 class RichMessage extends OpenDialogMessage
 {

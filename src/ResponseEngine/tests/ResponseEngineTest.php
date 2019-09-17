@@ -15,7 +15,7 @@ use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -227,7 +227,10 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage', $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf(
+            WebchatImageMessage::class,
+            $messageWrapper->getMessages()[0]
+        );
     }
 
     public function testWebChatButtonMessageWithCallbackButton()
@@ -263,7 +266,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage', $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $messageWrapper->getMessages()[0]);
     }
 
     public function testWebChatButtonMessageWithTabSwitchButton()
@@ -298,7 +301,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage', $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $messageWrapper->getMessages()[0]);
     }
 
     public function testWebChatAttributeMessage()
@@ -335,7 +338,7 @@ class ResponseEngineTest extends TestCase
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
         $this->assertInstanceOf(OpenDialogMessage::class, $messageWrapper->getMessages()[0]);
-        $this->assertInstanceOf(ImageMessage::class, $messageWrapper->getMessages()[1]);
+        $this->assertInstanceOf(WebchatImageMessage::class, $messageWrapper->getMessages()[1]);
     }
 
     public function testWebChatMissingAttributeMessage()
