@@ -1,6 +1,8 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message\Webchat;
+declare(strict_types=1);
+
+namespace OpenDialogAi\Core\ResponseEngine\Message;
 
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
@@ -134,12 +136,12 @@ class LongTextMessage extends OpenDialogMessage
     public function getData():?array
     {
         return parent::getData() + [
-            'character_limit' => $this->getCharacterLimit(),
-            'submit_text' => $this->getSubmitText(),
-            'callback_id' => $this->getCallbackId(),
-            'initial_text' => $this->getInitialText(),
-            'placeholder' => $this->getPlaceholder(),
-            'confirmation_text' => $this->getConfirmationText()
-        ];
+                'character_limit' => $this->getCharacterLimit(),
+                'submit_text' => $this->getSubmitText(),
+                'callback_id' => $this->getCallbackId(),
+                'initial_text' => $this->getInitialText(),
+                'placeholder' => $this->getPlaceholder(),
+                'confirmation_text' => $this->getConfirmationText()
+            ];
     }
 }

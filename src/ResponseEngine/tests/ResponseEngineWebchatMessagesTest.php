@@ -4,23 +4,23 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\FormMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\ListMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
 class ResponseEngineWebchatMessagesTest extends TestCase
 {
     public function testEmptyMessage()
     {
-        $message = new EmptyMessage();
+        $message = new WebchatEmptyMessage();
         $message->setDisableText(true);
         $this->assertEquals(true, $message->isEmpty());
         $this->assertEquals(1, $message->getData()['disable_text']);
@@ -37,7 +37,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatLongTextMessage()
     {
-        $message = new LongTextMessage();
+        $message = new WebchatLongTextMessage();
         $message->setInitialText('This is a test, this is only a test.');
         $message->setConfirmationText('This is a test, this is only a confirmation test.');
         $message->setSubmitText('This is a test, this is only a submission test.');
@@ -50,11 +50,11 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatListMessage()
     {
-        $message = new ListMessage();
+        $message = new WebchatListMessage();
         $message->setDisableText(false);
         $message->addItem((new OpenDialogMessage())->setText('This is a test, this is only a test.'));
-        $message->addItem((new ImageMessage()));
-        $message->addItem((new ButtonMessage())->setText('Yes'));
+        $message->addItem((new WebchatImageMessage()));
+        $message->addItem((new WebchatButtonMessage())->setText('Yes'));
 
         $items = $message->getItemsArray();
 
@@ -67,7 +67,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatImageMessage()
     {
-        $message = new ImageMessage();
+        $message = new WebchatImageMessage();
         $message->setImgLink('http://www.opendialog.ai/');
         $message->setImgSrc('http://www.opendialog.ai/assets/images/logo.svg');
         $message->setLinkNewTab(false);
@@ -81,7 +81,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatFormMessage()
     {
-        $message = new FormMessage();
+        $message = new WebchatFormMessage();
         $element1 = new FormTextElement('name', 'Enter your Name', true);
         $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
         $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself');
@@ -121,7 +121,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatButtonMessage()
     {
-        $message = new ButtonMessage();
+        $message = new WebchatButtonMessage();
         $message->setClearAfterInteraction(false);
         $button1 = new CallbackButton('Yes', 'callback_yes', true);
         $button2 = new CallbackButton('No', 'callback_no', false);

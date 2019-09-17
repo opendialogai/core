@@ -1,6 +1,8 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message\Webchat;
+declare(strict_types=1);
+
+namespace OpenDialogAi\Core\ResponseEngine\Message;
 
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
@@ -85,8 +87,8 @@ class ListMessage extends OpenDialogMessage
 
         foreach ($this->items as $message) {
             $items[] = $message->getData() + [
-                'message_type' => $message->getMessageType(),
-            ];
+                    'message_type' => $message->getMessageType(),
+                ];
         }
 
         return $items;
