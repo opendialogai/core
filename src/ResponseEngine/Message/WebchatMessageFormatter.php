@@ -9,6 +9,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -209,9 +210,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     /**
      * @param array $template
-     * @return WebchatImageMessage
+     * @return ImageMessage
      */
-    public function generateImageMessage(array $template): WebchatImageMessage
+    public function generateImageMessage(array $template): ImageMessage
     {
         $message = (new WebchatImageMessage())
             ->setImgSrc($template[self::SRC])

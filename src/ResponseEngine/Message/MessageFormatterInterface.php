@@ -4,8 +4,8 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
@@ -70,7 +70,7 @@ interface MessageFormatterInterface
 
     public function generateFormMessage(array $template): FormMessage;
 
-    public function generateImageMessage(array $template): WebchatImageMessage;
+    public function generateImageMessage(array $template): ImageMessage;
 
     public function generateListMessage(array $template): WebchatListMessage;
 
