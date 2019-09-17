@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Traits\HasName;
+use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -160,7 +161,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
     /**
      * @return WebchatEmptyMessage
      */
-    public function generateEmptyMessage(): WebchatEmptyMessage
+    public function generateEmptyMessage(): EmptyMessage
     {
         $message = new WebchatEmptyMessage();
         return $message;

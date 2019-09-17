@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
+use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
@@ -66,7 +66,7 @@ interface MessageFormatterInterface
 
     public function generateButtonMessage(array $template): WebchatButtonMessage;
 
-    public function generateEmptyMessage(): WebchatEmptyMessage;
+    public function generateEmptyMessage(): EmptyMessage;
 
     public function generateFormMessage(array $template): WebchatFormMessage;
 
