@@ -31,7 +31,7 @@ class SensorServiceTest extends TestCase
         $this->assertEquals('sensor.core.webchat', $webchatSensor->getName());
     }
 
-    public function testBadlyNamedSensor()
+    public function testBadlyNamedFormatter()
     {
         $this->app['config']->set('opendialog.sensor_engine.available_sensors', [DummySensor::class]);
 
