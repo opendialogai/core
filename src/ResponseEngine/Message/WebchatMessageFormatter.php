@@ -6,7 +6,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
+use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -32,27 +32,12 @@ use SimpleXMLElement;
  */
 class WebChatMessageFormatter implements MessageFormatterInterface
 {
+    use HasName;
 
     /** @var ResponseEngineService */
     private $responseEngineService;
 
     protected static $name = 'formatter.core.webchat';
-
-    /**
-     * @inheritDoc
-     */
-    public static function getName(): string
-    {
-        if (static::$name !== self::$name) {
-            throw new FormatterNameNotSetException(
-                sprintf(
-                    "Formatter %s has not defined a name",
-                    __CLASS__
-                )
-            );
-        }
-        return static::$name;
-    }
 
     /**
      * WebChatMessageFormatter constructor.

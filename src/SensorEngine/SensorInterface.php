@@ -11,11 +11,5 @@ use OpenDialogAi\SensorEngine\Exceptions\SensorNameNotSetException;
  */
 interface SensorInterface
 {
-    /**
-     * @return string
-     * @throws SensorNameNotSetException
-     */
-    public static function getName() : string;
-
     public function interpret(Request $request) : UtteranceInterface;
 }

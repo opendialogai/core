@@ -4,6 +4,7 @@ namespace OpenDialogAi\SensorEngine\Sensors;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Exceptions\UtteranceUnknownMessageType;
 use OpenDialogAi\Core\Utterances\User;
@@ -19,6 +20,8 @@ use OpenDialogAi\SensorEngine\BaseSensor;
 
 class WebchatSensor extends BaseSensor
 {
+    use HasName;
+
     protected static $name = 'sensor.core.webchat';
 
     /**
