@@ -2,13 +2,13 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
+use OpenDialogAi\Core\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\LongTextMessage;
 use OpenDialogAi\Core\ResponseEngine\Message\RichMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 
 /**
  * Message formatter interface.
@@ -64,7 +64,7 @@ interface MessageFormatterInterface
 
     public function getMessages(string $markup): array;
 
-    public function generateButtonMessage(array $template): WebchatButtonMessage;
+    public function generateButtonMessage(array $template): ButtonMessage;
 
     public function generateEmptyMessage(): EmptyMessage;
 
