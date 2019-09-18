@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Traits\HasName;
-use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\ButtonMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\LongTextMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\RichMessage;
+use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\ListMessage;
+use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\RichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -150,7 +150,11 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             if (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new TabSwitchButton($button[self::TEXT]));
             } elseif (isset($button[self::LINK])) {
-                $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $button[self::LINK_NEW_TAB]));
+                $message->addButton(new LinkButton(
+                    $button[self::TEXT],
+                    $button[self::LINK],
+                    $button[self::LINK_NEW_TAB]
+                ));
             } elseif (isset($button[self::CLICK_TO_CALL])) {
                 $message->addButton(new ClickToCallButton($button[self::TEXT], $button[self::CLICK_TO_CALL]));
             } else {

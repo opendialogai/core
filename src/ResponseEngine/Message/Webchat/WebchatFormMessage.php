@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\FormMessage;
 
 class WebchatFormMessage extends FormMessage
 {

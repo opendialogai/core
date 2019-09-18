@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 
 class WebchatImageMessage extends ImageMessage
 {

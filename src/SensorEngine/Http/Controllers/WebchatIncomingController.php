@@ -12,7 +12,6 @@ use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\SensorEngine\Contracts\IncomingMessageInterface;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
-use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\Contracts\IncomingControllerInterface;
 
 class WebchatIncomingController extends BaseController implements IncomingControllerInterface
