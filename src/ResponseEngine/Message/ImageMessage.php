@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
-
 class ImageMessage extends OpenDialogMessage
 {
     protected $messageType = 'image';

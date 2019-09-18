@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 

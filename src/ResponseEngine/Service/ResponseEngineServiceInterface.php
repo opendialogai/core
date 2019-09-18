@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\MessageTemplate;

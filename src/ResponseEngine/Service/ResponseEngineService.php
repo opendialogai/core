@@ -10,11 +10,9 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\Core\ResponseEngine\Exceptions\FormatterNameNotSetException;
-use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
-use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 

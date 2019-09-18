@@ -9,7 +9,7 @@ use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\TimestampAttribute;
-use OpenDialogAi\Core\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\ResponseEngine\tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;

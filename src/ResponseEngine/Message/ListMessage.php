@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
-
 class ListMessage extends OpenDialogMessage
 {
     protected $messageType = 'list';
@@ -15,7 +13,7 @@ class ListMessage extends OpenDialogMessage
     private $viewType = 'horizontal';
 
     /**
-     * @param Message $message
+     * @param OpenDialogMessage $message
      * @return $this
      */
     public function addItem(OpenDialogMessage $message)

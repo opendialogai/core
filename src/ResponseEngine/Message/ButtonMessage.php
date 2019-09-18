@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
 class ButtonMessage extends OpenDialogMessage

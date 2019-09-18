@@ -2,18 +2,12 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Traits\HasName;
-use OpenDialogAi\ResponseEngine\Message\FormMessage;
-use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
-use OpenDialogAi\ResponseEngine\Message\ImageMessage;
-use OpenDialogAi\ResponseEngine\Message\ListMessage;
-use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\RichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -82,7 +76,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning(sprintf('Message Builder error: %s', $e->getMessage()));
             return [];
         }
