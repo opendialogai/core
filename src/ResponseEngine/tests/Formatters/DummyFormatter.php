@@ -4,13 +4,13 @@ namespace OpenDialogAi\Core\ResponseEngine\tests\Formatters;
 
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\ButtonMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\EmptyMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\FormMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\ImageMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\ListMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\LongTextMessage;
-use OpenDialogAi\Core\ResponseEngine\Message\RichMessage;
+use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\ListMessage;
+use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\RichMessage;
 
 class DummyFormatter implements MessageFormatterInterface
 {
