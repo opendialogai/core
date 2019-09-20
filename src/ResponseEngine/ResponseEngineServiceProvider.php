@@ -20,7 +20,7 @@ class ResponseEngineServiceProvider extends ServiceProvider
             'opendialog.response_engine'
         );
 
-        $this->app->bind(ResponseEngineServiceInterface::class, function () {
+        $this->app->singleton(ResponseEngineServiceInterface::class, function () {
             $service = new ResponseEngineService();
             return $service;
         });
