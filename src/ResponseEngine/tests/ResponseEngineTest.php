@@ -152,6 +152,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage', $messageWrapper->getMessages()[0]);
     }
 
@@ -184,6 +185,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage', $messageWrapper->getMessages()[0]);
     }
 
@@ -220,6 +222,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $messageWrapper->getMessages()[0]);
     }
 
@@ -255,6 +258,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage', $messageWrapper->getMessages()[0]);
     }
 
@@ -327,7 +331,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
 
-        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi dummy there   welcome');
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi dummy there  welcome');
     }
 
     public function testMessageConditionRules()
@@ -356,11 +360,13 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
+        // phpcs:ignore
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
+            // phpcs:ignore
             'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
@@ -373,6 +379,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('Hello');
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages', $messageWrapper);
+        // phpcs:ignore
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'This is an example <a target="_blank" href="http://www.example.com">This is a link</a>');
     }
 

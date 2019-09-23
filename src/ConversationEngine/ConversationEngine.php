@@ -419,8 +419,9 @@ class ConversationEngine implements ConversationEngineInterface
                 try {
                     $context = ContextService::getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
-                    // phpcs:ignore
-                    Log::error(sprintf('Expected attribute context %s does not exist, using session context', $contextId));
+                    Log::error(
+                        sprintf('Expected attribute context %s does not exist, using session context', $contextId)
+                    );
                 }
             }
 
@@ -441,8 +442,11 @@ class ConversationEngine implements ConversationEngineInterface
     private function persistContexts(array $contexts)
     {
         foreach ($contexts as $contextId) {
-            $context = ContextService::getContext($contextId);
-            $context->persist();
+            try {
+                $context = ContextService::getContext($contextId);
+                $context->persist();
+            } catch (ContextDoesNotExistException $e) {
+            }
         }
     }
 
