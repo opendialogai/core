@@ -93,9 +93,13 @@ class UserServiceTest extends TestCase
 
         $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
 
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversation */
-        $conversation = $conversationConverter->convertConversation($conversationModel, true);
-        $this->userService->setCurrentConversation($user, $conversation);
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
+
+        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
@@ -107,15 +111,15 @@ class UserServiceTest extends TestCase
         /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationUser */
         $conversationUser = $conversationConverter->convertConversation($conversationUserModel);
 
-        $this->assertEquals($conversation->getId(), $conversationUser->getId());
+        $this->assertEquals($conversationForCloning->getId(), $conversationUser->getId());
         $this->assertEquals(Model::CONVERSATION_USER, $conversationUser->getAttribute(Model::EI_TYPE)->getValue());
 
         // Ensure that the conversation was properly cloned by checking that the template & user conversation UIDs are different
-        $this->assertNotEquals($conversation->getUid(), $conversationUser->getUid());
+        $this->assertNotEquals($conversationForCloning->getUid(), $conversationUser->getUid());
         $this->assertEquals($user->getCurrentConversationUid(), $conversationUser->getUid());
 
         /** @var Scene $openingScene */
-        $openingScene = $conversation->getOpeningScenes()->first()->value;
+        $openingScene = $conversationForCloning->getOpeningScenes()->first()->value;
 
         /** @var Scene $openingUserScene */
         $openingUserScene = $conversationUser->getOpeningScenes()->first()->value;
@@ -142,15 +146,20 @@ class UserServiceTest extends TestCase
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter->convertConversation($conversationModel);
 
-        $this->userService->setCurrentConversation($user, $conversation);
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
+
+        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $conversation->getOpeningScenes()->first()->value;
+        $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
 
         /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
@@ -186,15 +195,20 @@ class UserServiceTest extends TestCase
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter->convertConversation($conversationModel);
 
-        $this->userService->setCurrentConversation($user, $conversation);
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
+
+        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $conversation->getOpeningScenes()->first()->value;
+        $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
 
         /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;

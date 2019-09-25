@@ -154,6 +154,19 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
      */
     public static function getConversationQueryGraph(): array
     {
+        return array_merge(
+            self::getConversationTemplateQueryGraph(),
+            [
+                Model::INSTANCE_OF => self::getConversationTemplateQueryGraph()
+            ]
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function getConversationTemplateQueryGraph(): array
+    {
         return [
             Model::UID,
             Model::ID,

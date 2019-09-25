@@ -167,12 +167,16 @@ class UserService
 
     /**
      * @param ChatbotUser $user
-     * @param Conversation $conversation
+     * @param Conversation $conversationForCloning
+     * @param Conversation $conversationForConnecting
      * @return Node
      */
-    public function setCurrentConversation(ChatbotUser $user, Conversation $conversation): Node
-    {
-        $user->setCurrentConversation($conversation);
+    public function setCurrentConversation(
+        ChatbotUser $user,
+        Conversation $conversationForCloning,
+        Conversation $conversationForConnecting
+    ): Node {
+        $user->setCurrentConversation($conversationForCloning, $conversationForConnecting);
         return $this->updateUser($user);
     }
 

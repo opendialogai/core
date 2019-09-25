@@ -14,6 +14,12 @@ class EIModelConversation extends EIModelBase
     private $uid;
     private $eiType;
 
+    /* @var EIModelConversation $updateOf */
+    private $updateOf;
+
+    /* @var EIModelConversation $instanceOf */
+    private $instanceOf;
+
     /* @var Set $conditions */
     private $conditions;
 
@@ -53,6 +59,18 @@ class EIModelConversation extends EIModelBase
         $conversation->setId($response[Model::ID]);
         $conversation->setUid($response[Model::UID]);
         $conversation->setEiType($response[Model::EI_TYPE]);
+
+        if (isset($response[Model::UPDATE_OF])) {
+            /** @var EIModelConversation $conversation */
+            $conversation = $eiModelCreator->createEIModel(EIModelConversation::class, $response[Model::UPDATE_OF]);
+            $conversation->setUpdateOf($conversation);
+        }
+
+        if (isset($response[Model::INSTANCE_OF])) {
+            /** @var EIModelConversation $template */
+            $template = $eiModelCreator->createEIModel(EIModelConversation::class, $response[Model::INSTANCE_OF]);
+            $conversation->setInstanceOf($template);
+        }
 
         if (isset($response[Model::HAS_CONDITION])) {
             $conversation->conditions = new Set();
@@ -211,5 +229,37 @@ class EIModelConversation extends EIModelBase
         }
 
         return $intents;
+    }
+
+    /**
+     * @return EIModelConversation|null
+     */
+    public function getUpdateOf(): ?EIModelConversation
+    {
+        return $this->updateOf;
+    }
+
+    /**
+     * @param EIModelConversation $updateOf
+     */
+    private function setUpdateOf(EIModelConversation $updateOf): void
+    {
+        $this->updateOf = $updateOf;
+    }
+
+    /**
+     * @return EIModelConversation|null
+     */
+    public function getInstanceOf(): ?EIModelConversation
+    {
+        return $this->instanceOf;
+    }
+
+    /**
+     * @param EIModelConversation $instanceOf
+     */
+    private function setInstanceOf(EIModelConversation $instanceOf): void
+    {
+        $this->instanceOf = $instanceOf;
     }
 }

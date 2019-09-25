@@ -32,6 +32,16 @@ class EIModelToGraphConverter
         $clone ? false : $cm->getConversation()->setUid($conversation->getUid());
         $cm->getConversation()->setConversationType($conversation->getEiType());
 
+        if ($conversation->getInstanceOf()) {
+            $convertedTemplate = $this->convertConversation($conversation->getInstanceOf());
+            $cm->setInstanceOf($convertedTemplate);
+        }
+
+        if ($conversation->getUpdateOf()) {
+            $convertedTemplate = $this->convertConversation($conversation->getUpdateOf());
+            $cm->setUpdateOf($convertedTemplate);
+        }
+
         // Add any conversation level conditions
         /* @var Set $conditions */
         $conditions = $conversation->getConditions();

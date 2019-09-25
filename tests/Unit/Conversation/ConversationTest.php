@@ -10,6 +10,7 @@ use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
@@ -74,6 +75,12 @@ class ConversationTest extends TestCase
             ->userSaysToBotAcrossScenes(self::OPENING_SCENE, self::CONTINUE_WITH_AUDIT_SCENE, $intent5, 5)
             ->botSaysToUser(self::CONTINUE_WITH_AUDIT_SCENE, $intent6, 6);
 
+        try {
+            $cm->setValidated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
         return $cm;
     }
 
@@ -123,4 +130,36 @@ class ConversationTest extends TestCase
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
     }
 
+    public function testConversationState() {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        $this->assertEquals(0, $conversation->getAttribute(Model::CONVERSATION_VERSION)->getValue());
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+        $this->assertFalse($conversation->hasUpdateOf());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        $conversation_updated = clone $conversation;
+        $conversation_updated->getScene(self::LATEST_NEWS_SCENE)->setId(self::LATEST_NEWS_SCENE . "2");
+        $conversation_updated->setConversationVersion(1);
+        $conversation_updated->setConversationStatus(Conversation::ACTIVATABLE);
+        $conversation_updated->setUpdateOf($conversation);
+
+        $this->assertEquals(1, $conversation_updated->getAttribute(Model::CONVERSATION_VERSION)->getValue());
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation_updated->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+        $this->assertTrue($conversation->hasUpdateOf());
+
+        /** @var Conversation $updateOf */
+        $updateOf = $conversation_updated->getUpdateOf();
+
+        $this->assertEquals($conversation->getUid(), $updateOf->getUid());
+        $this->assertEquals($conversation->getId(), $updateOf->getId());
+    }
 }

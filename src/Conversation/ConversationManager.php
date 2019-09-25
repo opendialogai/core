@@ -10,9 +10,13 @@ class ConversationManager
     /* @var Conversation $conversation - the root of the conversation graph */
     private $conversation;
 
-    public function __construct(string $conversation_id)
+    public function __construct(string $conversation_id, string $conversationStatus = null)
     {
-        $this->conversation = new Conversation($conversation_id);
+        if (!$conversationStatus) {
+            $conversationStatus = Conversation::SAVED;
+        }
+
+        $this->conversation = new Conversation($conversation_id, $conversationStatus, 0);
     }
 
     /**
@@ -204,5 +208,59 @@ class ConversationManager
         $sceneIntent->createOutgoingEdge(Model::TRANSITIONS_FROM, $startingScene);
 
         return $this;
+    }
+
+    /**
+     * Sets the conversation status to 'activatable' if it is currently 'saved'
+     * @throws InvalidConversationStatusTransitionException
+     */
+    public function setValidated(): void
+    {
+        if ($this->conversation->getConversationStatus() == Conversation::SAVED) {
+            $this->conversation->setConversationStatus(Conversation::ACTIVATABLE);
+        } else {
+            throw new InvalidConversationStatusTransitionException(
+                sprintf(
+                    "Conversations can only transition to 'activatable' from 'saved', '%s' was '%s'",
+                    $this->conversation->getId(),
+                    $this->conversation->getConversationStatus()
+                )
+            );
+        }
+    }
+
+    /**
+     * Sets the conversation status to 'activatable' if it is currently 'saved'
+     * @throws InvalidConversationStatusTransitionException
+     */
+    public function setActivated(): void
+    {
+        if ($this->conversation->getConversationStatus() == Conversation::ACTIVATABLE) {
+            $this->conversation->setConversationStatus(Conversation::ACTIVATED);
+        } else {
+            throw new InvalidConversationStatusTransitionException(
+                sprintf(
+                    "Conversations can only transition to 'activated' from 'activatable', '%s' was '%s'",
+                    $this->conversation->getId(),
+                    $this->conversation->getConversationStatus()
+                )
+            );
+        }
+    }
+
+    /**
+     * @param Conversation $updateOf
+     */
+    public function setUpdateOf(Conversation $updateOf)
+    {
+        $this->conversation->setUpdateOf($updateOf);
+    }
+
+    /**
+     * @param Conversation $instanceOf
+     */
+    public function setInstanceOf(Conversation $instanceOf)
+    {
+        $this->conversation->setInstanceOf($instanceOf);
     }
 }

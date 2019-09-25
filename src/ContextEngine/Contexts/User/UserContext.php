@@ -146,12 +146,18 @@ class UserContext extends AbstractContext
     /**
      * Sets the current conversation against the user, persists the user and returns the conversation id
      *
-     * @param Conversation $conversation
+     * @param Conversation $conversationForCloning
+     * @param Conversation $conversationForConnecting
      * @return string
      */
-    public function setCurrentConversation(Conversation $conversation): string
+    public function setCurrentConversation(Conversation $conversationForCloning, Conversation $conversationForConnecting): string
     {
-        $this->user = $this->userService->setCurrentConversation($this->user, $conversation);
+        $this->user = $this->userService->setCurrentConversation(
+            $this->user,
+            $conversationForCloning,
+            $conversationForConnecting
+        );
+
         return $this->user->getCurrentConversationUid();
     }
 

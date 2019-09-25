@@ -259,13 +259,17 @@ class ConversationEngine implements ConversationEngineInterface
         $this->storeIntentAttributesFromOpeningIntent($intent);
 
         // We specify the conversation to be cloned as we will be re-persisting it as a user conversation next
-        /** @var Conversation $conversation */
-        $conversation = $this->conversationStore->getConversation($intent->getConversationUid(), true);
+
+        /** @var Conversation $conversationForCloning */
+        $conversationForCloning = $this->conversationStore->getConversation($intent->getConversationUid(), true);
+
+        /** @var Conversation $conversationForConnecting */
+        $conversationForConnecting = $this->conversationStore->getConversation($intent->getConversationUid(), false);
 
         // TODO can we avoid building, cloning and re-persisting the conversation here. EG clone directly in DGRAPH
         // TODO and store the resulting ID against the user
 
-        $userContext->setCurrentConversation($conversation);
+        $userContext->setCurrentConversation($conversationForCloning, $conversationForConnecting);
 
         /** @var Intent $currentIntent */
         $currentIntent = $this->conversationStore->getOpeningIntentByConversationIdAndOrder(
