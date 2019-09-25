@@ -49,11 +49,7 @@
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
       "OpenDialogAi\\InterpreterEngine\\": "src/InterpreterEngine",
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
-      "OpenDialogAi\\Core\\Database\\": "database/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
+      "OpenDialogAi\\Core\\Database\\": "database/",
       "OpenDialogAi\\Core\\Tests\\": "tests/"
     }
   },
