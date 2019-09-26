@@ -16,6 +16,7 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Conversation\Action;
@@ -63,14 +64,15 @@ class Conversation extends Model
         'notes',
         'created_at',
         'updated_at',
+        'version_number'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
-    protected static $logAttributes = ['model', 'notes'];
+    protected static $logAttributes = ['model', 'notes', 'status', 'version_number'];
 
     protected static $logName = 'conversation_log';
 
-    protected static $logOnlyDirty = true;
+    protected static $submitEmptyLogs = false;
 
     // Don't create activity logs when these model attributes are updated.
     protected static $ignoreChangedAttributes = [
@@ -101,7 +103,7 @@ class Conversation extends Model
 
         // Reset validation status.
         if ($doValidation) {
-            $this->status = 'imported';
+            $this->status = ConversationNode::SAVED;
             $this->yaml_validation_status = 'waiting';
             $this->yaml_schema_validation_status = 'waiting';
             $this->scenes_validation_status = 'waiting';
@@ -124,6 +126,7 @@ class Conversation extends Model
      * Build the conversation's representation.
      *
      * @return ConversationNode
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function buildConversation()
     {
@@ -134,7 +137,16 @@ class Conversation extends Model
             throw $exception;
         }
 
-        $conversationManager = new ConversationManager($yaml['id']);
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationManager = new ConversationManager($yaml['id'], $this->status, $this->version_number ?: 0);
+
+        if ($conversationManager->getConversationVersion() > 0) {
+            $previousTemplate = $conversationStore->getLatestTemplateVersionByName($yaml['id']);
+
+            if ($previousTemplate) {
+                $conversationManager->setUpdateOf($previousTemplate);
+            }
+        }
 
         if (isset($yaml['conditions'])) {
             $this->addConversationConditions($yaml['conditions'], $conversationManager);
@@ -195,8 +207,10 @@ class Conversation extends Model
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->isSuccessful()) {
             // Set conversation status to "published".
-            $this->status = 'published';
+            $this->status = ConversationNode::ACTIVATED;
             $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
+            $this->version_number++;
+
             $this->save(['validate' => false]);
 
             ConversationStateLog::create([

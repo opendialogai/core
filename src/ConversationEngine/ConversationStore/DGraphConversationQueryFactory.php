@@ -98,7 +98,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
         $dGraphQuery = new DGraphQuery();
         $dGraphQuery->eq('id', $templateName)
             ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
-            ->setQueryGraph(self::getConversationQueryGraph());
+            ->setQueryGraph(self::getConversationTemplateQueryGraph());
         return $dGraphQuery;
     }
 
@@ -171,6 +171,8 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             Model::UID,
             Model::ID,
             Model::EI_TYPE,
+            Model::CONVERSATION_STATUS,
+            Model::CONVERSATION_VERSION,
             Model::HAS_CONDITION => self::getConditionGraph(),
             Model::HAS_OPENING_SCENE => self::getSceneGraph(),
             Model::HAS_SCENE => self::getSceneGraph()

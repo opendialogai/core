@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
@@ -28,7 +29,7 @@ class Conversation extends NodeWithConditions
         parent::__construct($id);
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE));
         $this->addAttribute(new StringAttribute(Model::CONVERSATION_STATUS, $conversationStatus));
-        $this->addAttribute(new StringAttribute(Model::CONVERSATION_VERSION, $conversationVersion));
+        $this->addAttribute(new IntAttribute(Model::CONVERSATION_VERSION, $conversationVersion));
     }
 
     /**
@@ -137,6 +138,14 @@ class Conversation extends NodeWithConditions
     public function setConversationStatus(string $status): void
     {
         $this->setAttribute(Model::CONVERSATION_STATUS, $status);
+    }
+
+    /**
+     * @return int
+     */
+    public function getConversationVersion(): int
+    {
+        return $this->getAttributeValue(Model::CONVERSATION_VERSION);
     }
 
     /**

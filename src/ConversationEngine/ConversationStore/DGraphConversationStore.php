@@ -7,7 +7,9 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningIntents;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
 
 class DGraphConversationStore implements ConversationStoreInterface
 {
@@ -85,6 +87,41 @@ class DGraphConversationStore implements ConversationStoreInterface
 
         /* @var EIModelConversation $model */
         $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
+
+        return $model;
+    }
+
+    /**
+     * @param $templateName
+     * @return Conversation
+     * @throws EIModelCreatorException
+     */
+    public function getLatestTemplateVersionByName($templateName): Conversation
+    {
+        $conversationModel = $this->getLatestEIModelTemplateVersionByName($templateName);
+        return $this->conversationConverter->convertConversation($conversationModel, false);
+    }
+
+    /**
+     * @param $templateName
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
+    public function getLatestEIModelTemplateVersionByName($templateName): EIModelConversation
+    {
+        $query = DGraphConversationQueryFactory::getConversationFromDGraphWithTemplateName($templateName);
+
+        /** @var DGraphQueryResponse $response */
+        $response = $this->dGraphClient->query($query);
+        $data = $response->getData();
+
+        // Sort by version number
+        usort($data, function ($a, $b) {
+            return $a[Model::CONVERSATION_VERSION] < $b[Model::CONVERSATION_VERSION];
+        });
+
+        /* @var EIModelConversation $model */
+        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $data[0]);
 
         return $model;
     }

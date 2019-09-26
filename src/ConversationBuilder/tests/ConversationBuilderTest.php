@@ -9,6 +9,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -105,18 +106,6 @@ class ConversationBuilderTest extends TestCase
     }
 
     /**
-     * Ensure that revisions are not stored for status changes.
-     */
-    public function testConversationRevisionNonCreation()
-    {
-        $conversation = Conversation::create(['name' => 'Test Conversation', 'model' => "---\nconversation: test"]);
-        $conversation->status = 'published';
-        $conversation->save();
-        $activity = Activity::where('log_name', 'conversation_log')->get()->last();
-        $this->assertArrayNotHasKey('status', $activity->changes['attributes']);
-    }
-
-    /**
      * Ensure that logs/revisions are cleaned up when Conversations are deleted.
      */
     public function testConversationDeletion()
@@ -150,7 +139,7 @@ class ConversationBuilderTest extends TestCase
 
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
-        $this->assertEquals($conversation->status, 'published');
+        $this->assertEquals($conversation->status, ConversationNode::ACTIVATED);
 
         $conversation->delete();
     }
@@ -240,5 +229,47 @@ class ConversationBuilderTest extends TestCase
         $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $this->assertEquals('hello_bot_world', $conversation->getId());
+    }
+
+    public function testLogNewConversationVersion()
+    {
+        $this->publishConversation($this->conversation1());
+
+        /** @var Conversation $conversation */
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        // Ensure that the initial version + validation & publishing was logged
+        $this->assertCount(2, Activity::all());
+
+        /** @var Activity $activity */
+        $activity = Activity::all()->last();
+
+        $changedAttributes = $activity->changes['attributes'];
+        $this->assertEquals(1, $changedAttributes['version_number']);
+
+        $conversation->model = $this->conversation1() . " ";
+        $conversation->save();
+
+        // Ensure that that a new version was not logged (we only want to when we re-activate a conversation)
+        $this->assertCount(3, Activity::all());
+
+        /** @var Activity $activity */
+        $activity = Activity::all()->last();
+
+        $changedAttributes = $activity->changes['attributes'];
+        $this->assertEquals(1, $changedAttributes['version_number']);
+        $this->assertEquals($this->conversation1() . " ", $changedAttributes['model']);
+
+        $conversation->publishConversation($conversation->buildConversation());
+        $this->assertEquals(2, $conversation->version_number);
+
+        // Ensure that the new version was logged
+        $this->assertCount(4, Activity::all());
+
+        /** @var Activity $activity */
+        $activity = Activity::all()->last();
+        $changedAttributes = $activity->changes['attributes'];
+
+        $this->assertEquals(2, $changedAttributes['version_number']);
     }
 }

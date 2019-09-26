@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Tests\Unit;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationLog\ChatbotUser;
 use OpenDialogAi\ConversationLog\Message;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
@@ -232,7 +233,7 @@ class ConversationLogTest extends TestCase
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
-        $cm = new ConversationManager('TestConversation');
+        $cm = new ConversationManager('TestConversation', ConversationNode::ACTIVATABLE, 0);
 
         $conversationModel = Conversation::create(['name' => 'chat_open', 'model' => "conversation:\n id: chat_open\n scenes:\n    opening_scene:\n      intents:\n        - u:\n            i: intent.core.welcome\n        - b:\n            i: intent.core.chat_open_response\n            completes: true"]);
 

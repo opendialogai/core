@@ -10,13 +10,9 @@ class ConversationManager
     /* @var Conversation $conversation - the root of the conversation graph */
     private $conversation;
 
-    public function __construct(string $conversation_id, string $conversationStatus = null)
+    public function __construct(string $conversation_id, string $conversationStatus, int $conversationVersion)
     {
-        if (!$conversationStatus) {
-            $conversationStatus = Conversation::SAVED;
-        }
-
-        $this->conversation = new Conversation($conversation_id, $conversationStatus, 0);
+        $this->conversation = new Conversation($conversation_id, $conversationStatus, $conversationVersion);
     }
 
     /**
@@ -27,7 +23,12 @@ class ConversationManager
      */
     public static function createManagerForExistingConversation(Conversation $conversation)
     {
-        $cm = new ConversationManager($conversation->getId());
+        $cm = new ConversationManager(
+            $conversation->getId(),
+            $conversation->getConversationStatus(),
+            $conversation->getConversationVersion()
+        );
+
         $cm->setConversation($conversation);
         return $cm;
     }
@@ -41,11 +42,19 @@ class ConversationManager
     }
 
     /**
-     * @param Conversation $conversation
+     * @return int
      */
-    public function setConversation(Conversation $conversation)
+    public function getConversationVersion(): int
     {
-        $this->conversation = $conversation;
+        return $this->conversation->getConversationVersion();
+    }
+
+    /**
+     * @param $conversationVersion
+     */
+    public function setConversationVersion($conversationVersion)
+    {
+        $this->conversation->setConversationVersion($conversationVersion);
     }
 
     /**

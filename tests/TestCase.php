@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests;
 
+use Exception;
+use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\Conversation;
@@ -41,7 +43,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             if (isset($env['DGRAPH_URL'])) {
                 $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             //
         }
 
@@ -255,6 +257,7 @@ EOT;
 
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
+        $conversation->save();
         $conversationModel = $conversation->buildConversation();
 
         $this->assertTrue($conversation->publishConversation($conversationModel));
@@ -311,7 +314,7 @@ EOT;
      */
     protected function createMockInterpreter($interpreterName)
     {
-        $mockInterpreter = \Mockery::mock(InterpreterInterface::class);
+        $mockInterpreter = Mockery::mock(InterpreterInterface::class);
         $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
 
         return $mockInterpreter;

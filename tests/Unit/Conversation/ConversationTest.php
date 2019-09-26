@@ -37,7 +37,7 @@ class ConversationTest extends TestCase
     public function setupConversation()
     {
         // Create a conversation manager and setup a conversation
-        $cm = new ConversationManager(self::CONVERSATION);
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::SAVED, 0);
 
         $condition1 = new Condition(
             new BooleanAttribute(self::REGISTERED_USER_STATUS, true),

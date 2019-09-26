@@ -13,6 +13,8 @@ class EIModelConversation extends EIModelBase
     private $id;
     private $uid;
     private $eiType;
+    private $conversationStatus;
+    private $conversationVersion;
 
     /* @var EIModelConversation $updateOf */
     private $updateOf;
@@ -59,6 +61,8 @@ class EIModelConversation extends EIModelBase
         $conversation->setId($response[Model::ID]);
         $conversation->setUid($response[Model::UID]);
         $conversation->setEiType($response[Model::EI_TYPE]);
+        $conversation->setConversationStatus($response[Model::CONVERSATION_STATUS]);
+        $conversation->setConversationVersion($response[Model::CONVERSATION_VERSION]);
 
         if (isset($response[Model::UPDATE_OF])) {
             /** @var EIModelConversation $conversation */
@@ -151,6 +155,38 @@ class EIModelConversation extends EIModelBase
     public function setEiType($eiType): void
     {
         $this->eiType = $eiType;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConversationStatus()
+    {
+        return $this->conversationStatus;
+    }
+
+    /**
+     * @param mixed $conversationStatus
+     */
+    public function setConversationStatus($conversationStatus): void
+    {
+        $this->conversationStatus = $conversationStatus;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConversationVersion()
+    {
+        return $this->conversationVersion;
+    }
+
+    /**
+     * @param mixed $conversationVersion
+     */
+    public function setConversationVersion($conversationVersion): void
+    {
+        $this->conversationVersion = $conversationVersion;
     }
 
     /**

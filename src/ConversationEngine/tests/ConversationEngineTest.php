@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
-use Ds\Set;
 use Exception;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
@@ -292,6 +292,18 @@ class ConversationEngineTest extends TestCase
         $this->assertEquals('hello_user', $intent->getId());
     }
 
+    public function testGetLatestVersion() {
+        $this->publishUpdates('hello_bot_world');
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = $this->conversationEngine->getConversationStore();
+
+        // Test that we can query a conversation with history using the ConversationStore
+        /** @var EIModelConversation $conversationWithHistory */
+        $conversationWithHistory = $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
+        $this->assertEquals(2, $conversationWithHistory->getConversationVersion());
+    }
+
     private function createUserContext()
     {
         $userContext = ContextService::createUserContext($this->utterance);
@@ -369,5 +381,17 @@ conversation:
             i: hello_user
             completes: true
 EOT;
+    }
+
+    private function publishUpdates(string $templateName)
+    {
+        /** @var Conversation $template */
+        $template = Conversation::where('name', $templateName)->first();
+        $template->model .= " ";
+        $template->publishConversation($template->buildConversation());
+
+        $template = Conversation::where('name', $templateName)->first();
+        $template->model .= " ";
+        $template->publishConversation($template->buildConversation());
     }
 }

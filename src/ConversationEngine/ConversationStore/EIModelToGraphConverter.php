@@ -28,7 +28,12 @@ class EIModelToGraphConverter
      */
     public function convertConversation(EIModelConversation $conversation, $clone = false)
     {
-        $cm = new ConversationManager($conversation->getId());
+        $cm = new ConversationManager(
+            $conversation->getId(),
+            $conversation->getConversationStatus(),
+            $conversation->getConversationVersion()
+        );
+
         $clone ? false : $cm->getConversation()->setUid($conversation->getUid());
         $cm->getConversation()->setConversationType($conversation->getEiType());
 
