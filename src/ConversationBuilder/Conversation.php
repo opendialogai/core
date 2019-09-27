@@ -68,7 +68,7 @@ class Conversation extends Model
     ];
 
     // Create activity logs when the model or notes attribute is updated.
-    protected static $logAttributes = ['model', 'notes', 'status', 'version_number'];
+    protected static $logAttributes = ['model', 'notes', 'status', 'version_number', 'graph_uid'];
 
     protected static $logName = 'conversation_log';
 
