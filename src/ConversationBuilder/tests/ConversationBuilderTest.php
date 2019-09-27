@@ -321,4 +321,37 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(ConversationNode::DEACTIVATED, $model->getConversationStatus());
 
     }
+
+    public function testArchiving() {
+        $this->publishConversation($this->conversation1());
+
+        // Deactivate the conversation
+
+        /** @var Conversation $conversation */
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertTrue($conversation->unPublishConversation());
+        $this->assertEquals(ConversationNode::DEACTIVATED, $conversation->status);
+
+        $this->assertTrue($conversation->archiveConversation());
+        $this->assertEquals(ConversationNode::ARCHIVED, $conversation->status);
+
+        /** @var DGraphClient $client */
+        $client = app()->make(DGraphClient::class);
+
+        /** @var DGraphQuery $query */
+        $query = new DGraphQuery();
+        $query->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
+            ->filterEq('id', 'hello_bot_world')
+            ->setQueryGraph(DGraphConversationQueryFactory::getConversationTemplateQueryGraph());
+
+        /** @var EIModelCreator $eiModelCreator */
+        $eiModelCreator = app()->make(EIModelCreator::class);
+
+        $response = $client->query($query);
+        $this->assertCount(1, $response->getData());
+        $model = $eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
+        $this->assertEquals(ConversationNode::ARCHIVED, $model->getConversationStatus());
+
+    }
 }

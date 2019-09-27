@@ -164,7 +164,8 @@ class ConversationTest extends TestCase
         $this->assertEquals($conversation->getId(), $updateOf->getId());
     }
 
-    public function testDeactivating() {
+    public function testDeactivating()
+    {
         $cm = $this->setupConversation();
         $conversation = $cm->getConversation();
 
@@ -193,5 +194,33 @@ class ConversationTest extends TestCase
         }
 
         $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+    }
+
+    public function testArchiving()
+    {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        try {
+            $cm->setArchived();
+            $this->fail("Transition from activated to archived should not be allowed.");
+        } catch (InvalidConversationStatusTransitionException $e) {
+            // N/A
+        }
+
+        try {
+            $cm->setDeactivated();
+            $cm->setArchived();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ARCHIVED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
     }
 }

@@ -250,7 +250,7 @@ class ConversationManager
     }
 
     /**
-     * Sets the conversation status to 'activatable' if it is currently 'saved'
+     * Sets the conversation status to 'activated' if it is currently 'activated' or 'deactivated'
      * @throws InvalidConversationStatusTransitionException
      */
     public function setActivated(): void
@@ -273,21 +273,43 @@ class ConversationManager
     }
 
     /**
-     * Sets the conversation status to 'activatable' if it is currently 'saved'
+     * Sets the conversation status to 'deactivated' if it is currently 'activated' or 'archived'
      * @throws InvalidConversationStatusTransitionException
      */
     public function setDeactivated(): void
     {
         if (in_array($this->conversation->getConversationStatus(), [
-                Conversation::DEACTIVATED,
-                Conversation::ACTIVATED,
-                Conversation::ARCHIVED
+            Conversation::DEACTIVATED,
+            Conversation::ACTIVATED,
+            Conversation::ARCHIVED
         ])) {
             $this->conversation->setConversationStatus(Conversation::DEACTIVATED);
         } else {
             throw new InvalidConversationStatusTransitionException(
                 sprintf(
                     "Conversations can only transition to 'deactivated' from 'activated' or 'archived', '%s' was '%s'",
+                    $this->conversation->getId(),
+                    $this->conversation->getConversationStatus()
+                )
+            );
+        }
+    }
+
+    /**
+     * Sets the conversation status to 'archived' if it is currently 'deactivated'
+     * @throws InvalidConversationStatusTransitionException
+     */
+    public function setArchived(): void
+    {
+        if (in_array($this->conversation->getConversationStatus(), [
+            Conversation::DEACTIVATED,
+            Conversation::ARCHIVED
+        ])) {
+            $this->conversation->setConversationStatus(Conversation::ARCHIVED);
+        } else {
+            throw new InvalidConversationStatusTransitionException(
+                sprintf(
+                    "Conversations can only transition to 'archived' from 'deactivated', '%s' was '%s'",
                     $this->conversation->getId(),
                     $this->conversation->getConversationStatus()
                 )

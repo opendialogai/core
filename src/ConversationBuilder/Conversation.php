@@ -274,7 +274,6 @@ class Conversation extends Model
 
         if ($mutationResponse->isSuccessful()) {
             $this->status = ConversationNode::DEACTIVATED;
-            $this->graph_uid = null;
             $this->save(['validate' => false]);
 
             // Add log message.
@@ -282,6 +281,51 @@ class Conversation extends Model
                 'conversation_id' => $this->id,
                 'message' => 'Unpublished conversation from DGraph.',
                 'type' => 'unpublish_conversation',
+            ])->save();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Archiving the conversation
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function archiveConversation()
+    {
+        $dGraph = app()->make(DGraphClient::class);
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $conversation = $conversationStore->getConversationByUid($this->graph_uid);
+
+        /** @var ConversationManager $cm */
+        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+
+        try {
+            $cm->setArchived();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            return false;
+        }
+
+        $mutation = new DGraphMutation($cm->getConversation());
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+
+        if ($mutationResponse->isSuccessful()) {
+            $this->status = ConversationNode::ARCHIVED;
+            $this->save(['validate' => false]);
+
+            // Add log message.
+            ConversationStateLog::create([
+                'conversation_id' => $this->id,
+                'message' => 'Archived conversation',
+                'type' => 'archived_conversation',
             ])->save();
 
             return true;
