@@ -112,6 +112,7 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
         $response = $this->json('POST', '/incoming/webchat', $this->generateResponseMessage('text', [
             'text' => 'test'
         ]));
+
         $response
             ->assertStatus(200)
             ->assertJson(['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]);

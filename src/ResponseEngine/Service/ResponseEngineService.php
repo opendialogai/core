@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
@@ -49,26 +50,26 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $messageTemplates = MessageTemplate::forIntent($intentName)->get();
 
         if (count($messageTemplates) === 0) {
-            throw new NoMatchingMessagesException(sprintf("No messages found for intent %s", $intentName));
+            $this->buildTextFormatterErrorMessage(
+                $formatter,
+                $message = sprintf("No messages found for intent %s", $intentName)
+            );
+            Log::error($message);
+            throw new NoMatchingMessagesException($message);
         }
 
         // Get the message with the most conditions matched.
         $selectedMessageConditionsNumber = -1;
-        foreach ($messageTemplates as $messageTemplate) {
-            if ($this->messageMeetsConditions($messageTemplate)) {
-                $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
+        $selectedMessageTemplate = $this->getCorrectMessage($messageTemplates, $selectedMessageConditionsNumber);
 
-                if ($messageConditionsNumber > $selectedMessageConditionsNumber) {
-                    $selectedMessageTemplate = $messageTemplate;
-                    $selectedMessageConditionsNumber = $messageConditionsNumber;
-                }
-            }
-        }
-
-        if ($selectedMessageTemplate === null) {
-            throw new NoMatchingMessagesException(
-                sprintf("No messages with passing conditions found for intent %s", $intentName)
+        if (is_null($selectedMessageTemplate)) {
+            $this->buildTextFormatterErrorMessage(
+                $formatter,
+                $message = sprintf("No messages with passing conditions found for intent %s", $intentName)
             );
+
+            Log::error($message);
+            throw new NoMatchingMessagesException($message);
         }
 
         // Resolve all attributes in the markup.
@@ -82,6 +83,23 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
 
         return $messageWrapper;
+    }
+
+    public function getCorrectMessage($messageTemplates, int $selectedMessageConditionsNumber)
+    {
+        $selectedMessageTemplate = null;
+        foreach ($messageTemplates as $messageTemplate) {
+            if ($this->messageMeetsConditions($messageTemplate)) {
+                $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
+
+                if ($messageConditionsNumber > $selectedMessageConditionsNumber) {
+                    $selectedMessageTemplate = $messageTemplate;
+                    $selectedMessageConditionsNumber = $messageConditionsNumber;
+                }
+            }
+        }
+
+        return $selectedMessageTemplate;
     }
 
     /**
@@ -252,5 +270,20 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     private function getAvailableFormatterConfig()
     {
         return config('opendialog.response_engine.available_formatters');
+    }
+
+    public function buildTextFormatterErrorMessage(MessageFormatterInterface $formatter, string $message)
+    {
+        $template = [$formatter::TEXT => $message];
+        $message = $formatter->generateTextMessage($template);
+
+        $messages = $formatter->getMessages($message->getText());
+
+        $messageWrapper = new OpenDialogMessages();
+        foreach ($messages as $message) {
+            $messageWrapper->addMessage($message);
+        }
+
+        return $messageWrapper;
     }
 }
