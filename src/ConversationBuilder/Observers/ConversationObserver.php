@@ -38,11 +38,6 @@ class ConversationObserver
      */
     public function deleted(Conversation $conversation)
     {
-        // Unpublish the conversation from DGraph.
-        if ($conversation->status == 'published') {
-            $conversation->unPublishConversation(false);
-        }
-
         // Remove related state logs.
         ConversationStateLog::where('conversation_id', $conversation->id)->delete();
 

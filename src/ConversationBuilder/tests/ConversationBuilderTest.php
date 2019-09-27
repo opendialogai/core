@@ -116,6 +116,7 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationDeletion()
     {
+        /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
 
         $conversationStateLog = ConversationStateLog::create([
@@ -130,7 +131,10 @@ class ConversationBuilderTest extends TestCase
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(2, $activities);
 
-        $conversation->delete();
+        $conversation->publishConversation($conversation->buildConversation());
+        $conversation->unPublishConversation();
+        $conversation->archiveConversation();
+        $this->assertTrue($conversation->delete());
 
         $conversationStateLogs = ConversationStateLog::where('conversation_id', $conversation->id)->get();
         $this->assertCount(0, $conversationStateLogs);
@@ -353,5 +357,36 @@ class ConversationBuilderTest extends TestCase
         $model = $eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
         $this->assertEquals(ConversationNode::ARCHIVED, $model->getConversationStatus());
 
+    }
+
+    public function testDeleting() {
+        $this->publishConversation($this->conversation1());
+
+        // Ensure conversation was persisted to DGraph
+        /** @var DGraphQuery $query */
+        $query = new DGraphQuery();
+        $query->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
+            ->filterEq('id', 'hello_bot_world')
+            ->setQueryGraph(DGraphConversationQueryFactory::getConversationTemplateQueryGraph());
+
+        /** @var DGraphClient $client */
+        $client = app()->make(DGraphClient::class);
+
+        $response = $client->query($query);
+        $this->assertCount(1, $response->getData());
+
+        // Archive conversation
+        /** @var Conversation $conversation */
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $conversation->unPublishConversation();
+        $conversation->archiveConversation();
+
+        // Delete conversation
+        $this->assertTrue($conversation->delete());
+
+        $response = $client->query($query);
+        $this->assertCount(0, $response->getData());
+        $this->assertTrue(Conversation::where('name', 'hello_bot_world')->get()->isEmpty());
     }
 }

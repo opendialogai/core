@@ -17,6 +17,7 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -198,7 +199,7 @@ class Conversation extends Model
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function publishConversation(ConversationNode $conversation)
+    public function publishConversation(ConversationNode $conversation): bool
     {
         $cm = ConversationManager::createManagerForExistingConversation($conversation);
 
@@ -249,7 +250,7 @@ class Conversation extends Model
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function unPublishConversation()
+    public function unPublishConversation(): bool
     {
         $dGraph = app()->make(DGraphClient::class);
 
@@ -294,7 +295,7 @@ class Conversation extends Model
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function archiveConversation()
+    public function archiveConversation(): bool
     {
         $dGraph = app()->make(DGraphClient::class);
 
@@ -332,6 +333,34 @@ class Conversation extends Model
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     */
+    public function delete(): bool
+    {
+        $dGraph = app()->make(DGraphClient::class);
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        /** @var EIModelConversation $conversation */
+        $conversation = $conversationStore->getEIModelConversationByUid($this->graph_uid);
+
+        if ($conversation->getConversationStatus() != ConversationNode::ARCHIVED) {
+            return false;
+        }
+
+        try {
+            $dGraph->deleteNode($this->graph_uid);
+        } catch (Exception $e) {
+            return false;
+        }
+
+        return parent::delete();
     }
 
     /**
