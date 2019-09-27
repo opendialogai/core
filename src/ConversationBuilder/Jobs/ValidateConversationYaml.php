@@ -39,7 +39,7 @@ class ValidateConversationYaml implements ShouldQueue
      */
     public function handle()
     {
-        $status = ConversationNode::ACTIVATABLE;
+        $status = 'validated';
 
         try {
             Yaml::parse($this->conversation->model);

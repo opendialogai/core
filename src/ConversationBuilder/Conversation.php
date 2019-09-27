@@ -17,7 +17,6 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -26,6 +25,7 @@ use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
+use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
@@ -50,7 +50,7 @@ class Conversation extends Model
     protected $fillable = [
         'name',
         'model',
-        'notes',
+        'notes'
     ];
 
     protected $visible = [
@@ -77,7 +77,6 @@ class Conversation extends Model
     // Don't create activity logs when these model attributes are updated.
     protected static $ignoreChangedAttributes = [
         'updated_at',
-        'status',
         'yaml_validation_status',
         'yaml_schema_validation_status',
         'scenes_validation_status',
@@ -100,7 +99,6 @@ class Conversation extends Model
     {
         // Determine if we're in the process of validation.
         $doValidation = (!isset($options['validate']) || $options['validate'] === true);
-
         // Reset validation status.
         if ($doValidation) {
             $this->status = ConversationNode::SAVED;
@@ -119,6 +117,8 @@ class Conversation extends Model
                 new ValidateConversationScenes($this),
                 new ValidateConversationModel($this)
             ]);
+
+            $this->refresh();
         }
     }
 
@@ -200,8 +200,17 @@ class Conversation extends Model
      */
     public function publishConversation(ConversationNode $conversation)
     {
+        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            echo $e->getMessage();
+            return false;
+        }
+
         $dGraph = app()->make(DGraphClient::class);
-        $mutation = new DGraphMutation($conversation);
+        $mutation = new DGraphMutation($cm->getConversation());
 
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
@@ -237,37 +246,45 @@ class Conversation extends Model
 
     /**
      * Unpublish the conversation from DGraph.
-     *
-     * @param bool $reValidate
      * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function unPublishConversation($reValidate = true)
+    public function unPublishConversation()
     {
         $dGraph = app()->make(DGraphClient::class);
 
-        $uid = DGraphConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
 
-        if ($this->graph_uid === $uid) {
-            $deleteResponse = $dGraph->deleteNode($uid);
+        $conversation = $conversationStore->getConversationByUid($this->graph_uid);
 
-            if ($deleteResponse['code'] === 'Success') {
-                // Don't update conversation status if not requested.
-                if ($reValidate) {
-                    // Set conversation status to "validated".
-                    $this->status = 'validated';
-                    $this->graph_uid = null;
-                    $this->save(['validate' => false]);
+        /** @var ConversationManager $cm */
+        $cm = ConversationManager::createManagerForExistingConversation($conversation);
 
-                    // Add log message.
-                    ConversationStateLog::create([
-                        'conversation_id' => $this->id,
-                        'message' => 'Unpublished conversation from DGraph.',
-                        'type' => 'unpublish_conversation',
-                    ])->save();
-                }
+        try {
+            $cm->setDeactivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            return false;
+        }
 
-                return true;
-            }
+        $mutation = new DGraphMutation($cm->getConversation());
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+
+        if ($mutationResponse->isSuccessful()) {
+            $this->status = ConversationNode::DEACTIVATED;
+            $this->graph_uid = null;
+            $this->save(['validate' => false]);
+
+            // Add log message.
+            ConversationStateLog::create([
+                'conversation_id' => $this->id,
+                'message' => 'Unpublished conversation from DGraph.',
+                'type' => 'unpublish_conversation',
+            ])->save();
+
+            return true;
         }
 
         return false;

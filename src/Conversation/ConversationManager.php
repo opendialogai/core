@@ -10,9 +10,17 @@ class ConversationManager
     /* @var Conversation $conversation - the root of the conversation graph */
     private $conversation;
 
-    public function __construct(string $conversation_id, string $conversationStatus, int $conversationVersion)
-    {
-        $this->conversation = new Conversation($conversation_id, $conversationStatus, $conversationVersion);
+    public function __construct(
+        string $conversation_id,
+        string $conversationStatus,
+        int $conversationVersion,
+        Conversation $existingConversation = null
+    ) {
+        if (!$existingConversation) {
+            $this->conversation = new Conversation($conversation_id, $conversationStatus, $conversationVersion);
+        } else {
+            $this->conversation = $existingConversation;
+        }
     }
 
     /**
@@ -26,10 +34,10 @@ class ConversationManager
         $cm = new ConversationManager(
             $conversation->getId(),
             $conversation->getConversationStatus(),
-            $conversation->getConversationVersion()
+            $conversation->getConversationVersion(),
+            $conversation
         );
 
-        $cm->setConversation($conversation);
         return $cm;
     }
 
@@ -225,7 +233,10 @@ class ConversationManager
      */
     public function setValidated(): void
     {
-        if ($this->conversation->getConversationStatus() == Conversation::SAVED) {
+        if (in_array($this->conversation->getConversationStatus(), [
+            Conversation::ACTIVATABLE,
+            Conversation::SAVED
+        ])) {
             $this->conversation->setConversationStatus(Conversation::ACTIVATABLE);
         } else {
             throw new InvalidConversationStatusTransitionException(
@@ -244,12 +255,39 @@ class ConversationManager
      */
     public function setActivated(): void
     {
-        if ($this->conversation->getConversationStatus() == Conversation::ACTIVATABLE) {
+        if (in_array($this->conversation->getConversationStatus(), [
+            Conversation::ACTIVATED,
+            Conversation::ACTIVATABLE,
+            Conversation::DEACTIVATED
+        ])) {
             $this->conversation->setConversationStatus(Conversation::ACTIVATED);
         } else {
             throw new InvalidConversationStatusTransitionException(
                 sprintf(
-                    "Conversations can only transition to 'activated' from 'activatable', '%s' was '%s'",
+                    "Conversations can only transition to 'activated' from 'activatable' or 'deactivated', '%s' was '%s'",
+                    $this->conversation->getId(),
+                    $this->conversation->getConversationStatus()
+                )
+            );
+        }
+    }
+
+    /**
+     * Sets the conversation status to 'activatable' if it is currently 'saved'
+     * @throws InvalidConversationStatusTransitionException
+     */
+    public function setDeactivated(): void
+    {
+        if (in_array($this->conversation->getConversationStatus(), [
+                Conversation::DEACTIVATED,
+                Conversation::ACTIVATED,
+                Conversation::ARCHIVED
+        ])) {
+            $this->conversation->setConversationStatus(Conversation::DEACTIVATED);
+        } else {
+            throw new InvalidConversationStatusTransitionException(
+                sprintf(
+                    "Conversations can only transition to 'deactivated' from 'activated' or 'archived', '%s' was '%s'",
                     $this->conversation->getId(),
                     $this->conversation->getConversationStatus()
                 )

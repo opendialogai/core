@@ -92,6 +92,33 @@ class DGraphConversationStore implements ConversationStoreInterface
     }
 
     /**
+     * @param $uid
+     * @return Conversation
+     * @throws EIModelCreatorException
+     */
+    public function getConversationByUid($uid): Conversation
+    {
+        $conversationModel = $this->getEIModelConversationByUid($uid);
+        return $this->conversationConverter->convertConversation($conversationModel, false);
+    }
+
+    /**
+     * @param $uid
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
+    public function getEIModelConversationByUid($uid): EIModelConversation
+    {
+        $query = DGraphConversationQueryFactory::getConversationTemplateFromDGraphWithUid($uid);
+        $response = $this->dGraphClient->query($query);
+
+        /* @var EIModelConversation $model */
+        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
+
+        return $model;
+    }
+
+    /**
      * @param $templateName
      * @return Conversation
      * @throws EIModelCreatorException

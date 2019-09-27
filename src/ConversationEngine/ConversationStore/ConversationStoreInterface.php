@@ -39,6 +39,19 @@ interface ConversationStoreInterface
     public function getEIModelConversationTemplate($conversationTemplateName): EIModelConversation;
 
     /**
+     * @param $uid
+     * @return Conversation
+     */
+    public function getConversationByUid($uid): Conversation;
+
+    /**
+     * @param $uid
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
+    public function getEIModelConversationByUid($uid): EIModelConversation;
+
+    /**
      * @param $templateName
      * @return Conversation
      */

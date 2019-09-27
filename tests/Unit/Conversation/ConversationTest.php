@@ -130,7 +130,8 @@ class ConversationTest extends TestCase
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
     }
 
-    public function testConversationState() {
+    public function testConversationState()
+    {
         $cm = $this->setupConversation();
         $conversation = $cm->getConversation();
 
@@ -161,5 +162,36 @@ class ConversationTest extends TestCase
 
         $this->assertEquals($conversation->getUid(), $updateOf->getUid());
         $this->assertEquals($conversation->getId(), $updateOf->getId());
+    }
+
+    public function testDeactivating() {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setDeactivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::DEACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
     }
 }

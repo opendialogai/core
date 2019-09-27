@@ -90,6 +90,17 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     }
 
     /**
+     * @param string $conversationUid
+     * @return DGraphQuery
+     */
+    public static function getConversationTemplateFromDGraphWithUid(string $conversationUid): DGraphQuery
+    {
+        $dGraphQuery = new DGraphQuery();
+        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getConversationTemplateQueryGraph());
+        return $dGraphQuery;
+    }
+
+    /**
      * @param string $templateName
      * @return DGraphQuery
      */
