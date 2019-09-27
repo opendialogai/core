@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
+use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
+
 /**
  * Message formatter interface.
  */
@@ -70,5 +72,5 @@ interface MessageFormatterInterface
 
     public function generateRichMessage(array $template): RichMessage;
 
-    public function generateTextMessage(array $template): OpenDialogMessage;
+    public function generateTextMessage(array $template): OpenDialogMessageContract;
 }
