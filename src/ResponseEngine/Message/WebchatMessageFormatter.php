@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
@@ -274,7 +275,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateTextMessage(array $template): OpenDialogMessage
+    public function generateTextMessage(array $template): OpenDialogMessageContract
     {
         $message = (new OpenDialogMessage())->setText($template[self::TEXT], [], true);
         return $message;
