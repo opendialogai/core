@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
+use OpenDialogAi\Core\ResponseEngine\Message\Webchat\WebchatMessage;
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
@@ -277,7 +278,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
     public function generateTextMessage(array $template): OpenDialogMessageContract
     {
-        $message = (new OpenDialogMessage())->setText($template[self::TEXT], [], true);
+        $message = (new WebchatMessage())->setText($template[self::TEXT], [], true);
         return $message;
     }
 

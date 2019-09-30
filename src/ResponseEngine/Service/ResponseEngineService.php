@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
@@ -15,7 +14,6 @@ use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
-use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
@@ -50,12 +48,11 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $messageTemplates = MessageTemplate::forIntent($intentName)->get();
 
         if (count($messageTemplates) === 0) {
-            $this->buildTextFormatterErrorMessage(
+            $messages = $this->buildTextFormatterErrorMessage(
                 $formatter,
                 $message = sprintf("No messages found for intent %s", $intentName)
             );
             Log::error($message);
-            throw new NoMatchingMessagesException($message);
         }
 
         // Get the message with the most conditions matched.
@@ -63,19 +60,20 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $selectedMessageTemplate = $this->getCorrectMessage($messageTemplates, $selectedMessageConditionsNumber);
 
         if (is_null($selectedMessageTemplate)) {
-            $this->buildTextFormatterErrorMessage(
+            $messages = $this->buildTextFormatterErrorMessage(
                 $formatter,
                 $message = sprintf("No messages with passing conditions found for intent %s", $intentName)
             );
 
             Log::error($message);
-            throw new NoMatchingMessagesException($message);
+//            throw new NoMatchingMessagesException($message);
+        } else {
+            $markup = $this->fillAttributes($selectedMessageTemplate->message_markup);
+
+            $messages = $formatter->getMessages($markup);
         }
 
         // Resolve all attributes in the markup.
-        $markup = $this->fillAttributes($selectedMessageTemplate->message_markup);
-
-        $messages = $formatter->getMessages($markup);
 
         $messageWrapper = new OpenDialogMessages();
         foreach ($messages as $message) {
