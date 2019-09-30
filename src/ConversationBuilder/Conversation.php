@@ -257,7 +257,7 @@ class Conversation extends Model
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
-        $conversation = $conversationStore->getConversationByUid($this->graph_uid);
+        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
 
         /** @var ConversationManager $cm */
         $cm = ConversationManager::createManagerForExistingConversation($conversation);
@@ -302,7 +302,7 @@ class Conversation extends Model
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
-        $conversation = $conversationStore->getConversationByUid($this->graph_uid);
+        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
 
         /** @var ConversationManager $cm */
         $cm = ConversationManager::createManagerForExistingConversation($conversation);
@@ -339,6 +339,7 @@ class Conversation extends Model
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @throws Exception
      */
     public function delete(): bool
     {
@@ -348,7 +349,7 @@ class Conversation extends Model
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         /** @var EIModelConversation $conversation */
-        $conversation = $conversationStore->getEIModelConversationByUid($this->graph_uid);
+        $conversation = $conversationStore->getEIModelConversationTemplateByUid($this->graph_uid);
 
         if ($conversation->getConversationStatus() != ConversationNode::ARCHIVED) {
             return false;

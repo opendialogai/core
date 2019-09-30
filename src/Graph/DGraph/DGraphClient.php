@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Graph\DGraph;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
@@ -128,7 +129,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -136,7 +137,7 @@ class DGraphClient
     /**
      * @param $response
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     private function getData($response)
     {
@@ -150,7 +151,7 @@ class DGraphClient
         }
 
         if ($error) {
-            throw new \Exception($error);
+            throw new Exception($error);
         }
 
         return $response['data'];
@@ -180,7 +181,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -202,7 +203,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -231,7 +232,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -292,7 +293,7 @@ class DGraphClient
 
         return "
             <causes_action>: [uid] .
-            <conversation_status>: string .
+            <conversation_status>: string @index(exact) .
             <conversation_version>: int .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .

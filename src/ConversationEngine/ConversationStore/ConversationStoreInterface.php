@@ -42,14 +42,14 @@ interface ConversationStoreInterface
      * @param $uid
      * @return Conversation
      */
-    public function getConversationByUid($uid): Conversation;
+    public function getConversationTemplateByUid($uid): Conversation;
 
     /**
      * @param $uid
      * @return EIModelConversation
      * @throws EIModelCreatorException
      */
-    public function getEIModelConversationByUid($uid): EIModelConversation;
+    public function getEIModelConversationTemplateByUid($uid): EIModelConversation;
 
     /**
      * @param $templateName

@@ -3,6 +3,7 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
@@ -15,6 +16,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     {
         $dGraphQuery = new DGraphQuery();
         $dGraphQuery->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
+            ->filterEq(Model::CONVERSATION_STATUS, Conversation::ACTIVATED)
             ->setQueryGraph([
                 Model::EI_TYPE,
                 Model::ID,
@@ -107,8 +109,8 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     public static function getConversationFromDGraphWithTemplateName(string $templateName): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-        $dGraphQuery->eq('id', $templateName)
-            ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
+        $dGraphQuery->eq(Model::ID, $templateName)
+            ->filterEq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph(self::getConversationTemplateQueryGraph());
         return $dGraphQuery;
     }
@@ -120,8 +122,8 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     public static function getConversationTemplateUid(string $templateName): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-        $dGraphQuery->eq('id', $templateName)
-            ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
+        $dGraphQuery->eq(Model::ID, $templateName)
+            ->filterEq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph([
                 Model::UID,
                 Model::ID
@@ -139,7 +141,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     {
         $dGraphQuery = new DGraphQuery();
         $dGraphQuery->uid($conversationId)
-            ->filterEq('ei_type', Model::CONVERSATION_USER)
+            ->filterEq(Model::EI_TYPE, Model::CONVERSATION_USER)
             ->setQueryGraph(self::getConversationQueryGraph());
 
         return $dGraphQuery;

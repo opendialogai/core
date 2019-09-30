@@ -57,8 +57,22 @@ class ConversationEngineTest extends TestCase
     public function testConversationStoreIntents()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
-        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
 
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
+        $this->assertCount(4, $openingIntents);
+
+        // Ensure deactivation is handled correctly
+        /** @var Conversation $conversation */
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertTrue($conversation->unPublishConversation());
+
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
+        $this->assertCount(3, $openingIntents);
+
+        $this->assertTrue($conversation->publishConversation($conversation->buildConversation()));
+
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(4, $openingIntents);
     }
 

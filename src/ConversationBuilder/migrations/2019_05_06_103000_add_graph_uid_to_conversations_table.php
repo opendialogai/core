@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 
 class AddGraphUidToConversationsTable extends Migration
@@ -40,8 +40,11 @@ class AddGraphUidToConversationsTable extends Migration
         $rows = DB::table('conversations')->get(['id', 'name', 'status']);
         foreach ($rows as $row) {
             if ($row->status == 'published') {
+                /** @var ConversationStoreInterface $conversationModel */
+                $conversationStore = app()->make(ConversationStoreInterface::class);
+
                 /* @var EIModelConversation $conversationModel */
-                $conversationModel = DGraphConversationQueryFactory::getConversationTemplateUid($row->name);
+                $conversationModel = $conversationStore->getLatestEIModelTemplateVersionByName($row->name);
 
                 $uid = $conversationModel->getUid();
 

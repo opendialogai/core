@@ -96,9 +96,9 @@ class DGraphConversationStore implements ConversationStoreInterface
      * @return Conversation
      * @throws EIModelCreatorException
      */
-    public function getConversationByUid($uid): Conversation
+    public function getConversationTemplateByUid($uid): Conversation
     {
-        $conversationModel = $this->getEIModelConversationByUid($uid);
+        $conversationModel = $this->getEIModelConversationTemplateByUid($uid);
         return $this->conversationConverter->convertConversation($conversationModel, false);
     }
 
@@ -107,7 +107,7 @@ class DGraphConversationStore implements ConversationStoreInterface
      * @return EIModelConversation
      * @throws EIModelCreatorException
      */
-    public function getEIModelConversationByUid($uid): EIModelConversation
+    public function getEIModelConversationTemplateByUid($uid): EIModelConversation
     {
         $query = DGraphConversationQueryFactory::getConversationTemplateFromDGraphWithUid($uid);
         $response = $this->dGraphClient->query($query);
