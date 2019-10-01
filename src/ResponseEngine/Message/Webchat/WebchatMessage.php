@@ -1,10 +1,10 @@
 <?php
 
-namespace OpenDialogAi\Core\ResponseEngine\Message\Webchat;
+namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
-class WebchatMessage implements OpenDialogMessageContract
+class WebchatMessage implements OpenDialogMessage
 {
     const TIME = 'time';
 
@@ -20,6 +20,10 @@ class WebchatMessage implements OpenDialogMessageContract
     private $time;
 
     private $date;
+
+    private $hidetime = false;
+
+    private $internal = false;
 
     private $isEmpty = false;
 
@@ -49,11 +53,31 @@ class WebchatMessage implements OpenDialogMessageContract
     }
 
     /**
-     * @return null|string
+     * {@inheritDoc}
      */
     public function getText():?string
     {
         return $this->text;
+    }
+
+    /**
+     * Set disable_text property
+     *
+     * @param $disable_text
+     * @return $this
+     */
+    public function setDisableText($disable_text)
+    {
+        $this->disable_text = $disable_text;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getDisableText()
+    {
+        return $this->disable_text;
     }
 
     /**
@@ -70,6 +94,46 @@ class WebchatMessage implements OpenDialogMessageContract
     public function getDate()
     {
         return $this->date;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getInternal()
+    {
+        return $this->internal;
+    }
+
+    /**
+     * Set internal property
+     *
+     * @param $internal
+     * @return $this
+     */
+    public function setInternal($internal)
+    {
+        $this->internal = $internal;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHidetime()
+    {
+        return $this->hidetime;
+    }
+
+    /**
+     * Set hidetime property
+     *
+     * @param $hidetime
+     * @return $this
+     */
+    public function setHidetime($hidetime)
+    {
+        $this->hidetime = $hidetime;
+        return $this;
     }
 
     /**
@@ -94,37 +158,23 @@ class WebchatMessage implements OpenDialogMessageContract
     }
 
     /**
-     * Set disable_text property
-     *
-     * @param $disable_text
-     * @return $this
-     */
-    public function setDisableText($disable_text)
-    {
-        $this->disable_text = $disable_text;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getDisableText()
-    {
-        return $this->disable_text;
-    }
-
-    /**
-     * @return array
+     * {@inheritDoc}
      */
     public function getData():?array
     {
         return [
             'text' => $this->getText(),
+            'disable_text' => $this->getDisableText(),
+            'internal' => $this->getInternal(),
+            'hidetime' => $this->getHidetime(),
             self::TIME => $this->getTime(),
             self::DATE => $this->getDate()
         ];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getMessageToPost()
     {
         if ($this->isEmpty) {
@@ -132,7 +182,7 @@ class WebchatMessage implements OpenDialogMessageContract
         }
         return [
             'author' => 'them',
-            'type' => $this->getMessageType(),
+            'type' => $this->messageType,
             'data' => $this->getData()
         ];
     }

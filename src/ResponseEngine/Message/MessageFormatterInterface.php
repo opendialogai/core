@@ -2,8 +2,6 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
-use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
-
 /**
  * Message formatter interface.
  */
@@ -56,7 +54,7 @@ interface MessageFormatterInterface
     public const DISABLE_TEXT            = 'disable_text';
     public const CLEAR_AFTER_INTERACTION = 'clear_after_interaction';
 
-    public function getMessages(string $markup): array;
+    public function getMessages(string $markup): OpenDialogMessages;
 
     public function generateButtonMessage(array $template): ButtonMessage;
 
@@ -72,5 +70,5 @@ interface MessageFormatterInterface
 
     public function generateRichMessage(array $template): RichMessage;
 
-    public function generateTextMessage(array $template): OpenDialogMessageContract;
+    public function generateTextMessage(array $template): OpenDialogMessage;
 }

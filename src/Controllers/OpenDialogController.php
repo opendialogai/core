@@ -2,15 +2,14 @@
 
 namespace OpenDialogAi\Core\Controllers;
 
-use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
@@ -68,31 +67,33 @@ class OpenDialogController
         $this->conversationLogService->logIncomingMessage($utterance);
 
         try {
-            $messageWrapper = $this->responseEngineService->getMessageForIntent(
+            $messages = $this->responseEngineService->getMessageForIntent(
                 $utterance->getPlatform(),
                 $intent->getId()
             );
         } catch (NoMatchingMessagesException $e) {
-            Log::error($e->getMessage());
-            $message = (new OpenDialogMessage())->setText($e->getMessage());
-            $messageWrapper = new OpenDialogMessages();
-            $messageWrapper->addMessage($message);
+            /** @var OpenDialogMessages $messages */
+            $messages = $this->responseEngineService->buildTextFormatterErrorMessage(
+                $utterance->getPlatform(),
+                $e->getMessage()
+            );
         }
 
-        $this->processInternalMessages($messageWrapper);
+        $this->processInternalMessages($messages);
 
-        $this->conversationLogService->logOutgoingMessages($messageWrapper, $utterance);
+        $this->conversationLogService->logOutgoingMessages($messages, $utterance);
 
         $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
         $userContext->updateUser();
 
-        return $messageWrapper;
+        return $messages;
     }
 
     private function processInternalMessages(OpenDialogMessages $messageWrapper)
     {
         $messages = $messageWrapper->getMessages();
 
+        /** @var OpenDialogMessage $message */
         foreach ($messages as $i => $message) {
             if ($i < count($messages) - 1) {
                 $message->setHidetime(true);

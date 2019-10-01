@@ -1,145 +1,77 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\ResponseEngine\Message;
 
-class LongTextMessage extends OpenDialogMessage
+interface LongTextMessage extends OpenDialogMessage
 {
-    protected $messageType = 'longtext';
-
-    private $characterLimit = null;
-
-    private $submitText = null;
-
-    private $callbackId = null;
-
-    private $initialText = null;
-
-    private $placeholder = null;
-
-    private $confirmationText = null;
-
     /**
      * @param $characterLimit
      * @return $this
      */
-    public function setCharacterLimit($characterLimit)
-    {
-        $this->characterLimit = $characterLimit;
-        return $this;
-    }
+    public function setCharacterLimit($characterLimit);
 
     /**
      * @param $submitText
      * @return $this
      */
-    public function setSubmitText($submitText)
-    {
-        $this->submitText = $submitText;
-        return $this;
-    }
+    public function setSubmitText($submitText);
 
     /**
      * @param $callbackId
      * @return $this
      */
-    public function setCallbackId($callbackId)
-    {
-        $this->callbackId = $callbackId;
-        return $this;
-    }
+    public function setCallbackId($callbackId);
 
     /**
      * @param $initialText
      * @return $this
      */
-    public function setInitialText($initialText)
-    {
-        $this->initialText = $initialText;
-        return $this;
-    }
+    public function setInitialText($initialText);
 
     /**
      * @param $placeholder
      * @return $this
      */
-    public function setPlaceholder($placeholder)
-    {
-        $this->placeholder = $placeholder;
-        return $this;
-    }
+    public function setPlaceholder($placeholder);
 
     /**
      * @param $confirmationText
      * @return $this
      */
-    public function setConfirmationText($confirmationText)
-    {
-        $this->confirmationText = $confirmationText;
-        return $this;
-    }
+    public function setConfirmationText($confirmationText);
 
     /**
      * @return null|int
      */
-    public function getCharacterLimit()
-    {
-        return $this->characterLimit;
-    }
+    public function getCharacterLimit();
 
     /**
      * @return null|string
      */
-    public function getSubmitText()
-    {
-        return $this->submitText;
-    }
+    public function getSubmitText();
 
     /**
      * @return null|string
      */
-    public function getCallbackId()
-    {
-        return $this->callbackId;
-    }
+    public function getCallbackId();
 
     /**
      * @return null|string
      */
-    public function getInitialText()
-    {
-        return $this->initialText;
-    }
+    public function getInitialText();
 
     /**
      * @return null|string
      */
-    public function getPlaceholder()
-    {
-        return $this->placeholder;
-    }
+    public function getPlaceholder();
 
     /**
      * @return null|string
      */
-    public function getConfirmationText()
-    {
-        return $this->confirmationText;
-    }
+    public function getConfirmationText();
 
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
-    {
-        return parent::getData() + [
-                'character_limit' => $this->getCharacterLimit(),
-                'submit_text' => $this->getSubmitText(),
-                'callback_id' => $this->getCallbackId(),
-                'initial_text' => $this->getInitialText(),
-                'placeholder' => $this->getPlaceholder(),
-                'confirmation_text' => $this->getConfirmationText()
-            ];
-    }
+    public function getData(): ?array;
 }

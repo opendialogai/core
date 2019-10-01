@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
@@ -14,13 +15,15 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
     {
         $markup = '<message disable_text="1"><empty-message></empty-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals(true, $messages[0]->isEmpty());
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="0"><empty-message></empty-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals(true, $messages[0]->isEmpty());
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
@@ -29,22 +32,24 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
     {
         $markup = '<message disable_text="1"><empty-message></empty-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="true"><empty-message></empty-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="0"><empty-message></empty-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
 
         $markup = '<message disable_text="false"><empty-message></empty-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
 
@@ -52,7 +57,9 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
     {
         $markup = '<message disable_text="1"><text-message>hi there</text-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals('hi there', $messages[0]->getText());
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
@@ -65,7 +72,7 @@ class ResponseEngineWebchatMessageFormatterTest extends TestCase
 EOT;
 
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals('hi there', $messages[0]->getText());
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
@@ -85,7 +92,8 @@ EOT;
 EOT;
 
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals('hi there <a target="_parent" href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
 
@@ -93,7 +101,9 @@ EOT;
     {
         $markup = '<message disable_text="1"><image-message link_new_tab="1"><link>https://www.opendialog.ai</link><src>https://www.opendialog.ai/assets/images/logo.svg</src></image-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
         $this->assertEquals('https://www.opendialog.ai', $message->getImgLink());
         $this->assertEquals('https://www.opendialog.ai/assets/images/logo.svg', $message->getImgSrc());
@@ -114,7 +124,7 @@ EOT;
 EOT;
 
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
         $this->assertEquals('https://www.opendialog.ai', $message->getImgLink());
         $this->assertEquals('https://www.opendialog.ai/assets/images/logo.svg', $message->getImgSrc());
@@ -126,7 +136,9 @@ EOT;
     {
         $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $expectedOutput = [
@@ -193,7 +205,9 @@ EOT;
 EOT;
 
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $expectedOutput = [
@@ -256,7 +270,9 @@ EOT;
 </message>
 EOT;
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $expectedOutput = [
@@ -312,7 +328,9 @@ EOT;
 </message>
 EOT;
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $expectedOutput = [
@@ -349,7 +367,9 @@ EOT;
 </message>
 EOT;
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $expectedOutput = [
@@ -432,7 +452,9 @@ EOT;
         ];
 
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $data = $message->getData();
@@ -561,7 +583,9 @@ EOT;
         ];
 
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $data = $message->getData();
@@ -596,7 +620,9 @@ EOT;
         ];
 
         $formatter = new WebChatMessageFormatter();
-        $messages = $formatter->getMessages($markup);
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
         $message = $messages[0];
 
         $data = $message->getData();

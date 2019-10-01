@@ -1,87 +1,44 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\ResponseEngine\Message;
 
-class ImageMessage extends OpenDialogMessage
+interface ImageMessage extends OpenDialogMessage
 {
-    protected $messageType = 'image';
-
-    private $imgSrc = null;
-
-    private $imgLink = null;
-
-    private $linkNewTab = true;
-
     /**
      * @param $imgSrc
      * @return $this
      */
-    public function setImgSrc($imgSrc)
-    {
-        $this->imgSrc = $imgSrc;
-        return $this;
-    }
+    public function setImgSrc($imgSrc);
 
     /**
      * @param $imgLink
      * @return $this
      */
-    public function setImgLink($imgLink)
-    {
-        $this->imgLink = $imgLink;
-        return $this;
-    }
+    public function setImgLink($imgLink);
 
     /**
      * @param $linkNewTab
      * @return $this
      */
-    public function setLinkNewTab($linkNewTab)
-    {
-        $this->linkNewTab = $linkNewTab;
-        return $this;
-    }
+    public function setLinkNewTab($linkNewTab);
 
     /**
      * @return null|string
      */
-    public function getImgSrc()
-    {
-        return $this->imgSrc;
-    }
+    public function getImgSrc();
 
     /**
      * @return null|string
      */
-    public function getImgLink()
-    {
-        return $this->imgLink;
-    }
+    public function getImgLink();
 
     /**
      * @return bool
      */
-    public function getLinkNewTab()
-    {
-        return $this->linkNewTab;
-    }
+    public function getLinkNewTab();
 
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
-    {
-        return [
-            'img_src' => $this->getImgSrc(),
-            'img_link' => $this->getImgLink(),
-            'link_new_tab' => $this->getLinkNewTab(),
-            'disable_text' => $this->getDisableText(),
-            'internal' => $this->getInternal(),
-            'hidetime' => $this->getHidetime(),
-            self::TIME => $this->getTime(),
-            self::DATE => $this->getDate()
-        ];
-    }
+    public function getData(): ?array;
 }

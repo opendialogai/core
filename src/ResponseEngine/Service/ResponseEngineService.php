@@ -10,10 +10,12 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\Core\Exceptions\NameNotSetException;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
@@ -29,8 +31,10 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     /**
      * @inheritdoc
      *
-     * @return OpenDialogMessages $messageWrapper
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @param string $platform
+     * @param string $intentName
+     * @throws NoMatchingMessagesException
+     * @return OpenDialogMessages
      */
     public function getMessageForIntent(string $platform, string $intentName): OpenDialogMessages
     {
@@ -48,11 +52,8 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $messageTemplates = MessageTemplate::forIntent($intentName)->get();
 
         if (count($messageTemplates) === 0) {
-            $messages = $this->buildTextFormatterErrorMessage(
-                $formatter,
-                $message = sprintf("No messages found for intent %s", $intentName)
-            );
-            Log::error($message);
+            $message = sprintf("No messages found for intent %s", $intentName);
+            throw new NoMatchingMessagesException($message);
         }
 
         // Get the message with the most conditions matched.
@@ -60,32 +61,22 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $selectedMessageTemplate = $this->getCorrectMessage($messageTemplates, $selectedMessageConditionsNumber);
 
         if (is_null($selectedMessageTemplate)) {
-            $messages = $this->buildTextFormatterErrorMessage(
-                $formatter,
-                $message = sprintf("No messages with passing conditions found for intent %s", $intentName)
-            );
-
-            Log::error($message);
-//            throw new NoMatchingMessagesException($message);
+            $message = sprintf("No messages with passing conditions found for intent %s", $intentName);
+            throw new NoMatchingMessagesException($message);
         } else {
             $markup = $this->fillAttributes($selectedMessageTemplate->message_markup);
 
             $messages = $formatter->getMessages($markup);
         }
 
-        // Resolve all attributes in the markup.
-
-        $messageWrapper = new OpenDialogMessages();
-        foreach ($messages as $message) {
-            $messageWrapper->addMessage($message);
-        }
-
-        return $messageWrapper;
+        return $messages;
     }
 
     public function getCorrectMessage($messageTemplates, int $selectedMessageConditionsNumber)
     {
         $selectedMessageTemplate = null;
+
+        /** @var MessageTemplate[] $messageTemplates */
         foreach ($messageTemplates as $messageTemplate) {
             if ($this->messageMeetsConditions($messageTemplate)) {
                 $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
@@ -202,7 +193,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                         sprintf("Not adding formatter with name %s. Name is in wrong format", $name)
                     );
                 }
-            } catch (FormatterNameNotSetException $e) {
+            } catch (NameNotSetException $e) {
                 Log::warning(
                     sprintf("Not adding formatter %s. It has not defined a name", $formatter)
                 );
@@ -270,18 +261,20 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         return config('opendialog.response_engine.available_formatters');
     }
 
-    public function buildTextFormatterErrorMessage(MessageFormatterInterface $formatter, string $message)
+    /**
+     * @param string $platform
+     * @param string $message
+     * @throws FormatterNotRegisteredException
+     * @return OpenDialogMessages
+     */
+    public function buildTextFormatterErrorMessage(string $platform, string $message)
     {
-        $template = [$formatter::TEXT => $message];
-        $message = $formatter->generateTextMessage($template);
-
-        $messages = $formatter->getMessages($message->getText());
-
-        $messageWrapper = new OpenDialogMessages();
-        foreach ($messages as $message) {
-            $messageWrapper->addMessage($message);
+        try {
+            $formatter = $this->getFormatter("formatter.core.{$platform}");
+        } catch (FormatterNotRegisteredException $e) {
+            throw new FormatterNotRegisteredException("Formatter with name $platform is not available");
         }
 
-        return $messageWrapper;
+        return $formatter->getMessages(sprintf('<message><text-message>%s</text-message></message>', $message));
     }
 }

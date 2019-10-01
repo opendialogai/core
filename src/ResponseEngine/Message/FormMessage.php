@@ -1,120 +1,62 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\ResponseEngine\Message;
 
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormElement;
 
-class FormMessage extends OpenDialogMessage
+interface FormMessage extends OpenDialogMessage
 {
-    protected $messageType = 'form';
-
-    private $submitText = 'Submit';
-
-    private $autoSubmit = false;
-
-    /** @var FormElement[] */
-    private $elements = [];
-
-    private $callbackId = null;
-
     /**
      * @param FormElement $element
      * @return $this
      */
-    public function addElement(FormElement $element)
-    {
-        $this->elements[] = $element;
-        return $this;
-    }
+    public function addElement(FormElement $element);
 
     /**
      * @param $submitText
      * @return $this
      */
-    public function setSubmitText($submitText)
-    {
-        $this->submitText = $submitText;
-        return $this;
-    }
+    public function setSubmitText($submitText);
 
     /**
      * @param $callbackId
      * @return $this
      */
-    public function setCallbackId($callbackId)
-    {
-        $this->callbackId = $callbackId;
-        return $this;
-    }
+    public function setCallbackId($callbackId);
 
     /**
      * @param $autoSubmit
      * @return $this
      */
-    public function setAutoSubmit($autoSubmit)
-    {
-        $this->autoSubmit = $autoSubmit;
-        return $this;
-    }
+    public function setAutoSubmit($autoSubmit);
 
     /**
      * @return FormElement[]
      */
-    public function getElements()
-    {
-        return $this->elements;
-    }
+    public function getElements();
 
     /**
      * @return null|string
      */
-    public function getSubmitText()
-    {
-        return $this->submitText;
-    }
+    public function getSubmitText();
 
     /**
      * @return null|string
      */
-    public function getCallbackId()
-    {
-        return $this->callbackId;
-    }
+    public function getCallbackId();
 
     /**
      * @return bool
      */
-    public function getAutoSubmit()
-    {
-        return $this->autoSubmit;
-    }
+    public function getAutoSubmit();
 
     /**
      * @return array
      */
-    public function getElementsArray()
-    {
-        $elements = [];
-
-        foreach ($this->elements as $element) {
-            $elements[] = $element->getData();
-        }
-
-        return $elements;
-    }
+    public function getElementsArray();
 
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
-    {
-        return parent::getData() + [
-                'callback_id' => $this->getCallbackId(),
-                'elements' => $this->getElementsArray(),
-                'auto_submit' => $this->getAutoSubmit(),
-                'submit_text' => $this->getSubmitText()
-            ];
-    }
+    public function getData(): ?array;
 }

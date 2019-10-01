@@ -4,59 +4,26 @@ declare(strict_types=1);
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
-use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
-
-class OpenDialogMessages
+interface OpenDialogMessages
 {
-    /**
-     * A collection of messages.
-     *
-     * @var array
-     */
-    protected $messages = [];
-
-    /**
-     * OpenDialogMessages constructor.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->messages = [];
-    }
-
     /**
      * Adds a message object.
      *
-     * @param OpenDialogMessageContract $message - a message to add.
+     * @param OpenDialogMessage $message - a message to add.
      */
-    public function addMessage(OpenDialogMessageContract $message)
-    {
-        $this->messages[] = $message;
-    }
+    public function addMessage(OpenDialogMessage $message): void;
 
     /**
      * Returns the message objects
      *
      * @return array
      */
-    public function getMessages(): array
-    {
-        return $this->messages;
-    }
+    public function getMessages(): array;
 
     /**
      * Get the messages to post
      *
      * @return array
      */
-    public function getMessageToPost(): array
-    {
-        $messagesToPost = [];
-        foreach ($this->messages as $message) {
-            $messagesToPost[] = $message->getMessageToPost();
-        }
-
-        return $messagesToPost;
-    }
+    public function getMessageToPost(): array;
 }

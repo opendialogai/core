@@ -3,8 +3,9 @@
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 
-class WebChatMessages
+class WebChatMessages implements OpenDialogMessages
 {
     /** @var OpenDialogMessage[] */
     protected $messages;
@@ -19,7 +20,7 @@ class WebChatMessages
      *
      * @param OpenDialogMessage $message - a message to add.
      */
-    public function addMessage(OpenDialogMessage $message)
+    public function addMessage(OpenDialogMessage $message): void
     {
         $this->messages[] = $message;
     }
@@ -29,7 +30,7 @@ class WebChatMessages
      *
      * @return OpenDialogMessage|array $messages
      */
-    public function getMessages()
+    public function getMessages(): array
     {
         return $this->messages;
     }
@@ -39,7 +40,7 @@ class WebChatMessages
      *
      * @return array $messagesToPost
      */
-    public function getMessageToPost()
+    public function getMessageToPost(): array
     {
         $messagesToPost = [];
         foreach ($this->messages as $message) {

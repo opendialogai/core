@@ -2,29 +2,30 @@
 
 namespace OpenDialogAi\ResponseEngine\Message;
 
+use DOMDocument;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Contracts\OpenDialogMessageContract;
-use OpenDialogAi\Core\ResponseEngine\Message\Webchat\WebchatMessage;
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TabSwitchButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormAutoCompleteSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormNumberElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
@@ -55,9 +56,9 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      * Convert the template to the appropriate message types.
      *
      * @param String $markup
-     * @return OpenDialogMessage[]
+     * @return OpenDialogMessages
      */
-    public function getMessages(string $markup): array
+    public function getMessages(string $markup): OpenDialogMessages
     {
         $messages = [];
         try {
@@ -73,6 +74,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
 
             if (isset($message[self::DISABLE_TEXT])) {
                 if ($message[self::DISABLE_TEXT] == '1' || $message[self::DISABLE_TEXT] == 'true') {
+                    /** @var OpenDialogMessage $webChatMessage */
                     foreach ($messages as $webChatMessage) {
                         $webChatMessage->setDisableText(true);
                     }
@@ -80,10 +82,15 @@ class WebChatMessageFormatter implements MessageFormatterInterface
             }
         } catch (Exception $e) {
             Log::warning(sprintf('Message Builder error: %s', $e->getMessage()));
-            return [];
+            return new WebChatMessages();
         }
 
-        return $messages;
+        $messageWrapper = new WebChatMessages();
+        foreach ($messages as $message) {
+            $messageWrapper->addMessage($message);
+        }
+
+        return $messageWrapper;
     }
 
     /**
@@ -276,7 +283,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
         return $message;
     }
 
-    public function generateTextMessage(array $template): OpenDialogMessageContract
+    public function generateTextMessage(array $template): OpenDialogMessage
     {
         $message = (new WebchatMessage())->setText($template[self::TEXT], [], true);
         return $message;
@@ -303,7 +310,7 @@ class WebChatMessageFormatter implements MessageFormatterInterface
      */
     protected function getMessageText(SimpleXMLElement $element): string
     {
-        $dom = new \DOMDocument();
+        $dom = new DOMDocument();
         $dom->loadXML($element->asXml());
 
         $text = '';

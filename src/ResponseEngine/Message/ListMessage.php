@@ -1,94 +1,44 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\ResponseEngine\Message;
 
-class ListMessage extends OpenDialogMessage
+interface ListMessage extends OpenDialogMessage
 {
-    protected $messageType = 'list';
-
-    private $items = [];
-
-    private $viewType = 'horizontal';
-
     /**
      * @param OpenDialogMessage $message
      * @return $this
      */
-    public function addItem(OpenDialogMessage $message)
-    {
-        $this->items[] = $message;
-        return $this;
-    }
+    public function addItem(OpenDialogMessage $message);
 
     /**
      * @param array $message
      * @return $this
      */
-    public function addItems(array $messages)
-    {
-        foreach ($messages as $message) {
-            $this->items[] = $message;
-        }
-        return $this;
-    }
+    public function addItems(array $messages);
 
     /**
      * @return array
      */
-    public function getItems()
-    {
-        return $this->items;
-    }
+    public function getItems();
 
     /**
      * @param $viewType
      * @return $this
      */
-    public function setViewType($viewType)
-    {
-        $this->viewType = $viewType;
-        return $this;
-    }
+    public function setViewType($viewType);
 
     /**
      * @return string
      */
-    public function getViewType()
-    {
-        return $this->viewType;
-    }
+    public function getViewType();
 
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
-    {
-        return [
-            'items' => $this->getItemsArray(),
-            'view_type' => $this->getViewType(),
-            'disable_text' => $this->getDisableText(),
-            'internal' => $this->getInternal(),
-            'hidetime' => $this->getHidetime(),
-            self::TIME => $this->getTime(),
-            self::DATE => $this->getDate()
-        ];
-    }
+    public function getData(): ?array;
 
     /**
      * @return array
      */
-    public function getItemsArray()
-    {
-        $items = [];
-
-        foreach ($this->items as $message) {
-            $items[] = $message->getData() + [
-                    'message_type' => $message->getMessageType(),
-                ];
-        }
-
-        return $items;
-    }
+    public function getItemsArray();
 }

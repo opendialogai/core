@@ -3,9 +3,10 @@
 namespace OpenDialogAi\ResponseEngine\Tests;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 
 class ResponseEngineWebchatMessageWrapperTest extends TestCase
 {
@@ -13,17 +14,17 @@ class ResponseEngineWebchatMessageWrapperTest extends TestCase
 
     public function testMessageWrapperEmpty()
     {
-        $messageWrapper = new OpenDialogMessages();
+        $messageWrapper = new WebChatMessages();
         $this->assertEquals([], $messageWrapper->getMessages());
     }
 
     public function testMessageWrapperGetMessages()
     {
-        $messageWrapper = new OpenDialogMessages();
-        $message1 = new OpenDialogMessage();
+        $messageWrapper = new WebChatMessages();
+        $message1 = new WebchatMessage();
         $message1->setText('This is a test, this is only a test.');
         $messageWrapper->addMessage($message1);
-        $message2 = new OpenDialogMessage();
+        $message2 = new WebchatMessage();
         $message2->setText('This is another test, this is only another test.');
         $messageWrapper->addMessage($message2);
         foreach ($messageWrapper->getMessages() as $message) {
@@ -33,11 +34,11 @@ class ResponseEngineWebchatMessageWrapperTest extends TestCase
 
     public function testMessageWrapperGetMessageToPost()
     {
-        $messageWrapper = new OpenDialogMessages();
-        $message1 = new OpenDialogMessage();
+        $messageWrapper = new WebChatMessages();
+        $message1 = new WebchatMessage();
         $message1->setText('This is a test, this is only a test.');
         $messageWrapper->addMessage($message1);
-        $message2 = new OpenDialogMessage();
+        $message2 = new WebchatMessage();
         $message2->setText('This is another test, this is only another test.');
         $messageWrapper->addMessage($message2);
         self::assertArraySubset(

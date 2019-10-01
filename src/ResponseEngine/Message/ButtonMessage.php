@@ -1,78 +1,40 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\ResponseEngine\Message;
 
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
-class ButtonMessage extends OpenDialogMessage
+interface ButtonMessage extends OpenDialogMessage
 {
-    protected $messageType = 'button';
-
-    /** The message buttons. @var BaseButton[] */
-    private $buttons = [];
-
-    private $clearAfterInteraction = true;
-
     /**
      * @param $clearAfterInteraction
      * @return $this
      */
-    public function setClearAfterInteraction($clearAfterInteraction)
-    {
-        $this->clearAfterInteraction = $clearAfterInteraction;
-        return $this;
-    }
+    public function setClearAfterInteraction($clearAfterInteraction);
 
     /**
      * @return bool
      */
-    public function getClearAfterInteraction()
-    {
-        return $this->clearAfterInteraction;
-    }
+    public function getClearAfterInteraction();
 
     /**
      * @param BaseButton $button
      * @return $this
      */
-    public function addButton(BaseButton $button)
-    {
-        $this->buttons[] = $button;
-        return $this;
-    }
+    public function addButton(BaseButton $button);
 
     /**
      * @return array
      */
-    public function getButtons()
-    {
-        return $this->buttons;
-    }
+    public function getButtons();
 
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
-    {
-        return parent::getData() + [
-            'buttons' => $this->getButtonsArray(),
-            'clear_after_interaction' => $this->getClearAfterInteraction()
-        ];
-    }
+    public function getData(): ?array;
 
     /**
      * @return array
      */
-    public function getButtonsArray()
-    {
-        $buttons = [];
-
-        foreach ($this->buttons as $button) {
-            $buttons[] = $button->getData();
-        }
-
-        return $buttons;
-    }
+    public function getButtonsArray();
 }

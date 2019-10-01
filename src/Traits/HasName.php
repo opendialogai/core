@@ -8,6 +8,10 @@ use OpenDialogAi\Core\Exceptions\NameNotSetException;
 
 trait HasName
 {
+    /**
+     * @return string
+     * @throws NameNotSetException
+     */
     public static function getName(): string
     {
         if (static::$name !== self::$name) {

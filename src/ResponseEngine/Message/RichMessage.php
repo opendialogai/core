@@ -1,169 +1,84 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\ResponseEngine\Message;
 
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
-class RichMessage extends OpenDialogMessage
+interface RichMessage extends OpenDialogMessage
 {
-    protected $messageType = 'rich';
-
-    private $title;
-
-    private $subTitle;
-
-    private $imgSrc = null;
-
-    private $imgLink = null;
-
-    private $imgLinkNewTab = false;
-
-    /** The message buttons. @var BaseButton[] */
-    private $buttons = [];
-
     /**
      * @param $title
      * @return $this
      */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-        return $this;
-    }
+    public function setTitle($title);
 
     /**
      * @param $subTitle
      * @return $this
      */
-    public function setSubTitle($subTitle)
-    {
-        $this->subTitle = $subTitle;
-        return $this;
-    }
+    public function setSubTitle($subTitle);
 
     /**
      * @param $imgSrc
      * @return $this
      */
-    public function setImageSrc($imgSrc)
-    {
-        $this->imgSrc = $imgSrc;
-        return $this;
-    }
+    public function setImageSrc($imgSrc);
 
     /**
      * @param $imgLink
      * @return $this
      */
-    public function setImageLink($imgLink)
-    {
-        $this->imgLink = $imgLink;
-        return $this;
-    }
+    public function setImageLink($imgLink);
 
     /**
      * @param $imgLinkNewTab
      * @return $this
      */
-    public function setImageLinkNewTab($imgLinkNewTab)
-    {
-        $this->imgLinkNewTab = $imgLinkNewTab;
-        return $this;
-    }
+    public function setImageLinkNewTab($imgLinkNewTab);
 
     /**
      * @param BaseButton $button
      * @return $this
      */
-    public function addButton(BaseButton $button)
-    {
-        $this->buttons[] = $button;
-        return $this;
-    }
+    public function addButton(BaseButton $button);
 
     /**
      * {@inheritDoc}
      */
-    public function getTitle():?string
-    {
-        return $this->title;
-    }
+    public function getTitle(): ?string;
 
     /**
      * @return null|string
      */
-    public function getSubTitle()
-    {
-        return $this->subTitle;
-    }
+    public function getSubTitle();
 
     /**
      * @return null|string
      */
-    public function getImageSrc()
-    {
-        return $this->imgSrc;
-    }
+    public function getImageSrc();
 
     /**
      * @return null|string
      */
-    public function getImageLink()
-    {
-        return $this->imgLink;
-    }
+    public function getImageLink();
 
     /**
      * @return bool
      */
-    public function getImageLinkNewTab()
-    {
-        return $this->imgLinkNewTab;
-    }
+    public function getImageLinkNewTab();
 
     /**
      * @return array
      */
-    public function getButtons()
-    {
-        return $this->buttons;
-    }
+    public function getButtons();
 
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
-    {
-        $data = [
-            'title' => $this->getTitle(),
-            'subtitle' => $this->getSubTitle(),
-            'buttons' => $this->getButtonsArray(),
-        ];
-
-        if ($this->getImageSrc()) {
-            $data['image'] = [
-                'src' => $this->getImageSrc(),
-                'url' => $this->getImageLink(),
-                'link_new_tab' => $this->getImageLinkNewTab(),
-            ];
-        }
-
-        return parent::getData() + $data;
-    }
+    public function getData(): ?array;
 
     /**
      * @return array
      */
-    public function getButtonsArray()
-    {
-        $buttons = [];
-
-        foreach ($this->buttons as $button) {
-            $buttons[] = $button->getData();
-        }
-
-        return $buttons;
-    }
+    public function getButtonsArray();
 }
