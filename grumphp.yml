@@ -1,0 +1,24 @@
+parameters:
+  tasks:
+    phpcsfixer:
+      config_file: ~
+      config: ~
+      fixers: []
+      level: ~
+      verbose: true
+    phpcs:
+      standard: ['od-cs-ruleset.xml']
+      severity: ~
+      error_severity: ~
+      warning_severity: ~
+      tab_width: ~
+      report: full
+      report_width: ~
+      whitelist_patterns: []
+      encoding: ~
+      ignore_patterns:
+        - "*/migrations/*"
+        - "*/tests/*"
+      sniffs: []
+      triggered_by: [php]
+      exclude: []

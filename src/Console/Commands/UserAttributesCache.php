@@ -44,7 +44,11 @@ class UserAttributesCache extends Command
 
         $query = new DGraphQuery();
         $query->eq(Model::EI_TYPE, Model::CHATBOT_USER)
-         ->setQueryGraph([Model::UID, 'expand(_all_)']);
+            ->setQueryGraph([
+                Model::UID,
+                Model::ID,
+                Model::LAST_SEEN
+            ]);
 
         $results = $dgraph->query($query);
 

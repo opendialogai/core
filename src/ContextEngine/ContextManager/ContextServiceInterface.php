@@ -63,7 +63,8 @@ interface ContextServiceInterface
     /**
      * Saves the attribute provided against a context.
      * If the $attributeName is namespace with a context name, will try to save in the named context.
-     * If the named context does not exist or the attribute name is not namespaced, will save against the session context
+     * If the named context does not exist or the attribute name is not namespaced,
+     * will save against the session context.
      *
      * @param string $attributeName
      * @param $attributeValue
@@ -74,7 +75,6 @@ interface ContextServiceInterface
      * @param string $attributeId
      * @param string $contextId
      * @return AttributeInterface
-     * @throws ContextDoesNotExistException
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface;
 

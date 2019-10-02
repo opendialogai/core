@@ -54,7 +54,6 @@ class CustomContextsTest extends TestCase
         $this->assertTrue($context->removeAttribute('test_string'));
 
         $this->assertNull($context->getAttributeValue('test_string'));
-
     }
 
     private function addCustomContextToConfig($customContext)

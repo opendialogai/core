@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\tests;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -141,6 +142,35 @@ class InterpreterServiceTest extends TestCase
         $this->assertCount(1, $intents);
         $intent = $intents[0];
         $this->assertEquals('intent.core.chatOpen', $intent->getId());
+    }
+
+    public function testInterpreterResultCache()
+    {
+        $this->registerSingleInterpreter(new DummyInterpreter());
+        $service = $this->getBoundInterpreterService();
+        $utterance = new WebchatTextUtterance();
+
+        $interpreterName = DummyInterpreter::getName();
+
+        $intents = $service->interpret($interpreterName, $utterance);
+
+        Log::shouldReceive('info')
+            ->with('Getting result from the cache for interpreter ' . $interpreterName);
+
+        $intentsFromCache = $service->interpret($interpreterName, $utterance);
+
+        $this->assertCount(1, $intents);
+        $this->assertCount(1, $intentsFromCache);
+        $this->assertEquals('dummy', $intents[0]->getLabel());
+        $this->assertEquals('dummy', $intentsFromCache[0]->getLabel());
+
+        $interpreterCacheTime = $service->getInterpreterCacheTime($interpreterName);
+        $this->assertEquals(60, $interpreterCacheTime);
+
+        $this->app['config']->set('opendialog.interpreter_engine.interpreter_cache_times', [$interpreterName => 1000]);
+
+        $interpreterCacheTime = $service->getInterpreterCacheTime($interpreterName);
+        $this->assertEquals(1000, $interpreterCacheTime);
     }
 
     /**

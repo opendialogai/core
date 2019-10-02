@@ -260,13 +260,13 @@ class ConversationLogTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJson([0 => ['data' => ['text' => 'Message 1']]])
-            ->assertJson([0 => ['data' => ['internal' => false]]])
+            ->assertJson([0 => ['data' => ['internal' => true]]])
             ->assertJson([0 => ['data' => ['hidetime' => true]]])
             ->assertJson([1 => ['data' => ['text' => 'Message 2']]])
             ->assertJson([1 => ['data' => ['internal' => true]]])
             ->assertJson([1 => ['data' => ['hidetime' => true]]])
             ->assertJson([2 => ['data' => ['text' => 'Message 3']]])
-            ->assertJson([2 => ['data' => ['internal' => true]]])
+            ->assertJson([2 => ['data' => ['internal' => false]]])
             ->assertJson([2 => ['data' => ['hidetime' => false]]]);
 
         $response = $this->get('/user/someuser/history?limit=10&ignore=chat_open');
@@ -274,13 +274,13 @@ class ConversationLogTest extends TestCase
             ->assertStatus(200)
             ->assertJsonCount(3)
             ->assertJson([2 => ['data' => ['text' => 'Message 1']]])
-            ->assertJson([2 => ['data' => ['internal' => false]]])
+            ->assertJson([2 => ['data' => ['internal' => true]]])
             ->assertJson([2 => ['data' => ['hidetime' => true]]])
             ->assertJson([1 => ['data' => ['text' => 'Message 2']]])
             ->assertJson([1 => ['data' => ['internal' => true]]])
             ->assertJson([1 => ['data' => ['hidetime' => true]]])
             ->assertJson([0 => ['data' => ['text' => 'Message 3']]])
-            ->assertJson([0 => ['data' => ['internal' => true]]])
+            ->assertJson([0 => ['data' => ['internal' => false]]])
             ->assertJson([0 => ['data' => ['hidetime' => false]]]);
     }
 

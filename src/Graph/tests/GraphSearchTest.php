@@ -10,7 +10,6 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class GraphSearchTest extends TestCase
 {
-
     public function createGraph()
     {
         $a = new Node('a');

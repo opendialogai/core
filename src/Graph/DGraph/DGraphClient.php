@@ -21,6 +21,7 @@ class DGraphClient
     const MUTATE = 'mutate';
     const ALTER  = 'alter';
     const DELETE = 'delete';
+    const MUTATE_COMMIT_NOW = 'mutate?commitNow=true';
 
     public function __construct($dgraphUrl, $dGraphPort)
     {
@@ -56,7 +57,12 @@ class DGraphClient
         $response = $this->client->request(
             'POST',
             self::QUERY,
-            ['body' => $prepared]
+            [
+                'body' => $prepared,
+                'headers' => [
+                    'Content-Type' => 'application/graphql+-'
+                ]
+            ]
         );
 
         return new DGraphQueryResponse($response);
@@ -69,11 +75,11 @@ class DGraphClient
 
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $tripleMutation,
                 'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
+                    'Content-Type' => 'application/rdf'
                 ]
             ]
         );
@@ -87,12 +93,11 @@ class DGraphClient
 
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $jsonMutation,
                 'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
-                    'X-Dgraph-MutationType' => 'json'
+                    'Content-Type' => 'application/json'
                 ]
             ]
         );
@@ -155,11 +160,11 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $this->prepareDeleteRelationshipStatement($node1Uid, $node2Uid, $relationship),
                 'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
+                    'Content-Type' => 'application/rdf'
                 ]
             ]
         );
@@ -177,11 +182,11 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $this->prepareDeleteNodeStatement($nodeUid),
                 'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
+                    'Content-Type' => 'application/rdf'
                 ]
             ]
         );
@@ -206,11 +211,11 @@ class DGraphClient
     {
         $response = $this->client->request(
             'POST',
-            self::MUTATE,
+            self::MUTATE_COMMIT_NOW,
             [
                 'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship),
                 'headers' => [
-                    'X-Dgraph-CommitNow' => 'true',
+                    'Content-Type' => 'application/rdf'
                 ]
             ]
         );
@@ -257,29 +262,45 @@ class DGraphClient
         $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
         return $statement;
     }
-    
+
+    /**
+     * @return string
+     */
+    private function prepareUserAttributes()
+    {
+        $userAttributes = '';
+        foreach (config('opendialog.context_engine.supported_attributes') as $name => $type) {
+            $userAttributes .= "{$name}: default\n";
+        }
+
+        return $userAttributes;
+    }
+
     /**
      * @return string
      */
     private function schema()
     {
+        $userAttributes = $this->prepareUserAttributes();
+
         return "
-            <causes_action>: uid .
+            <causes_action>: [uid] .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
             <ei_type>: string @index(exact) .
-            <has_bot_participant>: uid @reverse .
-            <has_interpreter>: uid .
-            <has_opening_scene>: uid @reverse .
-            <has_scene>: uid .
-            <has_user_participant>: uid @reverse .
+            <has_bot_participant>: [uid] @reverse .
+            <has_interpreter>: [uid] .
+            <has_opening_scene>: [uid] @reverse .
+            <has_scene>: [uid] .
+            <has_user_participant>: [uid] @reverse .
             <id>: string @index(exact) .
-            <listens_for>: uid @reverse .
+            <listens_for>: [uid] @reverse .
             <name>: default .
-            <says>: uid @reverse .
-            <having_conversation>: uid @reverse .
-            <says_across_scenes>: uid @reverse .
-            <listens_for_across_scenes>: uid @reverse .
+            <says>: [uid] @reverse .
+            <having_conversation>: [uid] @reverse .
+            <says_across_scenes>: [uid] @reverse .
+            <listens_for_across_scenes>: [uid] @reverse .
+            type User {{$userAttributes}}
         ";
     }
 

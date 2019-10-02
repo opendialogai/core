@@ -33,7 +33,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
      */
     private $dgraphInitialised = false;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -112,7 +112,7 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: hello_bot
             interpreter: interpreter.core.callbackInterpreter
             action: action.core.example
@@ -120,13 +120,13 @@ conversation:
             i: hello_user
             action: action.core.example
             scene: scene2
-        - b: 
+        - b:
             i: hello_registered_user
             action: action.core.example
             scene: scene3
     scene2:
       intents:
-        - u: 
+        - u:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             confidence: 1
@@ -134,14 +134,14 @@ conversation:
         - b: 
             i: doing_dandy
             action: action.core.example
-            completes: true 
+            completes: true
     scene3:
       intents:
         - u:
             i: weather_question
             action: action.core.example
         - b:
-            i: weather_answer    
+            i: weather_answer
         - u: 
             i: will_you_cope
             interpreter: interpreter.core.callbackInterpreter
@@ -149,7 +149,7 @@ conversation:
         - b: 
             i: doing_dandy
             action: action.core.example
-            completes: true  
+            completes: true
     scene4:
       intents:
         - b:
@@ -186,7 +186,7 @@ conversation:
             action: action.core.example
         - b: 
             i: doing_dandy
-            action: action.core.example 
+            action: action.core.example
             completes: true           
 EOT;
     }
@@ -214,8 +214,8 @@ conversation:
             action: action.core.example
         - b: 
             i: doing_dandy
-            action: action.core.example   
-            completes: true         
+            action: action.core.example
+            completes: true
 EOT;
     }
 
@@ -227,13 +227,12 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: intent.core.NoMatch
-        - b: 
+        - b:
             i: intent.core.NoMatchResponse
             completes: true
 EOT;
-
     }
 
     protected function initDDgraph(): void
@@ -278,10 +277,12 @@ EOT;
         }
 
         $this->app['config']->set(
-            'opendialog.interpreter_engine.available_interpreters', [
+            'opendialog.interpreter_engine.available_interpreters',
+            [
             get_class($interpreter),
             get_class($defaultInterpreter)
-        ]);
+        ]
+        );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }
@@ -305,7 +306,9 @@ EOT;
         }
 
         $this->app['config']->set(
-            'opendialog.interpreter_engine.available_interpreters', $classes);
+            'opendialog.interpreter_engine.available_interpreters',
+            $classes
+        );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }

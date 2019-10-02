@@ -33,5 +33,4 @@ class ExampleAction extends BaseAction
         $result->addAttribute($fullNameAttribute);
         return $result;
     }
-
 }

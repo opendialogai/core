@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateAttributesStatsTable extends Migration
 {
@@ -29,6 +29,6 @@ class CreateAttributesStatsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_stats');
+        Schema::dropIfExists('user_attributes');
     }
 }

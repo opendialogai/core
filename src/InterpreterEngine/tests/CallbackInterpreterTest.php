@@ -8,7 +8,6 @@ use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatButtonResponseUtterance;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
-use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class CallbackInterpreterTest extends TestCase
@@ -28,14 +27,14 @@ class CallbackInterpreterTest extends TestCase
         $this->assertInstanceOf(CallbackInterpreter::class, $interpreterService->getDefaultInterpreter());
     }
 
-    public function testInvalidCallback()
+    public function testUnmappedCallback()
     {
         $callbackInterpreter = $this->getCallbackInterpreter();
 
         $utterance = new WebchatButtonResponseUtterance();
-        $utterance->setCallbackId('invalid');
+        $utterance->setCallbackId('un-mapped');
 
-        $this->assertEquals(NoMatchIntent::NO_MATCH, $callbackInterpreter->interpret($utterance)[0]->getId());
+        $this->assertEquals('un-mapped', $callbackInterpreter->interpret($utterance)[0]->getId());
     }
 
     public function testValidCallback()
@@ -88,4 +87,3 @@ class CallbackInterpreterTest extends TestCase
         return app()->make(InterpreterServiceInterface::class)->getDefaultInterpreter();
     }
 }
-

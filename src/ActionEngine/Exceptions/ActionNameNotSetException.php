@@ -7,5 +7,4 @@ namespace OpenDialogAi\ActionEngine\Exceptions;
  */
 class ActionNameNotSetException extends \Exception
 {
-
 }

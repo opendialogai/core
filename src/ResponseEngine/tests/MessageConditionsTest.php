@@ -27,8 +27,10 @@ class MessageConditionsTest extends TestCase
         /** @var OutgoingIntent $intent */
         $this->intent = OutgoingIntent::create(['name' => 'test']);
 
-        $this->setConfigValue('opendialog.context_engine.custom_attributes',
-            ['false' => BooleanAttribute::class]);
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['false' => BooleanAttribute::class]
+        );
 
         ContextService::getContext('session')->addAttribute(AttributeResolver::getAttributeFor('false', false));
 
@@ -44,7 +46,8 @@ class MessageConditionsTest extends TestCase
             ->addCondition($attributes, ['value' => 'true'], 'eq')
             ->addCondition($attributes, ['value' => 'false'], 'eq');
 
-        $this->intent->messageTemplates()->create([
+        $this->intent->messageTemplates()->create(
+            [
             'name' => 'should not pass',
             'conditions' => $failingCondition->getYaml(),
             'message_markup' => $failingMessage->getMarkUp()]
@@ -64,7 +67,8 @@ class MessageConditionsTest extends TestCase
             ->addCondition($attributes, ['value' => 'false'], 'eq')
             ->addCondition($attributes, ['value' => 'true'], 'eq');
 
-        $this->intent->messageTemplates()->create([
+        $this->intent->messageTemplates()->create(
+            [
             'name' => 'should not pass',
             'conditions' => $failingCondition->getYaml(),
             'message_markup' => $failingMessage->getMarkUp()]
@@ -83,7 +87,8 @@ class MessageConditionsTest extends TestCase
         $failingCondition = (new ConditionsYamlGenerator())
             ->addCondition($attributes, ['value' => 'true'], 'eq');
 
-        $this->intent->messageTemplates()->create([
+        $this->intent->messageTemplates()->create(
+            [
             'name' => 'should not pass',
             'conditions' => $failingCondition->getYaml(),
             'message_markup' => $failingMessage->getMarkUp()]
@@ -93,5 +98,4 @@ class MessageConditionsTest extends TestCase
         $this->expectException(NoMatchingMessagesException::class);
         $this->responseEngineService->getMessageForIntent('test');
     }
-
 }

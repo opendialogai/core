@@ -44,7 +44,7 @@ class DGraphTest extends TestCase
         $query->eq('id', 'testNode')
             ->setQueryGraph([
                 'uid',
-                'expand(_all_)'
+                'id'
             ]);
 
         /* @var DGraphQueryResponse $response */
@@ -71,7 +71,8 @@ class DGraphTest extends TestCase
         $query->eq('id', $nodeName)
             ->setQueryGraph([
                 'uid',
-                'expand(_all_)'
+                'id',
+                'name'
             ]);
 
         /* @var DGraphQueryResponse $response */
@@ -113,7 +114,8 @@ class DGraphTest extends TestCase
         $query->uid($uid)
             ->setQueryGraph([
                 'uid',
-                'expand(_all_)'
+                'id',
+                'name'
             ]);
 
         /* @var DGraphQueryResponse $response */
