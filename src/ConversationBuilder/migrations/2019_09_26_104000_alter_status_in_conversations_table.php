@@ -14,6 +14,8 @@ class AlterStatusInConversationsTable extends Migration
      */
     public function up()
     {
+        Artisan::call('statuses:store');
+
         if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
             Schema::table('conversations', function (Blueprint $table) {
                 $table->dropColumn('status');
@@ -25,6 +27,8 @@ class AlterStatusInConversationsTable extends Migration
         } else {
             DB::statement("ALTER TABLE conversations MODIFY status ENUM('saved', 'activatable', 'activated', 'deactivated', 'archived')");
         }
+
+        Artisan::call('statuses:read');
     }
 
     /**
@@ -34,6 +38,8 @@ class AlterStatusInConversationsTable extends Migration
      */
     public function down()
     {
+        Artisan::call('statuses:store');
+
         if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
             Schema::table('conversations', function (Blueprint $table) {
                 $table->dropColumn('status');
@@ -42,5 +48,7 @@ class AlterStatusInConversationsTable extends Migration
         } else {
             DB::statement("ALTER TABLE conversations MODIFY status ENUM('imported', 'invalid', 'validated', 'published')")->default('');
         }
+
+        Artisan::call('statuses:read --down');
     }
 }

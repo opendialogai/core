@@ -38,6 +38,8 @@ class StoreStatuses extends Command
      */
     public function handle()
     {
+        $this->info("Storing statuses");
+
         // Get IDs & statuses
         $conversations = Conversation::all();
 
@@ -46,10 +48,24 @@ class StoreStatuses extends Command
                 'id' => $conversation->id,
                 'status' => $conversation->status
             ];
-        });
+        })->toArray();
+
+        if (is_null($data)) {
+            $this->error("There were no conversations to store statuses from.");
+            return;
+        }
+
+        if (!is_dir(storage_path('statuses'))) {
+            mkdir(storage_path('statuses'));
+        }
 
         // Store in CSV file
         $file = fopen(storage_path('statuses') . '/statuses_' . date('Y-m-d-H-i-s') . '.csv', 'w+');
-        fputcsv($file, $data);
+
+        foreach ($data as $row) {
+            fputcsv($file, $row);
+        }
+
+        fclose($file);
     }
 }
