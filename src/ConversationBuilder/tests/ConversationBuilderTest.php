@@ -167,7 +167,7 @@ class ConversationBuilderTest extends TestCase
         $attributes = ['test' => IntAttribute::class];
         AttributeResolver::registerAttributes($attributes);
 
-        /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
+        /* @var ConversationNode $conversationModel */
         $conversationModel = $conversation->buildConversation();
         $this->assertInstanceOf('OpenDialogAi\Core\Conversation\Conversation', $conversationModel);
 
@@ -241,12 +241,13 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('hello_bot_world', $conversation->getId());
     }
 
-    public function testLogNewConversationVersion()
+    public function testNewConversationVersion()
     {
         $this->publishConversation($this->conversation1());
 
         /** @var Conversation $conversation */
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
+        $originalUid = $conversation->graph_uid;
 
         // Ensure that the initial version + validation & publishing was logged
         $this->assertCount(5, Activity::all());
@@ -283,6 +284,14 @@ class ConversationBuilderTest extends TestCase
         $changedAttributes = $activity->changes['attributes'];
 
         $this->assertEquals(2, $changedAttributes['version_number']);
+
+        // Ensure that the old version has been automatically deactivated
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $originalConversation = $conversationStore->getEIModelConversationTemplateByUid($originalUid);
+        $this->assertEquals(ConversationNode::DEACTIVATED, $originalConversation->getConversationStatus());
     }
 
     public function testDeactivating() {

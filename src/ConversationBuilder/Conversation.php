@@ -216,6 +216,8 @@ class Conversation extends Model
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->isSuccessful()) {
+            $previousGraphUid = $this->graph_uid;
+
             // Set conversation status to "published".
             $this->status = ConversationNode::ACTIVATED;
             $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
@@ -228,6 +230,10 @@ class Conversation extends Model
                 'message' => 'Published conversation to DGraph.',
                 'type' => 'publish_conversation',
             ])->save();
+
+            if ($previousGraphUid) {
+                return $this->deactivatePrevious($previousGraphUid, $dGraph);
+            }
 
             return true;
         } else {
@@ -243,6 +249,54 @@ class Conversation extends Model
         }
 
         return false;
+    }
+
+    /**
+     * @param $previousUid
+     * @param DGraphClient $dGraph
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    private function deactivatePrevious($previousUid, DGraphClient $dGraph): bool
+    {
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $previousConversation = $conversationStore->getConversationTemplateByUid($previousUid);
+
+        /** @var ConversationManager $cmPrevious */
+        $cmPrevious = ConversationManager::createManagerForExistingConversation($previousConversation);
+
+        try {
+            $cmPrevious->setDeactivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            Log::warning(
+                sprintf(
+                    "Cannot deactivate previous conversation when activating version %d.",
+                    $this->version_number
+                )
+            );
+
+            return false;
+        }
+
+        $mutation = new DGraphMutation($cmPrevious->getConversation());
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+
+        if (!$mutationResponse->isSuccessful()) {
+            Log::warning(
+                sprintf(
+                    "Failed to deactivate previous conversation when activating version %d.",
+                    $this->version_number
+                )
+            );
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
