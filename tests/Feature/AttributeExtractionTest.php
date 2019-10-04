@@ -162,17 +162,35 @@ class AttributeExtractionTest extends TestCase
             'outgoing_intent_id' => $outgoingIntent->id
         ]);
 
+        $conditions = <<<EOT
+conditions:
+  - condition:
+      operation: is_not_set
+      attributes:
+        username: user.name  
+EOT;
         MessageTemplate::create([
             'name' => 'message 2',
             'message_markup' => '<message><text-message>message with one condition</text-message></message>',
-            'conditions' => "conditions:\n  - condition:\n      attribute: user.name\n      operation: is_not_set",
+            'conditions' => $conditions,
             'outgoing_intent_id' => $outgoingIntent->id
         ]);
 
+        $conditions = <<<EOT
+conditions:
+  - condition:
+      operation: is_not_set
+      attributes:
+        username: user.name
+  - condition:
+      operation: is_set
+      attributes:
+        last_name: session.last_name
+EOT;
         MessageTemplate::create([
             'name' => 'message 3',
             'message_markup' => '<message><text-message>message with two conditions</text-message></message>',
-            'conditions' => "conditions:\n  - condition:\n      attribute: user.name\n      operation: is_not_set\n  - condition:\n      attribute: session.last_name\n      operation: is_set",
+            'conditions' => $conditions,
             'outgoing_intent_id' => $outgoingIntent->id
         ]);
 
