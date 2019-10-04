@@ -22,6 +22,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class MessageTemplate extends Model
 {
+    const CONDITION = 'condition';
     const CONDITIONS = 'conditions';
     const ATTRIBUTES = 'attributes';
     const PARAMETERS = 'parameters';
@@ -100,7 +101,7 @@ class MessageTemplate extends Model
                     $condition[self::PARAMETERS] = '';
                     $condition[self::OPERATION] = '';
 
-                    foreach ($yamlCondition['condition'] as $key => $val) {
+                    foreach ($yamlCondition[self::CONDITION] as $key => $val) {
                         switch ($key) {
                             case ResponseEngineServiceInterface::ATTRIBUTES_KEY:
                                 $condition[self::ATTRIBUTES] = $val;
