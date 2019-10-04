@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use OpenDialogAi\Core\Attribute\StringAttribute;

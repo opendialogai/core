@@ -11,7 +11,6 @@ use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
@@ -25,6 +24,7 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConversationEngine implements ConversationEngineInterface
 {
@@ -35,6 +35,9 @@ class ConversationEngine implements ConversationEngineInterface
 
     /* @var InterpreterServiceInterface */
     private $interpreterService;
+
+    /* @var OperationServiceInterface */
+    private $operationService;
 
     /* @var ActionEngineInterface */
     private $actionEngine;
@@ -61,6 +64,14 @@ class ConversationEngine implements ConversationEngineInterface
     public function setInterpreterService(InterpreterServiceInterface $interpreterService): void
     {
         $this->interpreterService = $interpreterService;
+    }
+
+    /**
+     * @param OperationServiceInterface $operationService
+     */
+    public function setOperationService(OperationServiceInterface $operationService): void
+    {
+        $this->operationService = $operationService;
     }
 
     /**
@@ -338,18 +349,7 @@ class ConversationEngine implements ConversationEngineInterface
 
                 /* @var Condition $condition */
                 foreach ($conditions as $condition) {
-                    $attributeName = $condition->getAttributeName();
-
-                    try {
-                        $actualAttribute = ContextService::getAttribute($attributeName, $condition->getContextId());
-                    } catch (Exception $e) {
-                        Log::debug($e->getMessage());
-                        // If the attribute does not exist create one with a null value since we may be testing
-                        // for its existence.
-                        $actualAttribute = AttributeResolver::getAttributeFor($attributeName, null);
-                    }
-
-                    if (!$condition->compareAgainst($actualAttribute)) {
+                    if (!$this->operationService->checkCondition($condition)) {
                         $pass = false;
                     }
                 }

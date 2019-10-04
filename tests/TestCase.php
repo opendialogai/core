@@ -12,6 +12,7 @@ use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
+use OpenDialogAi\OperationEngine\OperationEngineServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 use Symfony\Component\Yaml\Yaml;
@@ -32,7 +33,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
      */
     private $dgraphInitialised = false;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -76,6 +77,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ResponseEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
+            OperationEngineServiceProvider::class,
             SensorEngineServiceProvider::class,
         ];
     }
@@ -98,12 +100,15 @@ conversation:
   id: hello_bot_world
   conditions:
     - condition:
-        attribute: user.name
         operation: is_not_set
+        attributes:
+          username: user.name
     - condition:
-        attribute: user.test
         operation: gt
-        value: 10
+        attributes:
+          usertest: user.test
+        parameters:
+          value: 10
   scenes:
     opening_scene:
       intents:
@@ -228,7 +233,6 @@ conversation:
             i: intent.core.NoMatchResponse
             completes: true
 EOT;
-
     }
 
     protected function initDDgraph(): void
@@ -273,10 +277,12 @@ EOT;
         }
 
         $this->app['config']->set(
-            'opendialog.interpreter_engine.available_interpreters', [
+            'opendialog.interpreter_engine.available_interpreters',
+            [
             get_class($interpreter),
             get_class($defaultInterpreter)
-        ]);
+        ]
+        );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }
@@ -300,7 +306,9 @@ EOT;
         }
 
         $this->app['config']->set(
-            'opendialog.interpreter_engine.available_interpreters', $classes);
+            'opendialog.interpreter_engine.available_interpreters',
+            $classes
+        );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
     }

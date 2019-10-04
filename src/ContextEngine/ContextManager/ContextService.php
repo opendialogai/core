@@ -128,7 +128,7 @@ class ContextService implements ContextServiceInterface
             $context = new $customContext();
             $context->loadAttributes();
             $this->addContext($context);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::warning(sprintf('Error while adding context %s - %s', $customContext, $e->getMessage()));
         }
     }

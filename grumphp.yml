@@ -7,7 +7,7 @@ parameters:
       level: ~
       verbose: true
     phpcs:
-      standard: ['PSR12']
+      standard: ['od-cs-ruleset.xml']
       severity: ~
       error_severity: ~
       warning_severity: ~
@@ -16,7 +16,9 @@ parameters:
       report_width: ~
       whitelist_patterns: []
       encoding: ~
-      ignore_patterns: []
+      ignore_patterns:
+        - "*/migrations/*"
+        - "*/tests/*"
       sniffs: []
       triggered_by: [php]
       exclude: []

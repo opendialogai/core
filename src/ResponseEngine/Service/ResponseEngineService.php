@@ -8,8 +8,7 @@ use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\WebchatMessageFormatter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -17,11 +16,13 @@ use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 class ResponseEngineService implements ResponseEngineServiceInterface
 {
+    /* @var OperationServiceInterface */
+    protected $operationService;
+
     /**
      * @inheritdoc
      *
      * @return WebChatMessages $messageWrapper
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function getMessageForIntent(string $intentName): WebChatMessages
     {
@@ -95,6 +96,14 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
+     * @param OperationServiceInterface $operationService
+     */
+    public function setOperationService(OperationServiceInterface $operationService): void
+    {
+        $this->operationService = $operationService;
+    }
+
+    /**
      * Checks whether a message's conditions are met. Returns true if there are no conditions, or if all conditions on
      * the message template are met
      *
@@ -103,40 +112,13 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     protected function messageMeetsConditions(MessageTemplate $messageTemplate): bool
     {
-        foreach ($messageTemplate->getConditions() as $contextId => $conditions) {
-            foreach ($conditions as $conditionArray) {
-                /** @var Condition $condition */
-                $condition = array_values($conditionArray)[0];
-                $attributeName = array_keys($conditionArray)[0];
-
-                $attribute = $this->getAttributeForCondition($attributeName, $contextId);
-
-                if (!$condition->compareAgainst($attribute)) {
-                    return false;
-                }
+        foreach ($messageTemplate->getConditions() as $condition) {
+            if (!$this->operationService->checkCondition($condition)) {
+                return false;
             }
         }
 
         return true;
-    }
-
-    /**
-     * Tries to get the attribute from the right context. Or returns a null value attribute if it does not exist
-     *
-     * @param $attributeName
-     * @param $contextId
-     * @return AttributeInterface
-     */
-    protected function getAttributeForCondition($attributeName, $contextId): AttributeInterface
-    {
-        try {
-            $attribute = ContextService::getAttribute($attributeName, $contextId);
-        } catch (AttributeDoesNotExistException $e) {
-            // If the attribute does not exist, return a null value attribute
-            $attribute = AttributeResolver::getAttributeFor($attributeName, null);
-        }
-
-        return $attribute;
     }
 
     /**

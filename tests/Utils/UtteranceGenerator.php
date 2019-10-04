@@ -57,8 +57,11 @@ class UtteranceGenerator
         return $utterance;
     }
 
-    public static function generateButtonResponseUtterance($callbackId = '', $value = '', $user = null): WebchatButtonResponseUtterance
-    {
+    public static function generateButtonResponseUtterance(
+        $callbackId = '',
+        $value = '',
+        $user = null
+    ): WebchatButtonResponseUtterance {
         if ($user === null) {
             $user = self::generateUser();
         }
