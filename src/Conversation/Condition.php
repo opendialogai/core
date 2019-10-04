@@ -16,6 +16,14 @@ class Condition extends Node
     // The evaluation operation.
     private $evaluationOperation;
 
+    /**
+     * Attributes and parameters are expected to be passed as arrays, which are then serialised and
+     * stored appropriately as an ArrayAttribute.
+     * @param $evaluationOperation
+     * @param $attributes
+     * @param array $parameters
+     * @param null $id
+     */
     public function __construct($evaluationOperation, $attributes, $parameters = [], $id = null)
     {
         parent::__construct($id);

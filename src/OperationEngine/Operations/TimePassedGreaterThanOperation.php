@@ -12,7 +12,9 @@ class TimePassedGreaterThanOperation extends AbstractOperation
     {
         $attribute = reset($this->attributes);
 
-        if ($attribute->getValue() === null) {
+        // We are checking for type since the default behaviour is to return an empty string if an attribute
+        // is not set, which would allow this operation to proceed.
+        if (($attribute->getValue() === null) || !is_int($attribute->getValue())) {
             return false;
         }
 
