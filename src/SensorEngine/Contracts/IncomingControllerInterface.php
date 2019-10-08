@@ -1,11 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\SensorEngine\Contracts;
 
 use Illuminate\Http\Response;
-use OpenDialogAi\SensorEngine\Contracts\IncomingMessageInterface;
 
 interface IncomingControllerInterface
 {
