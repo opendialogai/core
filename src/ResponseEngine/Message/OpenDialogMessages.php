@@ -14,7 +14,7 @@ interface OpenDialogMessages
     /**
      * Returns the message objects
      *
-     * @return array
+     * @return OpenDialogMessage[]
      */
     public function getMessages(): array;
 
