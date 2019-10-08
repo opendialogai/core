@@ -39,10 +39,12 @@ class MessageConditionsTest extends TestCase
 
     public function testFinalPassingCondition()
     {
+        $attributes = ['sessionfalse' => 'session.false'];
+
         $failingMessage = (new MessageMarkUpGenerator())->addTextMessage('Should not pass');
         $failingCondition = (new ConditionsYamlGenerator())
-            ->addCondition('session.false', 'true', 'eq')
-            ->addCondition('session.false', 'false', 'eq');
+            ->addCondition($attributes, ['value' => 'true'], 'eq')
+            ->addCondition($attributes, ['value' => 'false'], 'eq');
 
         $this->intent->messageTemplates()->create(
             [
@@ -58,10 +60,12 @@ class MessageConditionsTest extends TestCase
 
     public function testFinalFailingCondition()
     {
+        $attributes = ['sessionfalse' => 'session.false'];
+
         $failingMessage = (new MessageMarkUpGenerator())->addTextMessage('Should not pass');
         $failingCondition = (new ConditionsYamlGenerator())
-            ->addCondition('session.false', 'false', 'eq')
-            ->addCondition('session.false', 'true', 'eq');
+            ->addCondition($attributes, ['value' => 'false'], 'eq')
+            ->addCondition($attributes, ['value' => 'true'], 'eq');
 
         $this->intent->messageTemplates()->create(
             [
@@ -77,9 +81,11 @@ class MessageConditionsTest extends TestCase
 
     public function testOnlyFailingCondition()
     {
+        $attributes = ['sessionfalse' => 'session.false'];
+
         $failingMessage = (new MessageMarkUpGenerator())->addTextMessage('Should not pass');
         $failingCondition = (new ConditionsYamlGenerator())
-            ->addCondition('session.false', 'true', 'eq');
+            ->addCondition($attributes, ['value' => 'true'], 'eq');
 
         $this->intent->messageTemplates()->create(
             [

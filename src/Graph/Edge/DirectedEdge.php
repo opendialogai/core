@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\Edge;
 
 use OpenDialogAi\Core\Graph\Node\Node;

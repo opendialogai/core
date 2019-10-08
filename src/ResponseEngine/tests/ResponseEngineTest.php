@@ -18,6 +18,10 @@ use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
+use OpenDialogAi\OperationEngine\Operations\LessThanOrEqualOperation;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
@@ -103,9 +107,11 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
+        $attributes = ['usertimestamp' => 'user.timestamp'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.timestamp', 10000, 'ge');
-        $conditions->addCondition('user.timestamp', 20000, 'le');
+        $conditions->addCondition($attributes, ['value' => 10000], 'gte');
+        $conditions->addCondition($attributes, ['value' => 20000], 'lte');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -117,14 +123,13 @@ class ResponseEngineTest extends TestCase
         /** @var MessageTemplate $messageTemplate */
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
-        /** @var TimestampAttribute $timestamp */
-        $timestamp = $messageTemplate->getConditions()['user'][0]['timestamp']->getAttribute('timestamp');
-        $this->assertSame($timestamp->getId(), 'timestamp');
-        $this->assertSame($timestamp->getValue(), 10000);
+        $condition1 = $messageTemplate->getConditions()[0];
+        $condition2 = $messageTemplate->getConditions()[1];
 
-        $timestamp = $messageTemplate->getConditions()['user'][1]['timestamp']->getAttribute('timestamp');
-        $this->assertSame($timestamp->getId(), 'timestamp');
-        $this->assertSame($timestamp->getValue(), 20000);
+        $this->assertequals($condition1->getEvaluationOperation(), GreaterThanOrEqualOperation::NAME);
+        $this->assertequals($condition2->getEvaluationOperation(), LessThanOrEqualOperation::NAME);
+        $this->assertequals($condition1->getParameters()['value'], 10000);
+        $this->assertequals($condition2->getParameters()['value'], 20000);
 
         MessageTemplate::create([
             'name' => 'Unfriendly Hello',
@@ -144,8 +149,11 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -177,8 +185,11 @@ class ResponseEngineTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessage('hi there');
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -195,6 +206,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\OpenDialogMessage', $messageWrapper->getMessages()[0]);
     }
 
@@ -209,8 +221,11 @@ class ResponseEngineTest extends TestCase
             'http://www.opendialog.ai'
         );
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -227,6 +242,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf(
             WebchatImageMessage::class,
             $messageWrapper->getMessages()[0]
@@ -248,8 +264,11 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -266,6 +285,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $messageWrapper->getMessages()[0]);
     }
 
@@ -283,8 +303,11 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -301,6 +324,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
+        // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $messageWrapper->getMessages()[0]);
     }
 
@@ -309,6 +333,7 @@ class ResponseEngineTest extends TestCase
         /* @var ContextService $contextService */
         $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
 
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
@@ -324,8 +349,11 @@ class ResponseEngineTest extends TestCase
         $generator2 = (new MessageMarkUpGenerator())
             ->addAttributeMessage('user.message');
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -355,8 +383,11 @@ class ResponseEngineTest extends TestCase
 
         $generator2 = (new MessageMarkUpGenerator())->addAttributeMessage('user.message');
 
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -373,7 +404,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
-        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi dummy there   welcome');
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi dummy there  welcome');
     }
 
     public function testMessageConditionRules()
@@ -381,11 +412,11 @@ class ResponseEngineTest extends TestCase
         $conditionsValidator = new MessageConditions();
 
         // Test valid condition.
-        $conditions = "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq";
+        $conditions = "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq";
         $this->assertTrue($conditionsValidator->passes(null, $conditions));
 
         // Test invalid condition.
-        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    value: dummy\n    operation: eq";
+        $conditions = "---\nconditions:\n-\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq";
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
 
         // Test condition without enough attributes.
@@ -393,7 +424,7 @@ class ResponseEngineTest extends TestCase
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
 
         // Test condition without operation.
-        $conditions = "---\nconditions:\n-\n    attribute: user.name\n    value: dummy";
+        $conditions = "---\nconditions:\n-\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy";
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
     }
 
@@ -402,12 +433,19 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
+        // phpcs:ignore
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
+
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
             'outgoing_intent_id' => $intent->id,
-            'conditions' => "---\nconditions:\n- condition:\n    attribute: user.name\n    value: dummy\n    operation: eq",
+            'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
@@ -455,8 +493,8 @@ class ResponseEngineTest extends TestCase
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', 'dummy', 'eq');
-        $conditions->addCondition('user.last_seen', null, 'is_set');
+        $conditions->addCondition(['username' => 'user.name'], ['value' => 'dummy'], 'eq');
+        $conditions->addCondition(['userlastseen' => 'user.last_seen'], [], 'is_set');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -482,8 +520,10 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['username' => 'user.name'];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.name', null, 'is_set');
+        $conditions->addCondition($attributes, [], 'is_set');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -508,8 +548,11 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
 
+        $attributes = ['userlastseen' => 'user.last_seen'];
+        $parameters = ['value' => 600];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.last_seen', 600, 'time_passed_greater_than');
+        $conditions->addCondition($attributes, $parameters, 'time_passed_greater_than');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -534,8 +577,11 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['userlastseen' => 'user.last_seen'];
+        $parameters = ['value' => 600];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.last_seen', 600, 'time_passed_greater_than');
+        $conditions->addCondition($attributes, $parameters, 'time_passed_greater_than');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -560,8 +606,11 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
 
+        $attributes = ['userlastseen' => 'user.last_seen'];
+        $parameters = ['value' => 600];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.last_seen', 600, 'time_passed_less_than');
+        $conditions->addCondition($attributes, $parameters, 'time_passed_less_than');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -589,8 +638,11 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
 
+        $attributes = ['userlastseen' => 'user.last_seen'];
+        $parameters = ['value' => 600];
+
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition('user.last_seen', 600, 'time_passed_less_than');
+        $conditions->addCondition($attributes, $parameters, 'time_passed_less_than');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',

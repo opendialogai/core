@@ -13,23 +13,6 @@ class FloatAttribute extends BasicAttribute
     }
 
     /**
-     * @param AttributeInterface $attribute
-     * @param string $operation
-     * @return bool
-     * @throws UnsupportedAttributeTypeException
-     */
-    public function compare(AttributeInterface $attribute, string $operation): bool
-    {
-        if (!($attribute instanceof FloatAttribute)) {
-            throw new UnsupportedAttributeTypeException(
-                sprintf('Trying to compare type %s to type %s', $this->getType(), $attribute->getType())
-            );
-        }
-
-        return $this->doComparison($attribute, $operation);
-    }
-
-    /**
      * @return string
      */
     public function toString(): string

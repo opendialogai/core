@@ -17,7 +17,5 @@ interface AttributeInterface
 
     public function setValue($value);
 
-    public function compare(AttributeInterface $attribute, string $comparisonOperation): bool;
-
     public function toString(): string;
 }

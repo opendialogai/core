@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Ds\Map;
