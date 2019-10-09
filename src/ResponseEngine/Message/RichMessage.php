@@ -6,6 +6,8 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
 interface RichMessage extends OpenDialogMessage
 {
+    const TYPE = 'rich';
+
     /**
      * @param $title
      * @return $this

@@ -4,6 +4,8 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 interface LongTextMessage extends OpenDialogMessage
 {
+    const TYPE = 'long_text';
+
     /**
      * @param $characterLimit
      * @return $this

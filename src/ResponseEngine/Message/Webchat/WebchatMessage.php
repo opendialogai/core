@@ -4,13 +4,13 @@ namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
-class WebchatMessage implements OpenDialogMessage
+abstract class WebchatMessage implements OpenDialogMessage
 {
+    protected $messageType = 'base';
+
     const TIME = 'time';
 
     const DATE = 'date';
-
-    protected $messageType = 'text';
 
     /** The message text. */
     private $text = null;

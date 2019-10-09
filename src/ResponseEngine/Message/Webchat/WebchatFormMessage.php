@@ -7,7 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormElement;
 
 class WebchatFormMessage extends WebchatMessage implements FormMessage
 {
-    protected $messageType = 'form';
+    protected $messageType = self::TYPE;
 
     private $submitText = 'Submit';
 

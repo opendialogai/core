@@ -4,16 +4,16 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatTextMessage;
 
 class ResponseEngineWebchatMessagesTest extends TestCase
 {
@@ -27,7 +27,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatMessage()
     {
-        $message = new WebchatMessage();
+        $message = new WebchatTextMessage();
         $message->setText('This is a test, this is only a test.');
         $message->setDisableText(true);
         $this->assertEquals(1, $message->getData()['disable_text']);
@@ -51,7 +51,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     {
         $message = new WebchatListMessage();
         $message->setDisableText(false);
-        $message->addItem((new WebchatMessage())->setText('This is a test, this is only a test.'));
+        $message->addItem((new WebchatTextMessage())->setText('This is a test, this is only a test.'));
         $message->addItem((new WebchatImageMessage()));
         $message->addItem((new WebchatButtonMessage())->setText('Yes'));
 

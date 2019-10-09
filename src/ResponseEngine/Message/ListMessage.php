@@ -4,6 +4,8 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 interface ListMessage extends OpenDialogMessage
 {
+    const TYPE = 'list';
+
     /**
      * @param OpenDialogMessage $message
      * @return $this

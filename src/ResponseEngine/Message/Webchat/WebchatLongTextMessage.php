@@ -6,7 +6,7 @@ use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
 
 class WebchatLongTextMessage extends WebchatMessage implements LongTextMessage
 {
-    protected $messageType = 'longtext';
+    protected $messageType = self::TYPE;
 
     private $characterLimit = null;
 

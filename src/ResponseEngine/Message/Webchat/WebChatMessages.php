@@ -7,7 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 
 class WebChatMessages implements OpenDialogMessages
 {
-    /** @var OpenDialogMessage[] */
+    /** @var WebchatTextMessage[] */
     protected $messages;
 
     public function __construct()
@@ -24,7 +24,7 @@ class WebChatMessages implements OpenDialogMessages
     }
 
     /**
-     * @return WebchatMessage[]
+     * @return WebchatTextMessage[]
      */
     public function getMessages(): array
     {

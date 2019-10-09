@@ -6,7 +6,7 @@ use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 
 class WebchatImageMessage extends WebchatMessage implements ImageMessage
 {
-    protected $messageType = 'image';
+    protected $messageType = self::TYPE;
 
     private $imgSrc = null;
 

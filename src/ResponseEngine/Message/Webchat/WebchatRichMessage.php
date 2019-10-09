@@ -7,7 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
 class WebchatRichMessage extends WebchatMessage implements RichMessage
 {
-    protected $messageType = 'rich';
+    protected $messageType = self::TYPE;
 
     private $title;
 

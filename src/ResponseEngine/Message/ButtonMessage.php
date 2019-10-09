@@ -6,6 +6,8 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
 interface ButtonMessage extends OpenDialogMessage
 {
+    const TYPE = 'button';
+
     /**
      * @param $clearAfterInteraction
      * @return $this

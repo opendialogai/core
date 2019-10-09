@@ -4,6 +4,8 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 interface ImageMessage extends OpenDialogMessage
 {
+    const TYPE = 'image';
+
     /**
      * @param $imgSrc
      * @return $this

@@ -6,7 +6,7 @@ use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 
 class WebchatEmptyMessage extends WebchatMessage implements EmptyMessage
 {
-    protected $messageType = 'empty';
+    protected $messageType = self::TYPE;
 
     public function __construct()
     {

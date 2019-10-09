@@ -7,7 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\BaseButton;
 
 class WebchatButtonMessage extends WebchatMessage implements ButtonMessage
 {
-    protected $messageType = 'button';
+    protected $messageType = self::TYPE;
 
     /** The message buttons. @var BaseButton[] */
     private $buttons = [];

@@ -33,9 +33,9 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatTextMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use SimpleXMLElement;
@@ -292,7 +292,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     public function generateTextMessage(array $template): OpenDialogMessage
     {
-        $message = (new WebchatMessage())->setText($template[self::TEXT], [], true);
+        $message = (new WebchatTextMessage())->setText($template[self::TEXT], [], true);
         return $message;
     }
 

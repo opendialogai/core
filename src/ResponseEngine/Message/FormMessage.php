@@ -6,6 +6,8 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormElement;
 
 interface FormMessage extends OpenDialogMessage
 {
+    const TYPE = 'form';
+
     /**
      * @param FormElement $element
      * @return $this

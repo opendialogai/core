@@ -7,7 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
 class WebchatListMessage extends WebchatMessage implements ListMessage
 {
-    protected $messageType = 'list';
+    protected $messageType = self::TYPE;
 
     private $items = [];
 
