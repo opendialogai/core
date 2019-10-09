@@ -3,15 +3,15 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use Illuminate\Support\Facades\Log;
+use Monolog\Formatter\FormatterInterface;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
-use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
+use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -165,12 +165,13 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     public function registerAvailableFormatters(): void
     {
+        /** @var FormatterInterface $formatter */
         foreach ($this->getAvailableFormatterConfig() as $formatter) {
             try {
                 $name = $formatter::getName();
 
                 if ($this->isValidName($name)) {
-                    $this->availableFormatters[$name] = new $formatter();
+                    $this->availableFormatters[$name] = new $formatter($this);
                 } else {
                     Log::warning(
                         sprintf("Not adding formatter with name %s. Name is in wrong format", $name)

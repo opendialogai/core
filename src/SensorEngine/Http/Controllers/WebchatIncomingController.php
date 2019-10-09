@@ -2,19 +2,20 @@
 
 namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
-use OpenDialogAi\SensorEngine\SensorInterface;
-use OpenDialogAi\ResponseEngine\LinkClickInterface;
 use Illuminate\Routing\Controller as BaseController;
-use OpenDialogAi\SensorEngine\Service\SensorService;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
-use OpenDialogAi\SensorEngine\Contracts\IncomingMessageInterface;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
-use OpenDialogAi\SensorEngine\Contracts\IncomingControllerInterface;
+use OpenDialogAi\ResponseEngine\LinkClickInterface;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
+use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
+use OpenDialogAi\SensorEngine\SensorInterface;
+use OpenDialogAi\SensorEngine\Service\SensorService;
 
-class WebchatIncomingController extends BaseController implements IncomingControllerInterface
+class WebchatIncomingController extends BaseController
 {
     /** @var OpenDialogController */
     private $odController;
@@ -34,9 +35,15 @@ class WebchatIncomingController extends BaseController implements IncomingContro
     }
 
     /**
-     * {@inheritdoc}
+     * Receives an incoming message, transforms into an utterance, passes through the OD controller and returns the
+     * correct response
+     *
+     * @param IncomingWebchatMessage $request
+     * @return Response
+     * @throws BindingResolutionException
+     * @throws FieldNotSupported
      */
-    public function receive(IncomingMessageInterface $request): Response
+    public function receive(IncomingWebchatMessage $request): Response
     {
         $messageType = $request->input('notification');
 

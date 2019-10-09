@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message;
+namespace OpenDialogAi\ResponseEngine\Formatters\Webchat;
 
 use DOMDocument;
 use Exception;
@@ -8,7 +8,16 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Traits\HasName;
+use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
+use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\ListMessage;
+use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\RichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
@@ -34,14 +43,12 @@ use SimpleXMLElement;
 /**
  * Webchat Message formatter.
  */
-class WebChatMessageFormatter implements MessageFormatterInterface
+class WebChatMessageFormatter extends BaseMessageFormatter
 {
-    use HasName;
-
     /** @var ResponseEngineService */
     private $responseEngineService;
 
-    protected static $name = 'formatter.core.webchat';
+    static $name = 'formatter.core.webchat';
 
     /**
      * WebChatMessageFormatter constructor.

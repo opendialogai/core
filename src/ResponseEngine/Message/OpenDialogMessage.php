@@ -26,4 +26,9 @@ interface OpenDialogMessage
      * @return mixed
      */
     public function getMessageToPost();
+
+    /**
+     * @return bool
+     */
+    public function isEmpty(): bool;
 }

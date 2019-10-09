@@ -34,4 +34,9 @@ interface OperationServiceInterface
      * @param AttributeResolver $attributeResolver
      */
     public function setAttributeResolver(AttributeResolver $attributeResolver);
+
+    /**
+     * @param $operations
+     */
+    public function registerAvailableOperations($operations): void;
 }

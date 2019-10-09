@@ -4,7 +4,6 @@ namespace OpenDialogAi\SensorEngine;
 
 use Illuminate\Http\Request;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
-use OpenDialogAi\SensorEngine\Exceptions\SensorNameNotSetException;
 
 /**
  * This is a placeholder interface for what a sensor needs to do
@@ -12,4 +11,6 @@ use OpenDialogAi\SensorEngine\Exceptions\SensorNameNotSetException;
 interface SensorInterface
 {
     public function interpret(Request $request) : UtteranceInterface;
+
+    public static function getName(): string;
 }

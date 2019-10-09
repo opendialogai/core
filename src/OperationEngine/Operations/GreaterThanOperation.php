@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class GreaterThanOperation extends AbstractOperation
 {
-    const NAME = 'gt';
+    static $name = 'gt';
 
     public function execute()
     {

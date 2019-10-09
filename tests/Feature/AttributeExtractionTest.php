@@ -48,7 +48,6 @@ class AttributeExtractionTest extends TestCase
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
         $this->odController = $this->app->make(OpenDialogController::class);
 
-
         $this->publishConversation($this->getExampleConversation());
     }
 

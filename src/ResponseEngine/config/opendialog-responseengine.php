@@ -2,6 +2,6 @@
 
 return [
     'available_formatters' => [
-        \OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter::class
+        \OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter::class
     ]
 ];

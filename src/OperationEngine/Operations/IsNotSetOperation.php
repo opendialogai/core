@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class IsNotSetOperation extends AbstractOperation
 {
-    const NAME = 'is_not_set';
+    static $name  = 'is_not_set';
 
     public function execute()
     {

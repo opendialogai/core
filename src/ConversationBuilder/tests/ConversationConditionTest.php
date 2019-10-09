@@ -38,7 +38,7 @@ class ConversationConditionTest extends TestCase
                 'attributes' => [
                     'username' => 'user.name'
                 ],
-                'operation' => IsSetOperation::NAME
+                'operation' => IsSetOperation::$name
             ]
         ];
 
@@ -47,7 +47,7 @@ class ConversationConditionTest extends TestCase
                 'attributes' => [
                     'usertest' => 'user.test'
                 ],
-                'operation' => GreaterThanOperation::NAME,
+                'operation' => GreaterThanOperation::$name,
                 'parameters' => [
                     'value' => 10
                 ]
@@ -57,7 +57,7 @@ class ConversationConditionTest extends TestCase
         $this->userLastSeenCondition = [
             'condition' => [
                 'attribute' => 'user.last_seen',
-                'operation' => TimePassedGreaterThanOperation::NAME,
+                'operation' => TimePassedGreaterThanOperation::$name,
                 'value' => 600
             ]
         ];
@@ -95,13 +95,13 @@ class ConversationConditionTest extends TestCase
         /* @var \OpenDialogAi\Core\Conversation\Condition $condition */
         foreach ($conditions as $condition) {
             if ($condition->getId() == 'user.name-is_set-') {
-                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::NAME);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::NAME);
+                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::$name);
             }
 
             if ($condition->getId() == 'user.test-gt-10') {
-                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::NAME);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::NAME);
+                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::$name);
             }
         }
     }

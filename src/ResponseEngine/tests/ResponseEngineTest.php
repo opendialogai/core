@@ -9,19 +9,17 @@ use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\TimestampAttribute;
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\ResponseEngine\tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
-use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
-use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 use OpenDialogAi\OperationEngine\Operations\LessThanOrEqualOperation;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
+use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
@@ -126,8 +124,8 @@ class ResponseEngineTest extends TestCase
         $condition1 = $messageTemplate->getConditions()[0];
         $condition2 = $messageTemplate->getConditions()[1];
 
-        $this->assertequals($condition1->getEvaluationOperation(), GreaterThanOrEqualOperation::NAME);
-        $this->assertequals($condition2->getEvaluationOperation(), LessThanOrEqualOperation::NAME);
+        $this->assertequals($condition1->getEvaluationOperation(), GreaterThanOrEqualOperation::$name);
+        $this->assertequals($condition2->getEvaluationOperation(), LessThanOrEqualOperation::$name);
         $this->assertequals($condition1->getParameters()['value'], 10000);
         $this->assertequals($condition2->getParameters()['value'], 20000);
 

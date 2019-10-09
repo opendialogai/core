@@ -55,10 +55,6 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/opendialog.php', 'opendialog.core');
 
-        $this->app->singleton(OpenDialogController::class, function () {
-            return new OpenDialogController();
-        });
-
         $this->app->singleton(DGraphClient::class, function () {
             return new DGraphClient(
                 config('opendialog.core.DGRAPH_URL'),

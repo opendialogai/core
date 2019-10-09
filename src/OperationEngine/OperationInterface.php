@@ -15,4 +15,6 @@ interface OperationInterface
     public function setParameters($parameters): OperationInterface;
 
     public static function getAllowedParameters(): array;
+
+    public static function getName(): string;
 }

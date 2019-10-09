@@ -2,10 +2,8 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
+use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
-use OpenDialogAi\ResponseEngine\Message\MessageFormatterInterface;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
-use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
 
 /**

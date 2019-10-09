@@ -1,9 +1,7 @@
 <?php
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
-;
 
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -23,6 +21,7 @@ use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConditionTest extends TestCase
 {
+    /** @var OperationServiceInterface */
     private $operationService;
 
     protected function setUp() :void
@@ -36,16 +35,16 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => true ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(EquivalenceOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(EquivalenceOperation::$name, $attributes, $parameters);
 
-        $this->assertTrue($condition->getEvaluationOperation() == EquivalenceOperation::NAME);
+        $this->assertTrue($condition->getEvaluationOperation() == EquivalenceOperation::$name);
     }
 
     public function testConditionEquivalenceComparison()
     {
         $parameters = [ 'value' => true ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(EquivalenceOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(EquivalenceOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new BooleanAttribute('A', false);
 
@@ -64,7 +63,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => 2 ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(GreaterThanOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(GreaterThanOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new IntAttribute('A', 1);
 
@@ -75,7 +74,7 @@ class ConditionTest extends TestCase
         $this->assertFalse($operation->execute());
 
         $parameters = [ 'value' => 0 ];
-        $condition = new Condition(GreaterThanOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(GreaterThanOperation::$name, $attributes, $parameters);
         $operation->setParameters($parameters);
 
         $this->assertTrue($operation->execute());
@@ -85,7 +84,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => 0 ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(LessThanOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(LessThanOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new IntAttribute('A', 1);
 
@@ -96,7 +95,7 @@ class ConditionTest extends TestCase
         $this->assertFalse($operation->execute());
 
         $parameters = [ 'value' => 2 ];
-        $condition = new Condition(LessThanOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(LessThanOperation::$name, $attributes, $parameters);
         $operation->setParameters($parameters);
 
         $this->assertTrue($operation->execute());
@@ -106,7 +105,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => 1.8 ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(GreaterThanOrEqualOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(GreaterThanOrEqualOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new FloatAttribute('A', 1.5);
 
@@ -117,7 +116,7 @@ class ConditionTest extends TestCase
         $this->assertFalse($operation->execute());
 
         $parameters = [ 'value' => 1.2 ];
-        $condition = new Condition(GreaterThanOrEqualOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(GreaterThanOrEqualOperation::$name, $attributes, $parameters);
         $operation->setParameters($parameters);
 
         $this->assertTrue($operation->execute());
@@ -127,7 +126,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => 1.2 ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(LessThanOrEqualOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(LessThanOrEqualOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new FloatAttribute('A', 1.5);
 
@@ -138,7 +137,7 @@ class ConditionTest extends TestCase
         $this->assertFalse($operation->execute());
 
         $parameters = [ 'value' => 1.8 ];
-        $condition = new Condition(LessThanOrEqualOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(LessThanOrEqualOperation::$name, $attributes, $parameters);
         $operation->setParameters($parameters);
 
         $this->assertTrue($operation->execute());
@@ -148,7 +147,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => 'baz' ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(InSetOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(InSetOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new StringAttribute('A', ['foo', 'bar']);
 
@@ -159,7 +158,7 @@ class ConditionTest extends TestCase
         $this->assertFalse($operation->execute());
 
         $parameters = [ 'value' => 'foo' ];
-        $condition = new Condition(InSetOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(InSetOperation::$name, $attributes, $parameters);
         $operation->setParameters($parameters);
 
         $this->assertTrue($operation->execute());
@@ -169,7 +168,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => 'foo' ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(NotInSetOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(NotInSetOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new StringAttribute('A', ['foo', 'bar']);
 
@@ -180,7 +179,7 @@ class ConditionTest extends TestCase
         $this->assertFalse($operation->execute());
 
         $parameters = [ 'value' => 'baz' ];
-        $condition = new Condition(NotInSetOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(NotInSetOperation::$name, $attributes, $parameters);
         $operation->setParameters($parameters);
 
         $this->assertTrue($operation->execute());
@@ -190,7 +189,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => null ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(IsSetOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(IsSetOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new StringAttribute('A', null);
 
@@ -209,7 +208,7 @@ class ConditionTest extends TestCase
     {
         $parameters = [ 'value' => null ];
         $attributes = [ 'user.name' => 'test' ];
-        $condition = new Condition(IsNotSetOperation::NAME, $attributes, $parameters);
+        $condition = new Condition(IsNotSetOperation::$name, $attributes, $parameters);
 
         $attributeToCompare = new StringAttribute('A', 'foo');
 

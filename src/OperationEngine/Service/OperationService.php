@@ -7,13 +7,12 @@ use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
 
 class OperationService implements OperationServiceInterface
 {
-    /*
+    /**
      * @var OperationInterface[]
      */
     private $availableOperations = [];
@@ -64,6 +63,9 @@ class OperationService implements OperationServiceInterface
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function registerAvailableOperations($operations): void
     {
         /** @var OperationInterface $operation */
@@ -74,6 +76,10 @@ class OperationService implements OperationServiceInterface
         }
     }
 
+    /**
+     * @param Condition $condition
+     * @return mixed
+     */
     public function checkCondition(Condition $condition)
     {
         $attributes = [];

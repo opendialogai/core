@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class IsSetOperation extends AbstractOperation
 {
-    const NAME = 'is_set';
+    static $name  = 'is_set';
 
     public function execute()
     {

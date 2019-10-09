@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class GreaterThanOrEqualOperation extends AbstractOperation
 {
-    const NAME = 'gte';
+    static $name = 'gte';
 
     public function execute()
     {

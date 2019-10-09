@@ -2,24 +2,22 @@
 
 namespace OpenDialogAi\OperationEngine;
 
+use OpenDialogAi\Core\Traits\HasName;
+
 abstract class AbstractOperation implements OperationInterface
 {
+    use HasName;
+
     protected $attributes;
 
     protected $parameters;
+
+    protected static $name = 'base';
 
     public function __construct($attributes = [], $parameters = [])
     {
         $this->attributes = $attributes;
         $this->parameters = $parameters;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getName(): string
-    {
-        return static::NAME;
     }
 
     /**

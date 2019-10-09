@@ -14,7 +14,7 @@ trait HasName
      */
     public static function getName(): string
     {
-        if (static::$name !== self::$name) {
+        if (static::$name === self::$name) {
             throw new NameNotSetException(
                 sprintf(
                     "%s has not defined a name",

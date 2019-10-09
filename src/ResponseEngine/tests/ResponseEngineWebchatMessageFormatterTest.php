@@ -4,8 +4,8 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
-use OpenDialogAi\ResponseEngine\Message\WebChatMessageFormatter;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
 {

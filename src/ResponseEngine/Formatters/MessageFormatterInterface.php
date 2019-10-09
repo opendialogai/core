@@ -1,6 +1,17 @@
 <?php
 
-namespace OpenDialogAi\ResponseEngine\Message;
+namespace OpenDialogAi\ResponseEngine\Formatters;
+
+use OpenDialogAi\Core\Exceptions\NameNotSetException;
+use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\ImageMessage;
+use OpenDialogAi\ResponseEngine\Message\ListMessage;
+use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\RichMessage;
 
 /**
  * Message formatter interface.
@@ -71,4 +82,10 @@ interface MessageFormatterInterface
     public function generateRichMessage(array $template): RichMessage;
 
     public function generateTextMessage(array $template): OpenDialogMessage;
+
+    /**
+     * @return string
+     * @throws NameNotSetException
+     */
+    public static function getName(): string;
 }

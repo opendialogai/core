@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class LessThanOrEqualOperation extends AbstractOperation
 {
-    const NAME = 'lte';
+    static $name  = 'lte';
 
     public function execute()
     {
