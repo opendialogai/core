@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class TimePassedGreaterThanOperation extends AbstractOperation
 {
-    const NAME = 'time_passed_greater_than';
+    static $name = 'time_passed_greater_than';
 
     public function execute()
     {

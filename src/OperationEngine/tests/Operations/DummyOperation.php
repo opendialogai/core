@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class DummyOperation extends AbstractOperation
 {
-    const NAME = 'dummy';
+    static $name = 'dummy';
 
     public function execute()
     {

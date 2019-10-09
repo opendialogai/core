@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class InSetOperation extends AbstractOperation
 {
-    const NAME = 'in_set';
+    static $name  = 'in_set';
 
     public function execute()
     {

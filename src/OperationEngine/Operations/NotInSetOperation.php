@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class NotInSetOperation extends AbstractOperation
 {
-    const NAME = 'not_in_set';
+    static $name  = 'not_in_set';
 
     public function execute()
     {

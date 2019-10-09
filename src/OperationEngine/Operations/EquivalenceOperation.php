@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\AbstractOperation;
 
 class EquivalenceOperation extends AbstractOperation
 {
-    const NAME = 'eq';
+    static $name = 'eq';
 
     public function execute()
     {

@@ -16,7 +16,9 @@ use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
-    /** @var string $requestId */
+    /**
+     * @var string $requestId
+     */
     private $requestId;
 
     public function boot()
@@ -52,10 +54,6 @@ class CoreServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/opendialog.php', 'opendialog.core');
-
-        $this->app->singleton(OpenDialogController::class, function () {
-            return new OpenDialogController();
-        });
 
         $this->app->singleton(DGraphClient::class, function () {
             return new DGraphClient(

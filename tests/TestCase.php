@@ -281,7 +281,7 @@ EOT;
             [
             get_class($interpreter),
             get_class($defaultInterpreter)
-        ]
+            ]
         );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
