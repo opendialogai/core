@@ -7,9 +7,10 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 
 class ConversationLogService
 {
@@ -93,7 +94,7 @@ class ConversationLogService
         } catch (AttributeDoesNotExistException $e) {
         }
 
-        /** @var Message $message */
+        /** @var OpenDialogMessage $message */
         foreach ($messageWrapper->getMessages() as $message) {
             $messageData = $message->getMessageToPost();
             if ($messageData) {

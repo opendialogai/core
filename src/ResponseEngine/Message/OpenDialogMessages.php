@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\ResponseEngine\Message;
 
 interface OpenDialogMessages
@@ -16,7 +14,7 @@ interface OpenDialogMessages
     /**
      * Returns the message objects
      *
-     * @return array
+     * @return OpenDialogMessage[]
      */
     public function getMessages(): array;
 

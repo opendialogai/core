@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OpenDialogAi\Core\Traits;
 
 use OpenDialogAi\Core\Exceptions\NameNotSetException;

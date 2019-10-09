@@ -16,9 +16,7 @@ class WebChatMessages implements OpenDialogMessages
     }
 
     /**
-     * Adds a message object.
-     *
-     * @param OpenDialogMessage $message - a message to add.
+     * @inheritDoc
      */
     public function addMessage(OpenDialogMessage $message): void
     {
@@ -26,9 +24,7 @@ class WebChatMessages implements OpenDialogMessages
     }
 
     /**
-     * Return the message objects.
-     *
-     * @return OpenDialogMessage|array $messages
+     * @return WebchatMessage[]
      */
     public function getMessages(): array
     {
@@ -36,9 +32,7 @@ class WebChatMessages implements OpenDialogMessages
     }
 
     /**
-     * Get the messages to post.
-     *
-     * @return array $messagesToPost
+     * @inheritDoc
      */
     public function getMessageToPost(): array
     {
