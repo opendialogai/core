@@ -2,13 +2,16 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\OperationEngine\AbstractOperation;
+use OpenDialogAi\OperationEngine\BaseOperation;
 
-class TimePassedGreaterThanOperation extends AbstractOperation
+class TimePassedGreaterThanOperation extends BaseOperation
 {
     static $name = 'time_passed_greater_than';
 
-    public function execute()
+    /**
+     * @inheritDoc
+     */
+    public function execute(): bool
     {
         $attribute = reset($this->attributes);
 
@@ -24,6 +27,9 @@ class TimePassedGreaterThanOperation extends AbstractOperation
         return false;
     }
 
+    /**
+     * @inheritDoc
+     */
     public static function getAllowedParameters(): array
     {
         return [

@@ -2,19 +2,25 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\OperationEngine\AbstractOperation;
+use OpenDialogAi\OperationEngine\BaseOperation;
 
-class NotInSetOperation extends AbstractOperation
+class NotInSetOperation extends BaseOperation
 {
     static $name  = 'not_in_set';
 
-    public function execute()
+    /**
+     * @inheritDoc
+     */
+    public function execute(): bool
     {
         $attribute = reset($this->attributes);
 
         return !in_array($this->parameters['value'], $attribute->getValue());
     }
 
+    /**
+     * @inheritDoc
+     */
     public static function getAllowedParameters(): array
     {
         return [

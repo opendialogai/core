@@ -2,13 +2,16 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\OperationEngine\AbstractOperation;
+use OpenDialogAi\OperationEngine\BaseOperation;
 
-class LessThanOperation extends AbstractOperation
+class LessThanOperation extends BaseOperation
 {
     static $name  = 'lt';
 
-    public function execute()
+    /**
+     * @inheritDoc
+     */
+    public function execute(): bool
     {
         $attribute = reset($this->attributes);
 
@@ -18,6 +21,9 @@ class LessThanOperation extends AbstractOperation
         return false;
     }
 
+    /**
+     * @inheritDoc
+     */
     public static function getAllowedParameters(): array
     {
         return [

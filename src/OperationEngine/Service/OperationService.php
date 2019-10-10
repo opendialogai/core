@@ -21,7 +21,7 @@ class OperationService implements OperationServiceInterface
     private $attributeResolver;
 
     /**
-     * @param AttributeResolver $attributeResolver
+     * @inheritDoc
      */
     public function setAttributeResolver(AttributeResolver $attributeResolver): void
     {
@@ -77,8 +77,7 @@ class OperationService implements OperationServiceInterface
     }
 
     /**
-     * @param Condition $condition
-     * @return mixed
+     * @inheritDoc
      */
     public function checkCondition(Condition $condition)
     {

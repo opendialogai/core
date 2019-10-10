@@ -2,14 +2,21 @@
 
 namespace OpenDialogAi\OperationEngine;
 
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Traits\HasName;
 
-abstract class AbstractOperation implements OperationInterface
+abstract class BaseOperation implements OperationInterface
 {
     use HasName;
 
+    /**
+     * @var AttributeInterface[]
+     */
     protected $attributes;
 
+    /**
+     * @var array
+     */
     protected $parameters;
 
     protected static $name = 'base';
@@ -23,7 +30,7 @@ abstract class AbstractOperation implements OperationInterface
     /**
      * @inheritdoc
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
@@ -40,7 +47,7 @@ abstract class AbstractOperation implements OperationInterface
     /**
      * @inheritdoc
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         return $this->parameters;
     }
