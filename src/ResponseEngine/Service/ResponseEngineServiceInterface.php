@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\ResponseEngine\Service;
 
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
+use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -41,9 +43,51 @@ interface ResponseEngineServiceInterface
      */
     public function registerAvailableFormatters(): void;
 
+    /**
+     * Registers a single formatter if one with the same name isn't already set
+     *
+     * @param MessageFormatterInterface $formatter
+     * @param bool $force If true, will force setting the formatter, even if one with the same name is already registered
+     */
+    public function registerFormatter(MessageFormatterInterface $formatter, $force = false): void;
+
+    /**
+     * Returns all available formatters
+     *
+     * @return MessageFormatterInterface[]
+     */
     public function getAvailableFormatters(): array;
 
+    /**
+     * Returns the given formatter by name if it is available
+     *
+     * @param string $formatterName
+     * @return MessageFormatterInterface
+     */
     public function getFormatter(string $formatterName): MessageFormatterInterface;
 
+    /**
+     * Checks whether the given formatter is registered and available
+     *
+     * @param string $formatterName
+     * @return bool
+     */
     public function isFormatterAvailable(string $formatterName): bool;
+
+    /**
+     * Builds an error message for the given platform
+     *
+     * @param string $platform
+     * @param string $message
+     * @throws FormatterNotRegisteredException
+     * @return OpenDialogMessages
+     */
+    public function buildTextFormatterErrorMessage(string $platform, string $message) : OpenDialogMessages;
+
+    /**
+     * Sets the operation service to use the response engine
+     *
+     * @param OperationServiceInterface $operationService
+     */
+    public function setOperationService(OperationServiceInterface $operationService): void;
 }

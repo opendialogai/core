@@ -2,8 +2,7 @@
 
 namespace OpenDialogAi\Core\ResponseEngine\tests\Formatters;
 
-use OpenDialogAi\Core\Traits\HasName;
-use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
+use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
@@ -14,11 +13,9 @@ use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\RichMessage;
 
-class DummyFormatter implements MessageFormatterInterface
+class TestFormatter2 extends BaseMessageFormatter
 {
-    use HasName;
-
-    static $name = 'badly_formed';
+    static $name = 'formatter.test.test';
 
     public function getMessages(string $markup): OpenDialogMessages
     {

@@ -2,17 +2,22 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\OperationEngine\AbstractOperation;
+use OpenDialogAi\OperationEngine\BaseOperation;
 
-class TimePassedLessThanOperation extends AbstractOperation
+class TimePassedLessThanOperation extends BaseOperation
 {
     static $name = 'time_passed_less_than';
 
-    public function execute()
+    /**
+     * @inheritDoc
+     */
+    public function execute(): bool
     {
         $attribute = reset($this->attributes);
 
-        if ($attribute->getValue() === null) {
+        // We are checking for type since the default behaviour is to return an empty string if an attribute
+        // is not set, which would allow this operation to proceed.
+        if (($attribute->getValue() === null) || !is_int($attribute->getValue())) {
             return false;
         }
 
@@ -22,6 +27,9 @@ class TimePassedLessThanOperation extends AbstractOperation
         return false;
     }
 
+    /**
+     * @inheritDoc
+     */
     public static function getAllowedParameters(): array
     {
         return [

@@ -2,13 +2,13 @@
 
 namespace OpenDialogAi\OperationEngine\tests\Operations;
 
-use OpenDialogAi\OperationEngine\AbstractOperation;
+use OpenDialogAi\OperationEngine\BaseOperation;
 
-class DummyOperation extends AbstractOperation
+class DummyOperation extends BaseOperation
 {
     static $name = 'dummy';
 
-    public function execute()
+    public function execute(): bool
     {
     }
 
