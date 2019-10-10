@@ -16,7 +16,12 @@ class ResponseEngineServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app->bind(ResponseEngineServiceInterface::class, function () {
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/opendialog-responseengine.php',
+            'opendialog.response_engine'
+        );
+
+        $this->app->singleton(ResponseEngineServiceInterface::class, function () {
             $service = new ResponseEngineService();
 
             $operationService = $this->app->make(OperationServiceInterface::class);

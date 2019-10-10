@@ -41,4 +41,3 @@ class MessageMarkUpGeneratorTest extends TestCase
         $this->assertRegexp('/<open-new-tab>true<\/open-new-tab>/', $markUp);
     }
 }
-

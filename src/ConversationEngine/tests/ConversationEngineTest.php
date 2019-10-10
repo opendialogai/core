@@ -10,9 +10,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
@@ -76,13 +74,13 @@ class ConversationEngineTest extends TestCase
         /* @var Condition $condition */
         foreach ($conditions as $condition) {
             if ($condition->getId() === 'user.name-is_set-') {
-                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::NAME);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::NAME);
+                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::$name);
             }
 
             if ($condition->getId() === 'user.test-gt-10') {
-                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::NAME);
-                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::NAME);
+                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::$name);
             }
         }
     }

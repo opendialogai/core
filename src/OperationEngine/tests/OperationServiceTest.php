@@ -5,7 +5,6 @@ namespace OpenDialogAi\Core\OperationEngine\OperationEngine\tests;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\OperationEngine\OperationInterface;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
-use OpenDialogAi\OperationEngine\tests\Operations\DummyOperation;
 
 class OperationServiceTest extends TestCase
 {
@@ -32,12 +31,6 @@ class OperationServiceTest extends TestCase
         $operationService = $this->getBoundOperationService();
 
         $this->assertEquals($operationName, $operationService->getOperation($operationName)::getName());
-    }
-
-    public function testRealOperation()
-    {
-        $this->registerOperation(new DummyOperation());
-        $service = $this->getBoundOperationService();
     }
 
     private function registerOperation($mockOperation): void

@@ -3,6 +3,7 @@
 namespace OpenDialogAi\OperationEngine\Service;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\OperationEngine\OperationInterface;
 
 interface OperationServiceInterface
@@ -34,4 +35,15 @@ interface OperationServiceInterface
      * @param AttributeResolver $attributeResolver
      */
     public function setAttributeResolver(AttributeResolver $attributeResolver);
+
+    /**
+     * @param $operations
+     */
+    public function registerAvailableOperations($operations): void;
+
+    /**
+     * @param Condition $condition
+     * @return mixed
+     */
+    public function checkCondition(Condition $condition);
 }

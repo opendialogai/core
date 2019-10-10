@@ -49,11 +49,7 @@
       "OpenDialogAi\\InterpreterEngine\\": "src/InterpreterEngine",
       "OpenDialogAi\\OperationEngine\\": "src/OperationEngine",
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
-      "OpenDialogAi\\Core\\Database\\": "database/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
+      "OpenDialogAi\\Core\\Database\\": "database/",
       "OpenDialogAi\\Core\\Tests\\": "tests/"
     }
   },
@@ -77,6 +73,7 @@
     }
   },
   "scripts": {
-    "test": "./vendor/bin/phpunit"
+    "test": "./vendor/bin/phpunit",
+    "cs": "./vendor/bin/phpcbf --standard=PSR12 --report=full src/"
   }
 }

@@ -2,19 +2,25 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\OperationEngine\AbstractOperation;
+use OpenDialogAi\OperationEngine\BaseOperation;
 
-class IsSetOperation extends AbstractOperation
+class IsSetOperation extends BaseOperation
 {
-    const NAME = 'is_set';
+    static $name  = 'is_set';
 
-    public function execute()
+    /**
+     * @inheritDoc
+     */
+    public function execute(): bool
     {
         $attribute = reset($this->attributes);
 
         return $attribute->getValue() !== null && $attribute->getValue() !== '';
     }
 
+    /**
+     * @inheritDoc
+     */
     public static function getAllowedParameters(): array
     {
         return [];

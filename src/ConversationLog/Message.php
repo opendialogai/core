@@ -18,9 +18,10 @@ use Illuminate\Support\Str;
  * @property string $message_id
  * @property string $type
  * @property string $data
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string $user
+ * @property int microtime
  */
 class Message extends Model
 {
@@ -126,7 +127,7 @@ class Message extends Model
 
     public function happenedLessThan(int $seconds)
     {
-        $lastValidTime = Carbon::createFromTimeString($this->microtime)->addSecond($seconds);
+        $lastValidTime = Carbon::createFromTimeString($this->microtime)->addSeconds($seconds);
 
         if ($lastValidTime->greaterThan(new Carbon())) {
             return true;

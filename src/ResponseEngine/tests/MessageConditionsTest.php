@@ -55,7 +55,7 @@ class MessageConditionsTest extends TestCase
 
         // Should throw No Matching Message Exception
         $this->expectException(NoMatchingMessagesException::class);
-        $this->responseEngineService->getMessageForIntent('test');
+        $this->responseEngineService->getMessageForIntent('webchat', 'test');
     }
 
     public function testFinalFailingCondition()
@@ -76,7 +76,7 @@ class MessageConditionsTest extends TestCase
 
         // Should throw No Matching Message Exception
         $this->expectException(NoMatchingMessagesException::class);
-        $this->responseEngineService->getMessageForIntent('test');
+        $this->responseEngineService->getMessageForIntent('webchat', 'test');
     }
 
     public function testOnlyFailingCondition()
@@ -96,6 +96,6 @@ class MessageConditionsTest extends TestCase
 
         // Should throw No Matching Message Exception
         $this->expectException(NoMatchingMessagesException::class);
-        $this->responseEngineService->getMessageForIntent('test');
+        $this->responseEngineService->getMessageForIntent('webchat', 'test');
     }
 }
