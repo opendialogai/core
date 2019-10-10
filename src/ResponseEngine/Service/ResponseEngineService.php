@@ -22,7 +22,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     protected $operationService;
 
     /** @var string A regex pattern for a valid formatter name */
-    private $validNamePattern = "/^formatter\.core.[a-z_]*$/";
+    private $validNamePattern = "/^formatter\.[a-z_]*.[a-z_]*$/";
 
     /**
      * A place to store a cache of available formatters
