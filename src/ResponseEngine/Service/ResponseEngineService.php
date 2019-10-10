@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use Monolog\Formatter\FormatterInterface;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -26,17 +25,12 @@ class ResponseEngineService implements ResponseEngineServiceInterface
 
     /**
      * A place to store a cache of available formatters
-     * @var []
+     * @var MessageFormatterInterface[]
      */
     private $availableFormatters = [];
 
     /**
      * @inheritdoc
-     *
-     * @param string $platform
-     * @param string $intentName
-     * @throws NoMatchingMessagesException
-     * @return OpenDialogMessages
      */
     public function getMessageForIntent(string $platform, string $intentName): OpenDialogMessages
     {
@@ -60,7 +54,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
 
         // Get the message with the most conditions matched.
         $selectedMessageConditionsNumber = -1;
-        $selectedMessageTemplate = $this->getCorrectMessage($messageTemplates, $selectedMessageConditionsNumber);
+        $selectedMessageTemplate = $this->selectMessageFromConditions($messageTemplates, $selectedMessageConditionsNumber);
 
         if (is_null($selectedMessageTemplate)) {
             $message = sprintf("No messages with passing conditions found for intent %s", $intentName);
@@ -72,25 +66,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
 
         return $messages;
-    }
-
-    public function getCorrectMessage($messageTemplates, int $selectedMessageConditionsNumber)
-    {
-        $selectedMessageTemplate = null;
-
-        /** @var MessageTemplate[] $messageTemplates */
-        foreach ($messageTemplates as $messageTemplate) {
-            if ($this->messageMeetsConditions($messageTemplate)) {
-                $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
-
-                if ($messageConditionsNumber > $selectedMessageConditionsNumber) {
-                    $selectedMessageTemplate = $messageTemplate;
-                    $selectedMessageConditionsNumber = $messageConditionsNumber;
-                }
-            }
-        }
-
-        return $selectedMessageTemplate;
     }
 
     /**
@@ -121,7 +96,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
-     * @param OperationServiceInterface $operationService
+     * @inheritDoc
      */
     public function setOperationService(OperationServiceInterface $operationService): void
     {
@@ -129,43 +104,11 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
-     * Checks whether a message's conditions are met. Returns true if there are no conditions, or if all conditions on
-     * the message template are met
-     *
-     * @param $messageTemplate
-     * @return mixed
-     */
-    protected function messageMeetsConditions(MessageTemplate $messageTemplate): bool
-    {
-        foreach ($messageTemplate->getConditions() as $condition) {
-            if (!$this->operationService->checkCondition($condition)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Escapes the ampersand character (& => &amp;)
-     *
-     * @param $replacement
-     * @return string
-     */
-    private function escapeCharacters($replacement): string
-    {
-        $replacement = str_replace('&', '&amp;', $replacement);
-
-        return $replacement;
-    }
-
-    /**
-     * Loops through all available formatters from config, and creates a local array keyed by the name of the
-     * formatter
+     * @inheritDoc
      */
     public function registerAvailableFormatters(): void
     {
-        /** @var FormatterInterface $formatter */
+        /** @var MessageFormatterInterface $formatter */
         foreach ($this->getAvailableFormatterConfig() as $formatter) {
             try {
                 $name = $formatter::getName();
@@ -185,6 +128,9 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getAvailableFormatters(): array
     {
         Log::debug('Getting available formatters');
@@ -196,8 +142,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
-     * @param string $formatterName
-     * @return MessageFormatterInterface
+     * @inheritDoc
      */
     public function getFormatter(string $formatterName): MessageFormatterInterface
     {
@@ -225,12 +170,83 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function buildTextFormatterErrorMessage(string $platform, string $message): OpenDialogMessages
+    {
+        try {
+            $formatter = $this->getFormatter("formatter.core.{$platform}");
+        } catch (FormatterNotRegisteredException $e) {
+            throw new FormatterNotRegisteredException("Formatter with name $platform is not available");
+        }
+
+        return $formatter->getMessages(sprintf('<message><text-message>%s</text-message></message>', $message));
+    }
+
+    /**
+     * Checks the conditions on all message templates, and selects the one with the most passing conditions.
+     *
+     * @param $messageTemplates
+     * @param int $selectedMessageConditionsNumber
+     * @return MessageTemplate|null
+     */
+    private function selectMessageFromConditions($messageTemplates, int $selectedMessageConditionsNumber)
+    {
+        $selectedMessageTemplate = null;
+
+        /** @var MessageTemplate[] $messageTemplates */
+        foreach ($messageTemplates as $messageTemplate) {
+            if ($this->messageMeetsConditions($messageTemplate)) {
+                $messageConditionsNumber = $messageTemplate->getNumberOfConditions();
+
+                if ($messageConditionsNumber > $selectedMessageConditionsNumber) {
+                    $selectedMessageTemplate = $messageTemplate;
+                    $selectedMessageConditionsNumber = $messageConditionsNumber;
+                }
+            }
+        }
+
+        return $selectedMessageTemplate;
+    }
+
+    /**
+     * Checks whether a message's conditions are met. Returns true if there are no conditions, or if all conditions on
+     * the message template are met
+     *
+     * @param $messageTemplate
+     * @return mixed
+     */
+    private function messageMeetsConditions(MessageTemplate $messageTemplate): bool
+    {
+        foreach ($messageTemplate->getConditions() as $condition) {
+            if (!$this->operationService->checkCondition($condition)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Escapes the ampersand character (& => &amp;)
+     *
+     * @param $replacement
+     * @return string
+     */
+    private function escapeCharacters($replacement): string
+    {
+        $replacement = str_replace('&', '&amp;', $replacement);
+
+        return $replacement;
+    }
+
+    /**
      * Checks if the name of the formatter is in the right format
      *
      * @param string $name
      * @return bool
      */
-    private function isValidName(string $name) : bool
+    private function isValidName(string $name): bool
     {
         return preg_match($this->validNamePattern, $name) === 1;
     }
@@ -243,22 +259,5 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     private function getAvailableFormatterConfig()
     {
         return config('opendialog.response_engine.available_formatters');
-    }
-
-    /**
-     * @param string $platform
-     * @param string $message
-     * @throws FormatterNotRegisteredException
-     * @return OpenDialogMessages
-     */
-    public function buildTextFormatterErrorMessage(string $platform, string $message)
-    {
-        try {
-            $formatter = $this->getFormatter("formatter.core.{$platform}");
-        } catch (FormatterNotRegisteredException $e) {
-            throw new FormatterNotRegisteredException("Formatter with name $platform is not available");
-        }
-
-        return $formatter->getMessages(sprintf('<message><text-message>%s</text-message></message>', $message));
     }
 }
