@@ -446,7 +446,7 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
-        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+        MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
         $userContext = $this->createUserContext();
@@ -500,7 +500,7 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
-        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+        MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
         $userContext = $this->createUserContext();
@@ -508,7 +508,7 @@ class ResponseEngineTest extends TestCase
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+        $responseEngineService->getMessageForIntent('webchat', 'Hello');
     }
 
     public function testStringAttributeNotPresent()
@@ -529,14 +529,14 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
-        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+        MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $this->createUserContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+        $responseEngineService->getMessageForIntent('webchat', 'Hello');
     }
 
     public function testGreaterThanOperator()
@@ -558,7 +558,7 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
-        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+        MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
         $userContext = $this->createUserContext();
@@ -587,14 +587,14 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
-        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+        MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $this->createUserContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+        $responseEngineService->getMessageForIntent('webchat', 'Hello');
     }
 
     public function testLessThanOperator()
@@ -616,10 +616,10 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
-        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+        MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $this->createUserContext();
         ;
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -648,14 +648,14 @@ class ResponseEngineTest extends TestCase
             'conditions' => $conditions->getYaml(),
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
-        $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
+        MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $this->createUserContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
-        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+        $responseEngineService->getMessageForIntent('webchat', 'Hello');
     }
 
     /**

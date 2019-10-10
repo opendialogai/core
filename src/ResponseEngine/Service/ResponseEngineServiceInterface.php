@@ -44,6 +44,14 @@ interface ResponseEngineServiceInterface
     public function registerAvailableFormatters(): void;
 
     /**
+     * Registers a single formatter if one with the same name isn't already set
+     *
+     * @param MessageFormatterInterface $formatter
+     * @param bool $force If true, will force setting the formatter, even if one with the same name is already registered
+     */
+    public function registerFormatter(MessageFormatterInterface $formatter, $force = false): void;
+
+    /**
      * Returns all available formatters
      *
      * @return MessageFormatterInterface[]

@@ -110,21 +110,26 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     {
         /** @var MessageFormatterInterface $formatter */
         foreach ($this->getAvailableFormatterConfig() as $formatter) {
-            try {
-                $name = $formatter::getName();
+            $this->registerSingleFormatter($formatter);
+        }
+    }
 
-                if ($this->isValidName($name)) {
-                    $this->availableFormatters[$name] = new $formatter($this);
-                } else {
-                    Log::warning(
-                        sprintf("Not adding formatter with name %s. Name is in wrong format", $name)
-                    );
-                }
-            } catch (NameNotSetException $e) {
-                Log::warning(
-                    sprintf("Not adding formatter %s. It has not defined a name", $formatter)
-                );
+    /**
+     * @inheritDoc
+     */
+    public function registerFormatter(MessageFormatterInterface $formatter, $force = false): void
+    {
+        try {
+            if ($force || !isset($this->getAvailableFormatters()[$formatter::getName()])) {
+                $this->registerSingleFormatter(get_class($formatter));
             }
+        } catch (NameNotSetException $e) {
+            Log::warning(
+                sprintf(
+                    'Not adding formatter %s - it does not have a name',
+                    get_class($formatter)
+                )
+            );
         }
     }
 
@@ -259,5 +264,29 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     private function getAvailableFormatterConfig()
     {
         return config('opendialog.response_engine.available_formatters');
+    }
+
+    /**
+     * Registers the given formatter if it has a name that is valid
+     *
+     * @param string $formatter Fully qualified class name of the formatter to add
+     */
+    private function registerSingleFormatter(string $formatter): void
+    {
+        try {
+            $name = $formatter::getName();
+
+            if ($this->isValidName($name)) {
+                $this->availableFormatters[$name] = new $formatter($this);
+            } else {
+                Log::warning(
+                    sprintf("Not adding formatter with name %s. Name is in wrong format", $name)
+                );
+            }
+        } catch (NameNotSetException $e) {
+            Log::warning(
+                sprintf("Not adding formatter %s. It has not defined a name", $formatter)
+            );
+        }
     }
 }

@@ -10,7 +10,7 @@ class ConditionsYamlGenerator
     private $conditions = [];
 
     /**
-     * @param String  $attributes
+     * @param array  $attributes
      * @param Mixed  $parameters
      * @param String  $operation
      * @return ConditionsYamlGenerator
