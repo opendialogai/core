@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;

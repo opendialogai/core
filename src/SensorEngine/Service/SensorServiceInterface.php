@@ -25,6 +25,11 @@ interface SensorServiceInterface
     public function isSensorAvailable(string $sensorName) : bool;
 
     /**
+     * Registers sensors and stores them ready for use
+     */
+    public function registerAvailableSensors() : void;
+
+    /**
      * Gets the registered sensor by name if it is registered
      * Should be in the format sensor.{namespace}.{name}
      *
@@ -32,4 +37,12 @@ interface SensorServiceInterface
      * @return SensorInterface
      */
     public function getSensor($sensorName) : SensorInterface;
+
+    /**
+     * Register a single sensor
+     *
+     * @param SensorInterface $sensor
+     * @param $force
+     */
+    public function registerSensor(SensorInterface $sensor, $force = false): void;
 }

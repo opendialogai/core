@@ -3,80 +3,72 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\Condition\ConditionInterface;
-use OpenDialogAi\Core\Attribute\Condition\ConditionTrait;
+use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
- * @see ConditionInterface
+ * A condition is the combination of attributes, parameters and an evaluation operation.
  */
-class Condition extends Node implements ConditionInterface
+class Condition extends Node
 {
-    use ConditionTrait;
+    // The evaluation operation.
+    private $evaluationOperation;
 
-    /* @var AttributeInterface $attributeToCompareAgainst */
-    private $attributeToCompareAgainst;
-
-    public function __construct(AttributeInterface $attributeToCompareAgainst, $evaluationOperation, $id = null)
+    /**
+     * Attributes and parameters are expected to be passed as arrays, which are then serialised and
+     * stored appropriately as an ArrayAttribute.
+     * @param $evaluationOperation
+     * @param $attributes
+     * @param array $parameters
+     * @param null $id
+     */
+    public function __construct($evaluationOperation, $attributes, $parameters = [], $id = null)
     {
         parent::__construct($id);
         $this->attributes = new Map();
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONDITION));
-        $this->addAttribute(new StringAttribute(Model::ATTRIBUTE_NAME, $attributeToCompareAgainst->getId()));
-        $this->addAttribute(new StringAttribute(Model::ATTRIBUTE_VALUE, $attributeToCompareAgainst->getValue()));
         $this->addAttribute(new StringAttribute(Model::OPERATION, $evaluationOperation));
+        $this->addAttribute(new ArrayAttribute(Model::ATTRIBUTES, $attributes));
+        $this->addAttribute(new ArrayAttribute(Model::PARAMETERS, $parameters));
 
-        $this->attributeToCompareAgainst = $attributeToCompareAgainst;
-        $this->addAttribute($attributeToCompareAgainst);
         $this->evaluationOperation = $evaluationOperation;
     }
 
     /**
-     * @return AttributeInterface
-     */
-    public function getAttributeToCompareAgainst(): AttributeInterface
-    {
-        return $this->attributeToCompareAgainst;
-    }
-
-
-    /**
-     * @param string $contextId
-     */
-    public function setContextId(string $contextId)
-    {
-        $this->addAttribute(new StringAttribute(Model::CONTEXT, $contextId));
-    }
-
-    /**
-     * Gets the context id part of the condition
-     *
      * @return string
      */
-    public function getContextId() : string
+    public function getEvaluationOperation()
     {
-        return $this->getAttribute(Model::CONTEXT)->getValue();
+        return $this->evaluationOperation;
     }
 
     /**
-     * Gets the attribute name part of the condition
-     *
-     * @return string
+     * @param string $evaluationOperation
      */
-    public function getAttributeName(): string
+    public function setEvaluationOperation(string $evaluationOperation)
     {
-        return $this->getAttribute(Model::ATTRIBUTE_NAME)->getValue();
+        $this->evaluationOperation = $evaluationOperation;
     }
 
     /**
-     * @param AttributeInterface $attribute
-     * @return bool
+     * @return array
      */
-    public function compareAgainst(AttributeInterface $attribute)
+    public function getOperationAttributes()
     {
-        $conditionAttribute = $this->getAttribute($attribute->getId());
-        return $attribute->compare($conditionAttribute, $this->evaluationOperation);
+        $attributes = $this->getAttribute(Model::ATTRIBUTES)->getValue();
+
+        return (array) $attributes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters()
+    {
+        $parameters = $this->getAttribute(Model::PARAMETERS)->getValue();
+
+        return (array) $parameters;
     }
 }

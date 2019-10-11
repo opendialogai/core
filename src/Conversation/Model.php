@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Conversation;
 
 /**
@@ -61,9 +60,9 @@ class Model
     const COMPLETES = 'core.attribute.completes';
     const CONFIDENCE = 'core.attribute.confidence';
     const CONTEXT = 'context';
+    const ATTRIBUTES = 'attributes';
     const OPERATION = 'operation';
-    const ATTRIBUTE_NAME = 'attribute_name';
-    const ATTRIBUTE_VALUE = 'attribute_value';
+    const PARAMETERS = 'parameters';
 
     const TRANSITIONS_TO = 'transitions_to';
     const TRANSITIONS_FROM = 'transitions_from';

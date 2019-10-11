@@ -3,8 +3,6 @@
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -13,8 +11,9 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 
 class ConversationTest extends TestCase
 {
@@ -40,14 +39,16 @@ class ConversationTest extends TestCase
         $cm = new ConversationManager(self::CONVERSATION, Conversation::SAVED, 0);
 
         $condition1 = new Condition(
-            new BooleanAttribute(self::REGISTERED_USER_STATUS, true),
-            AbstractAttribute::EQUIVALENCE,
+            EquivalenceOperation::$name,
+            [ self::REGISTERED_USER_STATUS ],
+            [ 'value' => true ],
             self::CONDITION1
         );
 
         $condition2 = new Condition(
-            new IntAttribute(self::TIME_SINCE_LAST_COMMENT, 10000),
-            AbstractAttribute::GREATER_THAN_OR_EQUAL,
+            GreaterThanOrEqualOperation::$name,
+            [ self::TIME_SINCE_LAST_COMMENT ],
+            [ 'value' => 10000 ],
             self::CONDITION2
         );
 

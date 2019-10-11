@@ -200,10 +200,10 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
         return [
             Model::UID,
             Model::ID,
-            Model::ATTRIBUTE_NAME,
-            Model::ATTRIBUTE_VALUE,
             Model::CONTEXT,
-            Model::OPERATION
+            Model::OPERATION,
+            Model::ATTRIBUTES,
+            Model::PARAMETERS
         ];
     }
 

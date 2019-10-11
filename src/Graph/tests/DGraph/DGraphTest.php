@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;

@@ -79,14 +79,14 @@ class EIModelConversationConverterTest extends TestCase
         $firstCondition = $conditions->get('user.name-is_not_set-');
         $this->assertEquals('user.name-is_not_set-', $firstCondition->getId());
         $this->assertEquals('is_not_set', $firstCondition->getAttribute(Model::OPERATION)->getValue());
-        $this->assertNull($firstCondition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
+        $this->assertEmpty($firstCondition->getAttribute(Model::PARAMETERS)->getValue());
 
         /* @var Condition $secondCondition */
         $secondCondition = $conditions->get('user.test-gt-10');
         $this->assertEquals('user.test-gt-10', $secondCondition->getId());
         $this->assertEquals('gt', $secondCondition->getAttribute(Model::OPERATION)->getValue());
-        $this->assertNotNull($secondCondition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
-        $this->assertEquals(10, $secondCondition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
+        $this->assertNotNull($secondCondition->getAttribute(Model::PARAMETERS)->getValue());
+        $this->assertEquals(10, $secondCondition->getAttribute(Model::PARAMETERS)->getValue()->value);
 
         // Opening scene
         $openingScenes = $conversation->getOpeningScenes();

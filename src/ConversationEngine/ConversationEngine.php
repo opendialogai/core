@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use Ds\Map;
-use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
@@ -11,7 +10,6 @@ use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
@@ -26,6 +24,7 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConversationEngine implements ConversationEngineInterface
 {
@@ -36,6 +35,9 @@ class ConversationEngine implements ConversationEngineInterface
 
     /* @var InterpreterServiceInterface */
     private $interpreterService;
+
+    /* @var OperationServiceInterface */
+    private $operationService;
 
     /* @var ActionEngineInterface */
     private $actionEngine;
@@ -62,6 +64,14 @@ class ConversationEngine implements ConversationEngineInterface
     public function setInterpreterService(InterpreterServiceInterface $interpreterService): void
     {
         $this->interpreterService = $interpreterService;
+    }
+
+    /**
+     * @param OperationServiceInterface $operationService
+     */
+    public function setOperationService(OperationServiceInterface $operationService): void
+    {
+        $this->operationService = $operationService;
     }
 
     /**
@@ -352,21 +362,10 @@ class ConversationEngine implements ConversationEngineInterface
 
                 /* @var EIModelCondition $condition */
                 foreach ($conditions as $conditionModel) {
-                    $attributeName = $conditionModel->getAttributeName();
-
-                    try {
-                        $actualAttribute = ContextService::getAttribute($attributeName, $conditionModel->getContextId());
-                    } catch (Exception $e) {
-                        Log::debug($e->getMessage());
-                        // If the attribute does not exist create one with a null value since we may be testing
-                        // for its existence.
-                        $actualAttribute = AttributeResolver::getAttributeFor($attributeName, null);
-                    }
-
                     /* @var Condition $condition */
                     $condition = $this->conversationStore->getConversationConverter()->convertCondition($conditionModel);
 
-                    if (!$condition->compareAgainst($actualAttribute)) {
+                    if (!$this->operationService->checkCondition($condition)) {
                         $pass = false;
                     }
                 }
@@ -436,8 +435,9 @@ class ConversationEngine implements ConversationEngineInterface
                 try {
                     $context = ContextService::getContext($contextId);
                 } catch (ContextDoesNotExistException $e) {
-                    // phpcs:ignore
-                    Log::error(sprintf('Expected attribute context %s does not exist, using session context', $contextId));
+                    Log::error(
+                        sprintf('Expected attribute context %s does not exist, using session context', $contextId)
+                    );
                 }
             }
 
@@ -458,8 +458,11 @@ class ConversationEngine implements ConversationEngineInterface
     private function persistContexts(array $contexts)
     {
         foreach ($contexts as $contextId) {
-            $context = ContextService::getContext($contextId);
-            $context->persist();
+            try {
+                $context = ContextService::getContext($contextId);
+                $context->persist();
+            } catch (ContextDoesNotExistException $e) {
+            }
         }
     }
 
