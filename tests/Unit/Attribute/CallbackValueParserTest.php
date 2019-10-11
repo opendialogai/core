@@ -13,7 +13,7 @@ class CallbackValueParserTest extends TestCase
 
         $parseButtonValue = CallbackValueParser::parseCallbackValue($buttonValue);
         $this->assertEquals("test", $parseButtonValue['attribute_value']);
-        $this->assertEquals(CallbackValueParser::CALLBACK_VALUE , $parseButtonValue['attribute_name']);
+        $this->assertEquals(CallbackValueParser::CALLBACK_VALUE, $parseButtonValue['attribute_name']);
 
         $buttonValue = "name.value";
         $parseButtonValue = CallbackValueParser::parseCallbackValue($buttonValue);

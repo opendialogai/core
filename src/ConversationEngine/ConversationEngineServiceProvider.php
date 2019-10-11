@@ -12,6 +12,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConversationEngineServiceProvider extends ServiceProvider
 {
@@ -44,6 +45,9 @@ class ConversationEngineServiceProvider extends ServiceProvider
 
             $interpreterService = $this->app->make(InterpreterServiceInterface::class);
             $conversationEngine->setInterpreterService($interpreterService);
+
+            $operationService = $this->app->make(OperationServiceInterface::class);
+            $conversationEngine->setOperationService($operationService);
 
             $actionEngine = $this->app->make(ActionEngineInterface::class);
             $conversationEngine->setActionEngine($actionEngine);

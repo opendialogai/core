@@ -4,8 +4,6 @@
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
 
 
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Model;
 
 class EIModelCondition extends EIModelBase
@@ -14,7 +12,8 @@ class EIModelCondition extends EIModelBase
     private $uid;
     private $context;
     private $operation;
-    private $attribute;
+    private $attributes;
+    private $parameters;
 
     /**
      * This method should indicate whether the given response is valid for this EI Model. If it isn't then the `handle`
@@ -27,8 +26,6 @@ class EIModelCondition extends EIModelBase
     {
         return key_exists(Model::ID, $response)
             && key_exists(Model::UID, $response)
-            && key_exists(Model::ATTRIBUTE_NAME, $response)
-            && key_exists(Model::CONTEXT, $response)
             && key_exists(Model::OPERATION, $response);
     }
 
@@ -40,27 +37,25 @@ class EIModelCondition extends EIModelBase
      */
     public static function handle(array $response, $additionalParameter = null): EIModel
     {
-        $attributeName = $response[Model::ATTRIBUTE_NAME];
+        $condition = new self();
+        $condition->setUid($response[Model::UID]);
+        $condition->setId($response[Model::ID]);
+        $condition->setOperation($response[Model::OPERATION]);
 
-        if (array_key_exists($attributeName, AttributeResolverFacade::getSupportedAttributes())) {
-            $attributeValue = $response[Model::ATTRIBUTE_VALUE] === ''
-                ? null
-                : $response[Model::ATTRIBUTE_VALUE];
-
-            $condition = new self();
-
-            $condition->setUid($response[Model::UID]);
-            $condition->setId($response[Model::ID]);
-            $condition->setContext($response[Model::CONTEXT]);
-            $condition->setOperation($response[Model::OPERATION]);
-
-            $attribute = AttributeResolverFacade::getAttributeFor($attributeName, $attributeValue);
-            $condition->setAttribute($attribute);
-
-            return $condition;
+        $parameters = [];
+        if (isset($response[Model::PARAMETERS])) {
+            $parameters = (array) json_decode(htmlspecialchars_decode($response[Model::PARAMETERS]));
         }
+        $condition->setParameters($parameters);
 
-        return null;
+
+        $attributes = [];
+        if (isset($response[Model::ATTRIBUTES])) {
+            $attributes = (array) json_decode(htmlspecialchars_decode($response[Model::ATTRIBUTES]));
+        }
+        $condition->setAttributes($attributes);
+
+        return $condition;
     }
 
     /**
@@ -120,19 +115,19 @@ class EIModelCondition extends EIModelBase
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getAttributeName()
+    public function getAttributes(): array
     {
-        return $this->getAttribute()->getId();
+        return $this->attributes;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getAttributeValue()
+    public function getParameters(): array
     {
-        return $this->getAttribute()->getValue();
+        return $this->parameters;
     }
 
     /**
@@ -152,18 +147,18 @@ class EIModelCondition extends EIModelBase
     }
 
     /**
-     * @return AttributeInterface|null
+     * @param array $attributes
      */
-    public function getAttribute(): ?AttributeInterface
+    public function setAttributes(array $attributes): void
     {
-        return $this->attribute;
+        $this->attributes = $attributes;
     }
 
     /**
-     * @param AttributeInterface $attribute
+     * @param array $parameters
      */
-    public function setAttribute(AttributeInterface $attribute): void
+    public function setParameters(array $parameters): void
     {
-        $this->attribute = $attribute;
+        $this->parameters = $parameters;
     }
 }

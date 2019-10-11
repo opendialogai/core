@@ -66,8 +66,12 @@ class EIModelToGraphConverter
     public function convertCondition(EIModelCondition $conditionData, bool $clone = false): Condition
     {
         if (!is_null($conditionData)) {
-            $condition = new Condition($conditionData->getAttribute(), $conditionData->getOperation(), $conditionData->getId());
-            $condition->setContextId($conditionData->getContext());
+            $condition = new Condition(
+                $conditionData->getOperation(),
+                $conditionData->getAttributes(),
+                $conditionData->getParameters(),
+                $conditionData->getId()
+            );
 
             if ($clone) {
                 $condition->setUid($conditionData->getUid());

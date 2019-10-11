@@ -3,9 +3,8 @@
 namespace OpenDialogAi\SensorEngine\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use OpenDialogAi\SensorEngine\Contracts\IncomingMessageInterface;
 
-class IncomingWebchatMessage extends FormRequest implements IncomingMessageInterface
+class IncomingWebchatMessage extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

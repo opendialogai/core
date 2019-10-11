@@ -10,9 +10,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
@@ -23,6 +21,8 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
+use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
 
 class ConversationEngineTest extends TestCase
 {
@@ -76,25 +76,14 @@ class ConversationEngineTest extends TestCase
 
         /* @var Condition $condition */
         foreach ($conditions as $condition) {
-            $attribute = $condition->getAttributeToCompareAgainst();
-            $this->assertContains($attribute->getId(), ['name', 'test']);
-
             if ($condition->getId() === 'user.name-is_set-') {
-                $this->assertInstanceOf(StringAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertNull($condition->getAttributeToCompareAgainst()->getValue());
-                $this->assertEquals('name', $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue());
-                $this->assertNull($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
-                $this->assertEquals(AbstractAttribute::IS_SET, $condition->getEvaluationOperation());
-                $this->assertEquals(AbstractAttribute::IS_SET, $condition->getAttribute(Model::OPERATION)->getValue());
+                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::$name);
             }
 
             if ($condition->getId() === 'user.test-gt-10') {
-                $this->assertInstanceOf(IntAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertEquals(10, $condition->getAttributeToCompareAgainst()->getValue());
-                $this->assertEquals(10, $condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
-                $this->assertEquals('test', $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue());
-                $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getEvaluationOperation());
-                $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getAttribute(Model::OPERATION)->getValue());
+                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::$name);
             }
         }
     }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\Tests;
 
 use OpenDialogAi\Core\Attribute\IntAttribute;

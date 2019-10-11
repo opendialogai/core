@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;
@@ -188,5 +187,4 @@ class ScenesTest extends TestCase
         $this->assertEquals($this->intent5->getId(), $possibleIntents->first()->value->getId());
         $this->assertEquals($this->intent6->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_7)->getId());
     }
-
 }
