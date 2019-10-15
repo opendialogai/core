@@ -57,4 +57,32 @@ class DGraphQueryTest extends TestCase
             $preparedQuery
         );
     }
+
+    public function testQueryWithRecurseNoDepth() {
+        $query = new DGraphQuery();
+        $query->uid("0xABCD")->recurse()->setQueryGraph([
+            Model::UID,
+            Model::UPDATE_OF
+        ]);
+
+        $preparedQuery = $query->prepare();
+        $this->assertEquals(
+            '{ dGraphQuery( func:uid(0xABCD))@recurse(loop:false){uid update_of }}',
+            $preparedQuery
+        );
+    }
+
+    public function testQueryWithRecurseWithDepth() {
+        $query = new DGraphQuery();
+        $query->uid("0xABCD")->recurse(true, 5)->setQueryGraph([
+            Model::UID,
+            Model::UPDATE_OF
+        ]);
+
+        $preparedQuery = $query->prepare();
+        $this->assertEquals(
+            '{ dGraphQuery( func:uid(0xABCD))@recurse(loop:true,depth:5){uid update_of }}',
+            $preparedQuery
+        );
+    }
 }

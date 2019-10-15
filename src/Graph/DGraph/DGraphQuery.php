@@ -15,6 +15,16 @@ class DGraphQuery extends DGraphQueryAbstract
     /** @var Set $filters */
     private $filters;
 
+    /**
+     * @var bool
+     */
+    private $recurseLoop;
+
+    /**
+     * @var int|null
+     */
+    private $recurseDepth;
+
     public function __construct()
     {
         $this->query = [];
@@ -80,6 +90,22 @@ class DGraphQuery extends DGraphQueryAbstract
     }
 
     /**
+     * @param bool $loop
+     * @param int|null $depth
+     * @return $this
+     */
+    public function recurse(bool $loop = false, int $depth = null): DGraphQueryAbstract
+    {
+        $this->recurseLoop = $loop;
+
+        if (!is_null($depth)) {
+            $this->recurseDepth = $depth;
+        }
+
+        return $this;
+    }
+
+    /**
      * @param array $graphFragment
      * @return $this
      */
@@ -129,6 +155,17 @@ class DGraphQuery extends DGraphQueryAbstract
             }
 
             $this->queryString .= ')';
+        }
+
+        if (!is_null($this->recurseLoop)) {
+            $this->queryString .= "@recurse(";
+            $this->queryString .= "loop:" . ($this->recurseLoop ? "true" : "false");
+
+            if (!is_null($this->recurseDepth)) {
+                $this->queryString .= ",depth:" . $this->recurseDepth;
+            }
+
+            $this->queryString .= ")";
         }
 
         $this->queryString .= $this->decodeQueryGraph($this->queryGraph);
