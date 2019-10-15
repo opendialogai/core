@@ -5,8 +5,6 @@ namespace OpenDialogAi\ConversationBuilder;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
@@ -14,7 +12,6 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
@@ -390,6 +387,7 @@ class Conversation extends Model
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      * @throws Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function delete(): bool
     {
@@ -406,7 +404,7 @@ class Conversation extends Model
         }
 
         try {
-            $dGraph->deleteNode($this->graph_uid);
+            $dGraph->deleteConversationAndHistory($this->graph_uid);
         } catch (Exception $e) {
             return false;
         }
@@ -477,7 +475,7 @@ class Conversation extends Model
             try {
                 $conditionObject = $this->createCondition($condition['condition']);
                 $cm->addConditionToConversation($conditionObject);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::debug(
                     sprintf(
                         'Could not create condition because: %s',

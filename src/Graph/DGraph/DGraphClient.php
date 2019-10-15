@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Conversation\Model;
 
 /**
  * Client for DGraph using REST API.
@@ -186,13 +187,21 @@ class DGraphClient
         }
     }
 
-    public function deleteNode($nodeUid)
+    /**
+     * @param $startingUid
+     * @return mixed
+     * @throws GuzzleException
+     * @throws Exception
+     */
+    public function deleteConversationAndHistory($startingUid)
     {
+        $prepared = $this->prepareDeleteHistoryStatement($startingUid);
+
         $response = $this->client->request(
             'POST',
             self::MUTATE_COMMIT_NOW,
             [
-                'body' => $this->prepareDeleteNodeStatement($nodeUid),
+                'body' => $prepared,
                 'headers' => [
                     'Content-Type' => 'application/rdf'
                 ]
@@ -201,11 +210,7 @@ class DGraphClient
 
         $response = json_decode($response->getBody(), true);
 
-        try {
-            return $this->getData($response);
-        } catch (Exception $e) {
-            return "Error processing alter {$e->getMessage()}";
-        }
+        return $this->getData($response);
     }
 
     /**
@@ -255,8 +260,56 @@ class DGraphClient
      */
     private function prepareDeleteNodeStatement($nodeUid)
     {
-        $statement = sprintf('{ delete { <%s> * * . } }', $nodeUid);
+        $statement = sprintf('{ delete { %s } }', $this->prepareDeleteNodeTriple($nodeUid));
         return $statement;
+    }
+
+    private function prepareDeleteNodeTriple(string $nodeUid): string
+    {
+        return sprintf(' <%s> * * .', $nodeUid);
+    }
+
+    /**
+     * @param string $startingUid
+     * @return string
+     */
+    private function prepareDeleteHistoryStatement(string $startingUid): string
+    {
+        // Query and get all history uids in a list
+        /** @var DGraphQuery $query */
+        $query = (new DGraphQuery())->uid($startingUid)->recurse()->setQueryGraph([
+            Model::UID,
+            Model::UPDATE_OF
+        ]);
+
+        /** @var DGraphQueryResponse $result */
+        $result = $this->query($query);
+
+        // Call prepare delete trips for each uid
+        /** @var array $uidList */
+        $uidList = array_unique($this->historyResultReducer($result->getData()[0], []));
+
+        // Concatenate and return
+        /** @var array $triples */
+        $triples = array_map([$this, 'prepareDeleteNodeTriple'], $uidList);
+
+        return sprintf('{ delete { %s } }', join("\n", $triples));
+    }
+
+    /**
+     * @param array $result
+     * @param array $carry
+     * @return array
+     */
+    private function historyResultReducer(array $result, array $carry): array
+    {
+        $carry[] = $result[Model::UID];
+
+        if (array_key_exists(Model::UPDATE_OF, $result)) {
+            $carry = array_merge($carry, $this->historyResultReducer($result[Model::UPDATE_OF], $carry));
+        }
+
+        return $carry;
     }
 
     /**

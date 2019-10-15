@@ -16,7 +16,6 @@ class Conversation extends NodeWithConditions
     const ACTIVATED = 'activated';
     const DEACTIVATED = 'deactivated';
     const ARCHIVED = 'archived';
-    const DELETED = 'deleted';
 
     /** @var Map */
     private $allScenes;

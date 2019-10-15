@@ -8,6 +8,7 @@ use OpenDialogAi\ConversationBuilder\ConversationStateLog;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -114,7 +115,7 @@ class ConversationBuilderTest extends TestCase
     /**
      * Ensure that logs/revisions are cleaned up when Conversations are deleted.
      */
-    public function testConversationDeletion()
+    public function testConversationDeletionWithSingleVersion()
     {
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
@@ -141,6 +142,49 @@ class ConversationBuilderTest extends TestCase
 
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(0, $activities);
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $this->expectException(\ErrorException::class);
+        $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
+    }
+
+    public function testConversationDeletionWithManyVersions()
+    {
+        /** @var Conversation $conversation */
+        $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
+
+        $conversation->publishConversation($conversation->buildConversation());
+
+        $conversation->model .= " ";
+        $conversation->save();
+        $conversation->publishConversation($conversation->buildConversation());
+
+        $conversation->model .= " ";
+        $conversation->save();
+        $conversation->publishConversation($conversation->buildConversation());
+
+        $conversation->model .= " ";
+        $conversation->save();
+        $conversation->publishConversation($conversation->buildConversation());
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        /** @var EIModelConversation $eiModelTemplate */
+        $eiModelTemplate = $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
+
+        $this->assertEquals(3, $eiModelTemplate->getConversationVersion());
+
+        $conversation->unPublishConversation();
+        $conversation->archiveConversation();
+
+        $graph_uid = $conversation->graph_uid;
+        $this->assertTrue($conversation->delete());
+
+        $this->expectException(EIModelCreatorException::class);
+        $conversationStore->getEIModelConversationTemplateByUid($graph_uid);
     }
 
     public function testConversationPublishedDeletion()
