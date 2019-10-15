@@ -35,7 +35,7 @@ class SceneTest extends TestCase
      */
     public function testScenes()
     {
-        $this->publishConversation($this->scene2Conv());
+        $this->activateConversation($this->scene2Conv());
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
 
         /* @var UserContext $userContext ; */
@@ -47,7 +47,7 @@ class SceneTest extends TestCase
 
     public function testSingleScene()
     {
-        $this->publishConversation($this->singleSceneConv());
+        $this->activateConversation($this->singleSceneConv());
 
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
 

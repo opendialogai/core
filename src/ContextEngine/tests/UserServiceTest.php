@@ -37,7 +37,7 @@ class UserServiceTest extends TestCase
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
-            $this->publishConversation($this->$conversationId());
+            $this->activateConversation($this->$conversationId());
         }
     }
 

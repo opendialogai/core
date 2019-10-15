@@ -18,7 +18,7 @@ class ConversationLogTest extends TestCase
     {
         parent::setUp();
         $this->initDDgraph();
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
     }
 
     /**
@@ -235,9 +235,10 @@ class ConversationLogTest extends TestCase
 
         $cm = new ConversationManager('TestConversation', ConversationNode::ACTIVATABLE, 0);
 
+        /** @var Conversation $conversationModel */
         $conversationModel = Conversation::create(['name' => 'chat_open', 'model' => "conversation:\n id: chat_open\n scenes:\n    opening_scene:\n      intents:\n        - u:\n            i: intent.core.welcome\n        - b:\n            i: intent.core.chat_open_response\n            completes: true"]);
 
-        $conversationModel->publishConversation($conversationModel->buildConversation());
+        $conversationModel->activateConversation($conversationModel->buildConversation());
 
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',

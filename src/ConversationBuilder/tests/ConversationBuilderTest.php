@@ -132,8 +132,8 @@ class ConversationBuilderTest extends TestCase
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(2, $activities);
 
-        $conversation->publishConversation($conversation->buildConversation());
-        $conversation->unPublishConversation();
+        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->deactivateConversation();
         $conversation->archiveConversation();
         $this->assertTrue($conversation->delete());
 
@@ -155,19 +155,19 @@ class ConversationBuilderTest extends TestCase
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
 
-        $conversation->publishConversation($conversation->buildConversation());
+        $conversation->activateConversation($conversation->buildConversation());
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->publishConversation($conversation->buildConversation());
+        $conversation->activateConversation($conversation->buildConversation());
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->publishConversation($conversation->buildConversation());
+        $conversation->activateConversation($conversation->buildConversation());
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->publishConversation($conversation->buildConversation());
+        $conversation->activateConversation($conversation->buildConversation());
 
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = app()->make(ConversationStoreInterface::class);
@@ -177,7 +177,7 @@ class ConversationBuilderTest extends TestCase
 
         $this->assertEquals(3, $eiModelTemplate->getConversationVersion());
 
-        $conversation->unPublishConversation();
+        $conversation->deactivateConversation();
         $conversation->archiveConversation();
 
         $graph_uid = $conversation->graph_uid;
@@ -187,9 +187,9 @@ class ConversationBuilderTest extends TestCase
         $conversationStore->getEIModelConversationTemplateByUid($graph_uid);
     }
 
-    public function testConversationPublishedDeletion()
+    public function testConversationActivatedDeletion()
     {
-        $this->publishConversation($this->conversation1());
+        $this->activateConversation($this->conversation1());
 
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
@@ -273,7 +273,7 @@ class ConversationBuilderTest extends TestCase
      */
     public function testConversationRepresentationPersist()
     {
-        $this->publishConversation($this->conversation1());
+        $this->activateConversation($this->conversation1());
 
         /* @var EIModelConversation $template */
         $conversationStore = app()->make(ConversationStoreInterface::class);
@@ -287,13 +287,13 @@ class ConversationBuilderTest extends TestCase
 
     public function testNewConversationVersion()
     {
-        $this->publishConversation($this->conversation1());
+        $this->activateConversation($this->conversation1());
 
         /** @var Conversation $conversation */
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
         $originalUid = $conversation->graph_uid;
 
-        // Ensure that the initial version + validation & publishing was logged
+        // Ensure that the initial version + validation & activation was logged
         $this->assertCount(5, Activity::all());
 
         /** @var Activity $activity */
@@ -317,7 +317,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(1, $changedAttributes['version_number']);
         $this->assertEquals($this->conversation1() . " ", $changedAttributes['model']);
 
-        $conversation->publishConversation($conversation->buildConversation());
+        $conversation->activateConversation($conversation->buildConversation());
         $this->assertEquals(2, $conversation->version_number);
 
         // Ensure that the new version was logged
@@ -339,7 +339,7 @@ class ConversationBuilderTest extends TestCase
     }
 
     public function testDeactivating() {
-        $this->publishConversation($this->conversation1());
+        $this->activateConversation($this->conversation1());
 
         /** @var DGraphQuery $query */
         $query = new DGraphQuery();
@@ -369,7 +369,7 @@ class ConversationBuilderTest extends TestCase
         /** @var Conversation $conversation */
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
-        $this->assertTrue($conversation->unPublishConversation());
+        $this->assertTrue($conversation->deactivateConversation());
 
         // Re-query
         $response = $client->query($query);
@@ -380,14 +380,14 @@ class ConversationBuilderTest extends TestCase
     }
 
     public function testArchiving() {
-        $this->publishConversation($this->conversation1());
+        $this->activateConversation($this->conversation1());
 
         // Deactivate the conversation
 
         /** @var Conversation $conversation */
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
-        $this->assertTrue($conversation->unPublishConversation());
+        $this->assertTrue($conversation->deactivateConversation());
         $this->assertEquals(ConversationNode::DEACTIVATED, $conversation->status);
 
         $this->assertTrue($conversation->archiveConversation());
@@ -413,7 +413,7 @@ class ConversationBuilderTest extends TestCase
     }
 
     public function testDeleting() {
-        $this->publishConversation($this->conversation1());
+        $this->activateConversation($this->conversation1());
 
         // Ensure conversation was persisted to DGraph
         /** @var DGraphQuery $query */
@@ -432,7 +432,7 @@ class ConversationBuilderTest extends TestCase
         /** @var Conversation $conversation */
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
-        $conversation->unPublishConversation();
+        $conversation->deactivateConversation();
         $conversation->archiveConversation();
 
         // Delete conversation

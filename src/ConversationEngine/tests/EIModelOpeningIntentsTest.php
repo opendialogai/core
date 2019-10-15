@@ -37,10 +37,10 @@ class EIModelOpeningIntentsTest extends TestCase
         $this->dGraph = app()->make(DGraphClient::class);
         $this->queryFactory = app()->make(ConversationQueryFactoryInterface::class);
 
-        $this->publishConversation($this->conversation1());
-        $this->publishConversation($this->conversation2());
-        $this->publishConversation($this->conversation3());
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation1());
+        $this->activateConversation($this->conversation2());
+        $this->activateConversation($this->conversation3());
+        $this->activateConversation($this->conversation4());
     }
 
     public function testReturnsSimpleSingleOpeningIntents()
@@ -88,7 +88,7 @@ conversation:
             i: complete_order
             completes: true
 EOT;
-        $this->publishConversation($complexConversationYaml);
+        $this->activateConversation($complexConversationYaml);
 
         $query = $this->queryFactory::getAllOpeningIntents();
         $response = $this->dGraph->query($query);
@@ -145,7 +145,7 @@ conversation:
             i: complete_rating
             completes: true
 EOT;
-        $this->publishConversation($complexConversationYaml);
+        $this->activateConversation($complexConversationYaml);
 
         $query = $this->queryFactory::getAllOpeningIntents();
         $response = $this->dGraph->query($query);

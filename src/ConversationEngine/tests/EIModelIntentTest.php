@@ -43,7 +43,7 @@ class EIModelIntentTest extends TestCase
         $attributes = ['test' => IntAttribute::class];
         AttributeResolver::registerAttributes($attributes);
 
-        $this->publishConversation($this->conversation1());
+        $this->activateConversation($this->conversation1());
     }
 
     public function testCanGetIntent() {

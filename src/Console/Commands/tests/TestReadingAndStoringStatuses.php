@@ -30,14 +30,14 @@ class TestReadingAndStoringStatuses extends TestCase
         $dir = scandir($this->dirName, SCANDIR_SORT_DESCENDING);
         $this->assertNull($this->getStatusesFromStorage($dir));
 
-        $this->publishConversation($this->conversation1());
-        $this->publishConversation($this->conversation2());
+        $this->activateConversation($this->conversation1());
+        $this->activateConversation($this->conversation2());
 
         /** @var Conversation $conv2 */
         $conv2 = Conversation::where('name', 'hello_bot_world2')->first();
-        $conv2->unPublishConversation();
+        $conv2->deactivateConversation();
 
-        $this->publishConversation($this->conversation3());
+        $this->activateConversation($this->conversation3());
 
         Artisan::call('statuses:store');
         $dir = scandir($this->dirName, SCANDIR_SORT_DESCENDING);
@@ -51,18 +51,18 @@ class TestReadingAndStoringStatuses extends TestCase
 
     public function testReading()
     {
-        $this->publishConversation($this->conversation1());
-        $this->publishConversation($this->conversation2());
+        $this->activateConversation($this->conversation1());
+        $this->activateConversation($this->conversation2());
 
         /** @var Conversation $conv2 */
         $conv2 = Conversation::where('name', 'hello_bot_world2')->first();
-        $conv2->unPublishConversation();
+        $conv2->deactivateConversation();
 
-        $this->publishConversation($this->conversation3());
+        $this->activateConversation($this->conversation3());
 
         Artisan::call('statuses:store');
 
-        $conv2->publishConversation($conv2->buildConversation());
+        $conv2->activateConversation($conv2->buildConversation());
 
         Artisan::call('statuses:read');
 
@@ -72,18 +72,18 @@ class TestReadingAndStoringStatuses extends TestCase
 
     public function testReadingDown()
     {
-        $this->publishConversation($this->conversation1());
-        $this->publishConversation($this->conversation2());
+        $this->activateConversation($this->conversation1());
+        $this->activateConversation($this->conversation2());
 
         /** @var Conversation $conv2 */
         $conv2 = Conversation::where('name', 'hello_bot_world2')->first();
-        $conv2->unPublishConversation();
+        $conv2->deactivateConversation();
 
-        $this->publishConversation($this->conversation3());
+        $this->activateConversation($this->conversation3());
 
         Artisan::call('statuses:store');
 
-        $conv2->publishConversation($conv2->buildConversation());
+        $conv2->activateConversation($conv2->buildConversation());
 
         $caught = false;
         try {

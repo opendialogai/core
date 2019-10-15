@@ -16,7 +16,7 @@ class ConversationContextTest extends TestCase
 
     public function testConversationalContextNewUser()
     {
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
 
         $utterance = UtteranceGenerator::generateTextUtterance('hello');
 
@@ -40,7 +40,7 @@ class ConversationContextTest extends TestCase
 
         $openDialogController = resolve(OpenDialogController::class);
 
-        $this->publishConversation($this->getTestConversation());
+        $this->activateConversation($this->getTestConversation());
 
         $conversationContext = ContextService::getConversationContext();
 

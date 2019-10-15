@@ -186,13 +186,13 @@ class Conversation extends Model
     }
 
     /**
-     * Publish the conversation to DGraph.
+     * Activate the conversation in DGraph.
      *
      * @param ConversationNode $conversation
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function publishConversation(ConversationNode $conversation): bool
+    public function activateConversation(ConversationNode $conversation): bool
     {
         $cm = ConversationManager::createManagerForExistingConversation($conversation);
 
@@ -211,7 +211,7 @@ class Conversation extends Model
         if ($mutationResponse->isSuccessful()) {
             $previousGraphUid = $this->graph_uid;
 
-            // Set conversation status to "published".
+            // Set conversation status to "activated".
             $this->status = ConversationNode::ACTIVATED;
             $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
             $this->version_number++;
@@ -220,8 +220,8 @@ class Conversation extends Model
 
             ConversationStateLog::create([
                 'conversation_id' => $this->id,
-                'message' => 'Published conversation to DGraph.',
-                'type' => 'publish_conversation',
+                'message' => 'Activated conversation in DGraph.',
+                'type' => 'activate_conversation',
             ])->save();
 
             if ($previousGraphUid) {
@@ -293,11 +293,11 @@ class Conversation extends Model
     }
 
     /**
-     * Unpublish the conversation from DGraph.
+     * Deactivate the conversation in DGraph.
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function unPublishConversation(): bool
+    public function deactivateConversation(): bool
     {
         $dGraph = app()->make(DGraphClient::class);
 
@@ -327,8 +327,8 @@ class Conversation extends Model
             // Add log message.
             ConversationStateLog::create([
                 'conversation_id' => $this->id,
-                'message' => 'Unpublished conversation from DGraph.',
-                'type' => 'unpublish_conversation',
+                'message' => 'Deactivated conversation in DGraph.',
+                'type' => 'deactivate_conversation',
             ])->save();
 
             return true;

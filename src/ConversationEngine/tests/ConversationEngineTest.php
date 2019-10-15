@@ -48,7 +48,7 @@ class ConversationEngineTest extends TestCase
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
-            $this->publishConversation($this->$conversationId());
+            $this->activateConversation($this->$conversationId());
         }
 
         $this->utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
@@ -65,12 +65,12 @@ class ConversationEngineTest extends TestCase
         /** @var Conversation $conversation */
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
-        $this->assertTrue($conversation->unPublishConversation());
+        $this->assertTrue($conversation->deactivateConversation());
 
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(3, $openingIntents);
 
-        $this->assertTrue($conversation->publishConversation($conversation->buildConversation()));
+        $this->assertTrue($conversation->activateConversation($conversation->buildConversation()));
 
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(4, $openingIntents);
@@ -267,7 +267,7 @@ class ConversationEngineTest extends TestCase
         $callbackInterpreter = $interpreterService->getDefaultInterpreter();
         $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
 
-        $this->publishConversation($this->conversationWithNonBindedAction());
+        $this->activateConversation($this->conversationWithNonBindedAction());
 
         try {
             $this->conversationEngine->determineCurrentConversation($this->createUserContext(), $this->utterance);
@@ -296,7 +296,7 @@ class ConversationEngineTest extends TestCase
     }
 
     public function testGetLatestVersion() {
-        $this->publishUpdates('hello_bot_world');
+        $this->createUpdates('hello_bot_world');
 
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = $this->conversationEngine->getConversationStore();
@@ -386,15 +386,15 @@ conversation:
 EOT;
     }
 
-    private function publishUpdates(string $templateName)
+    private function createUpdates(string $templateName)
     {
         /** @var Conversation $template */
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->publishConversation($template->buildConversation());
+        $template->activateConversation($template->buildConversation());
 
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->publishConversation($template->buildConversation());
+        $template->activateConversation($template->buildConversation());
     }
 }

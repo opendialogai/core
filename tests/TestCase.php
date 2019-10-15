@@ -249,9 +249,9 @@ EOT;
     }
 
     /**
-     * Publish the given conversation YAML and assert that it publishes successfully.
+     * Activate the given conversation YAML and assert that it activates successfully.
      */
-    protected function publishConversation($conversationYaml): void
+    protected function activateConversation($conversationYaml): void
     {
         if (!$this->dgraphInitialised) {
             $this->initDDgraph();
@@ -264,7 +264,7 @@ EOT;
         $conversation->save();
         $conversationModel = $conversation->buildConversation();
 
-        $this->assertTrue($conversation->publishConversation($conversationModel));
+        $this->assertTrue($conversation->activateConversation($conversationModel));
     }
 
     /**
