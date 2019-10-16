@@ -199,7 +199,7 @@ class Conversation extends Model
         try {
             $cm->setActivated();
         } catch (InvalidConversationStatusTransitionException $e) {
-            echo $e->getMessage();
+            Log::warning($e->getMessage());
             return false;
         }
 
