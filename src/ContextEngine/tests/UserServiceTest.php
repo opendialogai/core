@@ -5,6 +5,8 @@ namespace OpenDialogAi\ContextEngine\Tests;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -26,6 +28,13 @@ class UserServiceTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            [
+                'testAttr' => IntAttribute::class
+            ]
+        );
 
         $this->conversationStore = $this->app->make(ConversationStoreInterface::class);
         $this->userService = $this->app->make(UserService::class);
@@ -171,5 +180,40 @@ class UserServiceTest extends TestCase
 
         $user = $this->userService->getUser($userId);
         $this->assertFalse($user->hasCurrentIntent());
+    }
+
+    public function testCustomAttributesArePersistedAndQueryable()
+    {
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
+
+        // Ensure value is not currently persisted
+        $userBeforePersisting = $this->userService->getUser($userId);
+
+        $caught = false;
+        try {
+            $userBeforePersisting->getAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $caught = true;
+        }
+        $this->assertTrue($caught);
+
+        // Set testAttr value on User
+        $utterance->getUser()->setCustomParameters([ 'testAttr' => 100 ]);
+
+        /* @var ChatbotUser $user */
+        $user = $this->userService->createOrUpdateUser($utterance);
+
+        /** @var IntAttribute $testAttr */
+        $testAttr = null;
+
+        // Ensure value is on the User object
+        try {
+            $testAttr = $user->getAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $this->fail($e);
+        }
+
+        $this->assertEquals(100, $testAttr->getValue());
     }
 }
