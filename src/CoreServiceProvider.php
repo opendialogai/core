@@ -48,7 +48,9 @@ class CoreServiceProvider extends ServiceProvider
             ->needs('$requestId')
             ->give($this->requestId);
 
-        Log::pushProcessor(new IntrospectionProcessor(Logger::DEBUG, ['Illuminate\\']));
+        if (env('INTROSPECTION_PROCESSOR_ENABLED', false)) {
+            Log::pushProcessor(new IntrospectionProcessor(Logger::DEBUG, ['Illuminate\\']));
+        }
 
         Log::pushProcessor(LoggingHelper::getLogUserIdProcessor($this->requestId));
     }
