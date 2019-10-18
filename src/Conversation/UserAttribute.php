@@ -11,11 +11,11 @@ use OpenDialogAi\Core\Graph\Node\Node;
  */
 class UserAttribute extends Node
 {
-    public function __construct($id, $name, $type, $value)
+    public function __construct($id, $type, $value)
     {
         parent::__construct($id);
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::USER_ATTRIBUTE));
-        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_NAME, $name));
+        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_NAME, $id));
         $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_TYPE, $type));
         $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_VALUE, $value));
     }

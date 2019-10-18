@@ -61,7 +61,7 @@ class UserService
 
                 try {
                     $attribute = AttributeResolver::getAttributeFor($name, $value);
-                    $user->addAttribute($attribute);
+                    $user->addUserAttribute($attribute);
                 } catch (AttributeIsNotSupported $e) {
                     Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
                     continue;
@@ -134,7 +134,7 @@ class UserService
 
         if ($user->hasCustomParameters()) {
             foreach ($user->getCustomParameters() as $key => $value) {
-                $this->setUserAttribute($chatbotUser, $key, $value);
+                $this->setUserAttribute($chatbotUser, $key, $value, true);
             }
         }
     }
@@ -516,15 +516,21 @@ class UserService
      * @param ChatbotUser $chatbotUser
      * @param $attributeName
      * @param $attributeValue
+     * @param bool $custom
      */
-    protected function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
+    protected function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue, $custom = false): void
     {
         if ($chatbotUser->hasAttribute($attributeName)) {
             $chatbotUser->setAttribute($attributeName, $attributeValue);
         } else {
             try {
                 $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
-                $chatbotUser->addAttribute($attribute);
+
+                if ($custom) {
+                    $chatbotUser->addUserAttribute($attribute);
+                } else {
+                    $chatbotUser->addAttribute($attribute);
+                }
             } catch (AttributeIsNotSupported $e) {
                 Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
             }

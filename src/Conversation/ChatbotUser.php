@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use Ds\Map;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
@@ -101,5 +103,36 @@ class ChatbotUser extends Node
     public function hasCurrentIntent(): bool
     {
         return isset($this->currentIntentUid);
+    }
+
+    /**
+     * @param AttributeInterface $userAttribute
+     */
+    public function addUserAttribute(AttributeInterface $userAttribute): void
+    {
+        $node = new UserAttribute(
+            $userAttribute->getId(),
+            $userAttribute->getType(),
+            $userAttribute->getValue()
+        );
+
+        $this->createOutgoingEdge(Model::HAS_ATTRIBUTE, $node);
+    }
+
+    /**
+     * @param string $userAttributeId
+     * @return AttributeInterface|null
+     */
+    public function getUserAttribute(string $userAttributeId): ?AttributeInterface
+    {
+        return $this->getAllUserAttributes()->get($userAttributeId);
+    }
+
+    /**
+     * @return Map
+     */
+    public function getAllUserAttributes(): Map
+    {
+        return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_ATTRIBUTE);
     }
 }

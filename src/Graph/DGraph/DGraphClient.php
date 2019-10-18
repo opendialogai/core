@@ -266,23 +266,8 @@ class DGraphClient
     /**
      * @return string
      */
-    private function prepareUserAttributes()
-    {
-        $userAttributes = '';
-        foreach (config('opendialog.context_engine.supported_attributes') as $name => $type) {
-            $userAttributes .= "{$name}: default\n";
-        }
-
-        return $userAttributes;
-    }
-
-    /**
-     * @return string
-     */
     private function schema()
     {
-        $userAttributes = $this->prepareUserAttributes();
-
         return "
             <causes_action>: [uid] .
             <core.attribute.completes>: default .
@@ -293,6 +278,7 @@ class DGraphClient
             <has_opening_scene>: [uid] @reverse .
             <has_scene>: [uid] .
             <has_user_participant>: [uid] @reverse .
+            <has_attribute>: [uid] .
             <id>: string @index(exact) .
             <listens_for>: [uid] @reverse .
             <name>: default .
@@ -300,7 +286,12 @@ class DGraphClient
             <having_conversation>: [uid] @reverse .
             <says_across_scenes>: [uid] @reverse .
             <listens_for_across_scenes>: [uid] @reverse .
-            type User {{$userAttributes}}
+                        
+            type User {
+                <ei_type>: string .
+                <has_attribute>: [uid] .
+                <having_conversation> [uid] .
+            }
         ";
     }
 
