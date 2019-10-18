@@ -54,8 +54,10 @@ class ContextEngineServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(UserService::class, function () {
-            $userService = new UserService($this->app->make(DGraphClient::class));
-            return $userService;
+            return new UserService(
+                $this->app->make(DGraphClient::class),
+                $this->app->make(ConversationStoreInterface::class)
+            );
         });
     }
 }

@@ -6,6 +6,8 @@ use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -133,6 +135,8 @@ class UserContext extends AbstractContext
 
     /**
      * @return Conversation
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws EIModelCreatorException
      */
     public function getCurrentConversation(): Conversation
     {
@@ -142,24 +146,31 @@ class UserContext extends AbstractContext
     /**
      * Sets the current conversation against the user, persists the user and returns the conversation id
      *
-     * @param Conversation $conversation
+     * @param Conversation $conversationForCloning
+     * @param Conversation $conversationForConnecting
      * @return string
      */
-    public function setCurrentConversation(Conversation $conversation): string
+    public function setCurrentConversation(Conversation $conversationForCloning, Conversation $conversationForConnecting): string
     {
-        $this->user = $this->userService->setCurrentConversation($this->user, $conversation);
+        $this->user = $this->userService->setCurrentConversation(
+            $this->user,
+            $conversationForCloning,
+            $conversationForConnecting
+        );
+
         return $this->user->getCurrentConversationUid();
     }
 
     /**
      * Gets just the current intent unconnected
      *
-     * @return Intent
+     * @return EIModelIntent
+     * @throws EIModelCreatorException
      */
     public function getCurrentIntent()
     {
         $currentIntentId = $this->user->getCurrentIntentUid();
-        return $this->conversationStore->getIntentByUid($currentIntentId);
+        return $this->conversationStore->getEIModelIntentByUid($currentIntentId);
     }
 
     /**
@@ -173,6 +184,7 @@ class UserContext extends AbstractContext
 
     /**
      * Moves the user's current conversation to a past conversation
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function moveCurrentConversationToPast(): void
     {
@@ -189,14 +201,17 @@ class UserContext extends AbstractContext
 
     /**
      * @return Scene
+     * @throws EIModelCreatorException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function getCurrentScene(): Scene
     {
         if ($this->user->hasCurrentIntent()) {
-            $currentIntent = $this->conversationStore->getIntentByUid($this->user->getCurrentIntentUid());
+            $currentIntent = $this->conversationStore->getEIModelIntentByUid($this->user->getCurrentIntentUid());
 
             // Get the scene for the current intent
-            $sceneId = $this->userService->getSceneForIntent($currentIntent->getUid());
+            $sceneId = $this->userService->getSceneForIntent($currentIntent->getIntentUid());
 
             // use the conversation that is against the user
             $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);

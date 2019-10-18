@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -72,7 +74,7 @@ class ConversationConditionTest extends TestCase
         /* @var \OpenDialogAi\ConversationBuilder\Conversation $conversation */
         $this->conversationModel = Conversation::where('name', 'Test Conversation')->first();
 
-        $this->cm = new ConversationManager('TestConversation');
+        $this->cm = new ConversationManager('TestConversation', ConversationNode::ACTIVATED, 0);
 
         $attributes = ['test' => IntAttribute::class];
         AttributeResolver::registerAttributes($attributes);

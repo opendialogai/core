@@ -32,13 +32,18 @@ class ChatbotUser extends Node
     /**
      * Attaches an entire conversation to the user
      *
-     * @param Conversation $conversation
+     * @param Conversation $conversationForCloning Required to ensure that the new conversation is fully
+     * cloned by `UserService.updateUser`
+     * @param Conversation $conversationForConnecting Required to ensure that DGraph contains a correct `instance_of`
+     * edge between template & instance
      */
-    public function setCurrentConversation(Conversation $conversation)
+    public function setCurrentConversation(Conversation $conversationForCloning, Conversation $conversationForConnecting)
     {
-        $currentConversation = clone $conversation;
+        $currentConversation = clone $conversationForCloning;
         $currentConversation->setConversationType(Model::CONVERSATION_USER);
         $this->createOutgoingEdge(Model::HAVING_CONVERSATION, $currentConversation);
+
+        $currentConversation->createOutgoingEdge(Model::INSTANCE_OF, $conversationForConnecting);
     }
 
     /**

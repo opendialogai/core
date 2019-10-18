@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
@@ -10,16 +11,24 @@ use OpenDialogAi\Core\Attribute\StringAttribute;
  */
 class Conversation extends NodeWithConditions
 {
+    const SAVED = 'saved';
+    const ACTIVATABLE = 'activatable';
+    const ACTIVATED = 'activated';
+    const DEACTIVATED = 'deactivated';
+    const ARCHIVED = 'archived';
+
     /** @var Map */
     private $allScenes;
 
     /** @var Map */
     private $allIntents;
 
-    public function __construct($id)
+    public function __construct($id, $conversationStatus, $conversationVersion)
     {
         parent::__construct($id);
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE));
+        $this->addAttribute(new StringAttribute(Model::CONVERSATION_STATUS, $conversationStatus));
+        $this->addAttribute(new IntAttribute(Model::CONVERSATION_VERSION, $conversationVersion));
     }
 
     /**
@@ -112,6 +121,86 @@ class Conversation extends NodeWithConditions
         /* @var \OpenDialogAi\Core\Attribute\StringAttribute $eiType */
         $eiType = $this->getAttribute(Model::EI_TYPE);
         $eiType->setValue($type);
+    }
+
+    /**
+     * @return string
+     */
+    public function getConversationStatus(): string
+    {
+        return $this->getAttributeValue(Model::CONVERSATION_STATUS);
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setConversationStatus(string $status): void
+    {
+        $this->setAttribute(Model::CONVERSATION_STATUS, $status);
+    }
+
+    /**
+     * @return int
+     */
+    public function getConversationVersion(): int
+    {
+        return $this->getAttributeValue(Model::CONVERSATION_VERSION);
+    }
+
+    /**
+     * @param int $version
+     */
+    public function setConversationVersion(int $version): void
+    {
+        $this->setAttribute(Model::CONVERSATION_VERSION, $version);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasUpdateOf(): bool
+    {
+        return !$this->getNodesConnectedByOutgoingRelationship(Model::UPDATE_OF)->isEmpty();
+    }
+
+    /**
+     * @return Conversation
+     */
+    public function getUpdateOf(): Conversation
+    {
+        return $this->getNodesConnectedByOutgoingRelationship(Model::UPDATE_OF)->first()->value;
+    }
+
+    /**
+     * @param Conversation $previousConversation
+     */
+    public function setUpdateOf(Conversation $previousConversation): void
+    {
+        $this->createOutgoingEdge(Model::UPDATE_OF, $previousConversation);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasInstanceOf(): bool
+    {
+        return !$this->getNodesConnectedByOutgoingRelationship(Model::INSTANCE_OF)->isEmpty();
+    }
+
+    /**
+     * @return Conversation
+     */
+    public function getInstanceOf(): Conversation
+    {
+        return $this->getNodesConnectedByOutgoingRelationship(Model::INSTANCE_OF)->first()->value;
+    }
+
+    /**
+     * @param Conversation $previousConversation
+     */
+    public function setInstanceOf(Conversation $previousConversation): void
+    {
+        $this->createOutgoingEdge(Model::INSTANCE_OF, $previousConversation);
     }
 
     /**

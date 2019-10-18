@@ -9,7 +9,7 @@ use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
@@ -48,18 +48,18 @@ class AttributeExtractionTest extends TestCase
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
         $this->odController = $this->app->make(OpenDialogController::class);
 
-        $this->publishConversation($this->getExampleConversation());
+        $this->activateConversation($this->getExampleConversation());
     }
 
     public function testOpeningSceneCreated()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
-        $openingIntents = $conversationStore->getAllOpeningIntents();
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
 
         $this->assertCount(1, $openingIntents);
 
-        /** @var OpeningIntent $myNameIntent */
-        $myNameIntent = $openingIntents->first()->value;
+        /** @var EIModelIntent $myNameIntent */
+        $myNameIntent = $openingIntents->getIntents()->first()->value;
         $this->assertEquals('my_name_is', $myNameIntent->getIntentId());
 
         $expectedAttributes = $myNameIntent->getExpectedAttributes();

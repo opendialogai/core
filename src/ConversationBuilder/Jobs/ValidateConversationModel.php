@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\Jobs\Traits\ValidateConversationTrait;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -65,10 +66,10 @@ class ValidateConversationModel implements ShouldQueue
                 $this->delete();
 
                 // Update the conversation status.
-                $this->conversation->status = 'invalid';
+                $this->conversation->status = ConversationNode::SAVED;
             } else {
                 // Update the conversation status.
-                $this->conversation->status = 'validated';
+                $this->conversation->status = ConversationNode::ACTIVATABLE;
             }
 
             $this->conversation->save(['validate' => false]);
