@@ -7,6 +7,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -89,12 +90,9 @@ class UserServiceTest extends TestCase
         $conversationResponse = $this->client->query($conversationQuery);
 
         $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
-        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+        $conversation = $conversationStore->getConversation($conversationResponse->getData()[0]['uid'], true);
 
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversation */
-        $conversation = $conversationConverter->convertConversation($conversationModel, true);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -102,10 +100,7 @@ class UserServiceTest extends TestCase
 
         $this->assertTrue($user->isHavingConversation());
 
-        $conversationUserModel = $conversationStore->getEIModelConversation($user->getCurrentConversationUid());
-
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationUser */
-        $conversationUser = $conversationConverter->convertConversation($conversationUserModel);
+        $conversationUser = $conversationStore->getConversation($user->getCurrentConversationUid());
 
         $this->assertEquals($conversation->getId(), $conversationUser->getId());
         $this->assertEquals(Model::CONVERSATION_USER, $conversationUser->getAttribute(Model::EI_TYPE)->getValue());
@@ -152,7 +147,7 @@ class UserServiceTest extends TestCase
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;
 
-        /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
+        /* @var Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
         $this->userService->setCurrentIntent($user, $intent);
 
@@ -167,6 +162,8 @@ class UserServiceTest extends TestCase
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     public function testUnSettingACurrentIntent()
     {
@@ -183,11 +180,8 @@ class UserServiceTest extends TestCase
         $conversationResponse = $this->client->query($conversationQuery);
 
         $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
-        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
-        $conversation = $conversationConverter->convertConversation($conversationModel);
-
+        $conversation = $conversationStore->getConversation($conversationResponse->getData()[0]['uid']);
         $this->userService->setCurrentConversation($user, $conversation);
 
         // Now let's retrieve this user
@@ -196,7 +190,7 @@ class UserServiceTest extends TestCase
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;
 
-        /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
+        /* @var Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
         $this->userService->setCurrentIntent($user, $intent);
 
