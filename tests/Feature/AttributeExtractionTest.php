@@ -98,6 +98,15 @@ class AttributeExtractionTest extends TestCase
         } catch (AttributeDoesNotExistException $e) {
             $this->fail('Attribute should exist in the right context');
         }
+
+        $lastSeenAttributeBefore = ContextService::getAttribute('last_seen', UserContext::USER_CONTEXT);
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is', $utterance->getUser());
+        $this->odController->runConversation($utterance);
+
+        $lastSeenAttributeAfter = ContextService::getAttribute('last_seen', UserContext::USER_CONTEXT);
+
+        $this->assertGreaterThanOrEqual($lastSeenAttributeBefore->getValue(), $lastSeenAttributeAfter->getValue());
     }
 
     public function testFullJourney()

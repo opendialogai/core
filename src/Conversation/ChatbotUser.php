@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -114,12 +115,46 @@ class ChatbotUser extends Node
 
     /**
      * @param AttributeInterface $userAttribute
+     * @return UserAttribute
      */
-    public function addUserAttribute(AttributeInterface $userAttribute): void
+    public function addUserAttribute(AttributeInterface $userAttribute): UserAttribute
     {
         $node = new UserAttribute($userAttribute);
 
         $this->createOutgoingEdge(Model::HAS_ATTRIBUTE, $node);
+
+        return $node;
+    }
+
+    /**
+     * @param AttributeInterface $attribute
+     */
+    public function setUserAttribute(AttributeInterface $attribute): void
+    {
+        try {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->getAllUserAttributes()->get($attribute->getId(), null);
+
+            if (is_null($userAttribute)) {
+                Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attribute->getId()));
+                throw new AttributeDoesNotExistException(
+                    sprintf("Cannot return attribute with name %s - does not exist", $attribute->getId())
+                );
+            }
+
+            $userAttribute->updateInternalAttribute($attribute);
+        } catch (AttributeIsNotSupported $e) {
+            Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attribute->getId()));
+        }
+    }
+
+    /**
+     * @param $attributeName
+     * @return bool
+     */
+    public function hasUserAttribute($attributeName): bool
+    {
+        return !is_null($userAttribute = $this->getAllUserAttributes()->get($attributeName, null));
     }
 
     /**

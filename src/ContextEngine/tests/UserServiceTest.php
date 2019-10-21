@@ -269,5 +269,25 @@ class UserServiceTest extends TestCase
         }
 
         $this->assertEquals(100, $testAttr->getValue());
+
+        $user = $this->userService->updateUser($user);
+        $countBeforeUpdating = $user->getAllUserAttributes()->count();
+
+        // Ensure the attribute is correctly updated
+        $utterance = UtteranceGenerator::generateTextUtterance('', $utterance->getUser());
+        $utterance->getUser()->setCustomParameters([ 'testAttr' => 200 ]);
+
+        /** @var ChatbotUser $userAfterUpdating */
+        $userAfterUpdating = $this->userService->createOrUpdateUser($utterance);
+
+        // Ensure value is on the User object
+        try {
+            $testAttr = $userAfterUpdating->getUserAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $this->fail($e);
+        }
+
+        $this->assertEquals(200, $testAttr->getValue());
+        $this->assertEquals($countBeforeUpdating, $userAfterUpdating->getAllUserAttributes()->count());
     }
 }

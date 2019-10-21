@@ -505,13 +505,17 @@ class UserService
      * @param ChatbotUser $chatbotUser
      * @param $attributeName
      * @param $attributeValue
-     * @return AttributeInterface
      */
-    public function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
+    protected function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
     {
         try {
             $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
-            $chatbotUser->addUserAttribute($attribute);
+
+            if ($chatbotUser->hasUserAttribute($attributeName)) {
+                $chatbotUser->setUserAttribute($attribute);
+            } else {
+                $chatbotUser->addUserAttribute($attribute);
+            }
         } catch (AttributeIsNotSupported $e) {
             Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
         }
@@ -570,7 +574,7 @@ class UserService
                                 $userAttribute[Model::USER_ATTRIBUTE_VALUE]
                             );
 
-                            $user->addUserAttribute($attribute);
+                            $user->addUserAttribute($attribute)->setUid($userAttribute[Model::UID]);
                         } catch (AttributeIsNotSupported $e) {
                             Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
                             continue;

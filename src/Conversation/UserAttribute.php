@@ -34,4 +34,13 @@ class UserAttribute extends Node
     {
         return $this->attribute;
     }
+
+    public function updateInternalAttribute(AttributeInterface $attribute)
+    {
+        $this->setAttribute(Model::ID, $attribute->getId());
+        $this->setAttribute(Model::USER_ATTRIBUTE_TYPE, $attribute->getType());
+        $this->setAttribute(Model::USER_ATTRIBUTE_VALUE, $attribute->getValue());
+
+        $this->attribute = $attribute;
+    }
 }
