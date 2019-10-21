@@ -30,6 +30,7 @@ class DGraphClient
     const SCENE = 'Scene';
     const CONVERSATION = 'Conversation';
     const USER = 'User';
+    const USER_ATTRIBUTE = 'UserAttribute';
 
 
     public function __construct($dgraphUrl, $dGraphPort)
@@ -351,6 +352,8 @@ class DGraphClient
             <having_conversation>: [uid] @reverse .
             <says_across_scenes>: [uid] @reverse .
             <listens_for_across_scenes>: [uid] @reverse .
+            <user_attribute_type>: string .
+            <user_attribute_value>: string .
                         
             type " . self::INTENT . " {
                 causes_action: [uid]
@@ -384,10 +387,16 @@ class DGraphClient
                 instance_of: uid
                 update_of: uid
             }
+            type " . self::USER_ATTRIBUTE . " {
+                <id>: string
+                <ei_type>: string
+                <user_attribute_type>: string
+                <user_attribute_value>: string
+            }
             type " . self::USER . " {
-                <ei_type>: string .
-                <has_attribute>: [uid] .
-                <having_conversation> [uid] .
+                <id>: string
+                <ei_type>: string
+                <has_attribute>: [uid]
             }
         ";
     }

@@ -4,7 +4,7 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
-use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
+use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
@@ -14,10 +14,13 @@ use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\UserAttribute;
 
-class UserContext extends AbstractContext
+class UserContext implements ContextInterface
 {
     const USER_CONTEXT = 'user';
+
+    private $id;
 
     /* @var ChatbotUser */
     private $user;
@@ -33,18 +36,37 @@ class UserContext extends AbstractContext
         UserService $userService,
         ConversationStoreInterface $conversationStore
     ) {
-        parent::__construct(self::USER_CONTEXT);
+        $this->setId(self::USER_CONTEXT);
+
         $this->user = $user;
         $this->userService = $userService;
         $this->conversationStore = $conversationStore;
     }
 
     /**
-     * @inheritDoc
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * Returns all the attributes currently associated with this context.
+     *
+     * @return Map
      */
     public function getAttributes(): Map
     {
-        return $this->getUser()->getAttributes();
+        return $this->userService->getUserAttributes($this->user);
     }
 
     /**
@@ -52,7 +74,9 @@ class UserContext extends AbstractContext
      */
     public function getAttribute(string $attributeName): AttributeInterface
     {
-        return $this->getUser()->getAttribute($attributeName);
+        /** @var UserAttribute $userAttribute */
+        $userAttribute = $this->getAttributes()->get($attributeName);
+        return $userAttribute->getInternalAttribute();
     }
 
     /**
@@ -60,18 +84,7 @@ class UserContext extends AbstractContext
      */
     public function addAttribute(AttributeInterface $attribute)
     {
-        $this->getUser()->addAttribute($attribute);
-    }
-
-    /**
-     * @param string $attributeName
-     * @param $value
-     * @param null $type
-     * @return AttributeInterface
-     */
-    public function setAttribute(string $attributeName, $value, $type = null): AttributeInterface
-    {
-        return $this->getUser()->setAttribute($attributeName, $value, $type);
+        $this->userService->addUserAttribute($this->getUser(), $attribute);
     }
 
     /**
@@ -82,7 +95,7 @@ class UserContext extends AbstractContext
      */
     public function removeAttribute(string $attributeName): bool
     {
-        return $this->getUser()->removeAttribute($attributeName);
+        return false;
     }
 
     /**

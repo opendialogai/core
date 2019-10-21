@@ -73,14 +73,14 @@ class UserServiceTest extends TestCase
         $user = $this->userService->createOrUpdateUser($utterance);
         $this->assertTrue($this->userService->userExists($userId));
 
-        $firstName = $user->getAttribute('first_name');
+        $firstName = $user->getUserAttribute('first_name');
         $this->assertTrue(isset($firstName));
 
         $utterance->getUser()->setFirstName('updated');
 
         $user2 = $this->userService->createOrUpdateUser($utterance);
         $this->assertEquals($user2->getUid(), $user->getUid());
-        $this->assertNotEquals($user2->getAttribute('first_name')->getValue(), $firstName);
+        $this->assertNotEquals($user2->getUserAttribute('first_name')->getValue(), $firstName);
     }
 
     public function testAssociatingStoredConversationToUser()
@@ -246,7 +246,7 @@ class UserServiceTest extends TestCase
 
         $caught = false;
         try {
-            $userBeforePersisting->getAttribute('testAttr');
+            $userBeforePersisting->getUserAttribute('testAttr');
         } catch (AttributeDoesNotExistException $e) {
             $caught = true;
         }
@@ -263,7 +263,7 @@ class UserServiceTest extends TestCase
 
         // Ensure value is on the User object
         try {
-            $testAttr = $user->getAttribute('testAttr');
+            $testAttr = $user->getUserAttribute('testAttr');
         } catch (AttributeDoesNotExistException $e) {
             $this->fail($e);
         }

@@ -143,16 +143,15 @@ class AttributeExtractionTest extends TestCase
         $user = $userService->getUser($utterance1->getUser()->getId());
 
         try {
-            $user->getAttributeValue('first_name');
+            $user->getUserAttributeValue('first_name');
             $this->fail('should have thrown exception');
         } catch (AttributeDoesNotExistException $e) {
             //
         }
-
         $this->odController->runConversation($utterance1);
 
         $user = $userService->getUser($utterance1->getUser()->getId());
-        $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
+        $this->assertEquals('first_name', $user->getUserAttributeValue('first_name'));
     }
 
     public function testMultipleMatchedMessageTemplates()

@@ -56,7 +56,6 @@ class Model
 
     // ChatbotUsers can have many UserAttributes
     const HAS_ATTRIBUTE = 'has_attribute';
-    const USER_ATTRIBUTE_NAME = 'user_attribute_name';
     const USER_ATTRIBUTE_TYPE = 'user_attribute_type';
     const USER_ATTRIBUTE_VALUE = 'user_attribute_value';
 

@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
+use Ds\Map;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
@@ -9,6 +10,7 @@ use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -47,43 +49,16 @@ class UserService
      */
     public function getUser($userId): ChatbotUser
     {
-        $response = $this->dGraphClient->query($this->getUserQuery($userId));
+        $response = $this->dGraphClient->query($this->getSingleUserQuery($userId));
 
-        $user = new ChatbotUser();
-        if (isset($response->getData()[0]['id'])) {
-            foreach ($response->getData()[0] as $name => $value) {
-                if (in_array($name, [Model::HAVING_CONVERSATION, Model::HAD_CONVERSATION, Model::CURRENT_INTENT])) {
-                    continue;
-                }
-
-                if ($name === 'id') {
-                    $user->setId($value);
-                    continue;
-                }
-
-                if ($name === 'uid') {
-                    $user->setUid($value);
-                    continue;
-                }
-
-                try {
-                    $attribute = AttributeResolver::getAttributeFor($name, $value);
-                    $user->addUserAttribute($attribute);
-                } catch (AttributeIsNotSupported $e) {
-                    Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
-                    continue;
-                }
-            }
+        if (!empty($response->getData())) {
+            $responseData = $response->getData()[0];
+        } else {
+            $responseData = [];
         }
 
-        if (isset($response->getData()[0][Model::HAVING_CONVERSATION])) {
-            $user->setCurrentConversationUid($response->getData()[0][Model::HAVING_CONVERSATION][0][Model::UID]);
-        }
+        $user = $this->createChatbotUserFromResponseData($responseData);
 
-        if (isset($response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT])) {
-            $intentId = $response->getData()[0][Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT][0][Model::UID];
-            $user->setCurrentIntentUid($intentId);
-        }
         return $user;
     }
 
@@ -141,7 +116,7 @@ class UserService
 
         if ($user->hasCustomParameters()) {
             foreach ($user->getCustomParameters() as $key => $value) {
-                $this->setUserAttribute($chatbotUser, $key, $value, true);
+                $this->setUserAttribute($chatbotUser, $key, $value);
             }
         }
     }
@@ -286,7 +261,7 @@ class UserService
      */
     public function userExists($userId): bool
     {
-        $response = $this->dGraphClient->query($this->getUserQuery($userId));
+        $response = $this->dGraphClient->query($this->getSingleUserQuery($userId));
         if (isset($response->getData()[0]['id'])) {
             return true;
         }
@@ -364,15 +339,13 @@ class UserService
     }
 
     /**
-     * @param $userId
      * @return DGraphQuery
      */
-    private function getUserQuery($userId): DGraphQuery
+    public function getUserQuery(): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
 
-        $dGraphQuery->eq(Model::ID, $userId)
-            ->filterEq(Model::EI_TYPE, Model::CHATBOT_USER)
+        $dGraphQuery->eq(Model::EI_TYPE, Model::CHATBOT_USER)
             ->setQueryGraph([
                 Model::UID,
                 Model::HAVING_CONVERSATION => [
@@ -390,6 +363,15 @@ class UserService
             ]);
 
         return $dGraphQuery;
+    }
+
+    /**
+     * @param $userId
+     * @return DGraphQuery
+     */
+    public function getSingleUserQuery($userId)
+    {
+        return $this->getUserQuery()->filterEq(Model::ID, $userId);
     }
 
     /**
@@ -523,24 +505,90 @@ class UserService
      * @param ChatbotUser $chatbotUser
      * @param $attributeName
      * @param $attributeValue
-     * @param bool $custom
+     * @return AttributeInterface
      */
-    protected function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue, $custom = false): void
+    public function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
     {
-        if ($chatbotUser->hasAttribute($attributeName)) {
-            $chatbotUser->setAttribute($attributeName, $attributeValue);
-        } else {
-            try {
-                $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
+        try {
+            $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
+            $chatbotUser->addUserAttribute($attribute);
+        } catch (AttributeIsNotSupported $e) {
+            Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
+        }
+    }
 
-                if ($custom) {
-                    $chatbotUser->addUserAttribute($attribute);
-                } else {
-                    $chatbotUser->addAttribute($attribute);
+    /**
+     * Adds an attribute on a chatbot user
+     *
+     * @param ChatbotUser $chatbotUser
+     * @param $attributeName
+     * @param $attributeValue
+     */
+    public function addUserAttribute(ChatbotUser $chatbotUser, AttributeInterface $attribute): void
+    {
+        try {
+            $chatbotUser->addUserAttribute($attribute);
+        } catch (AttributeIsNotSupported $e) {
+            Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attribute->getId()));
+        }
+    }
+
+    public function getUserAttributes(ChatbotUser $chatbotUser): Map
+    {
+        return $chatbotUser->getAllUserAttributes();
+    }
+
+    /**
+     * @param array $responseData
+     * @return ChatbotUser
+     */
+    public function createChatbotUserFromResponseData(array $responseData): ChatbotUser
+    {
+        $user = new ChatbotUser();
+
+        if (isset($responseData['id'])) {
+            foreach ($responseData as $name => $value) {
+                if (in_array($name, [Model::HAVING_CONVERSATION, Model::HAD_CONVERSATION, Model::CURRENT_INTENT])) {
+                    continue;
                 }
-            } catch (AttributeIsNotSupported $e) {
-                Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
+
+                if ($name === 'id') {
+                    $user->setId($value);
+                    continue;
+                }
+
+                if ($name === 'uid') {
+                    $user->setUid($value);
+                    continue;
+                }
+
+                if ($name === Model::HAS_ATTRIBUTE) {
+                    foreach ($value as $userAttribute) {
+                        try {
+                            $attribute = AttributeResolver::getAttributeFor(
+                                $userAttribute[Model::ID],
+                                $userAttribute[Model::USER_ATTRIBUTE_VALUE]
+                            );
+
+                            $user->addUserAttribute($attribute);
+                        } catch (AttributeIsNotSupported $e) {
+                            Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
+                            continue;
+                        }
+                    }
+                }
             }
         }
+
+        if (isset($responseData[Model::HAVING_CONVERSATION])) {
+            $user->setCurrentConversationUid($responseData[Model::HAVING_CONVERSATION][0][Model::UID]);
+        }
+
+        if (isset($responseData[Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT])) {
+            $intentId = $responseData[Model::HAVING_CONVERSATION][0][Model::CURRENT_INTENT][0][Model::UID];
+            $user->setCurrentIntentUid($intentId);
+        }
+
+        return $user;
     }
 }

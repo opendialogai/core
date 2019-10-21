@@ -3,6 +3,8 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
+use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
@@ -115,22 +117,39 @@ class ChatbotUser extends Node
      */
     public function addUserAttribute(AttributeInterface $userAttribute): void
     {
-        $node = new UserAttribute(
-            $userAttribute->getId(),
-            $userAttribute->getType(),
-            $userAttribute->getValue()
-        );
+        $node = new UserAttribute($userAttribute);
 
         $this->createOutgoingEdge(Model::HAS_ATTRIBUTE, $node);
     }
 
     /**
      * @param string $userAttributeId
-     * @return AttributeInterface|null
+     * @return AttributeInterface
+     * @throws AttributeDoesNotExistException
      */
-    public function getUserAttribute(string $userAttributeId): ?AttributeInterface
+    public function getUserAttribute(string $userAttributeId): AttributeInterface
     {
-        return $this->getAllUserAttributes()->get($userAttributeId);
+        /** @var UserAttribute $userAttribute */
+        $userAttribute = $this->getAllUserAttributes()->get($userAttributeId, null);
+
+        if (is_null($userAttribute)) {
+            Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $userAttributeId));
+            throw new AttributeDoesNotExistException(
+                sprintf("Cannot return attribute with name %s - does not exist", $userAttributeId)
+            );
+        }
+
+        return $userAttribute->getInternalAttribute();
+    }
+
+    /**
+     * @param string $userAttributeId
+     * @return AttributeInterface|null
+     * @throws AttributeDoesNotExistException
+     */
+    public function getUserAttributeValue(string $userAttributeId): string
+    {
+        return $this->getUserAttribute($userAttributeId)->getValue();
     }
 
     /**

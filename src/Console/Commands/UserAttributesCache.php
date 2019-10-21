@@ -3,9 +3,11 @@
 namespace OpenDialogAi\Core\Console\Commands;
 
 use Illuminate\Console\Command;
-use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\ContextEngine\Contexts\User\UserService;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\UserAttribute;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\StatsRuns;
 use OpenDialogAi\Core\UserAttributes;
 
@@ -42,28 +44,43 @@ class UserAttributesCache extends Command
         /** @var DGraphClient $dgraph */
         $dgraph = app()->make(DGraphClient::class);
 
-        $query = new DGraphQuery();
-        $query->eq(Model::EI_TYPE, Model::CHATBOT_USER)
-            ->setQueryGraph([
-                Model::UID,
-                Model::ID,
-                Model::LAST_SEEN
-            ]);
+        /** @var UserService $userService */
+        $userService = app()->make(UserService::class);
 
+        $query = $userService->getUserQuery();
         $results = $dgraph->query($query);
 
-        foreach ($results->getData() as $user) {
-            if ($user['last_seen'] > $lastRunTime) {
+        foreach ($results->getData() as $userData) {
+            /** @var ChatbotUser $user */
+            $user = $userService->createChatbotUserFromResponseData($userData);
+
+            if ($user->getUserAttributeValue('last_seen') > $lastRunTime) {
                 // clear existing data
-                UserAttributes::where('user_id', $user['id'])->each(function (UserAttributes $userStat) {
+                UserAttributes::where('user_id', $user->getId())->each(function (UserAttributes $userStat) {
                     $userStat->delete();
                 });
 
-                foreach ($user as $stat => $value) {
+                /**
+                 * @var string $stat
+                 * @var AttributeInterface $value
+                 */
+                foreach ($user->getAttributes() as $stat => $value) {
                     UserAttributes::create([
-                        'user_id'   => $user['id'],
+                        'user_id'   => $user->getId(),
                         'attribute' => $stat,
-                        'value'     => $value
+                        'value'     => $value->getValue()
+                    ]);
+                }
+
+                /**
+                 * @var string $stat
+                 * @var UserAttribute $value
+                 */
+                foreach ($user->getAllUserAttributes() as $stat => $value) {
+                    UserAttributes::create([
+                        'user_id'   => $user->getId(),
+                        'attribute' => $stat,
+                        'value'     => $value->getInternalAttribute()->getValue()
                     ]);
                 }
             }

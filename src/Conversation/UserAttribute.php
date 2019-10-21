@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
@@ -11,12 +12,26 @@ use OpenDialogAi\Core\Graph\Node\Node;
  */
 class UserAttribute extends Node
 {
-    public function __construct($id, $type, $value)
+    /**
+     * @var AttributeInterface
+     */
+    private $attribute;
+
+    public function __construct(AttributeInterface $attribute)
     {
-        parent::__construct($id);
+        parent::__construct($attribute->getId());
+
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::USER_ATTRIBUTE));
-        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_NAME, $id));
-        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_TYPE, $type));
-        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_VALUE, $value));
+
+        $this->addAttribute(new StringAttribute(Model::ID, $attribute->getId()));
+        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_TYPE, $attribute->getType()));
+        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_VALUE, $attribute->getValue()));
+
+        $this->attribute = $attribute;
+    }
+
+    public function getInternalAttribute(): AttributeInterface
+    {
+        return $this->attribute;
     }
 }
