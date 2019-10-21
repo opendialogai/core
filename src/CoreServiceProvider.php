@@ -4,6 +4,8 @@ namespace OpenDialogAi\Core;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Monolog\Logger;
+use Monolog\Processor\IntrospectionProcessor;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
@@ -47,6 +49,10 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->when(RequestLoggerMiddleware::class)
             ->needs('$requestId')
             ->give($this->requestId);
+
+        if (env('INTROSPECTION_PROCESSOR_ENABLED', false)) {
+            Log::pushProcessor(new IntrospectionProcessor(Logger::DEBUG, ['Illuminate\\']));
+        }
 
         Log::pushProcessor(LoggingHelper::getLogUserIdProcessor($this->requestId));
     }
