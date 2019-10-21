@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Utterances\Webchat;
 
 use OpenDialogAi\Core\Utterances\FormResponseUtterance;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatTextMessage;
 
 class WebchatFormResponseUtterance extends FormResponseUtterance
 {
@@ -16,7 +16,7 @@ class WebchatFormResponseUtterance extends FormResponseUtterance
     public function setFormValues(array $formValues): void
     {
         foreach ($formValues as $name => $value) {
-            if (!in_array($name, [WebChatMessage::DATE, WebChatMessage::TIME, 'text'])) {
+            if (!in_array($name, [WebchatTextMessage::DATE, WebchatTextMessage::TIME, 'text'])) {
                 $this->formValues[$name] = $value;
             }
         }

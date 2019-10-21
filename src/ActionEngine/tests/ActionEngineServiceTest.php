@@ -9,7 +9,6 @@ use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
 use OpenDialogAi\ActionEngine\Tests\Actions\DummyAction;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -83,11 +82,9 @@ class ActionEngineServiceTest extends TestCase
         $this->setDummyAction();
         ContextService::createContext('test');
 
-
-        $this->expectException(AttributeDoesNotExistException::class);
         try {
-            $this->actionEngine->performAction('actions.core.dummy');
-            $this->fail('Exception should have been thrown');
+            $result = $this->actionEngine->performAction('actions.core.dummy');
+            $this->assertTrue($result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('Wrong exception thrown');
         }
@@ -101,7 +98,6 @@ class ActionEngineServiceTest extends TestCase
         $input = new ActionInput();
         $input->addAttribute(new IntAttribute('dummy', 1));
 
-        $this->expectException(AttributeDoesNotExistException::class);
         try {
             $result = $this->actionEngine->performAction('actions.core.dummy');
             $this->assertTrue($result->isSuccessful());

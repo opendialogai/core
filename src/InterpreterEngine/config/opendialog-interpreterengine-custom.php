@@ -18,6 +18,13 @@ return [
 //    \OpenDialogAi\InterpreterEngine\tests\Interpreters\DummyInterpreter::class
     ],
 
+    /**
+     * Cache time in seconds for each interpreter
+     */
+    'interpreter_cache_times' => [
+//        'interpreter.core.luis' => 60,
+    ],
+
     'default_interpreter' => 'interpreter.core.callbackInterpreter',
 
     /**

@@ -14,6 +14,13 @@ class OutgoingIntent extends Model
 {
     protected $fillable = ['name'];
 
+    protected $visible = [
+        'name',
+        'messageTemplates',
+        'created_at',
+        'updated_at',
+    ];
+
     /**
      * Get the message templates for the outgoing intent.
      */

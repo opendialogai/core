@@ -28,6 +28,7 @@ return [
 
     'default_interpreter' => 'interpreter.core.callbackInterpreter',
 
+    'default_cache_time' => 60,
 
     'supported_callbacks' => [
         'callback_example' => 'intent.core.exampleIntent',

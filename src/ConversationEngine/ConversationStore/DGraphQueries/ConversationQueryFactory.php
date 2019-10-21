@@ -1,10 +1,8 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
 use OpenDialogAi\ConversationEngine\Transformers\IntentTransformer;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -183,10 +181,10 @@ class ConversationQueryFactory
         return [
             Model::UID,
             Model::ID,
-            Model::ATTRIBUTE_NAME,
-            Model::ATTRIBUTE_VALUE,
             Model::CONTEXT,
-            Model::OPERATION
+            Model::OPERATION,
+            Model::ATTRIBUTES,
+            Model::PARAMETERS
         ];
     }
 
@@ -336,24 +334,23 @@ class ConversationQueryFactory
     {
         $uid = $conditionData[Model::UID];
         $id = $conditionData[Model::ID];
-        $context = $conditionData[Model::CONTEXT];
-        $attributeName = $conditionData[Model::ATTRIBUTE_NAME];
-        $attributeValue = $conditionData[Model::ATTRIBUTE_VALUE] === ''
-            ? null
-            : $conditionData[Model::ATTRIBUTE_VALUE];
         $operation = $conditionData[Model::OPERATION];
 
-        if (array_key_exists($attributeName, AttributeResolverFacade::getSupportedAttributes())) {
-            $attribute = AttributeResolverFacade::getAttributeFor($attributeName, $attributeValue);
-            $condition = new Condition($attribute, $operation, $id);
-            $condition->setContextId($context);
-            if ($clone) {
-                $condition->setUid($uid);
-            }
-            return $condition;
+        $parameters = [];
+        if (isset($conditionData[Model::PARAMETERS])) {
+            $parameters = json_decode(htmlspecialchars_decode($conditionData[Model::PARAMETERS]));
         }
 
-        return null;
+        $attributes = [];
+        if (isset($conditionData[Model::ATTRIBUTES])) {
+            $attributes = json_decode(htmlspecialchars_decode($conditionData[Model::ATTRIBUTES]));
+        }
+
+        $condition = new Condition($operation, $attributes, $parameters, $id);
+        if ($clone) {
+            $condition->setUid($uid);
+        }
+        return $condition;
     }
 
     /**
@@ -391,15 +388,23 @@ class ConversationQueryFactory
     {
         $scene = $cm->getScene($data[Model::ID]);
         $clone ? false : $scene->setUid($data[Model::UID]);
-        $clone ? false: $scene->getUser()->setUid($data[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
-        $clone ? false: $scene->getBot()->setUid($data[Model::HAS_BOT_PARTICIPANT][0][Model::UID]);
+        $clone ? false : $scene->getUser()->setUid($data[Model::HAS_USER_PARTICIPANT][0][Model::UID]);
+        $clone ? false : $scene->getBot()->setUid($data[Model::HAS_BOT_PARTICIPANT][0][Model::UID]);
 
         self::updateParticipantFromDGraphData(
-            $scene->getId(), $scene->getUser(), $cm, $data[Model::HAS_USER_PARTICIPANT][0], $clone
+            $scene->getId(),
+            $scene->getUser(),
+            $cm,
+            $data[Model::HAS_USER_PARTICIPANT][0],
+            $clone
         );
 
         self::updateParticipantFromDGraphData(
-            $scene->getId(), $scene->getBot(), $cm, $data[Model::HAS_BOT_PARTICIPANT][0], $clone
+            $scene->getId(),
+            $scene->getBot(),
+            $cm,
+            $data[Model::HAS_BOT_PARTICIPANT][0],
+            $clone
         );
     }
 

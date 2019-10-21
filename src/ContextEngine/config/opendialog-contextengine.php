@@ -13,6 +13,7 @@ return [
         'full_name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'id' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'last_name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'age' => \OpenDialogAi\Core\Attribute\IntAttribute::class,
         'name' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'operation' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'timestamp' => \OpenDialogAi\Core\Attribute\IntAttribute::class,

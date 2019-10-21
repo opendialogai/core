@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ResponseEngine\LinkClickInterface;
 use OpenDialogAi\ResponseEngine\MySqlLinkClick;
 use OpenDialogAi\SensorEngine\Service\SensorService;
+use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
 class SensorEngineServiceProvider extends ServiceProvider
 {
@@ -17,13 +18,13 @@ class SensorEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-sensorengine.php', 'opendialog.sensor_engine');
 
-        $this->app->bind(SensorInterface::class, function () {
+        $this->app->singleton(SensorServiceInterface::class, function () {
             $sensorEngine = new SensorService();
             $sensorEngine->registerAvailableSensors();
             return $sensorEngine;
         });
 
-        $this->app->bind(LinkClickInterface::class, function () {
+        $this->app->singleton(LinkClickInterface::class, function () {
             $mysqlLinkClick = new MySqlLinkClick();
             return $mysqlLinkClick;
         });

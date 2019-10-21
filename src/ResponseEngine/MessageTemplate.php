@@ -2,18 +2,17 @@
 
 namespace OpenDialogAi\ResponseEngine;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\Condition\Condition;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * @property int $id
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  * @property int $outgoing_intent_id
  * @property String $name
  * @property String $conditions
@@ -23,16 +22,26 @@ use Symfony\Component\Yaml\Yaml;
  */
 class MessageTemplate extends Model
 {
-    const CONDITIONS      = 'conditions';
-    const ATTRIBUTE_NAME  = 'attribute';
-    const ATTRIBUTE_VALUE = 'value';
-    const OPERATION       = 'operation';
+    const CONDITION = 'condition';
+    const CONDITIONS = 'conditions';
+    const ATTRIBUTES = 'attributes';
+    const PARAMETERS = 'parameters';
+    const OPERATION  = 'operation';
 
     protected $fillable = [
         'name',
         'conditions',
         'message_markup',
         'outgoing_intent_id',
+    ];
+
+    protected $visible = [
+        'name',
+        'conditions',
+        'message_markup',
+        'outgoing_intent_id',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -58,6 +67,23 @@ class MessageTemplate extends Model
     }
 
     /**
+     * Counts the number of conditions on the message template
+     *
+     * @return int
+     */
+    public function getNumberOfConditions(): int
+    {
+        if (isset($this->conditions)) {
+            $yaml = Yaml::parse($this->conditions);
+            if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
+                return count($yaml[self::CONDITIONS]);
+            }
+        }
+
+        return 0;
+    }
+
+    /**
      * Helper method: return an array of conditions
      *
      * @return array|Condition
@@ -71,31 +97,30 @@ class MessageTemplate extends Model
             if (!empty($yaml[self::CONDITIONS]) && is_array($yaml[self::CONDITIONS])) {
                 foreach ($yaml[self::CONDITIONS] as $yamlCondition) {
                     $condition = [];
-                    $condition[self::ATTRIBUTE_NAME] = '';
-                    $condition[self::ATTRIBUTE_VALUE] = '';
+                    $condition[self::ATTRIBUTES] = '';
+                    $condition[self::PARAMETERS] = '';
                     $condition[self::OPERATION] = '';
 
-                    foreach ($yamlCondition['condition'] as $key => $val) {
+                    foreach ($yamlCondition[self::CONDITION] as $key => $val) {
                         switch ($key) {
-                            case ResponseEngineServiceInterface::ATTRIBUTE_NAME_KEY:
-                                $condition[self::ATTRIBUTE_NAME] = $val;
+                            case ResponseEngineServiceInterface::ATTRIBUTES_KEY:
+                                $condition[self::ATTRIBUTES] = $val;
                                 break;
-                            case ResponseEngineServiceInterface::ATTRIBUTE_OPERATION_KEY:
+                            case ResponseEngineServiceInterface::OPERATION_KEY:
                                 $condition[self::OPERATION] = $val;
                                 break;
-                            case ResponseEngineServiceInterface::ATTRIBUTE_VALUE_KEY:
-                                $condition[self::ATTRIBUTE_VALUE] = $val;
+                            case ResponseEngineServiceInterface::PARAMETERS_KEY:
+                                $condition[self::PARAMETERS] = $val;
                                 break;
                             default:
                                 break;
                         }
                     }
 
-                    [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($condition['attribute']);
-
-                    $attribute = AttributeResolver::getAttributeFor($attributeName, $condition['value']);
-
-                    $conditions[$contextId][] = [$attributeName => new Condition($attribute, $condition['operation'])];
+                    $operation = $condition[self::OPERATION];
+                    $attributes = $condition[self::ATTRIBUTES];
+                    $parameters = $condition[self::PARAMETERS];
+                    $conditions[] = new Condition($operation, $attributes, $parameters);
                 }
             }
         }

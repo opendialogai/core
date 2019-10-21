@@ -78,7 +78,7 @@ EOT;
 }
 EOT;
 
-        $entity = new LuisEntity(json_decode($rawLuisIntent));
+        $entity = new LuisEntity(json_decode($rawLuisIntent), "I am in zurich");
         $this->assertEquals('SwissCanton', $entity->getType());
         $this->assertEquals('zurich', $entity->getEntityString());
         $this->assertEquals(8, $entity->getStartIndex());
@@ -98,6 +98,5 @@ EOT;
 
         $this->assertEquals('Define Canton', $intent->getLabel());
         $this->assertEquals(0.96, $intent->getConfidence());
-
     }
 }

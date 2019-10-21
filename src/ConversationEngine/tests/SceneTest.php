@@ -57,7 +57,7 @@ class SceneTest extends TestCase
 
         $this->assertEquals('hello_human', $intent->getId());
 
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_again_bot');
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_again_bot', $utterance->getUser());
 
         /* @var UserContext $userContext ; */
         $userContext = ContextService::createUserContext($utterance);

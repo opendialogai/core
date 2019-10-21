@@ -4,6 +4,8 @@ namespace OpenDialogAi\Core;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Monolog\Logger;
+use Monolog\Processor\IntrospectionProcessor;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
@@ -16,7 +18,9 @@ use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
-    /** @var string $requestId */
+    /**
+     * @var string $requestId
+     */
     private $requestId;
 
     public function boot()
@@ -26,7 +30,7 @@ class CoreServiceProvider extends ServiceProvider
         ], 'opendialog-config');
 
         $this->publishes([
-            __DIR__ . '/../dgraph' => base_path('dgraph')
+            __DIR__ . '/../../dgraph-docker' => base_path('dgraph')
         ], 'dgraph');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
@@ -46,16 +50,16 @@ class CoreServiceProvider extends ServiceProvider
             ->needs('$requestId')
             ->give($this->requestId);
 
+        if (env('INTROSPECTION_PROCESSOR_ENABLED', false)) {
+            Log::pushProcessor(new IntrospectionProcessor(Logger::DEBUG, ['Illuminate\\']));
+        }
+
         Log::pushProcessor(LoggingHelper::getLogUserIdProcessor($this->requestId));
     }
 
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/opendialog.php', 'opendialog.core');
-
-        $this->app->singleton(OpenDialogController::class, function () {
-            return new OpenDialogController();
-        });
 
         $this->app->singleton(DGraphClient::class, function () {
             return new DGraphClient(

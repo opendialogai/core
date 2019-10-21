@@ -2,9 +2,12 @@
 
 namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
 use OpenDialogAi\ResponseEngine\LinkClickInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
@@ -31,7 +34,16 @@ class WebchatIncomingController extends BaseController
         $this->webchatSensor = $sensorService->getSensor('sensor.core.webchat');
     }
 
-    public function receive(IncomingWebchatMessage $request)
+    /**
+     * Receives an incoming message, transforms into an utterance, passes through the OD controller and returns the
+     * correct response
+     *
+     * @param IncomingWebchatMessage $request
+     * @return Response
+     * @throws BindingResolutionException
+     * @throws FieldNotSupported
+     */
+    public function receive(IncomingWebchatMessage $request): Response
     {
         $messageType = $request->input('notification');
 
@@ -55,7 +67,7 @@ class WebchatIncomingController extends BaseController
         Log::debug(sprintf('Sending response: %s', json_encode($messageWrapper->getMessageToPost())));
 
         $messages = $messageWrapper->getMessageToPost();
-        if (count($messages) == 1) {
+        if (count($messages) == 1 && reset($messages)) {
             return response(reset($messages), 200);
         }
 

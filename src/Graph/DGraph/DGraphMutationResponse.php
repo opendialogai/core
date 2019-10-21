@@ -12,6 +12,8 @@ class DGraphMutationResponse
 
     private $data;
 
+    private $errors;
+
     private $extensions;
 
     public function __construct(Response $response)
@@ -20,13 +22,17 @@ class DGraphMutationResponse
 
         $responseJson = json_decode($this->response->getBody(), true);
 
-        try {
-            $this->data  = $responseJson['data'];
-        } catch (\Exception $e) {
-            return "Error processing query - {$e->getMessage()}";
+        if (isset($responseJson['data'])) {
+            $this->data = $responseJson['data'];
         }
 
-        $this->extensions = $responseJson['extensions'];
+        if (isset($responseJson['errors'])) {
+            $this->errors = $responseJson['errors'];
+        }
+
+        if (isset($responseJson['extensions'])) {
+            $this->extensions = $responseJson['extensions'];
+        }
     }
 
     public function getData()
@@ -46,5 +52,10 @@ class DGraphMutationResponse
         }
 
         return false;
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }

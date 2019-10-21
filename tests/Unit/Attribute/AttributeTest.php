@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
 
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
@@ -9,53 +8,15 @@ use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 
 class AttributeTest extends TestCase
 {
-    public function testBooleanAttribute()
-    {
-        $a = new BooleanAttribute('testA', true);
-        $b = new BooleanAttribute('testB', false);
-
-        try {
-            $this->assertFalse($a->compare($b, AbstractAttribute::EQUIVALENCE));
-
-            $b->setValue(true);
-
-            $this->assertTrue($a->compare($b, AbstractAttribute::EQUIVALENCE));
-        } catch (UnsupportedAttributeTypeException $e) {
-            $this->fail('Exception thrown');
-        }
-    }
-
     public function testBooleanAttributeTypes()
     {
         $this->assertFalse((new BooleanAttribute('test', 'false'))->getValue());
     }
-
-    public function testIntAttribute()
-    {
-        $a = new IntAttribute('testA', 50);
-        $b = new IntAttribute('testB', 109);
-
-        try {
-            $this->assertFalse($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
-
-            $b->setValue(49);
-
-            $this->assertTrue($a->compare($b, AbstractAttribute::GREATER_THAN_OR_EQUAL));
-        } catch (UnsupportedAttributeTypeException $e) {
-            $this->fail('Exception thrown');
-        }
-    }
-
-    public function testEmptyStringInt()
-    {
-        $a = new IntAttribute("test", "");
-
-        $this->assertEquals(0, $a->getValue());
-    }
-
 
     public function testBooleanToString()
     {

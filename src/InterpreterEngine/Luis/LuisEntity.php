@@ -4,6 +4,16 @@ namespace OpenDialogAi\InterpreterEngine\Luis;
 
 class LuisEntity
 {
+    private const NO_RESOLUTION_VALUE = 0;
+    private const ONE_RESOLUTION_VALUE = 1;
+    private const MANY_RESOLUTION_VALUES = 2;
+
+    /**
+     * The user's input
+     * @var string
+     */
+    private $query;
+
     /* @var string */
     private $type;
 
@@ -37,10 +47,10 @@ class LuisEntity
      */
     private $score;
 
-    public function __construct($entity)
+    public function __construct($entity, $query)
     {
+        $this->query = $query;
         $this->type = $entity->type;
-
         $this->entityString = $entity->entity;
 
         if (isset($entity->startIndex)) {
@@ -48,9 +58,7 @@ class LuisEntity
             $this->endIndex = $entity->endIndex;
         }
 
-        if (isset($entity->resolution->values)) {
-            $this->extractValues($entity);
-        }
+        $this->extractValues($entity);
 
         if (isset($entity->score)) {
             $this->score = floatval($entity->score);
@@ -58,49 +66,57 @@ class LuisEntity
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
-    public function getType()
+    public function getQuery(): ?string
+    {
+        return $this->query;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
     {
         return $this->type;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getEntityString()
+    public function getEntityString(): string
     {
         return $this->entityString;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getStartIndex()
+    public function getStartIndex(): int
     {
         return $this->startIndex;
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getEndIndex()
+    public function getEndIndex(): int
     {
         return $this->endIndex;
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getResolutionValues()
+    public function getResolutionValues(): array
     {
         return $this->resolutionValues;
     }
 
     /**
-     * @return mixed
+     * @return float
      */
-    public function getScore()
+    public function getScore(): float
     {
         return $this->score;
     }
@@ -110,8 +126,58 @@ class LuisEntity
      */
     private function extractValues($entity): void
     {
-        foreach ($entity->resolution->values as $value) {
+        $resolutionStructure = $this->detectResolutionStructure($entity);
+
+        switch ($resolutionStructure) {
+            case self::ONE_RESOLUTION_VALUE:
+                $values[] = $entity->resolution->value;
+                break;
+
+            case self::MANY_RESOLUTION_VALUES:
+                $values = $entity->resolution->values;
+                break;
+
+            case self::NO_RESOLUTION_VALUE:
+            default:
+                $values[] = $this->extractValueWhenNoResolution();
+        }
+
+        foreach ($values as $value) {
             $this->resolutionValues[] = $value;
         }
+    }
+
+    /**
+     * Returns a constant representing the structure (or existence) of the entity's resolution object
+     * @param $entity
+     * @return int
+     */
+    private function detectResolutionStructure($entity): int
+    {
+        if (isset($entity->resolution->values)) {
+            return self::MANY_RESOLUTION_VALUES;
+        }
+
+        if (isset($entity->resolution->value)) {
+            return self::ONE_RESOLUTION_VALUE;
+        }
+
+        return self::NO_RESOLUTION_VALUE;
+    }
+
+    /**
+     * Extracts a value when the entity has no resolution value. The value is extracted from the the query if possible
+     * and from the entity string otherwise.
+     * @return string
+     */
+    private function extractValueWhenNoResolution(): string
+    {
+        $entityValue = $this->getEntityString();
+
+        if (!is_null($this->getQuery()) && !is_null($this->getStartIndex()) && !is_null($this->getEndIndex())) {
+            $entityValue = substr($this->getQuery(), $this->getStartIndex(), 1 + $this->getEndIndex() - $this->getStartIndex());
+        }
+
+        return $entityValue;
     }
 }

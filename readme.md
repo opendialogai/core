@@ -14,9 +14,9 @@ In the meantime if you would like a preview please [get in touch](https://www.gr
 
 ## Installing
 
-Install in composer with the following block:
+To install using [Composer](https://getcomposer.org/) run the following command:
 
-```"opendialogai/core"```
+`composer require opendialogai/core`
 
 ## Local Config
 To publish config files for local set up and customisation, run
@@ -70,6 +70,11 @@ All queries are logged at info level
 
 By default, all incoming and outgoing API calls will be logged to the request and response mysql tables.
 To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`
+
+## Introspection logging
+
+To turn on introspection processing set the `INTROSPECTION_PROCESSOR_ENABLED` env variable to true. This will add
+extra information to all log messages including the class and line that generated the message
 
 ## Local Artisan
 

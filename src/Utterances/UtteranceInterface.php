@@ -1,6 +1,7 @@
 <?php
 
 namespace OpenDialogAi\Core\Utterances;
+
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 
 /**

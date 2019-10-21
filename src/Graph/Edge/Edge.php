@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Graph\Edge;
-
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\HasAttributesTrait;

@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Tests\Utils;
 use Faker\Factory;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\User;
+use OpenDialogAi\Core\Utterances\Webchat\WebchatButtonResponseUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 
@@ -38,7 +39,7 @@ class UtteranceGenerator
         return $utterance;
     }
 
-    public static function generateTextUtterance($text = '', $user = null)
+    public static function generateTextUtterance($text = '', $user = null): WebchatTextUtterance
     {
         if ($user === null) {
             $user = self::generateUser();
@@ -47,6 +48,28 @@ class UtteranceGenerator
         $utterance = new WebchatTextUtterance();
         try {
             $utterance->setText($text);
+            $utterance->setUser($user);
+            $utterance->setUserId($user->getId());
+        } catch (FieldNotSupported $e) {
+            //
+        }
+
+        return $utterance;
+    }
+
+    public static function generateButtonResponseUtterance(
+        $callbackId = '',
+        $value = '',
+        $user = null
+    ): WebchatButtonResponseUtterance {
+        if ($user === null) {
+            $user = self::generateUser();
+        }
+
+        $utterance = new WebchatButtonResponseUtterance();
+        try {
+            $utterance->setCallbackId($callbackId);
+            $utterance->setValue($value);
             $utterance->setUser($user);
             $utterance->setUserId($user->getId());
         } catch (FieldNotSupported $e) {

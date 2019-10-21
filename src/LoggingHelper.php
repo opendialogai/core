@@ -12,8 +12,12 @@ class LoggingHelper extends ServiceProvider
      *
      * @return \Closure
      */
-    public static function getLogUserIdProcessor($requestId): \Closure
+    public static function getLogUserIdProcessor($requestId = null): \Closure
     {
+        if ($requestId === null) {
+            $requestId = uniqid();
+        }
+
         $userId = self::getUserIdFromRequest();
 
         return function ($record) use ($requestId, $userId) {

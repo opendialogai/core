@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
@@ -21,6 +22,8 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class AttributeExtractionTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /* @var ConversationEngine */
     private $conversationEngine;
 
@@ -34,15 +37,16 @@ class AttributeExtractionTest extends TestCase
         $this->registerMultipleInterpreters([new TestNameInterpreter(), new TestAgeInterpreter()]);
 
         // Add 'age' and 'dob_year' as a known attributes
-        $this->setConfigValue('opendialog.context_engine.custom_attributes',
-        [
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            [
             'age' => IntAttribute::class,
             'dob_year' => IntAttribute::class
-        ]);
+            ]
+        );
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
         $this->odController = $this->app->make(OpenDialogController::class);
-
 
         $this->publishConversation($this->getExampleConversation());
     }
@@ -149,6 +153,55 @@ class AttributeExtractionTest extends TestCase
 
         $user = $userService->getUser($utterance1->getUser()->getId());
         $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
+    }
+
+    public function testMultipleMatchedMessageTemplates()
+    {
+        $outgoingIntent = OutgoingIntent::create(['name' => 'hello_user']);
+        MessageTemplate::create([
+            'name' => 'message 1',
+            'message_markup' => '<message><text-message>message no conditions</text-message></message>',
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+
+        $conditions = <<<EOT
+conditions:
+  - condition:
+      operation: is_not_set
+      attributes:
+        username: user.name  
+EOT;
+        MessageTemplate::create([
+            'name' => 'message 2',
+            'message_markup' => '<message><text-message>message with one condition</text-message></message>',
+            'conditions' => $conditions,
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+
+        $conditions = <<<EOT
+conditions:
+  - condition:
+      operation: is_not_set
+      attributes:
+        username: user.name
+  - condition:
+      operation: is_set
+      attributes:
+        last_name: session.last_name
+EOT;
+        MessageTemplate::create([
+            'name' => 'message 3',
+            'message_markup' => '<message><text-message>message with two conditions</text-message></message>',
+            'conditions' => $conditions,
+            'outgoing_intent_id' => $outgoingIntent->id
+        ]);
+
+        $utterance1 = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
+        $messageWrapper = $this->odController->runConversation($utterance1);
+
+        $this->assertCount(1, $messageWrapper->getMessages());
+
+        $this->assertEquals('message with two conditions', $messageWrapper->getMessages()[0]->getText());
     }
 
     private function getExampleConversation()

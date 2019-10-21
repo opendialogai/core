@@ -3,24 +3,23 @@
 namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Button\WebchatCallbackButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\EmptyMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormSelectElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextAreaElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\Form\WebChatFormTextElement;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButton;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatFormMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatImageMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatListMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatLongTextMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatTextMessage;
 
 class ResponseEngineWebchatMessagesTest extends TestCase
 {
     public function testEmptyMessage()
     {
-        $message = new EmptyMessage();
+        $message = new WebchatEmptyMessage();
         $message->setDisableText(true);
         $this->assertEquals(true, $message->isEmpty());
         $this->assertEquals(1, $message->getData()['disable_text']);
@@ -28,7 +27,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatMessage()
     {
-        $message = new WebChatMessage();
+        $message = new WebchatTextMessage();
         $message->setText('This is a test, this is only a test.');
         $message->setDisableText(true);
         $this->assertEquals(1, $message->getData()['disable_text']);
@@ -37,7 +36,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatLongTextMessage()
     {
-        $message = new WebChatLongTextMessage();
+        $message = new WebchatLongTextMessage();
         $message->setInitialText('This is a test, this is only a test.');
         $message->setConfirmationText('This is a test, this is only a confirmation test.');
         $message->setSubmitText('This is a test, this is only a submission test.');
@@ -50,11 +49,11 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatListMessage()
     {
-        $message = new WebChatListMessage();
+        $message = new WebchatListMessage();
         $message->setDisableText(false);
-        $message->addItem((new WebChatMessage())->setText('This is a test, this is only a test.'));
-        $message->addItem((new WebChatImageMessage()));
-        $message->addItem((new WebChatButtonMessage())->setText('Yes'));
+        $message->addItem((new WebchatTextMessage())->setText('This is a test, this is only a test.'));
+        $message->addItem((new WebchatImageMessage()));
+        $message->addItem((new WebchatButtonMessage())->setText('Yes'));
 
         $items = $message->getItemsArray();
 
@@ -67,7 +66,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatImageMessage()
     {
-        $message = new WebChatImageMessage();
+        $message = new WebchatImageMessage();
         $message->setImgLink('http://www.opendialog.ai/');
         $message->setImgSrc('http://www.opendialog.ai/assets/images/logo.svg');
         $message->setLinkNewTab(false);
@@ -81,10 +80,10 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatFormMessage()
     {
-        $message = new WebChatFormMessage();
-        $element1 = new WebChatFormTextElement('name', 'Enter your Name', true);
-        $element2 = new WebChatFormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
-        $element3 = new WebChatFormTextAreaElement('tell_more', 'Tell me more about yourself');
+        $message = new WebchatFormMessage();
+        $element1 = new FormTextElement('name', 'Enter your Name', true);
+        $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
+        $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself');
         $message->setDisableText(false);
         $message->addElement($element1);
         $message->addElement($element2);
@@ -121,10 +120,10 @@ class ResponseEngineWebchatMessagesTest extends TestCase
 
     public function testWebChatButtonMessage()
     {
-        $message = new WebChatButtonMessage();
+        $message = new WebchatButtonMessage();
         $message->setClearAfterInteraction(false);
-        $button1 = new WebchatCallbackButton('Yes', 'callback_yes', true);
-        $button2 = new WebchatCallbackButton('No', 'callback_no', false);
+        $button1 = new CallbackButton('Yes', 'callback_yes', true);
+        $button2 = new CallbackButton('No', 'callback_no', false);
         $message->addButton($button1);
         $message->addButton($button2);
         $message->setDisableText(false);

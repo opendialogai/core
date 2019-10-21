@@ -10,9 +10,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
@@ -24,6 +22,8 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
+use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
 
 class ConversationEngineTest extends TestCase
 {
@@ -73,27 +73,15 @@ class ConversationEngineTest extends TestCase
 
         /* @var Condition $condition */
         foreach ($conditions as $condition) {
-            $attribute = $condition->getAttributeToCompareAgainst();
-            $this->assertContains($attribute->getId(), ['name', 'test']);
-
             if ($condition->getId() === 'user.name-is_set-') {
-                $this->assertInstanceOf(StringAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertNull($condition->getAttributeToCompareAgainst()->getValue());
-                $this->assertEquals('name', $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue());
-                $this->assertNull($condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
-                $this->assertEquals(AbstractAttribute::IS_SET, $condition->getEvaluationOperation());
-                $this->assertEquals(AbstractAttribute::IS_SET, $condition->getAttribute(Model::OPERATION)->getValue());
+                $this->assertTrue($condition->getEvaluationOperation() == IsSetOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == IsSetOperation::$name);
             }
 
             if ($condition->getId() === 'user.test-gt-10') {
-                $this->assertInstanceOf(IntAttribute::class, $condition->getAttributeToCompareAgainst());
-                $this->assertEquals(10, $condition->getAttributeToCompareAgainst()->getValue());
-                $this->assertEquals(10, $condition->getAttribute(Model::ATTRIBUTE_VALUE)->getValue());
-                $this->assertEquals('test', $condition->getAttribute(Model::ATTRIBUTE_NAME)->getValue());
-                $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getEvaluationOperation());
-                $this->assertEquals(AbstractAttribute::GREATER_THAN, $condition->getAttribute(Model::OPERATION)->getValue());
+                $this->assertTrue($condition->getEvaluationOperation() == GreaterThanOperation::$name);
+                $this->assertTrue($condition->getAttribute(Model::OPERATION)->getValue() == GreaterThanOperation::$name);
             }
-
         }
     }
 
@@ -193,7 +181,6 @@ class ConversationEngineTest extends TestCase
         }
     }
 
-
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -246,6 +233,40 @@ class ConversationEngineTest extends TestCase
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
     }
 
+    public function testPerformIntentAction()
+    {
+        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $callbackInterpreter = $interpreterService->getDefaultInterpreter();
+        $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
+
+        $this->publishConversation($this->conversationWithNonBindedAction());
+
+        try {
+            $this->conversationEngine->determineCurrentConversation($this->createUserContext(), $this->utterance);
+        } catch (\Exception $e) {
+            $this->fail("No exception should be thrown when calling an unbound action.");
+        }
+    }
+
+    public function testCallbackIdNotMappedToIntent()
+    {
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new IntAttribute('test', 11));
+
+        $utterance = UtteranceGenerator::generateButtonResponseUtterance('howdy_bot');
+        /* @var InterpreterServiceInterface $interpreterService */
+        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        /* @var CallbackInterpreter $callbackInterpeter */
+        $callbackInterpeter = $interpreterService->getDefaultInterpreter();
+        $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
+        $callbackInterpeter->addCallback('how_are_you', 'how_are_you');
+        $callbackInterpeter->addCallback('hello_registered_user', 'hello_registered_user');
+
+        // Let's see if we get the right next intent for the first step.
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals('hello_user', $intent->getId());
+    }
+
     private function createUserContext()
     {
         $userContext = ContextService::createUserContext($this->utterance);
@@ -255,7 +276,9 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @return UserContext
-     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     private function createConversationAndAttachToUser()
     {
@@ -285,4 +308,20 @@ class ConversationEngineTest extends TestCase
         return $userContext;
     }
 
+    private function conversationWithNonBindedAction()
+    {
+        return <<<EOT
+conversation:
+  id: non_binded
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+            action: action.test.not_bound
+        - b: 
+            i: hello_user
+            completes: true
+EOT;
+    }
 }
