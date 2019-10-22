@@ -132,6 +132,9 @@ class ConversationBuilderTest extends TestCase
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(2, $activities);
 
+        $this->assertEquals('hello_bot', $conversation->opening_intent);
+        $this->assertCount(6, $conversation->outgoing_intents);
+
         $conversation->activateConversation($conversation->buildConversation());
         $conversation->deactivateConversation();
         $conversation->archiveConversation();

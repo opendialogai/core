@@ -26,6 +26,7 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
 use OpenDialogAi\Core\Graph\DGraph\DGraphResponseErrorException;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -40,6 +41,8 @@ use Symfony\Component\Yaml\Yaml;
  * @property int id
  * @property string name
  * @property int version_number
+ * @property string opening_intent
+ * @property array outgoing_intents
  */
 class Conversation extends Model
 {
@@ -520,5 +523,66 @@ class Conversation extends Model
     public function scopeWithoutStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', '!=', $status);
+    }
+
+    /**
+     * @return array
+     */
+    public function getOutgoingIntentsAttribute(): array
+    {
+        $outgoingIntents = [];
+        $yaml = Yaml::parse($this->model)['conversation'];
+
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            foreach ($scene['intents'] as $intent) {
+                foreach ($intent as $tag => $value) {
+                    if ($tag == 'b') {
+                        foreach ($value as $key => $intent) {
+                            if ($key == 'i') {
+                                $outgoingIntent = OutgoingIntent::where('name', $intent)->first();
+                                if ($outgoingIntent) {
+                                    $outgoingIntents[] = [
+                                        'id' => $outgoingIntent->id,
+                                        'name' => $intent,
+                                    ];
+                                } else {
+                                    $outgoingIntents[] = [
+                                        'name' => $intent,
+                                    ];
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $outgoingIntents;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOpeningIntentAttribute(): string
+    {
+        $yaml = Yaml::parse($this->model)['conversation'];
+
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            foreach ($scene['intents'] as $intent) {
+                foreach ($intent as $tag => $value) {
+                    if ($tag == 'u') {
+                        foreach ($value as $key => $intent) {
+                            if ($key == 'i') {
+                                return $intent;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return '';
     }
 }
