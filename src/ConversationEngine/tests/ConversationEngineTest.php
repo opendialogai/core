@@ -295,7 +295,8 @@ class ConversationEngineTest extends TestCase
         $this->assertEquals('hello_user', $intent->getId());
     }
 
-    public function testGetLatestVersion() {
+    public function testGetLatestVersion()
+    {
         $this->createUpdates('hello_bot_world');
 
         /** @var ConversationStoreInterface $conversationStore */
@@ -305,6 +306,15 @@ class ConversationEngineTest extends TestCase
         /** @var EIModelConversation $conversationWithHistory */
         $conversationWithHistory = $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
         $this->assertEquals(2, $conversationWithHistory->getConversationVersion());
+    }
+
+    public function testGetHistory()
+    {
+        $this->createUpdates('hello_bot_world');
+
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertCount(3, $conversation->history);
     }
 
     private function createUserContext()

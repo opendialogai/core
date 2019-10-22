@@ -27,6 +27,7 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
 use OpenDialogAi\Core\Graph\DGraph\DGraphResponseErrorException;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -43,6 +44,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property int version_number
  * @property string opening_intent
  * @property array outgoing_intents
+ * @property array history
  */
 class Conversation extends Model
 {
@@ -66,7 +68,8 @@ class Conversation extends Model
         'notes',
         'created_at',
         'updated_at',
-        'version_number'
+        'version_number',
+        'history'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
@@ -585,5 +588,25 @@ class Conversation extends Model
         }
 
         return '';
+    }
+
+    /**
+     * @return array
+     */
+    public function getHistoryAttribute(): array
+    {
+        $history = Activity::where('subject_id', $this->id)->orderBy('id', 'desc')->get();
+
+        return $history->filter(function ($item) {
+            // Retain if it's the first activity record or if it's a record with the version has incremented
+            return isset($item['properties']['old'])
+                && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
+        })->values()->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'timestamp' => $item['updated_at'],
+                'attributes' => $item['properties']['attributes']
+            ];
+        })->toArray();
     }
 }
