@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationBuilder;
 
 use Closure;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
@@ -499,5 +500,25 @@ class Conversation extends Model
         }
 
         return false;
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $status
+     * @return Builder
+     */
+    public function scopeWithStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $status
+     * @return Builder
+     */
+    public function scopeWithoutStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', '!=', $status);
     }
 }
