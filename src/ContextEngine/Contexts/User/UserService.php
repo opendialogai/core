@@ -167,8 +167,10 @@ class UserService
 
     /**
      * @param ChatbotUser $user
-     * @param Conversation $conversationForCloning
-     * @param Conversation $conversationForConnecting
+     * @param Conversation $conversationForCloning Required to ensure that the new conversation is fully
+     * cloned by `UserService.updateUser`
+     * @param Conversation $conversationForConnecting Required to ensure that DGraph contains a correct `instance_of`
+     * edge between template & instance
      * @return Node
      */
     public function setCurrentConversation(
