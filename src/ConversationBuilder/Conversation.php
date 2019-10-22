@@ -55,6 +55,7 @@ class Conversation extends Model
     ];
 
     protected $visible = [
+        'id',
         'name',
         'status',
         'yaml_validation_status',
