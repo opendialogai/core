@@ -295,4 +295,20 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             Model::ID
         ];
     }
+
+    /**
+     * Returns UID's if a conversation has been used before.
+     *
+     * @param string $name
+     * @return DGraphQuery
+     */
+    public static function hasConversationBeenUsed(string $name): DGraphQuery
+    {
+        return (new DGraphQuery())
+            ->has(Model::HAS_INSTANCE)
+            ->filterEq(Model::ID, $name)
+            ->setQueryGraph([
+                Model::UID
+            ]);
+    }
 }

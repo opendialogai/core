@@ -100,4 +100,10 @@ interface ConversationStoreInterface
      * @return EIModelToGraphConverter
      */
     public function getConversationConverter(): EIModelToGraphConverter;
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasConversationBeenUsed(string $name): bool;
 }

@@ -223,4 +223,15 @@ class DGraphConversationStore implements ConversationStoreInterface
     {
         return $this->conversationConverter;
     }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasConversationBeenUsed(string $name): bool
+    {
+        $query = DGraphConversationQueryFactory::hasConversationBeenUsed($name);
+        $response = $this->dGraphClient->query($query);
+        return !empty($response->getData());
+    }
 }

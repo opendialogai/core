@@ -324,6 +324,9 @@ class ConversationEngineTest extends TestCase
     private function createConversationAndAttachToUser()
     {
         $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $this->assertFalse($conversationStore->hasConversationBeenUsed('hello_bot_world'));
+
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
@@ -338,6 +341,8 @@ class ConversationEngineTest extends TestCase
 
         $user->setCurrentConversation($conversationTemplateForCloning, $conversationTemplateForConnecting);
         $userContext->updateUser();
+
+        $this->assertTrue($conversationStore->hasConversationBeenUsed('hello_bot_world'));
 
         $conversationModel = $conversationStore->getEIModelConversation($userContext->getUser()->getCurrentConversationUid());
 

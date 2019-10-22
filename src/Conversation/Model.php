@@ -73,4 +73,6 @@ class Model
 
     const UPDATE_OF = 'update_of';
     const INSTANCE_OF = 'instance_of';
+    const HAS_UPDATE = '~update_of';
+    const HAS_INSTANCE = '~instance_of';
 }

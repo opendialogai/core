@@ -50,4 +50,12 @@ interface ConversationQueryFactoryInterface
      * @return DGraphQuery
      */
     public static function getIntentByUid(string $intentUid): DGraphQuery;
+
+    /**
+     * Returns UID's if a conversation has been used before.
+     *
+     * @param string $name
+     * @return DGraphQuery
+     */
+    public static function hasConversationBeenUsed(string $name): DGraphQuery;
 }

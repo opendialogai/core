@@ -510,4 +510,12 @@ class Conversation extends Model
         Log::debug('Created condition from Yaml.');
         return $condition;
     }
+
+    public function hasBeenUsed(): bool
+    {
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        return $conversationStore->hasConversationBeenUsed($this->name);
+    }
 }
