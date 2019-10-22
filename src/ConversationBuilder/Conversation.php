@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ConversationBuilder;
 
+use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -301,42 +302,9 @@ class Conversation extends Model
      */
     public function deactivateConversation(): bool
     {
-        $dGraph = app()->make(DGraphClient::class);
-
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-
-        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
-
-        /** @var ConversationManager $cm */
-        $cm = ConversationManager::createManagerForExistingConversation($conversation);
-
-        try {
+        return $this->setStatus(function (ConversationManager $cm) {
             $cm->setDeactivated();
-        } catch (InvalidConversationStatusTransitionException $e) {
-            return false;
-        }
-
-        $mutation = new DGraphMutation($cm->getConversation());
-
-        /* @var DGraphMutationResponse $mutationResponse */
-        $mutationResponse = $dGraph->tripleMutation($mutation);
-
-        if ($mutationResponse->isSuccessful()) {
-            $this->status = ConversationNode::DEACTIVATED;
-            $this->save(['validate' => false]);
-
-            // Add log message.
-            ConversationStateLog::create([
-                'conversation_id' => $this->id,
-                'message' => 'Deactivated conversation in DGraph.',
-                'type' => 'deactivate_conversation',
-            ])->save();
-
-            return true;
-        }
-
-        return false;
+        }, ConversationNode::DEACTIVATED);
     }
 
     /**
@@ -346,42 +314,9 @@ class Conversation extends Model
      */
     public function archiveConversation(): bool
     {
-        $dGraph = app()->make(DGraphClient::class);
-
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-
-        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
-
-        /** @var ConversationManager $cm */
-        $cm = ConversationManager::createManagerForExistingConversation($conversation);
-
-        try {
+        return $this->setStatus(function (ConversationManager $cm) {
             $cm->setArchived();
-        } catch (InvalidConversationStatusTransitionException $e) {
-            return false;
-        }
-
-        $mutation = new DGraphMutation($cm->getConversation());
-
-        /* @var DGraphMutationResponse $mutationResponse */
-        $mutationResponse = $dGraph->tripleMutation($mutation);
-
-        if ($mutationResponse->isSuccessful()) {
-            $this->status = ConversationNode::ARCHIVED;
-            $this->save(['validate' => false]);
-
-            // Add log message.
-            ConversationStateLog::create([
-                'conversation_id' => $this->id,
-                'message' => 'Archived conversation',
-                'type' => 'archived_conversation',
-            ])->save();
-
-            return true;
-        }
-
-        return false;
+        }, ConversationNode::ARCHIVED);
     }
 
     /**
@@ -518,5 +453,51 @@ class Conversation extends Model
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         return $conversationStore->hasConversationBeenUsed($this->name);
+    }
+
+    /**
+     * @param Closure $managerMethod
+     * @param $newStatus
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    private function setStatus(Closure $managerMethod, $newStatus): bool
+    {
+        $dGraph = app()->make(DGraphClient::class);
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
+
+        /** @var ConversationManager $cm */
+        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+
+        try {
+            $managerMethod->call($this, $cm);
+        } catch (InvalidConversationStatusTransitionException $e) {
+            return false;
+        }
+
+        $mutation = new DGraphMutation($cm->getConversation());
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+
+        if ($mutationResponse->isSuccessful()) {
+            $this->status = $newStatus;
+            $this->save(['validate' => false]);
+
+            // Add log message.
+            ConversationStateLog::create([
+                'conversation_id' => $this->id,
+                'message' => 'Deactivated conversation in DGraph.',
+                'type' => 'deactivate_conversation',
+            ])->save();
+
+            return true;
+        }
+
+        return false;
     }
 }
