@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Graph\DGraph;
 
-use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
@@ -130,7 +129,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (Exception $e) {
+        } catch (DGraphResponseErrorException $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -138,7 +137,7 @@ class DGraphClient
     /**
      * @param $response
      * @return mixed
-     * @throws Exception
+     * @throws DGraphResponseErrorException
      */
     private function getData($response)
     {
@@ -152,7 +151,7 @@ class DGraphClient
         }
 
         if ($error) {
-            throw new Exception($error);
+            throw new DGraphResponseErrorException($error);
         }
 
         return $response['data'];
@@ -182,7 +181,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (Exception $e) {
+        } catch (DGraphResponseErrorException $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -191,7 +190,7 @@ class DGraphClient
      * @param $startingUid
      * @return mixed
      * @throws GuzzleException
-     * @throws Exception
+     * @throws DGraphResponseErrorException
      */
     public function deleteConversationAndHistory($startingUid)
     {
@@ -237,7 +236,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (Exception $e) {
+        } catch (DGraphResponseErrorException $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }

@@ -23,6 +23,7 @@ use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
+use OpenDialogAi\Core\Graph\DGraph\DGraphResponseErrorException;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -405,7 +406,7 @@ class Conversation extends Model
 
         try {
             $dGraph->deleteConversationAndHistory($this->graph_uid);
-        } catch (Exception $e) {
+        } catch (DGraphResponseErrorException $e) {
             return false;
         }
 
