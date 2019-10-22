@@ -37,6 +37,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property mixed model
  * @property int id
  * @property string name
+ * @property int version_number
  */
 class Conversation extends Model
 {
