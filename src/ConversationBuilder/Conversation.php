@@ -27,7 +27,6 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
 use OpenDialogAi\Core\Graph\DGraph\DGraphResponseErrorException;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
-use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -595,7 +594,7 @@ class Conversation extends Model
      */
     public function getHistoryAttribute(): array
     {
-        $history = Activity::where('subject_id', $this->id)->orderBy('id', 'desc')->get();
+        $history = ConversationActivity::forSubjectOrdered($this->id)->get();
 
         return $history->filter(function ($item) {
             // Retain if it's the first activity record or if it's a record with the version has incremented
