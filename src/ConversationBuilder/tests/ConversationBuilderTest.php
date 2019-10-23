@@ -132,7 +132,8 @@ class ConversationBuilderTest extends TestCase
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(2, $activities);
 
-        $this->assertEquals('hello_bot', $conversation->opening_intent);
+        $this->assertCount(1, $conversation->opening_intents);
+        $this->assertEquals('hello_bot', $conversation->opening_intents[0]);
         $this->assertCount(6, $conversation->outgoing_intents);
 
         $conversation->activateConversation($conversation->buildConversation());
@@ -444,5 +445,15 @@ class ConversationBuilderTest extends TestCase
         $response = $client->query($query);
         $this->assertCount(0, $response->getData());
         $this->assertTrue(Conversation::where('name', 'hello_bot_world')->get()->isEmpty());
+    }
+
+    public function testConversationWithManyOpeningIntents()
+    {
+        $this->activateConversation($this->conversationWithManyOpeningIntents());
+
+        /** @var Conversation $conversationModel */
+        $conversationModel = Conversation::where('name', 'many_opening_intents')->first();
+
+        $this->assertCount(3, $conversationModel->opening_intents);
     }
 }

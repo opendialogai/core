@@ -2,11 +2,15 @@
 
 namespace OpenDialogAi\ConversationEngine;
 
+use GuzzleHttp\Exception\GuzzleException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
@@ -37,6 +41,11 @@ interface ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Intent
+     * @throws FieldNotSupported
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws ConversationStore\EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent;
 

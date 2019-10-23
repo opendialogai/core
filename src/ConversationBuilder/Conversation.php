@@ -41,7 +41,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property int id
  * @property string name
  * @property int version_number
- * @property string opening_intent
+ * @property array opening_intents
  * @property array outgoing_intents
  * @property array history
  * @property bool has_been_used
@@ -70,14 +70,14 @@ class Conversation extends Model
         'updated_at',
         'version_number',
         'history',
-        'opening_intent',
+        'opening_intents',
         'outgoing_intents',
         'has_been_used'
     ];
 
     protected $appends = [
         'history',
-        'opening_intent',
+        'opening_intents',
         'outgoing_intents',
         'has_been_used'
     ];
@@ -569,19 +569,25 @@ class Conversation extends Model
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getOpeningIntentAttribute(): string
+    public function getOpeningIntentsAttribute(): array
     {
         $yaml = Yaml::parse($this->model)['conversation'];
+
+        $intents = [];
 
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             foreach ($scene['intents'] as $intent) {
                 foreach ($intent as $tag => $value) {
+                    if ($tag == 'b') {
+                        return $intents;
+                    }
+
                     if ($tag == 'u') {
                         foreach ($value as $key => $intent) {
                             if ($key == 'i') {
-                                return $intent;
+                                $intents[] = $intent;
                             }
                         }
                     }
@@ -589,7 +595,7 @@ class Conversation extends Model
             }
         }
 
-        return '';
+        return $intents;
     }
 
     /**

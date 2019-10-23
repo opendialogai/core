@@ -85,6 +85,32 @@ class ConversationTest extends TestCase
         return $cm;
     }
 
+    public function setupConversationWithManyOpeningIntents()
+    {
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::SAVED, 0);
+
+        $cm->createScene(self::OPENING_SCENE, true);
+
+        $intent1 = new Intent(self::INTENT_USER_TO_BOT_1);
+        $intent2 = new Intent(self::INTENT_USER_TO_BOT_3);
+        $intent3 = new Intent(self::INTENT_BOT_TO_USER_4);
+        $intent4 = new Intent(self::INTENT_USER_TO_BOT_1 . "_2");
+        $intent5 = new Intent(self::INTENT_BOT_TO_USER_4 . "_2", true);
+
+        $cm->userSaysToBot(self::OPENING_SCENE, $intent1, 1)
+            ->userSaysToBot(self::OPENING_SCENE, $intent2, 2)
+            ->botSaysToUser(self::OPENING_SCENE, $intent3, 3)
+            ->userSaysToBot(self::OPENING_SCENE, $intent4, 4)
+            ->botSaysToUser(self::OPENING_SCENE, $intent5, 5);
+
+        try {
+            $cm->setValidated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        return $cm;
+    }
 
     /**
      *
@@ -223,5 +249,29 @@ class ConversationTest extends TestCase
         }
 
         $this->assertEquals(Conversation::ARCHIVED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+    }
+
+    public function testConversationWithManyOpeningIntents()
+    {
+        $cm = $this->setupConversationWithManyOpeningIntents();
+        $conversation = $cm->getConversation();
+
+        // Check opening scene has all the intents
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+        $this->assertCount(3, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+
+        $userIntents = $openingScene->getIntentsSaidByUserInOrder();
+
+        /** @var Intent $firstIntent */
+        $firstIntent = $userIntents->skip(0)->value;
+
+        /** @var Intent $secondIntent */
+        $secondIntent = $userIntents->skip(1)->value;
+
+        $this->assertEquals(self::INTENT_USER_TO_BOT_1, $firstIntent->getId());
+        $this->assertEquals(self::INTENT_USER_TO_BOT_3, $secondIntent->getId());
     }
 }

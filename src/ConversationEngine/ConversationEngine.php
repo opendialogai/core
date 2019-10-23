@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -90,6 +91,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws ConversationStore\EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
     {
@@ -126,6 +128,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws NodeDoesNotExistException
      * @throws FieldNotSupported
      * @throws ConversationStore\EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -182,6 +185,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws ConversationStore\EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function updateConversationFollowingUserInput(
         UserContext $userContext,

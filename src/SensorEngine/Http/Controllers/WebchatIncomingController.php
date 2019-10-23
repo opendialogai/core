@@ -42,6 +42,10 @@ class WebchatIncomingController extends BaseController
      * @return Response
      * @throws BindingResolutionException
      * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function receive(IncomingWebchatMessage $request): Response
     {

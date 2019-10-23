@@ -237,6 +237,30 @@ conversation:
 EOT;
     }
 
+    protected function conversationWithManyOpeningIntents()
+    {
+        return <<<EOT
+conversation:
+  id: many_opening_intents
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.core.opening_1
+        - u:
+            i: intent.core.opening_2
+        - u:
+            i: intent.core.opening_3
+        - b:
+            i: intent.core.ask_name
+        - u:
+            i: intent.core.send_name
+        - b:
+            i: intent.core.response
+            completes: true
+EOT;
+    }
+
     protected function initDDgraph(): void
     {
         if (!$this->dgraphInitialised) {
