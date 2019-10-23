@@ -12,7 +12,7 @@ class NextIntentDetectionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
     }
 
     public function testComplexConversation()
@@ -25,7 +25,7 @@ class NextIntentDetectionTest extends TestCase
 
         $openDialogController = resolve(OpenDialogController::class);
 
-        $this->publishConversation($this->getTestConversation());
+        $this->activateConversation($this->getTestConversation());
 
         $conversationContext = ContextService::getConversationContext();
 
@@ -62,7 +62,7 @@ class NextIntentDetectionTest extends TestCase
 
         $openDialogController = resolve(OpenDialogController::class);
 
-        $this->publishConversation($this->getTestConversation());
+        $this->activateConversation($this->getTestConversation());
 
         $conversationContext = ContextService::getConversationContext();
 

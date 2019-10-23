@@ -14,7 +14,7 @@ class ImportConversation extends Command
      *
      * @var string
      */
-    protected $signature = 'conversation:import {filename} {--publish} {--yes}';
+    protected $signature = 'conversation:import {filename} {--activate} {--yes}';
 
     /**
      * The console command description.
@@ -122,9 +122,9 @@ class ImportConversation extends Command
         $newConversation->fill($data['conversation']);
         $newConversation->save();
 
-        if ($this->option('publish')) {
-            $this->info(sprintf('Publishing conversation with name %s', $newConversation->name));
-            $newConversation->publishConversation($newConversation->buildConversation());
+        if ($this->option('activate')) {
+            $this->info(sprintf('Activating conversation with name %s', $newConversation->name));
+            $newConversation->activateConversation($newConversation->buildConversation());
         }
 
         foreach ($data['outgoingIntents'] as $outgoingIntent) {

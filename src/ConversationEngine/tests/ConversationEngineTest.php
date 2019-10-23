@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
+use Exception;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -9,13 +10,13 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -47,7 +48,7 @@ class ConversationEngineTest extends TestCase
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
-            $this->publishConversation($this->$conversationId());
+            $this->activateConversation($this->$conversationId());
         }
 
         $this->utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
@@ -56,8 +57,22 @@ class ConversationEngineTest extends TestCase
     public function testConversationStoreIntents()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
-        $openingIntents = $conversationStore->getAllOpeningIntents();
 
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
+        $this->assertCount(4, $openingIntents);
+
+        // Ensure deactivation is handled correctly
+        /** @var Conversation $conversation */
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertTrue($conversation->deactivateConversation());
+
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
+        $this->assertCount(3, $openingIntents);
+
+        $this->assertTrue($conversation->activateConversation($conversation->buildConversation()));
+
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(4, $openingIntents);
     }
 
@@ -66,7 +81,11 @@ class ConversationEngineTest extends TestCase
         /* @var ConversationStoreInterface $conversationStore */
         $conversationStore = $this->conversationEngine->getConversationStore();
 
-        $conversation = $conversationStore->getConversationTemplate('hello_bot_world');
+        $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
+
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
+
         $conditions = $conversation->getConditions();
 
         $this->assertCount(2, $conditions);
@@ -97,6 +116,10 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function testConversationEngineOngoingConversation()
     {
@@ -111,6 +134,7 @@ class ConversationEngineTest extends TestCase
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     public function testDeterminingCurrentConversationWithoutOngoingConversation()
     {
@@ -126,6 +150,7 @@ class ConversationEngineTest extends TestCase
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     public function testDeterminingNextIntentWithoutOngoingConversation()
     {
@@ -144,6 +169,7 @@ class ConversationEngineTest extends TestCase
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     public function testDeterminingNextIntentsInMultiSceneConversation()
     {
@@ -164,7 +190,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
@@ -184,7 +210,9 @@ class ConversationEngineTest extends TestCase
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function testDeterminingCurrentConversationWithOngoingConversation()
@@ -239,11 +267,11 @@ class ConversationEngineTest extends TestCase
         $callbackInterpreter = $interpreterService->getDefaultInterpreter();
         $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
 
-        $this->publishConversation($this->conversationWithNonBindedAction());
+        $this->activateConversation($this->conversationWithNonBindedAction());
 
         try {
             $this->conversationEngine->determineCurrentConversation($this->createUserContext(), $this->utterance);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail("No exception should be thrown when calling an unbound action.");
         }
     }
@@ -267,6 +295,28 @@ class ConversationEngineTest extends TestCase
         $this->assertEquals('hello_user', $intent->getId());
     }
 
+    public function testGetLatestVersion()
+    {
+        $this->createUpdates('hello_bot_world');
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = $this->conversationEngine->getConversationStore();
+
+        // Test that we can query a conversation with history using the ConversationStore
+        /** @var EIModelConversation $conversationWithHistory */
+        $conversationWithHistory = $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
+        $this->assertEquals(2, $conversationWithHistory->getConversationVersion());
+    }
+
+    public function testGetHistory()
+    {
+        $this->createUpdates('hello_bot_world');
+
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertCount(3, $conversation->history);
+    }
+
     private function createUserContext()
     {
         $userContext = ContextService::createUserContext($this->utterance);
@@ -279,24 +329,50 @@ class ConversationEngineTest extends TestCase
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     private function createConversationAndAttachToUser()
     {
-        /* @var Conversation $conversation */
-        $conversation = Conversation::create(['name' => 'Conversation1', 'model' => $this->conversation1()]);
-        /* @var \OpenDialogAi\Core\Conversation\Conversation $conversationModel */
-        $conversationModel = $conversation->buildConversation();
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $this->assertFalse($conversationStore->hasConversationBeenUsed('hello_bot_world'));
+
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+
+        $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationTemplate */
+        $conversationTemplateForCloning = $conversationConverter->convertConversation($conversationModel, true);
+        $conversationTemplateForConnecting = $conversationConverter->convertConversation($conversationModel, false);
 
         /* @var UserContext $userContext */
         $userContext = $this->createUserContext();
         $user = $userContext->getUser();
 
-        $user->setCurrentConversation($conversationModel);
+        $user->setCurrentConversation($conversationTemplateForCloning, $conversationTemplateForConnecting);
         $userContext->updateUser();
 
-        /** @var DGraphClient $client */
-        $client = app()->make(DGraphClient::class);
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($userContext->getUser()->getCurrentConversationUid(), $client);
+        $this->assertTrue($conversationStore->hasConversationBeenUsed('hello_bot_world'));
+
+        $conversationModel = $conversationStore->getEIModelConversation($userContext->getUser()->getCurrentConversationUid());
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversation */
+        $conversation = $conversationConverter->convertConversation($conversationModel);
+
+        $this->assertTrue($conversation->hasInstanceOf());
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $instanceOf */
+        $instanceOf = $conversation->getInstanceOf();
+
+        $this->assertEquals($conversation->getId(), $instanceOf->getId());
+        $this->assertNotEquals(
+            $conversation->getAttributeValue(Model::EI_TYPE),
+            $instanceOf->getAttributeValue(Model::EI_TYPE)
+        );
+
+        $this->assertEquals($userContext->getUser()->getCurrentConversationUid(), $conversation->getUid());
+
+        $this->assertFalse($conversation->hasUpdateOf());
 
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;
@@ -323,5 +399,17 @@ conversation:
             i: hello_user
             completes: true
 EOT;
+    }
+
+    private function createUpdates(string $templateName)
+    {
+        /** @var Conversation $template */
+        $template = Conversation::where('name', $templateName)->first();
+        $template->model .= " ";
+        $template->activateConversation($template->buildConversation());
+
+        $template = Conversation::where('name', $templateName)->first();
+        $template->model .= " ";
+        $template->activateConversation($template->buildConversation());
     }
 }

@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests;
 
+use Exception;
+use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\Conversation;
@@ -42,7 +44,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             if (isset($env['DGRAPH_URL'])) {
                 $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             //
         }
 
@@ -155,7 +157,7 @@ conversation:
         - b:
             i: intent.core.example
         - u:
-            i: intent.core.example
+            i: intent.core.example2
             interpreter: interpreter.core.callbackInterpreter
             expected_attributes:
               - id: user.name
@@ -247,9 +249,9 @@ EOT;
     }
 
     /**
-     * Publish the given conversation YAML and assert that it publishes successfully.
+     * Activate the given conversation YAML and assert that it activates successfully.
      */
-    protected function publishConversation($conversationYaml): void
+    protected function activateConversation($conversationYaml): void
     {
         if (!$this->dgraphInitialised) {
             $this->initDDgraph();
@@ -259,9 +261,10 @@ EOT;
 
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
+        $conversation->save();
         $conversationModel = $conversation->buildConversation();
 
-        $this->assertTrue($conversation->publishConversation($conversationModel));
+        $this->assertTrue($conversation->activateConversation($conversationModel));
     }
 
     /**
@@ -319,7 +322,7 @@ EOT;
      */
     protected function createMockInterpreter($interpreterName)
     {
-        $mockInterpreter = \Mockery::mock(InterpreterInterface::class);
+        $mockInterpreter = Mockery::mock(InterpreterInterface::class);
         $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
 
         return $mockInterpreter;

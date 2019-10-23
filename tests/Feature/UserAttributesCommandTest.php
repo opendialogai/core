@@ -12,7 +12,7 @@ class UserAttributesCommandTest extends TestCase
 {
     public function testCachingAttributes()
     {
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
 
         $utterance = UtteranceGenerator::generateTextUtterance('Test message');
 
