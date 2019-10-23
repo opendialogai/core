@@ -44,6 +44,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property string opening_intent
  * @property array outgoing_intents
  * @property array history
+ * @property bool has_been_used
  */
 class Conversation extends Model
 {
@@ -68,7 +69,17 @@ class Conversation extends Model
         'created_at',
         'updated_at',
         'version_number',
-        'history'
+        'history',
+        'opening_intent',
+        'outgoing_intents',
+        'has_been_used'
+    ];
+
+    protected $appends = [
+        'history',
+        'opening_intent',
+        'outgoing_intents',
+        'has_been_used'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
@@ -454,14 +465,6 @@ class Conversation extends Model
         return $condition;
     }
 
-    public function hasBeenUsed(): bool
-    {
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-
-        return $conversationStore->hasConversationBeenUsed($this->name);
-    }
-
     /**
      * @param Closure $managerMethod
      * @param $newStatus
@@ -607,5 +610,17 @@ class Conversation extends Model
                 'attributes' => $item['properties']['attributes']
             ];
         })->toArray();
+    }
+
+    /**
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function getHasBeenUsedAttribute(): bool
+    {
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        return $conversationStore->hasConversationBeenUsed($this->name);
     }
 }
