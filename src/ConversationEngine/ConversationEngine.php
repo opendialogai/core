@@ -102,13 +102,14 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
 
-        /** @var Intent $currentIntent */
-        $currentIntent = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
+        /** @var EIModelIntent $currentIntent */
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($userContext->getUser()->getCurrentIntentUid());
 
         $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentIntent);
+        $filteredIntents = $this->filterByConditions($possibleNextIntents);
 
         /* @var Intent $nextIntent */
-        $nextIntent = $possibleNextIntents->first()->value;
+        $nextIntent = $filteredIntents->first()->value;
         ContextService::saveAttribute('conversation.next_intent', $nextIntent->getId());
 
         if ($nextIntent->completes()) {
@@ -182,10 +183,10 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
-     * @throws GuzzleException
-     * @throws NodeDoesNotExistException
      * @throws ConversationStore\EIModelCreatorException
      * @throws CurrentIntentNotSetException
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
      */
     public function updateConversationFollowingUserInput(
         UserContext $userContext,
@@ -321,8 +322,11 @@ class ConversationEngine implements ConversationEngineInterface
     ): Map {
         $matchingIntents = new Map();
 
+        // Check conditions for each conversation
+        $filteredIntents = $this->filterOpeningIntentsForConditions($validOpeningIntents);
+
         /* @var EIModelIntent $validIntent */
-        foreach ($validOpeningIntents as $key => $validIntent) {
+        foreach ($filteredIntents as $key => $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 $intentsFromInterpreter = $this->interpreterService
                     ->getInterpreter($validIntent->getInterpreterId())
@@ -341,9 +345,6 @@ class ConversationEngine implements ConversationEngineInterface
                 $matchingIntents->put($validIntent->getConversationId(), $validIntent);
             }
         }
-
-        // Check conditions for each conversation
-        $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
 
         $matchingIntents = $this->filterNoMatchIntents($matchingIntents);
 
@@ -543,5 +544,27 @@ class ConversationEngine implements ConversationEngineInterface
         } catch (ActionNotAvailableException $e) {
             Log::warning(sprintf('Action %s has not been bound.', $nextIntent->getAction()->getId()));
         }
+    }
+
+    /**
+     * @param Map $intents
+     * @return Map
+     */
+    private function filterByConditions(Map $intents): Map
+    {
+        $filteredIntents = $intents->filter(function ($key, Intent $item) {
+            if ($item->hasConditions()) {
+                /** @var Condition $condition */
+                foreach ($item->getConditions() as $condition) {
+                    if (!$this->operationService->checkCondition($condition)) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        });
+
+        return $filteredIntents;
     }
 }

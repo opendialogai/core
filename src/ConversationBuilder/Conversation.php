@@ -383,6 +383,7 @@ class Conversation extends Model
         $confidence = null;
         $completes = false;
         $expectedAttributes = null;
+        $conditions = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
@@ -390,8 +391,9 @@ class Conversation extends Model
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
-            $intentSceneId = $intent[$speaker]['scene'] ?? null;
-            $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
+            $intentSceneId = $intentValue['scene'] ?? null;
+            $expectedAttributes = $intentValue['expected_attributes'] ?? null;
+            $conditions = $intentValue['conditions'] ?? null;
         } else {
             $intentLabel = $intentValue;
         }
@@ -414,6 +416,22 @@ class Conversation extends Model
         if (is_array($expectedAttributes)) {
             foreach ($expectedAttributes as $expectedAttribute) {
                 $intentNode->addExpectedAttribute(new ExpectedAttribute($expectedAttribute['id']));
+            }
+        }
+
+        if (is_array($conditions)) {
+            foreach ($conditions as $condition) {
+                try {
+                    $conditionObject = $this->createCondition($condition['condition']);
+                    $intentNode->addCondition($conditionObject);
+                } catch (Exception $e) {
+                    Log::debug(
+                        sprintf(
+                            'Could not create condition because: %s',
+                            $e->getMessage()
+                        )
+                    );
+                }
             }
         }
 

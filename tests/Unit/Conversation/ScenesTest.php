@@ -3,9 +3,12 @@
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ScenesTest extends TestCase
@@ -171,19 +174,43 @@ class ScenesTest extends TestCase
         $openingScene = $cm->getScene(self::OPENING_SCENE);
         $latestNewsScene = $cm->getScene(self::LATEST_NEWS_SCENE);
 
+        /** @var EIModelCreator $eiModelCreator */
+        $eiModelCreator = app()->make(EIModelCreator::class);
+
+        $intent1 = $eiModelCreator->createEIModel(EIModelIntent::class, [
+            Model::UID => $this->intent1->getUid(),
+            Model::ID => $this->intent1->getId(),
+            Model::EI_TYPE => Model::INTENT,
+            Model::ORDER => $this->intent1->getOrder()
+        ]);
+
         // Test that to begin with it returns just intent2
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->intent1);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent1);
         $this->assertEquals(1, $possibleIntents->count());
         $this->assertEquals($this->intent2->getId(), $possibleIntents->first()->value->getId());
 
+        $intent3 = $eiModelCreator->createEIModel(EIModelIntent::class, [
+            Model::UID => $this->intent3->getUid(),
+            Model::ID => $this->intent3->getId(),
+            Model::EI_TYPE => Model::INTENT,
+            Model::ORDER => $this->intent3->getOrder()
+        ]);
+
         // Test that it returns the correct intents when the current intent is intent3 and that they are in the right order
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->intent3);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent3);
         $this->assertEquals(2, $possibleIntents->count());
         $this->assertEquals($this->intent9->getId(), $possibleIntents->first()->value->getId());
         $this->assertEquals($this->intent10->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_10)->getId());
 
+        $intent4 = $eiModelCreator->createEIModel(EIModelIntent::class, [
+            Model::UID => $this->intent4->getUid(),
+            Model::ID => $this->intent4->getId(),
+            Model::EI_TYPE => Model::INTENT,
+            Model::ORDER => $this->intent4->getOrder()
+        ]);
+
         // Test that it returns the correct intents when the current intent is said across scenes and that they are in the right order
-        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents($this->intent4);
+        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents($intent4);
         $this->assertEquals(2, $possibleIntents->count());
         $this->assertEquals($this->intent5->getId(), $possibleIntents->first()->value->getId());
         $this->assertEquals($this->intent6->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_7)->getId());

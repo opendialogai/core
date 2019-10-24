@@ -137,26 +137,26 @@ class Scene extends NodeWithConditions
     /**
      * Checks whether the given intent is in the this scene
      *
-     * @param Intent $intent
+     * @param $intentId
      * @return bool
      */
-    private function hasIntent(Intent $intent)
+    private function hasIntent($intentId)
     {
-        return $this->getAllIntents()->hasKey($intent->getId());
+        return $this->getAllIntents()->hasKey($intentId);
     }
 
     /**
      * Get the bot intents said in the scene that have a higher order than the current intent
      * and are in an uninterrupted ascending order.
-     * @param Intent $currentIntent
+     * @param EIModelIntent $currentIntent
      * @return Map
      */
-    public function getNextPossibleBotIntents(Intent $currentIntent): Map
+    public function getNextPossibleBotIntents(EIModelIntent $currentIntent): Map
     {
         // If the current intent is in this scene, use its order. If it's said across scenes, we use 0.
-        $currentOrder = $this->hasIntent($currentIntent) ? $currentIntent->getOrder() : 0;
+        $currentOrder = $this->hasIntent($currentIntent->getIntentId()) ? $currentIntent->getOrder() : 0;
 
-        /** @var Intent $previousKeptIntent */
+        /** @var EIModelIntent $previousKeptIntent */
         $previousKeptIntent = null;
 
         $intents = $this->getIntentsSaidByBotInOrder()->filter(

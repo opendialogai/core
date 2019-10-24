@@ -125,7 +125,6 @@ class ConversationManager
         return $this;
     }
 
-
     /**
      * @param $intentId
      * @param Action $action
