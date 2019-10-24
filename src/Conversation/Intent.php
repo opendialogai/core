@@ -9,13 +9,12 @@ use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
-use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
 /**
  * The intent of an utterance.
  */
-class Intent extends Node
+class Intent extends NodeWithConditions
 {
     public static $coreAttributes = [
         Model::EI_TYPE,

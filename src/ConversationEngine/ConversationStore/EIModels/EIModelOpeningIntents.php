@@ -47,7 +47,7 @@ class EIModelOpeningIntents extends EIModelBase implements Countable
 
         $intents = new Map();
         foreach ($response as $conversation) {
-            $conditions = new Map();
+            $conversationConditions = new Set();
 
             if (isset($conversation[Model::HAS_CONDITION])) {
                 foreach ($conversation[Model::HAS_CONDITION] as $conditionData) {
@@ -55,7 +55,7 @@ class EIModelOpeningIntents extends EIModelBase implements Countable
                     $condition = $eiModelCreator->createEIModel(EIModelCondition::class, $conditionData);
 
                     if (isset($condition)) {
-                        $conditions->put($condition->getId(), $condition);
+                        $conversationConditions->add($condition);
                     }
                 }
             }
@@ -70,7 +70,10 @@ class EIModelOpeningIntents extends EIModelBase implements Countable
                         /* @var EIModelIntent $openingIntent */
                         $openingIntent = $eiModelCreator->createEIModel(EIModelIntent::class, $conversation, $intent);
 
-                        $openingIntent->setConditions($conditions);
+                        $allConditions = $conversationConditions;
+                        $allConditions = $allConditions->merge($openingIntent->getConditions());
+                        $openingIntent->setConditions($allConditions);
+
                         $intents->put($intent[Model::UID], $openingIntent);
 
                         if (isset($intent[Model::HAS_EXPECTED_ATTRIBUTE])) {

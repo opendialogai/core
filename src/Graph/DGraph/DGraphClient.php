@@ -5,8 +5,8 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\Core\Conversation\Model;
 
 /**
  * Client for DGraph using REST API.
@@ -25,6 +25,7 @@ class DGraphClient
     const DELETE = 'delete';
     const MUTATE_COMMIT_NOW = 'mutate?commitNow=true';
 
+    const CONDITION = 'Condition';
     const INTENT = 'Intent';
     const PARTICIPANT = 'Participant';
     const SCENE = 'Scene';
@@ -345,13 +346,16 @@ class DGraphClient
         $userAttributes = $this->prepareUserAttributes();
 
         return "
+            <attributes>: string .
             <causes_action>: [uid] .
+            <context>: string .
             <conversation_status>: string @index(exact) .
             <conversation_version>: int .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
             <ei_type>: string @index(exact) .
             <has_bot_participant>: [uid] @reverse .
+            <has_condition>: [uid] .
             <has_interpreter>: [uid] .
             <has_opening_scene>: [uid] @reverse .
             <has_scene>: [uid] .
@@ -361,15 +365,26 @@ class DGraphClient
             <update_of>: uid @reverse .
             <listens_for>: [uid] @reverse .
             <name>: default .
+            <operation>: string .
+            <parameters>: string .     
             <says>: [uid] @reverse .
             <having_conversation>: [uid] @reverse .
             <says_across_scenes>: [uid] @reverse .
             <listens_for_across_scenes>: [uid] @reverse .
+            type " . self::CONDITION . " {
+                attributes: string
+                context: string
+                ei_type: string
+                id: string
+                operation: string
+                parameters: string
+            }
             type " . self::INTENT . " {
                 causes_action: [uid]
                 core.attribute.completes: default
                 core.attribute.order: default
                 ei_type: string
+                has_condition: [uid]
                 has_interpreter: [uid]
                 id: string
             }
@@ -391,6 +406,7 @@ class DGraphClient
                 conversation_status: string
                 conversation_version: int
                 ei_type: string
+                has_condition: [uid]
                 has_opening_scene: [uid]
                 has_scene: [uid]
                 id: string

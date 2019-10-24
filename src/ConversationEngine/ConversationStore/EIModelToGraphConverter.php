@@ -88,7 +88,7 @@ class EIModelToGraphConverter
                 $conditionData->getId()
             );
 
-            if ($clone) {
+            if (!$clone) {
                 $condition->setUid($conditionData->getUid());
             }
 
@@ -134,6 +134,15 @@ class EIModelToGraphConverter
             $expectedAttributeNode = new ExpectedAttribute($expectedAttributeId);
             $clone ? false : $expectedAttributeNode->setUid($expectedAttributeUid);
             $intent->addExpectedAttribute($expectedAttributeNode);
+        }
+
+        /** @var EIModelCondition $conditionModel */
+        foreach ($intentData->getConditions() as $conditionModel) {
+            $condition = $this->convertCondition($conditionModel, $clone);
+
+            if (!is_null($condition)) {
+                $intent->addCondition($condition);
+            }
         }
 
         return $intent;
