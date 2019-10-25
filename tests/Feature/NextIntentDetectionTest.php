@@ -2,7 +2,9 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
@@ -12,6 +14,11 @@ class NextIntentDetectionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        AttributeResolver::registerAttributes([
+            'user_name' => StringAttribute::class
+        ]);
+
         $this->activateConversation($this->conversation4());
     }
 
@@ -102,6 +109,35 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
         $this->assertEquals('response_without_name', $conversationContext->getAttributeValue('next_intent'));
+
+        // Expect to get to 'answer_without_name' because the user name isn't set
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('question', $utterance->getUser());
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('question', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('answer_without_name', $conversationContext->getAttributeValue('next_intent'));
+
+        // New user
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
+        $utterance->getUser()->setCustomParameters([
+            "user_name" => "test"
+        ]);
+
+        // Expect to get to 'response_with_name' because the user name is set
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('hello_bot', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('response_with_name', $conversationContext->getAttributeValue('next_intent'));
+
+        // Expect to get to 'answer_with_name' because the user name is set
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('question', $utterance->getUser());
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('question', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('answer_with_name', $conversationContext->getAttributeValue('next_intent'));
     }
 
     public function getTestConversation()
@@ -161,6 +197,23 @@ conversation:
                         attribute1: user.user_name
         - b:
             i: response_without_name
+            conditions:
+                - condition:
+                    operation: is_not_set
+                    attributes:
+                        attribute1: user.user_name
+        - u: 
+            i: question
+        - b: 
+            i: answer_with_name
+            conditions:
+                - condition:
+                    operation: is_set
+                    attributes:
+                        attribute1: user.user_name
+            completes: true
+        - b:
+            i: answer_without_name
             conditions:
                 - condition:
                     operation: is_not_set
