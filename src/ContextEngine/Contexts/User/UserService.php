@@ -305,10 +305,9 @@ class UserService
 
     /**
      * @param $userId
-     * @return mixed
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @return Conversation
      */
-    public function getCurrentConversation($userId)
+    public function getCurrentConversation($userId): Conversation
     {
         if ($this->userIsHavingConversation($userId)) {
             $conversationUid = $this->getOngoingConversationIdQuery(
