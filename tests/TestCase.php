@@ -155,7 +155,7 @@ conversation:
         - b:
             i: intent.core.example
         - u:
-            i: intent.core.example
+            i: intent.core.example2
             interpreter: interpreter.core.callbackInterpreter
             expected_attributes:
               - id: user.name

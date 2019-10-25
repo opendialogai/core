@@ -12,7 +12,7 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -227,7 +227,7 @@ class Conversation extends Model
     {
         $dGraph = app()->make(DGraphClient::class);
 
-        $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
+        $uid = DGraphConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
 
         if ($this->graph_uid === $uid) {
             $deleteResponse = $dGraph->deleteNode($uid);

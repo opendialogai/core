@@ -9,13 +9,12 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -56,7 +55,7 @@ class ConversationEngineTest extends TestCase
     public function testConversationStoreIntents()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
-        $openingIntents = $conversationStore->getAllOpeningIntents();
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
 
         $this->assertCount(4, $openingIntents);
     }
@@ -66,7 +65,11 @@ class ConversationEngineTest extends TestCase
         /* @var ConversationStoreInterface $conversationStore */
         $conversationStore = $this->conversationEngine->getConversationStore();
 
-        $conversation = $conversationStore->getConversationTemplate('hello_bot_world');
+        $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
+
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
+
         $conditions = $conversation->getConditions();
 
         $this->assertCount(2, $conditions);
@@ -97,6 +100,8 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function testConversationEngineOngoingConversation()
     {
@@ -184,7 +189,9 @@ class ConversationEngineTest extends TestCase
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
      */
     public function testDeterminingCurrentConversationWithOngoingConversation()
@@ -279,6 +286,7 @@ class ConversationEngineTest extends TestCase
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     private function createConversationAndAttachToUser()
     {
@@ -294,9 +302,11 @@ class ConversationEngineTest extends TestCase
         $user->setCurrentConversation($conversationModel);
         $userContext->updateUser();
 
-        /** @var DGraphClient $client */
-        $client = app()->make(DGraphClient::class);
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($userContext->getUser()->getCurrentConversationUid(), $client);
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationModel = $conversationStore->getEIModelConversation($userContext->getUser()->getCurrentConversationUid());
+
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversation = $conversationConverter->convertConversation($conversationModel);
 
         /* @var Scene $scene */
         $scene = $conversation->getOpeningScenes()->first()->value;

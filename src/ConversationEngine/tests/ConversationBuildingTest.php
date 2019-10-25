@@ -2,7 +2,9 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ConversationBuildingTest extends TestCase
@@ -10,7 +12,15 @@ class ConversationBuildingTest extends TestCase
     public function testBuildComplicatedConversation()
     {
         $conversation = $this->getComplicatedConversation();
-        $conversation = ConversationQueryFactory::buildConversationFromDGraphData($conversation, false);
+
+        $modelCreator = app()->make(EIModelCreator::class);
+
+        /* @var EIModelConversation $conversationModel */
+        $conversationModel = $modelCreator->createEIModel(EIModelConversation::class, $conversation);
+
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter->convertConversation($conversationModel, false);
+
         $this->assertTrue(true);
     }
 

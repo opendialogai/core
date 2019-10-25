@@ -5,11 +5,12 @@ namespace OpenDialogAi\Core\Tests\Unit;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
 
@@ -231,14 +232,13 @@ class ConversationBuilderTest extends TestCase
     {
         $this->publishConversation($this->conversation1());
 
-        /** @var DGraphClient $client */
-        $client = $this->app->make(DGraphClient::class);
+        /* @var EIModelConversation $template */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
-        $template = ConversationQueryFactory::getConversationFromDGraphWithTemplateName(
-            'hello_bot_world',
-            $client
-        );
+        $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
+        $conversation = $conversationConverter->convertConversation($conversationModel);
 
-        $this->assertEquals('hello_bot_world', $template->getId());
+        $this->assertEquals('hello_bot_world', $conversation->getId());
     }
 }
