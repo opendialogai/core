@@ -119,6 +119,17 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
      * @param string $templateName
      * @return DGraphQuery
      */
+    public static function getLatestConversationFromDGraphWithTemplateName(string $templateName): DGraphQuery
+    {
+        $dGraphQuery = self::getConversationFromDGraphWithTemplateName($templateName);
+        $dGraphQuery->sort(Model::CONVERSATION_VERSION, DGraphQuery::SORT_DESC)->first();
+        return $dGraphQuery;
+    }
+
+    /**
+     * @param string $templateName
+     * @return DGraphQuery
+     */
     public static function getConversationTemplateUid(string $templateName): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();

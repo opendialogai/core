@@ -55,6 +55,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $this->artisan('migrate', [
             '--database' => 'testbench'
         ]);
+
+        $this->initDDgraph();
     }
 
     /**

@@ -85,4 +85,46 @@ class DGraphQueryTest extends TestCase
             $preparedQuery
         );
     }
+
+    public function testQueryWithSortingAndPagination() {
+        $query = new DGraphQuery();
+        $query->eq(Model::ID, 'test_id')->sort(Model::ORDER)->first()->setQueryGraph([
+            Model::UID,
+            Model::ID
+        ]);
+
+        $preparedQuery = $query->prepare();
+        $this->assertEquals(
+            '{ dGraphQuery( func:eq(id,"test_id"),orderasc:core.attribute.order,first:1){uid id }}',
+            $preparedQuery
+        );
+
+        $query = new DGraphQuery();
+        $query->eq(Model::ID, 'test_id')->sort(Model::ORDER, DGraphQuery::SORT_ASC)->first(1)->setQueryGraph([
+            Model::UID,
+            Model::ID
+        ]);
+
+        $preparedQuery = $query->prepare();
+        $this->assertEquals(
+            '{ dGraphQuery( func:eq(id,"test_id"),orderasc:core.attribute.order,first:1){uid id }}',
+            $preparedQuery
+        );
+
+        $query = new DGraphQuery();
+        $query->eq(Model::ID, 'test_id')
+            ->sort(Model::ORDER, DGraphQuery::SORT_DESC)
+            ->first(5)
+            ->offset(5)
+            ->setQueryGraph([
+                Model::UID,
+                Model::ID
+            ]);
+
+        $preparedQuery = $query->prepare();
+        $this->assertEquals(
+            '{ dGraphQuery( func:eq(id,"test_id"),orderdesc:core.attribute.order,first:5,offset:5){uid id }}',
+            $preparedQuery
+        );
+    }
 }
