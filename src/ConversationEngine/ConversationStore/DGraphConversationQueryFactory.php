@@ -87,7 +87,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     public static function getConversationFromDGraphWithUid(string $conversationUid): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getConversationQueryGraph());
+        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getUserConversationQueryGraph());
         return $dGraphQuery;
     }
 
@@ -142,7 +142,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
         $dGraphQuery = new DGraphQuery();
         $dGraphQuery->uid($conversationId)
             ->filterEq(Model::EI_TYPE, Model::CONVERSATION_USER)
-            ->setQueryGraph(self::getConversationQueryGraph());
+            ->setQueryGraph(self::getUserConversationQueryGraph());
 
         return $dGraphQuery;
     }
@@ -165,7 +165,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     /**
      * @return array
      */
-    public static function getConversationQueryGraph(): array
+    public static function getUserConversationQueryGraph(): array
     {
         return array_merge(
             self::getConversationTemplateQueryGraph(),
