@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 
 /**
  * Client for DGraph using REST API.
@@ -329,7 +330,7 @@ class DGraphClient
     private function prepareUserAttributes()
     {
         $userAttributes = '';
-        foreach (config('opendialog.context_engine.supported_attributes') as $name => $type) {
+        foreach (AttributeResolver::getSupportedAttributes() as $name => $type) {
             $userAttributes .= "{$name}: default\n";
         }
 
