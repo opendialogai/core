@@ -35,6 +35,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
      */
     private $dgraphInitialised = false;
 
+    public $setupWithDGraphInit = true;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -56,7 +58,9 @@ class TestCase extends \Orchestra\Testbench\TestCase
             '--database' => 'testbench'
         ]);
 
-        $this->initDDgraph();
+        if ($this->setupWithDGraphInit) {
+            $this->initDDgraph();
+        }
     }
 
     /**
