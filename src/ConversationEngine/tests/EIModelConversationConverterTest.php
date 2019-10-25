@@ -46,8 +46,8 @@ class EIModelConversationConverterTest extends TestCase
         $attributes = ['test' => IntAttribute::class];
         AttributeResolver::registerAttributes($attributes);
 
-        $this->publishConversation($this->conversation1());
-        $this->publishConversation($this->conversation2());
+        $this->activateConversation($this->conversation1());
+        $this->activateConversation($this->conversation2());
     }
 
     public function testBuildConversation()

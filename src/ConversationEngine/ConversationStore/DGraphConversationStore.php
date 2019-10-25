@@ -8,6 +8,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningInt
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
 
 class DGraphConversationStore implements ConversationStoreInterface
 {
@@ -90,6 +91,62 @@ class DGraphConversationStore implements ConversationStoreInterface
     }
 
     /**
+     * @param $uid
+     * @return Conversation
+     * @throws EIModelCreatorException
+     */
+    public function getConversationTemplateByUid($uid): Conversation
+    {
+        $conversationModel = $this->getEIModelConversationTemplateByUid($uid);
+        return $this->conversationConverter->convertConversation($conversationModel, false);
+    }
+
+    /**
+     * @param $uid
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
+    public function getEIModelConversationTemplateByUid($uid): EIModelConversation
+    {
+        $query = DGraphConversationQueryFactory::getConversationTemplateFromDGraphWithUid($uid);
+        $response = $this->dGraphClient->query($query);
+
+        /* @var EIModelConversation $model */
+        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
+
+        return $model;
+    }
+
+    /**
+     * @param $templateName
+     * @return Conversation
+     * @throws EIModelCreatorException
+     */
+    public function getLatestTemplateVersionByName($templateName): Conversation
+    {
+        $conversationModel = $this->getLatestEIModelTemplateVersionByName($templateName);
+        return $this->conversationConverter->convertConversation($conversationModel, false);
+    }
+
+    /**
+     * @param $templateName
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
+    public function getLatestEIModelTemplateVersionByName($templateName): EIModelConversation
+    {
+        $query = DGraphConversationQueryFactory::getLatestConversationFromDGraphWithTemplateName($templateName);
+
+        /** @var DGraphQueryResponse $response */
+        $response = $this->dGraphClient->query($query);
+
+        /* @var EIModelConversation $model */
+        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
+
+        return $model;
+    }
+
+    /**
      * Gets the opening intent ID within a conversation with the given id with a matching order
      *
      * @param $conversationId
@@ -158,5 +215,16 @@ class DGraphConversationStore implements ConversationStoreInterface
     public function getConversationConverter(): EIModelToGraphConverter
     {
         return $this->conversationConverter;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasConversationBeenUsed(string $name): bool
+    {
+        $query = DGraphConversationQueryFactory::hasConversationBeenUsed($name);
+        $response = $this->dGraphClient->query($query);
+        return !empty($response->getData());
     }
 }

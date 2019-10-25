@@ -13,6 +13,14 @@ class EIModelConversation extends EIModelBase
     private $id;
     private $uid;
     private $eiType;
+    private $conversationStatus;
+    private $conversationVersion;
+
+    /* @var EIModelConversation $updateOf */
+    private $updateOf;
+
+    /* @var EIModelConversation $instanceOf */
+    private $instanceOf;
 
     /* @var Set $conditions */
     private $conditions;
@@ -53,6 +61,20 @@ class EIModelConversation extends EIModelBase
         $conversation->setId($response[Model::ID]);
         $conversation->setUid($response[Model::UID]);
         $conversation->setEiType($response[Model::EI_TYPE]);
+        $conversation->setConversationStatus($response[Model::CONVERSATION_STATUS]);
+        $conversation->setConversationVersion($response[Model::CONVERSATION_VERSION]);
+
+        if (isset($response[Model::UPDATE_OF])) {
+            /** @var EIModelConversation $conversation */
+            $conversation = $eiModelCreator->createEIModel(EIModelConversation::class, $response[Model::UPDATE_OF]);
+            $conversation->setUpdateOf($conversation);
+        }
+
+        if (isset($response[Model::INSTANCE_OF])) {
+            /** @var EIModelConversation $template */
+            $template = $eiModelCreator->createEIModel(EIModelConversation::class, $response[Model::INSTANCE_OF]);
+            $conversation->setInstanceOf($template);
+        }
 
         if (isset($response[Model::HAS_CONDITION])) {
             $conversation->conditions = new Set();
@@ -136,6 +158,38 @@ class EIModelConversation extends EIModelBase
     }
 
     /**
+     * @return mixed
+     */
+    public function getConversationStatus()
+    {
+        return $this->conversationStatus;
+    }
+
+    /**
+     * @param mixed $conversationStatus
+     */
+    public function setConversationStatus($conversationStatus): void
+    {
+        $this->conversationStatus = $conversationStatus;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConversationVersion()
+    {
+        return $this->conversationVersion;
+    }
+
+    /**
+     * @param mixed $conversationVersion
+     */
+    public function setConversationVersion($conversationVersion): void
+    {
+        $this->conversationVersion = $conversationVersion;
+    }
+
+    /**
      * @return Set|null
      */
     public function getConditions(): ?Set
@@ -211,5 +265,37 @@ class EIModelConversation extends EIModelBase
         }
 
         return $intents;
+    }
+
+    /**
+     * @return EIModelConversation|null
+     */
+    public function getUpdateOf(): ?EIModelConversation
+    {
+        return $this->updateOf;
+    }
+
+    /**
+     * @param EIModelConversation $updateOf
+     */
+    private function setUpdateOf(EIModelConversation $updateOf): void
+    {
+        $this->updateOf = $updateOf;
+    }
+
+    /**
+     * @return EIModelConversation|null
+     */
+    public function getInstanceOf(): ?EIModelConversation
+    {
+        return $this->instanceOf;
+    }
+
+    /**
+     * @param EIModelConversation $instanceOf
+     */
+    private function setInstanceOf(EIModelConversation $instanceOf): void
+    {
+        $this->instanceOf = $instanceOf;
     }
 }

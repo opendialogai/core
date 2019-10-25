@@ -36,6 +36,8 @@ class ConversationBuildingTest extends TestCase
   "uid": "0x5275",
   "id": "welcome_conversation",
   "ei_type": "conversation_user",
+  "conversation_status": "activated",
+  "conversation_version": "0",
   "has_opening_scene": [
     {
       "uid": "0x51ff",

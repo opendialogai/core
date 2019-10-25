@@ -3,6 +3,7 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
@@ -15,6 +16,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     {
         $dGraphQuery = new DGraphQuery();
         $dGraphQuery->eq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
+            ->filterEq(Model::CONVERSATION_STATUS, Conversation::ACTIVATED)
             ->setQueryGraph([
                 Model::EI_TYPE,
                 Model::ID,
@@ -85,7 +87,18 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     public static function getConversationFromDGraphWithUid(string $conversationUid): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getConversationQueryGraph());
+        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getUserConversationQueryGraph());
+        return $dGraphQuery;
+    }
+
+    /**
+     * @param string $conversationUid
+     * @return DGraphQuery
+     */
+    public static function getConversationTemplateFromDGraphWithUid(string $conversationUid): DGraphQuery
+    {
+        $dGraphQuery = new DGraphQuery();
+        $dGraphQuery->uid($conversationUid)->setQueryGraph(self::getConversationTemplateQueryGraph());
         return $dGraphQuery;
     }
 
@@ -96,9 +109,20 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     public static function getConversationFromDGraphWithTemplateName(string $templateName): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-        $dGraphQuery->eq('id', $templateName)
-            ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
-            ->setQueryGraph(self::getConversationQueryGraph());
+        $dGraphQuery->eq(Model::ID, $templateName)
+            ->filterEq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
+            ->setQueryGraph(self::getConversationTemplateQueryGraph());
+        return $dGraphQuery;
+    }
+
+    /**
+     * @param string $templateName
+     * @return DGraphQuery
+     */
+    public static function getLatestConversationFromDGraphWithTemplateName(string $templateName): DGraphQuery
+    {
+        $dGraphQuery = self::getConversationFromDGraphWithTemplateName($templateName);
+        $dGraphQuery->sort(Model::CONVERSATION_VERSION, DGraphQuery::SORT_DESC)->first();
         return $dGraphQuery;
     }
 
@@ -109,8 +133,8 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     public static function getConversationTemplateUid(string $templateName): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
-        $dGraphQuery->eq('id', $templateName)
-            ->filterEq('ei_type', Model::CONVERSATION_TEMPLATE)
+        $dGraphQuery->eq(Model::ID, $templateName)
+            ->filterEq(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE)
             ->setQueryGraph([
                 Model::UID,
                 Model::ID
@@ -128,8 +152,8 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     {
         $dGraphQuery = new DGraphQuery();
         $dGraphQuery->uid($conversationId)
-            ->filterEq('ei_type', Model::CONVERSATION_USER)
-            ->setQueryGraph(self::getConversationQueryGraph());
+            ->filterEq(Model::EI_TYPE, Model::CONVERSATION_USER)
+            ->setQueryGraph(self::getUserConversationQueryGraph());
 
         return $dGraphQuery;
     }
@@ -152,12 +176,27 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
     /**
      * @return array
      */
-    public static function getConversationQueryGraph(): array
+    public static function getUserConversationQueryGraph(): array
+    {
+        return array_merge(
+            self::getConversationTemplateQueryGraph(),
+            [
+                Model::INSTANCE_OF => self::getConversationTemplateQueryGraph()
+            ]
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public static function getConversationTemplateQueryGraph(): array
     {
         return [
             Model::UID,
             Model::ID,
             Model::EI_TYPE,
+            Model::CONVERSATION_STATUS,
+            Model::CONVERSATION_VERSION,
             Model::HAS_CONDITION => self::getConditionGraph(),
             Model::HAS_OPENING_SCENE => self::getSceneGraph(),
             Model::HAS_SCENE => self::getSceneGraph()
@@ -266,5 +305,21 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             Model::UID,
             Model::ID
         ];
+    }
+
+    /**
+     * Returns UID's if a conversation has been used before.
+     *
+     * @param string $name
+     * @return DGraphQuery
+     */
+    public static function hasConversationBeenUsed(string $name): DGraphQuery
+    {
+        return (new DGraphQuery())
+            ->has(Model::HAS_INSTANCE)
+            ->filterEq(Model::ID, $name)
+            ->setQueryGraph([
+                Model::UID
+            ]);
     }
 }

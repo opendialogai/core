@@ -10,9 +10,9 @@ class CompletingConversationTest extends TestCase
 {
     public function testCompletingIntents()
     {
-        $this->publishConversation($this->conver1());
-        $this->publishConversation($this->conver2());
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conver1());
+        $this->activateConversation($this->conver2());
+        $this->activateConversation($this->conversation4());
 
         $this->setSupportedCallbacks([
             'hello_bot' => 'intent.core.hello_bot',

@@ -38,6 +38,31 @@ interface ConversationStoreInterface
     public function getEIModelConversationTemplate($conversationTemplateName): EIModelConversation;
 
     /**
+     * @param $uid
+     * @return Conversation
+     */
+    public function getConversationTemplateByUid($uid): Conversation;
+
+    /**
+     * @param $uid
+     * @return EIModelConversation
+     * @throws EIModelCreatorException
+     */
+    public function getEIModelConversationTemplateByUid($uid): EIModelConversation;
+
+    /**
+     * @param $templateName
+     * @return Conversation
+     */
+    public function getLatestTemplateVersionByName($templateName): Conversation;
+
+    /**
+     * @param $templateName
+     * @return EIModelConversation
+     */
+    public function getLatestEIModelTemplateVersionByName($templateName): EIModelConversation;
+
+    /**
      * Gets the opening intent ID within a conversation with the given id with a matching order
      *
      * @param $conversationId
@@ -75,4 +100,10 @@ interface ConversationStoreInterface
      * @return EIModelToGraphConverter
      */
     public function getConversationConverter(): EIModelToGraphConverter;
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasConversationBeenUsed(string $name): bool;
 }
