@@ -155,7 +155,7 @@ class Scene extends NodeWithConditions
         // If the current intent is in this scene, use its order. If it's said across scenes, we use 0.
         $currentOrder = $this->hasIntent($currentIntent->getId()) ? $currentIntent->getOrder() : 0;
 
-        /** @var EIModelIntent $previousKeptIntent */
+        /** @var Intent $previousKeptIntent */
         $previousKeptIntent = null;
 
         $intents = $this->getIntentsSaidByBotInOrder()->filter(
