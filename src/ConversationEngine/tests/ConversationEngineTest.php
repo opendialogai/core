@@ -208,7 +208,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */

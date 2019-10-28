@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Http\Middleware;
 use Closure;
 use DateTime;
 use Illuminate\Http\Request;
+use OpenDialogAi\Core\LoggingHelper;
 use OpenDialogAi\Core\RequestLog;
 use OpenDialogAi\Core\ResponseLog;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,7 +46,10 @@ class RequestLoggerMiddleware
         $requestLength = microtime(true) - LARAVEL_START;
         $memoryUsage = memory_get_usage();
 
+        $userId = LoggingHelper::getUserIdFromRequest();
+
         RequestLog::create([
+            'user_id' => ($userId) ? $userId : '',
             'url' => $request->url(),
             'query_params' => json_encode($request->query()),
             'method' => $request->method(),
@@ -56,6 +60,7 @@ class RequestLoggerMiddleware
         ])->save();
 
         ResponseLog::create([
+            'user_id' => ($userId) ? $userId : '',
             'request_length' => $requestLength,
             'request_id' => $this->requestId,
             'memory_usage' => $memoryUsage,

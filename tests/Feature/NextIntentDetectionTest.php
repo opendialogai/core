@@ -13,11 +13,14 @@ class NextIntentDetectionTest extends TestCase
 {
     public function setUp(): void
     {
+        $this->setupWithDGraphInit = false;
         parent::setUp();
 
         AttributeResolver::registerAttributes([
             'user_name' => StringAttribute::class
         ]);
+
+        $this->initDDgraph();
 
         $this->activateConversation($this->conversation4());
     }

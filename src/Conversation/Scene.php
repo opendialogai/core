@@ -3,7 +3,6 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
@@ -148,13 +147,13 @@ class Scene extends NodeWithConditions
     /**
      * Get the bot intents said in the scene that have a higher order than the current intent
      * and are in an uninterrupted ascending order.
-     * @param EIModelIntent $currentIntent
+     * @param Intent $currentIntent
      * @return Map
      */
-    public function getNextPossibleBotIntents(EIModelIntent $currentIntent): Map
+    public function getNextPossibleBotIntents(Intent $currentIntent): Map
     {
         // If the current intent is in this scene, use its order. If it's said across scenes, we use 0.
-        $currentOrder = $this->hasIntent($currentIntent->getIntentId()) ? $currentIntent->getOrder() : 0;
+        $currentOrder = $this->hasIntent($currentIntent->getId()) ? $currentIntent->getOrder() : 0;
 
         /** @var EIModelIntent $previousKeptIntent */
         $previousKeptIntent = null;
@@ -181,10 +180,10 @@ class Scene extends NodeWithConditions
     /**
      * Get the user intents said in the scene that have a higher order than the current intent
      * and are in an uninterrupted ascending order.
-     * @param EIModelIntent $currentIntent
+     * @param Intent $currentIntent
      * @return Map
      */
-    public function getNextPossibleUserIntents(EIModelIntent $currentIntent): Map
+    public function getNextPossibleUserIntents(Intent $currentIntent): Map
     {
         $currentOrder = $currentIntent->getOrder();
 

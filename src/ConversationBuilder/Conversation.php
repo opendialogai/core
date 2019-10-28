@@ -13,7 +13,6 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
@@ -25,7 +24,6 @@ use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
-use OpenDialogAi\Core\Graph\DGraph\DGraphResponseErrorException;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -335,36 +333,6 @@ class Conversation extends Model
         return $this->setStatus(function (ConversationManager $cm) {
             $cm->setArchived();
         }, ConversationNode::ARCHIVED);
-    }
-
-    /**
-     * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
-     * @throws Exception
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function delete(): bool
-    {
-        $dGraph = app()->make(DGraphClient::class);
-
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-
-        /** @var EIModelConversation $conversation */
-        $conversation = $conversationStore->getEIModelConversationTemplateByUid($this->graph_uid);
-
-        if ($conversation->getConversationStatus() != ConversationNode::ARCHIVED) {
-            return false;
-        }
-
-        try {
-            $dGraph->deleteConversationAndHistory($this->graph_uid);
-        } catch (DGraphResponseErrorException $e) {
-            return false;
-        }
-
-        return parent::delete();
     }
 
     /**

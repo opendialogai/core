@@ -13,6 +13,7 @@ use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -90,7 +91,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws FieldNotSupported
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
-     * @throws ConversationStore\EIModelCreatorException
+     * @throws EIModelCreatorException
      * @throws CurrentIntentNotSetException
      */
     public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
@@ -102,8 +103,8 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
 
-        /** @var EIModelIntent $currentIntent */
-        $currentIntent = $this->conversationStore->getEIModelIntentByUid($userContext->getUser()->getCurrentIntentUid());
+        /** @var Intent $currentIntent */
+        $currentIntent = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
 
         $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentIntent);
         $filteredIntents = $this->filterByConditions($possibleNextIntents);
@@ -128,7 +129,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws FieldNotSupported
-     * @throws ConversationStore\EIModelCreatorException
+     * @throws EIModelCreatorException
      * @throws CurrentIntentNotSetException
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
@@ -187,6 +188,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws CurrentIntentNotSetException
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
+     * @throws EIModelCreatorException
      */
     public function updateConversationFollowingUserInput(
         UserContext $userContext,
@@ -195,7 +197,7 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
 
-        /* @var EIModelIntent $currentIntent */
+        /* @var Intent $currentIntent */
         $currentIntent = $userContext->getCurrentIntent();
 
         if (!ContextService::hasContext('conversation')) {
@@ -203,7 +205,7 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         ContextService::saveAttribute('conversation.current_scene', $currentScene->getId());
-        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getIntentId());
+        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getId());
 
         $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
@@ -250,7 +252,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @return Conversation | null
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
-     * @throws ConversationStore\EIModelCreatorException
+     * @throws EIModelCreatorException
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {

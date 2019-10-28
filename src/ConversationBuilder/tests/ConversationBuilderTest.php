@@ -118,7 +118,10 @@ class ConversationBuilderTest extends TestCase
     public function testConversationDeletionWithSingleVersion()
     {
         /** @var Conversation $conversation */
-        $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
+        $conversation = Conversation::create([
+            'name' => 'hello_bot_world',
+            'model' => $this->conversation1()
+        ]);
 
         $conversationStateLog = ConversationStateLog::create([
             'conversation_id' => $conversation->id,
@@ -151,7 +154,7 @@ class ConversationBuilderTest extends TestCase
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         $this->expectException(\ErrorException::class);
-        $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
+        var_dump($conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world'));
     }
 
     public function testConversationDeletionWithManyVersions()

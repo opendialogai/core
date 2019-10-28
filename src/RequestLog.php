@@ -19,4 +19,9 @@ class RequestLog extends Model
      * @var array
      */
     protected $guarded = [];
+
+    public function responseLog()
+    {
+        return $this->belongsTo(ResponseLog::class, 'request_id', 'request_id');
+    }
 }
