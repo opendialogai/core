@@ -377,4 +377,51 @@ EOT;
     {
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
     }
+
+    protected function conversationWithSceneConditions()
+    {
+        return <<< EOT
+conversation:
+  id: with_scene_conditions
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: opening_user_s1
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene1
+        - u:
+            i: opening_user_s2
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene2
+        - u:
+            i: opening_user_none
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_complete
+            completes: true
+    scene1:
+      conditions:
+        - condition:
+            operation: is_not_set
+            attributes:
+              attribute1: user.user_email
+      intents:
+        - b: 
+            i: scene1_bot
+            completes: true
+    scene2:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user
+      intents:
+        - b: 
+            i: scene2_bot
+            completes: true
+EOT;
+    }
 }

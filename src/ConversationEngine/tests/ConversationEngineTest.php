@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
@@ -17,6 +18,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
@@ -41,10 +43,15 @@ class ConversationEngineTest extends TestCase
 
     public function setUp(): void
     {
+        $this->setupWithDGraphInit = false;
         parent::setUp();
         /* @var AttributeResolver $attributeResolver */
         $attributeResolver = $this->app->make(AttributeResolver::class);
-        $attributes = ['test' => IntAttribute::class];
+        $attributes = [
+            'test' => IntAttribute::class,
+            'user_name' => StringAttribute::class,
+            'user_email' => StringAttribute::class
+        ];
         $attributeResolver->registerAttributes($attributes);
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
@@ -343,6 +350,48 @@ class ConversationEngineTest extends TestCase
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
         $this->assertCount(3, $conversation->history);
+    }
+
+    public function testSceneConditions()
+    {
+        $this->activateConversation($this->conversationWithSceneConditions());
+
+        // No scene conditions pass with valid opening scene intent, expect to match opening scene intent
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_none');
+        $userContext = ContextService::createUserContext($utterance);
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('opening_bot_complete', $intent->getId());
+
+        // Both scene conditions pass-able, expect first to be matched
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s1');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_name', 'test_user'));
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('scene1_bot', $intent->getId());
+
+        // First scene conditions fails, second passes, expect second to be matched
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('scene2_bot', $intent->getId());
+
+        // No scene conditions pass with invalid opening scene intent, expect a no-match
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_doesnt_exist');
+        $userContext = ContextService::createUserContext($utterance);
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        // No scene conditions pass with valid opening scene intent, expect a no-match
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
+        $userContext = ContextService::createUserContext($utterance);
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
     }
 
     /**
