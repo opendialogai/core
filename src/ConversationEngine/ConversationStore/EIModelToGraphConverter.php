@@ -167,6 +167,25 @@ class EIModelToGraphConverter
     }
 
     /**
+     * @param $sceneId
+     * @param Set $conditions
+     * @param ConversationManager $cm
+     * @param bool $clone
+     */
+    public function createSceneConditions($sceneId, Set $conditions, ConversationManager $cm, bool $clone = false): void
+    {
+        /* @var EIModelCondition $conditionData */
+        foreach ($conditions as $conditionData) {
+            /* @var Condition $condition */
+            $condition = $this->convertCondition($conditionData, $clone);
+
+            if (isset($condition)) {
+                $cm->addConditionToScene($sceneId, $condition);
+            }
+        }
+    }
+
+    /**
      * @param ConversationManager $cm
      * @param EIModelConversation $data
      */
@@ -202,8 +221,14 @@ class EIModelToGraphConverter
     {
         $scene = $cm->getScene($data->getId());
         $clone ? false : $scene->setUid($data->getUid());
-        $clone ? false: $scene->getUser()->setUid($data->getUserUid());
-        $clone ? false: $scene->getBot()->setUid($data->getBotUid());
+        $clone ? false : $scene->getUser()->setUid($data->getUserUid());
+        $clone ? false : $scene->getBot()->setUid($data->getBotUid());
+
+        /* @var Set $conditions */
+        $conditions = $data->getConditions();
+        if (!is_null($conditions) && $conditions->count() > 0) {
+            $this->createSceneConditions($data->getId(), $conditions, $cm, $clone);
+        }
 
         $this->updateParticipant(
             $scene->getId(), $scene->getUser(), $cm, $data->getUserSaysIntents(), $clone

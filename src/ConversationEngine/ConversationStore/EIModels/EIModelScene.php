@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Conversation\Model;
 
-class EIModelScene extends EIModelBase
+class EIModelScene extends EIModelWithConditions
 {
     private $id;
     private $uid;
