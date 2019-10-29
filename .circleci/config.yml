@@ -53,7 +53,8 @@ jobs:
           command: socat TCP-LISTEN:8080,reuseaddr,fork "EXEC:'docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec -i dgraph_server_1 socat STDIO TCP-CONNECT:localhost:8080'"
 
       # run tests!
-      - run: phpdbg -qrr ./vendor/bin/phpunit --coverage-html build/coverage-report -d memory_limit=512M
+      - run: phpdbg -qrr ./vendor/bin/phpunit --coverage-html build/coverage-report --configuration phpunit-ci.xml -d memory_limit=2048M
+
 
       - store_artifacts:
           path:  build/coverage-report
