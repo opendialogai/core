@@ -359,36 +359,47 @@ class ConversationEngineTest extends TestCase
         // No scene conditions pass with valid opening scene intent, expect to match opening scene intent
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_none');
         $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
-        $this->assertEquals('opening_bot_complete', $intent->getId());
+        $this->assertEquals('opening_bot_response', $intent->getId());
 
-        // Both scene conditions pass-able, expect first to be matched
+        // Progress conversation, expect to not enter scene3
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s3', $utterance->getUser());
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
+
+
+        // Restart conversation: Both scene conditions pass-able, expect first to be matched
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s1');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_name', 'test_user'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('scene1_bot', $intent->getId());
+
+        // Restart conversation: First scene conditions fails, second passes, expect second to be matched
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
         $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_name', 'test_user'));
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
-        $this->assertEquals('scene1_bot', $intent->getId());
+        $this->assertEquals('scene2_bot', $intent->getId());
 
-        // First scene conditions fails, second passes, expect second to be matched
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
+        // Restart conversation: No scene conditions pass with invalid opening scene intent, expect a no-match
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_doesnt_exist');
         $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
-        $this->assertEquals('scene2_bot', $intent->getId());
-
-        // No scene conditions pass with invalid opening scene intent, expect a no-match
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_doesnt_exist');
-        $userContext = ContextService::createUserContext($utterance);
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
-
-        // No scene conditions pass with valid opening scene intent, expect a no-match
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
+
+        // Restart conversation: No scene conditions pass with valid opening scene intent, expect a no-match
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
         $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
         $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
 
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());

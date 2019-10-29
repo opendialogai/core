@@ -39,20 +39,21 @@ class EIModelWithConditions extends EIModelBase
     {
         $eiModelCreator = app()->make(EIModelCreator::class);
 
-        $conversation = new static();
-        $conversation->conditions = new Set();
+        $eiModel = new static();
+        $eiModel->conditions = new Set();
 
         if (isset($response[Model::HAS_CONDITION])) {
             foreach ($response[Model::HAS_CONDITION] as $c) {
+                /** @var EIModelCondition $condition */
                 $condition = $eiModelCreator->createEIModel(EIModelCondition::class, $c);
 
                 if (isset($condition)) {
-                    $conversation->conditions->add($condition);
+                    $eiModel->addCondition($condition);
                 }
             }
         }
 
-        return $conversation;
+        return $eiModel;
     }
 
     /**
@@ -68,7 +69,7 @@ class EIModelWithConditions extends EIModelBase
      */
     public function hasConditions(): bool
     {
-        return !$this->conditions->isEmpty();
+        return !is_null($this->conditions) && !$this->conditions->isEmpty();
     }
 
     /**
@@ -78,5 +79,13 @@ class EIModelWithConditions extends EIModelBase
     public function setConditions(Set $conditions): void
     {
         $this->conditions = $conditions;
+    }
+
+    /**
+     * @param EIModelCondition $condition
+     */
+    public function addCondition(EIModelCondition $condition): void
+    {
+        $this->conditions->add($condition);
     }
 }

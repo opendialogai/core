@@ -195,6 +195,8 @@ class ConversationManager
         $sceneIntent = clone $intent;
         $sceneIntent->setOrderAttribute($order);
 
+        $this->pullConditionsFromScene($endingSceneId, $sceneIntent);
+
         /* @var Scene $startingScene */
         $startingScene = $this->conversation->getScene($startingSceneId);
         $startingScene->userSaysToBotLeadingOutOfScene($sceneIntent);
@@ -219,6 +221,8 @@ class ConversationManager
         /* @var Intent $sceneIntent */
         $sceneIntent = clone $intent;
         $sceneIntent->setOrderAttribute($order);
+
+        $this->pullConditionsFromScene($endingSceneId, $sceneIntent);
 
         /* @var Scene $startingScene */
         $startingScene = $this->conversation->getScene($startingSceneId);
@@ -323,5 +327,21 @@ class ConversationManager
     public function setInstanceOf(Conversation $instanceOf)
     {
         $this->conversation->setInstanceOf($instanceOf);
+    }
+
+    /**
+     * @param $endingSceneId
+     * @param Intent $sceneIntent
+     */
+    private function pullConditionsFromScene($endingSceneId, Intent $sceneIntent): void
+    {
+        $endingScene = $this->getScene($endingSceneId);
+
+        if ($endingScene->hasConditions()) {
+            /** @var Condition $condition */
+            foreach ($endingScene->getConditions() as $condition) {
+                $sceneIntent->addCondition($condition);
+            }
+        }
     }
 }

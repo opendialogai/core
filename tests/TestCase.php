@@ -398,6 +398,15 @@ conversation:
             i: opening_user_none
             interpreter: interpreter.core.callbackInterpreter
         - b: 
+            i: opening_bot_response
+        - u:
+            i: opening_user_s3
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene3
+        - u:
+            i: opening_user_none2
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
             i: opening_bot_complete
             completes: true
     scene1:
@@ -421,6 +430,18 @@ conversation:
       intents:
         - b: 
             i: scene2_bot
+            completes: true
+    scene3:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user2
+      intents:
+        - b: 
+            i: scene3_bot
             completes: true
 EOT;
     }
