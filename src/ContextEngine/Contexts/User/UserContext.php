@@ -3,11 +3,13 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -74,9 +76,25 @@ class UserContext implements ContextInterface
      */
     public function getAttribute(string $attributeName): AttributeInterface
     {
-        /** @var UserAttribute $userAttribute */
-        $userAttribute = $this->getAttributes()->get($attributeName);
-        return $userAttribute->getInternalAttribute();
+        if ($this->hasAttribute($attributeName)) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->getAttributes()->get($attributeName);
+            return $userAttribute->getInternalAttribute();
+        } else {
+            Log::warning(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
+            throw new AttributeDoesNotExistException(
+                sprintf("Cannot return attribute with name %s - does not exist", $attributeName)
+            );
+        }
+    }
+
+    /**
+     * @param $attributeName
+     * @return bool
+     */
+    public function hasAttribute($attributeName): bool
+    {
+        return $this->getAttributes()->hasKey($attributeName);
     }
 
     /**
@@ -95,6 +113,17 @@ class UserContext implements ContextInterface
      */
     public function removeAttribute(string $attributeName): bool
     {
+        if ($this->hasAttribute($attributeName)) {
+            $this->getAttribute($attributeName)->setValue(null);
+            return true;
+        }
+
+        Log::warning(sprintf(
+            'Trying to remove non-existent attribute %s from %s',
+            $attributeName,
+            $this->getId()
+        ));
+
         return false;
     }
 
