@@ -44,6 +44,10 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
         }
 
+        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
+        }
+
         if (!defined('LARAVEL_START')) {
             define('LARAVEL_START', microtime(true));
         }
