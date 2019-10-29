@@ -10,6 +10,10 @@ use Ds\Set;
  */
 class DGraphQuery extends DGraphQueryAbstract
 {
+    const SORT_ASC = 'sort_asc';
+    const SORT_DESC = 'sort_desc';
+
+
     private $queryGraph;
 
     /** @var Set $filters */
@@ -24,6 +28,26 @@ class DGraphQuery extends DGraphQueryAbstract
      * @var int|null
      */
     private $recurseDepth;
+
+    /**
+     * @var string
+     */
+    private $sortPredicate;
+
+    /**
+     * @var string
+     */
+    private $sortOrder;
+
+    /**
+     * @var int
+     */
+    private $firstNumber;
+
+    /**
+     * @var int
+     */
+    private $offsetNumber;
 
     public function __construct()
     {
@@ -106,6 +130,41 @@ class DGraphQuery extends DGraphQueryAbstract
     }
 
     /**
+     * @param string $predicate
+     * @param string $ordering
+     * @return $this
+     */
+    public function sort(string $predicate, string $ordering = DGraphQuery::SORT_ASC): DGraphQueryAbstract
+    {
+        $this->sortPredicate = $predicate;
+        $this->sortOrder = $ordering;
+
+        return $this;
+    }
+
+    /**
+     * @param int $number
+     * @return $this
+     */
+    public function first(int $number = 1): DGraphQueryAbstract
+    {
+        $this->firstNumber = $number;
+
+        return $this;
+    }
+
+    /**
+     * @param int $number
+     * @return $this
+     */
+    public function offset(int $number): DGraphQueryAbstract
+    {
+        $this->offsetNumber = $number;
+
+        return $this;
+    }
+
+    /**
      * @param array $graphFragment
      * @return $this
      */
@@ -143,8 +202,10 @@ class DGraphQuery extends DGraphQueryAbstract
     public function prepare(): string
     {
         $this->queryString = '{ ' . self::FUNC_NAME . '( ' . self::FUNC . ':';
-
-        $this->queryString .= $this->getFunction($this->query[self::FUNC]) . ')';
+        $this->queryString .= $this->getFunction($this->query[self::FUNC]);
+        $this->queryString .= $this->prepareSorting();
+        $this->queryString .= $this->preparePagination();
+        $this->queryString .= ')';
 
         if ($this->filters->count() > 0) {
             $this->queryString .= '@filter(';
@@ -172,5 +233,43 @@ class DGraphQuery extends DGraphQueryAbstract
 
         $this->queryString .= '}';
         return $this->queryString;
+    }
+
+    /**
+     * @return string
+     */
+    private function prepareSorting(): string
+    {
+        $sorting = "";
+
+        if ($this->sortPredicate) {
+            if ($this->sortOrder == self::SORT_DESC) {
+                $order = "orderdesc";
+            } else {
+                $order = "orderasc";
+            }
+
+            $sorting .= "," . $order . ":" . $this->sortPredicate;
+        }
+
+        return $sorting;
+    }
+
+    /**
+     * @return string
+     */
+    private function preparePagination(): string
+    {
+        $pagination = "";
+
+        if ($this->firstNumber) {
+            $pagination .= ",first:" . $this->firstNumber;
+        }
+
+        if ($this->offsetNumber) {
+            $pagination .= ",offset:" . $this->offsetNumber;
+        }
+
+        return $pagination;
     }
 }

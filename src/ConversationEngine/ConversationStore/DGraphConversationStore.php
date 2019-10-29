@@ -7,7 +7,6 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningIntents;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
 
@@ -136,19 +135,13 @@ class DGraphConversationStore implements ConversationStoreInterface
      */
     public function getLatestEIModelTemplateVersionByName($templateName): EIModelConversation
     {
-        $query = DGraphConversationQueryFactory::getConversationFromDGraphWithTemplateName($templateName);
+        $query = DGraphConversationQueryFactory::getLatestConversationFromDGraphWithTemplateName($templateName);
 
         /** @var DGraphQueryResponse $response */
         $response = $this->dGraphClient->query($query);
-        $data = $response->getData();
-
-        // Sort by version number
-        usort($data, function ($a, $b) {
-            return $a[Model::CONVERSATION_VERSION] < $b[Model::CONVERSATION_VERSION];
-        });
 
         /* @var EIModelConversation $model */
-        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $data[0]);
+        $model = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
 
         return $model;
     }
@@ -222,5 +215,16 @@ class DGraphConversationStore implements ConversationStoreInterface
     public function getConversationConverter(): EIModelToGraphConverter
     {
         return $this->conversationConverter;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasConversationBeenUsed(string $name): bool
+    {
+        $query = DGraphConversationQueryFactory::hasConversationBeenUsed($name);
+        $response = $this->dGraphClient->query($query);
+        return !empty($response->getData());
     }
 }

@@ -71,6 +71,11 @@ All queries are logged at info level
 By default, all incoming and outgoing API calls will be logged to the request and response mysql tables.
 To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`
 
+## Introspection logging
+
+To turn on introspection processing set the `INTROSPECTION_PROCESSOR_ENABLED` env variable to true. This will add
+extra information to all log messages including the class and line that generated the message
+
 ## Local Artisan
 
 If you need to use artisan commands in the development of this pacakge, you can use `/vendor/bin/artisan` in it's place.

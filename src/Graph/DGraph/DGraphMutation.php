@@ -233,7 +233,7 @@ class DGraphMutation
      */
     private function normalizeString($input): string
     {
-        $invalidCharacters = ['@'];
+        $invalidCharacters = ['@', '+'];
 
         return str_replace($invalidCharacters, "", $input);
     }

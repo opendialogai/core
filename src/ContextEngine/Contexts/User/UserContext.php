@@ -188,8 +188,10 @@ class UserContext implements ContextInterface
     /**
      * Sets the current conversation against the user, persists the user and returns the conversation id
      *
-     * @param Conversation $conversationForCloning
-     * @param Conversation $conversationForConnecting
+     * @param Conversation $conversationForCloning Required to ensure that the new conversation is fully
+     * cloned by `UserService.updateUser`
+     * @param Conversation $conversationForConnecting Required to ensure that DGraph contains a correct `instance_of`
+     * edge between template & instance
      * @return string
      */
     public function setCurrentConversation(Conversation $conversationForCloning, Conversation $conversationForConnecting): string
@@ -206,13 +208,13 @@ class UserContext implements ContextInterface
     /**
      * Gets just the current intent unconnected
      *
-     * @return EIModelIntent
+     * @return Intent
      * @throws EIModelCreatorException
      */
-    public function getCurrentIntent()
+    public function getCurrentIntent(): Intent
     {
         $currentIntentId = $this->user->getCurrentIntentUid();
-        return $this->conversationStore->getEIModelIntentByUid($currentIntentId);
+        return $this->conversationStore->getIntentByUid($currentIntentId);
     }
 
     /**

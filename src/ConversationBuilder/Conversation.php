@@ -2,7 +2,9 @@
 
 namespace OpenDialogAi\ConversationBuilder;
 
+use Closure;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
@@ -11,7 +13,6 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
@@ -23,6 +24,7 @@ use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -36,6 +38,11 @@ use Symfony\Component\Yaml\Yaml;
  * @property mixed model
  * @property int id
  * @property string name
+ * @property int version_number
+ * @property string opening_intent
+ * @property array outgoing_intents
+ * @property array history
+ * @property bool has_been_used
  */
 class Conversation extends Model
 {
@@ -48,6 +55,7 @@ class Conversation extends Model
     ];
 
     protected $visible = [
+        'id',
         'name',
         'status',
         'yaml_validation_status',
@@ -58,7 +66,18 @@ class Conversation extends Model
         'notes',
         'created_at',
         'updated_at',
-        'version_number'
+        'version_number',
+        'history',
+        'opening_intent',
+        'outgoing_intents',
+        'has_been_used'
+    ];
+
+    protected $appends = [
+        'history',
+        'opening_intent',
+        'outgoing_intents',
+        'has_been_used'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
@@ -299,42 +318,9 @@ class Conversation extends Model
      */
     public function deactivateConversation(): bool
     {
-        $dGraph = app()->make(DGraphClient::class);
-
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-
-        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
-
-        /** @var ConversationManager $cm */
-        $cm = ConversationManager::createManagerForExistingConversation($conversation);
-
-        try {
+        return $this->setStatus(function (ConversationManager $cm) {
             $cm->setDeactivated();
-        } catch (InvalidConversationStatusTransitionException $e) {
-            return false;
-        }
-
-        $mutation = new DGraphMutation($cm->getConversation());
-
-        /* @var DGraphMutationResponse $mutationResponse */
-        $mutationResponse = $dGraph->tripleMutation($mutation);
-
-        if ($mutationResponse->isSuccessful()) {
-            $this->status = ConversationNode::DEACTIVATED;
-            $this->save(['validate' => false]);
-
-            // Add log message.
-            ConversationStateLog::create([
-                'conversation_id' => $this->id,
-                'message' => 'Deactivated conversation in DGraph.',
-                'type' => 'deactivate_conversation',
-            ])->save();
-
-            return true;
-        }
-
-        return false;
+        }, ConversationNode::DEACTIVATED);
     }
 
     /**
@@ -344,72 +330,9 @@ class Conversation extends Model
      */
     public function archiveConversation(): bool
     {
-        $dGraph = app()->make(DGraphClient::class);
-
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-
-        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
-
-        /** @var ConversationManager $cm */
-        $cm = ConversationManager::createManagerForExistingConversation($conversation);
-
-        try {
+        return $this->setStatus(function (ConversationManager $cm) {
             $cm->setArchived();
-        } catch (InvalidConversationStatusTransitionException $e) {
-            return false;
-        }
-
-        $mutation = new DGraphMutation($cm->getConversation());
-
-        /* @var DGraphMutationResponse $mutationResponse */
-        $mutationResponse = $dGraph->tripleMutation($mutation);
-
-        if ($mutationResponse->isSuccessful()) {
-            $this->status = ConversationNode::ARCHIVED;
-            $this->save(['validate' => false]);
-
-            // Add log message.
-            ConversationStateLog::create([
-                'conversation_id' => $this->id,
-                'message' => 'Archived conversation',
-                'type' => 'archived_conversation',
-            ])->save();
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
-     * @throws Exception
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function delete(): bool
-    {
-        $dGraph = app()->make(DGraphClient::class);
-
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-
-        /** @var EIModelConversation $conversation */
-        $conversation = $conversationStore->getEIModelConversationTemplateByUid($this->graph_uid);
-
-        if ($conversation->getConversationStatus() != ConversationNode::ARCHIVED) {
-            return false;
-        }
-
-        try {
-            $dGraph->deleteConversationAndHistory($this->graph_uid);
-        } catch (Exception $e) {
-            return false;
-        }
-
-        return parent::delete();
+        }, ConversationNode::ARCHIVED);
     }
 
     /**
@@ -508,5 +431,164 @@ class Conversation extends Model
         $condition = new Condition($operation, $attributes, $parameters, $id);
         Log::debug('Created condition from Yaml.');
         return $condition;
+    }
+
+    /**
+     * @param Closure $managerMethod
+     * @param $newStatus
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    private function setStatus(Closure $managerMethod, $newStatus): bool
+    {
+        $dGraph = app()->make(DGraphClient::class);
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
+
+        /** @var ConversationManager $cm */
+        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+
+        try {
+            $managerMethod->call($this, $cm);
+        } catch (InvalidConversationStatusTransitionException $e) {
+            return false;
+        }
+
+        $mutation = new DGraphMutation($cm->getConversation());
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+
+        if ($mutationResponse->isSuccessful()) {
+            $this->status = $newStatus;
+            $this->save(['validate' => false]);
+
+            // Add log message.
+            ConversationStateLog::create([
+                'conversation_id' => $this->id,
+                'message' => 'Deactivated conversation in DGraph.',
+                'type' => 'deactivate_conversation',
+            ])->save();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $status
+     * @return Builder
+     */
+    public function scopeWithStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $status
+     * @return Builder
+     */
+    public function scopeWithoutStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', '!=', $status);
+    }
+
+    /**
+     * @return array
+     */
+    public function getOutgoingIntentsAttribute(): array
+    {
+        $outgoingIntents = [];
+        $yaml = Yaml::parse($this->model)['conversation'];
+
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            foreach ($scene['intents'] as $intent) {
+                foreach ($intent as $tag => $value) {
+                    if ($tag == 'b') {
+                        foreach ($value as $key => $intent) {
+                            if ($key == 'i') {
+                                $outgoingIntent = OutgoingIntent::where('name', $intent)->first();
+                                if ($outgoingIntent) {
+                                    $outgoingIntents[] = [
+                                        'id' => $outgoingIntent->id,
+                                        'name' => $intent,
+                                    ];
+                                } else {
+                                    $outgoingIntents[] = [
+                                        'name' => $intent,
+                                    ];
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $outgoingIntents;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOpeningIntentAttribute(): string
+    {
+        $yaml = Yaml::parse($this->model)['conversation'];
+
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            foreach ($scene['intents'] as $intent) {
+                foreach ($intent as $tag => $value) {
+                    if ($tag == 'u') {
+                        foreach ($value as $key => $intent) {
+                            if ($key == 'i') {
+                                return $intent;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array
+     */
+    public function getHistoryAttribute(): array
+    {
+        $history = ConversationActivity::forSubjectOrdered($this->id)->get();
+
+        return $history->filter(function ($item) {
+            // Retain if it's the first activity record or if it's a record with the version has incremented
+            return isset($item['properties']['old'])
+                && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
+        })->values()->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'timestamp' => $item['updated_at'],
+                'attributes' => $item['properties']['attributes']
+            ];
+        })->toArray();
+    }
+
+    /**
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function getHasBeenUsedAttribute(): bool
+    {
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        return $conversationStore->hasConversationBeenUsed($this->name);
     }
 }

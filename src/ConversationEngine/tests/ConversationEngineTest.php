@@ -190,7 +190,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
@@ -295,7 +295,8 @@ class ConversationEngineTest extends TestCase
         $this->assertEquals('hello_user', $intent->getId());
     }
 
-    public function testGetLatestVersion() {
+    public function testGetLatestVersion()
+    {
         $this->createUpdates('hello_bot_world');
 
         /** @var ConversationStoreInterface $conversationStore */
@@ -305,6 +306,15 @@ class ConversationEngineTest extends TestCase
         /** @var EIModelConversation $conversationWithHistory */
         $conversationWithHistory = $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
         $this->assertEquals(2, $conversationWithHistory->getConversationVersion());
+    }
+
+    public function testGetHistory()
+    {
+        $this->createUpdates('hello_bot_world');
+
+        $conversation = Conversation::where('name', 'hello_bot_world')->first();
+
+        $this->assertCount(3, $conversation->history);
     }
 
     private function createUserContext()
@@ -324,6 +334,9 @@ class ConversationEngineTest extends TestCase
     private function createConversationAndAttachToUser()
     {
         $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $this->assertFalse($conversationStore->hasConversationBeenUsed('hello_bot_world'));
+
         $conversationConverter = app()->make(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
@@ -338,6 +351,8 @@ class ConversationEngineTest extends TestCase
 
         $user->setCurrentConversation($conversationTemplateForCloning, $conversationTemplateForConnecting);
         $userContext->updateUser();
+
+        $this->assertTrue($conversationStore->hasConversationBeenUsed('hello_bot_world'));
 
         $conversationModel = $conversationStore->getEIModelConversation($userContext->getUser()->getCurrentConversationUid());
 

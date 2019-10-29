@@ -118,7 +118,10 @@ class ConversationBuilderTest extends TestCase
     public function testConversationDeletionWithSingleVersion()
     {
         /** @var Conversation $conversation */
-        $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
+        $conversation = Conversation::create([
+            'name' => 'hello_bot_world',
+            'model' => $this->conversation1()
+        ]);
 
         $conversationStateLog = ConversationStateLog::create([
             'conversation_id' => $conversation->id,
@@ -131,6 +134,9 @@ class ConversationBuilderTest extends TestCase
 
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(2, $activities);
+
+        $this->assertEquals('hello_bot', $conversation->opening_intent);
+        $this->assertCount(6, $conversation->outgoing_intents);
 
         $conversation->activateConversation($conversation->buildConversation());
         $conversation->deactivateConversation();
@@ -147,7 +153,7 @@ class ConversationBuilderTest extends TestCase
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         $this->expectException(\ErrorException::class);
-        $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
+        var_dump($conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world'));
     }
 
     public function testConversationDeletionWithManyVersions()

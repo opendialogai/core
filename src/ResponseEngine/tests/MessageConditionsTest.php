@@ -22,6 +22,7 @@ class MessageConditionsTest extends TestCase
 
     public function setUp(): void
     {
+        $this->setupWithDGraphInit = false;
         parent::setUp();
 
         /** @var OutgoingIntent $intent */
@@ -31,6 +32,7 @@ class MessageConditionsTest extends TestCase
             'opendialog.context_engine.custom_attributes',
             ['false' => BooleanAttribute::class]
         );
+        $this->initDDgraph();
 
         ContextService::getContext('session')->addAttribute(AttributeResolver::getAttributeFor('false', false));
 

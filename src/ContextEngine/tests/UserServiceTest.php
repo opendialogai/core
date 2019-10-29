@@ -9,6 +9,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -170,7 +171,7 @@ class UserServiceTest extends TestCase
         /* @var Scene $scene */
         $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
 
-        /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
+        /* @var Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
         $this->userService->setCurrentIntent($user, $intent);
 
@@ -185,6 +186,8 @@ class UserServiceTest extends TestCase
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     public function testUnSettingACurrentIntent()
     {
@@ -219,7 +222,7 @@ class UserServiceTest extends TestCase
         /* @var Scene $scene */
         $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
 
-        /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
+        /* @var Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
         $this->userService->setCurrentIntent($user, $intent);
 
