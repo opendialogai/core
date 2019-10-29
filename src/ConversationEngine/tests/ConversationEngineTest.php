@@ -44,8 +44,6 @@ class ConversationEngineTest extends TestCase
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
 
-        $this->initDDgraph();
-
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
             $this->activateConversation($this->$conversationId());

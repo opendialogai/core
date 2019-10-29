@@ -9,7 +9,6 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
     public function setUp(): void
     {
         parent::setUp();
-        $this->initDDgraph();
         $this->activateConversation($this->conversation4());
     }
 

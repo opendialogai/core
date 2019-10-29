@@ -10,7 +10,6 @@ class CoreTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->initDDgraph();
         $this->activateConversation($this->conversation4());
     }
 
