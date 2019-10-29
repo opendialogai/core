@@ -224,10 +224,8 @@ class EIModelToGraphConverter
         $clone ? false : $scene->getUser()->setUid($data->getUserUid());
         $clone ? false : $scene->getBot()->setUid($data->getBotUid());
 
-        /* @var Set $conditions */
-        $conditions = $data->getConditions();
-        if (!is_null($conditions) && $conditions->count() > 0) {
-            $this->createSceneConditions($data->getId(), $conditions, $cm, $clone);
+        if ($data->hasConditions()) {
+            $this->createSceneConditions($data->getId(), $data->getConditions(), $cm, $clone);
         }
 
         $this->updateParticipant(

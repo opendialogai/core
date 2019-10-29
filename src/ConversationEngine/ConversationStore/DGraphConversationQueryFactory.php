@@ -234,9 +234,11 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
                 Model::ID,
                 Model::USER_PARTICIPATES_IN => [
                     Model::ID,
+                    Model::HAS_CONDITION => self::getConditionGraph()
                 ],
                 Model::BOT_PARTICIPATES_IN => [
                     Model::ID,
+                    Model::HAS_CONDITION => self::getConditionGraph()
                 ]
             ]
         ];

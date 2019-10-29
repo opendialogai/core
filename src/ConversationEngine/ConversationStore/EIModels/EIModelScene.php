@@ -38,7 +38,7 @@ class EIModelScene extends EIModelWithConditions
     public static function validate(array $response, $additionalParameter = null): bool
     {
         if (key_exists(Model::ID, $response)) {
-            return key_exists(Model::UID, $response);
+            return parent::validate($response, $additionalParameter) && key_exists(Model::UID, $response);
         } else {
             Log::error('Trying to create scene with no id', $response);
             return false;
@@ -57,7 +57,8 @@ class EIModelScene extends EIModelWithConditions
     {
         $eiModelCreator = app()->make(EIModelCreator::class);
 
-        $scene = new self();
+        /** @var EIModelScene $scene */
+        $scene = parent::handle($response, $additionalParameter);
         $scene->setId($response[Model::ID]);
         $scene->setUid($response[Model::UID]);
 

@@ -303,4 +303,48 @@ class Intent extends NodeWithConditions
             $this->addAttribute($attribute);
         }
     }
+
+    /**
+     * @return Map
+     */
+    public function getAllConditions(): Map
+    {
+        $intents = new Map();
+
+        if ($this->hasConditions()) {
+            $intents = $intents->merge($this->getConditions());
+        }
+
+        $intents = $intents->merge($this->getConditionsFromDestinationScene());
+
+        return $intents;
+    }
+
+    /**
+     * @return Map
+     */
+    private function getConditionsFromDestinationScene(): Map
+    {
+        $conditions = new Map();
+
+        if ($this->hasIncomingEdgeWithRelationship(Model::LISTENS_FOR_ACROSS_SCENES)) {
+            /** @var Participant $participant */
+            $participant = $this->getNodesConnectedByIncomingRelationship(Model::LISTENS_FOR_ACROSS_SCENES)->first()->value;
+
+            /** @var Scene $scene */
+            if ($participant->hasIncomingEdgeWithRelationship(Model::HAS_USER_PARTICIPANT)) {
+                $scene = $participant->getNodesConnectedByIncomingRelationship(Model::HAS_USER_PARTICIPANT)->first()->value;
+            } else if ($participant->hasIncomingEdgeWithRelationship(Model::HAS_BOT_PARTICIPANT)) {
+                $scene = $participant->getNodesConnectedByIncomingRelationship(Model::HAS_BOT_PARTICIPANT)->first()->value;
+            } else {
+                return $conditions;
+            }
+
+            if ($scene->hasConditions()) {
+                $conditions->putAll($scene->getConditions());
+            }
+        }
+
+        return $conditions;
+    }
 }
