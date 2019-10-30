@@ -12,7 +12,7 @@ class StoreStatuses extends Command
      *
      * @var string
      */
-    protected $signature = 'statuses:store';
+    protected $signature = 'statuses:store {filename?}';
 
     /**
      * The console command description.
@@ -59,13 +59,24 @@ class StoreStatuses extends Command
             mkdir(storage_path('statuses'));
         }
 
+        $filenameArg = $this->argument('filename');
+
+        if ($filenameArg) {
+            $filename = $filenameArg;
+        } else {
+            $filename = 'statuses_' . date('Y-m-d-H-i-s');
+        }
+
         // Store in CSV file
-        $file = fopen(storage_path('statuses') . '/statuses_' . date('Y-m-d-H-i-s') . '.csv', 'w+');
+        $fullFilePath = storage_path('statuses') . '/' . $filename . '.csv';
+        $file = fopen($fullFilePath, 'w+');
 
         foreach ($data as $row) {
             fputcsv($file, $row);
         }
 
         fclose($file);
+
+        return;
     }
 }

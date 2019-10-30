@@ -12,7 +12,7 @@ class ReadStatuses extends Command
      *
      * @var string
      */
-    protected $signature = 'statuses:read {--d|down}';
+    protected $signature = 'statuses:read {--d|down} {filename?}';
 
     /**
      * The console command description.
@@ -53,9 +53,17 @@ class ReadStatuses extends Command
     {
         $this->info("Reading statuses");
 
+        $filenameArg = $this->argument('filename');
+        if ($filenameArg) {
+            $filename = $filenameArg . '.csv';
+        } else {
+            $dir = scandir(storage_path('statuses'), SCANDIR_SORT_DESCENDING);
+            $filename = $dir[0];
+        }
+
         // Read the CSV file
-        $dir = scandir(storage_path('statuses'), SCANDIR_SORT_DESCENDING);
-        $csv = fopen(storage_path('statuses/' . $dir[0]), 'r');
+        $fullFilePath = storage_path('statuses/' . $filename);
+        $csv = fopen($fullFilePath, 'r');
 
         $data = [];
         while ($row = fgetcsv($csv)) {
@@ -63,6 +71,7 @@ class ReadStatuses extends Command
         }
 
         fclose($csv);
+        unlink($fullFilePath);
 
         // Update statuses in database
         foreach ($data as $update) {
@@ -71,6 +80,8 @@ class ReadStatuses extends Command
             $conversation->status = $this->mapStatus($update[1]);
             $conversation->save(["validate" => false]);
         }
+
+        return;
     }
 
     private function mapStatus($oldStatus): string
