@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Conversation\Model;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 
 /**
  * Client for DGraph using REST API.
@@ -388,15 +387,15 @@ class DGraphClient
                 update_of: uid
             }
             type " . self::USER_ATTRIBUTE . " {
-                <id>: string
-                <ei_type>: string
-                <user_attribute_type>: string
-                <user_attribute_value>: string
+                id: string
+                ei_type: string
+                user_attribute_type: string
+                user_attribute_value: string
             }
             type " . self::USER . " {
-                <id>: string
-                <ei_type>: string
-                <has_attribute>: [uid]
+                id: string
+                ei_type: string
+                has_attribute: [uid]
             }
         ";
     }
