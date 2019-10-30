@@ -20,26 +20,61 @@ abstract class ContextParser
      */
     public static function determineContextAndAttributeId($attribute): array
     {
+        $parsedAttribute = self::parseAttributeName($attribute);
+        return [$parsedAttribute->context, $parsedAttribute->attributeId];
+    }
+
+    public static function parseAttributeName($attribute) : ParsedAttributeName
+    {
         $matches = explode('.', $attribute);
+
+        $parsedAttribute = new ParsedAttributeName();
 
         switch (count($matches)) {
             case 2:
-                [$contextId, $attributeId] = $matches;
+                $parsedAttribute->setContext($matches[0]);
+                self::parseArrayNotation($matches[1], $parsedAttribute);
                 break;
             case 1:
-                $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
-                $attributeId = $matches[0];
+                self::parseArrayNotation($matches[0], $parsedAttribute);
+                $parsedAttribute->setAttributeId($matches[0]);
                 break;
             default:
                 Log::warning(sprintf('Parsing invalid attribute name %s', $attribute));
-                $attributeId = AbstractAttribute::INVALID_ATTRIBUTE_NAME;
-                $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
         }
 
-        return [$contextId, $attributeId];
+        return $parsedAttribute;
     }
 
-    /**T
+    /**
+     * @param string $attributeId
+     * @param ParsedAttributeName $parsedAttribute
+     * @return ParsedAttributeName
+     */
+    private static function parseArrayNotation($attributeId, $parsedAttribute): ParsedAttributeName
+    {
+        $split = preg_split('/[[\]\]]/', $attributeId, null, PREG_SPLIT_NO_EMPTY);
+
+        switch (count($split)) {
+            case 3:
+                $parsedAttribute->attributeId = $split[0];
+                $parsedAttribute->itemNumber = $split[1];
+                $parsedAttribute->itemName = $split[2];
+                break;
+            case 2:
+                $parsedAttribute->attributeId = $split[0];
+                $parsedAttribute->itemNumber = $split[1];
+                break;
+            case 1:
+            default:
+                $parsedAttribute->attributeId = $split[0];
+                break;
+        }
+
+        return $parsedAttribute;
+    }
+
+    /**
      * Attempts to work out the context ID for a fully qualified attribute name.
      * For example, an attribute with the name user.name would return: 'user'
      *

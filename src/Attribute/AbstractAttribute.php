@@ -16,6 +16,7 @@ abstract class AbstractAttribute implements AttributeInterface
     const ARRAY = 'attribute.core.array';
     const DATETIME = 'attribute.core.dateTime';
     const TIMESTAMP = 'attribute.core.timestamp';
+    const COLLECTION = 'attribute.core.collection';
 
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
@@ -57,7 +58,8 @@ abstract class AbstractAttribute implements AttributeInterface
             self::FLOAT,
             self::ARRAY,
             self::DATETIME,
-            self::TIMESTAMP
+            self::TIMESTAMP,
+            self::COLLECTION,
         ];
 
         if (!in_array($type, $types, true)) {
