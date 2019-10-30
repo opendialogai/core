@@ -237,6 +237,16 @@ conversation:
 EOT;
     }
 
+    /**
+     * Returns the no match conversation
+     *
+     * @return string
+     */
+    protected function noMatchConversation()
+    {
+        return $this->conversation4();
+    }
+
     protected function initDDgraph(): void
     {
         if (!$this->dgraphInitialised) {
