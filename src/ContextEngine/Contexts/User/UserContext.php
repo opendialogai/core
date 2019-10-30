@@ -5,7 +5,7 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
-use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
+use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
@@ -17,11 +17,9 @@ use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\UserAttribute;
 
-class UserContext implements ContextInterface
+class UserContext extends AbstractContext
 {
     const USER_CONTEXT = 'user';
-
-    private $id;
 
     /* @var ChatbotUser */
     private $user;
@@ -37,27 +35,11 @@ class UserContext implements ContextInterface
         UserService $userService,
         ConversationStoreInterface $conversationStore
     ) {
-        $this->setId(self::USER_CONTEXT);
+        parent::__construct(self::USER_CONTEXT);
 
         $this->user = $user;
         $this->userService = $userService;
         $this->conversationStore = $conversationStore;
-    }
-
-    /**
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param string $id
-     */
-    public function setId(string $id): void
-    {
-        $this->id = $id;
     }
 
     /**
