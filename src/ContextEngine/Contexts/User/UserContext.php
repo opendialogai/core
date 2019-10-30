@@ -8,7 +8,6 @@ use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
@@ -150,7 +149,7 @@ class UserContext implements ContextInterface
     public function addActionResult(ActionResult $actionResult): ChatbotUser
     {
         foreach ($actionResult->getResultAttributes()->getAttributes() as $attribute) {
-            $this->user->addAttribute($attribute);
+            $this->addAttribute($attribute);
         }
 
         return $this->updateUser();

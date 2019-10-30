@@ -327,6 +327,22 @@ EOT;
     }
 
     /**
+     * Register a single interpreter and default interpreter
+     *
+     * @param $action
+     */
+    protected function registerSingleAction($action): void
+    {
+
+        $this->app['config']->set(
+            'opendialog.action_engine.available_actions',
+            [
+                get_class($action),
+            ]
+        );
+    }
+
+    /**
      * @param $interpreterName
      * @return \Mockery\MockInterface|InterpreterInterface
      */
