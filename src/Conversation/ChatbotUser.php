@@ -154,7 +154,7 @@ class ChatbotUser extends Node
      */
     public function hasUserAttribute($attributeName): bool
     {
-        return !is_null($userAttribute = $this->getAllUserAttributes()->get($attributeName, null));
+        return !is_null($this->getAllUserAttributes()->get($attributeName, null));
     }
 
     /**
