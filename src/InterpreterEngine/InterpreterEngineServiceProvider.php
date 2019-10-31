@@ -8,6 +8,7 @@ use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
 use OpenDialogAi\InterpreterEngine\QnA\QnAClient;
+use OpenDialogAi\InterpreterEngine\Rasa\RasaClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
@@ -23,6 +24,11 @@ class InterpreterEngineServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-interpreterengine.php', 'opendialog.interpreter_engine');
+
+        $this->app->bind(RasaClient::class, function () {
+            $config = config('opendialog.interpreter_engine.rasa_config');
+            return new RasaClient(new Client(), $config);
+        });
 
         $this->app->bind(LuisClient::class, function () {
             $config = config('opendialog.interpreter_engine.luis_config');
