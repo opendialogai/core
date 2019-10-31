@@ -28,7 +28,7 @@ class ArrayAttribute extends AbstractAttribute
 
     public function setValue($value)
     {
-        $this->value = json_encode($value);
+        $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
     }
 
     public function getValue()
