@@ -59,9 +59,6 @@ class CollectionAttributeTest extends TestCase
         $collection = new ArrayAttribute('test', $value);
         ContextService::getSessionContext()->addAttribute($collection);
 
-        $number = new ArrayAttribute('number', 1);
-        ContextService::getSessionContext()->addAttribute($number);
-
         $text = resolve(ResponseEngineService::class)->fillAttributes('{session.test[0][name]}');
         $this->assertEquals('Number 1', $text);
 
