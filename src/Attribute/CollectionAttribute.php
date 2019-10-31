@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Log;
  */
 class CollectionAttribute extends AbstractAttribute
 {
-    /**
-     * @var array
-     */
-    protected $value = [];
-
     public function __construct($id, $value)
     {
         parent::__construct($id, AbstractAttribute::COLLECTION, []);
@@ -27,19 +22,19 @@ class CollectionAttribute extends AbstractAttribute
     {
         if (!is_array($value)) {
             Log::warning('Trying to set a non array value to a collection attribute');
-            $this->value[0] = $value;
-        } else {
-            $this->value = $value;
+            $value = [$value];
         }
+
+        $this->value = json_encode($value);
     }
 
     public function getValue()
     {
-        return $this->value;
+        return json_decode($this->value);
     }
 
     public function toString(): string
     {
-
+        return $this->value;
     }
 }
