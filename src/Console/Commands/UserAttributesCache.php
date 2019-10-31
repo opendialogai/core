@@ -47,7 +47,7 @@ class UserAttributesCache extends Command
         /** @var UserService $userService */
         $userService = app()->make(UserService::class);
 
-        $query = $userService->getUserQuery();
+        $query = $userService->getUsersQuery();
         $results = $dgraph->query($query);
 
         foreach ($results->getData() as $userData) {

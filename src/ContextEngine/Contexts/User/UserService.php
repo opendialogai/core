@@ -49,7 +49,7 @@ class UserService
      */
     public function getUser($userId): ChatbotUser
     {
-        $response = $this->dGraphClient->query($this->getSingleUserQuery($userId));
+        $response = $this->dGraphClient->query($this->getUserQuery($userId));
 
         if (!empty($response->getData())) {
             $responseData = $response->getData()[0];
@@ -99,24 +99,24 @@ class UserService
     protected function updateFromUtteranceUserObject(User $user, ChatbotUser $chatbotUser): void
     {
         if ($user->hasFirstName()) {
-            $this->setUserAttribute($chatbotUser, 'first_name', $user->getFirstName());
+            $this->resolveAndAddUserAttribute($chatbotUser, 'first_name', $user->getFirstName());
         }
 
         if ($user->hasLastName()) {
-            $this->setUserAttribute($chatbotUser, 'last_name', $user->getLastName());
+            $this->resolveAndAddUserAttribute($chatbotUser, 'last_name', $user->getLastName());
         }
 
         if ($user->hasEmail()) {
-            $this->setUserAttribute($chatbotUser, 'email', $user->getEmail());
+            $this->resolveAndAddUserAttribute($chatbotUser, 'email', $user->getEmail());
         }
 
         if ($user->hasExternalId()) {
-            $this->setUserAttribute($chatbotUser, 'external_id', $user->hasExternalId());
+            $this->resolveAndAddUserAttribute($chatbotUser, 'external_id', $user->hasExternalId());
         }
 
         if ($user->hasCustomParameters()) {
             foreach ($user->getCustomParameters() as $key => $value) {
-                $this->setUserAttribute($chatbotUser, $key, $value);
+                $this->resolveAndAddUserAttribute($chatbotUser, $key, $value);
             }
         }
     }
@@ -135,7 +135,7 @@ class UserService
         MySqlUserRepository::persistUserToMySql($utterance->getUser());
 
         // Set user 'first_seen' timestamp attribute.
-        $this->setUserAttribute($chatbotUser, 'first_seen', now()->timestamp);
+        $this->resolveAndAddUserAttribute($chatbotUser, 'first_seen', now()->timestamp);
 
         return $chatbotUser;
     }
@@ -263,7 +263,7 @@ class UserService
      */
     public function userExists($userId): bool
     {
-        $response = $this->dGraphClient->query($this->getSingleUserQuery($userId));
+        $response = $this->dGraphClient->query($this->getUserQuery($userId));
         if (isset($response->getData()[0]['id'])) {
             return true;
         }
@@ -342,7 +342,7 @@ class UserService
     /**
      * @return DGraphQuery
      */
-    public function getUserQuery(): DGraphQuery
+    public function getUsersQuery(): DGraphQuery
     {
         $dGraphQuery = new DGraphQuery();
 
@@ -370,9 +370,9 @@ class UserService
      * @param $userId
      * @return DGraphQuery
      */
-    public function getSingleUserQuery($userId)
+    public function getUserQuery($userId)
     {
-        return $this->getUserQuery()->filterEq(Model::ID, $userId);
+        return $this->getUsersQuery()->filterEq(Model::ID, $userId);
     }
 
     /**
@@ -501,46 +501,33 @@ class UserService
     }
 
     /**
-     * Sets the value of an attribute on a chatbot user
-     *
-     * @param ChatbotUser $chatbotUser
-     * @param $attributeName
-     * @param $attributeValue
-     */
-    protected function setUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
-    {
-        try {
-            $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
-
-            if ($chatbotUser->hasUserAttribute($attributeName)) {
-                $chatbotUser->setUserAttribute($attribute);
-            } else {
-                $chatbotUser->addUserAttribute($attribute);
-            }
-        } catch (AttributeIsNotSupported $e) {
-            Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
-        }
-    }
-
-    /**
      * Adds an attribute on a chatbot user
      *
      * @param ChatbotUser $chatbotUser
-     * @param $attributeName
-     * @param $attributeValue
+     * @param AttributeInterface $attribute
      */
     public function addUserAttribute(ChatbotUser $chatbotUser, AttributeInterface $attribute): void
     {
-        try {
-            $chatbotUser->addUserAttribute($attribute);
-        } catch (AttributeIsNotSupported $e) {
-            Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attribute->getId()));
-        }
+        $chatbotUser->addUserAttribute($attribute);
     }
 
+    /**
+     * @param ChatbotUser $chatbotUser
+     * @return Map
+     */
     public function getUserAttributes(ChatbotUser $chatbotUser): Map
     {
         return $chatbotUser->getAllUserAttributes();
+    }
+
+    /**
+     * @param ChatbotUser $chatbotUser
+     * @param $attributeName
+     * @return bool
+     */
+    public function hasUserAttribute(ChatbotUser $chatbotUser, $attributeName): bool
+    {
+        return $this->getUserAttributes($chatbotUser)->hasKey($attributeName);
     }
 
     /**
@@ -595,5 +582,20 @@ class UserService
         }
 
         return $user;
+    }
+
+    /**
+     * @param ChatbotUser $chatbotUser
+     * @param $attributeName
+     * @param $attributeValue
+     */
+    private function resolveAndAddUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
+    {
+        try {
+            $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
+            $this->addUserAttribute($chatbotUser, $attribute);
+        } catch (AttributeIsNotSupported $e) {
+            Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
+        }
     }
 }

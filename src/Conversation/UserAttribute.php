@@ -30,12 +30,18 @@ class UserAttribute extends Node
         $this->attribute = $attribute;
     }
 
+    /**
+     * @return AttributeInterface
+     */
     public function getInternalAttribute(): AttributeInterface
     {
         return $this->attribute;
     }
 
-    public function updateInternalAttribute(AttributeInterface $attribute)
+    /**
+     * @param AttributeInterface $attribute
+     */
+    public function updateInternalAttribute(AttributeInterface $attribute): void
     {
         $this->setAttribute(Model::ID, $attribute->getId());
         $this->setAttribute(Model::USER_ATTRIBUTE_TYPE, $attribute->getType());

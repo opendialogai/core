@@ -49,17 +49,19 @@ class UserContext extends AbstractContext
      */
     public function getAttributes(): Map
     {
-        return $this->userService->getUserAttributes($this->user);
+        return $this->userService->getUserAttributes($this->getUser());
     }
 
     /**
-     * @inheritDoc
+     * @param string $attributeName
+     * @return AttributeInterface
+     * @throws AttributeDoesNotExistException
      */
     public function getAttribute(string $attributeName): AttributeInterface
     {
-        if ($this->hasAttribute($attributeName)) {
+        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
             /** @var UserAttribute $userAttribute */
-            $userAttribute = $this->getAttributes()->get($attributeName);
+            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
             return $userAttribute->getInternalAttribute();
         } else {
             Log::warning(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
@@ -70,20 +72,12 @@ class UserContext extends AbstractContext
     }
 
     /**
-     * @param $attributeName
-     * @return bool
-     */
-    public function hasAttribute($attributeName): bool
-    {
-        return $this->getAttributes()->hasKey($attributeName);
-    }
-
-    /**
      * @inheritDoc
      */
-    public function addAttribute(AttributeInterface $attribute)
+    public function addAttribute(AttributeInterface $attribute): UserContext
     {
         $this->userService->addUserAttribute($this->getUser(), $attribute);
+        return $this;
     }
 
     /**
@@ -94,8 +88,10 @@ class UserContext extends AbstractContext
      */
     public function removeAttribute(string $attributeName): bool
     {
-        if ($this->hasAttribute($attributeName)) {
-            $this->getAttribute($attributeName)->setValue(null);
+        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
+            $userAttribute->setValue(null);
             return true;
         }
 
