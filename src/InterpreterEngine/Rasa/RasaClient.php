@@ -3,6 +3,7 @@
 namespace OpenDialogAi\InterpreterEngine\Rasa;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 
 class RasaClient
@@ -22,7 +23,7 @@ class RasaClient
     /**
      * @param $message
      * @return RasaResponse
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws RasaRequestFailedException
      */
     public function queryRasa($message)
     {
@@ -34,7 +35,7 @@ class RasaClient
                     'body' => json_encode(['text' => $message])
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (GuzzleException $e) {
             Log::error(sprintf("RASA Error %s", $e->getMessage()));
             throw new RasaRequestFailedException($e->getMessage());
         }

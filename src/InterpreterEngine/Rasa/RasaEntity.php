@@ -40,12 +40,15 @@ class RasaEntity
     public function __construct($entity, $query)
     {
         $this->query = $query;
-        $this->type = $entity->value;
-        $this->entityString = $entity->entity;
+        $this->type = $entity->entity;
 
         if (isset($entity->start)) {
             $this->startIndex = $entity->start;
             $this->endIndex = $entity->end;
+
+            $this->entityString = substr($query, $this->startIndex, $this->endIndex);
+        } else {
+            $this->entityString = $this->type;
         }
 
         if (isset($entity->confidence)) {
