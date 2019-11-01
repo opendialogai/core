@@ -3,10 +3,11 @@
 namespace OpenDialogAi\InterpreterEngine\Rasa;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Psr7\Response;
+use OpenDialogAi\InterpreterEngine\Luis\AbstractNLUClient;
+use OpenDialogAi\InterpreterEngine\Luis\AbstractNLUResponse;
 
-class RasaClient
+class RasaClient extends AbstractNLUClient
 {
     /** @var Client */
     private $client;
@@ -21,33 +22,25 @@ class RasaClient
     }
 
     /**
-     * @param $message
-     * @return RasaResponse
-     * @throws RasaRequestFailedException
+     * @inheritDoc
      */
-    public function queryRasa($message)
+    public function sendRequest($message): Response
     {
-        try {
-            $query = $this->client->request(
-                'POST',
-                $this->appUrl . '/model/parse',
-                [
-                    'body' => json_encode(['text' => $message])
-                ]
-            );
-        } catch (GuzzleException $e) {
-            Log::error(sprintf("RASA Error %s", $e->getMessage()));
-            throw new RasaRequestFailedException($e->getMessage());
-        }
+        return $this->client->request(
+            'POST',
+            $this->appUrl . '/model/parse',
+            [
+                'body' => json_encode(['text' => $message])
+            ]
+        );
+    }
 
-        if ($query->getStatusCode() == '200') {
-            $response = $query->getBody()->getContents();
-            Log::debug("Successful RASA call", ['response' => $response]);
-            return new RasaResponse(json_decode($response));
-        } else {
-            $response = $query->getBody()->getContents();
-            Log::warning("Unsuccessful RASA call", ['response' => $response]);
-            throw new RasaRequestFailedException("RASA call failed with a non 200 response, please check the logs");
-        }
+    /**
+     * @param mixed $response
+     * @return AbstractNLUResponse
+     */
+    public function createResponse($response): AbstractNLUResponse
+    {
+        return new RasaResponse($response);
     }
 }

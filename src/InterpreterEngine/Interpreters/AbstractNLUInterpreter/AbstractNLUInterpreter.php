@@ -17,6 +17,8 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
+use OpenDialogAi\InterpreterEngine\Luis\AbstractNLUClient;
+use OpenDialogAi\InterpreterEngine\Luis\AbstractNLURequestFailedException;
 use OpenDialogAi\InterpreterEngine\Luis\LuisEntity;
 
 abstract class AbstractNLUInterpreter extends BaseInterpreter
@@ -33,7 +35,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
             $clientResponse = $this->client->query($utterance->getText());
             $intent = $this->createOdIntent($clientResponse);
         } catch (AbstractNLURequestFailedException $e) {
-            Log::warning(sprintf("%s failed at a LUIS client level with message %s", static::$name, $e->getMessage()));
+            Log::warning(sprintf("%s failed at a client level with message: %s", static::$name, $e->getMessage()));
             $intent = new NoMatchIntent();
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf("Trying to use %s to interpret an utterance that does not support text", static::$name));

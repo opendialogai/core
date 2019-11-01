@@ -3,6 +3,7 @@
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUInterpreter;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
 
 class LuisInterpreter extends AbstractNLUInterpreter
