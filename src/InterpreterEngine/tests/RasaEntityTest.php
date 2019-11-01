@@ -7,7 +7,12 @@ use OpenDialogAi\InterpreterEngine\Rasa\RasaEntity;
 
 class RasaEntityTest extends TestCase
 {
-    public function testExtractValues()
+    /**
+     * @var RasaEntity
+     */
+    private $simpleRASAEntity;
+
+    public function setUp(): void
     {
         $simpleEntity = <<<EOT
 {
@@ -19,6 +24,20 @@ class RasaEntityTest extends TestCase
     "extractor": "SpacyEntityExtractor"
 }
 EOT;
-        $simpleRASAEntity = new RasaEntity(json_decode($simpleEntity), "give me info on London");
+        $this->simpleRASAEntity = new RasaEntity(json_decode($simpleEntity), "give me info on london");
+    }
+
+    public function testEntityString()
+    {
+        $this->assertEquals(16, $this->simpleRASAEntity->getStartIndex());
+        $this->assertEquals(22, $this->simpleRASAEntity->getEndIndex());
+        $this->assertEquals('london', $this->simpleRASAEntity->getEntityString());
+    }
+
+    public function testExtractValues()
+    {
+        $this->assertEquals('GPE', $this->simpleRASAEntity->getType());
+        $this->assertCount(1, $this->simpleRASAEntity->getResolutionValues());
+        $this->assertEquals('London', $this->simpleRASAEntity->getResolutionValues()[0]);
     }
 }
