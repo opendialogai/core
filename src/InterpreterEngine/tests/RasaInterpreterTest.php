@@ -2,8 +2,11 @@
 
 namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\tests;
 
-use OpenDialogAi\Core\Attribute\IntAttribute;
+use Exception;
+use Mockery\Mock;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -21,16 +24,14 @@ class RasaInterpreterTest extends TestCase
 
         // Register some known entity types
         $entities = [
-            'name' => 'first_name',
-            'age_in_years' => 'age'
+            'GPE' => 'direction_location'
         ];
 
         $this->setConfigValue('opendialog.interpreter_engine.rasa_entities', $entities);
 
         // Sets the known attributes for these tests
         $knownAttributes = [
-            'first_name' => StringAttribute::class,
-            'age' => IntAttribute::class
+            'direction_location' => StringAttribute::class
         ];
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $knownAttributes);
     }
@@ -40,20 +41,22 @@ class RasaInterpreterTest extends TestCase
         try {
             $interpreter = new RasaInterpreter();
             $this->assertNotNull($interpreter);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail('Exception should not have been thrown');
         }
     }
 
     public function testNoMatchFromRasa()
     {
-        $this->mock(RasaClient::class, function ($mock) {
+        $this->mock(RasaClient::class, function (Mock $mock) {
             $mock->shouldReceive('queryRasa')->andReturn(
                 new RasaResponse(json_decode(""))
             );
         });
 
         $interpreter = new RasaInterpreter();
+
+        /** @var Intent[] $intents */
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
 
         $this->assertCount(1, $intents);
@@ -63,13 +66,15 @@ class RasaInterpreterTest extends TestCase
     // If an exception is thrown by RASA, return a no match
     public function testErrorFromRasa()
     {
-        $this->mock(RasaClient::class, function ($mock) {
+        $this->mock(RasaClient::class, function (Mock $mock) {
             $mock->shouldReceive('queryRasa')->andThrow(
                 RasaRequestFailedException::class
             );
         });
 
         $interpreter = new RasaInterpreter();
+
+        /** @var Intent[] $intents */
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
 
         $this->assertCount(1, $intents);
@@ -80,6 +85,8 @@ class RasaInterpreterTest extends TestCase
     public function testInvalidUtterance()
     {
         $interpreter = new RasaInterpreter();
+
+        /** @var Intent[] $intents */
         $intents = $interpreter->interpret(new WebchatChatOpenUtterance());
 
         $this->assertCount(1, $intents);
@@ -88,18 +95,52 @@ class RasaInterpreterTest extends TestCase
 
     public function testMatch()
     {
-        $this->mock(RasaClient::class, function ($mock) {
+        $this->mock(RasaClient::class, function (Mock $mock) {
             $mock->shouldReceive('queryRasa')->andReturn(
                 new RasaResponse($this->createRasaResponseObject('MATCH', 0.5))
             );
         });
 
         $interpreter = new RasaInterpreter();
+
+        /** @var Intent[] $intents */
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
         $this->assertCount(1, $intents);
 
         $this->assertEquals('MATCH', $intents[0]->getLabel());
         $this->assertEquals(0.5, $intents[0]->getConfidence());
+    }
+
+    public function testCanExtractAttributes()
+    {
+        $this->mock(RasaClient::class, function (Mock $mock) {
+            $mock->shouldReceive('queryRasa')->andReturn(
+                new RasaResponse($this->createRasaResponseObject('directions', 1, [
+                    'value' => 'Accra',
+                    'entity' => 'GPE',
+                    'start' => 14,
+                    'end' => 19
+                ]))
+            );
+        });
+
+        $interpreter = new RasaInterpreter();
+
+        /** @var Intent[] $intents */
+        $intents = $interpreter->interpret($this->createUtteranceWithText('directions to accra'));
+        $this->assertCount(1, $intents);
+
+        $this->assertEquals('directions', $intents[0]->getLabel());
+        $this->assertEquals(1, $intents[0]->getConfidence());
+
+        $extractedAttributes = $intents[0]->getAttributes();
+        $this->assertCount(1, $extractedAttributes);
+
+        /** @var AttributeInterface $attribute */
+        $attribute = $extractedAttributes->first()->value;
+        $this->assertEquals(1, $attribute);
+        $this->assertEquals('location_destination', $attribute->getId());
+        $this->assertEquals('Accra', $attribute->getValue());
     }
 
     private function createUtteranceWithText($text)
@@ -110,7 +151,7 @@ class RasaInterpreterTest extends TestCase
         return $utterance;
     }
 
-    private function createRasaResponseObject($intentName, $confidence, $entityType = null, $entityValue = null)
+    private function createRasaResponseObject($intentName, $confidence, $entityOptions = null)
     {
         $response = [
             'intent' => [
@@ -119,12 +160,14 @@ class RasaInterpreterTest extends TestCase
             ]
         ];
 
-        if ($entityType && $entityValue) {
+        $hasRequiredOptions = !count(array_diff(['entity', 'value', 'start', 'end'], array_keys($entityOptions)));
+
+        if (!is_null($entityOptions) && $hasRequiredOptions) {
             $response['entities'][] = [
-                'entity' => $entityValue,
-                'value' => $entityType,
-                'start' => 0,
-                'end' => 1,
+                'entity' => $entityOptions['entity'],
+                'value' => $entityOptions['value'],
+                'start' => $entityOptions['start'],
+                'end' => $entityOptions['end'],
                 'extractor' => 'SpacyEntityExtractor',
             ];
         }
