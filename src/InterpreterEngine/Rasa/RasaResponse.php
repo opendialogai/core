@@ -2,26 +2,14 @@
 
 namespace OpenDialogAi\InterpreterEngine\Rasa;
 
-class RasaResponse
+use OpenDialogAi\Core\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
+
+class RasaResponse extends AbstractNLUResponse
 {
-    /**
-     *  @var string The text sent to RASA for intent analysis
-     */
-    private $query;
-
-    /** @var RasaIntent */
-    private $topScoringIntent;
-
-    /* @var RasaEntity[] */
-    private $entities = [];
-
-    public function __construct($response)
+    public function __construct(array $response)
     {
         $this->query = isset($response->text) ? $response->text : null;
-
-        if (isset($response->intent)) {
-            $this->topScoringIntent = new RasaIntent($response->intent);
-        }
+        $this->topScoringIntent = isset($response->intent) ? new RasaIntent($response->intent) : null;
 
         if (isset($response->entities)) {
             $this->createEntities($response->entities);
@@ -29,38 +17,12 @@ class RasaResponse
     }
 
     /**
-     * Extract entities and create @see RasaEntity objects.
-     *
-     * @param $entities
+     * Creates a new AbstractNLUEntity from entity data
+     * @param array $entity
+     * @return AbstractNLUEntity
      */
-    private function createEntities($entities)
+    public function createEntity(array $entity): AbstractNLUEntity
     {
-        foreach ($entities as $entity) {
-            $this->entities[] = new RasaEntity($entity, $this->getQuery());
-        }
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getQuery(): ?string
-    {
-        return $this->query;
-    }
-
-    /**
-     * @return RasaIntent
-     */
-    public function getTopScoringIntent()
-    {
-        return $this->topScoringIntent;
-    }
-
-    /**
-     * @return RasaEntity[]
-     */
-    public function getEntities(): array
-    {
-        return $this->entities;
+        return new RasaEntity($entity, $this->getQuery());
     }
 }
