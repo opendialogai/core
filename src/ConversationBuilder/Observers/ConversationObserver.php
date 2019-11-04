@@ -2,8 +2,16 @@
 
 namespace OpenDialogAi\ConversationBuilder\Observers;
 
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphResponseErrorException;
 use Spatie\Activitylog\Models\Activity;
 
 class ConversationObserver
@@ -31,6 +39,36 @@ class ConversationObserver
     }
 
     /**
+     * @param Conversation $conversation
+     * @return bool
+     * @throws GuzzleException
+     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
+     */
+    public function deleting(Conversation $conversation): bool
+    {
+        $dGraph = app()->make(DGraphClient::class);
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        /** @var EIModelConversation $conversationModel */
+        $conversationModel = $conversationStore->getEIModelConversationTemplateByUid($conversation->graph_uid);
+
+        if ($conversationModel->getConversationStatus() != ConversationNode::ARCHIVED) {
+            return false;
+        }
+
+        try {
+            $dGraph->deleteConversationAndHistory($conversation->graph_uid);
+        } catch (DGraphResponseErrorException $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Handle the conversation "deleted" event.
      *
      * @param  Conversation  $conversation
@@ -38,11 +76,6 @@ class ConversationObserver
      */
     public function deleted(Conversation $conversation)
     {
-        // Unpublish the conversation from DGraph.
-        if ($conversation->status == 'published') {
-            $conversation->unPublishConversation(false);
-        }
-
         // Remove related state logs.
         ConversationStateLog::where('conversation_id', $conversation->id)->delete();
 

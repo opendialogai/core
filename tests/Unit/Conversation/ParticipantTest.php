@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -58,7 +59,7 @@ class ParticipantTest extends TestCase
 
     public function setupConversationWithOneScene()
     {
-        $cm = new ConversationManager(self::CONVERSATION);
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::ACTIVATED, 0);
         $cm->createScene(self::OPENING_SCENE, true);
 
         $this->intent1 = new Intent(self::INTENT_USER_TO_BOT_1);
@@ -91,7 +92,7 @@ class ParticipantTest extends TestCase
 
     public function setupConversationWithTwoScenes()
     {
-        $cm = new ConversationManager(self::CONVERSATION);
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::ACTIVATED, 0);
         $cm->createScene(self::OPENING_SCENE, true);
         $cm->createScene(self::NEXT_SCENE, false);
 

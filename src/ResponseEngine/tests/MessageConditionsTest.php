@@ -22,6 +22,7 @@ class MessageConditionsTest extends TestCase
 
     public function setUp(): void
     {
+        $this->setupWithDGraphInit = false;
         parent::setUp();
 
         /** @var OutgoingIntent $intent */
@@ -31,6 +32,7 @@ class MessageConditionsTest extends TestCase
             'opendialog.context_engine.custom_attributes',
             ['false' => BooleanAttribute::class]
         );
+        $this->initDDgraph();
 
         ContextService::getContext('session')->addAttribute(AttributeResolver::getAttributeFor('false', false));
 
@@ -39,10 +41,12 @@ class MessageConditionsTest extends TestCase
 
     public function testFinalPassingCondition()
     {
+        $attributes = ['sessionfalse' => 'session.false'];
+
         $failingMessage = (new MessageMarkUpGenerator())->addTextMessage('Should not pass');
         $failingCondition = (new ConditionsYamlGenerator())
-            ->addCondition('session.false', 'true', 'eq')
-            ->addCondition('session.false', 'false', 'eq');
+            ->addCondition($attributes, ['value' => 'true'], 'eq')
+            ->addCondition($attributes, ['value' => 'false'], 'eq');
 
         $this->intent->messageTemplates()->create(
             [
@@ -53,15 +57,17 @@ class MessageConditionsTest extends TestCase
 
         // Should throw No Matching Message Exception
         $this->expectException(NoMatchingMessagesException::class);
-        $this->responseEngineService->getMessageForIntent('test');
+        $this->responseEngineService->getMessageForIntent('webchat', 'test');
     }
 
     public function testFinalFailingCondition()
     {
+        $attributes = ['sessionfalse' => 'session.false'];
+
         $failingMessage = (new MessageMarkUpGenerator())->addTextMessage('Should not pass');
         $failingCondition = (new ConditionsYamlGenerator())
-            ->addCondition('session.false', 'false', 'eq')
-            ->addCondition('session.false', 'true', 'eq');
+            ->addCondition($attributes, ['value' => 'false'], 'eq')
+            ->addCondition($attributes, ['value' => 'true'], 'eq');
 
         $this->intent->messageTemplates()->create(
             [
@@ -72,14 +78,16 @@ class MessageConditionsTest extends TestCase
 
         // Should throw No Matching Message Exception
         $this->expectException(NoMatchingMessagesException::class);
-        $this->responseEngineService->getMessageForIntent('test');
+        $this->responseEngineService->getMessageForIntent('webchat', 'test');
     }
 
     public function testOnlyFailingCondition()
     {
+        $attributes = ['sessionfalse' => 'session.false'];
+
         $failingMessage = (new MessageMarkUpGenerator())->addTextMessage('Should not pass');
         $failingCondition = (new ConditionsYamlGenerator())
-            ->addCondition('session.false', 'true', 'eq');
+            ->addCondition($attributes, ['value' => 'true'], 'eq');
 
         $this->intent->messageTemplates()->create(
             [
@@ -90,6 +98,6 @@ class MessageConditionsTest extends TestCase
 
         // Should throw No Matching Message Exception
         $this->expectException(NoMatchingMessagesException::class);
-        $this->responseEngineService->getMessageForIntent('test');
+        $this->responseEngineService->getMessageForIntent('webchat', 'test');
     }
 }

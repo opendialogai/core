@@ -10,7 +10,7 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
     {
         parent::setUp();
         $this->initDDgraph();
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
     }
 
     /**
@@ -112,6 +112,7 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
         $response = $this->json('POST', '/incoming/webchat', $this->generateResponseMessage('text', [
             'text' => 'test'
         ]));
+
         $response
             ->assertStatus(200)
             ->assertJson(['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]);

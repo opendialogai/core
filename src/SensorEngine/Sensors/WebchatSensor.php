@@ -19,7 +19,7 @@ use OpenDialogAi\SensorEngine\BaseSensor;
 
 class WebchatSensor extends BaseSensor
 {
-    protected static $name = 'sensor.core.webchat';
+    static $name = 'sensor.core.webchat';
 
     /**
      * Interpret a request.
@@ -139,7 +139,7 @@ class WebchatSensor extends BaseSensor
      * @param array $userData Array of user specific data sent with a request
      * @return User
      */
-    private function createUser(string $userId, array $userData): User
+    protected function createUser(string $userId, array $userData): User
     {
         $user = new User($userId);
 

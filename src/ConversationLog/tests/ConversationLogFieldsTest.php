@@ -11,7 +11,7 @@ class ConversationLogFieldsTest extends TestCase
 {
     public function testMessageFields()
     {
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
 
         $utterance = UtteranceGenerator::generateTextUtterance('hello?');
 

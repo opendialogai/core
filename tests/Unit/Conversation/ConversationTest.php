@@ -3,17 +3,17 @@
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
+use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 
 class ConversationTest extends TestCase
 {
@@ -36,17 +36,19 @@ class ConversationTest extends TestCase
     public function setupConversation()
     {
         // Create a conversation manager and setup a conversation
-        $cm = new ConversationManager(self::CONVERSATION);
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::SAVED, 0);
 
         $condition1 = new Condition(
-            new BooleanAttribute(self::REGISTERED_USER_STATUS, true),
-            AbstractAttribute::EQUIVALENCE,
+            EquivalenceOperation::$name,
+            [ self::REGISTERED_USER_STATUS ],
+            [ 'value' => true ],
             self::CONDITION1
         );
 
         $condition2 = new Condition(
-            new IntAttribute(self::TIME_SINCE_LAST_COMMENT, 10000),
-            AbstractAttribute::GREATER_THAN_OR_EQUAL,
+            GreaterThanOrEqualOperation::$name,
+            [ self::TIME_SINCE_LAST_COMMENT ],
+            [ 'value' => 10000 ],
             self::CONDITION2
         );
 
@@ -73,6 +75,12 @@ class ConversationTest extends TestCase
             ->botSaysToUser(self::LATEST_NEWS_SCENE, $intent4, 4)
             ->userSaysToBotAcrossScenes(self::OPENING_SCENE, self::CONTINUE_WITH_AUDIT_SCENE, $intent5, 5)
             ->botSaysToUser(self::CONTINUE_WITH_AUDIT_SCENE, $intent6, 6);
+
+        try {
+            $cm->setValidated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
 
         return $cm;
     }
@@ -123,4 +131,97 @@ class ConversationTest extends TestCase
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
     }
 
+    public function testConversationState()
+    {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        $this->assertEquals(0, $conversation->getAttribute(Model::CONVERSATION_VERSION)->getValue());
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+        $this->assertFalse($conversation->hasUpdateOf());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        $conversation_updated = clone $conversation;
+        $conversation_updated->getScene(self::LATEST_NEWS_SCENE)->setId(self::LATEST_NEWS_SCENE . "2");
+        $conversation_updated->setConversationVersion(1);
+        $conversation_updated->setConversationStatus(Conversation::ACTIVATABLE);
+        $conversation_updated->setUpdateOf($conversation);
+
+        $this->assertEquals(1, $conversation_updated->getAttribute(Model::CONVERSATION_VERSION)->getValue());
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation_updated->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+        $this->assertTrue($conversation->hasUpdateOf());
+
+        /** @var Conversation $updateOf */
+        $updateOf = $conversation_updated->getUpdateOf();
+
+        $this->assertEquals($conversation->getUid(), $updateOf->getUid());
+        $this->assertEquals($conversation->getId(), $updateOf->getId());
+    }
+
+    public function testDeactivating()
+    {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setDeactivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::DEACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+    }
+
+    public function testArchiving()
+    {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        try {
+            $cm->setArchived();
+            $this->fail("Transition from activated to archived should not be allowed.");
+        } catch (InvalidConversationStatusTransitionException $e) {
+            // N/A
+        }
+
+        try {
+            $cm->setDeactivated();
+            $cm->setArchived();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ARCHIVED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+    }
 }

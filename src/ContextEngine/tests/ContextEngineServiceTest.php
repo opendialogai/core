@@ -4,7 +4,6 @@ namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
-use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -14,6 +13,7 @@ class ContextEngineServiceTest extends TestCase
 {
     public function setUp(): void
     {
+        $this->setupWithDGraphInit = false;
         parent::setUp();
     }
 
@@ -58,11 +58,11 @@ class ContextEngineServiceTest extends TestCase
         $this->assertSame($attribute->getId(), 'test');
         $this->assertSame($attribute->getValue(), 'value');
 
-        $this->expectException(ContextDoesNotExistException::class);
-        $this->expectExceptionMessage('Context new_context1 for attribute test not available.');
-
         // Now try for a context that is not set
-        $this->contextService()->getAttribute('test', 'new_context1');
+        $attribute = $this->contextService()->getAttribute('test', 'new_context1');
+
+        $this->assertSame($attribute->getId(), 'test');
+        $this->assertSame($attribute->getValue(), '');
     }
 
     public function testSessionContextCreated()
@@ -99,6 +99,7 @@ class ContextEngineServiceTest extends TestCase
         $attributeValue = 1;
 
         $this->setCustomAttributes(['test_attribute' => IntAttribute::class]);
+        $this->initDDgraph();
 
         ContextServiceFacade::saveAttribute($attributeName, $attributeValue);
 
@@ -113,6 +114,7 @@ class ContextEngineServiceTest extends TestCase
         $attributeValue = 1;
 
         $this->setCustomAttributes(['test_attribute' => IntAttribute::class]);
+        $this->initDDgraph();
 
         ContextServiceFacade::createContext('test_context');
         ContextServiceFacade::saveAttribute($attributeName, $attributeValue);

@@ -5,6 +5,8 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 
 /**
  * Client for DGraph using REST API.
@@ -22,6 +24,13 @@ class DGraphClient
     const ALTER  = 'alter';
     const DELETE = 'delete';
     const MUTATE_COMMIT_NOW = 'mutate?commitNow=true';
+
+    const INTENT = 'Intent';
+    const PARTICIPANT = 'Participant';
+    const SCENE = 'Scene';
+    const CONVERSATION = 'Conversation';
+    const USER = 'User';
+
 
     public function __construct($dgraphUrl, $dGraphPort)
     {
@@ -121,7 +130,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (\Exception $e) {
+        } catch (DGraphResponseErrorException $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -129,7 +138,7 @@ class DGraphClient
     /**
      * @param $response
      * @return mixed
-     * @throws \Exception
+     * @throws DGraphResponseErrorException
      */
     private function getData($response)
     {
@@ -143,7 +152,7 @@ class DGraphClient
         }
 
         if ($error) {
-            throw new \Exception($error);
+            throw new DGraphResponseErrorException($error);
         }
 
         return $response['data'];
@@ -173,18 +182,26 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (\Exception $e) {
+        } catch (DGraphResponseErrorException $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
 
-    public function deleteNode($nodeUid)
+    /**
+     * @param $startingUid
+     * @return mixed
+     * @throws GuzzleException
+     * @throws DGraphResponseErrorException
+     */
+    public function deleteConversationAndHistory($startingUid)
     {
+        $prepared = $this->prepareDeleteHistoryStatement($startingUid);
+
         $response = $this->client->request(
             'POST',
             self::MUTATE_COMMIT_NOW,
             [
-                'body' => $this->prepareDeleteNodeStatement($nodeUid),
+                'body' => $prepared,
                 'headers' => [
                     'Content-Type' => 'application/rdf'
                 ]
@@ -193,11 +210,7 @@ class DGraphClient
 
         $response = json_decode($response->getBody(), true);
 
-        try {
-            return $this->getData($response);
-        } catch (\Exception $e) {
-            return "Error processing alter {$e->getMessage()}";
-        }
+        return $this->getData($response);
     }
 
     /**
@@ -224,7 +237,7 @@ class DGraphClient
 
         try {
             return $this->getData($response);
-        } catch (\Exception $e) {
+        } catch (DGraphResponseErrorException $e) {
             return "Error processing alter {$e->getMessage()}";
         }
     }
@@ -247,8 +260,56 @@ class DGraphClient
      */
     private function prepareDeleteNodeStatement($nodeUid)
     {
-        $statement = sprintf('{ delete { <%s> * * . } }', $nodeUid);
+        $statement = sprintf('{ delete { %s } }', $this->prepareDeleteNodeTriple($nodeUid));
         return $statement;
+    }
+
+    private function prepareDeleteNodeTriple(string $nodeUid): string
+    {
+        return sprintf(' <%s> * * .', $nodeUid);
+    }
+
+    /**
+     * @param string $startingUid
+     * @return string
+     */
+    private function prepareDeleteHistoryStatement(string $startingUid): string
+    {
+        // Query and get all history uids in a list
+        /** @var DGraphQuery $query */
+        $query = (new DGraphQuery())->uid($startingUid)->recurse()->setQueryGraph([
+            Model::UID,
+            Model::UPDATE_OF
+        ]);
+
+        /** @var DGraphQueryResponse $result */
+        $result = $this->query($query);
+
+        // Call prepare delete trips for each uid
+        /** @var array $uidList */
+        $uidList = array_unique($this->historyResultReducer($result->getData()[0], []));
+
+        // Concatenate and return
+        /** @var array $triples */
+        $triples = array_map([$this, 'prepareDeleteNodeTriple'], $uidList);
+
+        return sprintf('{ delete { %s } }', join("\n", $triples));
+    }
+
+    /**
+     * @param array $result
+     * @param array $carry
+     * @return array
+     */
+    private function historyResultReducer(array $result, array $carry): array
+    {
+        $carry[] = $result[Model::UID];
+
+        if (array_key_exists(Model::UPDATE_OF, $result)) {
+            $carry = array_merge($carry, $this->historyResultReducer($result[Model::UPDATE_OF], $carry));
+        }
+
+        return $carry;
     }
 
     /**
@@ -269,7 +330,7 @@ class DGraphClient
     private function prepareUserAttributes()
     {
         $userAttributes = '';
-        foreach (config('opendialog.context_engine.supported_attributes') as $name => $type) {
+        foreach (AttributeResolver::getSupportedAttributes() as $name => $type) {
             $userAttributes .= "{$name}: default\n";
         }
 
@@ -285,6 +346,8 @@ class DGraphClient
 
         return "
             <causes_action>: [uid] .
+            <conversation_status>: string @index(exact) .
+            <conversation_version>: int .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
             <ei_type>: string @index(exact) .
@@ -294,13 +357,47 @@ class DGraphClient
             <has_scene>: [uid] .
             <has_user_participant>: [uid] @reverse .
             <id>: string @index(exact) .
+            <instance_of>: uid @reverse .
+            <update_of>: uid @reverse .
             <listens_for>: [uid] @reverse .
             <name>: default .
             <says>: [uid] @reverse .
             <having_conversation>: [uid] @reverse .
             <says_across_scenes>: [uid] @reverse .
             <listens_for_across_scenes>: [uid] @reverse .
-            type User {{$userAttributes}}
+            type " . self::INTENT . " {
+                causes_action: [uid]
+                core.attribute.completes: default
+                core.attribute.order: default
+                ei_type: string
+                has_interpreter: [uid]
+                id: string
+            }
+            type " . self::PARTICIPANT . " {
+                ei_type: string
+                id: string
+                listens_for: [uid]
+                says: [uid]
+                says_across_scenes: [uid]
+                listens_for_across_scenes: [uid]
+            }
+            type " . self::SCENE . " {
+                ei_type: string
+                id: string
+                has_bot_participant: [uid]
+                has_user_participant: [uid]
+            }
+            type " . self::CONVERSATION . " {
+                conversation_status: string
+                conversation_version: int
+                ei_type: string
+                has_opening_scene: [uid]
+                has_scene: [uid]
+                id: string
+                instance_of: uid
+                update_of: uid
+            }
+            type " . self::USER . " {{$userAttributes}}
         ";
     }
 

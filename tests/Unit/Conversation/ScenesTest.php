@@ -1,9 +1,9 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -90,7 +90,7 @@ class ScenesTest extends TestCase
     public function setupConversation()
     {
         // Create a conversation manager and setup a conversation
-        $cm = new ConversationManager(self::CONVERSATION);
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::ACTIVATED, 0);
 
         $cm->createScene(self::OPENING_SCENE, true);
         $cm->createScene(self::LATEST_NEWS_SCENE, false);
@@ -188,5 +188,4 @@ class ScenesTest extends TestCase
         $this->assertEquals($this->intent5->getId(), $possibleIntents->first()->value->getId());
         $this->assertEquals($this->intent6->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_7)->getId());
     }
-
 }

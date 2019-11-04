@@ -2,95 +2,164 @@
 
 namespace OpenDialogAi\Core\Graph\DGraph;
 
+use Closure;
+use Ds\Set;
+
 /**
  * A DGraph Query.
  */
-class DGraphQuery
+class DGraphQuery extends DGraphQueryAbstract
 {
-    const FUNC_NAME = 'dGraphQuery';
-    const FUNC_TYPE = 'func_type';
+    const SORT_ASC = 'sort_asc';
+    const SORT_DESC = 'sort_desc';
 
-    const FUNC = 'func';
-    const FILTER = 'filter';
-    const ALLOFTERMS = 'allofterms';
-    const EQ = 'eq';
-    const UID = 'uid';
-
-
-    const PREDICATE = 'predicate';
-    const TERM_LIST = 'term_list';
-    const VALUE = 'value';
-
-    private $query;
 
     private $queryGraph;
 
-    private $queryString;
+    /** @var Set $filters */
+    private $filters;
+
+    /**
+     * @var bool
+     */
+    private $recurseLoop;
+
+    /**
+     * @var int|null
+     */
+    private $recurseDepth;
+
+    /**
+     * @var string
+     */
+    private $sortPredicate;
+
+    /**
+     * @var string
+     */
+    private $sortOrder;
+
+    /**
+     * @var int
+     */
+    private $firstNumber;
+
+    /**
+     * @var int
+     */
+    private $offsetNumber;
 
     public function __construct()
     {
         $this->query = [];
+        $this->filters = new Set();
     }
 
     /**
      * @see https://docs.dgraph.io/query-language/#term-matching
      * @param $predicate
-     * @param array $termList
-     * @return $this
-     */
-    public function allofterms($predicate, array $termList)
-    {
-        $this->query[self::FUNC] = [
-            self::FUNC_TYPE => self::ALLOFTERMS,
-            self::PREDICATE => $predicate,
-            self::TERM_LIST => implode(" ", $termList)
-        ];
-
-        return $this;
-    }
-
-    /**
-     * @param $predicate
      * @param $value
      * @return $this
      */
-    public function eq($predicate, $value)
+    public function filterEq($predicate, $value): DGraphQueryAbstract
     {
-        $this->query[self::FUNC] = [
-            self::FUNC_TYPE => self::EQ,
-            self::PREDICATE => $predicate,
-            self::VALUE => $value
-        ];
+        $filter = new DGraphQueryFilter();
+        $filter->eq($predicate, $value);
+
+        $this->filters->add($filter);
 
         return $this;
     }
 
     /**
-     * @param $uid
+     * @param Closure $filterFn
      * @return $this
      */
-    public function uid($uid)
+    public function filter(Closure $filterFn): DGraphQueryAbstract
     {
-        $this->query[self::FUNC] = [
-            self::FUNC_TYPE => self::UID,
-            self::VALUE => $uid
-        ];
+        $filter = new DGraphQueryFilter();
+        $filterFn($filter);
+
+        $this->filters->add($filter);
 
         return $this;
     }
 
     /**
-     * @param $predicate
-     * @param $value
+     * @param Closure $filterFn
      * @return $this
      */
-    public function filterEq($predicate, $value)
+    public function andFilter(Closure $filterFn): DGraphQueryAbstract
     {
-        $this->query[self::FILTER] = [
-            self::FUNC_TYPE => self::EQ,
-            self::PREDICATE => $predicate,
-            self::VALUE => $value
-        ];
+        $filter = new DGraphQueryFilter(DGraphQueryFilter::AND);
+        $filterFn($filter);
+
+        $this->filters->add($filter);
+
+        return $this;
+    }
+
+    /**
+     * @param Closure $filterFn
+     * @return $this
+     */
+    public function orFilter(Closure $filterFn): DGraphQueryAbstract
+    {
+        $filter = new DGraphQueryFilter(DGraphQueryFilter::OR);
+        $filterFn($filter);
+
+        $this->filters->add($filter);
+
+        return $this;
+    }
+
+    /**
+     * @param bool $loop
+     * @param int|null $depth
+     * @return $this
+     */
+    public function recurse(bool $loop = false, int $depth = null): DGraphQueryAbstract
+    {
+        $this->recurseLoop = $loop;
+
+        if (!is_null($depth)) {
+            $this->recurseDepth = $depth;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $predicate
+     * @param string $ordering
+     * @return $this
+     */
+    public function sort(string $predicate, string $ordering = DGraphQuery::SORT_ASC): DGraphQueryAbstract
+    {
+        $this->sortPredicate = $predicate;
+        $this->sortOrder = $ordering;
+
+        return $this;
+    }
+
+    /**
+     * @param int $number
+     * @return $this
+     */
+    public function first(int $number = 1): DGraphQueryAbstract
+    {
+        $this->firstNumber = $number;
+
+        return $this;
+    }
+
+    /**
+     * @param int $number
+     * @return $this
+     */
+    public function offset(int $number): DGraphQueryAbstract
+    {
+        $this->offsetNumber = $number;
 
         return $this;
     }
@@ -130,16 +199,34 @@ class DGraphQuery
     /**
      * @return string
      */
-    public function prepare()
+    public function prepare(): string
     {
         $this->queryString = '{ ' . self::FUNC_NAME . '( ' . self::FUNC . ':';
+        $this->queryString .= $this->getFunction($this->query[self::FUNC]);
+        $this->queryString .= $this->prepareSorting();
+        $this->queryString .= $this->preparePagination();
+        $this->queryString .= ')';
 
-        $this->queryString .= $this->getFunction($this->query[self::FUNC]) . ')';
-
-        if (isset($this->query[self::FILTER])) {
+        if ($this->filters->count() > 0) {
             $this->queryString .= '@filter(';
-            $this->queryString .= $this->getFunction($this->query[self::FILTER]);
+
+            /** @var DGraphQueryFilter $filter */
+            foreach ($this->filters as $filter) {
+                $this->queryString .= $filter->prepare();
+            }
+
             $this->queryString .= ')';
+        }
+
+        if (!is_null($this->recurseLoop)) {
+            $this->queryString .= "@recurse(";
+            $this->queryString .= "loop:" . ($this->recurseLoop ? "true" : "false");
+
+            if (!is_null($this->recurseDepth)) {
+                $this->queryString .= ",depth:" . $this->recurseDepth;
+            }
+
+            $this->queryString .= ")";
         }
 
         $this->queryString .= $this->decodeQueryGraph($this->queryGraph);
@@ -149,30 +236,40 @@ class DGraphQuery
     }
 
     /**
-     * @param $queryFunction
      * @return string
      */
-    private function getFunction($queryFunction)
+    private function prepareSorting(): string
     {
-        switch ($queryFunction[self::FUNC_TYPE]) {
-            case self::ALLOFTERMS:
-                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
-                $queryFunctionString .= $queryFunction[self::PREDICATE] . ',';
-                $queryFunctionString .= '"' . $queryFunction[self::TERM_LIST] . '")';
-                break;
+        $sorting = "";
 
-            case self::EQ:
-                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
-                $queryFunctionString .= $queryFunction[self::PREDICATE] . ',';
-                $queryFunctionString .= '"' . $queryFunction[self::VALUE] . '")';
-                break;
+        if ($this->sortPredicate) {
+            if ($this->sortOrder == self::SORT_DESC) {
+                $order = "orderdesc";
+            } else {
+                $order = "orderasc";
+            }
 
-            case self::UID:
-                $queryFunctionString = $queryFunction[self::FUNC_TYPE] . '(';
-                $queryFunctionString .= $queryFunction[self::VALUE] . ')';
-                break;
+            $sorting .= "," . $order . ":" . $this->sortPredicate;
         }
 
-        return $queryFunctionString;
+        return $sorting;
+    }
+
+    /**
+     * @return string
+     */
+    private function preparePagination(): string
+    {
+        $pagination = "";
+
+        if ($this->firstNumber) {
+            $pagination .= ",first:" . $this->firstNumber;
+        }
+
+        if ($this->offsetNumber) {
+            $pagination .= ",offset:" . $this->offsetNumber;
+        }
+
+        return $pagination;
     }
 }

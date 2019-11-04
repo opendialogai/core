@@ -4,10 +4,14 @@ namespace OpenDialogAi\Core;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Monolog\Logger;
+use Monolog\Processor\IntrospectionProcessor;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Console\Commands\ExportConversation;
 use OpenDialogAi\Core\Console\Commands\ImportConversation;
+use OpenDialogAi\Core\Console\Commands\ReadStatuses;
+use OpenDialogAi\Core\Console\Commands\StoreStatuses;
 use OpenDialogAi\Core\Console\Commands\UserAttributesCache;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -16,7 +20,9 @@ use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class CoreServiceProvider extends ServiceProvider
 {
-    /** @var string $requestId */
+    /**
+     * @var string $requestId
+     */
     private $requestId;
 
     public function boot()
@@ -37,7 +43,9 @@ class CoreServiceProvider extends ServiceProvider
             $this->commands([
                 ExportConversation::class,
                 ImportConversation::class,
-                UserAttributesCache::class
+                UserAttributesCache::class,
+                ReadStatuses::class,
+                StoreStatuses::class
             ]);
         }
 
@@ -46,16 +54,16 @@ class CoreServiceProvider extends ServiceProvider
             ->needs('$requestId')
             ->give($this->requestId);
 
+        if (env('INTROSPECTION_PROCESSOR_ENABLED', false)) {
+            Log::pushProcessor(new IntrospectionProcessor(Logger::DEBUG, ['Illuminate\\']));
+        }
+
         Log::pushProcessor(LoggingHelper::getLogUserIdProcessor($this->requestId));
     }
 
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/opendialog.php', 'opendialog.core');
-
-        $this->app->singleton(OpenDialogController::class, function () {
-            return new OpenDialogController();
-        });
 
         $this->app->singleton(DGraphClient::class, function () {
             return new DGraphClient(

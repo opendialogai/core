@@ -2,22 +2,17 @@
 
 namespace OpenDialogAi\ConversationBuilder;
 
+use Closure;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineAttributeException;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
-use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineValidOperationException;
-use OpenDialogAi\ConversationBuilder\Exceptions\ConditionRequiresValueButDoesNotDefineItException;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
@@ -25,9 +20,11 @@ use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
+use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -41,6 +38,11 @@ use Symfony\Component\Yaml\Yaml;
  * @property mixed model
  * @property int id
  * @property string name
+ * @property int version_number
+ * @property string opening_intent
+ * @property array outgoing_intents
+ * @property array history
+ * @property bool has_been_used
  */
 class Conversation extends Model
 {
@@ -49,10 +51,11 @@ class Conversation extends Model
     protected $fillable = [
         'name',
         'model',
-        'notes',
+        'notes'
     ];
 
     protected $visible = [
+        'id',
         'name',
         'status',
         'yaml_validation_status',
@@ -63,19 +66,30 @@ class Conversation extends Model
         'notes',
         'created_at',
         'updated_at',
+        'version_number',
+        'history',
+        'opening_intent',
+        'outgoing_intents',
+        'has_been_used'
+    ];
+
+    protected $appends = [
+        'history',
+        'opening_intent',
+        'outgoing_intents',
+        'has_been_used'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
-    protected static $logAttributes = ['model', 'notes'];
+    protected static $logAttributes = ['model', 'notes', 'status', 'version_number', 'graph_uid'];
 
     protected static $logName = 'conversation_log';
 
-    protected static $logOnlyDirty = true;
+    protected static $submitEmptyLogs = false;
 
     // Don't create activity logs when these model attributes are updated.
     protected static $ignoreChangedAttributes = [
         'updated_at',
-        'status',
         'yaml_validation_status',
         'yaml_schema_validation_status',
         'scenes_validation_status',
@@ -98,10 +112,9 @@ class Conversation extends Model
     {
         // Determine if we're in the process of validation.
         $doValidation = (!isset($options['validate']) || $options['validate'] === true);
-
         // Reset validation status.
         if ($doValidation) {
-            $this->status = 'imported';
+            $this->status = ConversationNode::SAVED;
             $this->yaml_validation_status = 'waiting';
             $this->yaml_schema_validation_status = 'waiting';
             $this->scenes_validation_status = 'waiting';
@@ -117,6 +130,8 @@ class Conversation extends Model
                 new ValidateConversationScenes($this),
                 new ValidateConversationModel($this)
             ]);
+
+            $this->refresh();
         }
     }
 
@@ -124,6 +139,7 @@ class Conversation extends Model
      * Build the conversation's representation.
      *
      * @return ConversationNode
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function buildConversation()
     {
@@ -134,7 +150,16 @@ class Conversation extends Model
             throw $exception;
         }
 
-        $conversationManager = new ConversationManager($yaml['id']);
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationManager = new ConversationManager($yaml['id'], $this->status, $this->version_number ?: 0);
+
+        if ($conversationManager->getConversationVersion() > 0) {
+            $previousTemplate = $conversationStore->getLatestTemplateVersionByName($yaml['id']);
+
+            if ($previousTemplate) {
+                $conversationManager->setUpdateOf($previousTemplate);
+            }
+        }
 
         if (isset($yaml['conditions'])) {
             $this->addConversationConditions($yaml['conditions'], $conversationManager);
@@ -182,30 +207,47 @@ class Conversation extends Model
     }
 
     /**
-     * Publish the conversation to DGraph.
+     * Activate the conversation in DGraph.
      *
      * @param ConversationNode $conversation
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function publishConversation(ConversationNode $conversation)
+    public function activateConversation(ConversationNode $conversation): bool
     {
+        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            Log::warning($e->getMessage());
+            return false;
+        }
+
         $dGraph = app()->make(DGraphClient::class);
-        $mutation = new DGraphMutation($conversation);
+        $mutation = new DGraphMutation($cm->getConversation());
 
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
         if ($mutationResponse->isSuccessful()) {
-            // Set conversation status to "published".
-            $this->status = 'published';
+            $previousGraphUid = $this->graph_uid;
+
+            // Set conversation status to "activated".
+            $this->status = ConversationNode::ACTIVATED;
             $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
+            $this->version_number++;
+
             $this->save(['validate' => false]);
 
             ConversationStateLog::create([
                 'conversation_id' => $this->id,
-                'message' => 'Published conversation to DGraph.',
-                'type' => 'publish_conversation',
+                'message' => 'Activated conversation in DGraph.',
+                'type' => 'activate_conversation',
             ])->save();
+
+            if ($previousGraphUid) {
+                return $this->deactivatePrevious($previousGraphUid, $dGraph);
+            }
 
             return true;
         } else {
@@ -224,41 +266,75 @@ class Conversation extends Model
     }
 
     /**
-     * Unpublish the conversation from DGraph.
-     *
-     * @param bool $reValidate
+     * @param $previousUid
+     * @param DGraphClient $dGraph
      * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function unPublishConversation($reValidate = true)
+    private function deactivatePrevious($previousUid, DGraphClient $dGraph): bool
     {
-        $dGraph = app()->make(DGraphClient::class);
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
 
-        $uid = ConversationQueryFactory::getConversationTemplateUid($this->name, $dGraph);
+        $previousConversation = $conversationStore->getConversationTemplateByUid($previousUid);
 
-        if ($this->graph_uid === $uid) {
-            $deleteResponse = $dGraph->deleteNode($uid);
+        /** @var ConversationManager $cmPrevious */
+        $cmPrevious = ConversationManager::createManagerForExistingConversation($previousConversation);
 
-            if ($deleteResponse['code'] === 'Success') {
-                // Don't update conversation status if not requested.
-                if ($reValidate) {
-                    // Set conversation status to "validated".
-                    $this->status = 'validated';
-                    $this->graph_uid = null;
-                    $this->save(['validate' => false]);
+        try {
+            $cmPrevious->setDeactivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            Log::warning(
+                sprintf(
+                    "Cannot deactivate previous conversation when activating version %d.",
+                    $this->version_number
+                )
+            );
 
-                    // Add log message.
-                    ConversationStateLog::create([
-                        'conversation_id' => $this->id,
-                        'message' => 'Unpublished conversation from DGraph.',
-                        'type' => 'unpublish_conversation',
-                    ])->save();
-                }
-
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        $mutation = new DGraphMutation($cmPrevious->getConversation());
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+
+        if (!$mutationResponse->isSuccessful()) {
+            Log::warning(
+                sprintf(
+                    "Failed to deactivate previous conversation when activating version %d.",
+                    $this->version_number
+                )
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Deactivate the conversation in DGraph.
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function deactivateConversation(): bool
+    {
+        return $this->setStatus(function (ConversationManager $cm) {
+            $cm->setDeactivated();
+        }, ConversationNode::DEACTIVATED);
+    }
+
+    /**
+     * Archiving the conversation
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function archiveConversation(): bool
+    {
+        return $this->setStatus(function (ConversationManager $cm) {
+            $cm->setArchived();
+        }, ConversationNode::ARCHIVED);
     }
 
     /**
@@ -354,52 +430,180 @@ class Conversation extends Model
      */
     private function createCondition(array $condition)
     {
-        $attributeName = isset($condition['attribute']) ? $condition['attribute'] : null;
-
-        // Confirm we have an attribute name to work with.
-        if (!isset($attributeName)) {
-            throw new ConditionDoesNotDefineAttributeException(
-                'Condition found in Yaml model without defined attribute name'
-            );
-        }
-
-        list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId($attributeName);
-
-        if (!array_key_exists($attributeId, AttributeResolver::getSupportedAttributes())) {
-            throw new AttributeIsNotSupported(
-                sprintf('Attribute %s could not be resolved', $attributeName)
-            );
-        }
-
         $operation = isset($condition['operation']) ? $condition['operation'] : null;
-        $value = isset($condition['value']) ? $condition['value'] : null;
+        $attributes = isset($condition['attributes']) ? $condition['attributes'] : [];
+        $parameters = isset($condition['parameters']) ? $condition['parameters'] : [];
 
-        // Now check that we have a valid operation and a value if required for that operation.
-        if (isset($operation)) {
-            if (in_array($operation, AbstractAttribute::allowedAttributeOperations())) {
-                if (!in_array($operation, AbstractAttribute::operationsNotRequiringValue()) && !isset($value)) {
-                    throw new ConditionRequiresValueButDoesNotDefineItException(
-                        sprintf('Condition %s required a value but has not defined it', $attributeName)
-                    );
-                }
-            } else {
-                throw new ConditionDoesNotDefineValidOperationException(
-                    sprintf('Condition operation %s is not a valid operation', $operation)
-                );
-            }
-        } else {
+        // Now check that we have a valid operation.
+        if (!isset($operation)) {
             throw new ConditionDoesNotDefineOperationException(
-                sprintf('Condition %s does not define an operation', $condition['attribute'])
+                sprintf('Condition does not define an operation')
             );
         }
-
-        $attribute = AttributeResolver::getAttributeFor($attributeId, $value);
 
         // Now we can create the condition - we set an id as a helper
-        $id = sprintf('%s-%s-%s', $attributeName, $operation, $value);
-        $condition = new Condition($attribute, $operation, $id);
-        $condition->setContextId($contextId);
+        $id = sprintf('%s-%s-%s', implode($attributes), $operation, implode($parameters));
+        $condition = new Condition($operation, $attributes, $parameters, $id);
         Log::debug('Created condition from Yaml.');
         return $condition;
+    }
+
+    /**
+     * @param Closure $managerMethod
+     * @param $newStatus
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    private function setStatus(Closure $managerMethod, $newStatus): bool
+    {
+        $dGraph = app()->make(DGraphClient::class);
+
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
+
+        /** @var ConversationManager $cm */
+        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+
+        try {
+            $managerMethod->call($this, $cm);
+        } catch (InvalidConversationStatusTransitionException $e) {
+            return false;
+        }
+
+        $mutation = new DGraphMutation($cm->getConversation());
+
+        /* @var DGraphMutationResponse $mutationResponse */
+        $mutationResponse = $dGraph->tripleMutation($mutation);
+
+        if ($mutationResponse->isSuccessful()) {
+            $this->status = $newStatus;
+            $this->save(['validate' => false]);
+
+            // Add log message.
+            ConversationStateLog::create([
+                'conversation_id' => $this->id,
+                'message' => 'Deactivated conversation in DGraph.',
+                'type' => 'deactivate_conversation',
+            ])->save();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $status
+     * @return Builder
+     */
+    public function scopeWithStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * @param Builder $query
+     * @param string $status
+     * @return Builder
+     */
+    public function scopeWithoutStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', '!=', $status);
+    }
+
+    /**
+     * @return array
+     */
+    public function getOutgoingIntentsAttribute(): array
+    {
+        $outgoingIntents = [];
+        $yaml = Yaml::parse($this->model)['conversation'];
+
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            foreach ($scene['intents'] as $intent) {
+                foreach ($intent as $tag => $value) {
+                    if ($tag == 'b') {
+                        foreach ($value as $key => $intent) {
+                            if ($key == 'i') {
+                                $outgoingIntent = OutgoingIntent::where('name', $intent)->first();
+                                if ($outgoingIntent) {
+                                    $outgoingIntents[] = [
+                                        'id' => $outgoingIntent->id,
+                                        'name' => $intent,
+                                    ];
+                                } else {
+                                    $outgoingIntents[] = [
+                                        'name' => $intent,
+                                    ];
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $outgoingIntents;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOpeningIntentAttribute(): string
+    {
+        $yaml = Yaml::parse($this->model)['conversation'];
+
+        foreach ($yaml['scenes'] as $sceneId => $scene) {
+            foreach ($scene['intents'] as $intent) {
+                foreach ($intent as $tag => $value) {
+                    if ($tag == 'u') {
+                        foreach ($value as $key => $intent) {
+                            if ($key == 'i') {
+                                return $intent;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array
+     */
+    public function getHistoryAttribute(): array
+    {
+        $history = ConversationActivity::forSubjectOrdered($this->id)->get();
+
+        return $history->filter(function ($item) {
+            // Retain if it's the first activity record or if it's a record with the version has incremented
+            return isset($item['properties']['old'])
+                && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
+        })->values()->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'timestamp' => $item['updated_at'],
+                'attributes' => $item['properties']['attributes']
+            ];
+        })->toArray();
+    }
+
+    /**
+     * @return bool
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    public function getHasBeenUsedAttribute(): bool
+    {
+        /** @var ConversationStoreInterface $conversationStore */
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+
+        return $conversationStore->hasConversationBeenUsed($this->name);
     }
 }

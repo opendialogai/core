@@ -13,6 +13,7 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -127,7 +128,7 @@ class ContextService implements ContextServiceInterface
             $context = new $customContext();
             $context->loadAttributes();
             $this->addContext($context);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::warning(sprintf('Error while adding context %s - %s', $customContext, $e->getMessage()));
         }
     }
@@ -148,7 +149,9 @@ class ContextService implements ContextServiceInterface
         try {
             $context = $this->getContext(ContextParser::determineContextId($attributeName));
         } catch (ContextDoesNotExistException $e) {
-            Log::debug(sprintf('Trying to save attribute without context id, using session context %s', $attributeName));
+            Log::debug(
+                sprintf('Trying to save attribute without context id, using session context %s', $attributeName)
+            );
             $context = $this->getSessionContext();
         }
 
@@ -168,18 +171,22 @@ class ContextService implements ContextServiceInterface
      */
     public function getAttribute(string $attributeId, string $contextId): AttributeInterface
     {
-        if ($this->hasContext($contextId)) {
-            /* @var ContextInterface $context */
-            $context = $this->getContext($contextId);
-            Log::debug(
-                sprintf('Attempting to retrieve attribute %s in context %s', $attributeId, $context->getId())
-            );
-            return $context->getAttribute($attributeId);
-        }
+        /* @var ContextInterface $context */
+        $context = ($this->hasContext($contextId)) ? $this->getContext($contextId) : $this->getSessionContext();
 
-        throw new ContextDoesNotExistException(
-            sprintf('Context %s for attribute %s not available.', $contextId, $attributeId)
+        Log::debug(
+            sprintf('Attempting to retrieve attribute %s in context %s', $attributeId, $context->getId())
         );
+
+        try {
+            return $context->getAttribute($attributeId);
+        } catch (AttributeDoesNotExistException $e) {
+            Log::warning(
+                sprintf('Attribute $s not exist in context %s', $attributeId, $context->getId())
+            );
+
+            return new StringAttribute($attributeId, '');
+        }
     }
 
     /**

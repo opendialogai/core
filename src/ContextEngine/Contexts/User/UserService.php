@@ -8,7 +8,7 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -17,7 +17,6 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\Node\Node;
-use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\User;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -27,9 +26,17 @@ class UserService
     /* @var DGraphClient */
     private $dGraphClient;
 
-    public function __construct(DGraphClient $dGraphClient)
-    {
+    /**
+     * @var ConversationStoreInterface
+     */
+    private $conversationStore;
+
+    public function __construct(
+        DGraphClient $dGraphClient,
+        ConversationStoreInterface $conversationStore
+    ) {
         $this->dGraphClient = $dGraphClient;
+        $this->conversationStore = $conversationStore;
     }
 
     /**
@@ -160,12 +167,18 @@ class UserService
 
     /**
      * @param ChatbotUser $user
-     * @param Conversation $conversation
+     * @param Conversation $conversationForCloning Required to ensure that the new conversation is fully
+     * cloned by `UserService.updateUser`
+     * @param Conversation $conversationForConnecting Required to ensure that DGraph contains a correct `instance_of`
+     * edge between template & instance
      * @return Node
      */
-    public function setCurrentConversation(ChatbotUser $user, Conversation $conversation): Node
-    {
-        $user->setCurrentConversation($conversation);
+    public function setCurrentConversation(
+        ChatbotUser $user,
+        Conversation $conversationForCloning,
+        Conversation $conversationForConnecting
+    ): Node {
+        $user->setCurrentConversation($conversationForCloning, $conversationForConnecting);
         return $this->updateUser($user);
     }
 
@@ -298,10 +311,9 @@ class UserService
 
     /**
      * @param $userId
-     * @return mixed
-     * @throws NodeDoesNotExistException
+     * @return Conversation
      */
-    public function getCurrentConversation($userId)
+    public function getCurrentConversation($userId): Conversation
     {
         if ($this->userIsHavingConversation($userId)) {
             $conversationUid = $this->getOngoingConversationIdQuery(
@@ -311,11 +323,7 @@ class UserService
             throw new NoOngoingConversationException();
         }
 
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid(
-            $conversationUid,
-            $this->dGraphClient
-        );
-        return $conversation;
+        return $this->conversationStore->getConversation($conversationUid);
     }
 
     /**
