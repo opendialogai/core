@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OpenDialogAi\InterpreterEngine\Luis;
+namespace OpenDialogAi\Core\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 
 use GuzzleHttp\Client;
