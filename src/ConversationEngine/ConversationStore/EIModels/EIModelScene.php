@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
-
 
 use Ds\Set;
 use Illuminate\Support\Facades\Log;

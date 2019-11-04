@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
-
 
 use Ds\Map;
 use Ds\Pair;
@@ -39,6 +37,9 @@ class EIModelIntent extends EIModelBase
 
     /* @var Map $expectedAttributes */
     private $expectedAttributes;
+
+    /* @var Map $expectedActionAttributes */
+    private $expectedActionAttributes;
 
     /* @var Intent */
     private $interpretedIntent;
@@ -118,7 +119,20 @@ class EIModelIntent extends EIModelBase
         $intent->expectedAttributes = new Map();
         if (isset($intentResponse[Model::HAS_EXPECTED_ATTRIBUTE])) {
             foreach ($intentResponse[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                $intent->setExpectedAttribute($expectedAttribute[Model::ID], $expectedAttribute[Model::UID]);
+                $intent->setExpectedAttribute(
+                    $expectedAttribute[Model::ID],
+                    $expectedAttribute[Model::UID]
+                );
+            }
+        }
+
+        $intent->expectedActionAttributes = new Map();
+        if (isset($intentResponse[Model::HAS_EXPECTED_ACTION_ATTRIBUTE])) {
+            foreach ($intentResponse[Model::HAS_EXPECTED_ACTION_ATTRIBUTE] as $expectedActionAttribute) {
+                $intent->setExpectedAttribute(
+                    $expectedActionAttribute[Model::ID],
+                    $expectedActionAttribute[Model::UID]
+                );
             }
         }
 
@@ -366,6 +380,14 @@ class EIModelIntent extends EIModelBase
     }
 
     /**
+     * @return bool
+     */
+    public function hasExpectedActionAttributes(): bool
+    {
+        return $this->expectedActionAttributes->count() > 0;
+    }
+
+    /**
      * @return Map
      */
     public function getExpectedAttributes(): Map
@@ -373,9 +395,22 @@ class EIModelIntent extends EIModelBase
         return $this->expectedAttributes;
     }
 
+    /**
+     * @return Map
+     */
+    public function getExpectedActionAttributes(): Map
+    {
+        return $this->expectedActionAttributes;
+    }
+
     public function setExpectedAttribute($id, $uid): void
     {
         $this->expectedAttributes->put($uid, $id);
+    }
+
+    public function setExpectedActionAttribute($id, $uid): void
+    {
+        $this->expectedActionAttributes->put($uid, $id);
     }
 
     /**
@@ -394,6 +429,18 @@ class EIModelIntent extends EIModelBase
         }
 
         return $attributesContexts;
+    }
+
+    public function getExpectedActionAttributeContexts()
+    {
+        $attributesActionContexts = new Map();
+        foreach ($this->expectedActionAttributes as $expectedActionAttribute) {
+            $attributesActionContexts->put(
+                ContextParser::determineAttributeId($expectedActionAttribute),
+                ContextParser::determineContextId($expectedActionAttribute)
+            );
+        }
+        return $attributesActionContexts;
     }
 
     /**

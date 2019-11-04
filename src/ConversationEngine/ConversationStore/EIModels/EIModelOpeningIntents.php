@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
-
 
 use Countable;
 use Ds\Map;
@@ -78,6 +76,15 @@ class EIModelOpeningIntents extends EIModelBase implements Countable
                                 $openingIntent->setExpectedAttribute(
                                     $expectedAttribute[Model::ID],
                                     $expectedAttribute[Model::UID]
+                                );
+                            }
+                        }
+
+                        if (isset($intent[Model::HAS_EXPECTED_ACTION_ATTRIBUTE])) {
+                            foreach ($intent[Model::HAS_EXPECTED_ACTION_ATTRIBUTE] as $expectedActionAttribute) {
+                                $openingIntent->setExpectedActionAttribute(
+                                    $expectedActionAttribute[Model::ID],
+                                    $expectedActionAttribute[Model::UID]
                                 );
                             }
                         }
