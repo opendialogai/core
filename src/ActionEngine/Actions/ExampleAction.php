@@ -13,9 +13,9 @@ class ExampleAction extends BaseAction
 
     public function __construct()
     {
-        $this->requiredAttributes = ['user.first_name', 'user.last_name'];
+        $this->requiredAttributes = ['first_name', 'last_name'];
 
-        $this->outputsAttributes = ['first_name', 'last_name', 'full_name'];
+        $this->outputAttributes = ['first_name', 'last_name', 'full_name'];
     }
 
     /**

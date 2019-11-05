@@ -231,11 +231,19 @@ class Intent extends Node
     }
 
     /**
-     * @param ExpectedAttribute $expectedActionAttribute
+     * @param ExpectedAttribute $inputActionAttribute
      */
-    public function addExpectedActionAttribute($expectedActionAttribute): void
+    public function addInputActionAttribute($inputActionAttribute): void
     {
-        $this->createOutgoingEdge(Model::HAS_EXPECTED_ACTION_ATTRIBUTE, $expectedActionAttribute);
+        $this->createOutgoingEdge(Model::HAS_INPUT_ACTION_ATTRIBUTE, $inputActionAttribute);
+    }
+
+    /**
+     * @param ExpectedAttribute $outputActionAttribute
+     */
+    public function addOutputActionAttribute($outputActionAttribute): void
+    {
+        $this->createOutgoingEdge(Model::HAS_OUTPUT_ACTION_ATTRIBUTE, $outputActionAttribute);
     }
 
     /**
@@ -255,14 +263,28 @@ class Intent extends Node
      * @return string[]
      * @throws NodeDoesNotExistException
      */
-    public function getExpectedActionAttributes(): array
+    public function getInputActionAttributes(): array
     {
-        if ($this->hasExpectedActionAttributes()) {
-            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_EXPECTED_ACTION_ATTRIBUTE)
+        if ($this->hasInputActionAttributes()) {
+            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_INPUT_ACTION_ATTRIBUTE)
                 ->values()->toArray();
         }
 
-        throw new NodeDoesNotExistException('Intent has no expected action attributes');
+        throw new NodeDoesNotExistException('Intent has no input action attributes');
+    }
+
+    /**
+     * @return string[]
+     * @throws NodeDoesNotExistException
+     */
+    public function getOutputActionAttributes(): array
+    {
+        if ($this->hasOutputActionAttributes()) {
+            return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_OUTPUT_ACTION_ATTRIBUTE)
+                ->values()->toArray();
+        }
+
+        throw new NodeDoesNotExistException('Intent has no output action attributes');
     }
 
     /**
@@ -276,9 +298,17 @@ class Intent extends Node
     /**
      * @return bool
      */
-    public function hasExpectedActionAttributes(): bool
+    public function hasInputActionAttributes(): bool
     {
-        return $this->hasOutgoingEdgeWithRelationship(Model::HAS_EXPECTED_ACTION_ATTRIBUTE);
+        return $this->hasOutgoingEdgeWithRelationship(Model::HAS_INPUT_ACTION_ATTRIBUTE);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasOutputActionAttributes(): bool
+    {
+        return $this->hasOutgoingEdgeWithRelationship(Model::HAS_OUTPUT_ACTION_ATTRIBUTE);
     }
 
     /**
@@ -307,21 +337,46 @@ class Intent extends Node
     }
 
     /**
-     * Returns the expected action attributes split out by context.
+     * Returns the input action attributes split out by context.
      * Will return map with attribute names as keys and their associated context names as values
      *
      * @return Map
      */
-    public function getExpectedActionAttributeContexts(): Map
+    public function getInputActionAttributeContexts(): Map
     {
         $attributesActionContexts = new Map();
 
         try {
-            /** @var ExpectedAttribute $expectedActionAttribute */
-            foreach ($this->getExpectedActionAttributes() as $expectedActionAttribute) {
+            /** @var ExpectedAttribute $inputActionAttribute */
+            foreach ($this->getInputActionAttributes() as $inputActionAttribute) {
                 $attributesActionContexts->put(
-                    ContextParser::determineAttributeId($expectedActionAttribute->getId()),
-                    ContextParser::determineContextId($expectedActionAttribute->getId())
+                    ContextParser::determineAttributeId($inputActionAttribute->getId()),
+                    ContextParser::determineContextId($inputActionAttribute->getId())
+                );
+            }
+        } catch (NodeDoesNotExistException $e) {
+            Log::warning($e->getMessage());
+        }
+
+        return $attributesActionContexts;
+    }
+
+    /**
+     * Returns the output action attributes split out by context.
+     * Will return map with attribute names as keys and their associated context names as values
+     *
+     * @return Map
+     */
+    public function getOutputActionAttributeContexts(): Map
+    {
+        $attributesActionContexts = new Map();
+
+        try {
+            /** @var ExpectedAttribute $outputActionAttribute */
+            foreach ($this->getOutputActionAttributes() as $outputActionAttribute) {
+                $attributesActionContexts->put(
+                    ContextParser::determineAttributeId($outputActionAttribute->getId()),
+                    ContextParser::determineContextId($outputActionAttribute->getId())
                 );
             }
         } catch (NodeDoesNotExistException $e) {

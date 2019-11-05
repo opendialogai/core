@@ -353,7 +353,8 @@ class Conversation extends Model
         $confidence = null;
         $completes = false;
         $expectedAttributes = null;
-        $expectedActionAttributes = null;
+        $inputActionAttributes = null;
+        $outputActionAttributes = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
@@ -361,11 +362,13 @@ class Conversation extends Model
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
             $intentSceneId = $intent[$speaker]['scene'] ?? null;
+            $inputAttributes = $intent[$speaker]['input_attributes'] ?? null;
             $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
 
             if (isset($intentValue['action']) && is_array($intentValue['action'])) {
                 $actionLabel = $intentValue['action']['id'] ?? null;
-                $expectedActionAttributes = $intentValue['action']['attributes'] ?? null;
+                $inputActionAttributes = $intentValue['action']['input_attributes'] ?? null;
+                $outputActionAttributes = $intentValue['action']['output_attributes'] ?? null;
             } else {
                 $actionLabel = $intentValue['action'] ?? null;
             }
@@ -394,9 +397,15 @@ class Conversation extends Model
             }
         }
 
-        if (is_array($expectedActionAttributes)) {
-            foreach ($expectedActionAttributes as $expectedActionAttribute) {
-                $intentNode->addExpectedActionAttribute(new ExpectedAttribute($expectedActionAttribute));
+        if (is_array($inputActionAttributes)) {
+            foreach ($inputActionAttributes as $inputActionAttribute) {
+                $intentNode->addInputActionAttribute(new ExpectedAttribute($inputActionAttribute));
+            }
+        }
+
+        if (is_array($outputActionAttributes)) {
+            foreach ($outputActionAttributes as $outputActionAttribute) {
+                $intentNode->addOutputActionAttribute(new ExpectedAttribute($outputActionAttribute));
             }
         }
 

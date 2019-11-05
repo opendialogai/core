@@ -238,7 +238,10 @@ conversation:
             interpreter: interpreter.test.name
             action:
               id: action.core.example
-              attributes:
+              input_attributes:
+               - user.first_name
+               - user.last_name
+              output_attributes:
                 - user.first_name
                 - session.full_name
             expected_attributes:

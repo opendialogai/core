@@ -38,8 +38,11 @@ class EIModelIntent extends EIModelBase
     /* @var Map $expectedAttributes */
     private $expectedAttributes;
 
-    /* @var Map $expectedActionAttributes */
-    private $expectedActionAttributes;
+    /* @var Map $inputActionAttributes */
+    private $inputActionAttributes;
+
+    /* @var Map $outputActionAttributes */
+    private $outputActionAttributes;
 
     /* @var Intent */
     private $interpretedIntent;
@@ -126,12 +129,22 @@ class EIModelIntent extends EIModelBase
             }
         }
 
-        $intent->expectedActionAttributes = new Map();
-        if (isset($intentResponse[Model::HAS_EXPECTED_ACTION_ATTRIBUTE])) {
-            foreach ($intentResponse[Model::HAS_EXPECTED_ACTION_ATTRIBUTE] as $expectedActionAttribute) {
-                $intent->setExpectedAttribute(
-                    $expectedActionAttribute[Model::ID],
-                    $expectedActionAttribute[Model::UID]
+        $intent->inputActionAttributes = new Map();
+        if (isset($intentResponse[Model::HAS_INPUT_ACTION_ATTRIBUTE])) {
+            foreach ($intentResponse[Model::HAS_INPUT_ACTION_ATTRIBUTE] as $inputActionAttribute) {
+                $intent->setInputActionAttribute(
+                    $inputActionAttribute[Model::ID],
+                    $inputActionAttribute[Model::UID]
+                );
+            }
+        }
+
+        $intent->outputActionAttributes = new Map();
+        if (isset($intentResponse[Model::HAS_OUTPUT_ACTION_ATTRIBUTE])) {
+            foreach ($intentResponse[Model::HAS_OUTPUT_ACTION_ATTRIBUTE] as $outputActionAttribute) {
+                $intent->setOutputActionAttribute(
+                    $outputActionAttribute[Model::ID],
+                    $outputActionAttribute[Model::UID]
                 );
             }
         }
@@ -382,9 +395,17 @@ class EIModelIntent extends EIModelBase
     /**
      * @return bool
      */
-    public function hasExpectedActionAttributes(): bool
+    public function hasInputActionAttributes(): bool
     {
-        return $this->expectedActionAttributes->count() > 0;
+        return $this->inputActionAttributes->count() > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasOutputActionAttributes(): bool
+    {
+        return $this->outputActionAttributes->count() > 0;
     }
 
     /**
@@ -398,9 +419,17 @@ class EIModelIntent extends EIModelBase
     /**
      * @return Map
      */
-    public function getExpectedActionAttributes(): Map
+    public function getInputActionAttributes(): Map
     {
-        return $this->expectedActionAttributes;
+        return $this->inputActionAttributes;
+    }
+
+    /**
+     * @return Map
+     */
+    public function getOutputActionAttributes(): Map
+    {
+        return $this->outputActionAttributes;
     }
 
     public function setExpectedAttribute($id, $uid): void
@@ -408,9 +437,14 @@ class EIModelIntent extends EIModelBase
         $this->expectedAttributes->put($uid, $id);
     }
 
-    public function setExpectedActionAttribute($id, $uid): void
+    public function setInputActionAttribute($id, $uid): void
     {
-        $this->expectedActionAttributes->put($uid, $id);
+        $this->inputActionAttributes->put($uid, $id);
+    }
+
+    public function setOutputActionAttribute($id, $uid): void
+    {
+        $this->outputActionAttributes->put($uid, $id);
     }
 
     /**
@@ -431,13 +465,25 @@ class EIModelIntent extends EIModelBase
         return $attributesContexts;
     }
 
-    public function getExpectedActionAttributeContexts()
+    public function getInputActionAttributeContexts()
     {
         $attributesActionContexts = new Map();
-        foreach ($this->expectedActionAttributes as $expectedActionAttribute) {
+        foreach ($this->inputActionAttributes as $inputActionAttribute) {
             $attributesActionContexts->put(
-                ContextParser::determineAttributeId($expectedActionAttribute),
-                ContextParser::determineContextId($expectedActionAttribute)
+                ContextParser::determineAttributeId($inputActionAttribute),
+                ContextParser::determineContextId($inputActionAttribute)
+            );
+        }
+        return $attributesActionContexts;
+    }
+
+    public function getOutputActionAttributeContexts()
+    {
+        $attributesActionContexts = new Map();
+        foreach ($this->outputActionAttributes as $outputActionAttribute) {
+            $attributesActionContexts->put(
+                ContextParser::determineAttributeId($outputActionAttribute),
+                ContextParser::determineContextId($outputActionAttribute)
             );
         }
         return $attributesActionContexts;

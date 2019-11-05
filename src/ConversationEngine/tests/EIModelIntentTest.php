@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\tests;
-
 
 use Exception;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;

@@ -80,11 +80,20 @@ class EIModelOpeningIntents extends EIModelBase implements Countable
                             }
                         }
 
-                        if (isset($intent[Model::HAS_EXPECTED_ACTION_ATTRIBUTE])) {
-                            foreach ($intent[Model::HAS_EXPECTED_ACTION_ATTRIBUTE] as $expectedActionAttribute) {
-                                $openingIntent->setExpectedActionAttribute(
-                                    $expectedActionAttribute[Model::ID],
-                                    $expectedActionAttribute[Model::UID]
+                        if (isset($intent[Model::HAS_INPUT_ACTION_ATTRIBUTE])) {
+                            foreach ($intent[Model::HAS_INPUT_ACTION_ATTRIBUTE] as $inputActionAttribute) {
+                                $openingIntent->setInputActionAttribute(
+                                    $inputActionAttribute[Model::ID],
+                                    $inputActionAttribute[Model::UID]
+                                );
+                            }
+                        }
+
+                        if (isset($intent[Model::HAS_OUTPUT_ACTION_ATTRIBUTE])) {
+                            foreach ($intent[Model::HAS_OUTPUT_ACTION_ATTRIBUTE] as $outputActionAttribute) {
+                                $openingIntent->setOutputActionAttribute(
+                                    $outputActionAttribute[Model::ID],
+                                    $outputActionAttribute[Model::UID]
                                 );
                             }
                         }

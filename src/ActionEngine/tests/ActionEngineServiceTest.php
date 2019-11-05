@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ActionEngine\Tests;
 
+use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngine;
@@ -74,7 +75,7 @@ class ActionEngineServiceTest extends TestCase
     public function testPerformActionNotBound()
     {
         $this->expectException(ActionNotAvailableException::class);
-        $this->actionEngine->performAction('actions.core.dummy');
+        $this->actionEngine->performAction('actions.core.dummy', new Map());
     }
 
     public function testPerformActionWithoutRequiredAction()
@@ -83,7 +84,7 @@ class ActionEngineServiceTest extends TestCase
         ContextService::createContext('test');
 
         try {
-            $result = $this->actionEngine->performAction('actions.core.dummy');
+            $result = $this->actionEngine->performAction('actions.core.dummy', new Map());
             $this->assertTrue($result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('Wrong exception thrown');
@@ -99,7 +100,7 @@ class ActionEngineServiceTest extends TestCase
         $input->addAttribute(new IntAttribute('dummy', 1));
 
         try {
-            $result = $this->actionEngine->performAction('actions.core.dummy');
+            $result = $this->actionEngine->performAction('actions.core.dummy', new Map());
             $this->assertTrue($result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('ActionNotAvailableException should not be thrown');
@@ -116,7 +117,7 @@ class ActionEngineServiceTest extends TestCase
         $testAttribute = new StringAttribute('name', 'John');
         ContextService::getContext('test')->addAttribute($testAttribute);
 
-        $result = $this->actionEngine->performAction('actions.core.dummy');
+        $result = $this->actionEngine->performAction('actions.core.dummy', new Map());
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals('Actionista', $result->getResultAttribute('nickname')->getValue());
     }

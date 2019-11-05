@@ -223,9 +223,10 @@ class ConversationEngine implements ConversationEngineInterface
             $this->storeIntentAttributes($nextIntent);
 
             if ($nextIntent->causesAction()) {
-                $expectedActionAttributes = $nextIntent->getExpectedActionAttributeContexts();
+                $inputActionAttributes = $nextIntent->getInputActionAttributeContexts();
+                $outputActionAttributes = $nextIntent->getOutputActionAttributeContexts();
 
-                $this->performIntentAction($userContext, $nextIntent, $expectedActionAttributes);
+                $this->performIntentAction($userContext, $nextIntent, $inputActionAttributes, $outputActionAttributes);
             }
 
             return $userContext->getCurrentConversation();
@@ -300,9 +301,10 @@ class ConversationEngine implements ConversationEngineInterface
         ContextService::saveAttribute('conversation.current_scene', 'opening_scene');
 
         if ($currentIntent->causesAction()) {
-            $expectedActionAttributes = $intent->getExpectedActionAttributeContexts();
+            $inputActionAttributes = $intent->getInputActionAttributeContexts();
+            $outputActionAttributes = $intent->getOutputActionAttributeContexts();
 
-            $this->performIntentAction($userContext, $currentIntent, $expectedActionAttributes);
+            $this->performIntentAction($userContext, $currentIntent, $inputActionAttributes, $outputActionAttributes);
         }
 
         // For this intent get the matching conversation - we are pulling this back out from the user
@@ -505,13 +507,15 @@ class ConversationEngine implements ConversationEngineInterface
      *
      * @param UserContext $userContext
      * @param Intent $nextIntent
-     * @param Map $expectedActionAttributes
+     * @param Map $inputActionAttributes
+     * @param Map $outputActionAttributes
      * @throws NodeDoesNotExistException
      */
     public function performIntentAction(
         UserContext $userContext,
         Intent $nextIntent,
-        Map $expectedActionAttributes
+        Map $inputActionAttributes,
+        Map $outputActionAttributes
     ): void {
         Log::debug(
             sprintf(
@@ -525,9 +529,9 @@ class ConversationEngine implements ConversationEngineInterface
 
         try {
             /* @var ActionResult $actionResult */
-            $actionResult = $this->actionEngine->performAction($action->getId());
+            $actionResult = $this->actionEngine->performAction($action->getId(), $inputActionAttributes);
 
-            $this->storeActionResult($actionResult, $userContext, $expectedActionAttributes);
+            $this->storeActionResult($actionResult, $userContext, $outputActionAttributes);
             //$userContext->addActionResult($actionResult);
             Log::debug(sprintf('Adding action result to the right context'));
         } catch (ActionNotAvailableException $e) {
@@ -543,16 +547,16 @@ class ConversationEngine implements ConversationEngineInterface
      *
      * @param ActionResult $actionResult
      * @param UserContext $userContext
-     * @param Map $expectedActionAttributes
+     * @param Map $outputActionAttributes
      */
     private function storeActionResult(
         ActionResult $actionResult,
         UserContext $userContext,
-        Map $expectedActionAttributes
+        Map $outputActionAttributes
     ) {
         $attributes = $actionResult->getResultAttributes()->getAttributes();
 
-        $this->storeAttributes($attributes, $userContext, $expectedActionAttributes);
+        $this->storeAttributes($attributes, $userContext, $outputActionAttributes);
     }
 
     /**
