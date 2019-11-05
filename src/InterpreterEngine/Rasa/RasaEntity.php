@@ -16,6 +16,8 @@ class RasaEntity extends AbstractNLUEntity
         $this->query = $query;
         $this->type = $entity->entity;
 
+        $this->resolutionValues = [$entity->value];
+
         if (isset($entity->start)) {
             $this->startIndex = $entity->start;
             $this->endIndex = $entity->end;

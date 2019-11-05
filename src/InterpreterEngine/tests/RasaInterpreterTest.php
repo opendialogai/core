@@ -3,7 +3,6 @@
 namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\tests;
 
 use Exception;
-use Mockery\Mock;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -14,7 +13,6 @@ use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractN
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Interpreters\RasaInterpreter;
 use OpenDialogAi\InterpreterEngine\Rasa\RasaClient;
-use OpenDialogAi\InterpreterEngine\Rasa\RasaRequestFailedException;
 use OpenDialogAi\InterpreterEngine\Rasa\RasaResponse;
 
 class RasaInterpreterTest extends TestCase
@@ -134,13 +132,12 @@ class RasaInterpreterTest extends TestCase
         $this->assertEquals('directions', $intents[0]->getLabel());
         $this->assertEquals(1, $intents[0]->getConfidence());
 
-        $extractedAttributes = $intents[0]->getAttributes();
+        $extractedAttributes = $intents[0]->getNonCoreAttributes();
         $this->assertCount(1, $extractedAttributes);
 
         /** @var AttributeInterface $attribute */
         $attribute = $extractedAttributes->first()->value;
-        $this->assertEquals(1, $attribute);
-        $this->assertEquals('location_destination', $attribute->getId());
+        $this->assertEquals('direction_location', $attribute->getId());
         $this->assertEquals('Accra', $attribute->getValue());
     }
 
