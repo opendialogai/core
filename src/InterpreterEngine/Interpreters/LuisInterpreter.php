@@ -10,6 +10,8 @@ class LuisInterpreter extends AbstractNLUInterpreter
 {
     protected static $name = 'interpreter.core.luis';
 
+    protected static $entityConfigKey = 'opendialog.interpreter_engine.luis_entities';
+
     /**
      * @throws BindingResolutionException
      */

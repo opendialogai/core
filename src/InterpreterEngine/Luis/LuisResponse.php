@@ -2,8 +2,9 @@
 
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
-use OpenDialogAi\Core\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
-use OpenDialogAi\InterpreterEngine\Rasa\AbstractNLUEntity;
+
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
 
 class LuisResponse extends AbstractNLUResponse {
     public function __construct($response)
@@ -18,10 +19,10 @@ class LuisResponse extends AbstractNLUResponse {
 
     /**
      * Creates a new AbstractNLUEntity from entity data
-     * @param array $entity
+     * @param $entity
      * @return AbstractNLUEntity
      */
-    public function createEntity(array $entity): AbstractNLUEntity
+    public function createEntity($entity): AbstractNLUEntity
     {
         return new LuisEntity($entity, $this->getQuery());
     }

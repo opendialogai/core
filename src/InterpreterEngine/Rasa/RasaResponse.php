@@ -2,11 +2,13 @@
 
 namespace OpenDialogAi\InterpreterEngine\Rasa;
 
-use OpenDialogAi\Core\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
+
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
 
 class RasaResponse extends AbstractNLUResponse
 {
-    public function __construct(array $response)
+    public function __construct($response)
     {
         $this->query = isset($response->text) ? $response->text : null;
         $this->topScoringIntent = isset($response->intent) ? new RasaIntent($response->intent) : null;
@@ -18,10 +20,10 @@ class RasaResponse extends AbstractNLUResponse
 
     /**
      * Creates a new AbstractNLUEntity from entity data
-     * @param array $entity
+     * @param $entity
      * @return AbstractNLUEntity
      */
-    public function createEntity(array $entity): AbstractNLUEntity
+    public function createEntity($entity): AbstractNLUEntity
     {
         return new RasaEntity($entity, $this->getQuery());
     }

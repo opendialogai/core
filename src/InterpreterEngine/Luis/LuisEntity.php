@@ -2,7 +2,8 @@
 
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
-use OpenDialogAi\InterpreterEngine\AbstractNLU\AbstractNLUEntity;
+
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
 
 class LuisEntity extends AbstractNLUEntity
 {

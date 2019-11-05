@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\InterpreterEngine\AbstractNLU;
+namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 use RuntimeException;
 

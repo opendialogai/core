@@ -4,6 +4,8 @@ namespace OpenDialogAi\InterpreterEngine\Luis;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUClient;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 
 class LuisClient extends AbstractNLUClient
 {

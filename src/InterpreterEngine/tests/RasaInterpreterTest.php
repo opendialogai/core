@@ -10,6 +10,7 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLURequestFailedException;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Interpreters\RasaInterpreter;
 use OpenDialogAi\InterpreterEngine\Rasa\RasaClient;
@@ -48,8 +49,8 @@ class RasaInterpreterTest extends TestCase
 
     public function testNoMatchFromRasa()
     {
-        $this->mock(RasaClient::class, function (Mock $mock) {
-            $mock->shouldReceive('queryRasa')->andReturn(
+        $this->mock(RasaClient::class, function ($mock) {
+            $mock->shouldReceive('query')->andReturn(
                 new RasaResponse(json_decode(""))
             );
         });
@@ -66,9 +67,9 @@ class RasaInterpreterTest extends TestCase
     // If an exception is thrown by RASA, return a no match
     public function testErrorFromRasa()
     {
-        $this->mock(RasaClient::class, function (Mock $mock) {
-            $mock->shouldReceive('queryRasa')->andThrow(
-                RasaRequestFailedException::class
+        $this->mock(RasaClient::class, function ($mock) {
+            $mock->shouldReceive('query')->andThrow(
+                AbstractNLURequestFailedException::class
             );
         });
 
@@ -95,8 +96,8 @@ class RasaInterpreterTest extends TestCase
 
     public function testMatch()
     {
-        $this->mock(RasaClient::class, function (Mock $mock) {
-            $mock->shouldReceive('queryRasa')->andReturn(
+        $this->mock(RasaClient::class, function ($mock) {
+            $mock->shouldReceive('query')->andReturn(
                 new RasaResponse($this->createRasaResponseObject('MATCH', 0.5))
             );
         });
@@ -113,8 +114,8 @@ class RasaInterpreterTest extends TestCase
 
     public function testCanExtractAttributes()
     {
-        $this->mock(RasaClient::class, function (Mock $mock) {
-            $mock->shouldReceive('queryRasa')->andReturn(
+        $this->mock(RasaClient::class, function ($mock) {
+            $mock->shouldReceive('query')->andReturn(
                 new RasaResponse($this->createRasaResponseObject('directions', 1, [
                     'value' => 'Accra',
                     'entity' => 'GPE',
@@ -160,9 +161,10 @@ class RasaInterpreterTest extends TestCase
             ]
         ];
 
-        $hasRequiredOptions = !count(array_diff(['entity', 'value', 'start', 'end'], array_keys($entityOptions)));
+        $hasRequiredOptions = !is_null($entityOptions)
+            && !count(array_diff(['entity', 'value', 'start', 'end'], array_keys($entityOptions)));
 
-        if (!is_null($entityOptions) && $hasRequiredOptions) {
+        if ($hasRequiredOptions) {
             $response['entities'][] = [
                 'entity' => $entityOptions['entity'],
                 'value' => $entityOptions['value'],

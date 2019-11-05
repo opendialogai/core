@@ -1,12 +1,9 @@
 <?php
 
 
-namespace OpenDialogAi\InterpreterEngine\AbstractNLU;
+namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 
-use OpenDialogAi\InterpreterEngine\Rasa\AbstractNLUEntity;
-use OpenDialogAi\InterpreterEngine\Rasa\AbstractNLUIntent;
-use OpenDialogAi\InterpreterEngine\Rasa\RasaEntity;
 
 abstract class AbstractNLUResponse
 {
@@ -30,9 +27,9 @@ abstract class AbstractNLUResponse
     }
 
     /**
-     * @return AbstractNLUIntent
+     * @return AbstractNLUIntent|null
      */
-    public function getTopScoringIntent(): AbstractNLUIntent
+    public function getTopScoringIntent(): ?AbstractNLUIntent
     {
         return $this->topScoringIntent;
     }
@@ -59,8 +56,8 @@ abstract class AbstractNLUResponse
 
     /**
      * Creates a new AbstractNLUEntity from entity data
-     * @param array $entity
+     * @param $entity
      * @return AbstractNLUEntity
      */
-    abstract public function createEntity(array $entity): AbstractNLUEntity;
+    abstract public function createEntity($entity): AbstractNLUEntity;
 }

@@ -2,10 +2,15 @@
 
 namespace OpenDialogAi\InterpreterEngine\Rasa;
 
-use OpenDialogAi\InterpreterEngine\AbstractNLU\AbstractNLUEntity;
+
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
 
 class RasaEntity extends AbstractNLUEntity
 {
+    /**
+     * @param $entity
+     * @param $query
+     */
     public function __construct($entity, $query)
     {
         $this->query = $query;

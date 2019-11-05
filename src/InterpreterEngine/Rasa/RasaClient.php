@@ -4,17 +4,11 @@ namespace OpenDialogAi\InterpreterEngine\Rasa;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use OpenDialogAi\InterpreterEngine\Luis\AbstractNLUClient;
-use OpenDialogAi\InterpreterEngine\Luis\AbstractNLUResponse;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUClient;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 
 class RasaClient extends AbstractNLUClient
 {
-    /** @var Client */
-    private $client;
-
-    /** @var string The app specific URL */
-    private $appUrl;
-
     public function __construct(Client $client, $config)
     {
         $this->client = $client;
@@ -36,8 +30,7 @@ class RasaClient extends AbstractNLUClient
     }
 
     /**
-     * @param mixed $response
-     * @return AbstractNLUResponse
+     * @inheritDoc
      */
     public function createResponse($response): AbstractNLUResponse
     {

@@ -10,6 +10,8 @@ class RasaInterpreter extends AbstractNLUInterpreter
 {
     protected static $name = 'interpreter.core.rasa';
 
+    protected static $entityConfigKey = 'opendialog.interpreter_engine.rasa_entities';
+
     /**
      * @throws BindingResolutionException
      */
@@ -17,5 +19,4 @@ class RasaInterpreter extends AbstractNLUInterpreter
     {
         $this->client = app()->make(RasaClient::class);
     }
-
 }

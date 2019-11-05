@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OpenDialogAi\InterpreterEngine\AbstractNLU;
+namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 
 use Ds\Map;
@@ -17,12 +17,11 @@ use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
-use OpenDialogAi\InterpreterEngine\Luis\AbstractNLUClient;
-use OpenDialogAi\InterpreterEngine\Luis\AbstractNLURequestFailedException;
-use OpenDialogAi\InterpreterEngine\Luis\LuisEntity;
 
 abstract class AbstractNLUInterpreter extends BaseInterpreter
 {
+    protected static $entityConfigKey = "";
+
     /** @var AbstractNLUClient */
     protected $client;
 
@@ -35,7 +34,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
             $clientResponse = $this->client->query($utterance->getText());
             $intent = $this->createOdIntent($clientResponse);
         } catch (AbstractNLURequestFailedException $e) {
-            Log::warning(sprintf("%s failed at a client level with message: %s", static::$name, $e->getMessage()));
+            Log::warning(sprintf("%s failed with message: %s", static::$name, $e->getMessage()));
             $intent = new NoMatchIntent();
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf("Trying to use %s to interpret an utterance that does not support text", static::$name));
@@ -80,7 +79,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
     protected function resolveEntity(AbstractNLUEntity $entity): AttributeInterface
     {
         /** @var AbstractAttribute[] $entityList */
-        $entityList = config('opendialog.interpreter_engine.luis_entities');
+        $entityList = config($this->getEntityConfigKey());
 
         $attributeName = $entity->getType();
         // If we have bound the LUIS entity name to an attribute name, use that instead
@@ -104,7 +103,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
     }
 
     /**
-     * @param LuisEntity[] $luisEntities
+     * @param AbstractNLUEntity[] $luisEntities
      * @return Map
      */
     protected function extractAttributes(array $luisEntities): Map
@@ -112,9 +111,24 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
         $attributes = new AttributeBag();
 
         foreach ($luisEntities as $entity) {
-            $attributes->addAttribute($this->resolveLuisEntity($entity));
+            $attributes->addAttribute($this->resolveEntity($entity));
         }
 
         return $attributes->getAttributes();
+    }
+
+    /**
+     * @return string
+     * @throws AbstractNLURequestFailedException
+     */
+    protected function getEntityConfigKey(): string
+    {
+        if (static::$entityConfigKey == "") {
+            throw new AbstractNLURequestFailedException(
+                sprintf("Entity config key was not set for %s.", static::$name)
+            );
+        }
+
+        return static::$entityConfigKey;
     }
 }
