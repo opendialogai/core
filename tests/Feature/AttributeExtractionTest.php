@@ -98,6 +98,15 @@ class AttributeExtractionTest extends TestCase
         } catch (AttributeDoesNotExistException $e) {
             $this->fail('Attribute should exist in the right context');
         }
+
+        $lastSeenAttributeBefore = ContextService::getAttribute('last_seen', UserContext::USER_CONTEXT);
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is', $utterance->getUser());
+        $this->odController->runConversation($utterance);
+
+        $lastSeenAttributeAfter = ContextService::getAttribute('last_seen', UserContext::USER_CONTEXT);
+
+        $this->assertGreaterThanOrEqual($lastSeenAttributeBefore->getValue(), $lastSeenAttributeAfter->getValue());
     }
 
     public function testFullJourney()
@@ -143,16 +152,15 @@ class AttributeExtractionTest extends TestCase
         $user = $userService->getUser($utterance1->getUser()->getId());
 
         try {
-            $user->getAttributeValue('first_name');
+            $user->getUserAttributeValue('first_name');
             $this->fail('should have thrown exception');
         } catch (AttributeDoesNotExistException $e) {
             //
         }
-
         $this->odController->runConversation($utterance1);
 
         $user = $userService->getUser($utterance1->getUser()->getId());
-        $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
+        $this->assertEquals('first_name', $user->getUserAttributeValue('first_name'));
     }
 
     public function testMultipleMatchedMessageTemplates()
