@@ -34,6 +34,6 @@ class RasaClient extends AbstractNLUClient
      */
     public function createResponse($response): AbstractNLUResponse
     {
-        return new RasaResponse($response);
+        return new RasaResponse(json_decode($response));
     }
 }
