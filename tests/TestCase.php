@@ -10,6 +10,7 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
@@ -261,7 +262,7 @@ EOT;
     /**
      * Activate the given conversation YAML and assert that it activates successfully.
      */
-    protected function activateConversation($conversationYaml): void
+    protected function activateConversation($conversationYaml): ConversationNode
     {
         if (!$this->dgraphInitialised) {
             $this->initDDgraph();
@@ -275,6 +276,8 @@ EOT;
         $conversationModel = $conversation->buildConversation();
 
         $this->assertTrue($conversation->activateConversation($conversationModel));
+
+        return $conversationModel;
     }
 
     /**
@@ -372,5 +375,67 @@ EOT;
     protected function setCustomAttributes(array $customAttribute)
     {
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+    }
+
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithManyIntentsWithSameId(): ConversationNode
+    {
+        $conversationMarkup =
+            /** @lang yaml */
+            <<<EOT
+conversation:
+  id: rock_paper_scissors
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.app.play_game
+        - b:
+            i: intent.app.init_game
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: game.user_choice
+        - b:
+            i: intent.app.round_2
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: game.user_choice
+        - b:
+            i: intent.app.final_round
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: game.user_choice
+            conditions:
+                - condition:
+                    operation: eq
+                    attributes:
+                        attribute1: user.game_result
+                    parameters:
+                        value: BOT_WINS
+            scene: bot_won
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: game.user_choice
+        - b:
+            i: intent.app.you_won
+            completes: true
+    bot_won:
+      intents:
+        - b:
+            i: intent.app.you_lost
+            completes: true
+EOT;
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
     }
 }

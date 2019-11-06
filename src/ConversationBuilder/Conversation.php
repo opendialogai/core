@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationBuilder;
 
 use Closure;
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,7 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
@@ -139,7 +141,8 @@ class Conversation extends Model
      * Build the conversation's representation.
      *
      * @return ConversationNode
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
      */
     public function buildConversation()
     {
@@ -209,7 +212,7 @@ class Conversation extends Model
      *
      * @param ConversationNode $conversation
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function activateConversation(ConversationNode $conversation): bool
     {
@@ -267,7 +270,7 @@ class Conversation extends Model
      * @param $previousUid
      * @param DGraphClient $dGraph
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     private function deactivatePrevious($previousUid, DGraphClient $dGraph): bool
     {
@@ -314,7 +317,7 @@ class Conversation extends Model
     /**
      * Deactivate the conversation in DGraph.
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function deactivateConversation(): bool
     {
@@ -326,7 +329,7 @@ class Conversation extends Model
     /**
      * Archiving the conversation
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function archiveConversation(): bool
     {
@@ -437,7 +440,7 @@ class Conversation extends Model
      * @param Closure $managerMethod
      * @param $newStatus
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     private function setStatus(Closure $managerMethod, $newStatus): bool
     {
@@ -582,7 +585,7 @@ class Conversation extends Model
 
     /**
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function getHasBeenUsedAttribute(): bool
     {

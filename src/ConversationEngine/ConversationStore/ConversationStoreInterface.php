@@ -53,6 +53,7 @@ interface ConversationStoreInterface
     /**
      * @param $templateName
      * @return Conversation
+     * @throws EIModelCreatorException
      */
     public function getLatestTemplateVersionByName($templateName): Conversation;
 
