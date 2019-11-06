@@ -8,7 +8,7 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 /**
  * An abstract class that is used to populate CompositeAttributes.
  */
-abstract class AttributeCollection implements AttributeCollectionInterface
+abstract class AbstractAttributeCollection implements AttributeCollectionInterface
 {
     const SERIALISED_JSON = 'serialised_json';
 

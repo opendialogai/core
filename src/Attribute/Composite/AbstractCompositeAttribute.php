@@ -8,7 +8,7 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 /**
  * A composite attribute is one that contains a number of attributes within
  */
-abstract class CompositeAttribute extends AbstractAttribute
+abstract class AbstractCompositeAttribute extends AbstractAttribute
 {
     /** @var string The class name of the AttributeCollection to use */
     protected $attributeCollectionType;
