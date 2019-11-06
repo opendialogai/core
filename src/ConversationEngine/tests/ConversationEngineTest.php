@@ -228,7 +228,8 @@ class ConversationEngineTest extends TestCase
         $openingScene = $conversation->getScene('opening_scene');
         $this->assertCount(1, $openingScene->getIntentsSaidByUser());
         /* @var Intent $userIntent */
-        $userIntent = $openingScene->getIntentsSaidByUser()->get('hello_bot');
+        $userIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(0)->value;
+        $this->assertEquals('hello_bot', $userIntent->getId());
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertEquals($userIntent->getAction()->getId(), 'action.core.example');
@@ -236,7 +237,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
-        $botIntent = $openingScene->getIntentsSaidByBot()->get('hello_user');
+        $botIntent = $openingScene->getIntentsSaidByBotInOrder()->skip(0)->value;
+        $this->assertEquals('hello_user', $botIntent->getId());
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
@@ -245,7 +247,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(1, $secondScene->getIntentsSaidByUser());
         /* @var Intent $userIntent */
-        $userIntent = $secondScene->getIntentsSaidByUser()->get('how_are_you');
+        $userIntent = $secondScene->getIntentsSaidByUserInOrder()->skip(0)->value;
+        $this->assertEquals('how_are_you', $userIntent->getId());
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertEquals('action.core.example', $userIntent->getAction()->getId());
@@ -253,7 +256,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(1, $secondScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
-        $botIntent = $secondScene->getIntentsSaidByBot()->get('doing_dandy');
+        $botIntent = $secondScene->getIntentsSaidByBotInOrder()->skip(0)->value;
+        $this->assertEquals('doing_dandy', $botIntent->getId());
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());

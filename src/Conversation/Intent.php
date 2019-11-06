@@ -17,6 +17,8 @@ use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
  */
 class Intent extends Node
 {
+    protected static $idIsUnique = false;
+
     public static $coreAttributes = [
         Model::EI_TYPE,
         Model::COMPLETES,

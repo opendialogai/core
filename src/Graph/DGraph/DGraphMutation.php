@@ -75,7 +75,7 @@ class DGraphMutation
         $attributeStatement = [];
         $update = false;
 
-        $id = $node->uidIsSet() ? $node->getUid() : $node->getId();
+        $id = $node->uidIsSet() ? $node->getUid() : $node->hash();
         if ($node->uidIsSet()) {
             $update = true;
         }
@@ -134,12 +134,12 @@ class DGraphMutation
                 $updateTo = false;
 
                 // Determine what IDs to use based on whether the nodes have uids set or not.
-                $fromId = $node->uidIsSet() ? $node->getUid() : $node->getId();
+                $fromId = $node->uidIsSet() ? $node->getUid() : $node->hash();
                 if ($node->uidIsSet()) {
                     $updateFrom = true;
                 }
 
-                $toId = $edge->getToNode()->uidIsSet() ? $edge->getToNode()->getUid() : $edge->getToNode()->getId();
+                $toId = $edge->getToNode()->uidIsSet() ? $edge->getToNode()->getUid() : $edge->getToNode()->hash();
                 if ($edge->getToNode()->uidIsSet()) {
                     $updateTo = true;
                 }

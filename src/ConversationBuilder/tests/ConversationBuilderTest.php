@@ -154,7 +154,7 @@ class ConversationBuilderTest extends TestCase
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         $this->expectException(ErrorException::class);
-        var_dump($conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world'));
+        $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
     }
 
     public function testConversationDeletionWithManyVersions()

@@ -62,7 +62,7 @@ class EdgeSet
 
         /* @var DirectedEdge $edge */
         foreach ($this->edges as $edge) {
-            $toNodes->put($edge->getToNode()->getId(), $edge->getToNode());
+            $toNodes->put($edge->getToNode()->hash(), $edge->getToNode());
         }
 
         return $toNodes;

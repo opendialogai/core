@@ -143,6 +143,6 @@ class DGraphTest extends TestCase
         $this->assertEquals(1, preg_match_all('/_:user_participant_in_opening_scene <says_across_scenes>/', $mutationString));
 
         // Ensure the correct number of `intent.app.send_choice` intents were defined
-        $this->assertEquals(4, preg_match_all('/<id> \"intent\.app\.send_choice\"/', $mutationString));
+        $this->assertEquals(4, preg_match_all("/<id> \"intent\.app\.send_choice\"/", $mutationString));
     }
 }

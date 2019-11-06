@@ -12,14 +12,14 @@ class DFS
 {
     public static function walk(Node $startingNode, Map $visited, callable $callback = null)
     {
-        $visited[$startingNode->getId()] = true;
+        $visited[$startingNode->hash()] = true;
 
         if (isset($callback)) {
             call_user_func($callback, $startingNode);
         }
 
         foreach ($startingNode->getAllNodesOnOutgoingEdges() as $key => $node) {
-            if (!$visited->hasKey($node->getId())) {
+            if (!$visited->hasKey($node->hash())) {
                 self::walk($node, $visited, $callback);
             }
         }
