@@ -2,9 +2,8 @@
 
 namespace OpenDialogAi\InterpreterEngine\Rasa;
 
-
-use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 
 class RasaResponse extends AbstractNLUResponse
 {

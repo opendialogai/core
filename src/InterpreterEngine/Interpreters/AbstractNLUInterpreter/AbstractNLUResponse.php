@@ -1,9 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
-
-
 
 abstract class AbstractNLUResponse
 {
@@ -11,7 +8,7 @@ abstract class AbstractNLUResponse
     protected $entities = [];
 
     /**
-     *  @var string The text sent to the NLU service for intent analysis
+     * @var string The text sent to the NLU service for intent analysis
      */
     protected $query;
 
@@ -43,9 +40,7 @@ abstract class AbstractNLUResponse
     }
 
     /**
-     * Extract entities and create @param array $entities
-     *@see RasaEntity objects.
-     *
+     * Extract entities and create @param array $entities @see RasaEntity objects.
      */
     protected function createEntities(array $entities): void
     {
@@ -56,6 +51,7 @@ abstract class AbstractNLUResponse
 
     /**
      * Creates a new AbstractNLUEntity from entity data
+     *
      * @param $entity
      * @return AbstractNLUEntity
      */

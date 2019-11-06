@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
-
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
@@ -71,10 +69,10 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
 
     /**
      * Tries to resolve the entity type with any registered in config. If there is not an entry for the entity, a
-     * @param AbstractNLUEntity $entity
-     * @return AttributeInterface
      * @see StringAttribute is used.
      *
+     * @param AbstractNLUEntity $entity
+     * @return AttributeInterface
      */
     protected function resolveEntity(AbstractNLUEntity $entity): AttributeInterface
     {
@@ -82,7 +80,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
         $entityList = config($this->getEntityConfigKey());
 
         $attributeName = $entity->getType();
-        // If we have bound the LUIS entity name to an attribute name, use that instead
+        // If we have bound the entity name to an attribute name, use that instead
         if (isset($entityList[$entity->getType()])) {
             $attributeName = $entityList[$entity->getType()];
         }

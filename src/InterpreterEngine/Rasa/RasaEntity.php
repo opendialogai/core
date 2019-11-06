@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\InterpreterEngine\Rasa;
 
-
 use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
 
 class RasaEntity extends AbstractNLUEntity
