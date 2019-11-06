@@ -309,15 +309,15 @@ class Intent extends NodeWithConditions
      */
     public function getAllConditions(): Map
     {
-        $intents = new Map();
+        $conditions = new Map();
 
         if ($this->hasConditions()) {
-            $intents = $intents->merge($this->getConditions());
+            $conditions = $conditions->merge($this->getConditions());
         }
 
-        $intents = $intents->merge($this->getConditionsFromDestinationScene());
+        $conditions = $conditions->merge($this->getConditionsFromDestinationScene());
 
-        return $intents;
+        return $conditions;
     }
 
     /**

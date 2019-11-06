@@ -7,7 +7,6 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
 use Countable;
 use Ds\Map;
 use Ds\Set;
-use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
@@ -41,12 +40,15 @@ class EIModelOpeningIntents extends EIModelBase implements Countable
      * @param array|array $response
      * @param null $additionalParameter
      * @return EIModel
-     * @throws BindingResolutionException
-     * @throws Exception
+     * @throws EIModelCreatorException
      */
     public static function handle(array $response, $additionalParameter = null): EIModel
     {
-        $eiModelCreator = app()->make(EIModelCreator::class);
+        try {
+            $eiModelCreator = app()->make(EIModelCreator::class);
+        } catch (BindingResolutionException $e) {
+            throw new EIModelCreatorException($e->getMessage());
+        }
 
         $intents = new Map();
         foreach ($response as $conversation) {
