@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Tests\Feature;
 
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
@@ -81,6 +82,39 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
         $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'scene2');
         $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'doing_dandy');
+    }
+
+    public function testConversationWithManyIntentsWithSameId()
+    {
+        $this->setCustomAttributes([
+            'user_choice' => StringAttribute::class,
+            'game_result' => StringAttribute::class
+        ]);
+
+        $openDialogController = resolve(OpenDialogController::class);
+
+        $this->createConversationWithManyIntentsWithSameId();
+
+        $conversationContext = ContextService::getConversationContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.play_game');
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('intent.app.play_game', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('intent.app.init_game', $conversationContext->getAttributeValue('next_intent'));
+
+        $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('intent.app.send_choice', $utterance->getUser()));
+        $this->assertEquals('intent.app.send_choice', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('intent.app.round_2', $conversationContext->getAttributeValue('next_intent'));
+
+        $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('intent.app.send_choice', $utterance->getUser()));
+        $this->assertEquals('intent.app.send_choice', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('intent.app.final_round', $conversationContext->getAttributeValue('next_intent'));
     }
 
     public function getTestConversation()

@@ -382,6 +382,20 @@ EOT;
      */
     public function createConversationWithManyIntentsWithSameId(): ConversationNode
     {
+        $conversationMarkup = $this->getMarkupForManyIntentConversation();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkupForManyIntentConversation(): string
+    {
         $conversationMarkup =
             /** @lang yaml */
             <<<EOT
@@ -397,19 +411,19 @@ conversation:
         - u:
             i: intent.app.send_choice
             expected_attributes:
-                - id: game.user_choice
+                - id: user.user_choice
         - b:
             i: intent.app.round_2
         - u:
             i: intent.app.send_choice
             expected_attributes:
-                - id: game.user_choice
+                - id: user.user_choice
         - b:
             i: intent.app.final_round
         - u:
             i: intent.app.send_choice
             expected_attributes:
-                - id: game.user_choice
+                - id: user.user_choice
             conditions:
                 - condition:
                     operation: eq
@@ -421,7 +435,7 @@ conversation:
         - u:
             i: intent.app.send_choice
             expected_attributes:
-                - id: game.user_choice
+                - id: user.user_choice
         - b:
             i: intent.app.you_won
             completes: true
@@ -431,11 +445,6 @@ conversation:
             i: intent.app.you_lost
             completes: true
 EOT;
-
-        try {
-            return $this->activateConversation($conversationMarkup);
-        } catch (Exception $e) {
-            $this->fail($e->getMessage());
-        }
+        return $conversationMarkup;
     }
 }
