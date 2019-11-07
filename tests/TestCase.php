@@ -117,14 +117,26 @@ conversation:
         - u:
             i: hello_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene2
         - b:
             i: hello_registered_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene3
     scene2:
       intents:
@@ -132,25 +144,48 @@ conversation:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             confidence: 1
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
+              output_attributes:
+                - user.first_name
+                - session.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
     scene3:
       intents:
         - u:
             i: weather_question
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b:
             i: weather_answer
         - u: 
             i: will_you_cope
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
     scene4:
       intents:
@@ -176,19 +211,35 @@ conversation:
         - u: 
             i: howdy_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true           
 EOT;
     }
@@ -204,19 +255,35 @@ conversation:
         - u: 
             i: top_of_the_morning_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
 EOT;
     }

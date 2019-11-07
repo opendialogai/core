@@ -409,7 +409,11 @@ conversation:
             action: action.test.not_bound
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
 EOT;
     }

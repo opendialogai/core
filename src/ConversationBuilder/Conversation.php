@@ -183,8 +183,10 @@ class Conversation extends Model
 
                 if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
+                        // phpcs:ignore
                         $conversationManager->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
+                        // phpcs:ignore
                         $conversationManager->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
@@ -351,15 +353,25 @@ class Conversation extends Model
         $confidence = null;
         $completes = false;
         $expectedAttributes = null;
+        $inputActionAttributes = null;
+        $outputActionAttributes = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
-            $actionLabel = $intentValue['action'] ?? null;
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
             $intentSceneId = $intent[$speaker]['scene'] ?? null;
+            $inputAttributes = $intent[$speaker]['input_attributes'] ?? null;
             $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
+
+            if (isset($intentValue['action']) && is_array($intentValue['action'])) {
+                $actionLabel = $intentValue['action']['id'] ?? null;
+                $inputActionAttributes = $intentValue['action']['input_attributes'] ?? null;
+                $outputActionAttributes = $intentValue['action']['output_attributes'] ?? null;
+            } else {
+                $actionLabel = $intentValue['action'] ?? null;
+            }
         } else {
             $intentLabel = $intentValue;
         }
@@ -382,6 +394,18 @@ class Conversation extends Model
         if (is_array($expectedAttributes)) {
             foreach ($expectedAttributes as $expectedAttribute) {
                 $intentNode->addExpectedAttribute(new ExpectedAttribute($expectedAttribute['id']));
+            }
+        }
+
+        if (is_array($inputActionAttributes)) {
+            foreach ($inputActionAttributes as $inputActionAttribute) {
+                $intentNode->addInputActionAttribute(new ExpectedAttribute($inputActionAttribute));
+            }
+        }
+
+        if (is_array($outputActionAttributes)) {
+            foreach ($outputActionAttributes as $outputActionAttribute) {
+                $intentNode->addOutputActionAttribute(new ExpectedAttribute($outputActionAttribute));
             }
         }
 
