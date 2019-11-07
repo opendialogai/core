@@ -531,9 +531,10 @@ class ConversationEngine implements ConversationEngineInterface
             /* @var ActionResult $actionResult */
             $actionResult = $this->actionEngine->performAction($action->getId(), $inputActionAttributes);
 
-            $this->storeActionResult($actionResult, $userContext, $outputActionAttributes);
-            //$userContext->addActionResult($actionResult);
-            Log::debug(sprintf('Adding action result to the right context'));
+            if ($actionResult) {
+                $this->storeActionResult($actionResult, $userContext, $outputActionAttributes);
+                Log::debug(sprintf('Adding action result to the right context'));
+            }
         } catch (ActionNotAvailableException $e) {
             Log::warning(sprintf('Action %s has not been bound.', $action->getId()));
         }

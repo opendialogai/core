@@ -67,7 +67,7 @@ class ActionEngine implements ActionEngineInterface
     /**
      * @inheritdoc
      */
-    public function performAction(string $actionName, Map $inputAttributes): ActionResult
+    public function performAction(string $actionName, Map $inputAttributes): ?ActionResult
     {
         if ($this->actionIsAvailable($actionName)) {
             $action = $this->availableActions[$actionName];
@@ -83,6 +83,8 @@ class ActionEngine implements ActionEngineInterface
                         $actionName
                     )
                 );
+
+                return null;
             }
 
             // Get action input

@@ -465,6 +465,12 @@ class EIModelIntent extends EIModelBase
         return $attributesContexts;
     }
 
+    /**
+     * Returns the input action attributes split out by context.
+     * Will return map with attribute names as keys and their associated context names as values
+     *
+     * @return Map
+     */
     public function getInputActionAttributeContexts()
     {
         $attributesActionContexts = new Map();
@@ -477,6 +483,12 @@ class EIModelIntent extends EIModelBase
         return $attributesActionContexts;
     }
 
+    /**
+     * Returns the output action attributes split out by context.
+     * Will return map with attribute names as keys and their associated context names as values
+     *
+     * @return Map
+     */
     public function getOutputActionAttributeContexts()
     {
         $attributesActionContexts = new Map();

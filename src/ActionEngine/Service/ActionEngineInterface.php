@@ -29,8 +29,8 @@ interface ActionEngineInterface
     /**
      * @param string $actionName The name of the action to perform
      * @param Map $inputAttributes
-     * @return mixed
+     * @return ActionResult|null
      * @throws ActionNotAvailableException
      */
-    public function performAction(string $actionName, Map $inputAttributes): ActionResult;
+    public function performAction(string $actionName, Map $inputAttributes): ?ActionResult;
 }
