@@ -333,20 +333,18 @@ conversation:
             i: intent.app.make_choice
             expected_attributes:
               - id: user.choice
-        - b:
-            i: intent.app.response
-        - u:
-            i: intent.app.continue
             conditions:
                 - condition:
                     operation: eq
                     attributes:
-                        attribute1: user.choice
+                        attribute1: _intent.choice
                     parameters:
                         value: 'left'
             scene: left_path
         - u:
-            i: intent.app.continue
+            i: intent.app.make_choice
+            expected_attributes:
+              - id: user.choice
         - b:
             i: intent.app.right_path_end
             completes: true
@@ -374,15 +372,7 @@ EOT;
 
         $utterance = UtteranceGenerator::generateButtonResponseUtterance('make_choice', 'choice.left', $utterance->getUser());
         $openDialogController->runConversation($utterance);
-        $this->assertEquals('left', ContextService::getUserContext()->getAttributeValue('choice'));
         $this->assertEquals('intent.app.make_choice', $conversationContext->getAttributeValue('interpreted_intent'));
-        $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
-        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intent'));
-
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.continue', $utterance->getUser());
-        $openDialogController->runConversation($utterance);
-        $this->assertEquals('intent.app.continue', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
         $this->assertEquals('intent.app.left_path_end', $conversationContext->getAttributeValue('next_intent'));

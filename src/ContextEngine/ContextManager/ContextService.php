@@ -6,6 +6,7 @@ use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
+use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
@@ -19,7 +20,12 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService implements ContextServiceInterface
 {
-    public static $coreContexts = [UserContext::USER_CONTEXT, self::SESSION_CONTEXT, self::CONVERSATION_CONTEXT];
+    public static $coreContexts = [
+        UserContext::USER_CONTEXT,
+        IntentContext::INTENT_CONTEXT,
+        self::SESSION_CONTEXT,
+        self::CONVERSATION_CONTEXT
+    ];
 
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
