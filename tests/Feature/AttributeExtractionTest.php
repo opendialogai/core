@@ -176,7 +176,7 @@ class AttributeExtractionTest extends TestCase
         $userService = app()->make(UserService::class);
         $user = $userService->getUser($utterance->getUser()->getId());
 
-        $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
+        $this->assertEquals('first_name', $user->getUserAttributeValue('first_name'));
 
         $fullName = ContextService::getAttribute('full_name', ContextServiceInterface::SESSION_CONTEXT);
         $this->assertNotEquals('last_name', $fullName->getValue());
@@ -247,8 +247,8 @@ conversation:
             action:
               id: action.core.example
               input_attributes:
-               - user.first_name
-               - user.last_name
+                - user.first_name
+                - user.last_name
               output_attributes:
                 - user.first_name
                 - session.full_name
