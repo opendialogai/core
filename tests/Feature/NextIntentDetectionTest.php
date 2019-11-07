@@ -290,7 +290,9 @@ EOT;
         $this->assertEquals('intent.app.final_round', $conversationContext->getAttributeValue('next_intent'));
 
         // Simulate a bot win
-        ContextService::getUserContext()->addAttribute(AttributeResolver::getAttributeFor('game_result', 'BOT_WINS'));
+        $utterance->getUser()->setCustomParameters([
+            'game_result' => 'BOT_WINS'
+        ]);
 
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('intent.app.send_choice', $utterance->getUser()));
         $this->assertEquals('intent.app.send_choice', $conversationContext->getAttributeValue('interpreted_intent'));
