@@ -223,27 +223,21 @@ class UserContext extends AbstractContext
     /**
      * @return Scene
      * @throws EIModelCreatorException
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws CurrentIntentNotSetException
      */
     public function getCurrentScene(): Scene
     {
-        if ($this->user->hasCurrentIntent()) {
-            $currentIntent = $this->conversationStore->getEIModelIntentByUid($this->user->getCurrentIntentUid());
-
-            // Get the scene for the current intent
-            $sceneId = $this->userService->getSceneForIntent($currentIntent->getIntentUid());
-
-            // use the conversation that is against the user
-            $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
-        } else {
-            // Set the current intent as the first intent of the opening scene
-            /* @var Scene $currentScene */
-            $currentScene = $this->user->getCurrentConversation()->getOpeningScenes()->first()->value;
-
-            $intent = $currentScene->getIntentByOrder(1);
-            $this->setCurrentIntent($intent);
+        if (!$this->user->hasCurrentIntent()) {
+            throw new CurrentIntentNotSetException("Attempted to get the current scene without having set a current intent.");
         }
+
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($this->user->getCurrentIntentUid());
+
+        // Get the scene for the current intent
+        $sceneId = $this->userService->getSceneForIntent($currentIntent->getIntentUid());
+
+        // use the conversation that is against the user
+        $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
 
         return $currentScene;
     }

@@ -136,7 +136,8 @@ class ConversationBuilderTest extends TestCase
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(2, $activities);
 
-        $this->assertEquals('hello_bot', $conversation->opening_intent);
+        $this->assertCount(1, $conversation->opening_intents);
+        $this->assertEquals('hello_bot', $conversation->opening_intents[0]);
         $this->assertCount(6, $conversation->outgoing_intents);
 
         $conversation->activateConversation($conversation->buildConversation());
@@ -493,5 +494,31 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('intent.app.you_won', $openingSceneBotIntentIds->skip(3)->value);
 
         $this->assertEquals('intent.app.you_lost', $secondSceneBotIntentIds->skip(0)->value);
+    }
+
+    public function testConversationWithManyOpeningIntents()
+    {
+        $this->activateConversation($this->conversationWithManyOpeningIntents());
+
+        /** @var Conversation $conversationModel */
+        $conversationModel = Conversation::where('name', 'many_opening_intents')->first();
+
+        $this->assertCount(3, $conversationModel->opening_intents);
+    }
+
+    public function testConversationWithSceneConditions()
+    {
+        $this->activateConversation($this->conversationWithSceneConditions());
+
+        /** @var Conversation $conversationModel */
+        $conversationModel = Conversation::where('name', 'with_scene_conditions')->first();
+
+        $conversation = $conversationModel->buildConversation();
+
+        $this->assertFalse($conversation->getOpeningScenes()->first()->value->hasConditions());
+        $this->assertTrue($conversation->getScene('scene1')->hasConditions());
+        $this->assertTrue($conversation->getScene('scene2')->hasConditions());
+        $this->assertCount(1, $conversation->getScene('scene1')->getConditions());
+        $this->assertCount(1, $conversation->getScene('scene2')->getConditions());
     }
 }

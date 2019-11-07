@@ -2,10 +2,14 @@
 
 namespace OpenDialogAi\Core\Controllers;
 
+use GuzzleHttp\Exception\GuzzleException;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
@@ -56,6 +60,10 @@ class OpenDialogController
      * @param UtteranceInterface $utterance
      * @return OpenDialogMessages
      * @throws FieldNotSupported
+     * @throws GuzzleException
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws NodeDoesNotExistException
      */
     public function runConversation(UtteranceInterface $utterance): OpenDialogMessages
     {

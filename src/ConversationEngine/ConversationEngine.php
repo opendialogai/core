@@ -3,11 +3,13 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use Ds\Map;
+use Ds\Set;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -91,6 +93,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
     {
@@ -105,9 +108,10 @@ class ConversationEngine implements ConversationEngineInterface
         $currentIntent = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
 
         $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentIntent);
+        $filteredIntents = $this->filterByConditions($possibleNextIntents);
 
         /* @var Intent $nextIntent */
-        $nextIntent = $possibleNextIntents->first()->value;
+        $nextIntent = $filteredIntents->first()->value;
         ContextService::saveAttribute('conversation.next_intent', $nextIntent->getId());
 
         if ($nextIntent->completes()) {
@@ -127,6 +131,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws NodeDoesNotExistException
      * @throws FieldNotSupported
      * @throws EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -180,6 +185,8 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
+     * @throws ConversationStore\EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws EIModelCreatorException
@@ -207,7 +214,8 @@ class ConversationEngine implements ConversationEngineInterface
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
-        $matchingIntents = $this->getMatchingIntents($utterance, $possibleNextIntents, $defaultIntent);
+        $filteredIntents = $this->filterByConditions($possibleNextIntents);
+        $matchingIntents = $this->getMatchingIntents($utterance, $filteredIntents, $defaultIntent);
 
         if (count($matchingIntents) >= 1) {
             Log::debug(sprintf('There are %s matching intents', count($matchingIntents)));
@@ -264,7 +272,7 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         /* @var EIModelIntent $intent */
-        $intent = $matchingIntents->last()->value;
+        $intent = $matchingIntents->last();
         Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
         $this->storeIntentAttributesFromOpeningIntent($intent);
@@ -309,17 +317,20 @@ class ConversationEngine implements ConversationEngineInterface
      * @param Intent $defaultIntent
      * @param UtteranceInterface $utterance
      * @param Map $validOpeningIntents
-     * @return Map
+     * @return Set
      */
     private function matchOpeningIntents(
         Intent $defaultIntent,
         UtteranceInterface $utterance,
         Map $validOpeningIntents
-    ): Map {
-        $matchingIntents = new Map();
+    ): Set {
+        $matchingIntents = new Set();
+
+        // Check conditions for each conversation
+        $filteredIntents = $this->filterOpeningIntentsForConditions($validOpeningIntents);
 
         /* @var EIModelIntent $validIntent */
-        foreach ($validOpeningIntents as $key => $validIntent) {
+        foreach ($filteredIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 $intentsFromInterpreter = $this->interpreterService
                     ->getInterpreter($validIntent->getInterpreterId())
@@ -330,17 +341,14 @@ class ConversationEngine implements ConversationEngineInterface
                     $validIntent->setInterpretedIntent($interpretedIntent);
 
                     if ($this->intentHasEnoughConfidence($interpretedIntent, $validIntent)) {
-                        $matchingIntents->put($validIntent->getConversationId(), $validIntent);
+                        $matchingIntents->add($validIntent);
                     }
                 }
             } else if ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
                 $validIntent->setInterpretedIntent($defaultIntent);
-                $matchingIntents->put($validIntent->getConversationId(), $validIntent);
+                $matchingIntents->add($validIntent);
             }
         }
-
-        // Check conditions for each conversation
-        $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
 
         $matchingIntents = $this->filterNoMatchIntents($matchingIntents);
 
@@ -349,11 +357,11 @@ class ConversationEngine implements ConversationEngineInterface
 
     /**
      * @param Map $intentsToCheck
-     * @return Map
+     * @return Set
      */
-    private function filterOpeningIntentsForConditions(Map $intentsToCheck): Map
+    private function filterOpeningIntentsForConditions(Map $intentsToCheck): Set
     {
-        $matchingIntents = new Map();
+        $matchingIntents = new Set();
 
         /* @var EIModelIntent $intent */
         foreach ($intentsToCheck as $intent) {
@@ -372,10 +380,10 @@ class ConversationEngine implements ConversationEngineInterface
                 }
 
                 if ($pass) {
-                    $matchingIntents->put($intent->getConversationId(), $intent);
+                    $matchingIntents->add($intent);
                 }
             } else {
-                $matchingIntents->put($intent->getConversationId(), $intent);
+                $matchingIntents->add($intent);
             }
         }
 
@@ -386,7 +394,7 @@ class ConversationEngine implements ConversationEngineInterface
      * Filters out no match intents if we have more than 1 intent.
      * Any non-no match intent should be considered more valid.
      *
-     * @param Map $matchingIntents
+     * @param Set $matchingIntents
      * @return mixed
      */
     private function filterNoMatchIntents($matchingIntents)
@@ -395,7 +403,7 @@ class ConversationEngine implements ConversationEngineInterface
             return $matchingIntents;
         }
 
-        return $matchingIntents->filter(function ($intentName, EIModelIntent $intent) {
+        return $matchingIntents->filter(function (EIModelIntent $intent) {
             return $intent->getIntentId() !== NoMatchIntent::NO_MATCH;
         });
     }
@@ -540,5 +548,25 @@ class ConversationEngine implements ConversationEngineInterface
         } catch (ActionNotAvailableException $e) {
             Log::warning(sprintf('Action %s has not been bound.', $nextIntent->getAction()->getId()));
         }
+    }
+
+    /**
+     * @param Map $intents
+     * @return Map
+     */
+    private function filterByConditions(Map $intents): Map
+    {
+        $filteredIntents = $intents->filter(function ($key, Intent $item) {
+            /** @var Condition $condition */
+            foreach ($item->getAllConditions() as $condition) {
+                if (!$this->operationService->checkCondition($condition)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        return $filteredIntents;
     }
 }
