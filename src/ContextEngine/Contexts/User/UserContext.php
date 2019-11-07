@@ -3,15 +3,18 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\UserAttribute;
 
 class UserContext extends AbstractContext
 {
@@ -32,44 +35,48 @@ class UserContext extends AbstractContext
         ConversationStoreInterface $conversationStore
     ) {
         parent::__construct(self::USER_CONTEXT);
+
         $this->user = $user;
         $this->userService = $userService;
         $this->conversationStore = $conversationStore;
     }
 
     /**
-     * @inheritDoc
+     * Returns all the attributes currently associated with this context.
+     *
+     * @return Map
      */
     public function getAttributes(): Map
     {
-        return $this->getUser()->getAttributes();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAttribute(string $attributeName): AttributeInterface
-    {
-        return $this->getUser()->getAttribute($attributeName);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function addAttribute(AttributeInterface $attribute)
-    {
-        $this->getUser()->addAttribute($attribute);
+        return $this->userService->getUserAttributes($this->getUser());
     }
 
     /**
      * @param string $attributeName
-     * @param $value
-     * @param null $type
      * @return AttributeInterface
+     * @throws AttributeDoesNotExistException
      */
-    public function setAttribute(string $attributeName, $value, $type = null): AttributeInterface
+    public function getAttribute(string $attributeName): AttributeInterface
     {
-        return $this->getUser()->setAttribute($attributeName, $value, $type);
+        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
+            return $userAttribute->getInternalAttribute();
+        } else {
+            Log::warning(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
+            throw new AttributeDoesNotExistException(
+                sprintf("Cannot return attribute with name %s - does not exist", $attributeName)
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addAttribute(AttributeInterface $attribute): UserContext
+    {
+        $this->userService->addUserAttribute($this->getUser(), $attribute);
+        return $this;
     }
 
     /**
@@ -80,7 +87,20 @@ class UserContext extends AbstractContext
      */
     public function removeAttribute(string $attributeName): bool
     {
-        return $this->getUser()->removeAttribute($attributeName);
+        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
+            $userAttribute->setValue(null);
+            return true;
+        }
+
+        Log::warning(sprintf(
+            'Trying to remove non-existent attribute %s from %s',
+            $attributeName,
+            $this->getId()
+        ));
+
+        return false;
     }
 
     /**

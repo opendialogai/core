@@ -35,8 +35,6 @@ class TestCase extends \Orchestra\Testbench\TestCase
      */
     private $dgraphInitialised = false;
 
-    public $setupWithDGraphInit = true;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -57,10 +55,6 @@ class TestCase extends \Orchestra\Testbench\TestCase
         $this->artisan('migrate', [
             '--database' => 'testbench'
         ]);
-
-        if ($this->setupWithDGraphInit) {
-            $this->initDDgraph();
-        }
     }
 
     /**
@@ -310,6 +304,16 @@ conversation:
 EOT;
     }
 
+    /**
+     * Returns the no match conversation
+     *
+     * @return string
+     */
+    protected function noMatchConversation()
+    {
+        return $this->conversation4();
+    }
+
     protected function initDDgraph(): void
     {
         if (!$this->dgraphInitialised) {
@@ -387,6 +391,22 @@ EOT;
         );
 
         $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
+    }
+
+    /**
+     * Register a single interpreter and default interpreter
+     *
+     * @param $action
+     */
+    protected function registerSingleAction($action): void
+    {
+
+        $this->app['config']->set(
+            'opendialog.action_engine.available_actions',
+            [
+                get_class($action),
+            ]
+        );
     }
 
     /**

@@ -13,7 +13,6 @@ class ContextEngineServiceTest extends TestCase
 {
     public function setUp(): void
     {
-        $this->setupWithDGraphInit = false;
         parent::setUp();
     }
 
@@ -99,7 +98,6 @@ class ContextEngineServiceTest extends TestCase
         $attributeValue = 1;
 
         $this->setCustomAttributes(['test_attribute' => IntAttribute::class]);
-        $this->initDDgraph();
 
         ContextServiceFacade::saveAttribute($attributeName, $attributeValue);
 
@@ -114,7 +112,6 @@ class ContextEngineServiceTest extends TestCase
         $attributeValue = 1;
 
         $this->setCustomAttributes(['test_attribute' => IntAttribute::class]);
-        $this->initDDgraph();
 
         ContextServiceFacade::createContext('test_context');
         ContextServiceFacade::saveAttribute($attributeName, $attributeValue);

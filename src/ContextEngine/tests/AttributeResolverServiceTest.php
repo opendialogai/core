@@ -11,7 +11,6 @@ class AttributeResolverServiceTest extends TestCase
 {
     public function setUp(): void
     {
-        $this->setupWithDGraphInit = false;
         parent::setUp();
     }
 
@@ -50,7 +49,6 @@ class AttributeResolverServiceTest extends TestCase
             'opendialog.context_engine.custom_attributes',
             ['test_attribute' => StringAttribute::class]
         );
-        $this->initDDgraph();
 
         $attributeResolver = $this->getAttributeResolver();
         $this->assertEquals(StringAttribute::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));

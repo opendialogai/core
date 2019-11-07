@@ -3,8 +3,8 @@
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
@@ -283,6 +283,10 @@ class DGraphMutation
 
             case Model::INTENT:
                 $type = DGraphClient::INTENT;
+                break;
+
+            case Model::USER_ATTRIBUTE:
+                $type = DGraphClient::USER_ATTRIBUTE;
                 break;
 
             default:
