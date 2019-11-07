@@ -214,8 +214,7 @@ class ConversationEngine implements ConversationEngineInterface
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
-        $filteredIntents = $this->filterByConditions($possibleNextIntents);
-        $matchingIntents = $this->getMatchingIntents($utterance, $filteredIntents, $defaultIntent);
+        $matchingIntents = $this->getMatchingIntents($utterance, $possibleNextIntents, $defaultIntent);
 
         if (count($matchingIntents) >= 1) {
             Log::debug(sprintf('There are %s matching intents', count($matchingIntents)));
@@ -272,7 +271,7 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         /* @var EIModelIntent $intent */
-        $intent = $matchingIntents->last();
+        $intent = $matchingIntents->first();
         Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
         $this->storeIntentAttributesFromOpeningIntent($intent);
@@ -500,7 +499,7 @@ class ConversationEngine implements ConversationEngineInterface
         Map $nextIntents,
         Intent $defaultIntent
     ): MatchingIntents {
-        $matchingIntents = new MatchingIntents();
+        $matching = new Map();
 
         /* @var Intent $validIntent */
         foreach ($nextIntents as $validIntent) {
@@ -514,9 +513,16 @@ class ConversationEngine implements ConversationEngineInterface
             foreach ($interpretedIntents as $interpretedIntent) {
                 if ($interpretedIntent->matches($validIntent)) {
                     $validIntent->copyNonCoreAttributes($interpretedIntent);
-                    $matchingIntents->addMatchingIntent($validIntent);
+                    $matching->put($validIntent->hash(), $validIntent);
                 }
             }
+        }
+
+        $filteredIntents = $this->filterByConditions($matching);
+
+        $matchingIntents = new MatchingIntents();
+        foreach ($filteredIntents as $matchingIntent) {
+            $matchingIntents->addMatchingIntent($matchingIntent);
         }
 
         return $matchingIntents;
