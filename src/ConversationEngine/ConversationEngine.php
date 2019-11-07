@@ -110,6 +110,10 @@ class ConversationEngine implements ConversationEngineInterface
         $nextIntent = $possibleNextIntents->first()->value;
         ContextService::saveAttribute('conversation.next_intent', $nextIntent->getId());
 
+        if ($nextIntent->causesAction()) {
+            $this->performIntentAction($userContext, $nextIntent);
+        }
+
         if ($nextIntent->completes()) {
             $userContext->moveCurrentConversationToPast();
         } else {
@@ -333,7 +337,7 @@ class ConversationEngine implements ConversationEngineInterface
                         $matchingIntents->put($validIntent->getConversationId(), $validIntent);
                     }
                 }
-            } else if ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
+            } elseif ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
                 $validIntent->setInterpretedIntent($defaultIntent);
                 $matchingIntents->put($validIntent->getConversationId(), $validIntent);
             }
