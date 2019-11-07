@@ -2,51 +2,19 @@
 
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
-class LuisEntity
+
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
+
+class LuisEntity extends AbstractNLUEntity
 {
     private const NO_RESOLUTION_VALUE = 0;
     private const ONE_RESOLUTION_VALUE = 1;
     private const MANY_RESOLUTION_VALUES = 2;
 
     /**
-     * The user's input
-     * @var string
+     * @param $entity
+     * @param $query
      */
-    private $query;
-
-    /* @var string */
-    private $type;
-
-    /**
-     * The exact match from the query
-     * @var string
-     */
-    private $entityString;
-
-    /**
-     * Where the entity begins in the phrase
-     * @var int
-     */
-    private $startIndex;
-
-    /**
-     * Where the entity ends in the phrase
-     * @var int
-     */
-    private $endIndex;
-
-    /**
-     * If a list type entity this provides all the resolution values
-     * @var array
-     */
-    private $resolutionValues;
-
-    /**
-     * In case of a simple entity the confidence score for the match
-     * @var float
-     */
-    private $score;
-
     public function __construct($entity, $query)
     {
         $this->query = $query;
@@ -63,62 +31,6 @@ class LuisEntity
         if (isset($entity->score)) {
             $this->score = floatval($entity->score);
         }
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getQuery(): ?string
-    {
-        return $this->query;
-    }
-
-    /**
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEntityString(): string
-    {
-        return $this->entityString;
-    }
-
-    /**
-     * @return int
-     */
-    public function getStartIndex(): int
-    {
-        return $this->startIndex;
-    }
-
-    /**
-     * @return int
-     */
-    public function getEndIndex(): int
-    {
-        return $this->endIndex;
-    }
-
-    /**
-     * @return array
-     */
-    public function getResolutionValues(): array
-    {
-        return $this->resolutionValues;
-    }
-
-    /**
-     * @return float
-     */
-    public function getScore(): float
-    {
-        return $this->score;
     }
 
     /**

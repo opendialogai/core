@@ -1,16 +1,16 @@
 <?php
 
-namespace OpenDialogAi\InterpreterEngine\Luis;
+namespace OpenDialogAi\InterpreterEngine\Rasa;
 
-
-use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 
-class LuisResponse extends AbstractNLUResponse {
+class RasaResponse extends AbstractNLUResponse
+{
     public function __construct($response)
     {
-        $this->query = isset($response->query) ? $response->query : null;
-        $this->topScoringIntent = isset($response->topScoringIntent) ? new LuisIntent($response->topScoringIntent) : null;
+        $this->query = isset($response->text) ? $response->text : null;
+        $this->topScoringIntent = isset($response->intent) ? new RasaIntent($response->intent) : null;
 
         if (isset($response->entities)) {
             $this->createEntities($response->entities);
@@ -24,6 +24,6 @@ class LuisResponse extends AbstractNLUResponse {
      */
     public function createEntity($entity): AbstractNLUEntity
     {
-        return new LuisEntity($entity, $this->getQuery());
+        return new RasaEntity($entity, $this->getQuery());
     }
 }
