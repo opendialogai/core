@@ -44,11 +44,11 @@ class ConversationEngineTest extends TestCase
     {
         parent::setUp();
         /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = $this->app->make(AttributeResolver::class);
+        $attributeResolver = resolve(AttributeResolver::class);
         $attributes = ['test' => IntAttribute::class];
         $attributeResolver->registerAttributes($attributes);
 
-        $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
+        $this->conversationEngine = resolve(ConversationEngineInterface::class);
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
@@ -100,7 +100,7 @@ class ConversationEngineTest extends TestCase
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
         $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $conditions = $conversation->getConditions();
@@ -195,7 +195,7 @@ class ConversationEngineTest extends TestCase
 
         $this->utterance->setCallbackId('hello_bot');
         /* @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         /* @var CallbackInterpreter $callbackInterpeter */
         $callbackInterpeter = $interpreterService->getDefaultInterpreter();
         $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
@@ -279,11 +279,15 @@ class ConversationEngineTest extends TestCase
     }
 
     /**
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws FieldNotSupported
      * @throws GuzzleException
+     * @throws NodeDoesNotExistException
      */
     public function testPerformIntentAction()
     {
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         $callbackInterpreter = $interpreterService->getDefaultInterpreter();
         $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
 
@@ -323,7 +327,7 @@ class ConversationEngineTest extends TestCase
 
         $utterance = UtteranceGenerator::generateButtonResponseUtterance('howdy_bot');
         /* @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         /* @var CallbackInterpreter $callbackInterpeter */
         $callbackInterpeter = $interpreterService->getDefaultInterpreter();
         $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
@@ -375,11 +379,11 @@ class ConversationEngineTest extends TestCase
      */
     private function createConversationAndAttachToUser()
     {
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
 
         $this->assertFalse($conversationStore->hasConversationBeenUsed('hello_bot_world'));
 
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
