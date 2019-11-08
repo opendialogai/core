@@ -188,7 +188,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
@@ -317,6 +317,48 @@ class ConversationEngineTest extends TestCase
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
         $this->assertCount(3, $conversation->history);
+    }
+
+    public function testConversationWithDestinationAsOpeningScene()
+    {
+        $userContext = $this->createUserContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round');
+        $this->activateConversation($this->conversationWithDestinationAsOpeningScene());
+
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.receive_choice');
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round_again', $utterance->getUser());
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.end');
+    }
+
+    private function conversationWithDestinationAsOpeningScene()
+    {
+        return <<<EOT
+conversation:
+  id: rock_paper_scissors
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.app.start_round
+            scene: response_scene
+        - u:
+            i: intent.app.start_round_again
+            scene: another_scene
+    another_scene:
+      intents:
+        - b:
+            i: intent.app.end
+            completes: true
+    response_scene:
+      intents:
+        - b:
+            i: intent.app.receive_choice
+            scene: opening_scene
+EOT;
     }
 
     private function createUserContext()

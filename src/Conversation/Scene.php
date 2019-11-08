@@ -136,39 +136,32 @@ class Scene extends NodeWithConditions
     /**
      * Get the bot intents said in the scene that have a higher order than the current intent
      * and are in an uninterrupted ascending order.
-     * @param Intent $currentIntent
+     * @param int $currentOrder
      * @return Map
      */
-    public function getNextPossibleBotIntents(Intent $currentIntent): Map
+    public function getNextPossibleBotIntents(int $currentOrder): Map
     {
-        return $this->filterNextPossibleIntents($currentIntent, $this->getIntentsSaidByBotInOrder());
+        return $this->filterNextPossibleIntents($currentOrder, $this->getIntentsSaidByBotInOrder());
     }
 
     /**
      * Get the user intents said in the scene that have a higher order than the current intent
      * and are in an uninterrupted ascending order.
-     * @param Intent $currentIntent
+     * @param int $currentOrder
      * @return Map
      */
-    public function getNextPossibleUserIntents(Intent $currentIntent): Map
+    public function getNextPossibleUserIntents(int $currentOrder): Map
     {
-        return $this->filterNextPossibleIntents($currentIntent, $this->getIntentsSaidByUserInOrder());
+        return $this->filterNextPossibleIntents($currentOrder, $this->getIntentsSaidByUserInOrder());
     }
 
     /**
-     * @param Intent $currentIntent
+     * @param int $currentOrder
      * @param Map $nextPossibleIntents
      * @return Map
      */
-    public function filterNextPossibleIntents(Intent $currentIntent, Map $nextPossibleIntents): Map
+    public function filterNextPossibleIntents(int $currentOrder, Map $nextPossibleIntents): Map
     {
-        // If the current intent is said across scenes, we use 0 - otherwise we use it's order in its scene.
-        if ($currentIntent->hasIncomingEdgeWithRelationship(Model::LISTENS_FOR_ACROSS_SCENES)) {
-            $currentOrder = 0;
-        } else {
-            $currentOrder = $currentIntent->getOrder();
-        }
-
         /** @var Intent $previousKeptIntent */
         $previousKeptIntent = null;
 

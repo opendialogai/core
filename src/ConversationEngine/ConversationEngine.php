@@ -101,10 +101,13 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
 
-        /** @var Intent $currentIntent */
-        $currentIntent = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
+        /** @var EIModelIntent $currentIntent */
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($userContext->getUser()->getCurrentIntentUid());
 
-        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentIntent);
+        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
+        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
+
+        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentOrder);
 
         /* @var Intent $nextIntent */
         $nextIntent = $possibleNextIntents->first()->value;
@@ -191,7 +194,7 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Scene $currentScene */
         $currentScene = $userContext->getCurrentScene();
 
-        /* @var Intent $currentIntent */
+        /* @var EIModelIntent $currentIntent */
         $currentIntent = $userContext->getCurrentIntent();
 
         if (!ContextService::hasContext('conversation')) {
@@ -199,9 +202,11 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         ContextService::saveAttribute('conversation.current_scene', $currentScene->getId());
-        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getId());
+        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getIntentId());
 
-        $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
+        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
+        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
+        $possibleNextIntents = $currentScene->getNextPossibleUserIntents($currentOrder);
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
 
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
