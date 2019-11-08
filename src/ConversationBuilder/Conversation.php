@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ConversationBuilder;
 
 use Closure;
+use Ds\Set;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
@@ -171,6 +172,10 @@ class Conversation extends Model
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             $sceneIsOpeningScene = $sceneId === 'opening_scene';
             $conversationManager->createScene($sceneId, $sceneIsOpeningScene);
+
+            if (!$sceneIsOpeningScene && isset($scene['conditions'])) {
+                $this->addSceneConditions($sceneId, $scene['conditions'], $conversationManager);
+            }
         }
 
         // Now cycle through the scenes again and identifying intents that cut across scenes.
@@ -402,18 +407,10 @@ class Conversation extends Model
         }
 
         if (is_array($conditions)) {
-            foreach ($conditions as $condition) {
-                try {
-                    $conditionObject = $this->createCondition($condition['condition']);
-                    $intentNode->addCondition($conditionObject);
-                } catch (Exception $e) {
-                    Log::debug(
-                        sprintf(
-                            'Could not create condition because: %s',
-                            $e->getMessage()
-                        )
-                    );
-                }
+            $conditionObjects = $this->createConditions($conditions);
+
+            foreach ($conditionObjects as $condition) {
+                $intentNode->addCondition($condition);
             }
         }
 
@@ -438,18 +435,25 @@ class Conversation extends Model
      */
     public function addConversationConditions(array $conditions, ConversationManager $cm)
     {
-        foreach ($conditions as $key => $condition) {
-            try {
-                $conditionObject = $this->createCondition($condition['condition']);
-                $cm->addConditionToConversation($conditionObject);
-            } catch (Exception $e) {
-                Log::debug(
-                    sprintf(
-                        'Could not create condition because: %s',
-                        $e->getMessage()
-                    )
-                );
-            }
+        $conditionObjects = $this->createConditions($conditions);
+
+        foreach ($conditionObjects as $condition) {
+            $cm->addConditionToConversation($condition);
+        }
+    }
+
+    /**
+     * @param $sceneId
+     * @param $conditions
+     * @param ConversationManager $conversationManager
+     */
+    public function addSceneConditions($sceneId, $conditions, ConversationManager $conversationManager)
+    {
+        $conditionObjects = $this->createConditions($conditions);
+        $scene = $conversationManager->getScene($sceneId);
+
+        foreach ($conditionObjects as $condition) {
+            $scene->addCondition($condition);
         }
     }
 
@@ -641,5 +645,29 @@ class Conversation extends Model
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         return $conversationStore->hasConversationBeenUsed($this->name);
+    }
+
+    /**
+     * @param array $conditions
+     * @return Set
+     */
+    private function createConditions(array $conditions): Set
+    {
+        $conditionObjects = new Set();
+
+        foreach ($conditions as $key => $condition) {
+            try {
+                $conditionObject = $this->createCondition($condition['condition']);
+                $conditionObjects->add($conditionObject);
+            } catch (Exception $e) {
+                Log::debug(
+                    sprintf(
+                        'Could not create condition because: %s',
+                        $e->getMessage()
+                    )
+                );
+            }
+        }
+        return $conditionObjects;
     }
 }

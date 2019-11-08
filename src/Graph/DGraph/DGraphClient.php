@@ -390,6 +390,7 @@ class DGraphClient
                 ei_type: string
                 id: string
                 has_bot_participant: [uid]
+                has_condition: [uid]
                 has_user_participant: [uid]
             }
             type " . self::CONVERSATION . " {

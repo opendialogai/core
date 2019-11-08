@@ -223,7 +223,8 @@ class ConversationEngine implements ConversationEngineInterface
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
-        $matchingIntents = $this->getMatchingIntents($utterance, $possibleNextIntents, $defaultIntent);
+        $filteredIntents = $this->filterByConditions($possibleNextIntents);
+        $matchingIntents = $this->getMatchingIntents($utterance, $filteredIntents, $defaultIntent);
 
         if (count($matchingIntents) >= 1) {
             Log::debug(sprintf('There are %s matching intents', count($matchingIntents)));
@@ -561,12 +562,10 @@ class ConversationEngine implements ConversationEngineInterface
     private function filterByConditions(Map $intents): Map
     {
         $filteredIntents = $intents->filter(function ($key, Intent $item) {
-            if ($item->hasConditions()) {
-                /** @var Condition $condition */
-                foreach ($item->getConditions() as $condition) {
-                    if (!$this->operationService->checkCondition($condition)) {
-                        return false;
-                    }
+            /** @var Condition $condition */
+            foreach ($item->getAllConditions() as $condition) {
+                if (!$this->operationService->checkCondition($condition)) {
+                    return false;
                 }
             }
 

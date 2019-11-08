@@ -459,4 +459,20 @@ class ConversationBuilderTest extends TestCase
 
         $this->assertCount(3, $conversationModel->opening_intents);
     }
+
+    public function testConversationWithSceneConditions()
+    {
+        $this->activateConversation($this->conversationWithSceneConditions());
+
+        /** @var Conversation $conversationModel */
+        $conversationModel = Conversation::where('name', 'with_scene_conditions')->first();
+
+        $conversation = $conversationModel->buildConversation();
+
+        $this->assertFalse($conversation->getOpeningScenes()->first()->value->hasConditions());
+        $this->assertTrue($conversation->getScene('scene1')->hasConditions());
+        $this->assertTrue($conversation->getScene('scene2')->hasConditions());
+        $this->assertCount(1, $conversation->getScene('scene1')->getConditions());
+        $this->assertCount(1, $conversation->getScene('scene2')->getConditions());
+    }
 }
