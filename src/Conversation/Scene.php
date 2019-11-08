@@ -136,12 +136,12 @@ class Scene extends NodeWithConditions
     /**
      * Checks whether the given intent is in the this scene
      *
-     * @param Intent $intent
+     * @param $intentId
      * @return bool
      */
-    private function hasIntent(Intent $intent)
+    private function hasIntent($intentId)
     {
-        return $this->getAllIntents()->hasKey($intent->getId());
+        return $this->getAllIntents()->hasKey($intentId);
     }
 
     /**
@@ -153,7 +153,7 @@ class Scene extends NodeWithConditions
     public function getNextPossibleBotIntents(Intent $currentIntent): Map
     {
         // If the current intent is in this scene, use its order. If it's said across scenes, we use 0.
-        $currentOrder = $this->hasIntent($currentIntent) ? $currentIntent->getOrder() : 0;
+        $currentOrder = $this->hasIntent($currentIntent->getId()) ? $currentIntent->getOrder() : 0;
 
         /** @var Intent $previousKeptIntent */
         $previousKeptIntent = null;

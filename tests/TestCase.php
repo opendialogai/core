@@ -302,6 +302,30 @@ conversation:
 EOT;
     }
 
+    protected function conversationWithManyOpeningIntents()
+    {
+        return <<<EOT
+conversation:
+  id: many_opening_intents
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.core.opening_1
+        - u:
+            i: intent.core.opening_2
+        - u:
+            i: intent.core.opening_3
+        - b:
+            i: intent.core.ask_name
+        - u:
+            i: intent.core.send_name
+        - b:
+            i: intent.core.response
+            completes: true
+EOT;
+    }
+
     /**
      * Returns the no match conversation
      *
@@ -437,5 +461,73 @@ EOT;
     protected function setCustomAttributes(array $customAttribute)
     {
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+    }
+
+    protected function conversationWithSceneConditions()
+    {
+        return <<< EOT
+conversation:
+  id: with_scene_conditions
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: opening_user_s1
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene1
+        - u:
+            i: opening_user_s2
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene2
+        - u:
+            i: opening_user_none
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_response
+        - u:
+            i: opening_user_s3
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene3
+        - u:
+            i: opening_user_none2
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_complete
+            completes: true
+    scene1:
+      conditions:
+        - condition:
+            operation: is_not_set
+            attributes:
+              attribute1: user.user_email
+      intents:
+        - b: 
+            i: scene1_bot
+            completes: true
+    scene2:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user
+      intents:
+        - b: 
+            i: scene2_bot
+            completes: true
+    scene3:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user2
+      intents:
+        - b: 
+            i: scene3_bot
+            completes: true
+EOT;
     }
 }

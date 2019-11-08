@@ -86,7 +86,7 @@ class EIModelToGraphConverter
                 $conditionData->getId()
             );
 
-            if ($clone) {
+            if (!$clone) {
                 $condition->setUid($conditionData->getUid());
             }
 
@@ -134,6 +134,15 @@ class EIModelToGraphConverter
             $intent->addExpectedAttribute($expectedAttributeNode);
         }
 
+        /** @var EIModelCondition $conditionModel */
+        foreach ($intentData->getConditions() as $conditionModel) {
+            $condition = $this->convertCondition($conditionModel, $clone);
+
+            if (!is_null($condition)) {
+                $intent->addCondition($condition);
+            }
+        }
+
         foreach ($intentData->getInputActionAttributes() as $inputActionAttributeUid => $inputActionAttributeId) {
             $inputActionAttributeNode = new ExpectedAttribute($inputActionAttributeId);
             $clone ? false : $inputActionAttributeNode->setUid($inputActionAttributeUid);
@@ -163,6 +172,25 @@ class EIModelToGraphConverter
 
             if (isset($condition)) {
                 $cm->addConditionToConversation($condition);
+            }
+        }
+    }
+
+    /**
+     * @param $sceneId
+     * @param Set $conditions
+     * @param ConversationManager $cm
+     * @param bool $clone
+     */
+    public function createSceneConditions($sceneId, Set $conditions, ConversationManager $cm, bool $clone = false): void
+    {
+        /* @var EIModelCondition $conditionData */
+        foreach ($conditions as $conditionData) {
+            /* @var Condition $condition */
+            $condition = $this->convertCondition($conditionData, $clone);
+
+            if (isset($condition)) {
+                $cm->addConditionToScene($sceneId, $condition);
             }
         }
     }
@@ -203,8 +231,12 @@ class EIModelToGraphConverter
     {
         $scene = $cm->getScene($data->getId());
         $clone ? false : $scene->setUid($data->getUid());
-        $clone ? false: $scene->getUser()->setUid($data->getUserUid());
-        $clone ? false: $scene->getBot()->setUid($data->getBotUid());
+        $clone ? false : $scene->getUser()->setUid($data->getUserUid());
+        $clone ? false : $scene->getBot()->setUid($data->getBotUid());
+
+        if ($data->hasConditions()) {
+            $this->createSceneConditions($data->getId(), $data->getConditions(), $cm, $clone);
+        }
 
         $this->updateParticipant(
             $scene->getId(), $scene->getUser(), $cm, $data->getUserSaysIntents(), $clone

@@ -3,7 +3,9 @@
 namespace OpenDialogAi\ConversationBuilder;
 
 use Closure;
+use Ds\Set;
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +41,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property int id
  * @property string name
  * @property int version_number
- * @property string opening_intent
+ * @property array opening_intents
  * @property array outgoing_intents
  * @property array history
  * @property bool has_been_used
@@ -68,14 +70,14 @@ class Conversation extends Model
         'updated_at',
         'version_number',
         'history',
-        'opening_intent',
+        'opening_intents',
         'outgoing_intents',
         'has_been_used'
     ];
 
     protected $appends = [
         'history',
-        'opening_intent',
+        'opening_intents',
         'outgoing_intents',
         'has_been_used'
     ];
@@ -139,7 +141,7 @@ class Conversation extends Model
      * Build the conversation's representation.
      *
      * @return ConversationNode
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function buildConversation()
     {
@@ -170,6 +172,10 @@ class Conversation extends Model
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             $sceneIsOpeningScene = $sceneId === 'opening_scene';
             $conversationManager->createScene($sceneId, $sceneIsOpeningScene);
+
+            if (!$sceneIsOpeningScene && isset($scene['conditions'])) {
+                $this->addSceneConditions($sceneId, $scene['conditions'], $conversationManager);
+            }
         }
 
         // Now cycle through the scenes again and identifying intents that cut across scenes.
@@ -211,7 +217,7 @@ class Conversation extends Model
      *
      * @param ConversationNode $conversation
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function activateConversation(ConversationNode $conversation): bool
     {
@@ -269,7 +275,7 @@ class Conversation extends Model
      * @param $previousUid
      * @param DGraphClient $dGraph
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     private function deactivatePrevious($previousUid, DGraphClient $dGraph): bool
     {
@@ -316,7 +322,7 @@ class Conversation extends Model
     /**
      * Deactivate the conversation in DGraph.
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function deactivateConversation(): bool
     {
@@ -328,7 +334,7 @@ class Conversation extends Model
     /**
      * Archiving the conversation
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function archiveConversation(): bool
     {
@@ -353,6 +359,7 @@ class Conversation extends Model
         $confidence = null;
         $completes = false;
         $expectedAttributes = null;
+        $conditions = null;
         $inputActionAttributes = null;
         $outputActionAttributes = null;
 
@@ -361,6 +368,8 @@ class Conversation extends Model
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
+            $expectedAttributes = $intentValue['expected_attributes'] ?? null;
+            $conditions = $intentValue['conditions'] ?? null;
             $intentSceneId = $intent[$speaker]['scene'] ?? null;
             $inputAttributes = $intent[$speaker]['input_attributes'] ?? null;
             $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
@@ -397,6 +406,14 @@ class Conversation extends Model
             }
         }
 
+        if (is_array($conditions)) {
+            $conditionObjects = $this->createConditions($conditions);
+
+            foreach ($conditionObjects as $condition) {
+                $intentNode->addCondition($condition);
+            }
+        }
+
         if (is_array($inputActionAttributes)) {
             foreach ($inputActionAttributes as $inputActionAttribute) {
                 $intentNode->addInputActionAttribute(new ExpectedAttribute($inputActionAttribute));
@@ -418,18 +435,25 @@ class Conversation extends Model
      */
     public function addConversationConditions(array $conditions, ConversationManager $cm)
     {
-        foreach ($conditions as $key => $condition) {
-            try {
-                $conditionObject = $this->createCondition($condition['condition']);
-                $cm->addConditionToConversation($conditionObject);
-            } catch (Exception $e) {
-                Log::debug(
-                    sprintf(
-                        'Could not create condition because: %s',
-                        $e->getMessage()
-                    )
-                );
-            }
+        $conditionObjects = $this->createConditions($conditions);
+
+        foreach ($conditionObjects as $condition) {
+            $cm->addConditionToConversation($condition);
+        }
+    }
+
+    /**
+     * @param $sceneId
+     * @param $conditions
+     * @param ConversationManager $conversationManager
+     */
+    public function addSceneConditions($sceneId, $conditions, ConversationManager $conversationManager)
+    {
+        $conditionObjects = $this->createConditions($conditions);
+        $scene = $conversationManager->getScene($sceneId);
+
+        foreach ($conditionObjects as $condition) {
+            $scene->addCondition($condition);
         }
     }
 
@@ -461,7 +485,7 @@ class Conversation extends Model
      * @param Closure $managerMethod
      * @param $newStatus
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     private function setStatus(Closure $managerMethod, $newStatus): bool
     {
@@ -561,19 +585,25 @@ class Conversation extends Model
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getOpeningIntentAttribute(): string
+    public function getOpeningIntentsAttribute(): array
     {
         $yaml = Yaml::parse($this->model)['conversation'];
+
+        $intents = [];
 
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             foreach ($scene['intents'] as $intent) {
                 foreach ($intent as $tag => $value) {
+                    if ($tag == 'b') {
+                        return $intents;
+                    }
+
                     if ($tag == 'u') {
                         foreach ($value as $key => $intent) {
                             if ($key == 'i') {
-                                return $intent;
+                                $intents[] = $intent;
                             }
                         }
                     }
@@ -581,7 +611,7 @@ class Conversation extends Model
             }
         }
 
-        return '';
+        return $intents;
     }
 
     /**
@@ -589,6 +619,7 @@ class Conversation extends Model
      */
     public function getHistoryAttribute(): array
     {
+
         $history = ConversationActivity::forSubjectOrdered($this->id)->get();
 
         return $history->filter(function ($item) {
@@ -606,7 +637,7 @@ class Conversation extends Model
 
     /**
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function getHasBeenUsedAttribute(): bool
     {
@@ -614,5 +645,29 @@ class Conversation extends Model
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         return $conversationStore->hasConversationBeenUsed($this->name);
+    }
+
+    /**
+     * @param array $conditions
+     * @return Set
+     */
+    private function createConditions(array $conditions): Set
+    {
+        $conditionObjects = new Set();
+
+        foreach ($conditions as $key => $condition) {
+            try {
+                $conditionObject = $this->createCondition($condition['condition']);
+                $conditionObjects->add($conditionObject);
+            } catch (Exception $e) {
+                Log::debug(
+                    sprintf(
+                        'Could not create condition because: %s',
+                        $e->getMessage()
+                    )
+                );
+            }
+        }
+        return $conditionObjects;
     }
 }

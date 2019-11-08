@@ -46,7 +46,6 @@ class EIModelCondition extends EIModelBase
         }
         $condition->setParameters($parameters);
 
-
         $attributes = [];
         if (isset($response[Model::ATTRIBUTES])) {
             $attributes = (array) json_decode(htmlspecialchars_decode($response[Model::ATTRIBUTES]));

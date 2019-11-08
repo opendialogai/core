@@ -2,11 +2,15 @@
 
 namespace OpenDialogAi\SensorEngine\Http\Controllers;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
 use OpenDialogAi\ResponseEngine\LinkClickInterface;
@@ -42,6 +46,10 @@ class WebchatIncomingController extends BaseController
      * @return Response
      * @throws BindingResolutionException
      * @throws FieldNotSupported
+     * @throws GuzzleException
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws NodeDoesNotExistException
      */
     public function receive(IncomingWebchatMessage $request): Response
     {
