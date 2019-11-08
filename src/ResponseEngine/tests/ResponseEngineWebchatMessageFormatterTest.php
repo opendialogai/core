@@ -92,13 +92,14 @@ EOT;
 EOT;
 
         $formatter = new WebChatMessageFormatter();
-
         $messages = $formatter->getMessages($markup)->getMessages();
+        // phpcs:ignore
         $this->assertEquals('hi there <a target="_parent" href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
 
     public function testImageMessage()
     {
+        // phpcs:ignore
         $markup = '<message disable_text="1"><image-message link_new_tab="1"><link>https://www.opendialog.ai</link><src>https://www.opendialog.ai/assets/images/logo.svg</src></image-message></message>';
         $formatter = new WebChatMessageFormatter();
 
@@ -134,6 +135,7 @@ EOT;
 
     public function testButtonMessage()
     {
+        // phpcs:ignore
         $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
         $formatter = new WebChatMessageFormatter();
 

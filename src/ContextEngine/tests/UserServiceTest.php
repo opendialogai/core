@@ -6,6 +6,8 @@ use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
@@ -29,6 +31,13 @@ class UserServiceTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            [
+                'testAttr' => IntAttribute::class
+            ]
+        );
 
         $this->conversationStore = $this->app->make(ConversationStoreInterface::class);
         $this->userService = $this->app->make(UserService::class);
@@ -65,14 +74,14 @@ class UserServiceTest extends TestCase
         $user = $this->userService->createOrUpdateUser($utterance);
         $this->assertTrue($this->userService->userExists($userId));
 
-        $firstName = $user->getAttribute('first_name');
+        $firstName = $user->getUserAttribute('first_name');
         $this->assertTrue(isset($firstName));
 
         $utterance->getUser()->setFirstName('updated');
 
         $user2 = $this->userService->createOrUpdateUser($utterance);
         $this->assertEquals($user2->getUid(), $user->getUid());
-        $this->assertNotEquals($user2->getAttribute('first_name')->getValue(), $firstName);
+        $this->assertNotEquals($user2->getUserAttribute('first_name')->getValue(), $firstName);
     }
 
     public function testAssociatingStoredConversationToUser()
@@ -228,5 +237,60 @@ class UserServiceTest extends TestCase
 
         $user = $this->userService->getUser($userId);
         $this->assertFalse($user->hasCurrentIntent());
+    }
+
+    public function testCustomAttributesArePersistedAndQueryable()
+    {
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
+
+        // Ensure value is not currently persisted
+        $userBeforePersisting = $this->userService->getUser($userId);
+
+        $caught = false;
+        try {
+            $userBeforePersisting->getUserAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $caught = true;
+        }
+        $this->assertTrue($caught);
+
+        // Set testAttr value on User
+        $utterance->getUser()->setCustomParameters([ 'testAttr' => 100 ]);
+
+        /* @var ChatbotUser $user */
+        $user = $this->userService->createOrUpdateUser($utterance);
+
+        /** @var IntAttribute $testAttr */
+        $testAttr = null;
+
+        // Ensure value is on the User object
+        try {
+            $testAttr = $user->getUserAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $this->fail($e);
+        }
+
+        $this->assertEquals(100, $testAttr->getValue());
+
+        $user = $this->userService->updateUser($user);
+        $countBeforeUpdating = $user->getAllUserAttributes()->count();
+
+        // Ensure the attribute is correctly updated
+        $utterance = UtteranceGenerator::generateTextUtterance('', $utterance->getUser());
+        $utterance->getUser()->setCustomParameters([ 'testAttr' => 200 ]);
+
+        /** @var ChatbotUser $userAfterUpdating */
+        $userAfterUpdating = $this->userService->createOrUpdateUser($utterance);
+
+        // Ensure value is on the User object
+        try {
+            $testAttr = $userAfterUpdating->getUserAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $this->fail($e);
+        }
+
+        $this->assertEquals(200, $testAttr->getValue());
+        $this->assertEquals($countBeforeUpdating, $userAfterUpdating->getAllUserAttributes()->count());
     }
 }

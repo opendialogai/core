@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationBuilder;
-
 
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Models\Activity;

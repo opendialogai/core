@@ -16,6 +16,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -48,8 +49,6 @@ class ConversationEngineTest extends TestCase
         $attributeResolver->registerAttributes($attributes);
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
-
-        $this->initDDgraph();
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
@@ -288,13 +287,26 @@ class ConversationEngineTest extends TestCase
         $callbackInterpreter = $interpreterService->getDefaultInterpreter();
         $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
 
+        $userContext = $this->createUserContext();
+
         $this->activateConversation($this->conversationWithNonBindedAction());
 
         try {
-            $this->conversationEngine->determineCurrentConversation($this->createUserContext(), $this->utterance);
+            $this->conversationEngine->determineCurrentConversation($userContext, $this->utterance);
         } catch (Exception $e) {
-            $this->fail("No exception should be thrown when calling an unbound action.");
+            $this->fail('No exception should be thrown when calling an unbound action.');
         }
+
+        try {
+            $userContext->getAttribute('full_name');
+            $this->fail('Attribute full_name should not exist.');
+        } catch (AttributeDoesNotExistException $e) {
+        }
+
+        $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+
+        $fullName = $userContext->getAttribute('full_name')->getValue();
+        $this->assertTrue($fullName !== '');
     }
 
     /**
@@ -430,6 +442,11 @@ conversation:
             action: action.test.not_bound
         - b: 
             i: hello_user
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
 EOT;
     }

@@ -14,7 +14,14 @@ class AlterStatusInConversationsTable extends Migration
      */
     public function up()
     {
-        Artisan::call('statuses:store');
+        try {
+            $numberOfStatuses = count(scandir(storage_path('statuses')));
+        } catch (ErrorException $e) {
+            $numberOfStatuses = 0;
+        }
+
+        $filename = 'statuses_' . $numberOfStatuses . '_' . date('Y-m-d-H-i-s');
+        Artisan::call('statuses:store', [ 'filename' => $filename ]);
 
         if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
             Schema::table('conversations', function (Blueprint $table) {
@@ -28,7 +35,7 @@ class AlterStatusInConversationsTable extends Migration
             DB::statement("ALTER TABLE conversations MODIFY status ENUM('saved', 'activatable', 'activated', 'deactivated', 'archived')");
         }
 
-        Artisan::call('statuses:read');
+        Artisan::call('statuses:read', [ 'filename' => $filename ]);
     }
 
     /**
