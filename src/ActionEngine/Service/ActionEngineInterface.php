@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ActionEngine\Service;
 
+use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 
@@ -27,8 +28,9 @@ interface ActionEngineInterface
 
     /**
      * @param string $actionName The name of the action to perform
-     * @return mixed
+     * @param Map $inputAttributes
+     * @return ActionResult|null
      * @throws ActionNotAvailableException
      */
-    public function performAction(string $actionName): ActionResult;
+    public function performAction(string $actionName, Map $inputAttributes): ?ActionResult;
 }

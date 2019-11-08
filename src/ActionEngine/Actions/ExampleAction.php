@@ -13,9 +13,9 @@ class ExampleAction extends BaseAction
 
     public function __construct()
     {
-        $this->requiredAttributes = ['user.first_name', 'user.last_name'];
+        $this->requiredAttributes = ['first_name', 'last_name'];
 
-        $this->outputsAttributes = ['full_name'];
+        $this->outputAttributes = ['first_name', 'last_name', 'full_name'];
     }
 
     /**
@@ -24,13 +24,20 @@ class ExampleAction extends BaseAction
      */
     public function perform(ActionInput $actionInput): ActionResult
     {
-        $fullName = $actionInput->getAttributeBag()->getAttribute('first_name')->getValue() .
-            $actionInput->getAttributeBag()->getAttribute('last_name')->getValue();
+        $firstName = $actionInput->getAttributeBag()->getAttribute('first_name')->getValue();
+        $lastName = $actionInput->getAttributeBag()->getAttribute('last_name')->getValue();
 
+        $fullName = $firstName . $lastName;
+
+        $firstNameAttribute = new StringAttribute('first_name', $firstName);
+        $lastNameAttribute = new StringAttribute('last_name', $lastName);
         $fullNameAttribute = new StringAttribute('full_name', $fullName);
 
         $result = new ActionResult(true);
+        $result->addAttribute($firstNameAttribute);
+        $result->addAttribute($lastNameAttribute);
         $result->addAttribute($fullNameAttribute);
+
         return $result;
     }
 }

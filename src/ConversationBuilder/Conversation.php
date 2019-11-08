@@ -5,6 +5,7 @@ namespace OpenDialogAi\ConversationBuilder;
 use Closure;
 use Ds\Set;
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -140,7 +141,7 @@ class Conversation extends Model
      * Build the conversation's representation.
      *
      * @return ConversationNode
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function buildConversation()
     {
@@ -188,8 +189,10 @@ class Conversation extends Model
 
                 if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
+                        // phpcs:ignore
                         $conversationManager->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
+                        // phpcs:ignore
                         $conversationManager->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
@@ -214,7 +217,7 @@ class Conversation extends Model
      *
      * @param ConversationNode $conversation
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function activateConversation(ConversationNode $conversation): bool
     {
@@ -272,7 +275,7 @@ class Conversation extends Model
      * @param $previousUid
      * @param DGraphClient $dGraph
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     private function deactivatePrevious($previousUid, DGraphClient $dGraph): bool
     {
@@ -319,7 +322,7 @@ class Conversation extends Model
     /**
      * Deactivate the conversation in DGraph.
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function deactivateConversation(): bool
     {
@@ -331,7 +334,7 @@ class Conversation extends Model
     /**
      * Archiving the conversation
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function archiveConversation(): bool
     {
@@ -357,16 +360,27 @@ class Conversation extends Model
         $completes = false;
         $expectedAttributes = null;
         $conditions = null;
+        $inputActionAttributes = null;
+        $outputActionAttributes = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
-            $actionLabel = $intentValue['action'] ?? null;
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
-            $intentSceneId = $intentValue['scene'] ?? null;
             $expectedAttributes = $intentValue['expected_attributes'] ?? null;
             $conditions = $intentValue['conditions'] ?? null;
+            $intentSceneId = $intent[$speaker]['scene'] ?? null;
+            $inputAttributes = $intent[$speaker]['input_attributes'] ?? null;
+            $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
+
+            if (isset($intentValue['action']) && is_array($intentValue['action'])) {
+                $actionLabel = $intentValue['action']['id'] ?? null;
+                $inputActionAttributes = $intentValue['action']['input_attributes'] ?? null;
+                $outputActionAttributes = $intentValue['action']['output_attributes'] ?? null;
+            } else {
+                $actionLabel = $intentValue['action'] ?? null;
+            }
         } else {
             $intentLabel = $intentValue;
         }
@@ -397,6 +411,18 @@ class Conversation extends Model
 
             foreach ($conditionObjects as $condition) {
                 $intentNode->addCondition($condition);
+            }
+        }
+
+        if (is_array($inputActionAttributes)) {
+            foreach ($inputActionAttributes as $inputActionAttribute) {
+                $intentNode->addInputActionAttribute(new ExpectedAttribute($inputActionAttribute));
+            }
+        }
+
+        if (is_array($outputActionAttributes)) {
+            foreach ($outputActionAttributes as $outputActionAttribute) {
+                $intentNode->addOutputActionAttribute(new ExpectedAttribute($outputActionAttribute));
             }
         }
 
@@ -459,7 +485,7 @@ class Conversation extends Model
      * @param Closure $managerMethod
      * @param $newStatus
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     private function setStatus(Closure $managerMethod, $newStatus): bool
     {
@@ -593,6 +619,7 @@ class Conversation extends Model
      */
     public function getHistoryAttribute(): array
     {
+
         $history = ConversationActivity::forSubjectOrdered($this->id)->get();
 
         return $history->filter(function ($item) {
@@ -610,7 +637,7 @@ class Conversation extends Model
 
     /**
      * @return bool
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function getHasBeenUsedAttribute(): bool
     {

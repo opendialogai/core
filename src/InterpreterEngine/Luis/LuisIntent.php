@@ -2,33 +2,14 @@
 
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
-class LuisIntent
+
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUIntent;
+
+class LuisIntent extends AbstractNLUIntent
 {
-    /* @var string */
-    private $label;
-
-    /* @var float */
-    private $confidence;
-
     public function __construct($intent)
     {
         $this->label = $intent->intent;
         $this->confidence = floatval($intent->score);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLabel()
-    {
-        return $this->label;
-    }
-
-    /**
-     * @return float
-     */
-    public function getConfidence()
-    {
-        return $this->confidence;
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
-
 
 use Ds\Pair;
 use Ds\Set;
@@ -143,6 +141,18 @@ class EIModelToGraphConverter
             if (!is_null($condition)) {
                 $intent->addCondition($condition);
             }
+        }
+
+        foreach ($intentData->getInputActionAttributes() as $inputActionAttributeUid => $inputActionAttributeId) {
+            $inputActionAttributeNode = new ExpectedAttribute($inputActionAttributeId);
+            $clone ? false : $inputActionAttributeNode->setUid($inputActionAttributeUid);
+            $intent->addInputActionAttribute($inputActionAttributeNode);
+        }
+
+        foreach ($intentData->getOutputActionAttributes() as $outputActionAttributeUid => $outputActionAttributeId) {
+            $outputActionAttributeNode = new ExpectedAttribute($outputActionAttributeId);
+            $clone ? false : $outputActionAttributeNode->setUid($outputActionAttributeUid);
+            $intent->addOutputActionAttribute($outputActionAttributeNode);
         }
 
         return $intent;

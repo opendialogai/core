@@ -2,26 +2,15 @@
 
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
-class LuisResponse
-{
-    /**
-     *  @var string The text sent to LUIS for intent analysis
-     */
-    private $query;
 
-    /** @var LuisIntent */
-    private $topScoringIntent;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
 
-    /* @var LuisEntity[] */
-    private $entities = [];
-
+class LuisResponse extends AbstractNLUResponse {
     public function __construct($response)
     {
         $this->query = isset($response->query) ? $response->query : null;
-
-        if (isset($response->topScoringIntent)) {
-            $this->topScoringIntent = new LuisIntent($response->topScoringIntent);
-        }
+        $this->topScoringIntent = isset($response->topScoringIntent) ? new LuisIntent($response->topScoringIntent) : null;
 
         if (isset($response->entities)) {
             $this->createEntities($response->entities);
@@ -29,38 +18,12 @@ class LuisResponse
     }
 
     /**
-     * Extract entities and create @see LuisEntity objects.
-     *
-     * @param $entities
+     * Creates a new AbstractNLUEntity from entity data
+     * @param $entity
+     * @return AbstractNLUEntity
      */
-    private function createEntities($entities)
+    public function createEntity($entity): AbstractNLUEntity
     {
-        foreach ($entities as $entity) {
-            $this->entities[] = new LuisEntity($entity, $this->getQuery());
-        }
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getQuery(): ?string
-    {
-        return $this->query;
-    }
-
-    /**
-     * @return LuisIntent
-     */
-    public function getTopScoringIntent()
-    {
-        return $this->topScoringIntent;
-    }
-
-    /**
-     * @return LuisEntity[]
-     */
-    public function getEntities(): array
-    {
-        return $this->entities;
+        return new LuisEntity($entity, $this->getQuery());
     }
 }
