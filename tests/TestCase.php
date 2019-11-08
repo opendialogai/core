@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Tests;
 
-use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
@@ -39,13 +38,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        try {
-            $env = parse_ini_file(__DIR__ . '/../.env');
-            if (isset($env['DGRAPH_URL'])) {
-                $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
-            }
-        } catch (Exception $e) {
-            //
+        if ($overwriteDgraphUrl = getenv("OVERWRITE_DGRAPH_URL")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
+        }
+
+        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
         }
 
         if (!defined('LARAVEL_START')) {
