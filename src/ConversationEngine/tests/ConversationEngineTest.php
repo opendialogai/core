@@ -423,10 +423,10 @@ EOT;
         /** @var Conversation $template */
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template);
+        $template->activateConversation();
 
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template);
+        $template->activateConversation();
     }
 }

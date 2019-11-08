@@ -209,13 +209,12 @@ class Conversation extends Model
     /**
      * Activate the conversation in DGraph.
      *
-     * @param Conversation $conversation
      * @return bool
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function activateConversation(Conversation $conversation): bool
+    public function activateConversation(): bool
     {
-        $conversationNode = $conversation->buildConversation();
+        $conversationNode = $this->buildConversation();
 
         $cm = ConversationManager::createManagerForExistingConversation($conversationNode);
 

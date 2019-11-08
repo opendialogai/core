@@ -60,7 +60,7 @@ class TestReadingAndStoringStatuses extends TestCase
 
         Artisan::call('statuses:store');
 
-        $conv2->activateConversation($conv2);
+        $conv2->activateConversation();
 
         Artisan::call('statuses:read');
 
