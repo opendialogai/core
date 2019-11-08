@@ -579,14 +579,13 @@ class ConversationEngine implements ConversationEngineInterface
                 }
             }
 
+            $result = true;
+
             /** @var Condition $condition */
             foreach ($item->getAllConditions() as $condition) {
                 if (!$this->operationService->checkCondition($condition)) {
-                    if ($intentContext) {
-                        $intentContext->refresh();
-                    }
-
-                    return false;
+                    $result = false;
+                    break;
                 }
             }
 
@@ -594,7 +593,7 @@ class ConversationEngine implements ConversationEngineInterface
                 $intentContext->refresh();
             }
 
-            return true;
+            return $result;
         });
 
         return $filteredIntents;
