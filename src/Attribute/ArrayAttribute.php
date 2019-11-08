@@ -9,21 +9,17 @@ use Illuminate\Support\Facades\Log;
  */
 class ArrayAttribute extends AbstractAttribute
 {
+    public static $type = 'attribute.core.array';
+
     /**
      * ArrayAttribute constructor.
      * @param $id
      * @param $value
-     * @throws UnsupportedAttributeTypeException
      */
     public function __construct($id, $value)
     {
-        try {
-            parent::__construct($id, AbstractAttribute::ARRAY, $this->value);
-            $this->setValue($value);
-        } catch (UnsupportedAttributeTypeException $e) {
-            Log::warning($e->getMessage());
-            return null;
-        }
+        parent::__construct($id, $this->value);
+        $this->setValue($value);
     }
 
     public function setValue($value)
