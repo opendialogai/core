@@ -124,7 +124,7 @@ class ImportConversation extends Command
 
         if ($this->option('activate')) {
             $this->info(sprintf('Activating conversation with name %s', $newConversation->name));
-            $newConversation->activateConversation($newConversation->buildConversation());
+            $newConversation->activateConversation($newConversation);
         }
 
         foreach ($data['outgoingIntents'] as $outgoingIntent) {

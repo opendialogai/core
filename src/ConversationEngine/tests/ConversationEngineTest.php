@@ -69,7 +69,7 @@ class ConversationEngineTest extends TestCase
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(3, $openingIntents);
 
-        $this->assertTrue($conversation->activateConversation($conversation->buildConversation()));
+        $this->assertTrue($conversation->activateConversation($conversation));
 
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(4, $openingIntents);
@@ -423,10 +423,10 @@ EOT;
         /** @var Conversation $template */
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template->buildConversation());
+        $template->activateConversation($template);
 
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template->buildConversation());
+        $template->activateConversation($template);
     }
 }
