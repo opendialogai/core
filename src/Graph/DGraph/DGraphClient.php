@@ -31,6 +31,7 @@ class DGraphClient
     const SCENE = 'Scene';
     const CONVERSATION = 'Conversation';
     const USER = 'User';
+    const USER_ATTRIBUTE = 'UserAttribute';
 
 
     public function __construct($dgraphUrl, $dGraphPort)
@@ -328,23 +329,8 @@ class DGraphClient
     /**
      * @return string
      */
-    private function prepareUserAttributes()
-    {
-        $userAttributes = '';
-        foreach (AttributeResolver::getSupportedAttributes() as $name => $type) {
-            $userAttributes .= "{$name}: default\n";
-        }
-
-        return $userAttributes;
-    }
-
-    /**
-     * @return string
-     */
     private function schema()
     {
-        $userAttributes = $this->prepareUserAttributes();
-
         return "
             <attributes>: string .
             <causes_action>: [uid] .
@@ -360,6 +346,7 @@ class DGraphClient
             <has_opening_scene>: [uid] @reverse .
             <has_scene>: [uid] .
             <has_user_participant>: [uid] @reverse .
+            <has_attribute>: [uid] .
             <id>: string @index(exact) .
             <instance_of>: uid @reverse .
             <update_of>: uid @reverse .
@@ -371,6 +358,9 @@ class DGraphClient
             <having_conversation>: [uid] @reverse .
             <says_across_scenes>: [uid] @reverse .
             <listens_for_across_scenes>: [uid] @reverse .
+            <user_attribute_type>: string .
+            <user_attribute_value>: string .
+                        
             type " . self::CONDITION . " {
                 attributes: string
                 context: string
@@ -413,7 +403,17 @@ class DGraphClient
                 instance_of: uid
                 update_of: uid
             }
-            type " . self::USER . " {{$userAttributes}}
+            type " . self::USER_ATTRIBUTE . " {
+                id: string
+                ei_type: string
+                user_attribute_type: string
+                user_attribute_value: string
+            }
+            type " . self::USER . " {
+                id: string
+                ei_type: string
+                has_attribute: [uid]
+            }
         ";
     }
 

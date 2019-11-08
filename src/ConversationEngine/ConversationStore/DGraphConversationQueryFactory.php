@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -228,6 +227,8 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
             Model::HAS_CONDITION => self::getConditionGraph(),
+            Model::HAS_INPUT_ACTION_ATTRIBUTE => self::getInputActionAttributesGraph(),
+            Model::HAS_OUTPUT_ACTION_ATTRIBUTE => self::getOutputActionAttributesGraph(),
             Model::LISTENED_BY_FROM_SCENES => [
                 Model::UID,
                 Model::ID,
@@ -267,6 +268,28 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
      * @return array
      */
     public static function getExpectedAttributesGraph(): array
+    {
+        return [
+            Model::UID,
+            Model::ID
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getInputActionAttributesGraph(): array
+    {
+        return [
+            Model::UID,
+            Model::ID
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getOutputActionAttributesGraph(): array
     {
         return [
             Model::UID,

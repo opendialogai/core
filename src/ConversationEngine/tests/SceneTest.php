@@ -17,7 +17,6 @@ class SceneTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->initDDgraph();
 
         $this->setSupportedCallbacks([
             'hello_bot' => 'hello_bot',

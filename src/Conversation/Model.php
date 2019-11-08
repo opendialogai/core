@@ -20,6 +20,7 @@ class Model
     const INTENT_INTERPRETER = 'intent_interpreter';
     const ACTION = 'action';
     const CHATBOT_USER = 'chatbot_user';
+    const USER_ATTRIBUTE = 'user_attribute';
     const EXPECTED_ATTRIBUTE = 'expected_attribute';
     const LAST_SEEN = 'last_seen';
     const CONVERSATION_STATUS = 'conversation_status';
@@ -53,8 +54,16 @@ class Model
     const CAUSES_ACTION = 'causes_action';
     const HAS_INTERPRETER = 'has_interpreter';
 
+    // ChatbotUsers can have many UserAttributes
+    const HAS_ATTRIBUTE = 'has_attribute';
+    const USER_ATTRIBUTE_TYPE = 'user_attribute_type';
+    const USER_ATTRIBUTE_VALUE = 'user_attribute_value';
+
     // Intents can define a number of expected attributes
     const HAS_EXPECTED_ATTRIBUTE = 'has_expected_attribute';
+
+    const HAS_INPUT_ACTION_ATTRIBUTE = 'has_input_action_attribute';
+    const HAS_OUTPUT_ACTION_ATTRIBUTE = 'has_output_action_attribute';
 
     const ORDER = 'core.attribute.order';
     const COMPLETES = 'core.attribute.completes';

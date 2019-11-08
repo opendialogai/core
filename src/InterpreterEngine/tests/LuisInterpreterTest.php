@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLURequestFailedException;
 use OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
@@ -49,7 +50,7 @@ class LuisInterpreterTest extends TestCase
     public function testNoMatchFromLuis()
     {
         $this->mock(LuisClient::class, function ($mock) {
-            $mock->shouldReceive('queryLuis')->andReturn(
+            $mock->shouldReceive('query')->andReturn(
                 new LuisResponse(json_decode(""))
             );
         });
@@ -65,8 +66,8 @@ class LuisInterpreterTest extends TestCase
     public function testErrorFromLuis()
     {
         $this->mock(LuisClient::class, function ($mock) {
-            $mock->shouldReceive('queryLuis')->andThrow(
-                LuisRequestFailedException::class
+            $mock->shouldReceive('query')->andThrow(
+                AbstractNLURequestFailedException::class
             );
         });
 
@@ -90,7 +91,7 @@ class LuisInterpreterTest extends TestCase
     public function testMatch()
     {
         $this->mock(LuisClient::class, function ($mock) {
-            $mock->shouldReceive('queryLuis')->andReturn(
+            $mock->shouldReceive('query')->andReturn(
                 new LuisResponse($this->createLuisResponseObject('MATCH', 0.5))
             );
         });
@@ -106,7 +107,7 @@ class LuisInterpreterTest extends TestCase
     public function testMatchWithKnownEntity()
     {
         $this->mock(LuisClient::class, function ($mock) {
-            $mock->shouldReceive('queryLuis')->andReturn(
+            $mock->shouldReceive('query')->andReturn(
                 new LuisResponse(
                     $this->createLuisResponseObject(
                         'MATCH',
@@ -129,7 +130,7 @@ class LuisInterpreterTest extends TestCase
     public function testMatchWithUnknownEntity()
     {
         $this->mock(LuisClient::class, function ($mock) {
-            $mock->shouldReceive('queryLuis')->andReturn(
+            $mock->shouldReceive('query')->andReturn(
                 new LuisResponse(
                     $this->createLuisResponseObject(
                         'MATCH',

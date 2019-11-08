@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
+use Ds\Map;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
 
 abstract class BaseAction implements ActionInterface
@@ -11,8 +12,11 @@ abstract class BaseAction implements ActionInterface
     /** @var string[] */
     protected $requiredAttributes = [];
 
-    /** @var string[] */
-    protected $outputsAttributes = [];
+    /** @var Map */
+    protected $inputAttributes = [];
+
+    /** @var Map */
+    protected $outputAttributes = [];
 
     /**
      * @inheritdoc
@@ -24,6 +28,14 @@ abstract class BaseAction implements ActionInterface
         }
 
         return $this->performs;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setInputAttributes($inputAttributes)
+    {
+        $this->inputAttributes = $inputAttributes;
     }
 
     /**
@@ -45,9 +57,17 @@ abstract class BaseAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function getOutputAttributes(): array
+    public function getInputAttributes(): Map
     {
-        return $this->outputsAttributes;
+        return $this->inputAttributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getOutputAttributes(): Map
+    {
+        return $this->outputAttributes;
     }
 
     /**
@@ -55,6 +75,6 @@ abstract class BaseAction implements ActionInterface
      */
     public function outputsAttribute($attributeName): bool
     {
-        return in_array($attributeName, $this->outputsAttributes);
+        return $this->outputAttributes->hasKey($attributeName);
     }
 }
