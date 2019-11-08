@@ -9,13 +9,11 @@ use Illuminate\Support\Facades\Log;
  */
 class IntAttribute extends BasicAttribute
 {
+    public static $type = 'attribute.core.int';
+
     public function __construct($id, $value)
     {
-        try {
-            parent::__construct($id, AbstractAttribute::INT, $value);
-        } catch (UnsupportedAttributeTypeException $e) {
-            Log::warning($e->getMessage());
-        }
+        parent::__construct($id, $value);
     }
 
     /**
