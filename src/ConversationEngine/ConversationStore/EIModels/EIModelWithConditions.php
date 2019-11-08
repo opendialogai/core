@@ -1,11 +1,8 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
 
-
 use Ds\Set;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\Core\Conversation\Model;
@@ -32,12 +29,11 @@ class EIModelWithConditions extends EIModelBase
      * @param array $response
      * @param $additionalParameter
      * @return EIModel
-     * @throws BindingResolutionException
      * @throws EIModelCreatorException
      */
     public static function handle(array $response, $additionalParameter = null): EIModel
     {
-        $eiModelCreator = app()->make(EIModelCreator::class);
+        $eiModelCreator = resolve(EIModelCreator::class);
 
         $conversation = new static();
         $conversation->conditions = new Set();
@@ -56,9 +52,9 @@ class EIModelWithConditions extends EIModelBase
     }
 
     /**
-     * @return Set|null
+     * @return Set
      */
-    public function getConditions(): ?Set
+    public function getConditions(): Set
     {
         return $this->conditions;
     }
