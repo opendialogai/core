@@ -1,14 +1,12 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
-
 
 use Ds\Set;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Conversation\Model;
 
-class EIModelConversation extends EIModelBase
+class EIModelConversation extends EIModelWithConditions
 {
     private $id;
     private $uid;
@@ -21,9 +19,6 @@ class EIModelConversation extends EIModelBase
 
     /* @var EIModelConversation $instanceOf */
     private $instanceOf;
-
-    /* @var Set $conditions */
-    private $conditions;
 
     /* @var Set $openingScenes */
     private $openingScenes;
@@ -40,7 +35,8 @@ class EIModelConversation extends EIModelBase
      */
     public static function validate(array $response, $additionalParameter = null): bool
     {
-        return EIModelBase::hasEIType($response, Model::CONVERSATION_USER, Model::CONVERSATION_TEMPLATE)
+        return parent::validate($response, $additionalParameter)
+            && EIModelBase::hasEIType($response, Model::CONVERSATION_USER, Model::CONVERSATION_TEMPLATE)
             && key_exists(Model::ID, $response)
             && key_exists(Model::UID, $response);
     }
@@ -56,7 +52,7 @@ class EIModelConversation extends EIModelBase
     {
         $eiModelCreator = app()->make(EIModelCreator::class);
 
-        $conversation = new self();
+        $conversation = parent::handle($response, $additionalParameter);
 
         $conversation->setId($response[Model::ID]);
         $conversation->setUid($response[Model::UID]);
@@ -74,18 +70,6 @@ class EIModelConversation extends EIModelBase
             /** @var EIModelConversation $template */
             $template = $eiModelCreator->createEIModel(EIModelConversation::class, $response[Model::INSTANCE_OF]);
             $conversation->setInstanceOf($template);
-        }
-
-        if (isset($response[Model::HAS_CONDITION])) {
-            $conversation->conditions = new Set();
-
-            foreach ($response[Model::HAS_CONDITION] as $c) {
-                $condition = $eiModelCreator->createEIModel(EIModelCondition::class, $c);
-
-                if (isset($condition)) {
-                    $conversation->conditions->add($condition);
-                }
-            }
         }
 
         $openingScenes = new Set();
@@ -187,14 +171,6 @@ class EIModelConversation extends EIModelBase
     public function setConversationVersion($conversationVersion): void
     {
         $this->conversationVersion = $conversationVersion;
-    }
-
-    /**
-     * @return Set|null
-     */
-    public function getConditions(): ?Set
-    {
-        return $this->conditions;
     }
 
     /**

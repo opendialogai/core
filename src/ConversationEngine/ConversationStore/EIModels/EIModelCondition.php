@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
-
 
 use OpenDialogAi\Core\Conversation\Model;
 
@@ -47,7 +45,6 @@ class EIModelCondition extends EIModelBase
             $parameters = (array) json_decode(htmlspecialchars_decode($response[Model::PARAMETERS]));
         }
         $condition->setParameters($parameters);
-
 
         $attributes = [];
         if (isset($response[Model::ATTRIBUTES])) {

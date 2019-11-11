@@ -268,6 +268,10 @@ class DGraphMutation
                 $type = DGraphClient::USER;
                 break;
 
+            case Model::CONDITION:
+                $type = DGraphClient::CONDITION;
+                break;
+
             case Model::CONVERSATION_USER:
             case Model::CONVERSATION_TEMPLATE:
                 $type = DGraphClient::CONVERSATION;

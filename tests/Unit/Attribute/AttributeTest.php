@@ -29,11 +29,4 @@ class AttributeTest extends TestCase
         $b = new IntAttribute('b', 50);
         $this->assertEquals($b->toString(), '50');
     }
-
-    public function testUnsupportedAttributeTypeException()
-    {
-        $this->expectException(UnsupportedAttributeTypeException::class);
-        $this->expectExceptionMessage('Type unsupported is not supported');
-        new BasicAttribute('a', 'unsupported', 1);
-    }
 }

@@ -71,8 +71,8 @@
     <php>
         <env name="PACKAGE_NAME" value="TestDialog"/>
         <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
-        <env name="DGRAPH_URL" value="http://localhost"/>
-        <env name="DGRAPH_PORT" value="8080"/>
+        <env name="DGRAPH_URL" value="host.docker.internal"/>
+        <env name="DGRAPH_PORT" value="8081"/>
     </php>
     <logging>
         <log type="coverage-text" target="build/coverage.txt"/>

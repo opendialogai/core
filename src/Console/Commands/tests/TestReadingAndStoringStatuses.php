@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\Core\Console\Commands\tests;
-
 
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Artisan;

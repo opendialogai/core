@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -24,42 +23,8 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
                 Model::HAS_CONDITION => self::getConditionGraph(),
                 Model::HAS_OPENING_SCENE => [
                     Model::HAS_USER_PARTICIPANT => [
-                        Model::SAYS => [
-                            Model::ID,
-                            Model::UID,
-                            Model::ORDER,
-                            Model::CONFIDENCE,
-                            Model::CAUSES_ACTION => [
-                                Model::UID,
-                                Model::ID
-                            ],
-                            Model::HAS_INTERPRETER => [
-                                Model::ID,
-                                Model::UID,
-                            ],
-                            Model::HAS_EXPECTED_ATTRIBUTE => [
-                                Model::ID,
-                                Model::UID
-                            ]
-                        ],
-                        Model::SAYS_ACROSS_SCENES => [
-                            Model::ID,
-                            Model::UID,
-                            Model::ORDER,
-                            Model::CONFIDENCE,
-                            Model::CAUSES_ACTION => [
-                                Model::UID,
-                                Model::ID
-                            ],
-                            Model::HAS_INTERPRETER => [
-                                Model::ID,
-                                Model::UID,
-                            ],
-                            Model::HAS_EXPECTED_ATTRIBUTE => [
-                                Model::ID,
-                                Model::UID
-                            ]
-                        ]
+                        Model::SAYS => self::getIntentGraph(),
+                        Model::SAYS_ACROSS_SCENES => self::getIntentGraph()
                     ],
                 ]
             ]);
@@ -227,6 +192,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             Model::UID,
             Model::ID,
             Model::HAS_USER_PARTICIPANT => self::getParticipantGraph(),
+            Model::HAS_CONDITION => self::getConditionGraph(),
             Model::HAS_BOT_PARTICIPANT => self::getParticipantGraph()
         ];
     }
@@ -261,14 +227,19 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             Model::CAUSES_ACTION => self::getActionGraph(),
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
+            Model::HAS_CONDITION => self::getConditionGraph(),
+            Model::HAS_INPUT_ACTION_ATTRIBUTE => self::getInputActionAttributesGraph(),
+            Model::HAS_OUTPUT_ACTION_ATTRIBUTE => self::getOutputActionAttributesGraph(),
             Model::LISTENED_BY_FROM_SCENES => [
                 Model::UID,
                 Model::ID,
                 Model::USER_PARTICIPATES_IN => [
                     Model::ID,
+                    Model::HAS_CONDITION => self::getConditionGraph()
                 ],
                 Model::BOT_PARTICIPATES_IN => [
                     Model::ID,
+                    Model::HAS_CONDITION => self::getConditionGraph()
                 ]
             ]
         ];
@@ -300,6 +271,28 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
      * @return array
      */
     public static function getExpectedAttributesGraph(): array
+    {
+        return [
+            Model::UID,
+            Model::ID
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getInputActionAttributesGraph(): array
+    {
+        return [
+            Model::UID,
+            Model::ID
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getOutputActionAttributesGraph(): array
     {
         return [
             Model::UID,

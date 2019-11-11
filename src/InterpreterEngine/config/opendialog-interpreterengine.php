@@ -19,8 +19,13 @@ return [
         'endpoint_key' => env('QNA_ENDPOINT_KEY'),
     ],
 
+    'rasa_config' => [
+        'app_url'      => env('RASA_APP_URL'),
+    ],
+
     // Register the application interfaces
     'available_interpreters' => [
+        OpenDialogAi\InterpreterEngine\Interpreters\RasaInterpreter::class,
         OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter::class,
         OpenDialogAi\InterpreterEngine\Interpreters\QnAInterpreter::class,
         OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter::class

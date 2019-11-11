@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\tests;
-
 
 use Ds\Map;
 use Exception;

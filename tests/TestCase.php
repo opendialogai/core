@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Tests;
 
-use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
@@ -40,13 +39,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        try {
-            $env = parse_ini_file(__DIR__ . '/../.env');
-            if (isset($env['DGRAPH_URL'])) {
-                $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
-            }
-        } catch (Exception $e) {
-            //
+        if ($overwriteDgraphUrl = getenv("OVERWRITE_DGRAPH_URL")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
+        }
+
+        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
         }
 
         if (!defined('LARAVEL_START')) {
@@ -118,14 +116,26 @@ conversation:
         - u:
             i: hello_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene2
         - b:
             i: hello_registered_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene3
     scene2:
       intents:
@@ -133,25 +143,48 @@ conversation:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             confidence: 1
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
+              output_attributes:
+                - user.first_name
+                - session.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
     scene3:
       intents:
         - u:
             i: weather_question
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b:
             i: weather_answer
         - u: 
             i: will_you_cope
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
     scene4:
       intents:
@@ -177,19 +210,35 @@ conversation:
         - u: 
             i: howdy_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true           
 EOT;
     }
@@ -205,19 +254,35 @@ conversation:
         - u: 
             i: top_of_the_morning_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
 EOT;
     }
@@ -234,6 +299,30 @@ conversation:
             i: intent.core.NoMatch
         - b:
             i: intent.core.NoMatchResponse
+            completes: true
+EOT;
+    }
+
+    protected function conversationWithManyOpeningIntents()
+    {
+        return <<<EOT
+conversation:
+  id: many_opening_intents
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.core.opening_1
+        - u:
+            i: intent.core.opening_2
+        - u:
+            i: intent.core.opening_3
+        - b:
+            i: intent.core.ask_name
+        - u:
+            i: intent.core.send_name
+        - b:
+            i: intent.core.response
             completes: true
 EOT;
     }
@@ -375,6 +464,74 @@ EOT;
     protected function setCustomAttributes(array $customAttribute)
     {
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+    }
+
+    protected function conversationWithSceneConditions()
+    {
+        return <<< EOT
+conversation:
+  id: with_scene_conditions
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: opening_user_s1
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene1
+        - u:
+            i: opening_user_s2
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene2
+        - u:
+            i: opening_user_none
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_response
+        - u:
+            i: opening_user_s3
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene3
+        - u:
+            i: opening_user_none2
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_complete
+            completes: true
+    scene1:
+      conditions:
+        - condition:
+            operation: is_not_set
+            attributes:
+              attribute1: user.user_email
+      intents:
+        - b: 
+            i: scene1_bot
+            completes: true
+    scene2:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user
+      intents:
+        - b: 
+            i: scene2_bot
+            completes: true
+    scene3:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user2
+      intents:
+        - b: 
+            i: scene3_bot
+            completes: true
+EOT;
     }
 
     /**

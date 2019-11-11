@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
@@ -13,6 +14,13 @@ class NextIntentDetectionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        AttributeResolver::registerAttributes([
+            'user_name' => StringAttribute::class
+        ]);
+
+        $this->initDDgraph();
+
         $this->activateConversation($this->conversation4());
     }
 
@@ -33,24 +41,24 @@ class NextIntentDetectionTest extends TestCase
         // Start the conversation
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
         $openDialogController->runConversation($utterance);
-        $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
-        $this->assertEquals($conversationContext->getAttributeValue('interpreted_intent'), 'hello_bot');
-        $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'opening_scene');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'hello_user');
+        $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('hello_bot', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('hello_user', $conversationContext->getAttributeValue('next_intent'));
 
         // Ask about the weather - this should keep the user in the opening scene
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('ask_weather', $utterance->getUser()));
-        $this->assertEquals($conversationContext->getAttributeValue('interpreted_intent'), 'ask_weather');
-        $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
-        $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'opening_scene');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'send_weather');
+        $this->assertEquals('ask_weather', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('send_weather', $conversationContext->getAttributeValue('next_intent'));
 
         // Respond to the weather
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('respond_weather', $utterance->getUser()));
-        $this->assertEquals($conversationContext->getAttributeValue('interpreted_intent'), 'respond_weather');
-        $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
-        $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'opening_scene');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'finish');
+        $this->assertEquals('respond_weather', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('finish', $conversationContext->getAttributeValue('next_intent'));
     }
 
     public function testSaidAcrossScene()
@@ -71,17 +79,67 @@ class NextIntentDetectionTest extends TestCase
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
         $openDialogController->runConversation($utterance);
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('ask_chat', $utterance->getUser()));
-        $this->assertEquals($conversationContext->getAttributeValue('interpreted_intent'), 'ask_chat');
-        $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
-        $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'opening_scene');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'start_chat');
+        $this->assertEquals('ask_chat', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('start_chat', $conversationContext->getAttributeValue('next_intent'));
 
         // Respond to the weather
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('how_are_you', $utterance->getUser()));
-        $this->assertEquals($conversationContext->getAttributeValue('interpreted_intent'), 'how_are_you');
-        $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
-        $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'scene2');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'doing_dandy');
+        $this->assertEquals('how_are_you', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('scene2', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('doing_dandy', $conversationContext->getAttributeValue('next_intent'));
+    }
+
+    public function testConditionsOnOutgoingIntents()
+    {
+        $this->setSupportedCallbacks([
+            'hello_bot' => 'hello_bot'
+        ]);
+
+        $openDialogController = resolve(OpenDialogController::class);
+
+        $this->activateConversation($this->testConversationWithOutgoingIntentConditions());
+
+        $conversationContext = ContextService::getConversationContext();
+
+        // Expect to get to 'response_without_name' because the user name isn't set
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('hello_bot', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('response_without_name', $conversationContext->getAttributeValue('next_intent'));
+
+        // Expect to get to 'answer_without_name' because the user name isn't set
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('question', $utterance->getUser());
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('question', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('answer_without_name', $conversationContext->getAttributeValue('next_intent'));
+
+        // New user
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
+        $utterance->getUser()->setCustomParameters([
+            "user_name" => "test"
+        ]);
+
+        // Expect to get to 'response_with_name' because the user name is set
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('hello_bot', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('response_with_name', $conversationContext->getAttributeValue('next_intent'));
+
+        // Expect to get to 'answer_with_name' because the user name is set
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('question', $utterance->getUser());
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('question', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('answer_with_name', $conversationContext->getAttributeValue('next_intent'));
     }
 
     public function testConversationWithManyIntentsWithSameId()
@@ -153,5 +211,51 @@ conversation:
             i: doing_dandy
             completes: true
 EOT;
+    }
+
+    public function testConversationWithOutgoingIntentConditions()
+    {
+        return <<<EOT
+conversation:
+  id: with_outgoing_intent_conditions
+  scenes:
+    opening_scene:
+      intents:
+        - u: 
+            i: hello_bot
+        - b: 
+            i: response_with_name
+            conditions:
+                - condition:
+                    operation: is_set
+                    attributes:
+                        attribute1: user.user_name
+        - b:
+            i: response_without_name
+            conditions:
+                - condition:
+                    operation: is_not_set
+                    attributes:
+                        attribute1: user.user_name
+        - u: 
+            i: question
+        - b: 
+            i: answer_with_name
+            conditions:
+                - condition:
+                    operation: is_set
+                    attributes:
+                        attribute1: user.user_name
+            completes: true
+        - b:
+            i: answer_without_name
+            conditions:
+                - condition:
+                    operation: is_not_set
+                    attributes:
+                        attribute1: user.user_name
+            completes: true
+EOT;
+
     }
 }

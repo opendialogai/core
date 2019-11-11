@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ConversationBuilder;
 
 use Closure;
+use Ds\Set;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
@@ -41,7 +42,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property int id
  * @property string name
  * @property int version_number
- * @property string opening_intent
+ * @property array opening_intents
  * @property array outgoing_intents
  * @property array history
  * @property bool has_been_used
@@ -70,14 +71,14 @@ class Conversation extends Model
         'updated_at',
         'version_number',
         'history',
-        'opening_intent',
+        'opening_intents',
         'outgoing_intents',
         'has_been_used'
     ];
 
     protected $appends = [
         'history',
-        'opening_intent',
+        'opening_intents',
         'outgoing_intents',
         'has_been_used'
     ];
@@ -173,6 +174,10 @@ class Conversation extends Model
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             $sceneIsOpeningScene = $sceneId === 'opening_scene';
             $conversationManager->createScene($sceneId, $sceneIsOpeningScene);
+
+            if (!$sceneIsOpeningScene && isset($scene['conditions'])) {
+                $this->addSceneConditions($sceneId, $scene['conditions'], $conversationManager);
+            }
         }
 
         // Now cycle through the scenes again and identifying intents that cut across scenes.
@@ -186,8 +191,10 @@ class Conversation extends Model
 
                 if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
+                        // phpcs:ignore
                         $conversationManager->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
+                        // phpcs:ignore
                         $conversationManager->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
@@ -356,15 +363,28 @@ class Conversation extends Model
         $confidence = null;
         $completes = false;
         $expectedAttributes = null;
+        $conditions = null;
+        $inputActionAttributes = null;
+        $outputActionAttributes = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
-            $actionLabel = $intentValue['action'] ?? null;
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
+            $expectedAttributes = $intentValue['expected_attributes'] ?? null;
+            $conditions = $intentValue['conditions'] ?? null;
             $intentSceneId = $intent[$speaker]['scene'] ?? null;
+            $inputAttributes = $intent[$speaker]['input_attributes'] ?? null;
             $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
+
+            if (isset($intentValue['action']) && is_array($intentValue['action'])) {
+                $actionLabel = $intentValue['action']['id'] ?? null;
+                $inputActionAttributes = $intentValue['action']['input_attributes'] ?? null;
+                $outputActionAttributes = $intentValue['action']['output_attributes'] ?? null;
+            } else {
+                $actionLabel = $intentValue['action'] ?? null;
+            }
         } else {
             $intentLabel = $intentValue;
         }
@@ -390,6 +410,26 @@ class Conversation extends Model
             }
         }
 
+        if (is_array($conditions)) {
+            $conditionObjects = $this->createConditions($conditions);
+
+            foreach ($conditionObjects as $condition) {
+                $intentNode->addCondition($condition);
+            }
+        }
+
+        if (is_array($inputActionAttributes)) {
+            foreach ($inputActionAttributes as $inputActionAttribute) {
+                $intentNode->addInputActionAttribute(new ExpectedAttribute($inputActionAttribute));
+            }
+        }
+
+        if (is_array($outputActionAttributes)) {
+            foreach ($outputActionAttributes as $outputActionAttribute) {
+                $intentNode->addOutputActionAttribute(new ExpectedAttribute($outputActionAttribute));
+            }
+        }
+
         return $intentNode;
     }
 
@@ -399,18 +439,25 @@ class Conversation extends Model
      */
     public function addConversationConditions(array $conditions, ConversationManager $cm)
     {
-        foreach ($conditions as $key => $condition) {
-            try {
-                $conditionObject = $this->createCondition($condition['condition']);
-                $cm->addConditionToConversation($conditionObject);
-            } catch (Exception $e) {
-                Log::debug(
-                    sprintf(
-                        'Could not create condition because: %s',
-                        $e->getMessage()
-                    )
-                );
-            }
+        $conditionObjects = $this->createConditions($conditions);
+
+        foreach ($conditionObjects as $condition) {
+            $cm->addConditionToConversation($condition);
+        }
+    }
+
+    /**
+     * @param $sceneId
+     * @param $conditions
+     * @param ConversationManager $conversationManager
+     */
+    public function addSceneConditions($sceneId, $conditions, ConversationManager $conversationManager)
+    {
+        $conditionObjects = $this->createConditions($conditions);
+        $scene = $conversationManager->getScene($sceneId);
+
+        foreach ($conditionObjects as $condition) {
+            $scene->addCondition($condition);
         }
     }
 
@@ -542,19 +589,25 @@ class Conversation extends Model
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getOpeningIntentAttribute(): string
+    public function getOpeningIntentsAttribute(): array
     {
         $yaml = Yaml::parse($this->model)['conversation'];
+
+        $intents = [];
 
         foreach ($yaml['scenes'] as $sceneId => $scene) {
             foreach ($scene['intents'] as $intent) {
                 foreach ($intent as $tag => $value) {
+                    if ($tag == 'b') {
+                        return $intents;
+                    }
+
                     if ($tag == 'u') {
                         foreach ($value as $key => $intent) {
                             if ($key == 'i') {
-                                return $intent;
+                                $intents[] = $intent;
                             }
                         }
                     }
@@ -562,7 +615,7 @@ class Conversation extends Model
             }
         }
 
-        return '';
+        return $intents;
     }
 
     /**
@@ -595,5 +648,29 @@ class Conversation extends Model
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
         return $conversationStore->hasConversationBeenUsed($this->name);
+    }
+
+    /**
+     * @param array $conditions
+     * @return Set
+     */
+    private function createConditions(array $conditions): Set
+    {
+        $conditionObjects = new Set();
+
+        foreach ($conditions as $key => $condition) {
+            try {
+                $conditionObject = $this->createCondition($condition['condition']);
+                $conditionObjects->add($conditionObject);
+            } catch (Exception $e) {
+                Log::debug(
+                    sprintf(
+                        'Could not create condition because: %s',
+                        $e->getMessage()
+                    )
+                );
+            }
+        }
+        return $conditionObjects;
     }
 }

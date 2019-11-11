@@ -1,19 +1,16 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
-
 
 use Ds\Map;
 use Ds\Pair;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 
-class EIModelIntent extends EIModelBase
+class EIModelIntent extends EIModelWithConditions
 {
     private $intentId;
 
@@ -40,11 +37,14 @@ class EIModelIntent extends EIModelBase
     /* @var Map $expectedAttributes */
     private $expectedAttributes;
 
+    /* @var Map $inputActionAttributes */
+    private $inputActionAttributes;
+
+    /* @var Map $outputActionAttributes */
+    private $outputActionAttributes;
+
     /* @var Intent */
     private $interpretedIntent;
-
-    /* @var Map */
-    private $conditions;
 
     /**
      * This method should indicate whether the given response is valid for this EI Model. If it isn't then the `handle`
@@ -65,7 +65,7 @@ class EIModelIntent extends EIModelBase
             $intentResponse = $additionalParameter;
         }
 
-        return $eiType
+        return parent::validate($intentResponse, null) && $eiType
             && key_exists(Model::ID, $intentResponse)
             && key_exists(Model::UID, $intentResponse)
             && key_exists(Model::ORDER, $intentResponse);
@@ -82,13 +82,12 @@ class EIModelIntent extends EIModelBase
     {
         $intentResponse = is_null($additionalParameter) ? $response : $additionalParameter;
 
-        $intent = new self();
+        $intent = parent::handle($intentResponse);
 
         $intent->setIntentId($intentResponse[Model::ID]);
         $intent->setIntentUid($intentResponse[Model::UID]);
         $intent->setOrder($intentResponse[Model::ORDER]);
         $intent->setConfidence(isset($intentResponse[Model::CONFIDENCE]) ? $intentResponse[Model::CONFIDENCE] : 1);
-        $intent->setConditions(new Map());
 
         if (!is_null($additionalParameter)) {
             // If there is an additional parameter it means that $response contains the conversation data
@@ -118,7 +117,30 @@ class EIModelIntent extends EIModelBase
         $intent->expectedAttributes = new Map();
         if (isset($intentResponse[Model::HAS_EXPECTED_ATTRIBUTE])) {
             foreach ($intentResponse[Model::HAS_EXPECTED_ATTRIBUTE] as $expectedAttribute) {
-                $intent->setExpectedAttribute($expectedAttribute[Model::ID], $expectedAttribute[Model::UID]);
+                $intent->setExpectedAttribute(
+                    $expectedAttribute[Model::ID],
+                    $expectedAttribute[Model::UID]
+                );
+            }
+        }
+
+        $intent->inputActionAttributes = new Map();
+        if (isset($intentResponse[Model::HAS_INPUT_ACTION_ATTRIBUTE])) {
+            foreach ($intentResponse[Model::HAS_INPUT_ACTION_ATTRIBUTE] as $inputActionAttribute) {
+                $intent->setInputActionAttribute(
+                    $inputActionAttribute[Model::ID],
+                    $inputActionAttribute[Model::UID]
+                );
+            }
+        }
+
+        $intent->outputActionAttributes = new Map();
+        if (isset($intentResponse[Model::HAS_OUTPUT_ACTION_ATTRIBUTE])) {
+            foreach ($intentResponse[Model::HAS_OUTPUT_ACTION_ATTRIBUTE] as $outputActionAttribute) {
+                $intent->setOutputActionAttribute(
+                    $outputActionAttribute[Model::ID],
+                    $outputActionAttribute[Model::UID]
+                );
             }
         }
 
@@ -127,42 +149,6 @@ class EIModelIntent extends EIModelBase
         }
 
         return $intent;
-    }
-
-    /**
-     * @param Condition $condition
-     */
-    public function addCondition(Condition $condition)
-    {
-        $this->conditions->put($condition->getId(), $condition);
-    }
-
-    /**
-     * @return Map
-     */
-    public function getConditions(): Map
-    {
-        return $this->conditions;
-    }
-
-    /**
-     * @param Map $conditions
-     */
-    public function setConditions(Map $conditions)
-    {
-        $this->conditions = $conditions;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasConditions()
-    {
-        if (count($this->conditions) >= 1) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -366,6 +352,22 @@ class EIModelIntent extends EIModelBase
     }
 
     /**
+     * @return bool
+     */
+    public function hasInputActionAttributes(): bool
+    {
+        return $this->inputActionAttributes->count() > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasOutputActionAttributes(): bool
+    {
+        return $this->outputActionAttributes->count() > 0;
+    }
+
+    /**
      * @return Map
      */
     public function getExpectedAttributes(): Map
@@ -373,9 +375,35 @@ class EIModelIntent extends EIModelBase
         return $this->expectedAttributes;
     }
 
+    /**
+     * @return Map
+     */
+    public function getInputActionAttributes(): Map
+    {
+        return $this->inputActionAttributes;
+    }
+
+    /**
+     * @return Map
+     */
+    public function getOutputActionAttributes(): Map
+    {
+        return $this->outputActionAttributes;
+    }
+
     public function setExpectedAttribute($id, $uid): void
     {
         $this->expectedAttributes->put($uid, $id);
+    }
+
+    public function setInputActionAttribute($id, $uid): void
+    {
+        $this->inputActionAttributes->put($uid, $id);
+    }
+
+    public function setOutputActionAttribute($id, $uid): void
+    {
+        $this->outputActionAttributes->put($uid, $id);
     }
 
     /**
@@ -394,6 +422,42 @@ class EIModelIntent extends EIModelBase
         }
 
         return $attributesContexts;
+    }
+
+    /**
+     * Returns the input action attributes split out by context.
+     * Will return map with attribute names as keys and their associated context names as values
+     *
+     * @return Map
+     */
+    public function getInputActionAttributeContexts()
+    {
+        $attributesActionContexts = new Map();
+        foreach ($this->inputActionAttributes as $inputActionAttribute) {
+            $attributesActionContexts->put(
+                ContextParser::determineAttributeId($inputActionAttribute),
+                ContextParser::determineContextId($inputActionAttribute)
+            );
+        }
+        return $attributesActionContexts;
+    }
+
+    /**
+     * Returns the output action attributes split out by context.
+     * Will return map with attribute names as keys and their associated context names as values
+     *
+     * @return Map
+     */
+    public function getOutputActionAttributeContexts()
+    {
+        $attributesActionContexts = new Map();
+        foreach ($this->outputActionAttributes as $outputActionAttribute) {
+            $attributesActionContexts->put(
+                ContextParser::determineAttributeId($outputActionAttribute),
+                ContextParser::determineContextId($outputActionAttribute)
+            );
+        }
+        return $attributesActionContexts;
     }
 
     /**
