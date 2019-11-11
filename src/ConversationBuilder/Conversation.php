@@ -227,7 +227,7 @@ class Conversation extends Model
 
         $dGraph = app()->make(DGraphClient::class);
         $conversationNode = $cm->getConversation();
-        $hash = $conversationNode->hash();
+        $hash = $conversationNode->hashOrId();
 
         $mutation = new DGraphMutation($conversationNode);
 

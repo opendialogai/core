@@ -305,8 +305,16 @@ class Node
      * Returns a hash of the object if ID's aren't unique @see Node::$idIsUnique, otherwise returns the ID
      * @return string
      */
+    public function hashOrId(): string
+    {
+        return static::$idIsUnique ? $this->getId() : $this->hash();
+    }
+
+    /**
+     * @return string
+     */
     public function hash(): string
     {
-        return static::$idIsUnique ? $this->getId() : hash('SHA256', serialize($this));
+        return hash('SHA256', serialize($this));
     }
 }
