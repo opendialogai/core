@@ -139,7 +139,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('hello_bot', $conversation->opening_intents[0]);
         $this->assertCount(6, $conversation->outgoing_intents);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
         $conversation->deactivateConversation();
         $conversation->archiveConversation();
         $this->assertTrue($conversation->delete());
@@ -162,19 +162,19 @@ class ConversationBuilderTest extends TestCase
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = app()->make(ConversationStoreInterface::class);
@@ -324,7 +324,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(1, $changedAttributes['version_number']);
         $this->assertEquals($this->conversation1() . " ", $changedAttributes['model']);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
         $this->assertEquals(2, $conversation->version_number);
 
         // Ensure that the new version was logged

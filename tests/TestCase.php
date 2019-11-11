@@ -361,9 +361,8 @@ EOT;
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
         $conversation->save();
-        $conversationModel = $conversation->buildConversation();
 
-        $this->assertTrue($conversation->activateConversation($conversationModel));
+        $this->assertTrue($conversation->activateConversation($conversation));
     }
 
     /**
