@@ -227,7 +227,6 @@ class Conversation extends Model
 
         $dGraph = app()->make(DGraphClient::class);
         $conversationNode = $cm->getConversation();
-        $hash = $conversationNode->hashOrId();
 
         $mutation = new DGraphMutation($conversationNode);
 
@@ -238,7 +237,7 @@ class Conversation extends Model
 
             // Set conversation status to "activated".
             $this->status = ConversationNode::ACTIVATED;
-            $this->graph_uid = $mutationResponse->getData()['uids'][$hash];
+            $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
             $this->version_number++;
 
             $this->save(['validate' => false]);
