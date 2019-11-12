@@ -60,7 +60,16 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
      */
     public function jsonSerialize()
     {
-        return json_encode($this->attributes);
+        $serializedResult = [];
+
+        foreach ($this->attributes as $attribute) {
+            array_push(
+                $serializedResult,
+                ['id' => $attribute->getId(), 'value' => $attribute->getValue()]
+            );
+        }
+
+        return json_encode($serializedResult);
     }
 
     /**

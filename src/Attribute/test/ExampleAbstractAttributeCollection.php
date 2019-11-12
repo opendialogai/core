@@ -14,10 +14,14 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
      */
     public function toString(): string
     {
-        // TODO: Implement toString() method.
         $result = [];
         foreach ($this->getAttributes() as $attribute) {
-            array_push($result, $attribute->toString());
+            array_push(
+                $result,
+                ['id' => $attribute->getID(),
+                'type' => $attribute->getType(),
+                'value' => $attribute->toString()]
+            );
         }
         return json_encode($result);
     }
@@ -31,6 +35,7 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
 
         if ($type === self::EXAMPLE_TYPE) {
             // set up
+
             $results = $input->getResults();
             foreach ($results as $result) {
                 array_push(

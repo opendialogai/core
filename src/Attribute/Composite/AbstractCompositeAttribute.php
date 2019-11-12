@@ -10,7 +10,7 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
  */
 abstract class AbstractCompositeAttribute extends AbstractAttribute
 {
-    public static $type = 'attribute.core.composite';
+    public static $type = 'attribute.core.collection';
 
     /** @var string The class name of the AttributeCollection to use */
     protected $attributeCollectionType;
