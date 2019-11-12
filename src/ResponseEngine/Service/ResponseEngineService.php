@@ -81,8 +81,8 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 $replacement = ' ';
                 try {
                     [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attributeId);
-                    $replacement = ContextService::getAttributeValue($attributeName, $contextId);
-                    $replacement = $this->escapeCharacters($replacement);
+                    $replacement = ContextService::getAttribute($attributeName, $contextId);
+                    $replacement = $this->escapeCharacters($replacement->toString());
                 } catch (ContextDoesNotExistException $e) {
                     Log::warning($e->getMessage());
                 } catch (AttributeDoesNotExistException $e) {
