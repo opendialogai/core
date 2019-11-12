@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Attribute\test;
 
 use OpenDialogAi\Core\Attribute\Composite\AbstractAttributeCollection;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 
 class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
 {
@@ -14,6 +15,11 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
     public function toString(): string
     {
         // TODO: Implement toString() method.
+        $result = [];
+        foreach ($this->getAttributes() as $attribute) {
+            array_push($result, $attribute->toString());
+        }
+        return json_encode($result);
     }
 
     /**
@@ -25,6 +31,13 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
 
         if ($type === self::EXAMPLE_TYPE) {
             // set up
+            $results = $input->getResults();
+            foreach ($results as $result) {
+                array_push(
+                    $attributes,
+                    new ExampleAbstractCompositeAttribute('custom.attr.id', $result)
+                );
+            }
         }
 
         return $attributes;
