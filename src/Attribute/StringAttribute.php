@@ -15,4 +15,14 @@ class StringAttribute extends BasicAttribute
     {
         parent::__construct($id, $value);
     }
+
+    /**
+     * Returns null or an strval
+     *
+     * @return null | string
+     */
+    public function getValue()
+    {
+        return $this->value === null ? $this->value : strval($this->value);
+    }
 }

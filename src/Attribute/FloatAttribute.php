@@ -21,4 +21,14 @@ class FloatAttribute extends BasicAttribute
     {
         return (string) $this->getValue();
     }
+
+    /**
+     * Returns float
+     *
+     * @return float
+     */
+    public function getValue()
+    {
+        return $this->value === null ? $this->value : floatval($this->value);
+    }
 }
