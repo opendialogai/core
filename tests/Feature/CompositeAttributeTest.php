@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\Composite\AbstractCompositeAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -19,20 +20,18 @@ class CompositeAttributeTest extends TestCase
             array(['id' => 'one', 'value' => 'go']),
             'array'
         );
-        $compositeAttribute = new ExampleAbstractCompositeAttribute(
-            'c',
-            $attributeCollection
-        );
+
+        AttributeResolver::registerAttributes([
+            'c' => ExampleAbstractCompositeAttribute::class,
+            'test_attr' => StringAttribute::class
+        ]);
+        $compositeAttribute = (AttributeResolver::getAttributeFor('c', $attributeCollection));
 
         $this->assertEquals($attributeCollection->getAttributes(), $compositeAttribute->getValue());
         $this->assertEquals($compositeAttribute->getType(), AbstractCompositeAttribute::$type);
         $this->assertEquals(get_class($compositeAttribute->getValue()[0]), IntAttribute::class);
         $this->assertEquals(get_class($compositeAttribute->getValue()[1]), ArrayAttribute::class);
 
-        $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
-            ['test_attr' => StringAttribute::class]
-        );
         //JSON deserialize
         $attributeCollectionNew = new ExampleAbstractAttributeCollection(
             json_encode(array(['id' => 'test_attr', 'value' => 'go']))
