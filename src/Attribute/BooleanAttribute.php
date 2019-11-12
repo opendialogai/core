@@ -43,6 +43,6 @@ class BooleanAttribute extends AbstractAttribute
      */
     public function getValue()
     {
-        return boolval($this->value);
+        return $this->value === null ? $this->value :  boolval($this->value);
     }
 }
