@@ -2,8 +2,10 @@
 
 namespace OpenDialogAi\Core\Attribute\test;
 
+use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\Composite\AbstractAttributeCollection;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 
 class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
 {
@@ -35,14 +37,17 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
 
         if ($type === self::EXAMPLE_TYPE) {
             // set up
-
             $results = $input->getResults();
-            foreach ($results as $result) {
-                array_push(
-                    $attributes,
-                    new ExampleAbstractCompositeAttribute('custom.attr.id', $result)
-                );
-            }
+            $total = $input->getNumberOfResults();
+
+            array_push($attributes, new IntAttribute(
+                'pw.total',
+                $total
+            ));
+            array_push($attributes, new ArrayAttribute(
+                'pw.results',
+                $results
+            ));
         }
 
         return $attributes;
