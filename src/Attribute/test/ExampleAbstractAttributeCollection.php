@@ -10,6 +10,7 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
 {
     const EXAMPLE_TYPE = 'api';
+    const EXAMPLE_TYPE_ARRAY = 'array';
 
     /**
      * @inheritDoc
@@ -47,6 +48,15 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
             array_push($attributes, new ArrayAttribute(
                 'pw.results',
                 $results
+            ));
+        } elseif ($type === self::EXAMPLE_TYPE_ARRAY) {
+            array_push($attributes, new IntAttribute(
+                'pw.total',
+                count($input)
+            ));
+            array_push($attributes, new ArrayAttribute(
+                'pw.results',
+                $input
             ));
         }
 

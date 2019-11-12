@@ -87,7 +87,7 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
      */
     private function jsonDeserialize($input) : array
     {
-        $arrayOfAttributes = json_decode($input);
+        $arrayOfAttributes = json_decode($input, true);
         $resultAttributes = [];
 
         foreach ($arrayOfAttributes as $attribute) {
