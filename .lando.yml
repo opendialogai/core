@@ -1,9 +1,4 @@
 name: opendialog-core
-proxy:
-  dgraph-ratel:
-  - dgraph-ratel.lndo.site:8000
-  dgraph-alpha:
-  - dgraph-alpha.lndo.site:8000
 services:
   php-service:
     type: php:7.3
@@ -16,42 +11,16 @@ services:
     type: compose
     services:
       image: dgraph/dgraph:v1.1.0
-      volumes:
-      - type: volume
-        source: dgraph
-        target: /dgraph
-        volume:
-          nocopy: true
-      ports:
-      - 5080:5080
-      - 6080:6080
       restart: on-failure
       command: dgraph zero --my=dgraph-zero:5080
   dgraph-alpha:
     type: compose
     services:
       image: dgraph/dgraph:v1.1.0
-      volumes:
-      - type: volume
-        source: dgraph
-        target: /dgraph
-        volume:
-          nocopy: true
-      ports:
-      - 8081:8080
-      - 9082:9080
       restart: on-failure
       command: dgraph alpha --my=dgraph-alpha:7080 --lru_mb=2048 --zero=dgraph-zero:5080
-  dgraph-ratel:
-    type: compose
-    services:
-      image: dgraph/dgraph:v1.1.0
-      volumes:
-      - type: volume
-        source: dgraph
-        target: /dgraph
-        volume:
-          nocopy: true
-      command: dgraph-ratel -addr http://dgraph-alpha.lndo.site:8081
-    volumes:
-      dgraph:
+tooling:
+  test:
+    service: php-service
+    description: Runs all tests
+    cmd: php /app/vendor/bin/phpunit
