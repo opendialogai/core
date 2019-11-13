@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use OpenDialogAi\ConversationBuilder\Conversation;
 
 class AlterStatusInConversationsTable extends Migration
 {
@@ -32,6 +33,11 @@ class AlterStatusInConversationsTable extends Migration
                 $table->enum('status', ['saved', 'activatable', 'activated', 'deactivated', 'archived'])->default('');
             });
         } else {
+            Conversation::all()->each(function (Conversation $conversation) {
+                $conversation->status = 'saved';
+                $conversation->save(['validate' => false]);
+            });
+
             DB::statement("ALTER TABLE conversations MODIFY status ENUM('saved', 'activatable', 'activated', 'deactivated', 'archived')");
         }
 
