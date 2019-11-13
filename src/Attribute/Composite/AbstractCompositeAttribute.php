@@ -10,6 +10,8 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
  */
 abstract class AbstractCompositeAttribute extends AbstractAttribute
 {
+    public static $type = 'attribute.core.collection';
+
     /** @var string The class name of the AttributeCollection to use */
     protected $attributeCollectionType;
 
@@ -18,7 +20,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
 
     public function __construct($id, $value)
     {
-        parent::__construct($id, AbstractAttribute::COLLECTION, []);
+        parent::__construct($id, []);
         $this->setValue($value);
     }
 
@@ -32,7 +34,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
      */
     public function setValue($value): void
     {
-        if (get_class($value) == $this->attributeCollectionType) {
+        if (gettype($value) === "object" && get_class($value) == $this->attributeCollectionType) {
             $this->attributeCollection = $value;
         } else {
             $this->attributeCollection = new $this->attributeCollectionType($value);
