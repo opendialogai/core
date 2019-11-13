@@ -21,12 +21,21 @@ class CompositeAttributeTest extends TestCase
             'array'
         );
 
-        AttributeResolver::registerAttributes([
-            'c' => ExampleAbstractCompositeAttribute::class,
-            'test_attr' => StringAttribute::class
-        ]);
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            [
+                'c' => ExampleAbstractCompositeAttribute::class,
+                'test_attr' => StringAttribute::class,
+                'pw.total' => IntAttribute::class,
+                'pw.results' => ArrayAttribute::class
+            ]
+        );
+        $attributeCollectionSerialized = $attributeCollection->jsonSerialize();
+        $compositeAttributeFromSerializedCollection = AttributeResolver::getAttributeFor('c', $attributeCollectionSerialized);
+
         $compositeAttribute = (AttributeResolver::getAttributeFor('c', $attributeCollection));
 
+        $this->assertEquals($compositeAttributeFromSerializedCollection, $compositeAttribute);
         $this->assertEquals($attributeCollection->getAttributes(), $compositeAttribute->getValue());
         $this->assertEquals($compositeAttribute->getType(), AbstractCompositeAttribute::$type);
         $this->assertEquals(get_class($compositeAttribute->getValue()[0]), IntAttribute::class);

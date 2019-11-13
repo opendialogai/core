@@ -34,7 +34,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
      */
     public function setValue($value): void
     {
-        if (get_class($value) == $this->attributeCollectionType) {
+        if (gettype($value) === "object" && get_class($value) == $this->attributeCollectionType) {
             $this->attributeCollection = $value;
         } else {
             $this->attributeCollection = new $this->attributeCollectionType($value);
