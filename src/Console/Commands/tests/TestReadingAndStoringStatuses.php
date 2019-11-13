@@ -11,13 +11,15 @@ class TestReadingAndStoringStatuses extends TestCase
 {
     private $dirName;
 
-    public function setUp(): void {
+    public function setUp(): void
+    {
         parent::setUp();
         $this->dirName = storage_path('statuses');
         $this->clearStatusDir();
     }
 
-    public function tearDown(): void {
+    public function tearDown(): void
+    {
         $this->clearStatusDir();
         parent::tearDown();
     }
@@ -120,6 +122,7 @@ class TestReadingAndStoringStatuses extends TestCase
                     unlink(storage_path('statuses/' . $file));
                 }
             }
-        } catch (\Exception $e) {  }
+        } catch (\Exception $e) {
+        }
     }
 }

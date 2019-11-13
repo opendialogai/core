@@ -50,7 +50,7 @@ class Condition
         $this->operation = $operation;
     }
 
-    function getYaml()
+    public function getYaml()
     {
         $yaml = <<<EOT
 

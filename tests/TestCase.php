@@ -421,7 +421,6 @@ EOT;
      */
     protected function registerSingleAction($action): void
     {
-
         $this->app['config']->set(
             'opendialog.action_engine.available_actions',
             [

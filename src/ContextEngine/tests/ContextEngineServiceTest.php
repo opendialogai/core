@@ -89,7 +89,7 @@ class ContextEngineServiceTest extends TestCase
 
         $attribute = $this->contextService()->getAttribute('test_attribute', 'session');
         $this->assertInstanceOf(StringAttribute::class, $attribute);
-        $this->assertSame(1, $attribute->getValue());
+        $this->assertSame('1', $attribute->getValue());
     }
 
     public function testSavingSupportedAttributeUnknownContext()

@@ -223,6 +223,5 @@ conversation:
                         attribute1: user.user_name
             completes: true
 EOT;
-
     }
 }

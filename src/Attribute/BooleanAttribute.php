@@ -35,4 +35,14 @@ class BooleanAttribute extends AbstractAttribute
     {
         return $this->getValue() ? 'true' : 'false';
     }
+
+    /**
+     * Returns boolean
+     *
+     * @return boolean
+     */
+    public function getValue()
+    {
+        return $this->value === null ? $this->value :  boolval($this->value);
+    }
 }
