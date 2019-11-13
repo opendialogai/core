@@ -445,7 +445,7 @@ class Intent extends NodeWithConditions
             /** @var Scene $scene */
             if ($participant->hasIncomingEdgeWithRelationship(Model::HAS_USER_PARTICIPANT)) {
                 $scene = $participant->getNodesConnectedByIncomingRelationship(Model::HAS_USER_PARTICIPANT)->first()->value;
-            } else if ($participant->hasIncomingEdgeWithRelationship(Model::HAS_BOT_PARTICIPANT)) {
+            } elseif ($participant->hasIncomingEdgeWithRelationship(Model::HAS_BOT_PARTICIPANT)) {
                 $scene = $participant->getNodesConnectedByIncomingRelationship(Model::HAS_BOT_PARTICIPANT)->first()->value;
             } else {
                 return $conditions;

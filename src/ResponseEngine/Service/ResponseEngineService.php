@@ -298,14 +298,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $parsedAttribute = ContextParser::parseAttributeName($attributeId);
         $replacement = ContextService::getAttribute($parsedAttribute->attributeId, $parsedAttribute->context);
 
-        if ($parsedAttribute->itemName) {
-            return $replacement->getValue()[$parsedAttribute->itemNumber]->{$parsedAttribute->itemName};
-        }
-
-        if ($parsedAttribute->itemNumber) {
-            return $replacement->getValue()[$parsedAttribute->itemNumber];
-        }
-
         return $replacement->toString();
     }
 }
