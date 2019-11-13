@@ -21,7 +21,7 @@ abstract class ContextParser
     public static function determineContextAndAttributeId($attribute): array
     {
         $parsedAttribute = self::parseAttributeName($attribute);
-        return [$parsedAttribute->context, $parsedAttribute->attributeId];
+        return [$parsedAttribute->contextId, $parsedAttribute->attributeId];
     }
 
     public static function parseAttributeName($attribute) : ParsedAttributeName
@@ -32,7 +32,7 @@ abstract class ContextParser
 
         switch (count($matches)) {
             case 2:
-                $parsedAttribute->setContext($matches[0]);
+                $parsedAttribute->setContextId($matches[0]);
                 self::parseArrayNotation($matches[1], $parsedAttribute);
                 break;
             case 1:
@@ -54,23 +54,7 @@ abstract class ContextParser
     private static function parseArrayNotation($attributeId, $parsedAttribute): ParsedAttributeName
     {
         $split = preg_split('/[[\]\]]/', $attributeId, null, PREG_SPLIT_NO_EMPTY);
-
-        switch (count($split)) {
-            case 3:
-                $parsedAttribute->attributeId = $split[0];
-                $parsedAttribute->itemNumber = $split[1];
-                $parsedAttribute->itemName = $split[2];
-                break;
-            case 2:
-                $parsedAttribute->attributeId = $split[0];
-                $parsedAttribute->itemNumber = $split[1];
-                break;
-            case 1:
-            default:
-                $parsedAttribute->attributeId = $split[0];
-                break;
-        }
-
+        $parsedAttribute->attributeId = $split[0];
         return $parsedAttribute;
     }
 
@@ -86,7 +70,8 @@ abstract class ContextParser
      */
     public static function determineContextId($attribute): string
     {
-        return self::determineContextAndAttributeId($attribute)[0];
+        $parsedAttributeName = self::parseAttributeName($attribute);
+        return $parsedAttributeName->contextId;
     }
 
     /**
@@ -98,7 +83,8 @@ abstract class ContextParser
      */
     public static function determineAttributeId($attribute): string
     {
-        return self::determineContextAndAttributeId($attribute)[1];
+        $parsedAttributeName = self::parseAttributeName($attribute);
+        return $parsedAttributeName->attributeId;
     }
 
     /**

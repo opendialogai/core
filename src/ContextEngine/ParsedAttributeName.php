@@ -13,6 +13,10 @@ class ParsedAttributeName
 
     public $attributeId = AbstractAttribute::INVALID_ATTRIBUTE_NAME;
 
+    public $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
+
+    public $accessor = [];
+
     public $itemNumber;
 
     public $itemName;
@@ -48,6 +52,39 @@ class ParsedAttributeName
 
     public function hasValidContextName()
     {
-        return $this->context !== AbstractAttribute::UNDEFINED_CONTEXT;
+        return $this->contextId !== AbstractAttribute::UNDEFINED_CONTEXT;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getContextId()
+    {
+        return $this->contextId;
+    }
+
+    /**
+     * @param mixed $contextId
+     */
+    public function setContextId($contextId)
+    {
+        $this->contextId = $contextId;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAccessor(): array
+    {
+        return $this->accessor;
+    }
+
+    /**
+     * @param array $accessor
+     */
+    public function setAccessor(array $accessor)
+    {
+        $this->accessor = $accessor;
     }
 }

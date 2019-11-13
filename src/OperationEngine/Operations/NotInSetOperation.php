@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class NotInSetOperation extends BaseOperation
 {
-    static $name  = 'not_in_set';
+    public static $name  = 'not_in_set';
 
     /**
      * @inheritDoc

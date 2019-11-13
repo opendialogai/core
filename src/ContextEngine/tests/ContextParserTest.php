@@ -12,17 +12,17 @@ class ContextParserTest extends TestCase
 
     public function testDetermineContextAndAttributeId()
     {
-        list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId("user.name");
-        $this->assertEquals("user", $contextId);
-        $this->assertEquals("name", $attributeId);
+        $parsedAttribute = ContextParser::parseAttributeName("user.name");
+        $this->assertEquals("user", $parsedAttribute->contextId);
+        $this->assertEquals("name", $parsedAttribute->attributeId);
 
-        list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId("name");
-        $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $contextId);
-        $this->assertEquals("name", $attributeId);
+        $parsedAttribute = ContextParser::parseAttributeName("name");
+        $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $parsedAttribute->contextId);
+        $this->assertEquals("name", $parsedAttribute->attributeId);
 
-        list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId("user.last.name");
-        $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $contextId);
-        $this->assertEquals(AbstractAttribute::INVALID_ATTRIBUTE_NAME, $attributeId);
+        $parsedAttribute = ContextParser::parseAttributeName("user.last.name");
+        $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $parsedAttribute->contextId);
+        $this->assertEquals(AbstractAttribute::INVALID_ATTRIBUTE_NAME, $parsedAttribute->attributeId);
     }
 
     public function testDetermineContextId()
@@ -53,14 +53,14 @@ class ContextParserTest extends TestCase
     {
         $attribute = "user.test[1][name]";
 
-        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->context);
+        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
         $this->assertEquals(1, ContextParser::parseAttributeName($attribute)->itemNumber);
         $this->assertEquals('name', ContextParser::parseAttributeName($attribute)->itemName);
 
         $attribute = "user.test[1]";
 
-        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->context);
+        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
         $this->assertEquals(1, ContextParser::parseAttributeName($attribute)->itemNumber);
         $this->assertNull(ContextParser::parseAttributeName($attribute)->itemName);
@@ -68,7 +68,7 @@ class ContextParserTest extends TestCase
         // We do not support this depth
         $attribute = "user.test[1][test][test]";
 
-        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->context);
+        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
         $this->assertNull(ContextParser::parseAttributeName($attribute)->itemNumber);
         $this->assertNull(ContextParser::parseAttributeName($attribute)->itemName);

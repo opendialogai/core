@@ -84,7 +84,9 @@ class OperationService implements OperationServiceInterface
         $attributes = [];
 
         foreach ($condition->getOperationAttributes() as $name => $attribute) {
-            [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attribute);
+            $parsedAttributeName = ContextParser::parseAttributeName($attribute);
+            $contextId = $parsedAttributeName->contextId;
+            $attributeName = $parsedAttributeName->attributeId;
 
             try {
                 $actualAttribute = ContextService::getAttribute($attributeName, $contextId);

@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class DummyOperation extends BaseOperation
 {
-    static $name = 'dummy';
+    public static $name = 'dummy';
 
     public function execute(): bool
     {

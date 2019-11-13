@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class EquivalenceOperation extends BaseOperation
 {
-    static $name = 'eq';
+    public static $name = 'eq';
 
     /**
      * @inheritDoc
