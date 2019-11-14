@@ -54,7 +54,11 @@ abstract class ContextParser
     private static function parseArrayNotation($attributeId, $parsedAttribute): ParsedAttributeName
     {
         $split = preg_split('/[[\]\]]/', $attributeId, null, PREG_SPLIT_NO_EMPTY);
+
         $parsedAttribute->attributeId = $split[0];
+        $accessor = array_slice($split, 1);
+        $parsedAttribute->setAccessor($accessor);
+
         return $parsedAttribute;
     }
 
