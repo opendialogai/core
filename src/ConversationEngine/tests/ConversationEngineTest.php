@@ -84,7 +84,7 @@ class ConversationEngineTest extends TestCase
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(3, $openingIntents);
 
-        $this->assertTrue($conversation->activateConversation($conversation));
+        $this->assertTrue($conversation->activateConversation());
 
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(4, $openingIntents);
@@ -213,7 +213,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
@@ -253,7 +253,8 @@ class ConversationEngineTest extends TestCase
         $openingScene = $conversation->getScene('opening_scene');
         $this->assertCount(1, $openingScene->getIntentsSaidByUser());
         /* @var Intent $userIntent */
-        $userIntent = $openingScene->getIntentsSaidByUser()->get('hello_bot');
+        $userIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(0)->value;
+        $this->assertEquals('hello_bot', $userIntent->getId());
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertEquals($userIntent->getAction()->getId(), 'action.core.example');
@@ -261,7 +262,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
-        $botIntent = $openingScene->getIntentsSaidByBot()->get('hello_user');
+        $botIntent = $openingScene->getIntentsSaidByBotInOrder()->skip(0)->value;
+        $this->assertEquals('hello_user', $botIntent->getId());
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
@@ -270,7 +272,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(1, $secondScene->getIntentsSaidByUser());
         /* @var Intent $userIntent */
-        $userIntent = $secondScene->getIntentsSaidByUser()->get('how_are_you');
+        $userIntent = $secondScene->getIntentsSaidByUserInOrder()->skip(0)->value;
+        $this->assertEquals('how_are_you', $userIntent->getId());
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertEquals('action.core.example', $userIntent->getAction()->getId());
@@ -278,7 +281,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(1, $secondScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
-        $botIntent = $secondScene->getIntentsSaidByBot()->get('doing_dandy');
+        $botIntent = $secondScene->getIntentsSaidByBotInOrder()->skip(0)->value;
+        $this->assertEquals('doing_dandy', $botIntent->getId());
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
@@ -365,6 +369,48 @@ class ConversationEngineTest extends TestCase
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
         $this->assertCount(3, $conversation->history);
+    }
+
+    public function testConversationWithDestinationAsOpeningScene()
+    {
+        $userContext = $this->createUserContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round');
+        $this->activateConversation($this->conversationWithDestinationAsOpeningScene());
+
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.receive_choice');
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round_again', $utterance->getUser());
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.end');
+    }
+
+    private function conversationWithDestinationAsOpeningScene()
+    {
+        return <<<EOT
+conversation:
+  id: rock_paper_scissors
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.app.start_round
+            scene: response_scene
+        - u:
+            i: intent.app.start_round_again
+            scene: another_scene
+    another_scene:
+      intents:
+        - b:
+            i: intent.app.end
+            completes: true
+    response_scene:
+      intents:
+        - b:
+            i: intent.app.receive_choice
+            scene: opening_scene
+EOT;
     }
 
     public function testSceneConditions()

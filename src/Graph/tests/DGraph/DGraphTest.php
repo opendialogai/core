@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
@@ -121,5 +122,27 @@ class DGraphTest extends TestCase
         /* @var DGraphQueryResponse $response */
         $response = $this->dGraphClient->query($query);
         $this->assertTrue($response->getData()[0]['name'] == 'Mario Rossi');
+    }
+
+    public function testMutationWithManyIntentsWithSameId()
+    {
+        /** @var Conversation $conversationModel */
+        $conversationModel = Conversation::create([
+            'name' => 'rock_paper_scissors',
+            'model' => $this->getMarkupForManyIntentConversation()
+        ]);
+
+        $conversation = $conversationModel->buildConversation();
+
+        $mutation = new DGraphMutation($conversation);
+
+        $mutationString = $mutation->prepareTripleMutation();
+
+        // Ensure the correct number of incoming intent relationships were specified
+        $this->assertEquals(4, preg_match_all('/_:user_participant_in_opening_scene <says>/', $mutationString));
+        $this->assertEquals(1, preg_match_all('/_:user_participant_in_opening_scene <says_across_scenes>/', $mutationString));
+
+        // Ensure the correct number of `intent.app.send_choice` intents were defined
+        $this->assertEquals(4, preg_match_all("/<id> \"intent\.app\.send_choice\"/", $mutationString));
     }
 }

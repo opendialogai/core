@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
@@ -171,13 +172,13 @@ class UserContext extends AbstractContext
     /**
      * Gets just the current intent unconnected
      *
-     * @return Intent
+     * @return EIModelIntent
      * @throws EIModelCreatorException
      */
-    public function getCurrentIntent(): Intent
+    public function getCurrentIntent(): EIModelIntent
     {
         $currentIntentId = $this->user->getCurrentIntentUid();
-        return $this->conversationStore->getIntentByUid($currentIntentId);
+        return $this->conversationStore->getEIModelIntentByUid($currentIntentId);
     }
 
     /**
