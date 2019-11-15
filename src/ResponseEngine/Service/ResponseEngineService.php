@@ -80,8 +80,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             foreach ($matches[1] as $attributeId) {
                 $replacement = ' ';
                 try {
-                    [$contextId, $attributeName] = ContextParser::determineContextAndAttributeId($attributeId);
-                    $replacement = ContextService::getAttributeValue($attributeName, $contextId);
+                    $replacement = $this->getReplacement($attributeId);
                     $replacement = $this->escapeCharacters($replacement);
                 } catch (ContextDoesNotExistException $e) {
                     Log::warning($e->getMessage());
@@ -288,5 +287,17 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 sprintf("Not adding formatter %s. It has not defined a name", $formatter)
             );
         }
+    }
+
+    /**
+     * @param $attributeId
+     * @return mixed
+     */
+    private function getReplacement($attributeId)
+    {
+        $parsedAttribute = ContextParser::parseAttributeName($attributeId);
+        $replacement = ContextService::getAttribute($parsedAttribute->attributeId, $parsedAttribute->context);
+
+        return $replacement->toString();
     }
 }

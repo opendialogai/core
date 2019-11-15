@@ -564,7 +564,13 @@ class UserService
 
                             $user->addUserAttribute($attribute)->setUid($userAttribute[Model::UID]);
                         } catch (AttributeIsNotSupported $e) {
-                            Log::warning(sprintf('Attribute for user could not be resolved %s => %s', $name, $value));
+                            Log::warning(
+                                sprintf(
+                                    'Attribute for user could not be resolved %s => %s',
+                                    $userAttribute[Model::ID],
+                                    $userAttribute[Model::USER_ATTRIBUTE_VALUE]
+                                )
+                            );
                             continue;
                         }
                     }

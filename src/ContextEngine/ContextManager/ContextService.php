@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
-use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
@@ -182,7 +181,7 @@ class ContextService implements ContextServiceInterface
             return $context->getAttribute($attributeId);
         } catch (AttributeDoesNotExistException $e) {
             Log::warning(
-                sprintf('Attribute $s not exist in context %s', $attributeId, $context->getId())
+                sprintf('Attribute %s does not exist in context %s', $attributeId, $context->getId())
             );
 
             return new StringAttribute($attributeId, '');

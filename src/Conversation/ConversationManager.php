@@ -10,7 +10,7 @@ class ConversationManager
     /* @var Conversation $conversation - the root of the conversation graph */
     private $conversation;
 
-    static $validStateTransitions = [
+    public static $validStateTransitions = [
         Conversation::SAVED => [Conversation::SAVED, Conversation::ACTIVATABLE],
         Conversation::ACTIVATABLE => [Conversation::ACTIVATABLE, Conversation::ACTIVATED],
         Conversation::ACTIVATED => [Conversation::ACTIVATED, Conversation::DEACTIVATED],
@@ -124,7 +124,6 @@ class ConversationManager
 
         return $this;
     }
-
 
     /**
      * @param $intentId

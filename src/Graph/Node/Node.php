@@ -19,6 +19,9 @@ class Node
 {
     use GraphItem, HasAttributesTrait;
 
+    /** @var bool $idIsUnique */
+    protected static $idIsUnique = true;
+
     /**
      * @var Map $outgoingEdges - the set of edges leaving this node keyed by the outgoing relationship name.
      * The structure of the map is [key][EdgeSet]. Key represents the relationship name.
@@ -296,5 +299,22 @@ class Node
         }
 
         return $nodes;
+    }
+
+    /**
+     * Returns a hash of the object if ID's aren't unique @see Node::$idIsUnique, otherwise returns the ID
+     * @return string
+     */
+    public function hashOrId(): string
+    {
+        return static::$idIsUnique ? $this->getId() : $this->hash();
+    }
+
+    /**
+     * @return string
+     */
+    public function hash(): string
+    {
+        return hash('SHA256', serialize($this));
     }
 }

@@ -9,12 +9,20 @@ use Illuminate\Support\Facades\Log;
  */
 class StringAttribute extends BasicAttribute
 {
+    public static $type = 'attribute.core.string';
+
     public function __construct($id, $value)
     {
-        try {
-            parent::__construct($id, AbstractAttribute::STRING, $value);
-        } catch (UnsupportedAttributeTypeException $e) {
-            Log::warning($e->getMessage());
-        }
+        parent::__construct($id, $value);
+    }
+
+    /**
+     * Returns null or an strval
+     *
+     * @return null | string
+     */
+    public function getValue()
+    {
+        return $this->value === null ? $this->value : strval($this->value);
     }
 }

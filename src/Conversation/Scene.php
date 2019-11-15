@@ -134,31 +134,38 @@ class Scene extends NodeWithConditions
     }
 
     /**
-     * Checks whether the given intent is in the this scene
-     *
-     * @param Intent $intent
-     * @return bool
+     * Get the bot intents said in the scene that have a higher order than the current intent
+     * and are in an uninterrupted ascending order.
+     * @param int $currentOrder
+     * @return Map
      */
-    private function hasIntent(Intent $intent)
+    public function getNextPossibleBotIntents(int $currentOrder): Map
     {
-        return $this->getAllIntents()->hasKey($intent->getId());
+        return $this->filterNextPossibleIntents($currentOrder, $this->getIntentsSaidByBotInOrder());
     }
 
     /**
-     * Get the bot intents said in the scene that have a higher order than the current intent
+     * Get the user intents said in the scene that have a higher order than the current intent
      * and are in an uninterrupted ascending order.
-     * @param Intent $currentIntent
+     * @param int $currentOrder
      * @return Map
      */
-    public function getNextPossibleBotIntents(Intent $currentIntent): Map
+    public function getNextPossibleUserIntents(int $currentOrder): Map
     {
-        // If the current intent is in this scene, use its order. If it's said across scenes, we use 0.
-        $currentOrder = $this->hasIntent($currentIntent) ? $currentIntent->getOrder() : 0;
+        return $this->filterNextPossibleIntents($currentOrder, $this->getIntentsSaidByUserInOrder());
+    }
 
+    /**
+     * @param int $currentOrder
+     * @param Map $nextPossibleIntents
+     * @return Map
+     */
+    public function filterNextPossibleIntents(int $currentOrder, Map $nextPossibleIntents): Map
+    {
         /** @var Intent $previousKeptIntent */
         $previousKeptIntent = null;
 
-        $intents = $this->getIntentsSaidByBotInOrder()->filter(
+        $intents = $nextPossibleIntents->filter(
             function ($key, Intent $possibleIntent) use ($currentOrder, &$previousKeptIntent) {
                 // Intents are considered sequential if its the first or if it directly follows the previously kept intent
                 $intentsAreSequential = is_null($previousKeptIntent)
@@ -173,26 +180,6 @@ class Scene extends NodeWithConditions
                 return $shouldKeep;
             }
         );
-
-        return $intents;
-    }
-
-    /**
-     * Get the user intents said in the scene that have a higher order than the current intent
-     * and are in an uninterrupted ascending order.
-     * @param Intent $currentIntent
-     * @return Map
-     */
-    public function getNextPossibleUserIntents(Intent $currentIntent): Map
-    {
-        $currentOrder = $currentIntent->getOrder();
-
-        $intents = $this->getIntentsSaidByUser()->filter(function ($key, $value) use ($currentOrder) {
-            /* @var Intent $value */
-            if ($value->getOrder() > $currentOrder) {
-                return true;
-            }
-        });
 
         return $intents;
     }

@@ -7,9 +7,11 @@ namespace OpenDialogAi\Core\Attribute;
  */
 class FloatAttribute extends BasicAttribute
 {
+    public static $type = 'attribute.core.float';
+
     public function __construct($id, $value)
     {
-        parent::__construct($id, AbstractAttribute::FLOAT, $value);
+        parent::__construct($id, $value);
     }
 
     /**
@@ -18,5 +20,15 @@ class FloatAttribute extends BasicAttribute
     public function toString(): string
     {
         return (string) $this->getValue();
+    }
+
+    /**
+     * Returns float
+     *
+     * @return float
+     */
+    public function getValue()
+    {
+        return $this->value === null ? $this->value : floatval($this->value);
     }
 }

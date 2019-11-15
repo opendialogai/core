@@ -7,11 +7,10 @@ use Ds\Pair;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 
-class EIModelIntent extends EIModelBase
+class EIModelIntent extends EIModelWithConditions
 {
     private $intentId;
 
@@ -47,9 +46,6 @@ class EIModelIntent extends EIModelBase
     /* @var Intent */
     private $interpretedIntent;
 
-    /* @var Map */
-    private $conditions;
-
     /**
      * This method should indicate whether the given response is valid for this EI Model. If it isn't then the `handle`
      * method will not be run.
@@ -69,7 +65,7 @@ class EIModelIntent extends EIModelBase
             $intentResponse = $additionalParameter;
         }
 
-        return $eiType
+        return parent::validate($intentResponse, null) && $eiType
             && key_exists(Model::ID, $intentResponse)
             && key_exists(Model::UID, $intentResponse)
             && key_exists(Model::ORDER, $intentResponse);
@@ -86,13 +82,12 @@ class EIModelIntent extends EIModelBase
     {
         $intentResponse = is_null($additionalParameter) ? $response : $additionalParameter;
 
-        $intent = new self();
+        $intent = parent::handle($intentResponse);
 
         $intent->setIntentId($intentResponse[Model::ID]);
         $intent->setIntentUid($intentResponse[Model::UID]);
         $intent->setOrder($intentResponse[Model::ORDER]);
         $intent->setConfidence(isset($intentResponse[Model::CONFIDENCE]) ? $intentResponse[Model::CONFIDENCE] : 1);
-        $intent->setConditions(new Map());
 
         if (!is_null($additionalParameter)) {
             // If there is an additional parameter it means that $response contains the conversation data
@@ -154,42 +149,6 @@ class EIModelIntent extends EIModelBase
         }
 
         return $intent;
-    }
-
-    /**
-     * @param Condition $condition
-     */
-    public function addCondition(Condition $condition)
-    {
-        $this->conditions->put($condition->getId(), $condition);
-    }
-
-    /**
-     * @return Map
-     */
-    public function getConditions(): Map
-    {
-        return $this->conditions;
-    }
-
-    /**
-     * @param Map $conditions
-     */
-    public function setConditions(Map $conditions)
-    {
-        $this->conditions = $conditions;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasConditions()
-    {
-        if (count($this->conditions) >= 1) {
-            return true;
-        }
-
-        return false;
     }
 
     /**

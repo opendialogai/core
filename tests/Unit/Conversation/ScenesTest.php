@@ -3,9 +3,12 @@
 namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ScenesTest extends TestCase
@@ -168,24 +171,34 @@ class ScenesTest extends TestCase
     public function testGetNextPossibleBotIntents()
     {
         $cm = $this->setupConversation();
-        $openingScene = $cm->getScene(self::OPENING_SCENE);
-        $latestNewsScene = $cm->getScene(self::LATEST_NEWS_SCENE);
+        $conversation = $cm->getConversation();
+        $openingScene = $conversation->getScene(self::OPENING_SCENE);
+        $latestNewsScene = $conversation->getScene(self::LATEST_NEWS_SCENE);
+
+        /** @var Intent $intent1 */
+        $intent1 = $openingScene->getIntentsSaidByUserInOrder()->skip(0)->value;
+
+        /** @var Intent $intent3 */
+        $intent3 = $openingScene->getIntentsSaidByUserInOrder()->skip(1)->value;
+
+        /** @var EIModelCreator $eiModelCreator */
+        $eiModelCreator = app()->make(EIModelCreator::class);
 
         // Test that to begin with it returns just intent2
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->intent1);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent1->getOrder());
         $this->assertEquals(1, $possibleIntents->count());
         $this->assertEquals($this->intent2->getId(), $possibleIntents->first()->value->getId());
 
         // Test that it returns the correct intents when the current intent is intent3 and that they are in the right order
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($this->intent3);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent3->getOrder());
         $this->assertEquals(2, $possibleIntents->count());
         $this->assertEquals($this->intent9->getId(), $possibleIntents->first()->value->getId());
-        $this->assertEquals($this->intent10->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_10)->getId());
+        $this->assertEquals($this->intent10->getId(), $possibleIntents->skip(1)->value->getId());
 
         // Test that it returns the correct intents when the current intent is said across scenes and that they are in the right order
-        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents($this->intent4);
+        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents(0);
         $this->assertEquals(2, $possibleIntents->count());
         $this->assertEquals($this->intent5->getId(), $possibleIntents->first()->value->getId());
-        $this->assertEquals($this->intent6->getId(), $possibleIntents->get(self::INTENT_BOT_TO_USER_7)->getId());
+        $this->assertEquals($this->intent6->getId(), $possibleIntents->skip(1)->value->getId());
     }
 }

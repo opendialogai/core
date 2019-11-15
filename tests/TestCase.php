@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Tests;
 
-use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
@@ -10,6 +9,7 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
@@ -39,13 +39,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        try {
-            $env = parse_ini_file(__DIR__ . '/../.env');
-            if (isset($env['DGRAPH_URL'])) {
-                $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
-            }
-        } catch (Exception $e) {
-            //
+        if ($overwriteDgraphUrl = getenv("OVERWRITE_DGRAPH_URL")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
+        }
+
+        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
         }
 
         if (!defined('LARAVEL_START')) {
@@ -304,6 +303,30 @@ conversation:
 EOT;
     }
 
+    protected function conversationWithManyOpeningIntents()
+    {
+        return <<<EOT
+conversation:
+  id: many_opening_intents
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.core.opening_1
+        - u:
+            i: intent.core.opening_2
+        - u:
+            i: intent.core.opening_3
+        - b:
+            i: intent.core.ask_name
+        - u:
+            i: intent.core.send_name
+        - b:
+            i: intent.core.response
+            completes: true
+EOT;
+    }
+
     /**
      * Returns the no match conversation
      *
@@ -328,7 +351,7 @@ EOT;
     /**
      * Activate the given conversation YAML and assert that it activates successfully.
      */
-    protected function activateConversation($conversationYaml): void
+    protected function activateConversation($conversationYaml): ConversationNode
     {
         if (!$this->dgraphInitialised) {
             $this->initDDgraph();
@@ -339,9 +362,10 @@ EOT;
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
         $conversation->save();
-        $conversationModel = $conversation->buildConversation();
 
-        $this->assertTrue($conversation->activateConversation($conversationModel));
+        $this->assertTrue($conversation->activateConversation());
+
+        return $conversation->buildConversation();
     }
 
     /**
@@ -400,7 +424,6 @@ EOT;
      */
     protected function registerSingleAction($action): void
     {
-
         $this->app['config']->set(
             'opendialog.action_engine.available_actions',
             [
@@ -439,5 +462,144 @@ EOT;
     protected function setCustomAttributes(array $customAttribute)
     {
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+    }
+
+    protected function conversationWithSceneConditions()
+    {
+        return <<< EOT
+conversation:
+  id: with_scene_conditions
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: opening_user_s1
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene1
+        - u:
+            i: opening_user_s2
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene2
+        - u:
+            i: opening_user_none
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_response
+        - u:
+            i: opening_user_s3
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene3
+        - u:
+            i: opening_user_none2
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_complete
+            completes: true
+    scene1:
+      conditions:
+        - condition:
+            operation: is_not_set
+            attributes:
+              attribute1: user.user_email
+      intents:
+        - b: 
+            i: scene1_bot
+            completes: true
+    scene2:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user
+      intents:
+        - b: 
+            i: scene2_bot
+            completes: true
+    scene3:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user2
+      intents:
+        - b: 
+            i: scene3_bot
+            completes: true
+EOT;
+    }
+
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithManyIntentsWithSameId(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForManyIntentConversation();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkupForManyIntentConversation(): string
+    {
+        $conversationMarkup =
+            /** @lang yaml */
+            <<<EOT
+conversation:
+  id: rock_paper_scissors
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.app.play_game
+        - b:
+            i: intent.app.init_game
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+        - b:
+            i: intent.app.round_2
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+        - b:
+            i: intent.app.final_round
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+            conditions:
+                - condition:
+                    operation: eq
+                    attributes:
+                        attribute1: user.game_result
+                    parameters:
+                        value: BOT_WINS
+            scene: bot_won
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+        - b:
+            i: intent.app.you_won
+            completes: true
+    bot_won:
+      intents:
+        - b:
+            i: intent.app.you_lost
+            completes: true
+EOT;
+        return $conversationMarkup;
     }
 }

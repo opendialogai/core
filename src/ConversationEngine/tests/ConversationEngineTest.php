@@ -3,21 +3,28 @@
 namespace OpenDialogAi\ConversationEngine\tests;
 
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver as AttributeResolverFacade;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -39,11 +46,15 @@ class ConversationEngineTest extends TestCase
     {
         parent::setUp();
         /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = $this->app->make(AttributeResolver::class);
-        $attributes = ['test' => IntAttribute::class];
+        $attributeResolver = resolve(AttributeResolver::class);
+        $attributes = [
+            'test' => IntAttribute::class,
+            'user_name' => StringAttribute::class,
+            'user_email' => StringAttribute::class
+        ];
         $attributeResolver->registerAttributes($attributes);
 
-        $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
+        $this->conversationEngine = resolve(ConversationEngineInterface::class);
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
@@ -53,6 +64,10 @@ class ConversationEngineTest extends TestCase
         $this->utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
     }
 
+    /**
+     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
+     */
     public function testConversationStoreIntents()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
@@ -69,12 +84,21 @@ class ConversationEngineTest extends TestCase
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(3, $openingIntents);
 
-        $this->assertTrue($conversation->activateConversation($conversation->buildConversation()));
+        $this->assertTrue($conversation->activateConversation());
 
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(4, $openingIntents);
+
+        $this->activateConversation($this->conversationWithManyOpeningIntents());
+
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
+        $this->assertCount(7, $openingIntents);
     }
 
+    /**
+     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
+     */
     public function testConversationConditions()
     {
         /* @var ConversationStoreInterface $conversationStore */
@@ -82,7 +106,7 @@ class ConversationEngineTest extends TestCase
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
         $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $conditions = $conversation->getConditions();
@@ -115,10 +139,10 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @throws FieldNotSupported
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws GuzzleException
+     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
+     * @throws NodeDoesNotExistException
      */
     public function testConversationEngineOngoingConversation()
     {
@@ -130,10 +154,10 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @throws FieldNotSupported
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function testDeterminingCurrentConversationWithoutOngoingConversation()
     {
@@ -145,11 +169,11 @@ class ConversationEngineTest extends TestCase
     }
 
     /**
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
      * @throws FieldNotSupported
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
      */
     public function testDeterminingNextIntentWithoutOngoingConversation()
     {
@@ -165,10 +189,10 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @throws FieldNotSupported
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function testDeterminingNextIntentsInMultiSceneConversation()
     {
@@ -177,7 +201,7 @@ class ConversationEngineTest extends TestCase
 
         $this->utterance->setCallbackId('hello_bot');
         /* @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         /* @var CallbackInterpreter $callbackInterpeter */
         $callbackInterpeter = $interpreterService->getDefaultInterpreter();
         $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
@@ -189,7 +213,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
@@ -208,11 +232,11 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @throws FieldNotSupported
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws GuzzleException
+     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
+     * @throws NodeDoesNotExistException
+     * @throws CurrentIntentNotSetException
      */
     public function testDeterminingCurrentConversationWithOngoingConversation()
     {
@@ -229,7 +253,8 @@ class ConversationEngineTest extends TestCase
         $openingScene = $conversation->getScene('opening_scene');
         $this->assertCount(1, $openingScene->getIntentsSaidByUser());
         /* @var Intent $userIntent */
-        $userIntent = $openingScene->getIntentsSaidByUser()->get('hello_bot');
+        $userIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(0)->value;
+        $this->assertEquals('hello_bot', $userIntent->getId());
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertEquals($userIntent->getAction()->getId(), 'action.core.example');
@@ -237,7 +262,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
-        $botIntent = $openingScene->getIntentsSaidByBot()->get('hello_user');
+        $botIntent = $openingScene->getIntentsSaidByBotInOrder()->skip(0)->value;
+        $this->assertEquals('hello_user', $botIntent->getId());
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
@@ -246,7 +272,8 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(1, $secondScene->getIntentsSaidByUser());
         /* @var Intent $userIntent */
-        $userIntent = $secondScene->getIntentsSaidByUser()->get('how_are_you');
+        $userIntent = $secondScene->getIntentsSaidByUserInOrder()->skip(0)->value;
+        $this->assertEquals('how_are_you', $userIntent->getId());
         $this->assertTrue($userIntent->hasInterpreter());
         $this->assertTrue($userIntent->causesAction());
         $this->assertEquals('action.core.example', $userIntent->getAction()->getId());
@@ -254,15 +281,23 @@ class ConversationEngineTest extends TestCase
 
         $this->assertCount(1, $secondScene->getIntentsSaidByBot());
         /* @var Intent $botIntent */
-        $botIntent = $secondScene->getIntentsSaidByBot()->get('doing_dandy');
+        $botIntent = $secondScene->getIntentsSaidByBotInOrder()->skip(0)->value;
+        $this->assertEquals('doing_dandy', $botIntent->getId());
         $this->assertFalse($botIntent->hasInterpreter());
         $this->assertTrue($botIntent->causesAction());
         $this->assertEquals('action.core.example', $botIntent->getAction()->getId());
     }
 
+    /**
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws FieldNotSupported
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     */
     public function testPerformIntentAction()
     {
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         $callbackInterpreter = $interpreterService->getDefaultInterpreter();
         $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
 
@@ -288,6 +323,13 @@ class ConversationEngineTest extends TestCase
         $this->assertTrue($fullName !== '');
     }
 
+    /**
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws FieldNotSupported
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     */
     public function testCallbackIdNotMappedToIntent()
     {
         $userContext = $this->createUserContext();
@@ -295,7 +337,7 @@ class ConversationEngineTest extends TestCase
 
         $utterance = UtteranceGenerator::generateButtonResponseUtterance('howdy_bot');
         /* @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         /* @var CallbackInterpreter $callbackInterpeter */
         $callbackInterpeter = $interpreterService->getDefaultInterpreter();
         $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
@@ -329,6 +371,104 @@ class ConversationEngineTest extends TestCase
         $this->assertCount(3, $conversation->history);
     }
 
+    public function testConversationWithDestinationAsOpeningScene()
+    {
+        $userContext = $this->createUserContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round');
+        $this->activateConversation($this->conversationWithDestinationAsOpeningScene());
+
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.receive_choice');
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round_again', $utterance->getUser());
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.end');
+    }
+
+    private function conversationWithDestinationAsOpeningScene()
+    {
+        return <<<EOT
+conversation:
+  id: rock_paper_scissors
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.app.start_round
+            scene: response_scene
+        - u:
+            i: intent.app.start_round_again
+            scene: another_scene
+    another_scene:
+      intents:
+        - b:
+            i: intent.app.end
+            completes: true
+    response_scene:
+      intents:
+        - b:
+            i: intent.app.receive_choice
+            scene: opening_scene
+EOT;
+    }
+
+    public function testSceneConditions()
+    {
+        $this->activateConversation($this->conversationWithSceneConditions());
+
+        // No scene conditions pass with valid opening scene intent, expect to match opening scene intent
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_none');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('opening_bot_response', $intent->getId());
+
+        // Progress conversation, expect to not enter scene3
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s3', $utterance->getUser());
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
+
+
+        // Restart conversation: Both scene conditions pass-able, expect first to be matched
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s1');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_name', 'test_user'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('scene1_bot', $intent->getId());
+
+        // Restart conversation: First scene conditions fails, second passes, expect second to be matched
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_name', 'test_user'));
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('scene2_bot', $intent->getId());
+
+        // Restart conversation: No scene conditions pass with invalid opening scene intent, expect a no-match
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_doesnt_exist');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
+
+        // Restart conversation: No scene conditions pass with valid opening scene intent, expect a no-match
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
+        $userContext = ContextService::createUserContext($utterance);
+        $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
+    }
+
+    /**
+     * @return UserContext
+     */
     private function createUserContext()
     {
         $userContext = ContextService::createUserContext($this->utterance);
@@ -338,18 +478,17 @@ class ConversationEngineTest extends TestCase
 
     /**
      * @return UserContext
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     * @throws GuzzleException
+     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
      */
     private function createConversationAndAttachToUser()
     {
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
 
         $this->assertFalse($conversationStore->hasConversationBeenUsed('hello_bot_world'));
 
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
@@ -396,6 +535,9 @@ class ConversationEngineTest extends TestCase
         return $userContext;
     }
 
+    /**
+     * @return string
+     */
     private function conversationWithNonBindedAction()
     {
         return <<<EOT
@@ -418,15 +560,19 @@ conversation:
 EOT;
     }
 
+    /**
+     * @param string $templateName
+     * @throws BindingResolutionException
+     */
     private function createUpdates(string $templateName)
     {
         /** @var Conversation $template */
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template->buildConversation());
+        $template->activateConversation();
 
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template->buildConversation());
+        $template->activateConversation();
     }
 }

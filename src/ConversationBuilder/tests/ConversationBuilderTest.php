@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit;
 
+use ErrorException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationStateLog;
@@ -136,10 +137,11 @@ class ConversationBuilderTest extends TestCase
         $activities = Activity::where('subject_id', $conversation->id)->get();
         $this->assertCount(2, $activities);
 
-        $this->assertEquals('hello_bot', $conversation->opening_intent);
+        $this->assertCount(1, $conversation->opening_intents);
+        $this->assertEquals('hello_bot', $conversation->opening_intents[0]);
         $this->assertCount(6, $conversation->outgoing_intents);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
         $conversation->deactivateConversation();
         $conversation->archiveConversation();
         $this->assertTrue($conversation->delete());
@@ -153,7 +155,8 @@ class ConversationBuilderTest extends TestCase
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = app()->make(ConversationStoreInterface::class);
 
-        $this->expectException(\ErrorException::class);
+        $this->expectException(ErrorException::class);
+        $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
     }
 
     public function testConversationDeletionWithManyVersions()
@@ -161,19 +164,19 @@ class ConversationBuilderTest extends TestCase
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = app()->make(ConversationStoreInterface::class);
@@ -323,7 +326,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(1, $changedAttributes['version_number']);
         $this->assertEquals($this->conversation1() . " ", $changedAttributes['model']);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
         $this->assertEquals(2, $conversation->version_number);
 
         // Ensure that the new version was logged
@@ -462,5 +465,76 @@ class ConversationBuilderTest extends TestCase
         $conversation->save();
 
         $this->assertTrue($conversation->delete());
+    }
+
+    public function testConversationWithManyOpeningIntents()
+    {
+        $this->activateConversation($this->conversationWithManyOpeningIntents());
+
+        /** @var Conversation $conversationModel */
+        $conversationModel = Conversation::where('name', 'many_opening_intents')->first();
+
+        $this->assertCount(3, $conversationModel->opening_intents);
+    }
+
+    public function testConversationWithSceneConditions()
+    {
+        $this->activateConversation($this->conversationWithSceneConditions());
+
+        /** @var Conversation $conversationModel */
+        $conversationModel = Conversation::where('name', 'with_scene_conditions')->first();
+
+        $conversation = $conversationModel->buildConversation();
+
+        $this->assertFalse($conversation->getOpeningScenes()->first()->value->hasConditions());
+        $this->assertTrue($conversation->getScene('scene1')->hasConditions());
+        $this->assertTrue($conversation->getScene('scene2')->hasConditions());
+        $this->assertCount(1, $conversation->getScene('scene1')->getConditions());
+        $this->assertCount(1, $conversation->getScene('scene2')->getConditions());
+    }
+
+    public function testConversationWithManyIntentsWithSameId()
+    {
+        $conversation = $this->createConversationWithManyIntentsWithSameId();
+
+        $this->assertCount(2, $conversation->getAllScenes());
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+
+        /** @var Scene $secondScene */
+        $secondScene = $conversation->getNonOpeningScenes()->first()->value;
+
+        $this->assertCount(5, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(4, $openingScene->getIntentsSaidByBot());
+
+        $this->assertCount(0, $secondScene->getIntentsSaidByUser());
+        $this->assertCount(1, $secondScene->getIntentsSaidByBot());
+
+        $openingSceneUserIntents = $openingScene->getIntentsSaidByUserInOrder();
+        $openingSceneBotIntents = $openingScene->getIntentsSaidByBotInOrder();
+        $secondSceneBotIntents = $secondScene->getIntentsSaidByBotInOrder();
+
+        $openingSceneUserIntentIds = $openingSceneUserIntents->map(function ($key, Intent $intent) {
+            return $intent->getId();
+        });
+        $openingSceneBotIntentIds = $openingSceneBotIntents->map(function ($key, Intent $intent) {
+            return $intent->getId();
+        });
+        $secondSceneBotIntentIds = $secondSceneBotIntents->map(function ($key, Intent $intent) {
+            return $intent->getId();
+        });
+
+        $this->assertEquals('intent.app.play_game', $openingSceneUserIntentIds->skip(0)->value);
+        $this->assertEquals('intent.app.init_game', $openingSceneBotIntentIds->skip(0)->value);
+        $this->assertEquals('intent.app.send_choice', $openingSceneUserIntentIds->skip(1)->value);
+        $this->assertEquals('intent.app.round_2', $openingSceneBotIntentIds->skip(1)->value);
+        $this->assertEquals('intent.app.send_choice', $openingSceneUserIntentIds->skip(2)->value);
+        $this->assertEquals('intent.app.final_round', $openingSceneBotIntentIds->skip(2)->value);
+        $this->assertEquals('intent.app.send_choice', $openingSceneUserIntentIds->skip(3)->value);
+        $this->assertEquals('intent.app.send_choice', $openingSceneUserIntentIds->skip(4)->value);
+        $this->assertEquals('intent.app.you_won', $openingSceneBotIntentIds->skip(3)->value);
+
+        $this->assertEquals('intent.app.you_lost', $secondSceneBotIntentIds->skip(0)->value);
     }
 }
