@@ -26,8 +26,8 @@ class CompositeAttributeTest extends TestCase
             [
                 'c' => ExampleAbstractCompositeAttribute::class,
                 'test_attr' => StringAttribute::class,
-                'pw.total' => IntAttribute::class,
-                'pw.results' => ArrayAttribute::class
+                'total' => IntAttribute::class,
+                'results' => ArrayAttribute::class
             ]
         );
         $attributeCollectionSerialized = $attributeCollection->jsonSerialize();
