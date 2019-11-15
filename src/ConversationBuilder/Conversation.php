@@ -15,6 +15,7 @@ use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationScenes;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYaml;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationYamlSchema;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
@@ -142,6 +143,7 @@ class Conversation extends Model
      *
      * @return ConversationNode
      * @throws BindingResolutionException
+     * @throws EIModelCreatorException
      */
     public function buildConversation()
     {
@@ -232,7 +234,9 @@ class Conversation extends Model
         }
 
         $dGraph = app()->make(DGraphClient::class);
-        $mutation = new DGraphMutation($cm->getConversation());
+        $conversationNode = $cm->getConversation();
+
+        $mutation = new DGraphMutation($conversationNode);
 
         /* @var DGraphMutationResponse $mutationResponse */
         $mutationResponse = $dGraph->tripleMutation($mutation);
@@ -620,12 +624,13 @@ class Conversation extends Model
      */
     public function getHistoryAttribute(): array
     {
-
         $history = ConversationActivity::forSubjectOrdered($this->id)->get();
 
         return $history->filter(function ($item) {
             // Retain if it's the first activity record or if it's a record with the version has incremented
             return isset($item['properties']['old'])
+                && isset($item['properties']['old']['version_number'])
+                && isset($item['properties']['attributes']['version_number'])
                 && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
         })->values()->map(function ($item) {
             return [

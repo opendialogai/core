@@ -48,18 +48,12 @@ go into git.
 
 ## Running Tests
 
-```./vendor/bin/phpunit```
+A Lando file is included for running tests. It includes a test DGraph. Test can be run with:
 
-## DGraph
 
-You may find instructions to setup a development instance of DGraph in dgraph/dgraph-setup.md
-
-You will need to set the DGraph URL and port in your .env file, e.g.:
-
-```
-DGRAPH_URL=http://10.0.2.2
-DGRAPH_PORT=8080
-```
+    lando test
+    
+More information on testing and setting up a local test environment can be found [on our wiki](https://github.com/opendialogai/opendialog/wiki/Running-tests-through-PHPStorm) 
 
 ### Query Logging
 
@@ -75,9 +69,3 @@ To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`
 
 To turn on introspection processing set the `INTROSPECTION_PROCESSOR_ENABLED` env variable to true. This will add
 extra information to all log messages including the class and line that generated the message
-
-## Local Artisan
-
-If you need to use artisan commands in the development of this pacakge, you can use `/vendor/bin/artisan` in it's place.
-This also works if you set up a symlink from the project root:
-```ln -s vendor/bin/artisan artisan```

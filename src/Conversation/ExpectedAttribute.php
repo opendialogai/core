@@ -10,6 +10,8 @@ use OpenDialogAi\Core\Graph\Node\Node;
  */
 class ExpectedAttribute extends Node
 {
+    protected static $idIsUnique = false;
+
     public function __construct($id)
     {
         parent::__construct($id);

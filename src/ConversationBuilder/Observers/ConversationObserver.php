@@ -47,22 +47,24 @@ class ConversationObserver
      */
     public function deleting(Conversation $conversation): bool
     {
-        $dGraph = app()->make(DGraphClient::class);
+        if ($conversation->graph_uid) {
+            $dGraph = app()->make(DGraphClient::class);
 
-        /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+            /** @var ConversationStoreInterface $conversationStore */
+            $conversationStore = app()->make(ConversationStoreInterface::class);
 
-        /** @var EIModelConversation $conversationModel */
-        $conversationModel = $conversationStore->getEIModelConversationTemplateByUid($conversation->graph_uid);
+            /** @var EIModelConversation $conversationModel */
+            $conversationModel = $conversationStore->getEIModelConversationTemplateByUid($conversation->graph_uid);
 
-        if ($conversationModel->getConversationStatus() != ConversationNode::ARCHIVED) {
-            return false;
-        }
+            if ($conversationModel->getConversationStatus() != ConversationNode::ARCHIVED) {
+                return false;
+            }
 
-        try {
-            $dGraph->deleteConversationAndHistory($conversation->graph_uid);
-        } catch (DGraphResponseErrorException $e) {
-            return false;
+            try {
+                $dGraph->deleteConversationAndHistory($conversation->graph_uid);
+            } catch (DGraphResponseErrorException $e) {
+                return false;
+            }
         }
 
         return true;
