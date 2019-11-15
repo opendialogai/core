@@ -626,6 +626,8 @@ class Conversation extends Model
         return $history->filter(function ($item) {
             // Retain if it's the first activity record or if it's a record with the version has incremented
             return isset($item['properties']['old'])
+                && isset($item['properties']['old']['version_number'])
+                && isset($item['properties']['attributes']['version_number'])
                 && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
         })->values()->map(function ($item) {
             return [
