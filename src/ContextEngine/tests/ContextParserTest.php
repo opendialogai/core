@@ -62,15 +62,12 @@ class ContextParserTest extends TestCase
 
         $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
-        $this->assertEquals(1, ContextParser::parseAttributeName($attribute)->getAccessor()[0]);
-        $this->assertNull(ContextParser::parseAttributeName($attribute)->itemName);
+        $this->assertEquals([1], ContextParser::parseAttributeName($attribute)->getAccessor());
 
         // We do not support this depth
         $attribute = "user.test[1][test][test]";
-
         $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
-        $this->assertNull(ContextParser::parseAttributeName($attribute)->itemNumber);
-        $this->assertNull(ContextParser::parseAttributeName($attribute)->itemName);
+        $this->assertEquals([1, 'test', 'test'], ContextParser::parseAttributeName($attribute)->getAccessor());
     }
 }

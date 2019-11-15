@@ -9,39 +9,15 @@ use OpenDialogAi\Core\Attribute\AbstractAttribute;
  */
 class ParsedAttributeName
 {
-    public $context = AbstractAttribute::UNDEFINED_CONTEXT;
-
     public $attributeId = AbstractAttribute::INVALID_ATTRIBUTE_NAME;
 
     public $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
 
     public $accessor = [];
 
-    public $itemNumber;
-
-    public $itemName;
-
-    public function setContext($context)
-    {
-        $this->context = $context;
-        return $this;
-    }
-
     public function setAttributeId($attributeId)
     {
         $this->attributeId = $attributeId;
-        return $this;
-    }
-
-    public function setItemNumber($itemNumber)
-    {
-        $this->itemNumber = $itemNumber;
-        return $this;
-    }
-
-    public function setItemName($itemName)
-    {
-        $this->itemName = $itemName;
         return $this;
     }
 
