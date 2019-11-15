@@ -41,6 +41,6 @@ return [
      * List of supported intents in the format 'callback_id' => 'intent_name'
      */
     'supported_callbacks' => [
-//        'WELCOME' => 'intent.core.welcome',
+        'WELCOME' => 'intent.core.welcome',
     ]
 ];

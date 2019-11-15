@@ -8,6 +8,8 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class ContextParserTest extends TestCase
 {
+    public $setupWithDGraphInit = false;
+
     public function testDetermineContextAndAttributeId()
     {
         list($contextId, $attributeId) = ContextParser::determineContextAndAttributeId("user.name");
@@ -45,5 +47,30 @@ class ContextParserTest extends TestCase
 
         $attributeId = ContextParser::determineAttributeId("user.last.name");
         $this->assertEquals(AbstractAttribute::INVALID_ATTRIBUTE_NAME, $attributeId);
+    }
+
+    public function testArrayNotationAttribute()
+    {
+        $attribute = "user.test[1][name]";
+
+        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->context);
+        $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
+        $this->assertEquals(1, ContextParser::parseAttributeName($attribute)->itemNumber);
+        $this->assertEquals('name', ContextParser::parseAttributeName($attribute)->itemName);
+
+        $attribute = "user.test[1]";
+
+        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->context);
+        $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
+        $this->assertEquals(1, ContextParser::parseAttributeName($attribute)->itemNumber);
+        $this->assertNull(ContextParser::parseAttributeName($attribute)->itemName);
+
+        // We do not support this depth
+        $attribute = "user.test[1][test][test]";
+
+        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->context);
+        $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
+        $this->assertNull(ContextParser::parseAttributeName($attribute)->itemNumber);
+        $this->assertNull(ContextParser::parseAttributeName($attribute)->itemName);
     }
 }

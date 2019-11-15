@@ -11,13 +11,15 @@ class TestReadingAndStoringStatuses extends TestCase
 {
     private $dirName;
 
-    public function setUp(): void {
+    public function setUp(): void
+    {
         parent::setUp();
         $this->dirName = storage_path('statuses');
         $this->clearStatusDir();
     }
 
-    public function tearDown(): void {
+    public function tearDown(): void
+    {
         $this->clearStatusDir();
         parent::tearDown();
     }
@@ -60,7 +62,7 @@ class TestReadingAndStoringStatuses extends TestCase
 
         Artisan::call('statuses:store');
 
-        $conv2->activateConversation($conv2->buildConversation());
+        $conv2->activateConversation();
 
         Artisan::call('statuses:read');
 
@@ -81,7 +83,7 @@ class TestReadingAndStoringStatuses extends TestCase
 
         Artisan::call('statuses:store');
 
-        $conv2->activateConversation($conv2->buildConversation());
+        $conv2->activateConversation($conv2);
 
         $caught = false;
         try {
@@ -120,6 +122,7 @@ class TestReadingAndStoringStatuses extends TestCase
                     unlink(storage_path('statuses/' . $file));
                 }
             }
-        } catch (\Exception $e) {  }
+        } catch (\Exception $e) {
+        }
     }
 }

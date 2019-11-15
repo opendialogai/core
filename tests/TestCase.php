@@ -362,11 +362,10 @@ EOT;
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
         $conversation->save();
-        $conversationModel = $conversation->buildConversation();
 
-        $this->assertTrue($conversation->activateConversation($conversationModel));
+        $this->assertTrue($conversation->activateConversation());
 
-        return $conversationModel;
+        return $conversation->buildConversation();
     }
 
     /**
@@ -425,7 +424,6 @@ EOT;
      */
     protected function registerSingleAction($action): void
     {
-
         $this->app['config']->set(
             'opendialog.action_engine.available_actions',
             [

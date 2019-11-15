@@ -217,13 +217,14 @@ class Conversation extends Model
     /**
      * Activate the conversation in DGraph.
      *
-     * @param ConversationNode $conversation
      * @return bool
      * @throws BindingResolutionException
      */
-    public function activateConversation(ConversationNode $conversation): bool
+    public function activateConversation(): bool
     {
-        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+        $conversationNode = $this->buildConversation();
+
+        $cm = ConversationManager::createManagerForExistingConversation($conversationNode);
 
         try {
             $cm->setActivated();
@@ -628,6 +629,8 @@ class Conversation extends Model
         return $history->filter(function ($item) {
             // Retain if it's the first activity record or if it's a record with the version has incremented
             return isset($item['properties']['old'])
+                && isset($item['properties']['old']['version_number'])
+                && isset($item['properties']['attributes']['version_number'])
                 && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
         })->values()->map(function ($item) {
             return [
