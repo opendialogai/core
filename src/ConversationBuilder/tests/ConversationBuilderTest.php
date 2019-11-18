@@ -23,6 +23,7 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
 use OpenDialogAi\Core\Tests\TestCase;
 use Spatie\Activitylog\Models\Activity;
+use Symfony\Component\Yaml\Yaml;
 
 class ConversationBuilderTest extends TestCase
 {
@@ -141,7 +142,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('hello_bot', $conversation->opening_intents[0]);
         $this->assertCount(6, $conversation->outgoing_intents);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
         $conversation->deactivateConversation();
         $conversation->archiveConversation();
         $this->assertTrue($conversation->delete());
@@ -164,19 +165,19 @@ class ConversationBuilderTest extends TestCase
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         $conversation->model .= " ";
         $conversation->save();
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
 
         /** @var ConversationStoreInterface $conversationStore */
         $conversationStore = app()->make(ConversationStoreInterface::class);
@@ -326,7 +327,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(1, $changedAttributes['version_number']);
         $this->assertEquals($this->conversation1() . " ", $changedAttributes['model']);
 
-        $conversation->activateConversation($conversation->buildConversation());
+        $conversation->activateConversation();
         $this->assertEquals(2, $conversation->version_number);
 
         // Ensure that the new version was logged
@@ -347,7 +348,8 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(ConversationNode::DEACTIVATED, $originalConversation->getConversationStatus());
     }
 
-    public function testDeactivating() {
+    public function testDeactivating()
+    {
         $this->activateConversation($this->conversation1());
 
         /** @var DGraphQuery $query */
@@ -385,10 +387,10 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(1, $response->getData());
         $model = $eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
         $this->assertEquals(ConversationNode::DEACTIVATED, $model->getConversationStatus());
-
     }
 
-    public function testArchiving() {
+    public function testArchiving()
+    {
         $this->activateConversation($this->conversation1());
 
         // Deactivate the conversation
@@ -421,7 +423,8 @@ class ConversationBuilderTest extends TestCase
 
     }
 
-    public function testDeleting() {
+    public function testDeleting()
+    {
         $this->activateConversation($this->conversation1());
 
         // Ensure conversation was persisted to DGraph
@@ -450,6 +453,19 @@ class ConversationBuilderTest extends TestCase
         $response = $client->query($query);
         $this->assertCount(0, $response->getData());
         $this->assertTrue(Conversation::where('name', 'hello_bot_world')->get()->isEmpty());
+    }
+
+    public function testDeleteWithoutPublishing()
+    {
+        $conversationYaml = $this->conversation1();
+
+        $name = Yaml::parse($conversationYaml)['conversation']['id'];
+
+        /** @var Conversation $conversation */
+        $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
+        $conversation->save();
+
+        $this->assertTrue($conversation->delete());
     }
 
     public function testConversationWithManyOpeningIntents()

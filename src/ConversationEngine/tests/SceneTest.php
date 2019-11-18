@@ -2,12 +2,17 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
+use GuzzleHttp\Exception\GuzzleException;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 
 class SceneTest extends TestCase
 {
@@ -23,14 +28,15 @@ class SceneTest extends TestCase
             'hello_again_bot' => 'hello_again_bot'
         ]);
 
-        $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
+        $this->conversationEngine = resolve(ConversationEngineInterface::class);
     }
 
     /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @throws FieldNotSupported
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
      */
     public function testScenes()
     {

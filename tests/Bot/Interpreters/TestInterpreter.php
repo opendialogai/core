@@ -20,7 +20,7 @@ class TestInterpreter extends BaseInterpreter
             if (strpos($text, 'Hello') !== false) {
                 $intent = Intent::createIntentWithConfidence('intent.test.hello_bot', 1);
 
-                $intent->addAttribute(new StringAttribute('intent_test','test'));
+                $intent->addAttribute(new StringAttribute('intent_test', 'test'));
 
                 return [$intent];
             }

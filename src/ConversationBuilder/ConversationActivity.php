@@ -1,14 +1,12 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationBuilder;
-
 
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Models\Activity;
 
 /**
- * @method static forSubjectOrdered($orderId): Builder
+ * @method static Builder forSubjectOrdered($orderId)
  */
 class ConversationActivity extends Activity
 {

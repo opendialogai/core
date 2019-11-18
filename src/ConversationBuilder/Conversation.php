@@ -191,8 +191,10 @@ class Conversation extends Model
 
                 if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
+                        // phpcs:ignore
                         $conversationManager->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
+                        // phpcs:ignore
                         $conversationManager->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
@@ -215,13 +217,14 @@ class Conversation extends Model
     /**
      * Activate the conversation in DGraph.
      *
-     * @param ConversationNode $conversation
      * @return bool
      * @throws BindingResolutionException
      */
-    public function activateConversation(ConversationNode $conversation): bool
+    public function activateConversation(): bool
     {
-        $cm = ConversationManager::createManagerForExistingConversation($conversation);
+        $conversationNode = $this->buildConversation();
+
+        $cm = ConversationManager::createManagerForExistingConversation($conversationNode);
 
         try {
             $cm->setActivated();
@@ -232,7 +235,6 @@ class Conversation extends Model
 
         $dGraph = app()->make(DGraphClient::class);
         $conversationNode = $cm->getConversation();
-        $hash = $conversationNode->hash();
 
         $mutation = new DGraphMutation($conversationNode);
 
@@ -243,7 +245,7 @@ class Conversation extends Model
 
             // Set conversation status to "activated".
             $this->status = ConversationNode::ACTIVATED;
-            $this->graph_uid = $mutationResponse->getData()['uids'][$hash];
+            $this->graph_uid = $mutationResponse->getData()['uids'][$this->name];
             $this->version_number++;
 
             $this->save(['validate' => false]);
@@ -363,16 +365,27 @@ class Conversation extends Model
         $completes = false;
         $expectedAttributes = null;
         $conditions = null;
+        $inputActionAttributes = null;
+        $outputActionAttributes = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
-            $actionLabel = $intentValue['action'] ?? null;
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
-            $intentSceneId = $intentValue['scene'] ?? null;
             $expectedAttributes = $intentValue['expected_attributes'] ?? null;
             $conditions = $intentValue['conditions'] ?? null;
+            $intentSceneId = $intent[$speaker]['scene'] ?? null;
+            $inputAttributes = $intent[$speaker]['input_attributes'] ?? null;
+            $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
+
+            if (isset($intentValue['action']) && is_array($intentValue['action'])) {
+                $actionLabel = $intentValue['action']['id'] ?? null;
+                $inputActionAttributes = $intentValue['action']['input_attributes'] ?? null;
+                $outputActionAttributes = $intentValue['action']['output_attributes'] ?? null;
+            } else {
+                $actionLabel = $intentValue['action'] ?? null;
+            }
         } else {
             $intentLabel = $intentValue;
         }
@@ -403,6 +416,18 @@ class Conversation extends Model
 
             foreach ($conditionObjects as $condition) {
                 $intentNode->addCondition($condition);
+            }
+        }
+
+        if (is_array($inputActionAttributes)) {
+            foreach ($inputActionAttributes as $inputActionAttribute) {
+                $intentNode->addInputActionAttribute(new ExpectedAttribute($inputActionAttribute));
+            }
+        }
+
+        if (is_array($outputActionAttributes)) {
+            foreach ($outputActionAttributes as $outputActionAttribute) {
+                $intentNode->addOutputActionAttribute(new ExpectedAttribute($outputActionAttribute));
             }
         }
 
@@ -604,6 +629,8 @@ class Conversation extends Model
         return $history->filter(function ($item) {
             // Retain if it's the first activity record or if it's a record with the version has incremented
             return isset($item['properties']['old'])
+                && isset($item['properties']['old']['version_number'])
+                && isset($item['properties']['attributes']['version_number'])
                 && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
         })->values()->map(function ($item) {
             return [

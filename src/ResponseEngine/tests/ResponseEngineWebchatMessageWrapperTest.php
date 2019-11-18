@@ -41,6 +41,7 @@ class ResponseEngineWebchatMessageWrapperTest extends TestCase
         $message2 = new WebchatTextMessage();
         $message2->setText('This is another test, this is only another test.');
         $messageWrapper->addMessage($message2);
+
         self::assertArraySubset(
             [0 => ['data' =>
             ['text' => 'This is a test, this is only a test.']]],

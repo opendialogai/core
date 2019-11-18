@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
  */
 class BooleanAttribute extends AbstractAttribute
 {
+    public static $type = 'attribute.core.boolean';
+
     /**
      * BooleanAttribute constructor.
      * @param $id
@@ -17,13 +19,8 @@ class BooleanAttribute extends AbstractAttribute
      */
     public function __construct($id, $value)
     {
-        try {
-            parent::__construct($id, AbstractAttribute::BOOLEAN, $this->value);
-            $this->setValue($value);
-        } catch (UnsupportedAttributeTypeException $e) {
-            Log::warning($e->getMessage());
-            return null;
-        }
+        parent::__construct($id, $this->value);
+        $this->setValue($value);
     }
 
     public function setValue($value)
@@ -37,5 +34,15 @@ class BooleanAttribute extends AbstractAttribute
     public function toString(): string
     {
         return $this->getValue() ? 'true' : 'false';
+    }
+
+    /**
+     * Returns boolean
+     *
+     * @return boolean
+     */
+    public function getValue()
+    {
+        return $this->value === null ? $this->value :  boolval($this->value);
     }
 }

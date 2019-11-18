@@ -17,6 +17,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -43,10 +44,9 @@ class ConversationEngineTest extends TestCase
 
     public function setUp(): void
     {
-        $this->setupWithDGraphInit = false;
         parent::setUp();
         /* @var AttributeResolver $attributeResolver */
-        $attributeResolver = $this->app->make(AttributeResolver::class);
+        $attributeResolver = resolve(AttributeResolver::class);
         $attributes = [
             'test' => IntAttribute::class,
             'user_name' => StringAttribute::class,
@@ -54,7 +54,7 @@ class ConversationEngineTest extends TestCase
         ];
         $attributeResolver->registerAttributes($attributes);
 
-        $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
+        $this->conversationEngine = resolve(ConversationEngineInterface::class);
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
@@ -84,7 +84,7 @@ class ConversationEngineTest extends TestCase
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(3, $openingIntents);
 
-        $this->assertTrue($conversation->activateConversation($conversation->buildConversation()));
+        $this->assertTrue($conversation->activateConversation());
 
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
         $this->assertCount(4, $openingIntents);
@@ -106,7 +106,7 @@ class ConversationEngineTest extends TestCase
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
         $conversation = $conversationConverter->convertConversation($conversationModel);
 
         $conditions = $conversation->getConditions();
@@ -201,7 +201,7 @@ class ConversationEngineTest extends TestCase
 
         $this->utterance->setCallbackId('hello_bot');
         /* @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         /* @var CallbackInterpreter $callbackInterpeter */
         $callbackInterpeter = $interpreterService->getDefaultInterpreter();
         $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
@@ -213,7 +213,7 @@ class ConversationEngineTest extends TestCase
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
-        $this->assertContains($userContext->getCurrentIntent()->getId(), $validIntents);
+        $this->assertContains($userContext->getCurrentIntent()->getIntentId(), $validIntents);
 
         // Ok, now the conversation has moved on let us take the next step
         /* @var WebchatChatOpenUtterance $nextUtterance */
@@ -289,21 +289,38 @@ class ConversationEngineTest extends TestCase
     }
 
     /**
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws FieldNotSupported
      * @throws GuzzleException
+     * @throws NodeDoesNotExistException
      */
     public function testPerformIntentAction()
     {
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         $callbackInterpreter = $interpreterService->getDefaultInterpreter();
         $callbackInterpreter->addCallback('hello_bot', 'hello_bot');
+
+        $userContext = $this->createUserContext();
 
         $this->activateConversation($this->conversationWithNonBindedAction());
 
         try {
-            $this->conversationEngine->determineCurrentConversation($this->createUserContext(), $this->utterance);
+            $this->conversationEngine->determineCurrentConversation($userContext, $this->utterance);
         } catch (Exception $e) {
-            $this->fail("No exception should be thrown when calling an unbound action.");
+            $this->fail('No exception should be thrown when calling an unbound action.');
         }
+
+        try {
+            $userContext->getAttribute('full_name');
+            $this->fail('Attribute full_name should not exist.');
+        } catch (AttributeDoesNotExistException $e) {
+        }
+
+        $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+
+        $fullName = $userContext->getAttribute('full_name')->getValue();
+        $this->assertTrue($fullName !== '');
     }
 
     /**
@@ -320,7 +337,7 @@ class ConversationEngineTest extends TestCase
 
         $utterance = UtteranceGenerator::generateButtonResponseUtterance('howdy_bot');
         /* @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = $this->app->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
         /* @var CallbackInterpreter $callbackInterpeter */
         $callbackInterpeter = $interpreterService->getDefaultInterpreter();
         $callbackInterpeter->addCallback('hello_bot', 'hello_bot');
@@ -352,6 +369,48 @@ class ConversationEngineTest extends TestCase
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
 
         $this->assertCount(3, $conversation->history);
+    }
+
+    public function testConversationWithDestinationAsOpeningScene()
+    {
+        $userContext = $this->createUserContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round');
+        $this->activateConversation($this->conversationWithDestinationAsOpeningScene());
+
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.receive_choice');
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round_again', $utterance->getUser());
+        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        $this->assertEquals($intent->getLabel(), 'intent.app.end');
+    }
+
+    private function conversationWithDestinationAsOpeningScene()
+    {
+        return <<<EOT
+conversation:
+  id: rock_paper_scissors
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.app.start_round
+            scene: response_scene
+        - u:
+            i: intent.app.start_round_again
+            scene: another_scene
+    another_scene:
+      intents:
+        - b:
+            i: intent.app.end
+            completes: true
+    response_scene:
+      intents:
+        - b:
+            i: intent.app.receive_choice
+            scene: opening_scene
+EOT;
     }
 
     public function testSceneConditions()
@@ -425,11 +484,11 @@ class ConversationEngineTest extends TestCase
      */
     private function createConversationAndAttachToUser()
     {
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
 
         $this->assertFalse($conversationStore->hasConversationBeenUsed('hello_bot_world'));
 
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversationTemplate('hello_bot_world');
 
@@ -492,6 +551,11 @@ conversation:
             action: action.test.not_bound
         - b: 
             i: hello_user
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
 EOT;
     }
@@ -505,10 +569,10 @@ EOT;
         /** @var Conversation $template */
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template->buildConversation());
+        $template->activateConversation();
 
         $template = Conversation::where('name', $templateName)->first();
         $template->model .= " ";
-        $template->activateConversation($template->buildConversation());
+        $template->activateConversation();
     }
 }

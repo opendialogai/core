@@ -147,6 +147,9 @@ class MessageXML extends BaseRule
                     case 'long-text-message':
                         break;
 
+                    case 'empty-message':
+                        break;
+
                     default:
                         $this->setErrorMessage('Unknown message type "' . $item->getName() . '"');
                         return false;

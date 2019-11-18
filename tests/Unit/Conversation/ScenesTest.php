@@ -181,25 +181,22 @@ class ScenesTest extends TestCase
         /** @var Intent $intent3 */
         $intent3 = $openingScene->getIntentsSaidByUserInOrder()->skip(1)->value;
 
-        /** @var Intent $intent4 */
-        $intent4 = $openingScene->getIntentsSaidByUserInOrder()->skip(2)->value;
-
         /** @var EIModelCreator $eiModelCreator */
         $eiModelCreator = app()->make(EIModelCreator::class);
 
         // Test that to begin with it returns just intent2
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent1);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent1->getOrder());
         $this->assertEquals(1, $possibleIntents->count());
         $this->assertEquals($this->intent2->getId(), $possibleIntents->first()->value->getId());
 
         // Test that it returns the correct intents when the current intent is intent3 and that they are in the right order
-        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent3);
+        $possibleIntents = $openingScene->getNextPossibleBotIntents($intent3->getOrder());
         $this->assertEquals(2, $possibleIntents->count());
         $this->assertEquals($this->intent9->getId(), $possibleIntents->first()->value->getId());
         $this->assertEquals($this->intent10->getId(), $possibleIntents->skip(1)->value->getId());
 
         // Test that it returns the correct intents when the current intent is said across scenes and that they are in the right order
-        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents($intent4);
+        $possibleIntents = $latestNewsScene->getNextPossibleBotIntents(0);
         $this->assertEquals(2, $possibleIntents->count());
         $this->assertEquals($this->intent5->getId(), $possibleIntents->first()->value->getId());
         $this->assertEquals($this->intent6->getId(), $possibleIntents->skip(1)->value->getId());

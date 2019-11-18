@@ -1,8 +1,6 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\tests;
-
 
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryInterface;

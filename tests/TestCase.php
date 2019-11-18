@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Tests;
 
-use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
@@ -40,13 +39,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        try {
-            $env = parse_ini_file(__DIR__ . '/../.env');
-            if (isset($env['DGRAPH_URL'])) {
-                $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
-            }
-        } catch (Exception $e) {
-            //
+        if ($overwriteDgraphUrl = getenv("OVERWRITE_DGRAPH_URL")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
+        }
+
+        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
         }
 
         if (!defined('LARAVEL_START')) {
@@ -118,14 +116,26 @@ conversation:
         - u:
             i: hello_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene2
         - b:
             i: hello_registered_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene3
     scene2:
       intents:
@@ -133,7 +143,14 @@ conversation:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             confidence: 1
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
+              output_attributes:
+                - user.first_name
+                - session.last_name
         - b: 
             i: doing_dandy
             action: action.core.example
@@ -142,16 +159,28 @@ conversation:
       intents:
         - u:
             i: weather_question
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b:
             i: weather_answer
         - u: 
             i: will_you_cope
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
     scene4:
       intents:
@@ -177,19 +206,35 @@ conversation:
         - u: 
             i: howdy_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true           
 EOT;
     }
@@ -205,19 +250,35 @@ conversation:
         - u: 
             i: top_of_the_morning_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
 EOT;
     }
@@ -236,16 +297,6 @@ conversation:
             i: intent.core.NoMatchResponse
             completes: true
 EOT;
-    }
-
-    /**
-     * Returns the no match conversation
-     *
-     * @return string
-     */
-    protected function noMatchConversation()
-    {
-        return $this->conversation4();
     }
 
     protected function conversationWithManyOpeningIntents()
@@ -270,6 +321,16 @@ conversation:
             i: intent.core.response
             completes: true
 EOT;
+    }
+
+    /**
+     * Returns the no match conversation
+     *
+     * @return string
+     */
+    protected function noMatchConversation()
+    {
+        return $this->conversation4();
     }
 
     protected function initDDgraph(): void
@@ -297,11 +358,10 @@ EOT;
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
         $conversation->save();
-        $conversationModel = $conversation->buildConversation();
 
-        $this->assertTrue($conversation->activateConversation($conversationModel));
+        $this->assertTrue($conversation->activateConversation());
 
-        return $conversationModel;
+        return $conversation->buildConversation();
     }
 
     /**
@@ -360,7 +420,6 @@ EOT;
      */
     protected function registerSingleAction($action): void
     {
-
         $this->app['config']->set(
             'opendialog.action_engine.available_actions',
             [
