@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use Mockery\MockInterface;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
@@ -11,6 +12,7 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class NextIntentDetectionTest extends TestCase
 {
@@ -180,35 +182,44 @@ class NextIntentDetectionTest extends TestCase
 
     public function testMultipleNextIntents()
     {
+        $test1 = 'This is Test1.';
+        $test1Intent = OutgoingIntent::create(['name' => 'test1']);
         MessageTemplate::create([
             'name' => 'test1',
-            'message_markup' => '<message><text-message>This is Test1.</text-message></message>',
-            'outgoing_intent_id' => 'test1'
+            'message_markup' => '<message><text-message>' . $test1 . '</text-message></message>',
+            'outgoing_intent_id' => $test1Intent->id
         ]);
 
+        $test2_1 = 'This is Test2 (part 1).';
+        $test2_2 = 'This is Test2 (part 2).';
+        $test2Intent = OutgoingIntent::create(['name' => 'test2']);
         MessageTemplate::create([
             'name' => 'test2',
-            'message_markup' => '<message><text-message>This is Test2.</text-message></message>',
-            'outgoing_intent_id' => 'test2'
+            'message_markup' => '
+                <message>
+                    <text-message>' . $test2_1 . '</text-message>
+                    <text-message>' . $test2_2 . '</text-message>
+                </message>',
+            'outgoing_intent_id' => $test2Intent->id
         ]);
 
-        $this->mock(ConversationEngine::class, function ($mock) {
-            $mock->shouldReceive('getNextIntent')->andReturn([
+        $mockedConversationEngine = $this->mock(ConversationEngine::class, function (MockInterface $mock) {
+            $mock->shouldReceive('getNextIntents')->andReturn([
                 Intent::createIntentWithConfidence('test1', 1),
                 Intent::createIntentWithConfidence('test2', 1)
             ]);
         });
 
         $openDialogController = resolve(OpenDialogController::class);
-
-        $conversationContext = ContextService::getConversationContext();
+        $openDialogController->setConversationEngine($mockedConversationEngine);
 
         $utterance = UtteranceGenerator::generateChatOpenUtterance('test');
-        $openDialogController->runConversation($utterance);
-        $nextIntents = $conversationContext->getAttributeValue('next_intents');
-        $this->assertCount(2, $nextIntents);
-        $this->assertEquals('test1', $nextIntents[0]);
-        $this->assertEquals('test2', $nextIntents[0]);
+        $messages = $openDialogController->runConversation($utterance)->getMessages();
+
+        $this->assertCount(3, $messages);
+        $this->assertEquals($test1, $messages[0]->getText());
+        $this->assertEquals($test2_1, $messages[1]->getText());
+        $this->assertEquals($test2_2, $messages[2]->getText());
     }
 
     public function getTestConversation()
