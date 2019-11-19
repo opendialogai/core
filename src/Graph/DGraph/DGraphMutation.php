@@ -106,8 +106,7 @@ class DGraphMutation
                 $attributeValue = $attribute->getValue();
             }
 
-            if ($lastType === ArrayAttribute::$type)
-            {
+            if ($lastType === ArrayAttribute::$type) {
                 $attributeValue = htmlspecialchars(json_encode($attributeValue), ENT_QUOTES);
             }
 
