@@ -111,7 +111,7 @@ conversation:
     opening_scene:
       intents:
         - u:
-            i: intent.test.hello_bot
+            i: intent.test.hello_bot_comp
             interpreter: interpreter.test.hello_bot_comp
             action: action.test.test
             expected_attributes:
