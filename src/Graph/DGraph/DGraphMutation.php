@@ -92,7 +92,7 @@ class DGraphMutation
 
         // Add all the attributes related to this node.
         $attributes = $node->getAttributes();
-        $lastType = '';
+
         /* @var AttributeInterface $attribute */
         foreach ($attributes as $attribute) {
             // Skip the UID - we don't need to add that back as an attribute.
@@ -100,17 +100,7 @@ class DGraphMutation
                 continue;
             }
 
-            if ($attribute instanceof ArrayAttribute) {
-                $attributeValue = $attribute->toString();
-            } else {
-                $attributeValue = $attribute->getValue();
-            }
-
-            if ($lastType === ArrayAttribute::$type) {
-                $attributeValue = htmlspecialchars(json_encode($attributeValue), ENT_QUOTES);
-            }
-
-            $lastType = $attribute->getValue();
+            $attributeValue = $attribute->getValue();
 
             $attributeStatement[] = $this->prepareAttributeTriple(
                 $id,

@@ -18,4 +18,6 @@ interface AttributeInterface
     public function setValue($value);
 
     public function toString(): string;
+
+    public function getSerialized(): string;
 }

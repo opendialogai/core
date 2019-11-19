@@ -41,23 +41,11 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
             $results = $input->getResults();
             $total = $input->getNumberOfResults();
 
-            array_push($attributes, new IntAttribute(
-                'pw.total',
-                $total
-            ));
-            array_push($attributes, new ArrayAttribute(
-                'pw.results',
-                $results
-            ));
+            $attributes[] = new IntAttribute('total', $total);
+            $attributes[] = new ArrayAttribute('results', $results);
         } elseif ($type === self::EXAMPLE_TYPE_ARRAY) {
-            array_push($attributes, new IntAttribute(
-                'pw.total',
-                count($input)
-            ));
-            array_push($attributes, new ArrayAttribute(
-                'pw.results',
-                $input
-            ));
+            $attributes[] = new IntAttribute('total', count($input));
+            $attributes[] = new ArrayAttribute('results', $input);
         }
 
         return $attributes;

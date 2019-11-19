@@ -70,4 +70,12 @@ abstract class AbstractAttribute implements AttributeInterface
     {
         $this->id = $id;
     }
+
+    /**
+     * @return string
+     */
+    public function getSerialized(): string
+    {
+        return $this->value;
+    }
 }

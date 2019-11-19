@@ -40,7 +40,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
             $this->attributeCollection = new $this->attributeCollectionType($value);
         }
 
-        $this->value =  htmlspecialchars(json_encode($this->attributeCollection), ENT_QUOTES);
+        $this->value =  $this->attributeCollection->jsonSerialize();
     }
 
     /**
@@ -50,7 +50,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
      */
     public function getValue()
     {
-        return $this->attributeCollection->jsonSerialize();
+        return $this->attributeCollection->getAttributes();
     }
 
     /**
@@ -59,6 +59,11 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
      * @return string
      */
     public function toString(): string
+    {
+        return $this->attributeCollection->toString();
+    }
+
+    public function getSerialized(): string
     {
         return $this->value;
     }

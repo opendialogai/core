@@ -69,8 +69,8 @@ class CompositeAttributeTest extends TestCase
 
         $this->setCustomAttributes(
             [
-                'pw.total' => IntAttribute::class,
-                'pw.results' => ArrayAttribute::class,
+                'total' => IntAttribute::class,
+                'results' => ArrayAttribute::class,
                 'array_test' => ArrayAttribute::class,
                 'result_test' => ExampleAbstractCompositeAttribute::class,
                 'intent_test' => StringAttribute::class,
@@ -98,7 +98,7 @@ class CompositeAttributeTest extends TestCase
         $utterance = UtteranceGenerator::generateTextUtterance('Hello');
         $messages = resolve(OpenDialogController::class)->runConversation($utterance);
         $this->assertCount(1, $messages->getMessages());
-        $this->assertEquals('Result: test || &quot;&amp;quot;&amp;amp;quot;[&amp;amp;amp;quot;ok&amp;amp;amp;quot;]&amp;amp;quot;&amp;quot;&quot; || &quot;[{&amp;quot;id&amp;quot;:&amp;quot;pw.total&amp;quot;,&amp;quot;value&amp;quot;:1},{&amp;quot;id&amp;quot;:&amp;quot;pw.results&amp;quot;,&amp;quot;value&amp;quot;:[{&amp;quot;id&amp;quot;:&amp;quot;one&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;go&amp;quot;}]}]&quot; || 1', $messages->getMessages()[0]->getText());
+        $this->assertEquals('Result: test || ["ok"] || [{"id":"total","type":"attribute.core.int","value":"1"},{"id":"results","type":"attribute.core.array","value":"[{\"id\":\"one\",\"value\":\"go\"}]"}] || 1', $messages->getMessages()[0]->getText());
     }
 
 

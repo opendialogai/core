@@ -23,6 +23,6 @@ class StringAttribute extends BasicAttribute
      */
     public function getValue()
     {
-        return $this->value === null ? $this->value : ($this->value);
+        return $this->value === null ? $this->value : strval($this->value);
     }
 }
