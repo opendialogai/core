@@ -41,7 +41,7 @@ class ArrayAttribute extends AbstractAttribute
      */
     public function toString(): string
     {
-        return htmlspecialchars_decode($this->value);
+        return $this->value;
     }
 
     public function getSerialized(): string

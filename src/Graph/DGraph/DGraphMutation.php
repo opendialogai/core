@@ -100,7 +100,11 @@ class DGraphMutation
                 continue;
             }
 
-            $attributeValue = $attribute->getValue();
+            if ($attribute instanceof ArrayAttribute) {
+                $attributeValue = $attribute->toString();
+            } else {
+                $attributeValue = $attribute->getValue();
+            }
 
             $attributeStatement[] = $this->prepareAttributeTriple(
                 $id,
