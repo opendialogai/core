@@ -98,7 +98,7 @@ class CompositeAttributeTest extends TestCase
         $utterance = UtteranceGenerator::generateTextUtterance('Hello');
         $messages = resolve(OpenDialogController::class)->runConversation($utterance);
         $this->assertCount(1, $messages->getMessages());
-        //$this->assertEquals('Result: test || ["ok"] || [{"id":"total","type":"attribute.core.int","value":"1"},{"id":"results","type":"attribute.core.array","value":"[{\"id\":\"one\",\"value\":\"go\"}]"}] || 1', $messages->getMessages()[0]->getText());
+        $this->assertEquals('Result: test || [&quot;ok&quot;] || [{"id":"total","type":"attribute.core.int","value":"1"},{"id":"results","type":"attribute.core.array","value":"[{&quot;id&quot;:&quot;one&quot;,&quot;value&quot;:&quot;go&quot;}]"}] || 1', $messages->getMessages()[0]->getText());
     }
 
 

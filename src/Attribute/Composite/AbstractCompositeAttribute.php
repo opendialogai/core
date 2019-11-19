@@ -40,13 +40,13 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
             $this->attributeCollection = new $this->attributeCollectionType($value);
         }
 
-        $this->value =  $this->attributeCollection->jsonSerialize();
+        $this->value = $this->attributeCollection->jsonSerialize();
     }
 
     /**
      * Returns the array of attributes
      *
-     * @return mixed
+     * @return AttributeInterface[]
      */
     public function getValue()
     {
