@@ -69,7 +69,7 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
             );
         }
 
-        return json_encode($serializedResult);
+        return  htmlspecialchars(json_encode($serializedResult), ENT_QUOTES);
     }
 
     /**
@@ -87,7 +87,7 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
      */
     private function jsonDeserialize($input) : array
     {
-        $arrayOfAttributes = json_decode($input, true);
+        $arrayOfAttributes = json_decode(htmlspecialchars_decode($input), true);
         $resultAttributes = [];
 
         foreach ($arrayOfAttributes as $attribute) {

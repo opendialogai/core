@@ -6,6 +6,7 @@ use Ds\Map;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;
@@ -91,6 +92,7 @@ class DGraphMutation
 
         // Add all the attributes related to this node.
         $attributes = $node->getAttributes();
+        $lastType = '';
         /* @var AttributeInterface $attribute */
         foreach ($attributes as $attribute) {
             // Skip the UID - we don't need to add that back as an attribute.
@@ -103,6 +105,13 @@ class DGraphMutation
             } else {
                 $attributeValue = $attribute->getValue();
             }
+
+            if ($lastType === ArrayAttribute::$type)
+            {
+                $attributeValue = htmlspecialchars(json_encode($attributeValue), ENT_QUOTES);
+            }
+
+            $lastType = $attribute->getValue();
 
             $attributeStatement[] = $this->prepareAttributeTriple(
                 $id,
