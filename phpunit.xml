@@ -71,7 +71,7 @@
     <php>
         <env name="PACKAGE_NAME" value="TestDialog"/>
         <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
-        <env name="DGRAPH_URL" value="dgraph-alpha"/>
+        <env name="DGRAPH_URL" value="localhost"/>
         <env name="DGRAPH_PORT" value="8080"/>
     </php>
     <logging>

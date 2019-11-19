@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -19,7 +19,6 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -90,14 +89,14 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
-     * @return Intent
+     * @return Intent[]
      * @throws FieldNotSupported
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws EIModelCreatorException
      * @throws CurrentIntentNotSetException
      */
-    public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
+    public function getNextIntents(UserContext $userContext, UtteranceInterface $utterance): array
     {
         /* @var Conversation $ongoingConversation */
         $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
@@ -117,7 +116,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         /* @var Intent $nextIntent */
         $nextIntent = $filteredIntents->first()->value;
-        ContextService::saveAttribute('conversation.next_intent', $nextIntent->getId());
+        ContextService::saveAttribute('conversation.next_intents', [$nextIntent->getId()]);
 
         if ($nextIntent->causesAction()) {
             $inputActionAttributes = $nextIntent->getInputActionAttributeContexts();
@@ -132,7 +131,7 @@ class ConversationEngine implements ConversationEngineInterface
             $userContext->setCurrentIntent($nextIntent);
         }
 
-        return $nextIntent;
+        return [$nextIntent];
     }
 
     /**

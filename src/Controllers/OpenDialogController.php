@@ -9,6 +9,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -69,7 +70,9 @@ class OpenDialogController
     {
         $userContext = ContextService::createUserContext($utterance);
 
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        /** @var Intent[] $intents */
+        $intents = $this->conversationEngine->getNextIntents($userContext, $utterance);
+        $intent = $intents[0];
 
         // Log incoming message.
         $this->conversationLogService->logIncomingMessage($utterance);
