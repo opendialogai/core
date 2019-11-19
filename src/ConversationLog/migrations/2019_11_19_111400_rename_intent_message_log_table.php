@@ -14,7 +14,6 @@ class RenameIntentMessageLogTable extends Migration
     public function up()
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->json('intent')->nullable()->change();
             $table->renameColumn('intent', 'intents');
         });
     }
@@ -27,7 +26,6 @@ class RenameIntentMessageLogTable extends Migration
     public function down()
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->string('intents')->nullable()->change();
             $table->renameColumn('intents', 'intent');
         });
     }
