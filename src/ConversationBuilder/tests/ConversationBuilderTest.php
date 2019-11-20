@@ -558,6 +558,6 @@ class ConversationBuilderTest extends TestCase
         $virtualIntent = $firstBotIntent->getVirtualIntent();
 
         $this->assertNotNull($virtualIntent);
-        $this->assertEquals('intent.app.continue', $firstBotIntent->getId());
+        $this->assertEquals('intent.app.continue', $virtualIntent->getId());
     }
 }

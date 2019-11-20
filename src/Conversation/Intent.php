@@ -476,6 +476,6 @@ class Intent extends NodeWithConditions
     {
         $nodes = $this->getNodesConnectedByOutgoingRelationship(Model::CAUSES_VIRTUAL_INTENT);
 
-        return $nodes->isEmpty() ? null : $nodes->first();
+        return $nodes->isEmpty() ? null : $nodes->first()->value;
     }
 }

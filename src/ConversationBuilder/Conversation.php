@@ -24,6 +24,7 @@ use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
+use OpenDialogAi\Core\Conversation\VirtualIntent;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
@@ -367,17 +368,16 @@ class Conversation extends Model
         $conditions = null;
         $inputActionAttributes = null;
         $outputActionAttributes = null;
+        $virtualIntentId = null;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
             $interpreterLabel = $intentValue['interpreter'] ?? null;
             $completes = $intentValue['completes'] ?? false;
             $confidence = $intentValue['confidence'] ?? false;
-            $expectedAttributes = $intentValue['expected_attributes'] ?? null;
             $conditions = $intentValue['conditions'] ?? null;
-            $intentSceneId = $intent[$speaker]['scene'] ?? null;
-            $inputAttributes = $intent[$speaker]['input_attributes'] ?? null;
-            $expectedAttributes = $intent[$speaker]['expected_attributes'] ?? null;
+            $intentSceneId = $intentValue['scene'] ?? null;
+            $expectedAttributes = $intentValue['expected_attributes'] ?? null;
 
             if (isset($intentValue['action']) && is_array($intentValue['action'])) {
                 $actionLabel = $intentValue['action']['id'] ?? null;
@@ -385,6 +385,10 @@ class Conversation extends Model
                 $outputActionAttributes = $intentValue['action']['output_attributes'] ?? null;
             } else {
                 $actionLabel = $intentValue['action'] ?? null;
+            }
+
+            if ($speaker == 'b') {
+                $virtualIntentId = $intentValue['u_virtual']['i'] ?? null;
             }
         } else {
             $intentLabel = $intentValue;
@@ -429,6 +433,10 @@ class Conversation extends Model
             foreach ($outputActionAttributes as $outputActionAttribute) {
                 $intentNode->addOutputActionAttribute(new ExpectedAttribute($outputActionAttribute));
             }
+        }
+
+        if ($virtualIntentId) {
+            $intentNode->addVirtualIntent(new VirtualIntent($virtualIntentId));
         }
 
         return $intentNode;
