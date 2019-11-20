@@ -48,7 +48,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     /** @var ResponseEngineService */
     private $responseEngineService;
 
-    static $name = 'formatter.core.webchat';
+    public static $name = 'formatter.core.webchat';
 
     /**
      * WebChatMessageFormatter constructor.
@@ -305,8 +305,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
      */
     protected function getAttributeMessageText($attributeName): string
     {
-        [$contextId, $attributeId] = ContextParser::determineContextAndAttributeId($attributeName);
-        $attributeValue = ContextService::getAttributeValue($attributeId, $contextId);
+        $parsedAttributeName = ContextParser::parseAttributeName($attributeName);
+
+        $attributeValue = ContextService::getAttributeValue($parsedAttributeName->attributeId, $parsedAttributeName->contextId);
 
         return $this->responseEngineService->fillAttributes($attributeValue);
     }

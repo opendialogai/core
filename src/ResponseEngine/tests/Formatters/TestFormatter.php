@@ -15,7 +15,7 @@ use OpenDialogAi\ResponseEngine\Message\RichMessage;
 
 class TestFormatter extends BaseMessageFormatter
 {
-    static $name = 'formatter.test.test';
+    public static $name = 'formatter.test.test';
 
     public function getMessages(string $markup): OpenDialogMessages
     {
