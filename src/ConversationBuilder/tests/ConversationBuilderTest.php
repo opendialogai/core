@@ -537,4 +537,26 @@ class ConversationBuilderTest extends TestCase
 
         $this->assertEquals('intent.app.you_lost', $secondSceneBotIntentIds->skip(0)->value);
     }
+
+    public function testVirtualIntents()
+    {
+        $conversation = $this->createConversationWithVirtualIntent();
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+
+        $this->assertCount(2, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+
+        /** @var Intent $firstBotIntent */
+        $firstBotIntent = $openingScene->getIntentsSaidByBot()->first()->value;
+
+        $this->assertEquals('intent.app.welcomeResponse', $firstBotIntent->getId());
+
+        /** @var VirtualIntent $virtualIntent */
+        $virtualIntent = $firstBotIntent->getVirtualIntent();
+
+        $this->assertNotNull($virtualIntent);
+        $this->assertEquals('intent.app.continue', $firstBotIntent->getId());
+    }
 }
