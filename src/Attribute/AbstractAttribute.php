@@ -70,4 +70,12 @@ abstract class AbstractAttribute implements AttributeInterface
     {
         $this->id = $id;
     }
+
+    /**
+     * @return AbstractAttribute
+     */
+    public function copy(): AbstractAttribute
+    {
+        return clone $this;
+    }
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
@@ -518,7 +519,7 @@ class ConversationEngine implements ConversationEngineInterface
             }
         }
 
-        $filteredIntents = $this->filterByConditions($matching);
+        $filteredIntents = $this->filterByConditions($matching, true);
 
         $matchingIntents = new MatchingIntents();
         foreach ($filteredIntents as $matchingIntent) {
@@ -568,19 +569,41 @@ class ConversationEngine implements ConversationEngineInterface
 
     /**
      * @param Map $intents
+     * @param bool $useIntentContext
      * @return Map
      */
-    private function filterByConditions(Map $intents): Map
+    private function filterByConditions(Map $intents, bool $useIntentContext = false): Map
     {
-        $filteredIntents = $intents->filter(function ($key, Intent $item) {
-            /** @var Condition $condition */
-            foreach ($item->getAllConditions() as $condition) {
-                if (!$this->operationService->checkCondition($condition)) {
-                    return false;
+        if ($useIntentContext) {
+            /** @var IntentContext $intentContext */
+            $intentContext = ContextService::getContext(IntentContext::INTENT_CONTEXT);
+        } else {
+            $intentContext = null;
+        }
+
+        $filteredIntents = $intents->filter(function ($key, Intent $item) use ($intentContext) {
+            if ($intentContext) {
+                /** @var AttributeInterface $attribute */
+                foreach ($item->getNonCoreAttributes() as $attribute) {
+                    $intentContext->addAttribute($attribute->copy());
                 }
             }
 
-            return true;
+            $result = true;
+
+            /** @var Condition $condition */
+            foreach ($item->getAllConditions() as $condition) {
+                if (!$this->operationService->checkCondition($condition)) {
+                    $result = false;
+                    break;
+                }
+            }
+
+            if ($intentContext) {
+                $intentContext->refresh();
+            }
+
+            return $result;
         });
 
         return $filteredIntents;
