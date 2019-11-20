@@ -317,10 +317,10 @@ class Node
      */
     public function hash(): string
     {
-       if (!isset($this->uniqueId)) {
-           $this->uniqueId = uniqid();
-       }
+        if (!isset($this->uniqueId)) {
+            $this->uniqueId = uniqid();
+        }
 
-       return $this->uniqueId;
+        return $this->uniqueId;
     }
 }
