@@ -2,9 +2,9 @@
 
 [![CircleCI](https://circleci.com/gh/opendialogai/core/tree/master.svg?style=svg&circle-token=d14bcacaf3cd3e6ae4dfd2fb3bf03658cf0ca8fa)](https://circleci.com/gh/opendialogai/core/tree/master)
 
-[OpenDialog](https://opendialog.ai) is a platform that helps you design, develop and deploy and administer chatbots - or as we like to call them, conversational applications.
+[OpenDialog](https://opendialog.ai) is a platform that helps you design, develop, deploy and administer chatbots - or as we like to call them, conversational applications.
 
-OpenDialog Core is the heart of this platform. It provides ways to develop and integrate the different components that are required to build a conversational application. 
+OpenDialog Core is the heart of this platform. It provides ways to develop and integrate the different components that are required to build a conversational application. We have very specific ideas about how to design and specify such applications. You can read more about it [here](https://docs.opendialog.ai).
 
 If you are interested in seeing how OpenDialog works please head over to the [OpenDialog app](https://github.com/opendialogai/opendialog) repository and follow the instructions there to install. 
 
@@ -50,15 +50,30 @@ We provide a Docker-based environment for running tests and provide a database e
 
 A Lando file is included for running tests. Before trying to use Lando make sure to copy `lando.example.env` to `lando.env`. 
 
-The Lando setup It includes a test DGraph. Test can be run with:
+Test can be run with:
 
     lando test
     
-More information on testing and setting up a local test environment can be found [on our wiki](https://github.com/opendialogai/opendialog/wiki/Running-tests-through-PHPStorm). 
+More information on testing and setting up a local test environment can be found [on our wiki](https://github.com/opendialogai/opendialog/wiki/Running-tests-through-PHPStorm).
 
-### Query Logging
+### Performance testing
 
-To log DGraph queries to the standard application log, set the `LOG_DGRAPH_QUERIES` environment variable to true.
+The Lando-configured Docker environment also installs [Blackfire](https://blackfire.io) to allow you to do performance analysis. 
+
+To use Blackfire you can use: 
+
+```lando blackfire run <php_script>```
+
+For example, to run Blackfire tracing on a specific test you could do:
+
+```lando blackfire run phpunit /app/src/ConversationEngine/tests/ConversationEngineTest --filter=testDeterminingNextIntentsInMultiSceneConversation```
+
+Make sure to add your Blackfire configuration in `lando.env`. 
+
+### Dgraph Query Logging
+
+OpenDialog stores conversation and conversation state to a graph database called Dgraph. To log DGraph queries to the standard application log, set the `LOG_DGRAPH_QUERIES` environment variable to true.
+
 All queries are logged at info level.
 
 ## Logging API requests
@@ -71,14 +86,3 @@ To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`.
 To turn on introspection processing set the `INTROSPECTION_PROCESSOR_ENABLED` env variable to true. This will add
 extra information to all log messages including the class and line that generated the message.
 
-## Performance testing
-
-The Lando-configured Docker environment also installs [Blackfire](https://blackfire.io) to allow you to run performance analysis. To use Blackfire you can use: 
-
-```lando blackfire run <php_script>```
-
-For example, to run Blackfire tracing on a test you could do:
-
-```lando blackfire run phpunit /app/src/ConversationEngine/tests/ConversationEngineTest --filter=testDeterminingNextIntentsInMultiSceneConversation```
-
-Make sure to add your Blackfire configure in `lando.env`.
