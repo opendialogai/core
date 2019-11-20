@@ -1,4 +1,6 @@
 name: opendialog-core
+env_file:
+  - lando.env
 services:
   php-service:
     type: php:7.3
@@ -6,6 +8,8 @@ services:
     xdebug: true
     config:
       php: config/php.ini
+    run_as_root:
+      - /app/blackfireInit.sh
   dgraph-zero:
     type: compose
     services:
@@ -21,3 +25,6 @@ tooling:
     service: php-service
     description: Runs all tests
     cmd: php /app/vendor/bin/phpunit
+  blackfire:
+    service: php-service
+    user: root
