@@ -44,6 +44,32 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
                 'results',
                 $input
             ));
+        } elseif ($type === self::EXAMPLE_TYPE) {
+            array_push($attributes, new IntAttribute(
+                'total',
+                count($input)
+            ));
+            array_push($attributes, new ArrayAttribute(
+                'results',
+                $input
+            ));
+            array_push($attributes, new ExampleAbstractCompositeAttribute(
+                'case',
+                new ExampleAbstractAttributeCollection(
+                    [1=>'ok', 2=>'anotherone', 3=>'deeper'],
+                    'TEMP_TEST'
+                )
+            ));
+        } else {
+            array_push($attributes, new IntAttribute(
+                'totaloftotal',
+                count($input)
+            ));
+
+            array_push($attributes, new ArrayAttribute(
+                'resultsofresult',
+                $input
+            ));
         }
 
         return $attributes;

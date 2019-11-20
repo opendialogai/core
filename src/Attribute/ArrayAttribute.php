@@ -27,9 +27,12 @@ class ArrayAttribute extends AbstractAttribute
         $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
     }
 
-    public function getValue()
+    public function getValue(array $index = [])
     {
-        return json_decode(htmlspecialchars_decode($this->value));
+        if (!$index) {
+            return json_decode(htmlspecialchars_decode($this->value), true);
+        }
+        return json_decode(htmlspecialchars_decode($this->value), true)[(int) $index[0]];
     }
 
     /**

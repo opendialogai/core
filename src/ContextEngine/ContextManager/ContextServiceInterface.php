@@ -81,11 +81,12 @@ interface ContextServiceInterface
     /**
      * Calls @param string $attributeId
      * @param string $contextId
+     * @param array $index
      * @return mixed
      * @see ContextService::getAttribute() to resolve an attribute and returns its concrete value
      *
      */
-    public function getAttributeValue(string $attributeId, string $contextId);
+    public function getAttributeValue(string $attributeId, string $contextId, array $index);
 
     /**
      * @param UtteranceInterface $utterance

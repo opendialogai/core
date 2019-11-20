@@ -45,12 +45,41 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
 
     /**
      * Returns the array of attributes
-     *
+     * @param array $index
      * @return AttributeInterface[]
      */
-    public function getValue()
+    public function getValue(array $index = [])
     {
-        return $this->attributeCollection->getAttributes();
+        if (!$index) {
+            return $this->attributeCollection->getAttributes();
+        }
+
+
+        $attributes = $this->attributeCollection->getAttributes();
+
+        $useColsure = function ($index, $attributes, $count) use (&$useColsure) {
+            if (array_key_exists($count, $index)) {
+                $search = $index[$count];
+
+                if (is_array($attributes)) {
+                    $attributes = array_reduce($attributes, function ($carry, $attribute) use ($search) {
+                        if ($attribute->getId() === $search) {
+                            $carry = $attribute;
+                        }
+                        return $carry;
+                    });
+                } elseif ($attributes instanceof AbstractAttribute) {
+                    $attributes = $attributes->getValue([$search]);
+                }
+
+                $result = $useColsure($index, $attributes, $count+1);
+
+                return $result;
+            } else {
+                return $attributes;
+            }
+        };
+        return $useColsure($index, $attributes, 0);
     }
 
     /**

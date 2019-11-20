@@ -15,7 +15,7 @@ class AttributeAccessorTest extends TestCase
     {
         $this->addAttributeToSession(new ArrayAttribute('test', [1, 2, 3, 4]));
 
-        $value = ContextService::getAttributeValue('session', 'test', [0]);
+        $value = ContextService::getAttributeValue('test', 'session', [0]);
 
         $this->assertEquals(1, $value);
     }
@@ -24,7 +24,7 @@ class AttributeAccessorTest extends TestCase
     {
         $this->addAttributeToSession(new ArrayAttribute('test', [1, 2, 3, 4]));
 
-        $attribute = ContextService::getAttribute('session', 'test');
+        $attribute = ContextService::getAttribute('test', 'session');
 
         $this->assertEquals(1, $attribute->getValue([0]));
     }
@@ -72,6 +72,27 @@ class AttributeAccessorTest extends TestCase
         $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[results][1]}');
 
         $this->assertEquals('hello', $response);
+    }
+
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function testCompositeAttributeFromCompositeAttributeString()
+    {
+        $attribute = new ExampleAbstractCompositeAttribute(
+            'test',
+            new ExampleAbstractAttributeCollection([1 => 'hello', 2 => 'goodbye'], ExampleAbstractAttributeCollection::EXAMPLE_TYPE)
+        );
+
+        $this->addAttributeToSession($attribute);
+
+        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[case][totaloftotal]}');
+
+        $responseArrayValue = resolve(ResponseEngineService::class)->fillAttributes('{session.test[case][resultsofresult][3]}');
+
+        $this->assertEquals(3, $response);
+        $this->assertEquals("deeper", $responseArrayValue);
     }
 
     private function addAttributeToSession($attribute): void
