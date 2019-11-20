@@ -79,7 +79,7 @@ class EIModelIntentTest extends TestCase
 
     public function testCanGetIntentAndVirtualIntent()
     {
-        $this->activateConversation($this->createConversationWithVirtualIntent());
+        $this->createConversationWithVirtualIntent();
 
         $conversation = Conversation::where('name', 'with_virtual_intent')->first();
         $query = $this->queryFactory::getConversationFromDGraphWithUid($conversation->graph_uid);
