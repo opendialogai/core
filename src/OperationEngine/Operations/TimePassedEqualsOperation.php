@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class TimePassedEqualsOperation extends BaseOperation
 {
-    static $name  = 'time_passed_equals';
+    public static $name  = 'time_passed_equals';
 
     /**
      * @inheritDoc

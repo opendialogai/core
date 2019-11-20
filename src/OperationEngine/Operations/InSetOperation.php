@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class InSetOperation extends BaseOperation
 {
-    static $name  = 'in_set';
+    public static $name  = 'in_set';
 
     /**
      * @inheritDoc
