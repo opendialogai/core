@@ -16,6 +16,7 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Participant;
+use OpenDialogAi\Core\Conversation\VirtualIntent;
 
 class EIModelToGraphConverter
 {
@@ -153,6 +154,13 @@ class EIModelToGraphConverter
             $outputActionAttributeNode = new ExpectedAttribute($outputActionAttributeId);
             $clone ? false : $outputActionAttributeNode->setUid($outputActionAttributeUid);
             $intent->addOutputActionAttribute($outputActionAttributeNode);
+        }
+
+        $virtualIntentModel = $intentData->getVirtualIntent();
+        if ($virtualIntentModel) {
+            $virtualIntent = new VirtualIntent($virtualIntentModel->getId());
+            $clone ? false : $virtualIntent->setUid($virtualIntentModel->getUid());
+            $intent->addVirtualIntent($virtualIntent);
         }
 
         return $intent;

@@ -460,4 +460,22 @@ class Intent extends NodeWithConditions
 
         return $conditions;
     }
+
+    /**
+     * @param VirtualIntent $virtualIntent
+     */
+    public function addVirtualIntent(VirtualIntent $virtualIntent): void
+    {
+        $this->createOutgoingEdge(Model::CAUSES_VIRTUAL_INTENT, $virtualIntent);
+    }
+
+    /**
+     * @return VirtualIntent|null
+     */
+    public function getVirtualIntent(): ?VirtualIntent
+    {
+        $nodes = $this->getNodesConnectedByOutgoingRelationship(Model::CAUSES_VIRTUAL_INTENT);
+
+        return $nodes->isEmpty() ? null : $nodes->first()->value;
+    }
 }

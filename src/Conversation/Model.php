@@ -22,6 +22,7 @@ class Model
     const CHATBOT_USER = 'chatbot_user';
     const USER_ATTRIBUTE = 'user_attribute';
     const EXPECTED_ATTRIBUTE = 'expected_attribute';
+    const VIRTUAL_INTENT = 'virtual_intent';
     const LAST_SEEN = 'last_seen';
     const CONVERSATION_STATUS = 'conversation_status';
     const CONVERSATION_VERSION = 'conversation_version';
@@ -53,6 +54,7 @@ class Model
     // Intents can cause actions to be performed and can define interpreters.
     const CAUSES_ACTION = 'causes_action';
     const HAS_INTERPRETER = 'has_interpreter';
+    const CAUSES_VIRTUAL_INTENT = 'causes_virtual_intent';
 
     // ChatbotUsers can have many UserAttributes
     const HAS_ATTRIBUTE = 'has_attribute';

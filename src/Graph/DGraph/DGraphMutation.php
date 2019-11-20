@@ -293,6 +293,10 @@ class DGraphMutation
                 $type = DGraphClient::USER_ATTRIBUTE;
                 break;
 
+            case Model::VIRTUAL_INTENT:
+                $type = DGraphClient::VIRTUAL_INTENT;
+                break;
+
             default:
                 return null;
         }

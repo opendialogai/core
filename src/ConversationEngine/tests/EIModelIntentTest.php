@@ -10,6 +10,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelScene;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelVirtualIntent;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -44,7 +45,8 @@ class EIModelIntentTest extends TestCase
         $this->activateConversation($this->conversation1());
     }
 
-    public function testCanGetIntent() {
+    public function testCanGetIntent()
+    {
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
         $query = $this->queryFactory::getConversationFromDGraphWithUid($conversation->graph_uid);
         $response = $this->dGraph->query($query);
@@ -74,5 +76,33 @@ class EIModelIntentTest extends TestCase
         }
 
         $this->assertEquals($intentUid, $intent->getIntentUid());
+    }
+
+    public function testCanGetIntentAndVirtualIntent()
+    {
+        $this->createConversationWithVirtualIntent();
+
+        $conversation = Conversation::where('name', 'with_virtual_intent')->first();
+        $query = $this->queryFactory::getConversationFromDGraphWithUid($conversation->graph_uid);
+        $response = $this->dGraph->query($query);
+
+        try {
+            /* @var EIModelConversation $conversationModel */
+            $conversationModel = $this->eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
+        } catch (Exception $e) {
+            $this->fail($e);
+        }
+
+        /* @var EIModelScene $openingScene */
+        $openingScene = $conversationModel->getOpeningScenes()->first();
+
+        /* @var EIModelIntent $secondIntent */
+        $secondIntent = $openingScene->getIntents()->get(1);
+
+        /** @var EIModelVirtualIntent $virtualIntent */
+        $virtualIntent = $secondIntent->getVirtualIntent();
+        $this->assertNotNull($virtualIntent);
+        $this->assertInstanceOf(EIModelVirtualIntent::class, $virtualIntent);
+        $this->assertEquals('intent.app.continue', $virtualIntent->getId());
     }
 }

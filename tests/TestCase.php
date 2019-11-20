@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests;
 
+use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
@@ -601,5 +602,42 @@ conversation:
             completes: true
 EOT;
         return $conversationMarkup;
+    }
+
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithVirtualIntent(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithVirtualIntent();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
+    public function getMarkupForConversationWithVirtualIntent(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_virtual_intent
+  scenes:
+    opening_scene:
+      intents:
+          - u:
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+              u_virtual:
+                i: intent.app.continue
+          - u:
+              i: intent.app.continue
+          - b:
+              i: intent.app.endResponse
+              completes: true
+EOT;
     }
 }
