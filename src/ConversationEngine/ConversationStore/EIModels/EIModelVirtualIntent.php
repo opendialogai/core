@@ -9,6 +9,7 @@ use OpenDialogAi\Core\Conversation\Model;
 class EIModelVirtualIntent extends EIModelBase
 {
     private $id;
+    private $uid;
 
     /**
      * This method should indicate whether the given response is valid for this EI Model. If it isn't then the `handle`
@@ -49,5 +50,21 @@ class EIModelVirtualIntent extends EIModelBase
     public function setId($id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUid()
+    {
+        return $this->uid;
+    }
+
+    /**
+     * @param mixed $id
+     */
+    public function setUid($id): void
+    {
+        $this->uid = $id;
     }
 }
