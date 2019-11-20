@@ -7,6 +7,7 @@ use Ds\Pair;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 
@@ -45,6 +46,9 @@ class EIModelIntent extends EIModelWithConditions
 
     /* @var Intent */
     private $interpretedIntent;
+
+    /* @var EIModelVirtualIntent */
+    private $virtualIntent;
 
     /**
      * This method should indicate whether the given response is valid for this EI Model. If it isn't then the `handle`
@@ -146,6 +150,15 @@ class EIModelIntent extends EIModelWithConditions
 
         if (isset($intentResponse[Model::LISTENED_BY_FROM_SCENES])) {
             $intent->setNextScene(self::getEndingSceneId($intentResponse));
+        }
+
+        if (isset($response[Model::CAUSES_VIRTUAL_INTENT])) {
+            $virtualIntentData = $response[Model::CAUSES_VIRTUAL_INTENT];
+            $eiModelCreator = resolve(EIModelCreator::class);
+
+            /** @var EIModelVirtualIntent $virtualIntent */
+            $virtualIntent = $eiModelCreator->createEIModel(EIModelVirtualIntent::class, $virtualIntentData);
+            $intent->setVirtualIntent($virtualIntent);
         }
 
         return $intent;
@@ -479,5 +492,21 @@ class EIModelIntent extends EIModelWithConditions
 
         Log::error('Could not extract ending scene id', $listenedBy);
         throw new Exception('Could not extract ending scene id');
+    }
+
+    /**
+     * @return EIModelVirtualIntent|null
+     */
+    public function getVirtualIntent(): ?EIModelVirtualIntent
+    {
+        return $this->virtualIntent;
+    }
+
+    /**
+     * @param EIModelVirtualIntent $virtualIntent
+     */
+    public function setVirtualIntent(EIModelVirtualIntent $virtualIntent): void
+    {
+        $this->virtualIntent = $virtualIntent;
     }
 }
