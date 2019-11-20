@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class GreaterThanOperation extends BaseOperation
 {
-    static $name = 'gt';
+    public static $name = 'gt';
 
     /**
      * @inheritDoc

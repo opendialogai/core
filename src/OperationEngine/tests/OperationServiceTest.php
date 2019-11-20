@@ -36,9 +36,11 @@ class OperationServiceTest extends TestCase
     private function registerOperation($mockOperation): void
     {
         $this->app['config']->set(
-            'opendialog.operation_engine.available_operations', [
+            'opendialog.operation_engine.available_operations',
+            [
                 get_class($mockOperation)
-            ]);
+            ]
+        );
     }
 
     /**

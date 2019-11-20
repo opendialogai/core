@@ -8,5 +8,5 @@ abstract class BaseMessageFormatter implements MessageFormatterInterface
 {
     use HasName;
 
-    static $name = 'base';
+    public static $name = 'base';
 }

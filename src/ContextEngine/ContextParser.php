@@ -7,23 +7,6 @@ use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
 {
-    /**
-     * Attempts to work out the context and attribute ID for a fully qualified attribute name.
-     * For example, an attribute with the name user.name would return:
-     * ['user', 'name']
-     *
-     * If no context is included with the attribute @see AbstractAttribute::UNDEFINED_CONTEXT is returned for the
-     * context id
-     *
-     * @param $attribute
-     * @return array The context and attribute ids in an array where the first value is the context id
-     */
-    public static function determineContextAndAttributeId($attribute): array
-    {
-        $parsedAttribute = self::parseAttributeName($attribute);
-        return [$parsedAttribute->context, $parsedAttribute->attributeId];
-    }
-
     public static function parseAttributeName($attribute) : ParsedAttributeName
     {
         $matches = explode('.', $attribute);
@@ -32,7 +15,7 @@ abstract class ContextParser
 
         switch (count($matches)) {
             case 2:
-                $parsedAttribute->setContext($matches[0]);
+                $parsedAttribute->setContextId($matches[0]);
                 self::parseArrayNotation($matches[1], $parsedAttribute);
                 break;
             case 1:
@@ -55,21 +38,9 @@ abstract class ContextParser
     {
         $split = preg_split('/[[\]\]]/', $attributeId, null, PREG_SPLIT_NO_EMPTY);
 
-        switch (count($split)) {
-            case 3:
-                $parsedAttribute->attributeId = $split[0];
-                $parsedAttribute->itemNumber = $split[1];
-                $parsedAttribute->itemName = $split[2];
-                break;
-            case 2:
-                $parsedAttribute->attributeId = $split[0];
-                $parsedAttribute->itemNumber = $split[1];
-                break;
-            case 1:
-            default:
-                $parsedAttribute->attributeId = $split[0];
-                break;
-        }
+        $parsedAttribute->attributeId = $split[0];
+        $accessor = array_slice($split, 1);
+        $parsedAttribute->setAccessor($accessor);
 
         return $parsedAttribute;
     }
@@ -86,7 +57,8 @@ abstract class ContextParser
      */
     public static function determineContextId($attribute): string
     {
-        return self::determineContextAndAttributeId($attribute)[0];
+        $parsedAttributeName = self::parseAttributeName($attribute);
+        return $parsedAttributeName->contextId;
     }
 
     /**
@@ -98,7 +70,8 @@ abstract class ContextParser
      */
     public static function determineAttributeId($attribute): string
     {
-        return self::determineContextAndAttributeId($attribute)[1];
+        $parsedAttributeName = self::parseAttributeName($attribute);
+        return $parsedAttributeName->attributeId;
     }
 
     /**

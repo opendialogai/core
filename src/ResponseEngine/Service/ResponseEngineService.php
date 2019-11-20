@@ -296,7 +296,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     private function getReplacement($attributeId)
     {
         $parsedAttribute = ContextParser::parseAttributeName($attributeId);
-        $replacement = ContextService::getAttribute($parsedAttribute->attributeId, $parsedAttribute->context);
+        $replacement = ContextService::getAttribute($parsedAttribute->attributeId, $parsedAttribute->contextId);
 
         return $replacement->toString();
     }
