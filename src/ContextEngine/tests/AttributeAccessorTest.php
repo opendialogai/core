@@ -6,9 +6,16 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractAttributeCollection;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
+use OpenDialogAi\Core\Attribute\test\SecondAbstractAttributeCollection;
+use OpenDialogAi\Core\Attribute\test\SecondAbstractCompositeAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
+/**
+ * Class AttributeAccessorTest
+ *
+ * @package OpenDialogAi\ContextEngine\tests
+ */
 class AttributeAccessorTest extends TestCase
 {
     public function testContextServiceMethod()
@@ -89,15 +96,23 @@ class AttributeAccessorTest extends TestCase
 
     public function testCompositeAttributeString()
     {
+        $testData = [1 => 'hello', 2 => 'goodbye'];
         $attribute = new ExampleAbstractCompositeAttribute(
             'test',
-            new ExampleAbstractAttributeCollection([1 => 'hello', 2 => 'goodbye'], ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY)
+            new ExampleAbstractAttributeCollection($testData, ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY)
         );
         $this->addAttributeToSession($attribute);
 
         $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[total]}');
+        $attributeInt = ContextService::getAttributeValue("test", "session", ["total"]);
+        $attributeArray = ContextService::getAttributeValue("test", "session", ["results"]);
+        $attributeArrayFirstValue = ContextService::getAttributeValue("test", "session", ["results", 1]);
+
 
         $this->assertEquals(2, $response);
+        $this->assertEquals($testData, $attributeArray->getValue());
+        $this->assertEquals(count($testData), $attributeInt->getValue());
+        $this->assertEquals($testData[1], $attributeArrayFirstValue);
     }
 
     public function testArrayFromCompositeAttributeString()
@@ -115,19 +130,23 @@ class AttributeAccessorTest extends TestCase
 
     public function testCompositeAttributeFromCompositeAttributeString()
     {
-        $attribute = new ExampleAbstractCompositeAttribute(
-            'test',
-            new ExampleAbstractAttributeCollection([1 => 'hello', 2 => 'goodbye'], ExampleAbstractAttributeCollection::EXAMPLE_TYPE)
+        $attribute = new SecondAbstractCompositeAttribute(
+            'second',
+            new SecondAbstractAttributeCollection(
+                [1 => 'hello', 2 => 'goodbye'],
+                SecondAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY
+            )
         );
 
         $this->addAttributeToSession($attribute);
 
-        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[case][totaloftotal]}');
-
-        $responseArrayValue = resolve(ResponseEngineService::class)->fillAttributes('{session.test[case][resultsofresult][3]}');
+        $response = resolve(ResponseEngineService::class)
+            ->fillAttributes('{session.second[test][total]}');
+        $responseArrayValue = resolve(ResponseEngineService::class)
+            ->fillAttributes('{session.second[test][results][3]}');
 
         $this->assertEquals(3, $response);
-        $this->assertEquals("deeper", $responseArrayValue);
+        $this->assertEquals("third", $responseArrayValue);
     }
 
     private function addAttributeToSession($attribute): void

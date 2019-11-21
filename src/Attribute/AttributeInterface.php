@@ -39,5 +39,8 @@ interface AttributeInterface
      */
     public function toString(): string;
 
+    /**
+     * @return string
+     */
     public function getSerialized(): string;
 }

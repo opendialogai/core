@@ -14,7 +14,7 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
  * @method static void addContext(ContextInterface $context)
  * @method static bool hasContext(string $contextId)
  * @method static AttributeInterface getAttribute(string $attributeId, string $contextId)
- * @method static mixed getAttributeValue(string $attributeId, string $contextId, array $index)
+ * @method static mixed getAttributeValue(string $attributeId, string $contextId, array $index = [])
  * @method static ContextInterface[] getContexts()
  * @method static ContextInterface[] getCustomContexts()
  * @method static BaseContext getSessionContext()

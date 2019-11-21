@@ -5,15 +5,15 @@ namespace OpenDialogAi\Core\Attribute\test;
 use OpenDialogAi\Core\Attribute\Composite\AbstractCompositeAttribute;
 
 /**
- * Class ExampleAbstractCompositeAttribute
+ * Class SecondAbstractCompositeAttribute
  *
  * @package OpenDialogAi\Core\Attribute\test
  */
-class ExampleAbstractCompositeAttribute extends AbstractCompositeAttribute
+class SecondAbstractCompositeAttribute extends AbstractCompositeAttribute
 {
 
     /**
      * @var string
      */
-    protected $attributeCollectionType = ExampleAbstractAttributeCollection::class;
+    protected $attributeCollectionType = SecondAbstractAttributeCollection::class;
 }

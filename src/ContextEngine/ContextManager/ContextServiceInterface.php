@@ -86,7 +86,7 @@ interface ContextServiceInterface
      * @see ContextService::getAttribute() to resolve an attribute and returns its concrete value
      *
      */
-    public function getAttributeValue(string $attributeId, string $contextId, array $index);
+    public function getAttributeValue(string $attributeId, string $contextId, array $index = []);
 
     /**
      * @param UtteranceInterface $utterance

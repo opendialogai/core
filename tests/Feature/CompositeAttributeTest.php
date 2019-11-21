@@ -11,7 +11,6 @@ use OpenDialogAi\Core\Attribute\test\ExampleAbstractAttributeCollection;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;
-use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreter;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;

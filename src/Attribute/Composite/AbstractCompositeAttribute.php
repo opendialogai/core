@@ -11,6 +11,10 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
  */
 abstract class AbstractCompositeAttribute extends AbstractAttribute
 {
+
+    /**
+     * @var string
+     */
     public static $type = 'attribute.core.collection';
 
     /** @var string The class name of the AttributeCollection to use */
@@ -96,6 +100,9 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
         return $this->attributeCollection->toString();
     }
 
+    /**
+     * @return string
+     */
     public function getSerialized(): string
     {
         return $this->value;
