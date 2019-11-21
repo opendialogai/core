@@ -30,7 +30,7 @@ class ArrayAttribute extends AbstractAttribute
     public function getValue(array $index = [])
     {
         if (!$index) {
-            return json_decode(htmlspecialchars_decode($this->value), true);
+            return json_decode(htmlspecialchars_decode($this->value));
         }
         return json_decode(htmlspecialchars_decode($this->value), true)[(int) $index[0]];
     }

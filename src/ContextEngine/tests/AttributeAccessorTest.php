@@ -74,10 +74,6 @@ class AttributeAccessorTest extends TestCase
         $this->assertEquals('hello', $response);
     }
 
-
-    /**
-     * @codeCoverageIgnore
-     */
     public function testCompositeAttributeFromCompositeAttributeString()
     {
         $attribute = new ExampleAbstractCompositeAttribute(
