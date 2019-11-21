@@ -222,6 +222,43 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals($test2_2, $messages[2]->getText());
     }
 
+    public function testSingleVirtualIntents()
+    {
+        $openDialogController = resolve(OpenDialogController::class);
+
+        $this->createConversationWithVirtualIntent();
+
+        $conversationContext = ContextService::getConversationContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.welcome');
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('intent.app.welcome', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_virtual_intent', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertCount(2, $conversationContext->getAttributeValue('next_intents'));
+        $this->assertEquals('intent.app.welcomeResponse', $conversationContext->getAttributeValue('next_intents')[0]);
+        $this->assertEquals('intent.app.endResponse', $conversationContext->getAttributeValue('next_intents')[1]);
+    }
+
+    public function testMultipleVirtualIntents()
+    {
+        $openDialogController = resolve(OpenDialogController::class);
+
+        $this->createConversationWithMultipleVirtualIntents();
+
+        $conversationContext = ContextService::getConversationContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.welcome');
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('intent.app.welcome', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_virtual_intents', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('next_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertCount(3, $conversationContext->getAttributeValue('next_intents'));
+        $this->assertEquals('intent.app.welcomeResponse', $conversationContext->getAttributeValue('next_intents')[0]);
+        $this->assertEquals('intent.app.continueResponse', $conversationContext->getAttributeValue('next_intents')[1]);
+        $this->assertEquals('intent.app.nextResponse', $conversationContext->getAttributeValue('next_intents')[2]);
+    }
+
     public function getTestConversation()
     {
         return <<<EOT

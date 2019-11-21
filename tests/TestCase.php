@@ -618,6 +618,20 @@ EOT;
         }
     }
 
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithMultipleVirtualIntents(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithMultipleVirtualIntents();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
     public function getMarkupForConversationWithVirtualIntent(): string
     {
         /** @lang yaml */
@@ -637,6 +651,58 @@ conversation:
               i: intent.app.continue
           - b:
               i: intent.app.endResponse
+              completes: true
+EOT;
+    }
+
+    public function getMarkupForConversationWithMultipleVirtualIntents(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_virtual_intents
+  scenes:
+    opening_scene:
+      intents:
+          - u:
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+              u_virtual:
+                i: intent.app.continue
+              scene: next_scene
+    next_scene:
+      intents:
+          - u:
+              i: intent.app.continue
+              conditions:
+                - condition:
+                    operation: is_set
+                    attributes:
+                      attribute: user.test
+              scene: test_scene
+          - u:
+              i: intent.app.continue
+              conditions:
+                - condition:
+                    operation: is_not_set
+                    attributes:
+                      attribute: user.test
+          - b:
+              i: intent.app.continueResponse
+              u_virtual:
+                i: intent.app.continue
+          - u:
+              i: intent.app.continue
+          - b:
+              i: intent.app.nextResponse
+              completes: true
+    test_scene:
+      intents:
+          - u:
+              i: intent.app.continue
+          - b:
+              i: intent.app.testResponse
               completes: true
 EOT;
     }
