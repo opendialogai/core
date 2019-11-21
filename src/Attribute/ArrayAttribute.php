@@ -29,7 +29,11 @@ class ArrayAttribute extends AbstractAttribute
      */
     public function setValue($value)
     {
-        $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
+        if (is_array($value)) {
+            $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
+        } else {
+            $this->value = $value;
+        }
     }
 
     /**
@@ -61,6 +65,11 @@ class ArrayAttribute extends AbstractAttribute
      * @return string
      */
     public function toString(): string
+    {
+        return $this->value;
+    }
+
+    public function getSerialized(): string
     {
         return $this->value;
     }

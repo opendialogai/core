@@ -557,6 +557,10 @@ class UserService
                 if ($name === Model::HAS_ATTRIBUTE) {
                     foreach ($value as $userAttribute) {
                         try {
+                            //Todo: In future Need to check if the value is
+                            // string then convert to array for serialized string,
+                            // atm array will keep on serializing existing
+                            // serialized array attribute.
                             $attribute = AttributeResolver::getAttributeFor(
                                 $userAttribute[Model::ID],
                                 $userAttribute[Model::USER_ATTRIBUTE_VALUE]
