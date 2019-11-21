@@ -24,8 +24,8 @@ class AttributeAccessorTest extends TestCase
     {
         $this->addAttributeToSession(
             new ArrayAttribute(
-            'test',
-            [
+                'test',
+                [
                 'random' => [1],
                 'country' => [
                     3 => "Something",
@@ -33,13 +33,16 @@ class AttributeAccessorTest extends TestCase
                         "london" => "piccadilly",
                         ]
                 ],
-                3 => 'generic',
+                3 => [
+                    [1],
+                    [2]
+                ],
                 4 => [
                     3 => 'something',
                     'place' => ['another']
                 ]
             ]
-        )
+            )
         );
 
         $arrayValue = ContextService::getAttributeValue('test', 'session', ['random']);
@@ -48,10 +51,12 @@ class AttributeAccessorTest extends TestCase
         $arrayInsideArrayInsideArray = ContextService::getAttributeValue('test', 'session', [
             'country', 'uk', 'london'
         ]);
+        $generic = ContextService::getAttributeValue('test', 'session', [3, 1, 0]);
         $this->assertEquals([1], $arrayValue);
         $this->assertEquals(1, $specificInsideArray);
         $this->assertEquals(['another'], $arrayInsideArray);
         $this->assertEquals('piccadilly', $arrayInsideArrayInsideArray);
+        $this->assertEquals(2, $generic);
     }
 
     public function testAccessingArrayAttributeDirectly()
