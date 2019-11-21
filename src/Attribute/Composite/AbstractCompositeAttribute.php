@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Attribute\Composite;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
@@ -54,7 +55,6 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
             return $this->attributeCollection->getAttributes();
         }
 
-
         $attributes = $this->attributeCollection->getAttributes();
 
         $useColsure = function ($index, $attributes, $count) use (&$useColsure) {
@@ -70,6 +70,9 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
                     });
                 } elseif ($attributes instanceof AbstractAttribute) {
                     $attributes = $attributes->getValue([$search]);
+                } else {
+                    Log::warning("Couldn't recognize attribute type in AbstractCompositeAttribute.");
+                    $attributes = null;
                 }
 
                 $result = $useColsure($index, $attributes, $count+1);
@@ -79,6 +82,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
                 return $attributes;
             }
         };
+
         return $useColsure($index, $attributes, 0);
     }
 

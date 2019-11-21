@@ -45,8 +45,13 @@ class ArrayAttribute extends AbstractAttribute
 
         $arrayValue = json_decode(htmlspecialchars_decode($this->value), true);
 
-        foreach ($index as $key => $value) {
-            $arrayValue = $arrayValue[$value];
+        try {
+            foreach ($index as $key => $value) {
+                $arrayValue = $arrayValue[$value];
+            }
+        } catch (\Exception $e) {
+            Log::warning("Undefined offset while getting array value");
+            return null;
         }
 
         return $arrayValue;
