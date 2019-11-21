@@ -9,13 +9,33 @@ namespace OpenDialogAi\Core\Attribute;
  */
 interface AttributeInterface
 {
+
+    /**
+     * @return string
+     */
     public function getId(): string;
 
+    /**
+     * @return string
+     */
     public function getType(): string;
 
-    public function getValue();
+    /**
+     * @param array $arg
+     *
+     * @return mixed
+     */
+    public function getValue(array $arg = []);
 
+    /**
+     * @param $value
+     *
+     * @return mixed
+     */
     public function setValue($value);
 
+    /**
+     * @return string
+     */
     public function toString(): string;
 }

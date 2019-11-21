@@ -40,9 +40,11 @@ abstract class AbstractAttribute implements AttributeInterface
     }
 
     /**
+     * @param array $arg
+     *
      * @return mixed
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value;
     }

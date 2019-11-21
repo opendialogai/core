@@ -22,17 +22,34 @@ class ArrayAttribute extends AbstractAttribute
         $this->setValue($value);
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return mixed|void
+     */
     public function setValue($value)
     {
         $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
     }
 
+    /**
+     * @param array $index
+     *
+     * @return mixed
+     */
     public function getValue(array $index = [])
     {
         if (!$index) {
-            return json_decode(htmlspecialchars_decode($this->value));
+            return json_decode(htmlspecialchars_decode($this->value), true);
         }
-        return json_decode(htmlspecialchars_decode($this->value), true)[(int) $index[0]];
+
+        $arrayValue = json_decode(htmlspecialchars_decode($this->value), true);
+
+        foreach ($index as $key => $value) {
+            $arrayValue = $arrayValue[$value];
+        }
+
+        return $arrayValue;
     }
 
     /**

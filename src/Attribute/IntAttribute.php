@@ -19,9 +19,11 @@ class IntAttribute extends BasicAttribute
     /**
      * Returns null or an intval
      *
-     * @return mixed|void
+     * @param array $arg
+     *
+     * @return int | null
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value === null ? $this->value : intval($this->value);
     }

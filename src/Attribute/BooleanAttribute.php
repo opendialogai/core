@@ -39,9 +39,11 @@ class BooleanAttribute extends AbstractAttribute
     /**
      * Returns boolean
      *
+     * @param array $arg
+     *
      * @return boolean
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value === null ? $this->value :  boolval($this->value);
     }

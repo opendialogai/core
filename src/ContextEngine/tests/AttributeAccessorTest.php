@@ -20,6 +20,40 @@ class AttributeAccessorTest extends TestCase
         $this->assertEquals(1, $value);
     }
 
+    public function testAccessingGenericAttribute()
+    {
+        $this->addAttributeToSession(
+            new ArrayAttribute(
+            'test',
+            [
+                'random' => [1],
+                'country' => [
+                    3 => "Something",
+                    'uk' => [
+                        "london" => "piccadilly",
+                        ]
+                ],
+                3 => 'generic',
+                4 => [
+                    3 => 'something',
+                    'place' => ['another']
+                ]
+            ]
+        )
+        );
+
+        $arrayValue = ContextService::getAttributeValue('test', 'session', ['random']);
+        $specificInsideArray = ContextService::getAttributeValue('test', 'session', ['random', 0]);
+        $arrayInsideArray = ContextService::getAttributeValue('test', 'session', [4, 'place']);
+        $arrayInsideArrayInsideArray = ContextService::getAttributeValue('test', 'session', [
+            'country', 'uk', 'london'
+        ]);
+        $this->assertEquals([1], $arrayValue);
+        $this->assertEquals(1, $specificInsideArray);
+        $this->assertEquals(['another'], $arrayInsideArray);
+        $this->assertEquals('piccadilly', $arrayInsideArrayInsideArray);
+    }
+
     public function testAccessingArrayAttributeDirectly()
     {
         $this->addAttributeToSession(new ArrayAttribute('test', [1, 2, 3, 4]));

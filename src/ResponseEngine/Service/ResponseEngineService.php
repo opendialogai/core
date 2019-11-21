@@ -301,7 +301,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $replacement = ContextService::getAttribute($parsedAttribute->attributeId, $parsedAttribute->contextId);
         if ($parsedAttribute->getAccessor()) {
             $attributeValue = $replacement->getValue($parsedAttribute->getAccessor());
-            if ($attributeValue instanceof AbstractAttribute) {
+            if ($attributeValue instanceof AttributeInterface) {
                 return $attributeValue->toString();
             }
             return $attributeValue;

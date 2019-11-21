@@ -19,9 +19,11 @@ class StringAttribute extends BasicAttribute
     /**
      * Returns null or an strval
      *
+     * @param array $arg
+     *
      * @return null | string
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value === null ? $this->value : strval($this->value);
     }
