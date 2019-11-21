@@ -22,7 +22,6 @@ abstract class AbstractAttribute implements AttributeInterface
     /**
      * AbstractAttribute constructor.
      * @param $id
-     * @param $type
      * @param $value
      */
     public function __construct($id, $value)

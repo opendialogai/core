@@ -23,6 +23,12 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
     /** @var AttributeCollectionInterface */
     protected $attributeCollection;
 
+    /**
+     * AbstractCompositeAttribute constructor.
+     *
+     * @param $id
+     * @param $value
+     */
     public function __construct($id, $value)
     {
         parent::__construct($id, []);
@@ -51,7 +57,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
     /**
      * Returns the array of attributes
      * @param array $index
-     * @return AttributeInterface[]
+     * @return mixed | AttributeInterface[]
      */
     public function getValue(array $index = [])
     {
@@ -76,7 +82,6 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
                     $attributes = $attributes->getValue([$search]);
                 } else {
                     Log::warning("Couldn't recognize attribute type in AbstractCompositeAttribute.");
-                    $attributes = null;
                 }
 
                 $result = $useColsure($index, $attributes, $count+1);

@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Log;
  */
 class BooleanAttribute extends AbstractAttribute
 {
+
+    /**
+     * @var string
+     */
     public static $type = 'attribute.core.boolean';
 
     /**
@@ -23,6 +27,9 @@ class BooleanAttribute extends AbstractAttribute
         $this->setValue($value);
     }
 
+    /**
+     * @param mixed $value
+     */
     public function setValue($value)
     {
         $this->value = is_null($value) ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN);

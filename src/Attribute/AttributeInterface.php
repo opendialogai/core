@@ -29,8 +29,6 @@ interface AttributeInterface
 
     /**
      * @param $value
-     *
-     * @return mixed
      */
     public function setValue($value);
 

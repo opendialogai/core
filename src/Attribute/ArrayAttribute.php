@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Log;
  */
 class ArrayAttribute extends AbstractAttribute
 {
+
+    /**
+     * @var string
+     */
     public static $type = 'attribute.core.array';
 
     /**
@@ -24,16 +28,14 @@ class ArrayAttribute extends AbstractAttribute
 
     /**
      * @param mixed $value
-     *
-     * @return mixed|void
      */
     public function setValue($value)
     {
-        if (is_array($value)) {
-            $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
-        } else {
-            $this->value = $value;
+        if (is_string($value)) {
+            $value = json_decode(htmlspecialchars_decode($value), true);
         }
+
+        $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
     }
 
     /**
@@ -55,7 +57,6 @@ class ArrayAttribute extends AbstractAttribute
             }
         } catch (\Exception $e) {
             Log::warning("Undefined offset while getting array value");
-            return null;
         }
 
         return $arrayValue;
@@ -69,6 +70,9 @@ class ArrayAttribute extends AbstractAttribute
         return $this->value;
     }
 
+    /**
+     * @return string
+     */
     public function getSerialized(): string
     {
         return $this->value;

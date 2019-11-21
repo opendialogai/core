@@ -8,6 +8,8 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 
 /**
  * A composite attribute collection containing other attribute types.
+ * This specific composite attribute will also container another composite attribute.
+ *
  * Class SecondAbstractAttributeCollection
  *
  * @package OpenDialogAi\Core\Attribute\test
