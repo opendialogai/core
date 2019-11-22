@@ -103,6 +103,8 @@ class OpenDialogController
     }
 
     /**
+     * Collects messages for each intent and if there is more than one intent, gather all messages into the first wrapper
+     *
      * @param UtteranceInterface $utterance
      * @param array $intents
      * @return OpenDialogMessages
@@ -111,7 +113,6 @@ class OpenDialogController
     {
         $messagesSet = new Set();
 
-        // Collect messages for each intent
         foreach ($intents as $intent) {
             try {
                 $messagesSet->add($this->responseEngineService->getMessageForIntent(
@@ -129,8 +130,6 @@ class OpenDialogController
         $messages = $messagesSet->first();
 
         if (count($messagesSet) > 1) {
-            // If there is more than one intent, gather all messages into the first wrapper
-
             /** @var OpenDialogMessages $item */
             foreach ($messagesSet->slice(1) as $item) {
                 foreach ($item->getMessages() as $message) {
