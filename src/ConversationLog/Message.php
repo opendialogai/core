@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string $user
+ * @property array $intents
  * @property int microtime
  */
 class Message extends Model
@@ -35,9 +36,13 @@ class Message extends Model
         'data',
         'microtime',
         'user',
-        'intent',
+        'intents',
         'conversation',
         'scene'
+    ];
+
+    protected $casts = [
+        'intents' => 'array'
     ];
 
     /**
@@ -94,7 +99,7 @@ class Message extends Model
         $data = null,
         $messageId = null,
         $user = null,
-        $intent = null,
+        $intents = null,
         $conversation = null,
         $scene = null
     ) {
@@ -117,7 +122,7 @@ class Message extends Model
             'data'            => $data ? serialize($data) : null,
             'message_id'      => $messageId,
             'user'            => $user ? serialize($user) : null,
-            'intent'          => $intent,
+            'intents'         => $intents,
             'conversation'    => $conversation,
             'scene'           => $scene
         ]);

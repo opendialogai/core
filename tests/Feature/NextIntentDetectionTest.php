@@ -2,12 +2,17 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use Mockery\MockInterface;
 use Exception;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class NextIntentDetectionTest extends TestCase
 {
@@ -36,21 +41,21 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('hello_bot', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('hello_user', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('hello_user', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Ask about the weather - this should keep the user in the opening scene
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('ask_weather', $utterance->getUser()));
         $this->assertEquals('ask_weather', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('send_weather', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('send_weather', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Respond to the weather
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('respond_weather', $utterance->getUser()));
         $this->assertEquals('respond_weather', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('finish', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('finish', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
     public function testSaidAcrossScene()
@@ -74,14 +79,14 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('ask_chat', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('start_chat', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('start_chat', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Respond to the weather
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('how_are_you', $utterance->getUser()));
         $this->assertEquals('how_are_you', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('test_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('scene2', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('doing_dandy', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('doing_dandy', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
     public function testConditionsOnOutgoingIntents()
@@ -106,7 +111,7 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('hello_bot', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('response_without_name', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('response_without_name', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Expect to get to 'answer_without_name' because the user name isn't set
         $utterance = UtteranceGenerator::generateChatOpenUtterance('question', $utterance->getUser());
@@ -114,7 +119,7 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('question', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('answer_without_name', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('answer_without_name', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // New user
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
@@ -127,7 +132,7 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('hello_bot', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('response_with_name', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('response_with_name', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Expect to get to 'answer_with_name' because the user name is set
         $utterance = UtteranceGenerator::generateChatOpenUtterance('question', $utterance->getUser());
@@ -135,7 +140,7 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('question', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('with_outgoing_intent_conditions', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('answer_with_name', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('answer_with_name', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
     public function testConversationWithOpeningIncomingIntentConditions()
@@ -180,7 +185,7 @@ EOT;
         $this->assertEquals('intent.core.NoMatch', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('no_match_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.core.NoMatchResponse', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.core.NoMatchResponse', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Set the email and expect to get to the response intent
         $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.hello');
@@ -191,7 +196,7 @@ EOT;
         $this->assertEquals('intent.app.hello', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
 
     }
 
@@ -245,7 +250,7 @@ EOT;
         $this->assertEquals('intent.app.hello', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.ask_email', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.ask_email', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Set the email and expect to get to the response intent
         $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.hello');
@@ -257,7 +262,7 @@ EOT;
         $this->assertEquals('intent.app.hello', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
 
     }
 
@@ -279,19 +284,19 @@ EOT;
         $this->assertEquals('intent.app.play_game', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.init_game', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.init_game', $conversationContext->getAttributeValue('next_intents')[0]);
 
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('intent.app.send_choice', $utterance->getUser()));
         $this->assertEquals('intent.app.send_choice', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.round_2', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.round_2', $conversationContext->getAttributeValue('next_intents')[0]);
 
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('intent.app.send_choice', $utterance->getUser()));
         $this->assertEquals('intent.app.send_choice', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.final_round', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.final_round', $conversationContext->getAttributeValue('next_intents')[0]);
 
         // Simulate a bot win
         $utterance->getUser()->setCustomParameters([
@@ -302,7 +307,7 @@ EOT;
         $this->assertEquals('intent.app.send_choice', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.you_lost', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.you_lost', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
     public function testConversationWithIncomingConditions()
@@ -370,7 +375,7 @@ EOT;
         $this->assertEquals('intent.app.hello', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
 
         $utterance = UtteranceGenerator::generateButtonResponseUtterance('make_choice', 'choice.left', $utterance->getUser());
         $openDialogController->runConversation($utterance);
@@ -378,14 +383,56 @@ EOT;
         $this->assertEquals('intent.app.make_choice', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
 
         $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.continue', $utterance->getUser());
         $openDialogController->runConversation($utterance);
         $this->assertEquals('intent.app.continue', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.left_path_end', $conversationContext->getAttributeValue('next_intent'));
+        $this->assertEquals('intent.app.left_path_end', $conversationContext->getAttributeValue('next_intents')[0]);
+    }
+
+    public function testMultipleNextIntents()
+    {
+        $test1 = 'This is Test1.';
+        $test1Intent = OutgoingIntent::create(['name' => 'test1']);
+        MessageTemplate::create([
+            'name' => 'test1',
+            'message_markup' => '<message><text-message>' . $test1 . '</text-message></message>',
+            'outgoing_intent_id' => $test1Intent->id
+        ]);
+
+        $test2_1 = 'This is Test2 (part 1).';
+        $test2_2 = 'This is Test2 (part 2).';
+        $test2Intent = OutgoingIntent::create(['name' => 'test2']);
+        MessageTemplate::create([
+            'name' => 'test2',
+            'message_markup' => '
+                <message>
+                    <text-message>' . $test2_1 . '</text-message>
+                    <text-message>' . $test2_2 . '</text-message>
+                </message>',
+            'outgoing_intent_id' => $test2Intent->id
+        ]);
+
+        $mockedConversationEngine = $this->mock(ConversationEngine::class, function (MockInterface $mock) {
+            $mock->shouldReceive('getNextIntents')->andReturn([
+                Intent::createIntentWithConfidence('test1', 1),
+                Intent::createIntentWithConfidence('test2', 1)
+            ]);
+        });
+
+        $openDialogController = resolve(OpenDialogController::class);
+        $openDialogController->setConversationEngine($mockedConversationEngine);
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('test');
+        $messages = $openDialogController->runConversation($utterance)->getMessages();
+
+        $this->assertCount(3, $messages);
+        $this->assertEquals($test1, $messages[0]->getText());
+        $this->assertEquals($test2_1, $messages[1]->getText());
+        $this->assertEquals($test2_2, $messages[2]->getText());
     }
 
     public function getTestConversation()
