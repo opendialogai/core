@@ -2,14 +2,10 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
 
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
-use OpenDialogAi\Core\Attribute\BasicAttribute;
+use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
-use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 
 class AttributeTest extends TestCase
 {
@@ -28,5 +24,17 @@ class AttributeTest extends TestCase
 
         $b = new IntAttribute('b', 50);
         $this->assertEquals($b->toString(), '50');
+    }
+
+    public function testArrayAttribute()
+    {
+        $array = [
+            'first' => ['one', 'two'],
+            'second' => ['three', 'four']
+        ];
+
+        $attribute = new ArrayAttribute('test', $array);
+
+        $this->assertEquals(json_decode(json_encode($array)), $attribute->getValue(['first', 0]));
     }
 }

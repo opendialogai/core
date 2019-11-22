@@ -11,7 +11,6 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
  */
 abstract class AbstractCompositeAttribute extends AbstractAttribute
 {
-
     /**
      * @var string
      */
@@ -55,7 +54,8 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
     }
 
     /**
-     * Returns the array of attributes
+     * Returns the value of the given index. If no index is provided, returns all attributes in the attribute collection.
+     *
      * @param array $index
      * @return mixed | AttributeInterface[]
      */
@@ -106,9 +106,9 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
     }
 
     /**
-     * @return string
+     * @inheritDoc
      */
-    public function getSerialized(): string
+    public function serialized(): string
     {
         return $this->value;
     }

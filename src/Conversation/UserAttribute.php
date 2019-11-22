@@ -24,7 +24,7 @@ class UserAttribute extends Node
 
         $this->addAttribute(new StringAttribute(Model::ID, $attribute->getId()));
         $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_TYPE, $attribute->getType()));
-        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_VALUE, $attribute->getSerialized()));
+        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_VALUE, $attribute->serialized()));
 
         $this->attribute = $attribute;
     }
@@ -44,7 +44,7 @@ class UserAttribute extends Node
     {
         $this->setAttribute(Model::ID, $attribute->getId());
         $this->setAttribute(Model::USER_ATTRIBUTE_TYPE, $attribute->getType());
-        $this->setAttribute(Model::USER_ATTRIBUTE_VALUE, $attribute->getSerialized());
+        $this->setAttribute(Model::USER_ATTRIBUTE_VALUE, $attribute->serialized());
 
         $this->attribute = $attribute;
     }

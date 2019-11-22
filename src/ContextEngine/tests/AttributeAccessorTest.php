@@ -11,11 +11,6 @@ use OpenDialogAi\Core\Attribute\test\SecondAbstractCompositeAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
-/**
- * Class AttributeAccessorTest
- *
- * @package OpenDialogAi\ContextEngine\tests
- */
 class AttributeAccessorTest extends TestCase
 {
     public function testContextServiceMethod()
@@ -122,6 +117,8 @@ class AttributeAccessorTest extends TestCase
             new ExampleAbstractAttributeCollection([1 => 'hello', 2 => 'goodbye'], ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY)
         );
         $this->addAttributeToSession($attribute);
+
+        ContextService::getAttributeValue('session', 'test', ['results']);
 
         $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[results][1]}');
 

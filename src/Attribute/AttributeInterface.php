@@ -9,7 +9,6 @@ namespace OpenDialogAi\Core\Attribute;
  */
 interface AttributeInterface
 {
-
     /**
      * @return string
      */
@@ -38,7 +37,9 @@ interface AttributeInterface
     public function toString(): string;
 
     /**
+     * Returns a serialized version of the attribute
+     *
      * @return string
      */
-    public function getSerialized(): string;
+    public function serialized(): string;
 }

@@ -10,9 +10,6 @@ use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\GraphItem;
 
 /**
- * Class Node
- * @package OpenDialog\Core\Graph\Node
- *
  * A Node in a graph structure.
  */
 class Node
