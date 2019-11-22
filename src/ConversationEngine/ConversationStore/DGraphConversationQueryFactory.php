@@ -225,7 +225,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             Model::COMPLETES,
             Model::CONFIDENCE,
             Model::CAUSES_ACTION => self::getActionGraph(),
-            Model::CAUSES_VIRTUAL_INTENT => [
+            Model::SIMULATES_INTENT => [
                 Model::UID,
                 Model::ID,
                 Model::EI_TYPE

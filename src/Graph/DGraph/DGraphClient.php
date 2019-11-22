@@ -334,7 +334,7 @@ class DGraphClient
         return "
             <attributes>: string .
             <causes_action>: [uid] .
-            <causes_virtual_intent>: [uid] .
+            <simulates_intent>: [uid] .
             <context>: string .
             <conversation_status>: string @index(exact) .
             <conversation_version>: int .
@@ -376,7 +376,7 @@ class DGraphClient
             }
             type " . self::INTENT . " {
                 causes_action: [uid]
-                causes_virtual_intent: [uid]
+                simulates_intent: [uid]
                 core.attribute.completes: default
                 core.attribute.order: default
                 ei_type: string

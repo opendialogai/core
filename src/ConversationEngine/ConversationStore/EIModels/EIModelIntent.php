@@ -152,8 +152,8 @@ class EIModelIntent extends EIModelWithConditions
             $intent->setNextScene(self::getEndingSceneId($intentResponse));
         }
 
-        if (isset($intentResponse[Model::CAUSES_VIRTUAL_INTENT][0])) {
-            $virtualIntentData = $intentResponse[Model::CAUSES_VIRTUAL_INTENT][0];
+        if (isset($intentResponse[Model::SIMULATES_INTENT][0])) {
+            $virtualIntentData = $intentResponse[Model::SIMULATES_INTENT][0];
             $eiModelCreator = resolve(EIModelCreator::class);
 
             /** @var EIModelVirtualIntent $virtualIntent */

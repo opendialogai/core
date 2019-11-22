@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ConversationEngine;
 
-use Ds\Map;
+use Ds\Set;
 use OpenDialogAi\Core\Conversation\Intent;
 
 /**
@@ -10,12 +10,12 @@ use OpenDialogAi\Core\Conversation\Intent;
  */
 class MatchingIntents implements \Countable
 {
-    /** @var Map */
-    private $intentsMap;
+    /** @var Set */
+    private $intentsSet;
 
     public function __construct()
     {
-        $this->intentsMap = new Map();
+        $this->intentsSet = new Set();
     }
 
     /**
@@ -26,7 +26,7 @@ class MatchingIntents implements \Countable
      */
     public function addMatchingIntent(Intent $intent): MatchingIntents
     {
-        $this->intentsMap->put($intent->getId(), $intent);
+        $this->intentsSet->add($intent);
         return $this;
     }
 
@@ -38,7 +38,7 @@ class MatchingIntents implements \Countable
      */
     public function getBestMatch(): Intent
     {
-        return $this->intentsMap->first()->value;
+        return $this->intentsSet->first();
     }
 
     /**
@@ -52,6 +52,6 @@ class MatchingIntents implements \Countable
      */
     public function count()
     {
-        return $this->intentsMap->count();
+        return $this->intentsSet->count();
     }
 }
