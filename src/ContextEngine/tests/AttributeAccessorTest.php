@@ -141,9 +141,9 @@ class AttributeAccessorTest extends TestCase
         $this->addAttributeToSession($attribute);
 
         $response = resolve(ResponseEngineService::class)
-            ->fillAttributes('{session.second[test][total]}');
+            ->fillAttributes('{session.second.test.total}');
         $responseArrayValue = resolve(ResponseEngineService::class)
-            ->fillAttributes('{session.second[test][results][3]}');
+            ->fillAttributes('{session.second.test.results.3}');
 
         $this->assertEquals(3, $response);
         $this->assertEquals("third", $responseArrayValue);

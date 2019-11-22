@@ -30,34 +30,14 @@ abstract class ContextParser
 
         $parsedAttribute = new ParsedAttributeName();
 
-        switch (count($matches)) {
-            case 2:
-                $parsedAttribute->setContextId($matches[0]);
-                self::parseArrayNotation($matches[1], $parsedAttribute);
-                break;
-            case 1:
-                self::parseArrayNotation($matches[0], $parsedAttribute);
-                $parsedAttribute->setAttributeId($matches[0]);
-                break;
-            default:
-                Log::warning(sprintf('Parsing invalid attribute name %s', $attribute));
+        // Todo: need to strict check for context before setting attribute,
+        // we are assuming here that user will always provide context.
+        $parsedAttribute->setContextId($matches[0]);
+        $parsedAttribute->setAttributeId($matches[1]);
+
+        if (count($matches)>2) {
+            $parsedAttribute->setAccessor(array_slice($matches, 2));
         }
-
-        return $parsedAttribute;
-    }
-
-    /**
-     * @param string $attributeId
-     * @param ParsedAttributeName $parsedAttribute
-     * @return ParsedAttributeName
-     */
-    private static function parseArrayNotation($attributeId, $parsedAttribute): ParsedAttributeName
-    {
-        $split = preg_split('/[[\]\]]/', $attributeId, null, PREG_SPLIT_NO_EMPTY);
-
-        $parsedAttribute->attributeId = $split[0];
-        $accessor = array_slice($split, 1);
-        $parsedAttribute->setAccessor($accessor);
 
         return $parsedAttribute;
     }
