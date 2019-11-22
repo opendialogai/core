@@ -54,7 +54,7 @@ class Model
     // Intents can cause actions to be performed and can define interpreters.
     const CAUSES_ACTION = 'causes_action';
     const HAS_INTERPRETER = 'has_interpreter';
-    const CAUSES_VIRTUAL_INTENT = 'causes_virtual_intent';
+    const SIMULATES_INTENT = 'simulates_intent';
 
     // ChatbotUsers can have many UserAttributes
     const HAS_ATTRIBUTE = 'has_attribute';
