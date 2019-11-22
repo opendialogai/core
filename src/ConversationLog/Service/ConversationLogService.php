@@ -50,7 +50,7 @@ class ConversationLogService
         $timestamp = DateTime::createFromFormat('U.u', $utterance->getTimestamp())->format('Y-m-d H:i:s.u');
 
         try {
-            $intent = ContextService::getAttributeValue('interpreted_intent', 'conversation');
+            $intent = [ContextService::getAttributeValue('interpreted_intent', 'conversation')];
             $conversation = ContextService::getAttributeValue('current_conversation', 'conversation');
             $scene = ContextService::getAttributeValue('current_scene', 'conversation');
         } catch (AttributeDoesNotExistException $e) {
@@ -83,12 +83,12 @@ class ConversationLogService
         OpenDialogMessages $messageWrapper,
         UtteranceInterface $utterance
     ): void {
-        $intent = null;
+        $intents = null;
         $conversation = null;
         $scene = null;
 
         try {
-            $intent = ContextService::getAttributeValue('next_intent', 'conversation');
+            $intents = ContextService::getAttributeValue('next_intents', 'conversation');
             $conversation = ContextService::getAttributeValue('current_conversation', 'conversation');
             $scene = ContextService::getAttributeValue('current_scene', 'conversation');
         } catch (AttributeDoesNotExistException $e) {
@@ -107,7 +107,7 @@ class ConversationLogService
                     $messageData['data'],
                     null,
                     $this->getUser($utterance),
-                    $intent,
+                    $intents,
                     $conversation,
                     $scene
                 )->save();

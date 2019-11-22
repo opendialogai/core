@@ -154,11 +154,7 @@ conversation:
                 - session.last_name
         - b: 
             i: doing_dandy
-            action:
-              id: action.core.example
-              input_attributes:
-                - user.first_name
-                - user.last_name
+            action: action.core.example
             completes: true
     scene3:
       intents:

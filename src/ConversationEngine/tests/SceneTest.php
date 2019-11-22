@@ -45,7 +45,7 @@ class SceneTest extends TestCase
 
         /* @var UserContext $userContext ; */
         $userContext = ContextService::createUserContext($utterance);
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_human', $intent->getId());
     }
@@ -58,7 +58,7 @@ class SceneTest extends TestCase
 
         /* @var UserContext $userContext ; */
         $userContext = ContextService::createUserContext($utterance);
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_human', $intent->getId());
 
@@ -66,7 +66,7 @@ class SceneTest extends TestCase
 
         /* @var UserContext $userContext ; */
         $userContext = ContextService::createUserContext($utterance);
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_again_human', $intent->getId());
     }

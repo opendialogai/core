@@ -13,6 +13,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
@@ -494,7 +495,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(1, $conversation->getScene('scene2')->getConditions());
     }
 
-    public function testConversationWithManyIntentsWithSameId()
+    public function testConversationWithManyIntentsWithSameIdAndIncomingConditions()
     {
         $conversation = $this->createConversationWithManyIntentsWithSameId();
 
@@ -532,8 +533,24 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('intent.app.round_2', $openingSceneBotIntentIds->skip(1)->value);
         $this->assertEquals('intent.app.send_choice', $openingSceneUserIntentIds->skip(2)->value);
         $this->assertEquals('intent.app.final_round', $openingSceneBotIntentIds->skip(2)->value);
-        $this->assertEquals('intent.app.send_choice', $openingSceneUserIntentIds->skip(3)->value);
-        $this->assertEquals('intent.app.send_choice', $openingSceneUserIntentIds->skip(4)->value);
+
+        /** @var Intent $incomingIntentWithConditions */
+        $incomingIntentWithConditions = $openingSceneUserIntents->skip(3)->value;
+        $this->assertEquals('intent.app.send_choice', $incomingIntentWithConditions->getId());
+        $this->assertTrue($incomingIntentWithConditions->hasConditions());
+
+        $conditions = $incomingIntentWithConditions->getConditions();
+        $this->assertCount(1, $conditions);
+
+        /** @var Condition $condition */
+        $condition = $conditions->first()->value;
+        $this->assertEquals('user.game_result-eq-BOT_WINS', $condition->getId());
+
+        /** @var Intent $incomingIntentWithoutConditions */
+        $incomingIntentWithoutConditions = $openingSceneUserIntents->skip(4)->value;
+        $this->assertEquals('intent.app.send_choice', $incomingIntentWithoutConditions->getId());
+        $this->assertFalse($incomingIntentWithoutConditions->hasConditions());
+
         $this->assertEquals('intent.app.you_won', $openingSceneBotIntentIds->skip(3)->value);
 
         $this->assertEquals('intent.app.you_lost', $secondSceneBotIntentIds->skip(0)->value);

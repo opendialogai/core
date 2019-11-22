@@ -40,14 +40,14 @@ interface ConversationEngineInterface
      * Given a user context and an utterance determine what the next intent should be.
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
-     * @return Intent
+     * @return Intent[]
      * @throws FieldNotSupported
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws ConversationStore\EIModelCreatorException
      * @throws CurrentIntentNotSetException
      */
-    public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent;
+    public function getNextIntents(UserContext $userContext, UtteranceInterface $utterance): array;
 
     /**
      * @param UserContext $userContext

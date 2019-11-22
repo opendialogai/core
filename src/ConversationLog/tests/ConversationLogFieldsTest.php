@@ -19,11 +19,11 @@ class ConversationLogFieldsTest extends TestCase
 
         $this->assertCount(2, Message::all());
 
-        $this->assertEquals('intent.core.NoMatch', Message::where('author', $utterance->getUser()->getId())->first()->intent);
+        $this->assertEquals('intent.core.NoMatch', Message::where('author', $utterance->getUser()->getId())->first()->intents[0]);
         $this->assertEquals('no_match_conversation', Message::where('author', $utterance->getUser()->getId())->first()->conversation);
         $this->assertEquals('opening_scene', Message::where('author', $utterance->getUser()->getId())->first()->scene);
 
-        $this->assertEquals('intent.core.NoMatchResponse', Message::where('author', '<>', $utterance->getUser()->getId())->first()->intent);
+        $this->assertEquals('intent.core.NoMatchResponse', Message::where('author', '<>', $utterance->getUser()->getId())->first()->intents[0]);
         $this->assertEquals('no_match_conversation', Message::where('author', '<>', $utterance->getUser()->getId())->first()->conversation);
         $this->assertEquals('opening_scene', Message::where('author', '<>', $utterance->getUser()->getId())->first()->scene);
     }
