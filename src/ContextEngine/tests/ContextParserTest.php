@@ -25,7 +25,7 @@ class ContextParserTest extends TestCase
 
         $parsedAttribute = ContextParser::parseAttributeName("user.name.last");
         $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $parsedAttribute->contextId);
-        $this->assertEquals('user', $parsedAttribute->attributeId);
+        $this->assertEquals('name', $parsedAttribute->attributeId);
     }
 
     public function testDetermineContextId()
@@ -52,7 +52,7 @@ class ContextParserTest extends TestCase
         $this->assertEquals('name', $attributeId);
 
         $attributeId = ContextParser::determineAttributeId("name.last");
-        $this->assertEquals('name', $attributeId);
+        $this->assertEquals('last', $attributeId);
     }
 
     public function testArrayNotationAttribute()
