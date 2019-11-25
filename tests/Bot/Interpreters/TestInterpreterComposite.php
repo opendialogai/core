@@ -3,7 +3,6 @@
 namespace OpenDialogAi\Core\Tests\Bot\Interpreters;
 
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractAttributeCollection;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -23,14 +22,13 @@ class TestInterpreterComposite extends BaseInterpreter
             if (strpos($text, 'Hello') !== false) {
                 $intent = Intent::createIntentWithConfidence('intent.test.hello_bot_comp', 1);
 
-                $intent->addAttribute(new StringAttribute('intent_test', 'test'));
                 $intent->addAttribute(new ArrayAttribute('array_test', ['ok']));
                 $intent->addAttribute(
                     new ExampleAbstractCompositeAttribute(
                         'result_test',
                         new ExampleAbstractAttributeCollection(
-                            array(['id' => 'one', 'value' => 'go']),
-                            'array'
+                            ['id' => 'one', 'value' => 'go'],
+                            ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY
                         )
                     )
                 );

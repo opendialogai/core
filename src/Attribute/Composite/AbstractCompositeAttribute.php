@@ -94,7 +94,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
 
                     return $carry;
                 });
-            } elseif ($attributes instanceof AbstractAttribute) {
+            } elseif ($attributes instanceof AttributeInterface) {
                 $attributes = $attributes->getValue([$search]);
             } else {
                 Log::warning("Couldn't recognize attribute type in AbstractCompositeAttribute.");

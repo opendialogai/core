@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
-use Mockery\MockInterface;
 use Exception;
+use Mockery\MockInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\Core\Attribute\StringAttribute;
