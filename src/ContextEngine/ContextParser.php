@@ -32,6 +32,7 @@ abstract class ContextParser
 
         // Todo: need to strict check for context before setting attribute,
         // we are assuming here that user will always provide context.
+        // or check here if $matches[0] context exist, if not use default & set attribute to $matches[0].
         $parsedAttribute->setContextId($matches[0]);
         $parsedAttribute->setAttributeId($matches[1]);
 
