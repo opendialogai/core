@@ -9,7 +9,14 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractAttributeCollection;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
+use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;
+use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class CompositeAttributeTest extends TestCase
 {
@@ -26,8 +33,8 @@ class CompositeAttributeTest extends TestCase
             [
                 'c' => ExampleAbstractCompositeAttribute::class,
                 'test_attr' => StringAttribute::class,
-                'pw.total' => IntAttribute::class,
-                'pw.results' => ArrayAttribute::class
+                'total' => IntAttribute::class,
+                'results' => ArrayAttribute::class
             ]
         );
         $attributeCollectionSerialized = $attributeCollection->jsonSerialize();
@@ -50,6 +57,84 @@ class CompositeAttributeTest extends TestCase
             $attributeCollectionNew
         );
 
-        $this->assertEquals($attributeCollectionNew->jsonSerialize(), '[{"id":"test_attr","value":"go"}]');
+        $this->assertEquals($attributeCollectionNew->jsonSerialize(), '[{&quot;id&quot;:&quot;test_attr&quot;,&quot;value&quot;:&quot;go&quot;}]');
+    }
+
+    public function testCompositeAttributesWithUserContext()
+    {
+        $this->registerSingleInterpreter(new TestInterpreterComposite());
+
+        $this->registerSingleAction(new TestAction());
+
+        $this->setCustomAttributes(
+            [
+                'total' => IntAttribute::class,
+                'results' => ArrayAttribute::class,
+                'array_test' => ArrayAttribute::class,
+                'result_test' => ExampleAbstractCompositeAttribute::class,
+                'intent_test' => StringAttribute::class,
+                'action_test' => IntAttribute::class
+            ]
+        );
+
+        $this->activateConversation($this->getConversation());
+
+        /** @var OutgoingIntent $intent */
+        $intent = OutgoingIntent::create(['name' => 'intent.test.hello_user']);
+
+        $markUp = (new MessageMarkUpGenerator())->addTextMessage('Result: {user.intent_test} || {user.array_test} || {user.result_test} || {user.action_test}');
+
+        $messageTemplate = MessageTemplate::create(
+            [
+                'name' => 'Test message',
+                'message_markup' => $markUp->getMarkUp(),
+                'outgoing_intent_id' => $intent->id
+            ]
+        );
+
+        $intent->messageTemplates()->save($messageTemplate);
+
+        $utterance = UtteranceGenerator::generateTextUtterance('Hello');
+        $messages = resolve(OpenDialogController::class)->runConversation($utterance);
+        $this->assertCount(1, $messages->getMessages());
+
+        $compositeAttributeCollection = new ExampleAbstractCompositeAttribute(
+            'result_test',
+            new ExampleAbstractAttributeCollection(
+                array(['id' => 'one', 'value' => 'go']),
+                'array'
+            )
+        );
+        $arrayAttribute = new ArrayAttribute('array_test', ['ok']);
+        $this->assertEquals(
+            'Result: test || '
+            . $arrayAttribute->toString() . ' || '
+            . $compositeAttributeCollection->toString()
+            . ' || 1',
+            $messages->getMessages()[0]->getText()
+        );
+    }
+
+
+    private function getConversation()
+    {
+        return <<<EOT
+conversation:
+  id: hello_bot
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.test.hello_bot_comp
+            interpreter: interpreter.test.hello_bot_comp
+            action: action.test.test
+            expected_attributes:
+              - id: user.intent_test
+              - id: user.array_test
+              - id: user.result_test
+        - b:
+            i: intent.test.hello_user
+            completes: true
+EOT;
     }
 }

@@ -9,8 +9,18 @@ use Illuminate\Support\Facades\Log;
  */
 class StringAttribute extends BasicAttribute
 {
+
+    /**
+     * @var string
+     */
     public static $type = 'attribute.core.string';
 
+    /**
+     * StringAttribute constructor.
+     *
+     * @param $id
+     * @param $value
+     */
     public function __construct($id, $value)
     {
         parent::__construct($id, $value);
@@ -19,9 +29,11 @@ class StringAttribute extends BasicAttribute
     /**
      * Returns null or an strval
      *
+     * @param array $arg
+     *
      * @return null | string
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value === null ? $this->value : strval($this->value);
     }

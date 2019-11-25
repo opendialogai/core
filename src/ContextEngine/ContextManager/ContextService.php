@@ -191,9 +191,12 @@ class ContextService implements ContextServiceInterface
     /**
      * @inheritDoc
      */
-    public function getAttributeValue(string $attributeId, string $contextId)
+    public function getAttributeValue(string $attributeId, string $contextId, array $index = [])
     {
-        return $this->getAttribute($attributeId, $contextId)->getValue();
+        if (!$index) {
+            return $this->getAttribute($attributeId, $contextId)->getValue();
+        }
+        return $this->getAttribute($attributeId, $contextId)->getValue($index);
     }
 
     /**
