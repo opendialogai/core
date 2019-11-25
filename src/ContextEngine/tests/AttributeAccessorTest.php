@@ -75,7 +75,7 @@ class AttributeAccessorTest extends TestCase
     {
         $this->addAttributeToSession(new ArrayAttribute('test', [1, 2, 3, 4]));
 
-        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[0]}');
+        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test.0}');
 
         $this->assertEquals(1, $response);
     }
@@ -85,7 +85,7 @@ class AttributeAccessorTest extends TestCase
         $attribute = new ArrayAttribute('test', [1 => 'hello', 2 => 'goodbye']);
         $this->addAttributeToSession($attribute);
 
-        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[2]}');
+        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test.2}');
 
         $this->assertEquals('goodbye', $response);
     }
@@ -127,7 +127,7 @@ class AttributeAccessorTest extends TestCase
         );
         $this->addAttributeToSession($attribute);
 
-        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[total]}');
+        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test.total}');
         $attributeInt = ContextService::getAttributeValue("test", "session", ["total"]);
         $attributeArray = ContextService::getAttributeValue("test", "session", ["results"]);
         $attributeArrayFirstValue = ContextService::getAttributeValue("test", "session", ["results", 1]);
@@ -147,9 +147,7 @@ class AttributeAccessorTest extends TestCase
         );
         $this->addAttributeToSession($attribute);
 
-        ContextService::getAttributeValue('session', 'test', ['results']);
-
-        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test[results][1]}');
+        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test.results.1}');
 
         $this->assertEquals('hello', $response);
     }
@@ -167,10 +165,12 @@ class AttributeAccessorTest extends TestCase
         $this->addAttributeToSession($attribute);
 
         $response = resolve(ResponseEngineService::class)
-            ->fillAttributes('{session.second[test][total]}');
+            ->fillAttributes('{session.second.test.total}');
         $responseArrayValue = resolve(ResponseEngineService::class)
-            ->fillAttributes('{session.second[test][results][3]}');
+            ->fillAttributes('{session.second.test.results.3}');
 
+        $value = ContextService::getAttributeValue('second', 'session', ['test', 'total']);
+        $this->assertEquals(3, $value->getValue());
         $this->assertEquals(3, $response);
         $this->assertEquals("third", $responseArrayValue);
     }

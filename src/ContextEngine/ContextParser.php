@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ContextEngine;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
@@ -13,34 +14,24 @@ abstract class ContextParser
 
         $parsedAttribute = new ParsedAttributeName();
 
-        switch (count($matches)) {
-            case 2:
-                $parsedAttribute->setContextId($matches[0]);
-                self::parseArrayNotation($matches[1], $parsedAttribute);
-                break;
-            case 1:
-                self::parseArrayNotation($matches[0], $parsedAttribute);
-                $parsedAttribute->setAttributeId($matches[0]);
-                break;
-            default:
-                Log::warning(sprintf('Parsing invalid attribute name %s', $attribute));
+        if (self::isValidContext($matches[0])) {
+            $parsedAttribute->setContextId($matches[0]);
+            $parsedAttribute->setAttributeId($matches[1]);
+
+            if (count($matches)>2) {
+                $parsedAttribute->setAccessor(array_slice($matches, 2));
+            }
+        } else {
+            Log::warning(sprintf('Parsed an invalid context id - %s', $matches[0]));
+
+            $parsedAttribute->attributeId = $matches[0];
+
+            if (count($matches) == 2) {
+                $parsedAttribute->setAccessor(array_slice($matches, 1));
+            } else if (count($matches) > 2) {
+                $parsedAttribute->setAccessor(array_slice($matches, 2));
+            }
         }
-
-        return $parsedAttribute;
-    }
-
-    /**
-     * @param string $attributeId
-     * @param ParsedAttributeName $parsedAttribute
-     * @return ParsedAttributeName
-     */
-    private static function parseArrayNotation($attributeId, $parsedAttribute): ParsedAttributeName
-    {
-        $split = preg_split('/[[\]\]]/', $attributeId, null, PREG_SPLIT_NO_EMPTY);
-
-        $parsedAttribute->attributeId = $split[0];
-        $accessor = array_slice($split, 1);
-        $parsedAttribute->setAccessor($accessor);
 
         return $parsedAttribute;
     }
@@ -83,5 +74,16 @@ abstract class ContextParser
     public static function containsContextName(string $attribute):  bool
     {
         return self::determineContextId($attribute) !== AbstractAttribute::UNDEFINED_CONTEXT;
+    }
+
+    /**
+     * Checks if the given context id is valid and bound
+     *
+     * @param string $contextId
+     * @return bool
+     */
+    private static function isValidContext($contextId): bool
+    {
+        return ContextService::hasContext($contextId);
     }
 }
