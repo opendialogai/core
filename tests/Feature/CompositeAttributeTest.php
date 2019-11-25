@@ -72,8 +72,6 @@ class CompositeAttributeTest extends TestCase
                 'results' => ArrayAttribute::class,
                 'array_test' => ArrayAttribute::class,
                 'result_test' => ExampleAbstractCompositeAttribute::class,
-                'intent_test' => StringAttribute::class,
-                'action_test' => IntAttribute::class
             ]
         );
 
@@ -82,7 +80,7 @@ class CompositeAttributeTest extends TestCase
         /** @var OutgoingIntent $intent */
         $intent = OutgoingIntent::create(['name' => 'intent.test.hello_user']);
 
-        $markUp = (new MessageMarkUpGenerator())->addTextMessage('Result: {user.intent_test} || {user.array_test} || {user.result_test} || {user.action_test}');
+        $markUp = (new MessageMarkUpGenerator())->addTextMessage('Result: {user.array_test} || {user.result_test}');
 
         $messageTemplate = MessageTemplate::create(
             [
@@ -101,16 +99,15 @@ class CompositeAttributeTest extends TestCase
         $compositeAttributeCollection = new ExampleAbstractCompositeAttribute(
             'result_test',
             new ExampleAbstractAttributeCollection(
-                array(['id' => 'one', 'value' => 'go']),
+                ['id' => 'one', 'value' => 'go'],
                 'array'
             )
         );
         $arrayAttribute = new ArrayAttribute('array_test', ['ok']);
         $this->assertEquals(
-            'Result: test || '
+            'Result: '
             . $arrayAttribute->toString() . ' || '
-            . $compositeAttributeCollection->toString()
-            . ' || 1',
+            . $compositeAttributeCollection->toString(),
             $messages->getMessages()[0]->getText()
         );
     }
@@ -129,7 +126,6 @@ conversation:
             interpreter: interpreter.test.hello_bot_comp
             action: action.test.test
             expected_attributes:
-              - id: user.intent_test
               - id: user.array_test
               - id: user.result_test
         - b:
