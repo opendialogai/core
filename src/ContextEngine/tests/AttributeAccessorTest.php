@@ -4,6 +4,7 @@ namespace OpenDialogAi\ContextEngine\tests;
 
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractAttributeCollection;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Attribute\test\SecondAbstractAttributeCollection;
@@ -11,11 +12,6 @@ use OpenDialogAi\Core\Attribute\test\SecondAbstractCompositeAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
-/**
- * Class AttributeAccessorTest
- *
- * @package OpenDialogAi\ContextEngine\tests
- */
 class AttributeAccessorTest extends TestCase
 {
     public function testContextServiceMethod()
@@ -92,6 +88,34 @@ class AttributeAccessorTest extends TestCase
         $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test.2}');
 
         $this->assertEquals('goodbye', $response);
+    }
+
+    public function testBadCompositeIndex()
+    {
+        $testData = ['thing1' => ['hello'], 'thing2' => ['goodbye']];
+        $attribute = new ExampleAbstractCompositeAttribute(
+            'test',
+            new ExampleAbstractAttributeCollection($testData, ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY)
+        );
+
+        $this->assertNull($attribute->getValue(['wrong']));
+        $this->assertNull($attribute->getValue(['results', 'thing1', 5]));
+        $this->assertNull($attribute->getValue(['results', 'thing1', 'wrong']));
+    }
+
+    public function testDirectAccessCompositeAttribute()
+    {
+        $testData = ['thing1' => ['hello'], 'thing2' => ['goodbye']];
+        $attribute = new ExampleAbstractCompositeAttribute(
+            'test',
+            new ExampleAbstractAttributeCollection($testData, ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY)
+        );
+
+        $this->assertEquals(new ArrayAttribute('results', $testData), $attribute->getValue(['results']));
+        $this->assertEquals(new IntAttribute('total', 2), $attribute->getValue(['total']));
+
+        $this->assertEquals(['hello'], $attribute->getValue(['results', 'thing1']));
+        $this->assertEquals('hello', $attribute->getValue(['results', 'thing1', 0]));
     }
 
     public function testCompositeAttributeString()

@@ -7,23 +7,6 @@ use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
 {
-    /**
-     * Attempts to work out the context and attribute ID for a fully qualified attribute name.
-     * For example, an attribute with the name user.name would return:
-     * ['user', 'name']
-     *
-     * If no context is included with the attribute @see AbstractAttribute::UNDEFINED_CONTEXT is returned for the
-     * context id
-     *
-     * @param $attribute
-     * @return array The context and attribute ids in an array where the first value is the context id
-     */
-    public static function determineContextAndAttributeId($attribute): array
-    {
-        $parsedAttribute = self::parseAttributeName($attribute);
-        return [$parsedAttribute->contextId, $parsedAttribute->attributeId];
-    }
-
     public static function parseAttributeName($attribute) : ParsedAttributeName
     {
         $matches = explode('.', $attribute);

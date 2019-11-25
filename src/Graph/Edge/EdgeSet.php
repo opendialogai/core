@@ -7,9 +7,6 @@ use Ds\Set;
 
 /**
  * A set of edges with a common relationship.
- *
- * Class EdgeSet
- * @package OpenDialog\Core\Graph\Edge
  */
 class EdgeSet
 {

@@ -306,10 +306,8 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     protected function getAttributeMessageText($attributeName): string
     {
         $parsedAttributeName = ContextParser::parseAttributeName($attributeName);
-        $contextId = $parsedAttributeName->contextId;
-        $attributeId = $parsedAttributeName->attributeId;
 
-        $attributeValue = ContextService::getAttributeValue($attributeId, $contextId);
+        $attributeValue = ContextService::getAttributeValue($parsedAttributeName->attributeId, $parsedAttributeName->contextId);
 
         return $this->responseEngineService->fillAttributes($attributeValue);
     }
