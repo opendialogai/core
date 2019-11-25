@@ -89,7 +89,15 @@ class OperationService implements OperationServiceInterface
             $attributeName = $parsedAttributeName->attributeId;
 
             try {
-                $actualAttribute = ContextService::getAttribute($attributeName, $contextId);
+                if (!$parsedAttributeName->getAccessor()) {
+                    $actualAttribute = ContextService::getAttribute($attributeName, $contextId);
+                } else {
+                    $actualAttribute = ContextService::getAttributeValue(
+                        $attributeName,
+                        $contextId,
+                        $parsedAttributeName->getAccessor()
+                    );
+                }
             } catch (\Exception $e) {
                 Log::debug($e->getMessage());
                 // If the attribute does not exist create one with a null value since we may be testing
