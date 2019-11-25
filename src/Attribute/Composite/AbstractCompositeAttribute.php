@@ -65,34 +65,53 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
             return $this->attributeCollection->getAttributes();
         }
 
-        $attributes = $this->attributeCollection->getAttributes();
+        return $this->getValueRecursive($index, $this->attributeCollection->getAttributes(), 0);
+    }
 
-        $useColsure = function ($index, $attributes, $count) use (&$useColsure) {
-            if (array_key_exists($count, $index)) {
-                $search = $index[$count];
+    /**
+     * Recursive function that loops through all attributes in the CompositeAttribute and pulls out the request value
+     * based on the index array.
+     *
+     * @param $index
+     * @param $attributes
+     * @param $count
+     * @return mixed
+     */
+    private function getValueRecursive($index, $attributes, $count)
+    {
+        if (array_key_exists($count, $index)) {
+            $search = $index[$count];
 
-                if (is_array($attributes)) {
-                    $attributes = array_reduce($attributes, function ($carry, $attribute) use ($search) {
-                        if ($attribute->getId() === $search) {
-                            $carry = $attribute;
-                        }
-                        return $carry;
-                    });
-                } elseif ($attributes instanceof AbstractAttribute) {
-                    $attributes = $attributes->getValue([$search]);
-                } else {
-                    Log::warning("Couldn't recognize attribute type in AbstractCompositeAttribute.");
-                }
+            if (is_array($attributes)) {
+                $attributes = array_reduce(array_keys($attributes), function ($carry, $key) use ($attributes, $search) {
+                    if ($search === $key) {
+                        return $attributes[$key];
+                    }
 
-                $result = $useColsure($index, $attributes, $count+1);
+                    if ($attributes[$key] instanceof AttributeInterface && $attributes[$key]->getId() === $search) {
+                        return $attributes[$key];
+                    }
 
-                return $result;
+                    return $carry;
+                });
+            } elseif ($attributes instanceof AbstractAttribute) {
+                $attributes = $attributes->getValue([$search]);
             } else {
-                return $attributes;
+                Log::warning("Couldn't recognize attribute type in AbstractCompositeAttribute.");
             }
-        };
 
-        return $useColsure($index, $attributes, 0);
+            return $this->getValueRecursive($index, $attributes, $count + 1);
+        }
+
+        if (is_null($attributes)) {
+            Log::warning(sprintf(
+                'Unable to extract requested index from attribute - %s - %s',
+                get_class($this),
+                json_encode($index)
+            ));
+        }
+
+        return $attributes;
     }
 
     /**

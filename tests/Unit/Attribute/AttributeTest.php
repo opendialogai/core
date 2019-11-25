@@ -35,6 +35,6 @@ class AttributeTest extends TestCase
 
         $attribute = new ArrayAttribute('test', $array);
 
-        $this->assertEquals(json_decode(json_encode($array)), $attribute->getValue(['first', 0]));
+        $this->assertEquals('one', $attribute->getValue(['first', 0]));
     }
 }
