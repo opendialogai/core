@@ -9,23 +9,11 @@ use OpenDialogAi\Core\Attribute\AbstractAttribute;
  */
 class ParsedAttributeName
 {
-    public $context = AbstractAttribute::UNDEFINED_CONTEXT;
-
     public $attributeId = AbstractAttribute::INVALID_ATTRIBUTE_NAME;
 
     public $contextId = AbstractAttribute::UNDEFINED_CONTEXT;
 
     public $accessor = [];
-
-    public $itemNumber;
-
-    public $itemName;
-
-    public function setContext($context)
-    {
-        $this->context = $context;
-        return $this;
-    }
 
     public function setAttributeId($attributeId)
     {
@@ -33,40 +21,31 @@ class ParsedAttributeName
         return $this;
     }
 
-    public function setItemNumber($itemNumber)
-    {
-        $this->itemNumber = $itemNumber;
-        return $this;
-    }
-
-    public function setItemName($itemName)
-    {
-        $this->itemName = $itemName;
-        return $this;
-    }
-
-    public function hasValidAttributeId()
+    /**
+     * Checks if the parsed attribute id was valid or not
+     *
+     * @return bool
+     */
+    public function hasValidAttributeId(): bool
     {
         return $this->attributeId !== AbstractAttribute::INVALID_ATTRIBUTE_NAME;
     }
 
-    public function hasValidContextName()
+    /**
+     * Checks if the parsed context name was valid or not
+     *
+     * @return bool
+     */
+    public function hasValidContextName(): bool
     {
         return $this->contextId !== AbstractAttribute::UNDEFINED_CONTEXT;
     }
 
     /**
-     * @return mixed
-     */
-    public function getContextId()
-    {
-        return $this->contextId;
-    }
-
-    /**
      * @param mixed $contextId
+     * @return ParsedAttributeName
      */
-    public function setContextId($contextId)
+    public function setContextId($contextId): ParsedAttributeName
     {
         $this->contextId = $contextId;
         return $this;
