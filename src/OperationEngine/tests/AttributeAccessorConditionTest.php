@@ -1,20 +1,20 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\tests;
+namespace OpenDialogAi\OperationEngine\tests;
 
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractAttributeCollection;
 use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
-use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
-use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
+use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
