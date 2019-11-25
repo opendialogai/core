@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ContextEngine;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
@@ -13,14 +14,23 @@ abstract class ContextParser
 
         $parsedAttribute = new ParsedAttributeName();
 
-        // Todo: need to strict check for context before setting attribute,
-        // we are assuming here that user will always provide context.
-        // or check here if $matches[0] context exist, if not use default & set attribute to $matches[0].
-        $parsedAttribute->setContextId($matches[0]);
-        $parsedAttribute->setAttributeId($matches[1]);
+        if (self::isValidContext($matches[0])) {
+            $parsedAttribute->setContextId($matches[0]);
+            $parsedAttribute->setAttributeId($matches[1]);
 
-        if (count($matches)>2) {
-            $parsedAttribute->setAccessor(array_slice($matches, 2));
+            if (count($matches)>2) {
+                $parsedAttribute->setAccessor(array_slice($matches, 2));
+            }
+        } else {
+            Log::warning(sprintf('Parsed an invalid context id - %s', $matches[0]));
+
+            $parsedAttribute->attributeId = $matches[0];
+
+            if (count($matches) == 2) {
+                $parsedAttribute->setAccessor(array_slice($matches, 1));
+            } else if (count($matches) > 2) {
+                $parsedAttribute->setAccessor(array_slice($matches, 2));
+            }
         }
 
         return $parsedAttribute;
@@ -64,5 +74,16 @@ abstract class ContextParser
     public static function containsContextName(string $attribute):  bool
     {
         return self::determineContextId($attribute) !== AbstractAttribute::UNDEFINED_CONTEXT;
+    }
+
+    /**
+     * Checks if the given context id is valid and bound
+     *
+     * @param string $contextId
+     * @return bool
+     */
+    private static function isValidContext($contextId): bool
+    {
+        return ContextService::hasContext($contextId);
     }
 }
