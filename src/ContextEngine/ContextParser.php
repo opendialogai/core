@@ -24,11 +24,12 @@ abstract class ContextParser
         } else {
             Log::warning(sprintf('Parsed an invalid context id - %s', $matches[0]));
 
-            $parsedAttribute->attributeId = $matches[0];
-
-            if (count($matches) == 2) {
-                $parsedAttribute->setAccessor(array_slice($matches, 1));
+            if (count($matches) == 1) {
+                $parsedAttribute->attributeId = $matches[0];
+            } else if (count($matches) == 2) {
+                $parsedAttribute->attributeId = $matches[1];
             } else if (count($matches) > 2) {
+                $parsedAttribute->attributeId = $matches[1];
                 $parsedAttribute->setAccessor(array_slice($matches, 2));
             }
         }
