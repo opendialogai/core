@@ -5,7 +5,6 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Model;
 
 /**
@@ -32,6 +31,7 @@ class DGraphClient
     const CONVERSATION = 'Conversation';
     const USER = 'User';
     const USER_ATTRIBUTE = 'UserAttribute';
+    const VIRTUAL_INTENT = 'VirtualIntent';
 
 
     public function __construct($dgraphUrl, $dGraphPort)
@@ -334,6 +334,7 @@ class DGraphClient
         return "
             <attributes>: string .
             <causes_action>: [uid] .
+            <simulates_intent>: [uid] .
             <context>: string .
             <conversation_status>: string @index(exact) .
             <conversation_version>: int .
@@ -369,8 +370,13 @@ class DGraphClient
                 operation: string
                 parameters: string
             }
+            type " . self::VIRTUAL_INTENT . " {
+                id: string
+                ei_type: string
+            }
             type " . self::INTENT . " {
                 causes_action: [uid]
+                simulates_intent: [uid]
                 core.attribute.completes: default
                 core.attribute.order: default
                 ei_type: string

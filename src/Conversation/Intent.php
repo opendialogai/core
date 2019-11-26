@@ -36,8 +36,6 @@ class Intent extends NodeWithConditions
      * @param $id
      * @param bool $completes
      * @throws UnsupportedAttributeTypeException
-     *
-     * @todo intents need unique identifiers in addition to the label that represents the intent.
      */
     public function __construct($id, $completes = false)
     {
@@ -459,5 +457,23 @@ class Intent extends NodeWithConditions
         }
 
         return $conditions;
+    }
+
+    /**
+     * @param VirtualIntent $virtualIntent
+     */
+    public function addVirtualIntent(VirtualIntent $virtualIntent): void
+    {
+        $this->createOutgoingEdge(Model::SIMULATES_INTENT, $virtualIntent);
+    }
+
+    /**
+     * @return VirtualIntent|null
+     */
+    public function getVirtualIntent(): ?VirtualIntent
+    {
+        $nodes = $this->getNodesConnectedByOutgoingRelationship(Model::SIMULATES_INTENT);
+
+        return $nodes->isEmpty() ? null : $nodes->first()->value;
     }
 }
