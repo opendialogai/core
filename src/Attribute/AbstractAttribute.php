@@ -73,6 +73,14 @@ abstract class AbstractAttribute implements AttributeInterface
     }
 
     /**
+     * @return AbstractAttribute
+     */
+    public function copy(): AbstractAttribute
+    {
+        return clone $this;
+    }
+
+    /**
      * @return string
      */
     public function serialized(): string
