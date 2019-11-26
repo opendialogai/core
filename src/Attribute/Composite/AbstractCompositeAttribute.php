@@ -84,7 +84,7 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute
 
             if (is_array($attributes)) {
                 $attributes = array_reduce(array_keys($attributes), function ($carry, $key) use ($attributes, $search) {
-                    if ($search === $key) {
+                    if ($search == $key) {
                         return $attributes[$key];
                     }
 
