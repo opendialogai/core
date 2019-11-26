@@ -18,9 +18,20 @@ class MessageTest extends TestCase
         $this->assertEquals(1, Message::containingIntent('intent_3')->count());
     }
 
+    public function testMultipleIntents()
+    {
+        $this->createMessage('message1', ['intent_1', "intent_2", "intent_23"]);
+        $this->createMessage('message2', ['intent_2', "intent_3", "intent_12"]);
+
+        $this->assertEquals(2, Message::containingIntents(['intent_1', 'intent_2', 'intent_3'])->count());
+        $this->assertEquals(2, Message::containingIntents(['intent_2'])->count());
+        $this->assertEquals(1, Message::containingIntents(['intent_3'])->count());
+        $this->assertEquals(0, Message::containingIntents([])->count());
+    }
+
     private function createMessage($message, $intents): void
     {
-        $message = (new Message([
+        (new Message([
             'user_id' => Str::random(20),
             'author' => 'them',
             'message' => $message,

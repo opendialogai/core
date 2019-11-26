@@ -25,6 +25,7 @@ use Illuminate\Support\Str;
  * @property array $intents
  * @property int microtime
  * @method static QueryBuilder containingIntent($intent)
+ * @method static QueryBuilder containingIntents($intents)
  */
 class Message extends Model
 {
@@ -152,5 +153,25 @@ class Message extends Model
     public function scopeContainingIntent($query, $intent)
     {
         return $query->where('intents', 'like', '%"' . $intent . '"%');
+    }
+
+    /**
+     * Scope for getting messages that contain any of the the given intents
+     *
+     * @param QueryBuilder $query
+     * @param $intents
+     * @return mixed
+     */
+    public function scopeContainingIntents($query, $intents)
+    {
+        if (empty($intents)) {
+            $intents = [''];
+        }
+
+        foreach ($intents as $intent) {
+            $query->OrWhere('intents', 'like', '%"' . $intent . '"%');
+        }
+
+        return $query;
     }
 }
