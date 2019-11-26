@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationLog;
 
 use Carbon\Carbon;
 use DateTime;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -23,6 +24,7 @@ use Illuminate\Support\Str;
  * @property string $user
  * @property array $intents
  * @property int microtime
+ * @method static QueryBuilder containingIntent($intent)
  */
 class Message extends Model
 {
@@ -138,5 +140,17 @@ class Message extends Model
             return true;
         }
         return false;
+    }
+
+    /**
+     * Scope for getting messages that contain the given intent
+     *
+     * @param QueryBuilder $query
+     * @param $intent
+     * @return mixed
+     */
+    public function scopeContainingIntent($query, $intent)
+    {
+        return $query->where('intents', 'like', '%"' . $intent . '"%');
     }
 }
