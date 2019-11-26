@@ -10,9 +10,6 @@ use OpenDialogAi\Core\Graph\Edge\EdgeSet;
 use OpenDialogAi\Core\Graph\GraphItem;
 
 /**
- * Class Node
- * @package OpenDialog\Core\Graph\Node
- *
  * A Node in a graph structure.
  */
 class Node
@@ -21,6 +18,8 @@ class Node
 
     /** @var bool $idIsUnique */
     protected static $idIsUnique = true;
+
+    protected $uniqueId;
 
     /**
      * @var Map $outgoingEdges - the set of edges leaving this node keyed by the outgoing relationship name.
@@ -315,6 +314,10 @@ class Node
      */
     public function hash(): string
     {
-        return hash('SHA256', serialize($this));
+        if (!isset($this->uniqueId)) {
+            $this->uniqueId = uniqid();
+        }
+
+        return $this->uniqueId;
     }
 }

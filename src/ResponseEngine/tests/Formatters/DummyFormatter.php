@@ -18,7 +18,7 @@ class DummyFormatter implements MessageFormatterInterface
 {
     use HasName;
 
-    static $name = 'badly_formed';
+    public static $name = 'badly_formed';
 
     public function getMessages(string $markup): OpenDialogMessages
     {

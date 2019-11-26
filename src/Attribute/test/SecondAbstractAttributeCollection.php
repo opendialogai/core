@@ -8,15 +8,17 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 
 /**
  * A composite attribute collection containing other attribute types.
+ * This specific composite attribute will also container another composite attribute.
  *
  * createFromInput()
  * @return
  * [
  *  total = IntAttribute,
- *  results = ArrayAttribute
+ *  results = ArrayAttribute,
+ *  test = ExampleAbstractCompositeAttribute
  * ]
  */
-class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
+class SecondAbstractAttributeCollection extends AbstractAttributeCollection
 {
     const EXAMPLE_TYPE = 'api';
     const EXAMPLE_TYPE_ARRAY = 'array';
@@ -45,7 +47,8 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
      * @return array
      * [
      *  total = IntAttribute,
-     *  results = ArrayAttribute
+     *  results = ArrayAttribute,
+     *  test = ExampleAbstractCompositeAttribute
      * ]
      */
     public function createFromInput($input, $type): array
@@ -55,6 +58,13 @@ class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
         if ($type === self::EXAMPLE_TYPE_ARRAY) {
             $attributes[] = new IntAttribute('total', count($input));
             $attributes[] = new ArrayAttribute('results', $input);
+            $attributes[] = new ExampleAbstractCompositeAttribute(
+                'test',
+                new ExampleAbstractAttributeCollection(
+                    [1 => 'first', 2 => 'second', 3 => 'third'],
+                    ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY
+                )
+            );
         }
 
         return $attributes;

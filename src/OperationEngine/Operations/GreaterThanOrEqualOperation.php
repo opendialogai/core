@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class GreaterThanOrEqualOperation extends BaseOperation
 {
-    static $name = 'gte';
+    public static $name = 'gte';
 
     /**
      * @inheritDoc

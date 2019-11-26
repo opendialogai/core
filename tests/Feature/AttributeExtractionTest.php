@@ -78,7 +78,7 @@ class AttributeExtractionTest extends TestCase
         $userContext = ContextService::createUserContext($utterance);
         $this->assertCount(4, ContextService::getContexts());
 
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_user', $intent->getLabel());
     }

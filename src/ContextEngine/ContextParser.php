@@ -3,72 +3,35 @@
 namespace OpenDialogAi\ContextEngine;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
 {
-    /**
-     * Attempts to work out the context and attribute ID for a fully qualified attribute name.
-     * For example, an attribute with the name user.name would return:
-     * ['user', 'name']
-     *
-     * If no context is included with the attribute @see AbstractAttribute::UNDEFINED_CONTEXT is returned for the
-     * context id
-     *
-     * @param $attribute
-     * @return array The context and attribute ids in an array where the first value is the context id
-     */
-    public static function determineContextAndAttributeId($attribute): array
-    {
-        $parsedAttribute = self::parseAttributeName($attribute);
-        return [$parsedAttribute->context, $parsedAttribute->attributeId];
-    }
-
     public static function parseAttributeName($attribute) : ParsedAttributeName
     {
         $matches = explode('.', $attribute);
 
         $parsedAttribute = new ParsedAttributeName();
 
-        switch (count($matches)) {
-            case 2:
-                $parsedAttribute->setContext($matches[0]);
-                self::parseArrayNotation($matches[1], $parsedAttribute);
-                break;
-            case 1:
-                self::parseArrayNotation($matches[0], $parsedAttribute);
-                $parsedAttribute->setAttributeId($matches[0]);
-                break;
-            default:
-                Log::warning(sprintf('Parsing invalid attribute name %s', $attribute));
-        }
+        if (self::isValidContext($matches[0])) {
+            $parsedAttribute->setContextId($matches[0]);
+            $parsedAttribute->setAttributeId($matches[1]);
 
-        return $parsedAttribute;
-    }
+            if (count($matches)>2) {
+                $parsedAttribute->setAccessor(array_slice($matches, 2));
+            }
+        } else {
+            Log::warning(sprintf('Parsed an invalid context id - %s', $matches[0]));
 
-    /**
-     * @param string $attributeId
-     * @param ParsedAttributeName $parsedAttribute
-     * @return ParsedAttributeName
-     */
-    private static function parseArrayNotation($attributeId, $parsedAttribute): ParsedAttributeName
-    {
-        $split = preg_split('/[[\]\]]/', $attributeId, null, PREG_SPLIT_NO_EMPTY);
-
-        switch (count($split)) {
-            case 3:
-                $parsedAttribute->attributeId = $split[0];
-                $parsedAttribute->itemNumber = $split[1];
-                $parsedAttribute->itemName = $split[2];
-                break;
-            case 2:
-                $parsedAttribute->attributeId = $split[0];
-                $parsedAttribute->itemNumber = $split[1];
-                break;
-            case 1:
-            default:
-                $parsedAttribute->attributeId = $split[0];
-                break;
+            if (count($matches) == 1) {
+                $parsedAttribute->attributeId = $matches[0];
+            } else if (count($matches) == 2) {
+                $parsedAttribute->attributeId = $matches[1];
+            } else if (count($matches) > 2) {
+                $parsedAttribute->attributeId = $matches[1];
+                $parsedAttribute->setAccessor(array_slice($matches, 2));
+            }
         }
 
         return $parsedAttribute;
@@ -86,7 +49,8 @@ abstract class ContextParser
      */
     public static function determineContextId($attribute): string
     {
-        return self::determineContextAndAttributeId($attribute)[0];
+        $parsedAttributeName = self::parseAttributeName($attribute);
+        return $parsedAttributeName->contextId;
     }
 
     /**
@@ -98,7 +62,8 @@ abstract class ContextParser
      */
     public static function determineAttributeId($attribute): string
     {
-        return self::determineContextAndAttributeId($attribute)[1];
+        $parsedAttributeName = self::parseAttributeName($attribute);
+        return $parsedAttributeName->attributeId;
     }
 
     /**
@@ -110,5 +75,16 @@ abstract class ContextParser
     public static function containsContextName(string $attribute):  bool
     {
         return self::determineContextId($attribute) !== AbstractAttribute::UNDEFINED_CONTEXT;
+    }
+
+    /**
+     * Checks if the given context id is valid and bound
+     *
+     * @param string $contextId
+     * @return bool
+     */
+    private static function isValidContext($contextId): bool
+    {
+        return ContextService::hasContext($contextId);
     }
 }

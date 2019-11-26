@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Controllers;
 
+use Ds\Set;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
@@ -9,6 +10,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -69,23 +71,13 @@ class OpenDialogController
     {
         $userContext = ContextService::createUserContext($utterance);
 
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        /** @var Intent[] $intents */
+        $intents = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         // Log incoming message.
         $this->conversationLogService->logIncomingMessage($utterance);
 
-        try {
-            $messages = $this->responseEngineService->getMessageForIntent(
-                $utterance->getPlatform(),
-                $intent->getId()
-            );
-        } catch (NoMatchingMessagesException $e) {
-            /** @var OpenDialogMessages $messages */
-            $messages = $this->responseEngineService->buildTextFormatterErrorMessage(
-                $utterance->getPlatform(),
-                $e->getMessage()
-            );
-        }
+        $messages = $this->getMessages($utterance, $intents);
 
         $this->processInternalMessages($messages);
 
@@ -108,5 +100,44 @@ class OpenDialogController
                 $message->setInternal(true);
             }
         }
+    }
+
+    /**
+     * Collects messages for each intent and if there is more than one intent, gather all messages into the first wrapper
+     *
+     * @param UtteranceInterface $utterance
+     * @param array $intents
+     * @return OpenDialogMessages
+     */
+    private function getMessages(UtteranceInterface $utterance, array $intents): OpenDialogMessages
+    {
+        $messagesSet = new Set();
+
+        foreach ($intents as $intent) {
+            try {
+                $messagesSet->add($this->responseEngineService->getMessageForIntent(
+                    $utterance->getPlatform(),
+                    $intent->getId()
+                ));
+            } catch (NoMatchingMessagesException $e) {
+                $messagesSet->add($this->responseEngineService->buildTextFormatterErrorMessage(
+                    $utterance->getPlatform(),
+                    $e->getMessage()
+                ));
+            }
+        }
+
+        $messages = $messagesSet->first();
+
+        if (count($messagesSet) > 1) {
+            /** @var OpenDialogMessages $item */
+            foreach ($messagesSet->slice(1) as $item) {
+                foreach ($item->getMessages() as $message) {
+                    $messages->addMessage($message);
+                }
+            }
+        }
+
+        return $messages;
     }
 }

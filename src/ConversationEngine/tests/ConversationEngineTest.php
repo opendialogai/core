@@ -181,7 +181,7 @@ class ConversationEngineTest extends TestCase
 
         $userContext = $this->createUserContext();
 
-        $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $this->utterance);
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
 
         $this->assertFalse($userContext->isUserHavingConversation());
@@ -209,7 +209,7 @@ class ConversationEngineTest extends TestCase
         $callbackInterpeter->addCallback('hello_registered_user', 'hello_registered_user');
 
         // Let's see if we get the right next intent for the first step.
-        $intent = $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $this->utterance);
         $validIntents = ['hello_user','hello_registered_user'];
         $this->assertContains($intent->getId(), $validIntents);
 
@@ -220,12 +220,12 @@ class ConversationEngineTest extends TestCase
         $nextUtterance = new WebchatChatOpenUtterance();
         if ($intent->getId() === 'hello_user') {
             $nextUtterance->setCallbackId('how_are_you');
-            $intent = $this->conversationEngine->getNextIntent($userContext, $nextUtterance);
+            list($intent) = $this->conversationEngine->getNextIntents($userContext, $nextUtterance);
             $this->assertEquals('doing_dandy', $intent->getId());
         }
         if ($intent->getId() === 'hello_registered_user') {
             $nextUtterance->setCallbackId('weather_question');
-            $intent = $this->conversationEngine->getNextIntent($userContext, $nextUtterance);
+            list($intent) = $this->conversationEngine->getNextIntents($userContext, $nextUtterance);
             $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
         }
     }
@@ -317,7 +317,7 @@ class ConversationEngineTest extends TestCase
         } catch (AttributeDoesNotExistException $e) {
         }
 
-        $this->conversationEngine->getNextIntent($userContext, $this->utterance);
+        $this->conversationEngine->getNextIntents($userContext, $this->utterance);
 
         $fullName = $userContext->getAttribute('full_name')->getValue();
         $this->assertTrue($fullName !== '');
@@ -345,7 +345,7 @@ class ConversationEngineTest extends TestCase
         $callbackInterpeter->addCallback('hello_registered_user', 'hello_registered_user');
 
         // Let's see if we get the right next intent for the first step.
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
         $this->assertEquals('hello_user', $intent->getId());
     }
 
@@ -378,11 +378,11 @@ class ConversationEngineTest extends TestCase
         $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round');
         $this->activateConversation($this->conversationWithDestinationAsOpeningScene());
 
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
         $this->assertEquals($intent->getLabel(), 'intent.app.receive_choice');
 
         $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.start_round_again', $utterance->getUser());
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
         $this->assertEquals($intent->getLabel(), 'intent.app.end');
     }
 
@@ -421,13 +421,13 @@ EOT;
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_none');
         $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('opening_bot_response', $intent->getId());
 
         // Progress conversation, expect to not enter scene3
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s3', $utterance->getUser());
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
 
@@ -436,7 +436,7 @@ EOT;
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s1');
         $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_name', 'test_user'));
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('scene1_bot', $intent->getId());
 
@@ -445,7 +445,7 @@ EOT;
         $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_name', 'test_user'));
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('scene2_bot', $intent->getId());
 
@@ -453,7 +453,7 @@ EOT;
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_doesnt_exist');
         $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
 
@@ -461,7 +461,7 @@ EOT;
         $utterance = UtteranceGenerator::generateChatOpenUtterance('opening_user_s2');
         $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(AttributeResolverFacade::getAttributeFor('user_email', 'test@example.com'));
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getId());
     }

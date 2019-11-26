@@ -18,6 +18,7 @@ use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\VirtualIntent;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
@@ -553,5 +554,27 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('intent.app.you_won', $openingSceneBotIntentIds->skip(3)->value);
 
         $this->assertEquals('intent.app.you_lost', $secondSceneBotIntentIds->skip(0)->value);
+    }
+
+    public function testVirtualIntents()
+    {
+        $conversation = $this->createConversationWithVirtualIntent();
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+
+        $this->assertCount(2, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+
+        /** @var Intent $firstBotIntent */
+        $firstBotIntent = $openingScene->getIntentsSaidByBot()->first()->value;
+
+        $this->assertEquals('intent.app.welcomeResponse', $firstBotIntent->getId());
+
+        /** @var VirtualIntent $virtualIntent */
+        $virtualIntent = $firstBotIntent->getVirtualIntent();
+
+        $this->assertNotNull($virtualIntent);
+        $this->assertEquals('intent.app.continue', $virtualIntent->getId());
     }
 }

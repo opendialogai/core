@@ -22,7 +22,6 @@ abstract class AbstractAttribute implements AttributeInterface
     /**
      * AbstractAttribute constructor.
      * @param $id
-     * @param $type
      * @param $value
      */
     public function __construct($id, $value)
@@ -40,9 +39,11 @@ abstract class AbstractAttribute implements AttributeInterface
     }
 
     /**
+     * @param array $arg
+     *
      * @return mixed
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value;
     }
@@ -77,5 +78,13 @@ abstract class AbstractAttribute implements AttributeInterface
     public function copy(): AbstractAttribute
     {
         return clone $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialized(): string
+    {
+        return $this->value;
     }
 }
