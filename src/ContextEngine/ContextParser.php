@@ -10,7 +10,12 @@ abstract class ContextParser
 {
     public static function parseAttributeName($attribute) : ParsedAttributeName
     {
-        $matches = explode('.', $attribute);
+        $matches = array_map(
+            function ($i) {
+                return is_numeric($i) ? intval($i) : $i;
+            },
+            explode('.', $attribute)
+        );
 
         $parsedAttribute = new ParsedAttributeName();
 
@@ -26,9 +31,9 @@ abstract class ContextParser
 
             if (count($matches) == 1) {
                 $parsedAttribute->attributeId = $matches[0];
-            } else if (count($matches) == 2) {
+            } elseif (count($matches) == 2) {
                 $parsedAttribute->attributeId = $matches[1];
-            } else if (count($matches) > 2) {
+            } elseif (count($matches) > 2) {
                 $parsedAttribute->attributeId = $matches[1];
                 $parsedAttribute->setAccessor(array_slice($matches, 2));
             }
