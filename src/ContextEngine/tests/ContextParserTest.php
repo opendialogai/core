@@ -8,64 +8,70 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class ContextParserTest extends TestCase
 {
-    public $setupWithDGraphInit = false;
+    public function setUp(): void
+    {
+        parent::setUp();
+    }
 
     public function testDetermineContextAndAttributeId()
     {
-        $parsedAttribute = ContextParser::parseAttributeName("user.name");
-        $this->assertEquals("user", $parsedAttribute->contextId);
+        $parsedAttribute = ContextParser::parseAttributeName("session.name");
+        $this->assertEquals("session", $parsedAttribute->contextId);
         $this->assertEquals("name", $parsedAttribute->attributeId);
 
         $parsedAttribute = ContextParser::parseAttributeName("name");
         $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $parsedAttribute->contextId);
         $this->assertEquals("name", $parsedAttribute->attributeId);
 
-        $parsedAttribute = ContextParser::parseAttributeName("user.last.name");
+        $parsedAttribute = ContextParser::parseAttributeName("user.name.last");
         $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $parsedAttribute->contextId);
-        $this->assertEquals(AbstractAttribute::INVALID_ATTRIBUTE_NAME, $parsedAttribute->attributeId);
+        $this->assertEquals('name', $parsedAttribute->attributeId);
     }
 
     public function testDetermineContextId()
     {
-        $contextId = ContextParser::determineContextId("user.name");
-        $this->assertEquals("user", $contextId);
+        $contextId = ContextParser::determineContextId("session.name");
+        $this->assertEquals("session", $contextId);
 
         $contextId = ContextParser::determineContextId("name");
         $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $contextId);
 
-        $contextId = ContextParser::determineContextId("user.last.name");
-        $this->assertEquals(AbstractAttribute::UNDEFINED_CONTEXT, $contextId);
+        $contextId = ContextParser::determineContextId("session.name.last");
+        $this->assertEquals('session', $contextId);
     }
 
     public function testDetermineAttributeId()
     {
-        $attributeId = ContextParser::determineAttributeId("user.name");
+        $attributeId = ContextParser::determineAttributeId("session.name");
         $this->assertEquals("name", $attributeId);
 
         $attributeId = ContextParser::determineAttributeId("name");
         $this->assertEquals("name", $attributeId);
 
-        $attributeId = ContextParser::determineAttributeId("user.last.name");
-        $this->assertEquals(AbstractAttribute::INVALID_ATTRIBUTE_NAME, $attributeId);
+        $attributeId = ContextParser::determineAttributeId("session.name.last");
+        $this->assertEquals('name', $attributeId);
+
+        $attributeId = ContextParser::determineAttributeId("name.last");
+        $this->assertEquals('last', $attributeId);
     }
 
     public function testArrayNotationAttribute()
     {
-        $attribute = "user.test[1][name]";
+        $attribute = "session.test.1.name";
 
-        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
+        $this->assertEquals('session', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
         $this->assertEquals(1, ContextParser::parseAttributeName($attribute)->getAccessor()[0]);
         $this->assertEquals('name', ContextParser::parseAttributeName($attribute)->getAccessor()[1]);
 
-        $attribute = "user.test[1]";
+        $attribute = "session.test.1";
 
-        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
+        $this->assertEquals('session', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
         $this->assertEquals([1], ContextParser::parseAttributeName($attribute)->getAccessor());
 
-        $attribute = "user.test[1][test][test]";
-        $this->assertEquals('user', ContextParser::parseAttributeName($attribute)->contextId);
+        $attribute = "session.test.1.test.test";
+        $this->assertEquals('session', ContextParser::parseAttributeName($attribute)->contextId);
         $this->assertEquals('test', ContextParser::parseAttributeName($attribute)->attributeId);
         $this->assertEquals([1, 'test', 'test'], ContextParser::parseAttributeName($attribute)->getAccessor());
     }

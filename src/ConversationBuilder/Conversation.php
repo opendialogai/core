@@ -5,7 +5,6 @@ namespace OpenDialogAi\ConversationBuilder;
 use Closure;
 use Ds\Set;
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -47,6 +46,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property array outgoing_intents
  * @property array history
  * @property bool has_been_used
+ * @property string graph_uid
  */
 class Conversation extends Model
 {
@@ -143,7 +143,6 @@ class Conversation extends Model
      * Build the conversation's representation.
      *
      * @return ConversationNode
-     * @throws BindingResolutionException
      * @throws EIModelCreatorException
      */
     public function buildConversation()
@@ -155,7 +154,7 @@ class Conversation extends Model
             throw $exception;
         }
 
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
         $conversationManager = new ConversationManager($yaml['id'], $this->status, $this->version_number ?: 0);
 
         if ($conversationManager->getConversationVersion() > 0) {
@@ -192,10 +191,8 @@ class Conversation extends Model
 
                 if (isset($intentSceneId)) {
                     if ($speaker === 'u') {
-                        // phpcs:ignore
                         $conversationManager->userSaysToBotAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } elseif ($speaker === 'b') {
-                        // phpcs:ignore
                         $conversationManager->botSaysToUserAcrossScenes($sceneId, $intentSceneId, $intentNode, $intentIdx);
                     } else {
                         Log::debug("I don't know about the speaker type '{$speaker}'");
@@ -219,7 +216,7 @@ class Conversation extends Model
      * Activate the conversation in DGraph.
      *
      * @return bool
-     * @throws BindingResolutionException
+     * @throws EIModelCreatorException
      */
     public function activateConversation(): bool
     {
@@ -234,7 +231,7 @@ class Conversation extends Model
             return false;
         }
 
-        $dGraph = app()->make(DGraphClient::class);
+        $dGraph = resolve(DGraphClient::class);
         $conversationNode = $cm->getConversation();
 
         $mutation = new DGraphMutation($conversationNode);
@@ -281,12 +278,11 @@ class Conversation extends Model
      * @param $previousUid
      * @param DGraphClient $dGraph
      * @return bool
-     * @throws BindingResolutionException
      */
     private function deactivatePrevious($previousUid, DGraphClient $dGraph): bool
     {
         /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
 
         $previousConversation = $conversationStore->getConversationTemplateByUid($previousUid);
 
@@ -328,7 +324,6 @@ class Conversation extends Model
     /**
      * Deactivate the conversation in DGraph.
      * @return bool
-     * @throws BindingResolutionException
      */
     public function deactivateConversation(): bool
     {
@@ -340,7 +335,6 @@ class Conversation extends Model
     /**
      * Archiving the conversation
      * @return bool
-     * @throws BindingResolutionException
      */
     public function archiveConversation(): bool
     {
@@ -498,14 +492,13 @@ class Conversation extends Model
      * @param Closure $managerMethod
      * @param $newStatus
      * @return bool
-     * @throws BindingResolutionException
      */
     private function setStatus(Closure $managerMethod, $newStatus): bool
     {
-        $dGraph = app()->make(DGraphClient::class);
+        $dGraph = resolve(DGraphClient::class);
 
         /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
 
         $conversation = $conversationStore->getConversationTemplateByUid($this->graph_uid);
 
@@ -651,12 +644,11 @@ class Conversation extends Model
 
     /**
      * @return bool
-     * @throws BindingResolutionException
      */
     public function getHasBeenUsedAttribute(): bool
     {
         /** @var ConversationStoreInterface $conversationStore */
-        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
 
         return $conversationStore->hasConversationBeenUsed($this->name);
     }

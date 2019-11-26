@@ -4,10 +4,6 @@ namespace OpenDialogAi\Core\Graph\Edge;
 
 use OpenDialogAi\Core\Graph\Node\Node;
 
-/**
- * Class DirectedEdge
- * @package OpenDialogAi\Core\Graph\Edge
- */
 class DirectedEdge extends Edge
 {
 

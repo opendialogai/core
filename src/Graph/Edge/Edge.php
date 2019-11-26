@@ -7,10 +7,6 @@ use OpenDialogAi\Core\Attribute\HasAttributesTrait;
 use OpenDialogAi\Core\Graph\GraphItem;
 use OpenDialogAi\Core\Graph\Node\Node;
 
-/**
- * Class Edge
- * @package OpenDialogAi\Core\Graph\Edge
- */
 class Edge
 {
     use GraphItem, HasAttributesTrait;

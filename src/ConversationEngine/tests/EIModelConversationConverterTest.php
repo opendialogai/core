@@ -84,7 +84,7 @@ class EIModelConversationConverterTest extends TestCase
         $this->assertEquals('user.test-gt-10', $secondCondition->getId());
         $this->assertEquals('gt', $secondCondition->getAttribute(Model::OPERATION)->getValue());
         $this->assertNotNull($secondCondition->getAttribute(Model::PARAMETERS)->getValue());
-        $this->assertEquals(10, $secondCondition->getAttribute(Model::PARAMETERS)->getValue()->value);
+        $this->assertEquals(10, $secondCondition->getAttribute(Model::PARAMETERS)->getValue()['value']);
 
         // Opening scene
         $openingScenes = $conversation->getOpeningScenes();

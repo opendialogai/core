@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Log;
  */
 class TimestampAttribute extends AbstractAttribute
 {
+
+    /**
+     * @var string
+     */
     public static $type = 'attribute.core.timestamp';
 
     /**
@@ -23,6 +27,9 @@ class TimestampAttribute extends AbstractAttribute
         $this->setValue($value);
     }
 
+    /**
+     * @param mixed $value
+     */
     public function setValue($value)
     {
         $this->value = $value === null ? $value : filter_var($value, FILTER_VALIDATE_INT);
