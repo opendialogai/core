@@ -36,8 +36,6 @@ class Intent extends NodeWithConditions
      * @param $id
      * @param bool $completes
      * @throws UnsupportedAttributeTypeException
-     *
-     * @todo intents need unique identifiers in addition to the label that represents the intent.
      */
     public function __construct($id, $completes = false)
     {

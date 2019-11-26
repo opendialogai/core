@@ -1,19 +1,19 @@
 <?php
 
-
 namespace OpenDialogAi\ConversationEngine\ConversationStore\EIModels;
-
 
 use OpenDialogAi\Core\Conversation\Model;
 
 class EIModelVirtualIntent extends EIModelBase
 {
     private $id;
+
     private $uid;
 
     /**
      * This method should indicate whether the given response is valid for this EI Model. If it isn't then the `handle`
      * method will not be run.
+     *
      * @param array $response
      * @param $additionalParameter
      * @return bool
@@ -25,6 +25,7 @@ class EIModelVirtualIntent extends EIModelBase
 
     /**
      * This method takes the response and uses it to set up the EI model's attributes.
+     *
      * @param array $response
      * @param $additionalParameter
      * @return EIModel
