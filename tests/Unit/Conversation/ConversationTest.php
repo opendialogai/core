@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\InvalidConversationStatusTransitionException;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -35,7 +36,7 @@ class ConversationTest extends TestCase
     public function setupConversation()
     {
         // Create a conversation manager and setup a conversation
-        $cm = new ConversationManager(self::CONVERSATION);
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::SAVED, 0);
 
         $condition1 = new Condition(
             EquivalenceOperation::$name,
@@ -75,9 +76,41 @@ class ConversationTest extends TestCase
             ->userSaysToBotAcrossScenes(self::OPENING_SCENE, self::CONTINUE_WITH_AUDIT_SCENE, $intent5, 5)
             ->botSaysToUser(self::CONTINUE_WITH_AUDIT_SCENE, $intent6, 6);
 
+        try {
+            $cm->setValidated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
         return $cm;
     }
 
+    public function setupConversationWithManyOpeningIntents()
+    {
+        $cm = new ConversationManager(self::CONVERSATION, Conversation::SAVED, 0);
+
+        $cm->createScene(self::OPENING_SCENE, true);
+
+        $intent1 = new Intent(self::INTENT_USER_TO_BOT_1);
+        $intent2 = new Intent(self::INTENT_USER_TO_BOT_3);
+        $intent3 = new Intent(self::INTENT_BOT_TO_USER_4);
+        $intent4 = new Intent(self::INTENT_USER_TO_BOT_1 . "_2");
+        $intent5 = new Intent(self::INTENT_BOT_TO_USER_4 . "_2", true);
+
+        $cm->userSaysToBot(self::OPENING_SCENE, $intent1, 1)
+            ->userSaysToBot(self::OPENING_SCENE, $intent2, 2)
+            ->botSaysToUser(self::OPENING_SCENE, $intent3, 3)
+            ->userSaysToBot(self::OPENING_SCENE, $intent4, 4)
+            ->botSaysToUser(self::OPENING_SCENE, $intent5, 5);
+
+        try {
+            $cm->setValidated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        return $cm;
+    }
 
     /**
      *
@@ -122,5 +155,123 @@ class ConversationTest extends TestCase
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() == self::CONDITION1);
         $this->assertTrue($scene->getCondition(self::CONDITION2)->getId() == self::CONDITION2);
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
+    }
+
+    public function testConversationState()
+    {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        $this->assertEquals(0, $conversation->getAttribute(Model::CONVERSATION_VERSION)->getValue());
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+        $this->assertFalse($conversation->hasUpdateOf());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        $conversation_updated = clone $conversation;
+        $conversation_updated->getScene(self::LATEST_NEWS_SCENE)->setId(self::LATEST_NEWS_SCENE . "2");
+        $conversation_updated->setConversationVersion(1);
+        $conversation_updated->setConversationStatus(Conversation::ACTIVATABLE);
+        $conversation_updated->setUpdateOf($conversation);
+
+        $this->assertEquals(1, $conversation_updated->getAttribute(Model::CONVERSATION_VERSION)->getValue());
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation_updated->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+        $this->assertTrue($conversation->hasUpdateOf());
+
+        /** @var Conversation $updateOf */
+        $updateOf = $conversation_updated->getUpdateOf();
+
+        $this->assertEquals($conversation->getUid(), $updateOf->getUid());
+        $this->assertEquals($conversation->getId(), $updateOf->getId());
+    }
+
+    public function testDeactivating()
+    {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        $this->assertEquals(Conversation::ACTIVATABLE, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setDeactivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::DEACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+    }
+
+    public function testArchiving()
+    {
+        $cm = $this->setupConversation();
+        $conversation = $cm->getConversation();
+
+        try {
+            $cm->setActivated();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        try {
+            $cm->setArchived();
+            $this->fail("Transition from activated to archived should not be allowed.");
+        } catch (InvalidConversationStatusTransitionException $e) {
+            // N/A
+        }
+
+        try {
+            $cm->setDeactivated();
+            $cm->setArchived();
+        } catch (InvalidConversationStatusTransitionException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertEquals(Conversation::ARCHIVED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
+    }
+
+    public function testConversationWithManyOpeningIntents()
+    {
+        $cm = $this->setupConversationWithManyOpeningIntents();
+        $conversation = $cm->getConversation();
+
+        // Check opening scene has all the intents
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+        $this->assertCount(3, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+
+        $userIntents = $openingScene->getIntentsSaidByUserInOrder();
+
+        /** @var Intent $firstIntent */
+        $firstIntent = $userIntents->skip(0)->value;
+
+        /** @var Intent $secondIntent */
+        $secondIntent = $userIntents->skip(1)->value;
+
+        $this->assertEquals(self::INTENT_USER_TO_BOT_1, $firstIntent->getId());
+        $this->assertEquals(self::INTENT_USER_TO_BOT_3, $secondIntent->getId());
     }
 }

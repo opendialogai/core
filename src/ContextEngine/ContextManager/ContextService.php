@@ -3,10 +3,10 @@
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
-use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
+use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
@@ -20,7 +20,12 @@ use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService implements ContextServiceInterface
 {
-    public static $coreContexts = [UserContext::USER_CONTEXT, self::SESSION_CONTEXT, self::CONVERSATION_CONTEXT];
+    public static $coreContexts = [
+        UserContext::USER_CONTEXT,
+        IntentContext::INTENT_CONTEXT,
+        self::SESSION_CONTEXT,
+        self::CONVERSATION_CONTEXT
+    ];
 
     /* @var Map $activeContexts - a container for contexts that the service is managing */
     private $activeContexts;
@@ -182,7 +187,7 @@ class ContextService implements ContextServiceInterface
             return $context->getAttribute($attributeId);
         } catch (AttributeDoesNotExistException $e) {
             Log::warning(
-                sprintf('Attribute $s not exist in context %s', $attributeId, $context->getId())
+                sprintf('Attribute %s does not exist in context %s', $attributeId, $context->getId())
             );
 
             return new StringAttribute($attributeId, '');
@@ -192,9 +197,12 @@ class ContextService implements ContextServiceInterface
     /**
      * @inheritDoc
      */
-    public function getAttributeValue(string $attributeId, string $contextId)
+    public function getAttributeValue(string $attributeId, string $contextId, array $index = [])
     {
-        return $this->getAttribute($attributeId, $contextId)->getValue();
+        if (!$index) {
+            return $this->getAttribute($attributeId, $contextId)->getValue();
+        }
+        return $this->getAttribute($attributeId, $contextId)->getValue($index);
     }
 
     /**

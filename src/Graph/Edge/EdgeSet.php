@@ -7,9 +7,6 @@ use Ds\Set;
 
 /**
  * A set of edges with a common relationship.
- *
- * Class EdgeSet
- * @package OpenDialog\Core\Graph\Edge
  */
 class EdgeSet
 {
@@ -62,7 +59,7 @@ class EdgeSet
 
         /* @var DirectedEdge $edge */
         foreach ($this->edges as $edge) {
-            $toNodes->put($edge->getToNode()->getId(), $edge->getToNode());
+            $toNodes->put($edge->getToNode()->hashOrId(), $edge->getToNode());
         }
 
         return $toNodes;

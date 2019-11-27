@@ -53,6 +53,8 @@ class ExportConversation extends Command
             }
         }
 
+        $conversation->makeHidden('id');
+
         $output = json_encode([
             'conversation' => $conversation->toArray(),
             'outgoingIntents' => $outgoingIntents,

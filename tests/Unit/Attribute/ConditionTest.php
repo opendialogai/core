@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
 
+use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -149,7 +150,7 @@ class ConditionTest extends TestCase
         $attributes = [ 'user.name' => 'test' ];
         $condition = new Condition(InSetOperation::$name, $attributes, $parameters);
 
-        $attributeToCompare = new StringAttribute('A', ['foo', 'bar']);
+        $attributeToCompare = new ArrayAttribute('A', ['foo', 'bar']);
 
         $operation = $this->operationService->getOperation($condition->getEvaluationOperation());
         $operation->setParameters($condition->getParameters());
@@ -170,7 +171,7 @@ class ConditionTest extends TestCase
         $attributes = [ 'user.name' => 'test' ];
         $condition = new Condition(NotInSetOperation::$name, $attributes, $parameters);
 
-        $attributeToCompare = new StringAttribute('A', ['foo', 'bar']);
+        $attributeToCompare = new ArrayAttribute('A', ['foo', 'bar']);
 
         $operation = $this->operationService->getOperation($condition->getEvaluationOperation());
         $operation->setParameters($condition->getParameters());

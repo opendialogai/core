@@ -7,16 +7,6 @@ namespace OpenDialogAi\Core\Attribute;
  */
 abstract class AbstractAttribute implements AttributeInterface
 {
-    // Attribute types
-    const ENTITY = 'attribute.core.entity';
-    const STRING = 'attribute.core.string';
-    const BOOLEAN = 'attribute.core.boolean';
-    const INT = 'attribute.core.int';
-    const FLOAT = 'attribute.core.float';
-    const ARRAY = 'attribute.core.array';
-    const DATETIME = 'attribute.core.dateTime';
-    const TIMESTAMP = 'attribute.core.timestamp';
-
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
 
@@ -24,7 +14,7 @@ abstract class AbstractAttribute implements AttributeInterface
     protected $id;
 
     /* @var string $type - one of the valid string types. */
-    protected $type;
+    public static $type;
 
     /* @var mixed $value - the value for this attribute. */
     protected $value;
@@ -32,39 +22,12 @@ abstract class AbstractAttribute implements AttributeInterface
     /**
      * AbstractAttribute constructor.
      * @param $id
-     * @param $type
      * @param $value
-     * @throws UnsupportedAttributeTypeException
      */
-    public function __construct($id, $type, $value)
+    public function __construct($id, $value)
     {
         $this->id = $id;
         $this->value = $value;
-        $this->checkAndAssignType($type);
-    }
-
-    /**
-     * @param $type
-     * @throws UnsupportedAttributeTypeException
-     */
-    private function checkAndAssignType($type)
-    {
-        $types = [
-            self::ENTITY,
-            self::STRING,
-            self::BOOLEAN,
-            self::INT,
-            self::FLOAT,
-            self::ARRAY,
-            self::DATETIME,
-            self::TIMESTAMP
-        ];
-
-        if (!in_array($type, $types, true)) {
-            throw new UnsupportedAttributeTypeException(sprintf('Type %s is not supported', $type));
-        }
-
-        $this->type = $type;
     }
 
     /**
@@ -72,22 +35,15 @@ abstract class AbstractAttribute implements AttributeInterface
      */
     public function getType(): string
     {
-        return $this->type;
+        return static::$type;
     }
 
     /**
-     * @param string $type
-     * @throws UnsupportedAttributeTypeException
-     */
-    public function setType(string $type): void
-    {
-        $this->checkAndAssignType($type);
-    }
-
-    /**
+     * @param array $arg
+     *
      * @return mixed
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value;
     }
@@ -114,5 +70,21 @@ abstract class AbstractAttribute implements AttributeInterface
     public function setId(string $id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return AbstractAttribute
+     */
+    public function copy(): AbstractAttribute
+    {
+        return clone $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialized(): string
+    {
+        return $this->value;
     }
 }

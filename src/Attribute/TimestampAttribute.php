@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Log;
  */
 class TimestampAttribute extends AbstractAttribute
 {
+
+    /**
+     * @var string
+     */
+    public static $type = 'attribute.core.timestamp';
+
     /**
      * TimestampAttribute constructor.
      * @param $id
@@ -17,14 +23,13 @@ class TimestampAttribute extends AbstractAttribute
      */
     public function __construct($id, $value)
     {
-        try {
-            parent::__construct($id, AbstractAttribute::TIMESTAMP, $this->value);
-            $this->setValue($value);
-        } catch (UnsupportedAttributeTypeException $e) {
-            Log::warning($e->getMessage());
-        }
+        parent::__construct($id, $this->value);
+        $this->setValue($value);
     }
 
+    /**
+     * @param mixed $value
+     */
     public function setValue($value)
     {
         $this->value = $value === null ? $value : filter_var($value, FILTER_VALIDATE_INT);

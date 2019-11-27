@@ -9,7 +9,7 @@ use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
@@ -40,26 +40,26 @@ class AttributeExtractionTest extends TestCase
         $this->setConfigValue(
             'opendialog.context_engine.custom_attributes',
             [
-            'age' => IntAttribute::class,
-            'dob_year' => IntAttribute::class
+                'age' => IntAttribute::class,
+                'dob_year' => IntAttribute::class
             ]
         );
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
         $this->odController = $this->app->make(OpenDialogController::class);
 
-        $this->publishConversation($this->getExampleConversation());
+        $this->activateConversation($this->getExampleConversation());
     }
 
     public function testOpeningSceneCreated()
     {
         $conversationStore = $this->conversationEngine->getConversationStore();
-        $openingIntents = $conversationStore->getAllOpeningIntents();
+        $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
 
         $this->assertCount(1, $openingIntents);
 
-        /** @var OpeningIntent $myNameIntent */
-        $myNameIntent = $openingIntents->first()->value;
+        /** @var EIModelIntent $myNameIntent */
+        $myNameIntent = $openingIntents->getIntents()->first()->value;
         $this->assertEquals('my_name_is', $myNameIntent->getIntentId());
 
         $expectedAttributes = $myNameIntent->getExpectedAttributes();
@@ -73,12 +73,12 @@ class AttributeExtractionTest extends TestCase
     {
         $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
 
-        $this->assertCount(2, ContextService::getContexts());
+        $this->assertCount(3, ContextService::getContexts());
         /* @var UserContext $userContext; */
         $userContext = ContextService::createUserContext($utterance);
-        $this->assertCount(3, ContextService::getContexts());
+        $this->assertCount(4, ContextService::getContexts());
 
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_user', $intent->getLabel());
     }
@@ -98,6 +98,15 @@ class AttributeExtractionTest extends TestCase
         } catch (AttributeDoesNotExistException $e) {
             $this->fail('Attribute should exist in the right context');
         }
+
+        $lastSeenAttributeBefore = ContextService::getAttribute('last_seen', UserContext::USER_CONTEXT);
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is', $utterance->getUser());
+        $this->odController->runConversation($utterance);
+
+        $lastSeenAttributeAfter = ContextService::getAttribute('last_seen', UserContext::USER_CONTEXT);
+
+        $this->assertGreaterThanOrEqual($lastSeenAttributeBefore->getValue(), $lastSeenAttributeAfter->getValue());
     }
 
     public function testFullJourney()
@@ -112,6 +121,7 @@ class AttributeExtractionTest extends TestCase
         $outgoingIntent = OutgoingIntent::create(['name' => 'age_response']);
         MessageTemplate::create([
             'name' => 'age message',
+            // phpcs:ignore
             'message_markup' => '<message><text-message>age: {user.age}. DOB: {session.dob_year}</text-message></message>',
             'outgoing_intent_id' => $outgoingIntent->id
         ]);
@@ -143,16 +153,33 @@ class AttributeExtractionTest extends TestCase
         $user = $userService->getUser($utterance1->getUser()->getId());
 
         try {
-            $user->getAttributeValue('first_name');
+            $user->getUserAttributeValue('first_name');
             $this->fail('should have thrown exception');
         } catch (AttributeDoesNotExistException $e) {
             //
         }
-
         $this->odController->runConversation($utterance1);
 
         $user = $userService->getUser($utterance1->getUser()->getId());
-        $this->assertEquals('first_name', $user->getAttributeValue('first_name'));
+        $this->assertEquals('first_name', $user->getUserAttributeValue('first_name'));
+    }
+
+    public function testConversationSaveActionResultsAttributes()
+    {
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
+
+        $messageWrapper = $this->odController->runConversation($utterance);
+
+        $this->assertCount(1, $messageWrapper->getMessages());
+
+        /** @var UserService $userService */
+        $userService = app()->make(UserService::class);
+        $user = $userService->getUser($utterance->getUser()->getId());
+
+        $this->assertEquals('first_name', $user->getUserAttributeValue('first_name'));
+
+        $fullName = ContextService::getAttribute('full_name', ContextServiceInterface::SESSION_CONTEXT);
+        $this->assertNotEquals('last_name', $fullName->getValue());
     }
 
     public function testMultipleMatchedMessageTemplates()
@@ -189,12 +216,14 @@ conditions:
       attributes:
         last_name: session.last_name
 EOT;
+        // phpcs:disable
         MessageTemplate::create([
             'name' => 'message 3',
             'message_markup' => '<message><text-message>message with two conditions</text-message></message>',
             'conditions' => $conditions,
             'outgoing_intent_id' => $outgoingIntent->id
         ]);
+        // phpcs:enable
 
         $utterance1 = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
         $messageWrapper = $this->odController->runConversation($utterance1);
@@ -215,10 +244,18 @@ conversation:
         - u: 
             i: my_name_is
             interpreter: interpreter.test.name
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
+              output_attributes:
+                - user.first_name
+                - session.full_name
             expected_attributes:
                 - id: user.first_name
                 - id: session.last_name
-        - b: 
+        - b:
             i: hello_user
             scene: get_age
     get_age:

@@ -12,7 +12,7 @@ class UserAttributesCommandTest extends TestCase
 {
     public function testCachingAttributes()
     {
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
 
         $utterance = UtteranceGenerator::generateTextUtterance('Test message');
 
@@ -24,8 +24,6 @@ class UserAttributesCommandTest extends TestCase
 
         $attributes = UserAttributes::all();
 
-        $userId = $utterance->getUser()->getId();
-
-        $this->assertCount(1, $attributes->where('attribute', 'id')->where('value', $userId));
+        $this->assertCount(1, $attributes->where('attribute', 'ei_type')->where('value', 'chatbot_user'));
     }
 }

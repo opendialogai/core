@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class TimePassedLessThanOperation extends BaseOperation
 {
-    static $name = 'time_passed_less_than';
+    public static $name = 'time_passed_less_than';
 
     /**
      * @inheritDoc

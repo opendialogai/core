@@ -9,21 +9,31 @@ use Illuminate\Support\Facades\Log;
  */
 class IntAttribute extends BasicAttribute
 {
+
+    /**
+     * @var string
+     */
+    public static $type = 'attribute.core.int';
+
+    /**
+     * IntAttribute constructor.
+     *
+     * @param $id
+     * @param $value
+     */
     public function __construct($id, $value)
     {
-        try {
-            parent::__construct($id, AbstractAttribute::INT, $value);
-        } catch (UnsupportedAttributeTypeException $e) {
-            Log::warning($e->getMessage());
-        }
+        parent::__construct($id, $value);
     }
 
     /**
      * Returns null or an intval
      *
-     * @return mixed|void
+     * @param array $arg
+     *
+     * @return int | null
      */
-    public function getValue()
+    public function getValue(array $arg = [])
     {
         return $this->value === null ? $this->value : intval($this->value);
     }

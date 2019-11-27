@@ -2,12 +2,17 @@
 
 namespace OpenDialogAi\ConversationEngine\tests;
 
+use GuzzleHttp\Exception\GuzzleException;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 
 class SceneTest extends TestCase
 {
@@ -17,43 +22,43 @@ class SceneTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->initDDgraph();
 
         $this->setSupportedCallbacks([
             'hello_bot' => 'hello_bot',
             'hello_again_bot' => 'hello_again_bot'
         ]);
 
-        $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
+        $this->conversationEngine = resolve(ConversationEngineInterface::class);
     }
 
     /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws \OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported
+     * @throws FieldNotSupported
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
      */
     public function testScenes()
     {
-        $this->publishConversation($this->scene2Conv());
+        $this->activateConversation($this->scene2Conv());
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
 
         /* @var UserContext $userContext ; */
         $userContext = ContextService::createUserContext($utterance);
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_human', $intent->getId());
     }
 
     public function testSingleScene()
     {
-        $this->publishConversation($this->singleSceneConv());
+        $this->activateConversation($this->singleSceneConv());
 
         $utterance = UtteranceGenerator::generateChatOpenUtterance('hello_bot');
 
         /* @var UserContext $userContext ; */
         $userContext = ContextService::createUserContext($utterance);
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_human', $intent->getId());
 
@@ -61,7 +66,7 @@ class SceneTest extends TestCase
 
         /* @var UserContext $userContext ; */
         $userContext = ContextService::createUserContext($utterance);
-        $intent = $this->conversationEngine->getNextIntent($userContext, $utterance);
+        list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 
         $this->assertEquals('hello_again_human', $intent->getId());
     }

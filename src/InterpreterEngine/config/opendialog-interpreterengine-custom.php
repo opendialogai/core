@@ -12,6 +12,16 @@ return [
     ],
 
     /**
+     * A registration of know RASA entities mapped to known attribute type. If an entity is returned from RASA that is
+     * not an already registered attribute name and is not mapped here, a StringAttribute will be used
+     *
+     * Mapping is {rasa_entity_type} => {OD_attribute_name}
+     */
+    'rasa_entities' => [
+//         'example_type' => 'first_name'
+    ],
+
+    /**
      * Custom interpreters registered in the format
      */
     'custom_interpreters' => [
@@ -31,6 +41,6 @@ return [
      * List of supported intents in the format 'callback_id' => 'intent_name'
      */
     'supported_callbacks' => [
-//        'WELCOME' => 'intent.core.welcome',
+        'WELCOME' => 'intent.core.welcome',
     ]
 ];

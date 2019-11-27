@@ -16,7 +16,7 @@ class ConversationContextTest extends TestCase
 
     public function testConversationalContextNewUser()
     {
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
 
         $utterance = UtteranceGenerator::generateTextUtterance('hello');
 
@@ -27,7 +27,7 @@ class ConversationContextTest extends TestCase
         $this->assertEquals($conversationContext->getAttributeValue('interpreted_intent'), 'intent.core.NoMatch');
         $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'no_match_conversation');
         $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'opening_scene');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'intent.core.NoMatchResponse');
+        $this->assertEquals($conversationContext->getAttributeValue('next_intents')[0], 'intent.core.NoMatchResponse');
     }
 
     public function testConversationalContextOnGoingUser()
@@ -40,7 +40,7 @@ class ConversationContextTest extends TestCase
 
         $openDialogController = resolve(OpenDialogController::class);
 
-        $this->publishConversation($this->getTestConversation());
+        $this->activateConversation($this->getTestConversation());
 
         $conversationContext = ContextService::getConversationContext();
 
@@ -50,7 +50,7 @@ class ConversationContextTest extends TestCase
         $this->assertEquals($conversationContext->getAttributeValue('interpreted_intent'), 'hello_bot');
         $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
         $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'opening_scene');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'hello_user');
+        $this->assertEquals($conversationContext->getAttributeValue('next_intents')[0], 'hello_user');
 
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('how_are_you', $utterance->getUser()));
 
@@ -58,7 +58,7 @@ class ConversationContextTest extends TestCase
         $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
         $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'scene2');
         $this->assertEquals($conversationContext->getAttributeValue('current_intent'), 'hello_user');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'doing_dandy');
+        $this->assertEquals($conversationContext->getAttributeValue('next_intents')[0], 'doing_dandy');
 
         $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('good_to_hear', $utterance->getUser()));
 
@@ -66,7 +66,7 @@ class ConversationContextTest extends TestCase
         $this->assertEquals($conversationContext->getAttributeValue('current_conversation'), 'test_conversation');
         $this->assertEquals($conversationContext->getAttributeValue('current_scene'), 'scene3');
         $this->assertEquals($conversationContext->getAttributeValue('current_intent'), 'doing_dandy');
-        $this->assertEquals($conversationContext->getAttributeValue('next_intent'), 'ok_bye');
+        $this->assertEquals($conversationContext->getAttributeValue('next_intents')[0], 'ok_bye');
     }
 
     public function getTestConversation()

@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
+use Ds\Map;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
 
 /**
@@ -34,6 +35,13 @@ interface ActionInterface
     public function getRequiredAttributes() : array;
 
     /**
+     * Returns an array of attribute names that the action give as input
+     *
+     * @return Map
+     */
+    public function getInputAttributes() : Map;
+
+    /**
      * Checks whether the action requires the specified attribute
      *
      * @param $attributeName string The name of the attribute to check
@@ -44,9 +52,9 @@ interface ActionInterface
     /**
      * Returns an array of attribute names that the action will output if successful
      *
-     * @return array
+     * @return Map
      */
-    public function getOutputAttributes() : array;
+    public function getOutputAttributes() : Map;
 
     /**
      * Whether this action outputs the given attribute

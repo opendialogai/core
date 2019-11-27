@@ -26,7 +26,7 @@ return [
         'current_scene' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'current_intent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'interpreted_intent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'next_intent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'next_intents' => \OpenDialogAi\Core\Attribute\ArrayAttribute::class,
 
         // Intents
         \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class,

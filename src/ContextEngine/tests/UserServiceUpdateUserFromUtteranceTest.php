@@ -5,6 +5,8 @@ namespace OpenDialogAi\ContextManager\Tests;
 use Mockery;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
@@ -19,6 +21,16 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 {
     /* @var DGraphClient */
     private $dGraphClient;
+
+    /**
+     * @var ConversationStoreInterface
+     */
+    private $conversationStore;
+
+    /**
+     * @var EIModelToGraphConverter
+     */
+    private $conversationConverter;
 
     public function setUp(): void
     {
@@ -38,18 +50,25 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
 
         $this->dGraphClient = mock(DGraphClient::class)->makePartial();
         $this->dGraphClient->shouldReceive('tripleMutation')->andReturn($dGraphMutationResponse);
+
+        $this->conversationStore = mock(ConversationStoreInterface::class)->makePartial();
+        $this->conversationConverter = mock(EIModelToGraphConverter::class)->makePartial();
     }
 
     public function testUpdateUserFromUtteranceWithWebchatChatOpenUtterance()
     {
-        $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
+        $userService = mock(UserService::class, [
+            $this->dGraphClient,
+            $this->conversationStore,
+            $this->conversationConverter
+        ])->makePartial();
 
         $chatbotUser = new ChatbotUser();
 
-        $chatbotUser->addAttribute(new StringAttribute('first_name', ''));
-        $chatbotUser->addAttribute(new StringAttribute('last_name', ''));
-        $chatbotUser->addAttribute(new StringAttribute('email', ''));
-        $chatbotUser->addAttribute(new StringAttribute('external_id', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('first_name', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('last_name', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('email', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('external_id', ''));
 
         $utteranceUser = new User('1');
 
@@ -65,10 +84,10 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $utterance->setUser($utteranceUser);
         $utterance->setUserId('1');
 
-        $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('email')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('first_name')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('last_name')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('email')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('external_id')->getValue(), '');
 
         $user = $userService->updateUserFromUtterance($utterance);
 
@@ -80,25 +99,29 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
             'email' => 'test@example.com',
         ]);
 
-        $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
-        $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), $utteranceUser->getLastName());
-        $this->assertEquals($chatbotUser->getAttribute('email')->getValue(), $utteranceUser->getEmail());
-        $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), $utteranceUser->getExternalId());
+        $this->assertEquals($chatbotUser->getUserAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
+        $this->assertEquals($chatbotUser->getUserAttribute('last_name')->getValue(), $utteranceUser->getLastName());
+        $this->assertEquals($chatbotUser->getUserAttribute('email')->getValue(), $utteranceUser->getEmail());
+        $this->assertEquals($chatbotUser->getUserAttribute('external_id')->getValue(), $utteranceUser->getExternalId());
 
-        $this->assertEquals($chatbotUser->getAttribute('custom_1')->getValue(), 'value_1');
-        $this->assertEquals($chatbotUser->getAttribute('custom_2')->getValue(), 'value_2');
+        $this->assertEquals($chatbotUser->getUserAttribute('custom_1')->getValue(), 'value_1');
+        $this->assertEquals($chatbotUser->getUserAttribute('custom_2')->getValue(), 'value_2');
     }
 
     public function testUpdateUserFromUtteranceWithWebchatTextUtterance()
     {
-        $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
+        $userService = mock(UserService::class, [
+            $this->dGraphClient,
+            $this->conversationStore,
+            $this->conversationConverter
+        ])->makePartial();
 
         $chatbotUser = new ChatbotUser();
 
-        $chatbotUser->addAttribute(new StringAttribute('first_name', ''));
-        $chatbotUser->addAttribute(new StringAttribute('last_name', ''));
-        $chatbotUser->addAttribute(new StringAttribute('email', ''));
-        $chatbotUser->addAttribute(new StringAttribute('external_id', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('first_name', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('last_name', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('email', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('external_id', ''));
 
         $utteranceUser = new User('1');
 
@@ -114,32 +137,36 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $utterance->setUser($utteranceUser);
         $utterance->setUserId('1');
 
-        $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('email')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('first_name')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('last_name')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('email')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('external_id')->getValue(), '');
 
         $user = $userService->updateUserFromUtterance($utterance);
 
-        $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
-        $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), $utteranceUser->getLastName());
-        $this->assertEquals($chatbotUser->getAttribute('email')->getValue(), $utteranceUser->getEmail());
-        $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), $utteranceUser->getExternalId());
+        $this->assertEquals($chatbotUser->getUserAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
+        $this->assertEquals($chatbotUser->getUserAttribute('last_name')->getValue(), $utteranceUser->getLastName());
+        $this->assertEquals($chatbotUser->getUserAttribute('email')->getValue(), $utteranceUser->getEmail());
+        $this->assertEquals($chatbotUser->getUserAttribute('external_id')->getValue(), $utteranceUser->getExternalId());
 
-        $this->assertEquals($chatbotUser->getAttribute('custom_1')->getValue(), 'value_1');
-        $this->assertEquals($chatbotUser->getAttribute('custom_2')->getValue(), 'value_2');
+        $this->assertEquals($chatbotUser->getUserAttribute('custom_1')->getValue(), 'value_1');
+        $this->assertEquals($chatbotUser->getUserAttribute('custom_2')->getValue(), 'value_2');
     }
 
     public function testUpdateUserFromUtteranceWithWebchatTriggerUtterance()
     {
-        $userService = mock(UserService::class, [$this->dGraphClient])->makePartial();
+        $userService = mock(UserService::class, [
+            $this->dGraphClient,
+            $this->conversationStore,
+            $this->conversationConverter
+        ])->makePartial();
 
         $chatbotUser = new ChatbotUser();
 
-        $chatbotUser->addAttribute(new StringAttribute('first_name', ''));
-        $chatbotUser->addAttribute(new StringAttribute('last_name', ''));
-        $chatbotUser->addAttribute(new StringAttribute('email', ''));
-        $chatbotUser->addAttribute(new StringAttribute('external_id', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('first_name', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('last_name', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('email', ''));
+        $chatbotUser->addUserAttribute(new StringAttribute('external_id', ''));
 
         $utteranceUser = new User('1');
 
@@ -155,10 +182,10 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
         $utterance->setUser($utteranceUser);
         $utterance->setUserId('1');
 
-        $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('email')->getValue(), '');
-        $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('first_name')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('last_name')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('email')->getValue(), '');
+        $this->assertEquals($chatbotUser->getUserAttribute('external_id')->getValue(), '');
 
         $user = $userService->updateUserFromUtterance($utterance);
 
@@ -170,12 +197,12 @@ class UserServiceUpdateUserFromUtteranceTest extends TestCase
             'email' => 'test@example.com',
         ]);
 
-        $this->assertEquals($chatbotUser->getAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
-        $this->assertEquals($chatbotUser->getAttribute('last_name')->getValue(), $utteranceUser->getLastName());
-        $this->assertEquals($chatbotUser->getAttribute('email')->getValue(), $utteranceUser->getEmail());
-        $this->assertEquals($chatbotUser->getAttribute('external_id')->getValue(), $utteranceUser->getExternalId());
+        $this->assertEquals($chatbotUser->getUserAttribute('first_name')->getValue(), $utteranceUser->getFirstName());
+        $this->assertEquals($chatbotUser->getUserAttribute('last_name')->getValue(), $utteranceUser->getLastName());
+        $this->assertEquals($chatbotUser->getUserAttribute('email')->getValue(), $utteranceUser->getEmail());
+        $this->assertEquals($chatbotUser->getUserAttribute('external_id')->getValue(), $utteranceUser->getExternalId());
 
-        $this->assertEquals($chatbotUser->getAttribute('custom_1')->getValue(), 'value_1');
-        $this->assertEquals($chatbotUser->getAttribute('custom_2')->getValue(), 'value_2');
+        $this->assertEquals($chatbotUser->getUserAttribute('custom_1')->getValue(), 'value_1');
+        $this->assertEquals($chatbotUser->getUserAttribute('custom_2')->getValue(), 'value_2');
     }
 }

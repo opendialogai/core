@@ -3,22 +3,29 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use Ds\Map;
-use Exception;
+use Ds\Set;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
+use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
+use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\OpeningIntent;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
+use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\VirtualIntent;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -85,33 +92,69 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
-     * @return Intent
+     * @param bool $isVirtual
+     * @return Intent[]
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws FieldNotSupported
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
-     * @throws FieldNotSupported
      */
-    public function getNextIntent(UserContext $userContext, UtteranceInterface $utterance): Intent
+    public function getNextIntents(UserContext $userContext, UtteranceInterface $utterance, bool $isVirtual = false): array
     {
-        /* @var Conversation $ongoingConversation */
-        $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
-        Log::debug(sprintf('Ongoing conversation determined as %s', $ongoingConversation->getId()));
-
-        /* @var Scene $currentScene */
-        $currentScene = $userContext->getCurrentScene();
-        $currentIntent = $this->conversationStore->getIntentByUid($userContext->getUser()->getCurrentIntentUid());
-        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentIntent);
-
-        /* @var Intent $nextIntent */
-        $nextIntent = $possibleNextIntents->first()->value;
-        ContextService::saveAttribute('conversation.next_intent', $nextIntent->getId());
-
-        if ($nextIntent->completes()) {
-            $userContext->moveCurrentConversationToPast();
-        } else {
-            $userContext->setCurrentIntent($nextIntent);
+        if (!$isVirtual) {
+            /* @var Conversation $ongoingConversation */
+            $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
+            Log::debug(sprintf('Ongoing conversation determined as %s', $ongoingConversation->getId()));
         }
 
-        return $nextIntent;
+        $nextIntent = $this->determineNextIntent($userContext);
+
+        if ($isVirtual) {
+            /** @var array $nextIntents */
+            $nextIntentsAttributeArray = ContextService::getConversationContext()->getAttributeValue('next_intents');
+            $nextIntentsAttributeArray[] = $nextIntent->getId();
+        } else {
+            $nextIntentsAttributeArray = [$nextIntent->getId()];
+        }
+
+        ContextService::saveAttribute('conversation.next_intents', $nextIntentsAttributeArray);
+
+        if ($nextIntent->causesAction()) {
+            $inputActionAttributes = $nextIntent->getInputActionAttributeContexts();
+            $outputActionAttributes = $nextIntent->getOutputActionAttributeContexts();
+
+            $this->performIntentAction($userContext, $nextIntent, $inputActionAttributes, $outputActionAttributes);
+        }
+
+        /** @var Intent[] $nextIntents */
+        $nextIntents = [$nextIntent];
+
+        if ($nextIntent->getVirtualIntent()) {
+            try {
+                $userContext->setCurrentIntent($nextIntent);
+                $this->updateConversationFollowingVirtualUserInput($userContext, $nextIntent->getVirtualIntent());
+                $nextIntents = array_merge(
+                    $nextIntents,
+                    $this->getNextIntents($userContext, $utterance, true)
+                );
+            } catch (NoMatchingIntentsException $e) {
+                $utterance->setCallbackId(self::NO_MATCH);
+                return $this->getNextIntents($userContext, $utterance);
+            }
+        }
+
+        if (!$isVirtual) {
+            $lastNextIntent = $nextIntents[array_key_last($nextIntents)];
+
+            if ($lastNextIntent->completes()) {
+                $userContext->moveCurrentConversationToPast();
+            } else {
+                $userContext->setCurrentIntent($lastNextIntent);
+            }
+        }
+
+        return $nextIntents;
     }
 
     /**
@@ -121,6 +164,8 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      * @throws FieldNotSupported
+     * @throws EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -139,9 +184,9 @@ class ConversationEngine implements ConversationEngineInterface
 
             if ($userContext->currentSpeakerIsBot()) {
                 Log::debug(sprintf('Speaker was bot.'));
-                $ongoingConversation = $this->updateConversationFollowingUserInput($userContext, $utterance);
-
-                if (!isset($ongoingConversation)) {
+                try {
+                    $ongoingConversation = $this->updateConversationFollowingUserInput($userContext, $utterance);
+                } catch (NoMatchingIntentsException $e) {
                     Log::debug(sprintf('No intent for ongoing conversation matched, simulating a NoMatch.'));
                     $utterance->setCallbackId(self::NO_MATCH);
                     return self::determineCurrentConversation($userContext, $utterance);
@@ -174,27 +219,17 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
      */
     public function updateConversationFollowingUserInput(
         UserContext $userContext,
         UtteranceInterface $utterance
-    ): ?Conversation {
-        /* @var Scene $currentScene */
-        $currentScene = $userContext->getCurrentScene();
+    ): Conversation {
+        $possibleNextIntents = $this->getNextPossibleUserIntentsFromCurrentIntent($userContext);
 
-        /* @var Intent $currentIntent */
-        $currentIntent = $userContext->getCurrentIntent();
-
-        if (!ContextService::hasContext('conversation')) {
-            ContextService::createContext('conversation');
-        }
-
-        ContextService::saveAttribute('conversation.current_scene', $currentScene->getId());
-        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getId());
-
-        $possibleNextIntents = $currentScene->getNextPossibleUserIntents($userContext->getCurrentIntent());
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
 
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
@@ -214,7 +249,10 @@ class ConversationEngine implements ConversationEngineInterface
             $this->storeIntentAttributes($nextIntent);
 
             if ($nextIntent->causesAction()) {
-                $this->performIntentAction($userContext, $nextIntent);
+                $inputActionAttributes = $nextIntent->getInputActionAttributeContexts();
+                $outputActionAttributes = $nextIntent->getOutputActionAttributeContexts();
+
+                $this->performIntentAction($userContext, $nextIntent, $inputActionAttributes, $outputActionAttributes);
             }
 
             return $userContext->getCurrentConversation();
@@ -225,8 +263,61 @@ class ConversationEngine implements ConversationEngineInterface
         Log::debug('No matching intent, moving conversation to past state');
         $userContext->moveCurrentConversationToPast();
         Log::debug('No match found, dropping out of current conversation.');
-        //@todo This should be an exception
-        return null;
+
+        throw new NoMatchingIntentsException();
+    }
+
+    /**
+     * @param UserContext $userContext
+     * @param VirtualIntent $virtualIntent
+     * @return Conversation
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws NoMatchingIntentsException
+     */
+    public function updateConversationFollowingVirtualUserInput(
+        UserContext $userContext,
+        VirtualIntent $virtualIntent
+    ): Conversation {
+        $possibleNextIntents = $this->getNextPossibleUserIntentsFromCurrentIntent($userContext);
+
+        $possibleNextIntents = $possibleNextIntents->filter(
+            function ($key, Intent $possibleIntent) use ($virtualIntent) {
+                return $possibleIntent->getId() === $virtualIntent->getId();
+            }
+        );
+
+        Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
+
+        $matchingIntents = $this->filterByConditions($possibleNextIntents);
+
+        if (count($matchingIntents) >= 1) {
+            Log::debug(sprintf('There are %s matching intents', count($matchingIntents)));
+
+            /** @var Intent $nextIntent */
+            $nextIntent = $matchingIntents->first()->value;
+            Log::debug(sprintf( 'Intent chosen as %s', $nextIntent->getId()));
+            $userContext->setCurrentIntent($nextIntent);
+
+            if ($nextIntent->causesAction()) {
+                $inputActionAttributes = $nextIntent->getInputActionAttributeContexts();
+                $outputActionAttributes = $nextIntent->getOutputActionAttributeContexts();
+
+                $this->performIntentAction($userContext, $nextIntent, $inputActionAttributes, $outputActionAttributes);
+            }
+
+            return $userContext->getCurrentConversation();
+        }
+
+        // What the user says does not match anything expected in the current conversation so complete it and
+        // pretend we received a no match intent.
+        Log::debug('No matching intent, moving conversation to past state');
+        $userContext->moveCurrentConversationToPast();
+        Log::debug('No match found, dropping out of current conversation.');
+
+        throw new NoMatchingIntentsException();
     }
 
     /**
@@ -239,37 +330,44 @@ class ConversationEngine implements ConversationEngineInterface
      * @return Conversation | null
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
+     * @throws EIModelCreatorException
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
-        $openingIntents = $this->conversationStore->getAllOpeningIntents();
+        $openingIntents = $this->conversationStore->getAllEIModelOpeningIntents();
         Log::debug(sprintf('Found %s opening intents.', count($openingIntents)));
 
-        $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents);
+        $matchingIntents = $this->matchOpeningIntents($defaultIntent, $utterance, $openingIntents->getIntents());
         Log::debug(sprintf('Found %s matching intents.', count($matchingIntents)));
 
         if (count($matchingIntents) === 0) {
             return null;
         }
 
-        /* @var OpeningIntent $intent */
-        $intent = $matchingIntents->last()->value;
+        /* @var EIModelIntent $intent */
+        $intent = $matchingIntents->first();
         Log::debug(sprintf('Select %s as matching intent.', $intent->getIntentId()));
 
         $this->storeIntentAttributesFromOpeningIntent($intent);
 
-        $conversation = $this->conversationStore->getConversation($intent->getConversationUid());
+        // We specify the conversation to be cloned as we will be re-persisting it as a user conversation next
+
+        /** @var Conversation $conversationForCloning */
+        $conversationForCloning = $this->conversationStore->getConversation($intent->getConversationUid(), true);
+
+        /** @var Conversation $conversationForConnecting */
+        $conversationForConnecting = $this->conversationStore->getConversation($intent->getConversationUid(), false);
 
         // TODO can we avoid building, cloning and re-persisting the conversation here. EG clone directly in DGRAPH
         // TODO and store the resulting ID against the user
 
-        $userContext->setCurrentConversation($conversation);
+        $userContext->setCurrentConversation($conversationForCloning, $conversationForConnecting);
 
         /** @var Intent $currentIntent */
-        $currentIntent = $this->conversationStore->getIntentByConversationIdAndOrder(
+        $currentIntent = $this->conversationStore->getOpeningIntentByConversationIdAndOrder(
             $userContext->getUser()->getCurrentConversationUid(),
             $intent->getOrder()
         );
@@ -282,7 +380,10 @@ class ConversationEngine implements ConversationEngineInterface
         ContextService::saveAttribute('conversation.current_scene', 'opening_scene');
 
         if ($currentIntent->causesAction()) {
-            $this->performIntentAction($userContext, $currentIntent);
+            $inputActionAttributes = $intent->getInputActionAttributeContexts();
+            $outputActionAttributes = $intent->getOutputActionAttributeContexts();
+
+            $this->performIntentAction($userContext, $currentIntent, $inputActionAttributes, $outputActionAttributes);
         }
 
         // For this intent get the matching conversation - we are pulling this back out from the user
@@ -295,20 +396,23 @@ class ConversationEngine implements ConversationEngineInterface
      * @param Intent $defaultIntent
      * @param UtteranceInterface $utterance
      * @param Map $validOpeningIntents
-     * @return Map
+     * @return Set
      */
     private function matchOpeningIntents(
         Intent $defaultIntent,
         UtteranceInterface $utterance,
         Map $validOpeningIntents
-    ): Map {
-        $matchingIntents = new Map();
+    ): Set {
+        $matchingIntents = new Set();
 
-        /* @var OpeningIntent $validIntent */
-        foreach ($validOpeningIntents as $key => $validIntent) {
+        // Check conditions for each conversation
+        $filteredIntents = $this->filterOpeningIntentsForConditions($validOpeningIntents);
+
+        /* @var EIModelIntent $validIntent */
+        foreach ($filteredIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 $intentsFromInterpreter = $this->interpreterService
-                    ->getInterpreter($validIntent->getInterpreter())
+                    ->getInterpreter($validIntent->getInterpreterId())
                     ->interpret($utterance);
 
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
@@ -316,17 +420,14 @@ class ConversationEngine implements ConversationEngineInterface
                     $validIntent->setInterpretedIntent($interpretedIntent);
 
                     if ($this->intentHasEnoughConfidence($interpretedIntent, $validIntent)) {
-                        $matchingIntents->put($validIntent->getConversationId(), $validIntent);
+                        $matchingIntents->add($validIntent);
                     }
                 }
             } elseif ($this->intentHasEnoughConfidence($defaultIntent, $validIntent)) {
                 $validIntent->setInterpretedIntent($defaultIntent);
-                $matchingIntents->put($validIntent->getConversationId(), $validIntent);
+                $matchingIntents->add($validIntent);
             }
         }
-
-        // Check conditions for each conversation
-        $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
 
         $matchingIntents = $this->filterNoMatchIntents($matchingIntents);
 
@@ -335,30 +436,33 @@ class ConversationEngine implements ConversationEngineInterface
 
     /**
      * @param Map $intentsToCheck
-     * @return Map
+     * @return Set
      */
-    private function filterOpeningIntentsForConditions(Map $intentsToCheck): Map
+    private function filterOpeningIntentsForConditions(Map $intentsToCheck): Set
     {
-        $matchingIntents = new Map();
+        $matchingIntents = new Set();
 
-        /* @var OpeningIntent $intent */
+        /* @var EIModelIntent $intent */
         foreach ($intentsToCheck as $intent) {
             if ($intent->hasConditions()) {
                 $pass = true;
                 $conditions = $intent->getConditions();
 
-                /* @var Condition $condition */
-                foreach ($conditions as $condition) {
+                /* @var EIModelCondition $condition */
+                foreach ($conditions as $conditionModel) {
+                    /* @var Condition $condition */
+                    $condition = $this->conversationStore->getConversationConverter()->convertCondition($conditionModel);
+
                     if (!$this->operationService->checkCondition($condition)) {
                         $pass = false;
                     }
                 }
 
                 if ($pass) {
-                    $matchingIntents->put($intent->getConversationId(), $intent);
+                    $matchingIntents->add($intent);
                 }
             } else {
-                $matchingIntents->put($intent->getConversationId(), $intent);
+                $matchingIntents->add($intent);
             }
         }
 
@@ -369,7 +473,7 @@ class ConversationEngine implements ConversationEngineInterface
      * Filters out no match intents if we have more than 1 intent.
      * Any non-no match intent should be considered more valid.
      *
-     * @param Map $matchingIntents
+     * @param Set $matchingIntents
      * @return mixed
      */
     private function filterNoMatchIntents($matchingIntents)
@@ -378,7 +482,7 @@ class ConversationEngine implements ConversationEngineInterface
             return $matchingIntents;
         }
 
-        return $matchingIntents->filter(function ($intentName, OpeningIntent $intent) {
+        return $matchingIntents->filter(function (EIModelIntent $intent) {
             return $intent->getIntentId() !== NoMatchIntent::NO_MATCH;
         });
     }
@@ -387,9 +491,9 @@ class ConversationEngine implements ConversationEngineInterface
      * Stores the Intent entities from an opening intent by pulling out the interpreted intent which contains the
      * interpreted attributes and the expected attributes that are set against the Opening Intent
      *
-     * @param OpeningIntent $intent
+     * @param EIModelIntent $intent
      */
-    public function storeIntentAttributesFromOpeningIntent(OpeningIntent $intent): void
+    public function storeIntentAttributesFromOpeningIntent(EIModelIntent $intent): void
     {
         $this->storeIntentAttributes($intent->getInterpretedIntent(), $intent->getExpectedAttributeContexts());
     }
@@ -408,30 +512,10 @@ class ConversationEngine implements ConversationEngineInterface
             $expectedAttributes = $intent->getExpectedAttributeContexts();
         }
 
-        $contextsUpdated = [];
-        /** @var AttributeInterface $attribute */
-        foreach ($intent->getNonCoreAttributes() as $attribute) {
-            $attributeName = $attribute->getId();
+        $attributes = $intent->getNonCoreAttributes();
+        $context = ContextService::getSessionContext();
 
-            $context = ContextService::getSessionContext();
-            if ($expectedAttributes->hasKey($attributeName)) {
-                $contextId = $expectedAttributes->get($attributeName);
-                try {
-                    $context = ContextService::getContext($contextId);
-                } catch (ContextDoesNotExistException $e) {
-                    Log::error(
-                        sprintf('Expected attribute context %s does not exist, using session context', $contextId)
-                    );
-                }
-            }
-
-            Log::debug(sprintf('Storing attribute %s in %s context', $attribute->getId(), $context->getId()));
-            $context->addAttribute($attribute);
-
-            $contextsUpdated[$context->getId()] = $context->getId();
-        }
-
-        $this->persistContexts($contextsUpdated);
+        $this->storeAttributes($attributes, $context, $expectedAttributes);
     }
 
     /**
@@ -452,10 +536,10 @@ class ConversationEngine implements ConversationEngineInterface
 
     /**
      * @param Intent $interpretedIntent
-     * @param OpeningIntent $validIntent
+     * @param EIModelIntent $validIntent
      * @return bool
      */
-    private function intentHasEnoughConfidence(Intent $interpretedIntent, OpeningIntent $validIntent): bool
+    private function intentHasEnoughConfidence(Intent $interpretedIntent, EIModelIntent $validIntent): bool
     {
         return $interpretedIntent->getId() === $validIntent->getIntentId() &&
             $interpretedIntent->getConfidence() >= $validIntent->getConfidence();
@@ -475,7 +559,7 @@ class ConversationEngine implements ConversationEngineInterface
         Map $nextIntents,
         Intent $defaultIntent
     ): MatchingIntents {
-        $matchingIntents = new MatchingIntents();
+        $matching = new Map();
 
         /* @var Intent $validIntent */
         foreach ($nextIntents as $validIntent) {
@@ -489,9 +573,16 @@ class ConversationEngine implements ConversationEngineInterface
             foreach ($interpretedIntents as $interpretedIntent) {
                 if ($interpretedIntent->matches($validIntent)) {
                     $validIntent->copyNonCoreAttributes($interpretedIntent);
-                    $matchingIntents->addMatchingIntent($validIntent);
+                    $matching->put($validIntent->hash(), $validIntent);
                 }
             }
+        }
+
+        $filteredIntents = $this->filterByConditions($matching, true);
+
+        $matchingIntents = new MatchingIntents();
+        foreach ($filteredIntents as $matchingIntent) {
+            $matchingIntents->addMatchingIntent($matchingIntent);
         }
 
         return $matchingIntents;
@@ -499,14 +590,19 @@ class ConversationEngine implements ConversationEngineInterface
 
     /**
      * Performs the action associated with the intent and stores the outcome against the user
-     * TODO - a conversation should be able to decide where to store attributes
      *
      * @param UserContext $userContext
      * @param Intent $nextIntent
+     * @param Map $inputActionAttributes
+     * @param Map $outputActionAttributes
      * @throws NodeDoesNotExistException
      */
-    public function performIntentAction(UserContext $userContext, Intent $nextIntent): void
-    {
+    public function performIntentAction(
+        UserContext $userContext,
+        Intent $nextIntent,
+        Map $inputActionAttributes,
+        Map $outputActionAttributes
+    ): void {
         Log::debug(
             sprintf(
                 'Current intent %s causes action %s',
@@ -515,13 +611,172 @@ class ConversationEngine implements ConversationEngineInterface
             )
         );
 
+        $action = $nextIntent->getAction();
+
         try {
             /* @var ActionResult $actionResult */
-            $actionResult = $this->actionEngine->performAction($nextIntent->getAction()->getId());
-            $userContext->addActionResult($actionResult);
-            Log::debug(sprintf('Adding action result to user context'));
+            $actionResult = $this->actionEngine->performAction($action->getId(), $inputActionAttributes);
+
+            if ($actionResult) {
+                $this->storeActionResult($actionResult, $userContext, $outputActionAttributes);
+                Log::debug(sprintf('Adding action result to the right context'));
+            }
         } catch (ActionNotAvailableException $e) {
-            Log::warning(sprintf('Action %s has not been bound.', $nextIntent->getAction()->getId()));
+            Log::warning(sprintf('Action %s has not been bound.', $action->getId()));
         }
+    }
+
+    /**
+     * @param Map $intents
+     * @param bool $useIntentContext
+     * @return Map
+     */
+    private function filterByConditions(Map $intents, bool $useIntentContext = false): Map
+    {
+        if ($useIntentContext) {
+            /** @var IntentContext $intentContext */
+            $intentContext = ContextService::getContext(IntentContext::INTENT_CONTEXT);
+        } else {
+            $intentContext = null;
+        }
+
+        $filteredIntents = $intents->filter(function ($key, Intent $item) use ($intentContext) {
+            if ($intentContext) {
+                /** @var AttributeInterface $attribute */
+                foreach ($item->getNonCoreAttributes() as $attribute) {
+                    $intentContext->addAttribute($attribute->copy());
+                }
+            }
+
+            $result = true;
+
+            /** @var Condition $condition */
+            foreach ($item->getAllConditions() as $condition) {
+                if (!$this->operationService->checkCondition($condition)) {
+                    $result = false;
+                    break;
+                }
+            }
+
+            if ($intentContext) {
+                $intentContext->refresh();
+            }
+
+            return $result;
+        });
+
+        return $filteredIntents;
+    }
+
+    /**
+     * Stores the attributes from an Action to a context.
+     * Expected action attributes are retrieved from the Intent to determine which context each
+     * attribute should be saved to.
+     * If one is not defined for the attribute, it is saved to the user context
+     *
+     * @param ActionResult $actionResult
+     * @param UserContext $userContext
+     * @param Map $outputActionAttributes
+     */
+    private function storeActionResult(
+        ActionResult $actionResult,
+        UserContext $userContext,
+        Map $outputActionAttributes
+    ) {
+        $attributes = $actionResult->getResultAttributes()->getAttributes();
+
+        $this->storeAttributes($attributes, $userContext, $outputActionAttributes);
+    }
+
+    /**
+     * Store attributes values to the right context.
+     *
+     * @param Map $attributes
+     * @param ContextInterface $defaultContext
+     * @param Map $expectedAttributes
+     */
+    private function storeAttributes(
+        Map $attributes,
+        ContextInterface $defaultContext,
+        Map $expectedAttributes
+    ) {
+        $contextsUpdated = [];
+
+        /** @var AttributeInterface $attribute */
+        foreach ($attributes as $attribute) {
+            $attributeName = $attribute->getId();
+
+            $context = $defaultContext;
+
+            if ($expectedAttributes->hasKey($attributeName)) {
+                $contextId = $expectedAttributes->get($attributeName);
+                if ($context->getId() != $contextId) {
+                    try {
+                        $context = ContextService::getContext($contextId);
+                    } catch (ContextDoesNotExistException $e) {
+                        Log::error(sprintf('Attribute context %s does not exist, using user context', $contextId));
+                    }
+                }
+            }
+
+            Log::debug(sprintf('Storing attribute %s in %s context', $attribute->getId(), $context->getId()));
+            $context->addAttribute($attribute);
+
+            $contextsUpdated[$context->getId()] = $context->getId();
+        }
+
+        $this->persistContexts($contextsUpdated);
+    }
+
+    /**
+     * @param UserContext $userContext
+     * @return Intent
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     */
+    private function determineNextIntent(UserContext $userContext): Intent
+    {
+        /* @var Scene $currentScene */
+        $currentScene = $userContext->getCurrentScene();
+
+        /** @var EIModelIntent $currentIntent */
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($userContext->getUser()->getCurrentIntentUid());
+
+        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
+        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
+
+        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentOrder);
+        $filteredIntents = $this->filterByConditions($possibleNextIntents);
+
+        /* @var Intent $nextIntent */
+        $nextIntent = $filteredIntents->first()->value;
+        return $nextIntent;
+    }
+
+    /**
+     * @param UserContext $userContext
+     * @return Map
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     */
+    private function getNextPossibleUserIntentsFromCurrentIntent(UserContext $userContext): Map
+    {
+        /* @var Scene $currentScene */
+        $currentScene = $userContext->getCurrentScene();
+
+        /* @var EIModelIntent $currentIntent */
+        $currentIntent = $userContext->getCurrentIntent();
+
+        if (!ContextService::hasContext('conversation')) {
+            ContextService::createContext('conversation');
+        }
+
+        ContextService::saveAttribute('conversation.current_scene', $currentScene->getId());
+        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getIntentId());
+
+        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
+        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
+        $possibleNextIntents = $currentScene->getNextPossibleUserIntents($currentOrder);
+        return $possibleNextIntents;
     }
 }

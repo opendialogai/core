@@ -4,8 +4,13 @@ namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\DGraphQueries\ConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -27,6 +32,13 @@ class UserServiceTest extends TestCase
     {
         parent::setUp();
 
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            [
+                'testAttr' => IntAttribute::class
+            ]
+        );
+
         $this->conversationStore = $this->app->make(ConversationStoreInterface::class);
         $this->userService = $this->app->make(UserService::class);
         $this->client = $this->app->make(DGraphClient::class);
@@ -35,7 +47,7 @@ class UserServiceTest extends TestCase
 
         for ($i = 1; $i <= 4; $i++) {
             $conversationId = 'conversation' . $i;
-            $this->publishConversation($this->$conversationId());
+            $this->activateConversation($this->$conversationId());
         }
     }
 
@@ -62,14 +74,14 @@ class UserServiceTest extends TestCase
         $user = $this->userService->createOrUpdateUser($utterance);
         $this->assertTrue($this->userService->userExists($userId));
 
-        $firstName = $user->getAttribute('first_name');
+        $firstName = $user->getUserAttribute('first_name');
         $this->assertTrue(isset($firstName));
 
         $utterance->getUser()->setFirstName('updated');
 
         $user2 = $this->userService->createOrUpdateUser($utterance);
         $this->assertEquals($user2->getUid(), $user->getUid());
-        $this->assertNotEquals($user2->getAttribute('first_name')->getValue(), $firstName);
+        $this->assertNotEquals($user2->getUserAttribute('first_name')->getValue(), $firstName);
     }
 
     public function testAssociatingStoredConversationToUser()
@@ -83,15 +95,46 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $conversationData = ConversationQueryFactory::getConversationTemplateIds($this->client)[0];
+        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
+        $conversationResponse = $this->client->query($conversationQuery);
 
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client);
-        $this->userService->setCurrentConversation($user, $conversation);
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+
+        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
+
+        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->isHavingConversation());
+
+        $conversationUserModel = $conversationStore->getEIModelConversation($user->getCurrentConversationUid());
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationUser */
+        $conversationUser = $conversationConverter->convertConversation($conversationUserModel);
+
+        $this->assertEquals($conversationForCloning->getId(), $conversationUser->getId());
+        $this->assertEquals(Model::CONVERSATION_USER, $conversationUser->getAttribute(Model::EI_TYPE)->getValue());
+
+        // Ensure that the conversation was properly cloned by checking that the template & user conversation UIDs are different
+        $this->assertNotEquals($conversationForCloning->getUid(), $conversationUser->getUid());
+        $this->assertEquals($user->getCurrentConversationUid(), $conversationUser->getUid());
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversationForCloning->getOpeningScenes()->first()->value;
+
+        /** @var Scene $openingUserScene */
+        $openingUserScene = $conversationUser->getOpeningScenes()->first()->value;
+
+        $this->assertNotEquals($openingScene->getUid(), $openingUserScene->getUid());
     }
 
     public function testSettingACurrentIntent()
@@ -105,19 +148,30 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $conversationData = ConversationQueryFactory::getConversationTemplateIds($this->client)[0];
-
         // Get the conversation so we can attach to the user
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client, true);
-        $this->userService->setCurrentConversation($user, $conversation);
+        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
+        $conversationResponse = $this->client->query($conversationQuery);
+
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+
+        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
+
+        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $this->conversationStore->getConversation($user->getCurrentConversationUid(), false)->getOpeningScenes()->first()->value;
+        $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
 
-        /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
+        /* @var Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
         $this->userService->setCurrentIntent($user, $intent);
 
@@ -125,13 +179,15 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $currentIntent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
-        $this->assertEquals('hello_bot', $currentIntent->getId());
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($user->getCurrentIntentUid());
+        $this->assertEquals('hello_bot', $currentIntent->getIntentId());
     }
 
     /**
      * @throws FieldNotSupported
      * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
      */
     public function testUnSettingACurrentIntent()
     {
@@ -144,19 +200,29 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $conversationData = ConversationQueryFactory::getConversationTemplateIds($this->client)[0];
+        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
+        $conversationResponse = $this->client->query($conversationQuery);
 
-        // Get the conversation so we can attach to the user
-        $conversation = ConversationQueryFactory::getConversationFromDGraphWithUid($conversationData['uid'], $this->client, true);
-        $this->userService->setCurrentConversation($user, $conversation);
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+
+        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
+
+        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
 
         // Now let's retrieve this user
         $user = $this->userService->getUser($userId);
 
         /* @var Scene $scene */
-        $scene = $this->conversationStore->getConversation($user->getCurrentConversationUid(), false)->getOpeningScenes()->first()->value;
+        $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
 
-        /* @var \OpenDialogAi\Core\Conversation\Intent $intent */
+        /* @var Intent $intent */
         $intent = $scene->getIntentsSaidByUser()->first()->value;
         $this->userService->setCurrentIntent($user, $intent);
 
@@ -164,12 +230,67 @@ class UserServiceTest extends TestCase
         $user = $this->userService->getUser($userId);
 
         $this->assertTrue($user->hasCurrentIntent());
-        $intent = $this->conversationStore->getIntentByUid($user->getCurrentIntentUid());
-        $this->assertEquals('hello_bot', $intent->getId());
+        $intent = $this->conversationStore->getEIModelIntentByUid($user->getCurrentIntentUid());
+        $this->assertEquals('hello_bot', $intent->getIntentId());
 
         $this->userService->unsetCurrentIntent($user);
 
         $user = $this->userService->getUser($userId);
         $this->assertFalse($user->hasCurrentIntent());
+    }
+
+    public function testCustomAttributesArePersistedAndQueryable()
+    {
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
+
+        // Ensure value is not currently persisted
+        $userBeforePersisting = $this->userService->getUser($userId);
+
+        $caught = false;
+        try {
+            $userBeforePersisting->getUserAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $caught = true;
+        }
+        $this->assertTrue($caught);
+
+        // Set testAttr value on User
+        $utterance->getUser()->setCustomParameters([ 'testAttr' => 100 ]);
+
+        /* @var ChatbotUser $user */
+        $user = $this->userService->createOrUpdateUser($utterance);
+
+        /** @var IntAttribute $testAttr */
+        $testAttr = null;
+
+        // Ensure value is on the User object
+        try {
+            $testAttr = $user->getUserAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $this->fail($e);
+        }
+
+        $this->assertEquals(100, $testAttr->getValue());
+
+        $user = $this->userService->updateUser($user);
+        $countBeforeUpdating = $user->getAllUserAttributes()->count();
+
+        // Ensure the attribute is correctly updated
+        $utterance = UtteranceGenerator::generateTextUtterance('', $utterance->getUser());
+        $utterance->getUser()->setCustomParameters([ 'testAttr' => 200 ]);
+
+        /** @var ChatbotUser $userAfterUpdating */
+        $userAfterUpdating = $this->userService->createOrUpdateUser($utterance);
+
+        // Ensure value is on the User object
+        try {
+            $testAttr = $userAfterUpdating->getUserAttribute('testAttr');
+        } catch (AttributeDoesNotExistException $e) {
+            $this->fail($e);
+        }
+
+        $this->assertEquals(200, $testAttr->getValue());
+        $this->assertEquals($countBeforeUpdating, $userAfterUpdating->getAllUserAttributes()->count());
     }
 }

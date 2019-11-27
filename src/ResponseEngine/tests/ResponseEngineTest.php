@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Attribute\FloatAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
@@ -173,6 +174,39 @@ class ResponseEngineTest extends TestCase
         );
 
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there dummy!');
+    }
+
+    public function testResponseEngineServiceWithArrayAttribute()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("{user.phraseArray}");
+
+        $conditions = new ConditionsYamlGenerator();
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+
+        // Setup a context to have something to compare against
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new ArrayAttribute('phraseArray', [
+            'greeting' => 'hello',
+            'subject' => 'world'
+        ]));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+        $this->assertInstanceOf(
+            OpenDialogMessages::class,
+            $messageWrapper
+        );
+
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), '{&quot;greeting&quot;:&quot;hello&quot;,&quot;subject&quot;:&quot;world&quot;}');
     }
 
     public function testWebChatMessage()

@@ -2,12 +2,15 @@
 
 namespace OpenDialogAi\Core\Tests;
 
+use Exception;
+use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
+use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
@@ -37,13 +40,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        try {
-            $env = parse_ini_file(__DIR__ . '/../.env');
-            if (isset($env['DGRAPH_URL'])) {
-                $this->app['config']->set('opendialog.core.DGRAPH_URL', $env['DGRAPH_URL']);
-            }
-        } catch (\Exception $e) {
-            //
+        if ($overwriteDgraphUrl = getenv("OVERWRITE_DGRAPH_URL")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
+        }
+
+        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
         }
 
         if (!defined('LARAVEL_START')) {
@@ -115,14 +117,26 @@ conversation:
         - u:
             i: hello_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene2
         - b:
             i: hello_registered_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             scene: scene3
     scene2:
       intents:
@@ -130,7 +144,14 @@ conversation:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             confidence: 1
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
+              output_attributes:
+                - user.first_name
+                - session.last_name
         - b: 
             i: doing_dandy
             action: action.core.example
@@ -139,23 +160,35 @@ conversation:
       intents:
         - u:
             i: weather_question
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b:
             i: weather_answer
         - u: 
             i: will_you_cope
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
     scene4:
       intents:
         - b:
             i: intent.core.example
         - u:
-            i: intent.core.example
+            i: intent.core.example2
             interpreter: interpreter.core.callbackInterpreter
             expected_attributes:
               - id: user.name
@@ -174,19 +207,35 @@ conversation:
         - u: 
             i: howdy_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true           
 EOT;
     }
@@ -202,19 +251,35 @@ conversation:
         - u: 
             i: top_of_the_morning_bot
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: hello_user
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
     scene2:
       intents:
         - u: 
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
         - b: 
             i: doing_dandy
-            action: action.core.example
+            action:
+              id: action.core.example
+              input_attributes:
+                - user.first_name
+                - user.last_name
             completes: true
 EOT;
     }
@@ -235,6 +300,40 @@ conversation:
 EOT;
     }
 
+    protected function conversationWithManyOpeningIntents()
+    {
+        return <<<EOT
+conversation:
+  id: many_opening_intents
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.core.opening_1
+        - u:
+            i: intent.core.opening_2
+        - u:
+            i: intent.core.opening_3
+        - b:
+            i: intent.core.ask_name
+        - u:
+            i: intent.core.send_name
+        - b:
+            i: intent.core.response
+            completes: true
+EOT;
+    }
+
+    /**
+     * Returns the no match conversation
+     *
+     * @return string
+     */
+    protected function noMatchConversation()
+    {
+        return $this->conversation4();
+    }
+
     protected function initDDgraph(): void
     {
         if (!$this->dgraphInitialised) {
@@ -247,9 +346,9 @@ EOT;
     }
 
     /**
-     * Publish the given conversation YAML and assert that it publishes successfully.
+     * Activate the given conversation YAML and assert that it activates successfully.
      */
-    protected function publishConversation($conversationYaml): void
+    protected function activateConversation($conversationYaml): ConversationNode
     {
         if (!$this->dgraphInitialised) {
             $this->initDDgraph();
@@ -259,9 +358,11 @@ EOT;
 
         /** @var Conversation $conversation */
         $conversation = Conversation::create(['name' => $name, 'model' => $conversationYaml]);
-        $conversationModel = $conversation->buildConversation();
+        $conversation->save();
 
-        $this->assertTrue($conversation->publishConversation($conversationModel));
+        $this->assertTrue($conversation->activateConversation());
+
+        return $conversation->buildConversation();
     }
 
     /**
@@ -314,12 +415,27 @@ EOT;
     }
 
     /**
+     * Register a single interpreter and default interpreter
+     *
+     * @param $action
+     */
+    protected function registerSingleAction($action): void
+    {
+        $this->app['config']->set(
+            'opendialog.action_engine.available_actions',
+            [
+                get_class($action),
+            ]
+        );
+    }
+
+    /**
      * @param $interpreterName
      * @return \Mockery\MockInterface|InterpreterInterface
      */
     protected function createMockInterpreter($interpreterName)
     {
-        $mockInterpreter = \Mockery::mock(InterpreterInterface::class);
+        $mockInterpreter = Mockery::mock(InterpreterInterface::class);
         $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
 
         return $mockInterpreter;
@@ -343,5 +459,247 @@ EOT;
     protected function setCustomAttributes(array $customAttribute)
     {
         $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+    }
+
+    protected function conversationWithSceneConditions()
+    {
+        return <<< EOT
+conversation:
+  id: with_scene_conditions
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: opening_user_s1
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene1
+        - u:
+            i: opening_user_s2
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene2
+        - u:
+            i: opening_user_none
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_response
+        - u:
+            i: opening_user_s3
+            interpreter: interpreter.core.callbackInterpreter
+            scene: scene3
+        - u:
+            i: opening_user_none2
+            interpreter: interpreter.core.callbackInterpreter
+        - b: 
+            i: opening_bot_complete
+            completes: true
+    scene1:
+      conditions:
+        - condition:
+            operation: is_not_set
+            attributes:
+              attribute1: user.user_email
+      intents:
+        - b: 
+            i: scene1_bot
+            completes: true
+    scene2:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user
+      intents:
+        - b: 
+            i: scene2_bot
+            completes: true
+    scene3:
+      conditions:
+        - condition:
+            operation: eq
+            attributes:
+              attribute1: user.user_name
+            parameters:
+              value: test_user2
+      intents:
+        - b: 
+            i: scene3_bot
+            completes: true
+EOT;
+    }
+
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithManyIntentsWithSameId(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForManyIntentConversation();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkupForManyIntentConversation(): string
+    {
+        $conversationMarkup =
+            /** @lang yaml */
+            <<<EOT
+conversation:
+  id: rock_paper_scissors
+  scenes:
+    opening_scene:
+      intents:
+        - u:
+            i: intent.app.play_game
+        - b:
+            i: intent.app.init_game
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+        - b:
+            i: intent.app.round_2
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+        - b:
+            i: intent.app.final_round
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+            conditions:
+                - condition:
+                    operation: eq
+                    attributes:
+                        attribute1: user.game_result
+                    parameters:
+                        value: BOT_WINS
+            scene: bot_won
+        - u:
+            i: intent.app.send_choice
+            expected_attributes:
+                - id: user.user_choice
+        - b:
+            i: intent.app.you_won
+            completes: true
+    bot_won:
+      intents:
+        - b:
+            i: intent.app.you_lost
+            completes: true
+EOT;
+        return $conversationMarkup;
+    }
+
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithVirtualIntent(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithVirtualIntent();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithMultipleVirtualIntents(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithMultipleVirtualIntents();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
+    public function getMarkupForConversationWithVirtualIntent(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_virtual_intent
+  scenes:
+    opening_scene:
+      intents:
+          - u:
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+              u_virtual:
+                i: intent.app.continue
+          - u:
+              i: intent.app.continue
+          - b:
+              i: intent.app.endResponse
+              completes: true
+EOT;
+    }
+
+    public function getMarkupForConversationWithMultipleVirtualIntents(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_virtual_intents
+  scenes:
+    opening_scene:
+      intents:
+          - u:
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+              u_virtual:
+                i: intent.app.continue
+              scene: next_scene
+    next_scene:
+      intents:
+          - u:
+              i: intent.app.continue
+              conditions:
+                - condition:
+                    operation: is_set
+                    attributes:
+                      attribute: user.test
+              scene: test_scene
+          - u:
+              i: intent.app.continue
+              conditions:
+                - condition:
+                    operation: is_not_set
+                    attributes:
+                      attribute: user.test
+          - b:
+              i: intent.app.continueResponse
+              u_virtual:
+                i: intent.app.continue
+          - u:
+              i: intent.app.continue
+          - b:
+              i: intent.app.nextResponse
+              completes: true
+    test_scene:
+      intents:
+          - u:
+              i: intent.app.continue
+          - b:
+              i: intent.app.testResponse
+              completes: true
+EOT;
     }
 }

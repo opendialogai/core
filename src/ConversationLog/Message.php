@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationLog;
 
 use Carbon\Carbon;
 use DateTime;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -21,7 +22,10 @@ use Illuminate\Support\Str;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string $user
+ * @property array $intents
  * @property int microtime
+ * @method static QueryBuilder containingIntent($intent)
+ * @method static QueryBuilder containingIntents($intents)
  */
 class Message extends Model
 {
@@ -35,9 +39,13 @@ class Message extends Model
         'data',
         'microtime',
         'user',
-        'intent',
+        'intents',
         'conversation',
         'scene'
+    ];
+
+    protected $casts = [
+        'intents' => 'array'
     ];
 
     /**
@@ -94,7 +102,7 @@ class Message extends Model
         $data = null,
         $messageId = null,
         $user = null,
-        $intent = null,
+        $intents = null,
         $conversation = null,
         $scene = null
     ) {
@@ -117,7 +125,7 @@ class Message extends Model
             'data'            => $data ? serialize($data) : null,
             'message_id'      => $messageId,
             'user'            => $user ? serialize($user) : null,
-            'intent'          => $intent,
+            'intents'         => $intents,
             'conversation'    => $conversation,
             'scene'           => $scene
         ]);
@@ -133,5 +141,37 @@ class Message extends Model
             return true;
         }
         return false;
+    }
+
+    /**
+     * Scope for getting messages that contain the given intent
+     *
+     * @param QueryBuilder $query
+     * @param $intent
+     * @return mixed
+     */
+    public function scopeContainingIntent($query, $intent)
+    {
+        return $query->where('intents', 'like', '%"' . $intent . '"%');
+    }
+
+    /**
+     * Scope for getting messages that contain any of the the given intents
+     *
+     * @param QueryBuilder $query
+     * @param $intents
+     * @return mixed
+     */
+    public function scopeContainingIntents($query, $intents)
+    {
+        if (empty($intents)) {
+            $intents = [''];
+        }
+
+        foreach ($intents as $intent) {
+            $query->OrWhere('intents', 'like', '%"' . $intent . '"%');
+        }
+
+        return $query;
     }
 }

@@ -3,15 +3,19 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
-use OpenDialogAi\ActionEngine\Actions\ActionResult;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\UserAttribute;
 
 class UserContext extends AbstractContext
 {
@@ -32,44 +36,48 @@ class UserContext extends AbstractContext
         ConversationStoreInterface $conversationStore
     ) {
         parent::__construct(self::USER_CONTEXT);
+
         $this->user = $user;
         $this->userService = $userService;
         $this->conversationStore = $conversationStore;
     }
 
     /**
-     * @inheritDoc
+     * Returns all the attributes currently associated with this context.
+     *
+     * @return Map
      */
     public function getAttributes(): Map
     {
-        return $this->getUser()->getAttributes();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAttribute(string $attributeName): AttributeInterface
-    {
-        return $this->getUser()->getAttribute($attributeName);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function addAttribute(AttributeInterface $attribute)
-    {
-        $this->getUser()->addAttribute($attribute);
+        return $this->userService->getUserAttributes($this->getUser());
     }
 
     /**
      * @param string $attributeName
-     * @param $value
-     * @param null $type
      * @return AttributeInterface
+     * @throws AttributeDoesNotExistException
      */
-    public function setAttribute(string $attributeName, $value, $type = null): AttributeInterface
+    public function getAttribute(string $attributeName): AttributeInterface
     {
-        return $this->getUser()->setAttribute($attributeName, $value, $type);
+        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
+            return $userAttribute->getInternalAttribute();
+        } else {
+            Log::warning(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
+            throw new AttributeDoesNotExistException(
+                sprintf("Cannot return attribute with name %s - does not exist", $attributeName)
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addAttribute(AttributeInterface $attribute): UserContext
+    {
+        $this->userService->addUserAttribute($this->getUser(), $attribute);
+        return $this;
     }
 
     /**
@@ -80,7 +88,20 @@ class UserContext extends AbstractContext
      */
     public function removeAttribute(string $attributeName): bool
     {
-        return $this->getUser()->removeAttribute($attributeName);
+        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
+            $userAttribute->setValue(null);
+            return true;
+        }
+
+        Log::warning(sprintf(
+            'Trying to remove non-existent attribute %s from %s',
+            $attributeName,
+            $this->getId()
+        ));
+
+        return false;
     }
 
     /**
@@ -97,19 +118,6 @@ class UserContext extends AbstractContext
     public function getUserId(): string
     {
         return $this->user->getId();
-    }
-
-    /**
-     * @param ActionResult $actionResult
-     * @return ChatbotUser
-     */
-    public function addActionResult(ActionResult $actionResult): ChatbotUser
-    {
-        foreach ($actionResult->getResultAttributes()->getAttributes() as $attribute) {
-            $this->user->addAttribute($attribute);
-        }
-
-        return $this->updateUser();
     }
 
     /**
@@ -133,6 +141,8 @@ class UserContext extends AbstractContext
 
     /**
      * @return Conversation
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws EIModelCreatorException
      */
     public function getCurrentConversation(): Conversation
     {
@@ -142,24 +152,33 @@ class UserContext extends AbstractContext
     /**
      * Sets the current conversation against the user, persists the user and returns the conversation id
      *
-     * @param Conversation $conversation
+     * @param Conversation $conversationForCloning Required to ensure that the new conversation is fully
+     * cloned by `UserService.updateUser`
+     * @param Conversation $conversationForConnecting Required to ensure that DGraph contains a correct `instance_of`
+     * edge between template & instance
      * @return string
      */
-    public function setCurrentConversation(Conversation $conversation): string
+    public function setCurrentConversation(Conversation $conversationForCloning, Conversation $conversationForConnecting): string
     {
-        $this->user = $this->userService->setCurrentConversation($this->user, $conversation);
+        $this->user = $this->userService->setCurrentConversation(
+            $this->user,
+            $conversationForCloning,
+            $conversationForConnecting
+        );
+
         return $this->user->getCurrentConversationUid();
     }
 
     /**
      * Gets just the current intent unconnected
      *
-     * @return Intent
+     * @return EIModelIntent
+     * @throws EIModelCreatorException
      */
-    public function getCurrentIntent()
+    public function getCurrentIntent(): EIModelIntent
     {
         $currentIntentId = $this->user->getCurrentIntentUid();
-        return $this->conversationStore->getIntentByUid($currentIntentId);
+        return $this->conversationStore->getEIModelIntentByUid($currentIntentId);
     }
 
     /**
@@ -173,6 +192,7 @@ class UserContext extends AbstractContext
 
     /**
      * Moves the user's current conversation to a past conversation
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function moveCurrentConversationToPast(): void
     {
@@ -189,25 +209,22 @@ class UserContext extends AbstractContext
 
     /**
      * @return Scene
+     * @throws EIModelCreatorException
+     * @throws CurrentIntentNotSetException
      */
     public function getCurrentScene(): Scene
     {
-        if ($this->user->hasCurrentIntent()) {
-            $currentIntent = $this->conversationStore->getIntentByUid($this->user->getCurrentIntentUid());
-
-            // Get the scene for the current intent
-            $sceneId = $this->userService->getSceneForIntent($currentIntent->getUid());
-
-            // use the conversation that is against the user
-            $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
-        } else {
-            // Set the current intent as the first intent of the opening scene
-            /* @var Scene $currentScene */
-            $currentScene = $this->user->getCurrentConversation()->getOpeningScenes()->first()->value;
-
-            $intent = $currentScene->getIntentByOrder(1);
-            $this->setCurrentIntent($intent);
+        if (!$this->user->hasCurrentIntent()) {
+            throw new CurrentIntentNotSetException("Attempted to get the current scene without having set a current intent.");
         }
+
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($this->user->getCurrentIntentUid());
+
+        // Get the scene for the current intent
+        $sceneId = $this->userService->getSceneForIntent($currentIntent->getIntentUid());
+
+        // use the conversation that is against the user
+        $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
 
         return $currentScene;
     }

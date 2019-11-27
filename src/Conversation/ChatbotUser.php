@@ -2,6 +2,10 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use Ds\Map;
+use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
@@ -30,13 +34,18 @@ class ChatbotUser extends Node
     /**
      * Attaches an entire conversation to the user
      *
-     * @param Conversation $conversation
+     * @param Conversation $conversationForCloning Required to ensure that the new conversation is fully
+     * cloned by `UserService.updateUser`
+     * @param Conversation $conversationForConnecting Required to ensure that DGraph contains a correct `instance_of`
+     * edge between template & instance
      */
-    public function setCurrentConversation(Conversation $conversation)
+    public function setCurrentConversation(Conversation $conversationForCloning, Conversation $conversationForConnecting)
     {
-        $currentConversation = clone $conversation;
+        $currentConversation = clone $conversationForCloning;
         $currentConversation->setConversationType(Model::CONVERSATION_USER);
         $this->createOutgoingEdge(Model::HAVING_CONVERSATION, $currentConversation);
+
+        $currentConversation->createOutgoingEdge(Model::INSTANCE_OF, $conversationForConnecting);
     }
 
     /**
@@ -101,5 +110,89 @@ class ChatbotUser extends Node
     public function hasCurrentIntent(): bool
     {
         return isset($this->currentIntentUid);
+    }
+
+    /**
+     * @param AttributeInterface $userAttribute
+     * @return UserAttribute
+     */
+    public function addUserAttribute(AttributeInterface $userAttribute): UserAttribute
+    {
+        try {
+            if ($this->hasUserAttribute($userAttribute->getId())) {
+                return $this->setUserAttribute($userAttribute);
+            } else {
+                $node = new UserAttribute($userAttribute);
+                $this->createOutgoingEdge(Model::HAS_ATTRIBUTE, $node);
+                return $node;
+            }
+        } catch (AttributeDoesNotExistException $e) {
+            Log::debug($e->getMessage());
+        }
+    }
+
+    /**
+     * @param AttributeInterface $attribute
+     * @return UserAttribute
+     * @throws AttributeDoesNotExistException
+     */
+    public function setUserAttribute(AttributeInterface $attribute): UserAttribute
+    {
+        if ($this->hasUserAttribute($attribute->getId())) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->getAllUserAttributes()->get($attribute->getId(), null);
+            $userAttribute->updateInternalAttribute($attribute);
+            return $userAttribute;
+        } else {
+            throw new AttributeDoesNotExistException(
+                sprintf("Cannot return attribute with name %s - does not exist", $attribute->getId())
+            );
+        }
+    }
+
+    /**
+     * @param $attributeName
+     * @return bool
+     */
+    public function hasUserAttribute($attributeName): bool
+    {
+        return !is_null($this->getAllUserAttributes()->get($attributeName, null));
+    }
+
+    /**
+     * @param string $userAttributeId
+     * @return AttributeInterface
+     * @throws AttributeDoesNotExistException
+     */
+    public function getUserAttribute(string $userAttributeId): AttributeInterface
+    {
+        if ($this->hasUserAttribute($userAttributeId)) {
+            /** @var UserAttribute $userAttribute */
+            $userAttribute = $this->getAllUserAttributes()->get($userAttributeId, null);
+            return $userAttribute->getInternalAttribute();
+        } else {
+            Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $userAttributeId));
+            throw new AttributeDoesNotExistException(
+                sprintf("Cannot return attribute with name %s - does not exist", $userAttributeId)
+            );
+        }
+    }
+
+    /**
+     * @param string $userAttributeId
+     * @return AttributeInterface|null
+     * @throws AttributeDoesNotExistException
+     */
+    public function getUserAttributeValue(string $userAttributeId): string
+    {
+        return $this->getUserAttribute($userAttributeId)->getValue();
+    }
+
+    /**
+     * @return Map
+     */
+    public function getAllUserAttributes(): Map
+    {
+        return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_ATTRIBUTE);
     }
 }

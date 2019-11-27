@@ -2,15 +2,13 @@
 
 [![CircleCI](https://circleci.com/gh/opendialogai/core/tree/master.svg?style=svg&circle-token=d14bcacaf3cd3e6ae4dfd2fb3bf03658cf0ca8fa)](https://circleci.com/gh/opendialogai/core/tree/master)
 
-This is the OpenDialog core package that can be used inside of your conversational application.
+[OpenDialog](https://opendialog.ai) is a platform that helps you design, develop, deploy and administer chatbots - or as we like to call them, conversational applications.
 
-[OpenDialog](https://opendialog.ai) is a conversation management platform and OpenDialog Core provides the 
-key pieces of support required. It has been created by the conversational interface and applied AI team at [GreenShoot Labs](https://www.greenshootlabs.com/).
+OpenDialog Core is the heart of this platform. It provides ways to develop and integrate the different components that are required to build a conversational application. We have very specific ideas about how to design and specify such applications. You can read more about it [here](https://docs.opendialog.ai).
 
-We will soon be releasing our webchat package that gives you a webchat interface as well as a full Laravel-based
-application that makes use of OpenDialog core and provides a GUI to manage conversations. 
+If you are interested in seeing how OpenDialog works please head over to the [OpenDialog app](https://github.com/opendialogai/opendialog) repository and follow the instructions there to install. 
 
-In the meantime if you would like a preview please [get in touch](https://www.greenshootlabs.com/).
+This repository is for those that are more interested in the inner workings of OpenDialog, and in particular those that would like to be involved with the core development of OpenDialog. Finally, this is also the right place if you want to integrate OpenDialog functionality into your own PHP application without a GUI. 
 
 ## Installing
 
@@ -48,36 +46,43 @@ go into git.
 
 ## Running Tests
 
-```./vendor/bin/phpunit```
+We provide a Docker-based environment for running tests and provide a database environment with [Dgraph](https://Dgraph.io) to run complete conversation tests. 
 
-## DGraph
+A Lando file is included for running tests. Before trying to use Lando make sure to copy `lando.example.env` to `lando.env`. 
 
-You may find instructions to setup a development instance of DGraph in dgraph/dgraph-setup.md
+Test can be run with:
 
-You will need to set the DGraph URL and port in your .env file, e.g.:
+    lando test
+    
+More information on testing and setting up a local test environment can be found [on our wiki](https://github.com/opendialogai/opendialog/wiki/Running-tests-through-PHPStorm).
 
-```
-DGRAPH_URL=http://10.0.2.2
-DGRAPH_PORT=8080
-```
+### Performance testing
 
-### Query Logging
+The Lando-configured Docker environment also installs [Blackfire](https://blackfire.io) to allow you to do performance analysis. 
 
-To log DGraph queries to the standard application log, set the `LOG_DGRAPH_QUERIES` environment variable to true.
-All queries are logged at info level
+To use Blackfire you can use: 
+
+```lando blackfire run <php_script>```
+
+For example, to run Blackfire tracing on a specific test you could do:
+
+```lando blackfire run phpunit /app/src/ConversationEngine/tests/ConversationEngineTest --filter=testDeterminingNextIntentsInMultiSceneConversation```
+
+Make sure to add your Blackfire configuration in `lando.env`. 
+
+### Dgraph Query Logging
+
+OpenDialog stores conversation and conversation state to a graph database called Dgraph. To log DGraph queries to the standard application log, set the `LOG_DGRAPH_QUERIES` environment variable to true.
+
+All queries are logged at info level.
 
 ## Logging API requests
 
 By default, all incoming and outgoing API calls will be logged to the request and response mysql tables.
-To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`
+To prevent this happening, set the `LOG_API_REQUESTS` env variable to `false`.
 
 ## Introspection logging
 
 To turn on introspection processing set the `INTROSPECTION_PROCESSOR_ENABLED` env variable to true. This will add
-extra information to all log messages including the class and line that generated the message
+extra information to all log messages including the class and line that generated the message.
 
-## Local Artisan
-
-If you need to use artisan commands in the development of this pacakge, you can use `/vendor/bin/artisan` in it's place.
-This also works if you set up a symlink from the project root:
-```ln -s vendor/bin/artisan artisan```

@@ -9,8 +9,7 @@ class RequestLoggerMiddlewareTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->initDDgraph();
-        $this->publishConversation($this->conversation4());
+        $this->activateConversation($this->conversation4());
     }
 
     public function testRequestLoggerMiddleware()
