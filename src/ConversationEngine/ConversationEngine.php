@@ -19,11 +19,13 @@ use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
+use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\VirtualIntent;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -90,34 +92,33 @@ class ConversationEngine implements ConversationEngineInterface
     /**
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
+     * @param bool $isVirtual
      * @return Intent[]
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
      * @throws FieldNotSupported
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
-     * @throws EIModelCreatorException
-     * @throws CurrentIntentNotSetException
      */
-    public function getNextIntents(UserContext $userContext, UtteranceInterface $utterance): array
+    public function getNextIntents(UserContext $userContext, UtteranceInterface $utterance, bool $isVirtual = false): array
     {
-        /* @var Conversation $ongoingConversation */
-        $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
-        Log::debug(sprintf('Ongoing conversation determined as %s', $ongoingConversation->getId()));
+        if (!$isVirtual) {
+            /* @var Conversation $ongoingConversation */
+            $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
+            Log::debug(sprintf('Ongoing conversation determined as %s', $ongoingConversation->getId()));
+        }
 
-        /* @var Scene $currentScene */
-        $currentScene = $userContext->getCurrentScene();
+        $nextIntent = $this->determineNextIntent($userContext);
 
-        /** @var EIModelIntent $currentIntent */
-        $currentIntent = $this->conversationStore->getEIModelIntentByUid($userContext->getUser()->getCurrentIntentUid());
+        if ($isVirtual) {
+            /** @var array $nextIntents */
+            $nextIntentsAttributeArray = ContextService::getConversationContext()->getAttributeValue('next_intents');
+            $nextIntentsAttributeArray[] = $nextIntent->getId();
+        } else {
+            $nextIntentsAttributeArray = [$nextIntent->getId()];
+        }
 
-        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
-        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
-
-        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentOrder);
-        $filteredIntents = $this->filterByConditions($possibleNextIntents);
-
-        /* @var Intent $nextIntent */
-        $nextIntent = $filteredIntents->first()->value;
-        ContextService::saveAttribute('conversation.next_intents', [$nextIntent->getId()]);
+        ContextService::saveAttribute('conversation.next_intents', $nextIntentsAttributeArray);
 
         if ($nextIntent->causesAction()) {
             $inputActionAttributes = $nextIntent->getInputActionAttributeContexts();
@@ -126,13 +127,34 @@ class ConversationEngine implements ConversationEngineInterface
             $this->performIntentAction($userContext, $nextIntent, $inputActionAttributes, $outputActionAttributes);
         }
 
-        if ($nextIntent->completes()) {
-            $userContext->moveCurrentConversationToPast();
-        } else {
-            $userContext->setCurrentIntent($nextIntent);
+        /** @var Intent[] $nextIntents */
+        $nextIntents = [$nextIntent];
+
+        if ($nextIntent->getVirtualIntent()) {
+            try {
+                $userContext->setCurrentIntent($nextIntent);
+                $this->updateConversationFollowingVirtualUserInput($userContext, $nextIntent->getVirtualIntent());
+                $nextIntents = array_merge(
+                    $nextIntents,
+                    $this->getNextIntents($userContext, $utterance, true)
+                );
+            } catch (NoMatchingIntentsException $e) {
+                $utterance->setCallbackId(self::NO_MATCH);
+                return $this->getNextIntents($userContext, $utterance);
+            }
         }
 
-        return [$nextIntent];
+        if (!$isVirtual) {
+            $lastNextIntent = $nextIntents[array_key_last($nextIntents)];
+
+            if ($lastNextIntent->completes()) {
+                $userContext->moveCurrentConversationToPast();
+            } else {
+                $userContext->setCurrentIntent($lastNextIntent);
+            }
+        }
+
+        return $nextIntents;
     }
 
     /**
@@ -162,9 +184,9 @@ class ConversationEngine implements ConversationEngineInterface
 
             if ($userContext->currentSpeakerIsBot()) {
                 Log::debug(sprintf('Speaker was bot.'));
-                $ongoingConversation = $this->updateConversationFollowingUserInput($userContext, $utterance);
-
-                if (!isset($ongoingConversation)) {
+                try {
+                    $ongoingConversation = $this->updateConversationFollowingUserInput($userContext, $utterance);
+                } catch (NoMatchingIntentsException $e) {
                     Log::debug(sprintf('No intent for ongoing conversation matched, simulating a NoMatch.'));
                     $utterance->setCallbackId(self::NO_MATCH);
                     return self::determineCurrentConversation($userContext, $utterance);
@@ -197,32 +219,17 @@ class ConversationEngine implements ConversationEngineInterface
      * @param UserContext $userContext
      * @param UtteranceInterface $utterance
      * @return Conversation
-     * @throws ConversationStore\EIModelCreatorException
      * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
-     * @throws EIModelCreatorException
      */
     public function updateConversationFollowingUserInput(
         UserContext $userContext,
         UtteranceInterface $utterance
-    ): ?Conversation {
-        /* @var Scene $currentScene */
-        $currentScene = $userContext->getCurrentScene();
+    ): Conversation {
+        $possibleNextIntents = $this->getNextPossibleUserIntentsFromCurrentIntent($userContext);
 
-        /* @var EIModelIntent $currentIntent */
-        $currentIntent = $userContext->getCurrentIntent();
-
-        if (!ContextService::hasContext('conversation')) {
-            ContextService::createContext('conversation');
-        }
-
-        ContextService::saveAttribute('conversation.current_scene', $currentScene->getId());
-        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getIntentId());
-
-        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
-        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
-        $possibleNextIntents = $currentScene->getNextPossibleUserIntents($currentOrder);
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
 
         $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
@@ -256,8 +263,61 @@ class ConversationEngine implements ConversationEngineInterface
         Log::debug('No matching intent, moving conversation to past state');
         $userContext->moveCurrentConversationToPast();
         Log::debug('No match found, dropping out of current conversation.');
-        //@todo This should be an exception
-        return null;
+
+        throw new NoMatchingIntentsException();
+    }
+
+    /**
+     * @param UserContext $userContext
+     * @param VirtualIntent $virtualIntent
+     * @return Conversation
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     * @throws GuzzleException
+     * @throws NodeDoesNotExistException
+     * @throws NoMatchingIntentsException
+     */
+    public function updateConversationFollowingVirtualUserInput(
+        UserContext $userContext,
+        VirtualIntent $virtualIntent
+    ): Conversation {
+        $possibleNextIntents = $this->getNextPossibleUserIntentsFromCurrentIntent($userContext);
+
+        $possibleNextIntents = $possibleNextIntents->filter(
+            function ($key, Intent $possibleIntent) use ($virtualIntent) {
+                return $possibleIntent->getId() === $virtualIntent->getId();
+            }
+        );
+
+        Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
+
+        $matchingIntents = $this->filterByConditions($possibleNextIntents);
+
+        if (count($matchingIntents) >= 1) {
+            Log::debug(sprintf('There are %s matching intents', count($matchingIntents)));
+
+            /** @var Intent $nextIntent */
+            $nextIntent = $matchingIntents->first()->value;
+            Log::debug(sprintf( 'Intent chosen as %s', $nextIntent->getId()));
+            $userContext->setCurrentIntent($nextIntent);
+
+            if ($nextIntent->causesAction()) {
+                $inputActionAttributes = $nextIntent->getInputActionAttributeContexts();
+                $outputActionAttributes = $nextIntent->getOutputActionAttributeContexts();
+
+                $this->performIntentAction($userContext, $nextIntent, $inputActionAttributes, $outputActionAttributes);
+            }
+
+            return $userContext->getCurrentConversation();
+        }
+
+        // What the user says does not match anything expected in the current conversation so complete it and
+        // pretend we received a no match intent.
+        Log::debug('No matching intent, moving conversation to past state');
+        $userContext->moveCurrentConversationToPast();
+        Log::debug('No match found, dropping out of current conversation.');
+
+        throw new NoMatchingIntentsException();
     }
 
     /**
@@ -666,5 +726,57 @@ class ConversationEngine implements ConversationEngineInterface
         }
 
         $this->persistContexts($contextsUpdated);
+    }
+
+    /**
+     * @param UserContext $userContext
+     * @return Intent
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     */
+    private function determineNextIntent(UserContext $userContext): Intent
+    {
+        /* @var Scene $currentScene */
+        $currentScene = $userContext->getCurrentScene();
+
+        /** @var EIModelIntent $currentIntent */
+        $currentIntent = $this->conversationStore->getEIModelIntentByUid($userContext->getUser()->getCurrentIntentUid());
+
+        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
+        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
+
+        $possibleNextIntents = $currentScene->getNextPossibleBotIntents($currentOrder);
+        $filteredIntents = $this->filterByConditions($possibleNextIntents);
+
+        /* @var Intent $nextIntent */
+        $nextIntent = $filteredIntents->first()->value;
+        return $nextIntent;
+    }
+
+    /**
+     * @param UserContext $userContext
+     * @return Map
+     * @throws CurrentIntentNotSetException
+     * @throws EIModelCreatorException
+     */
+    private function getNextPossibleUserIntentsFromCurrentIntent(UserContext $userContext): Map
+    {
+        /* @var Scene $currentScene */
+        $currentScene = $userContext->getCurrentScene();
+
+        /* @var EIModelIntent $currentIntent */
+        $currentIntent = $userContext->getCurrentIntent();
+
+        if (!ContextService::hasContext('conversation')) {
+            ContextService::createContext('conversation');
+        }
+
+        ContextService::saveAttribute('conversation.current_scene', $currentScene->getId());
+        ContextService::saveAttribute('conversation.current_intent', $currentIntent->getIntentId());
+
+        // If the current intent is said across scenes, we use 0 - otherwise we use its order in its scene.
+        $currentOrder = $currentIntent->getNextScene() ? 0 : $currentIntent->getOrder();
+        $possibleNextIntents = $currentScene->getNextPossibleUserIntents($currentOrder);
+        return $possibleNextIntents;
     }
 }
