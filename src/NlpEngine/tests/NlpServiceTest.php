@@ -26,4 +26,12 @@ class NlpServiceTest extends TestCase
     {
         $this->assertInstanceOf(MsNlpService::class, $this->nlpService);
     }
+
+    /**
+     * @return string
+     */
+    public function getTestStringForNlp(): string
+    {
+        return 'Hello World.';
+    }
 }

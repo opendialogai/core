@@ -83,4 +83,12 @@ class MsClientTest extends TestCase
         );
         return new Response(200, ['Content-Type' => 'application/json'], $stream);
     }
+
+    /**
+     * @return string
+     */
+    public function getTestStringForNlp(): string
+    {
+        return 'Hello World.';
+    }
 }

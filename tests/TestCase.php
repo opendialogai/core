@@ -600,12 +600,4 @@ conversation:
 EOT;
         return $conversationMarkup;
     }
-
-    /**
-     * @return string
-     */
-    protected function getTestStringForNlp(): string
-    {
-        return 'Hello World.';
-    }
 }

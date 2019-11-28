@@ -53,4 +53,12 @@ class MsNlpServiceTest extends TestCase
         $this->assertEquals($language->getIsoName(), 'en');
         $this->assertEquals($language->getScore(), 1.0);
     }
+
+    /**
+     * @return string
+     */
+    public function getTestStringForNlp(): string
+    {
+        return 'Hello World.';
+    }
 }
