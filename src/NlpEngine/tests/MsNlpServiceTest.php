@@ -2,8 +2,6 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
-use GuzzleHttp\Client;
-use Illuminate\Support\Facades\App;
 use OpenDialogAi\Core\NlpEngine\Client\MsClient;
 use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\Core\Tests\TestCase;
