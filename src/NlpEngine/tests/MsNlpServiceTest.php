@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\App;
 use OpenDialogAi\Core\NlpEngine\Client\MsClient;
 use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -37,8 +39,9 @@ class MsNlpServiceTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->clientMock = \Mockery::mock(MsClient::class);
-        $this->msNlpService = new MsNlpService($this->getTestStringForNlp(), $this->clientMock);
+        $this->clientMock = \Mockery::mock(app()->make('MsClient'));
+        $this->app->instance('MsClient', $this->clientMock);
+        $this->msNlpService = new MsNlpService($this->getTestStringForNlp());
     }
 
     public function testItsInstatiatesCorrectServiceClass()

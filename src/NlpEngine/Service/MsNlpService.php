@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\NlpEngine\Service;
 
-use OpenDialogAi\Core\NlpEngine\Client\MsClient;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
@@ -21,9 +20,9 @@ class MsNlpService implements NlpServiceInterface
 
     const LANGUAGE_DEFAULT = 'GB';
 
-    public function __construct(string $string, MsClient $client)
+    public function __construct(string $string)
     {
-        $this->client = $client;
+        $this->client = app()->make('MsClient');
         $this->string = $string;
     }
 
@@ -39,7 +38,7 @@ class MsNlpService implements NlpServiceInterface
             ],
         ];
 
-        $this->client->post(
+        $response = $this->client->post(
             '/languages',
             [
                 'form_params' => $body
