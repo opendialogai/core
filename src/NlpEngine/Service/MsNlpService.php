@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\NlpEngine\Service;
 
+use OpenDialogAi\Core\NlpEngine\Client\MsClient;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
@@ -20,35 +21,23 @@ class MsNlpService implements NlpServiceInterface
 
     const LANGUAGE_DEFAULT = 'GB';
 
-    public function __construct(string $string)
+    public function __construct(string $string, MsClient $client)
     {
-        $this->client = app()->make('MsClient');
+        $this->client = $client;
         $this->string = $string;
     }
 
+    /**
+     * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
+     */
     public function getLanguage(): NLPLanguage
     {
-        $body = [
-            'documents' => [
-                [
-                    'countryHint' => self::LANGUAGE_DEFAULT,
-                    'id' => '1', // for now we set this to 1 as we aren't passing an array
-                    'text' => $this->string,
-                ],
-            ],
-        ];
-
-        $response = $this->client->post(
-            '/languages',
-            [
-                'form_params' => $body
-            ]
-        );
+        $languageResponse = $this->client->getLanguage($this->string, self::LANGUAGE_DEFAULT);
 
         $language = new NlpLanguage();
-        $language->setLanguageName('English');
-        $language->setIsoName('en');
-        $language->setScore(1.0);
+        $language->setLanguageName($languageResponse[0]['name']);
+        $language->setIsoName($languageResponse[0]['iso6391Name']);
+        $language->setScore($languageResponse[0]['score']);
 
         return $language;
     }

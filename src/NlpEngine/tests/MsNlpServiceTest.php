@@ -16,30 +16,27 @@ class MsNlpServiceTest extends TestCase
     /** @var \OpenDialogAi\Core\NlpEngine\Service\MsNlpService */
     private $msNlpService;
 
-    /** @var \GuzzleHttp\Client|\Mockery\LegacyMockInterface|\Mockery\MockInterface  */
+    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface  */
+    private $guzzleClientMock;
+
+    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface|\OpenDialogAi\Core\NlpEngine\Client\MsClient  */
     private $clientMock;
 
     const LANG_STUB_RESPONSE = [
-        'documents' => [
-            [
-                'id' => '1',
-                'detectedLanguages' => [
-                    [
-                        'name' => 'English',
-                        'iso6391Name' => 'en',
-                        'score' => 1.0,
-                    ],
-                ],
-            ],
-        ],
+        [
+            'name' => 'English',
+            'iso6391Name' => 'en',
+            'score' => 1.0,
+        ]
     ];
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->clientMock = \Mockery::mock(app()->make('MsClient'));
+        $this->guzzleClientMock = \Mockery::mock(app()->make('MsClient'));
         $this->app->instance('MsClient', $this->clientMock);
-        $this->msNlpService = new MsNlpService($this->getTestStringForNlp());
+        $this->clientMock = \Mockery::mock(MsClient::class);
+        $this->msNlpService = new MsNlpService($this->getTestStringForNlp(), $this->clientMock);
     }
 
     public function testItsInstatiatesCorrectServiceClass()
@@ -49,8 +46,7 @@ class MsNlpServiceTest extends TestCase
 
     public function testItGetsLanguageFromMs()
     {
-        $this->clientMock->shouldReceive('post')->once()->andReturn(json_encode(self::LANG_STUB_RESPONSE));
-
+        $this->clientMock->shouldReceive('getLanguage')->once()->andReturn(self::LANG_STUB_RESPONSE);
         $language = $this->msNlpService->getLanguage();
 
         $this->assertEquals($language->getLanguageName(), 'English');
