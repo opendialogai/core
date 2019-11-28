@@ -12,6 +12,7 @@ use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\NlpEngine\NlpEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\OperationEngine\OperationEngineServiceProvider;
@@ -80,6 +81,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             InterpreterEngineServiceProvider::class,
             OperationEngineServiceProvider::class,
             SensorEngineServiceProvider::class,
+            NlpEngineServiceProvider::class
         ];
     }
 
@@ -597,5 +599,13 @@ conversation:
             completes: true
 EOT;
         return $conversationMarkup;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTestStringForNlp(): string
+    {
+        return 'Hello World.';
     }
 }
