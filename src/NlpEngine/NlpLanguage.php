@@ -9,9 +9,33 @@ namespace OpenDialogAi\Core\NlpEngine;
  */
 class NlpLanguage
 {
+    /** @var string */
+    private $input;
+
+    /** @var string */
     private $languageName;
+
+    /** @var string */
     private $isoName;
+
+    /** @var float */
     private $score;
+
+    /**
+     * @return string
+     */
+    public function getInput(): string
+    {
+        return $this->input;
+    }
+
+    /**
+     * @param string $input
+     */
+    public function setInput(string $input): void
+    {
+        $this->input = $input;
+    }
 
     /**
      * @return string

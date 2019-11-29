@@ -44,6 +44,7 @@ class MsNlpServiceTest extends TestCase
         $this->clientMock->shouldReceive('getLanguage')->once()->andReturn($this->getTestResponse());
         $language = $this->msNlpService->getLanguage();
 
+        $this->assertEquals($language->getInput(), $this->getTestStringForNlp());
         $this->assertEquals($language->getLanguageName(), 'English');
         $this->assertEquals($language->getIsoName(), 'en');
         $this->assertEquals($language->getScore(), 1.0);
@@ -56,6 +57,10 @@ class MsNlpServiceTest extends TestCase
     {
         return 'Hello World.';
     }
+
+    /**
+     * @return \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsLanguageEntity
+     */
     private function getTestResponse(): MsLanguageEntity
     {
         $stream = Psr7\stream_for(

@@ -35,6 +35,7 @@ class MsNlpService implements NlpServiceInterface
         $msLanguageEntity = $this->client->getLanguage($this->string, self::LANGUAGE_DEFAULT);
 
         $language = new NlpLanguage();
+        $language->setInput($this->string);
         $language->setLanguageName($msLanguageEntity->getName());
         $language->setIsoName($msLanguageEntity->getIsoName());
         $language->setScore($msLanguageEntity->getScore());
