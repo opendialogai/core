@@ -6,7 +6,7 @@ use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\Tests\TestCase;
 
 /**
- * Class NlpEntitiesTest
+ * Class NlpLanguageTest
  *
  * @package OpenDialogAi\NlpEngine\Tests
  */
