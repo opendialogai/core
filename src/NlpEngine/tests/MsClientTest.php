@@ -29,7 +29,7 @@ class MsClientTest extends TestCase
 
     public function testItGetsLanguageFromMs()
     {
-        $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getTestResponse());
+        $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getLanguageTestResponse());
 
         $msLanguage = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
 
@@ -48,7 +48,23 @@ class MsClientTest extends TestCase
         $this->assertEquals($nlpSentiment->getScore(), 0.7443314790725708);
     }
 
-    private function getTestResponse(): Response
+    public function testItGetsEntitiesFromMs()
+    {
+        $input = 'I want to find books by David Attenborough or George Orwell about south america';
+        $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getEntitiesTestResponse());
+
+        $nlpEntities = $this->msClient->getEntities($input, 'en');
+
+        $this->assertEquals($nlpEntities->getInput(), $input);
+        $this->assertEquals($nlpEntities->getEntities()[0]->getType(), 'Person');
+        $this->assertEquals($nlpEntities->getEntities()[0]->getMatches()[0]->getText(), 'David Attenborough');
+        $this->assertEquals($nlpEntities->getEntities()[1]->getType(), 'Person');
+        $this->assertEquals($nlpEntities->getEntities()[1]->getMatches()[0]->getText(), 'George Orwell');
+        $this->assertEquals($nlpEntities->getEntities()[2]->getType(), 'Location');
+        $this->assertEquals($nlpEntities->getEntities()[2]->getMatches()[0]->getText(), 'south america');
+    }
+
+    private function getLanguageTestResponse(): Response
     {
         $stream = Psr7\stream_for(
             '{
@@ -118,6 +134,69 @@ class MsClientTest extends TestCase
             ],
             "errors": []
         }'
+        );
+        return new Response(200, ['Content-Type' => 'application/json'], $stream);
+    }
+
+    private function getEntitiesTestResponse(): Response
+    {
+        $stream = Psr7\stream_for(
+            '{
+                "documents": [
+                    {
+                        "id": "3",
+                        "entities": [
+                            {
+                                "name": "David Attenborough",
+                                "matches": [
+                                    {
+                                        "wikipediaScore": 0.68555693838080911,
+                                        "entityTypeScore": 0.99963384866714478,
+                                        "text": "David Attenborough",
+                                        "offset": 24,
+                                        "length": 18
+                                    }
+                                ],
+                                "wikipediaLanguage": "en",
+                                "wikipediaId": "David Attenborough",
+                                "wikipediaUrl": "https://en.wikipedia.org/wiki/David_Attenborough",
+                                "bingId": "2b443cec-2dd3-13e6-08dd-f61878c7dbcc",
+                                "type": "Person"
+                            },
+                            {
+                                "name": "George Orwell",
+                                "matches": [
+                                    {
+                                        "wikipediaScore": 0.73567867663170428,
+                                        "entityTypeScore": 0.999786376953125,
+                                        "text": "George Orwell",
+                                        "offset": 46,
+                                        "length": 13
+                                    }
+                                ],
+                                "wikipediaLanguage": "en",
+                                "wikipediaId": "George Orwell",
+                                "wikipediaUrl": "https://en.wikipedia.org/wiki/George_Orwell",
+                                "bingId": "e4ab7b93-d59e-70d7-e3ca-0cefb38bdf27",
+                                "type": "Person"
+                            },
+                            {
+                                "name": "south america",
+                                "matches": [
+                                    {
+                                        "entityTypeScore": 0.999702513217926,
+                                        "text": "south america",
+                                        "offset": 66,
+                                        "length": 13
+                                    }
+                                ],
+                                "type": "Location"
+                            }
+                        ]
+                    }
+                ],
+                "errors": []
+            }'
         );
         return new Response(200, ['Content-Type' => 'application/json'], $stream);
     }
