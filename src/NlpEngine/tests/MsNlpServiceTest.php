@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsLanguageEntity;
+use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -58,6 +59,14 @@ class MsNlpServiceTest extends TestCase
 
         $this->assertEquals($nlpSentiment->getInput(), $this->getTestStringForNlp());
         $this->assertEquals($nlpSentiment->getScore(), 0.98837846517562866);
+    }
+
+    public function testItGetsEntitiesFromMs()
+    {
+        $this->clientMock->shouldReceive('getEntities')->once()->andReturn($this->getEntitiesTestResponse());
+        $nlpEntities = $this->msNlpService->getEntities();
+
+        $this->assertInstanceOf(NlpEntities::class, $nlpEntities);
     }
 
     /**
@@ -123,5 +132,15 @@ class MsNlpServiceTest extends TestCase
         $nlpSentiment->setInput($this->getTestStringForNlp());
 
         return $nlpSentiment;
+    }
+
+    /**
+     * @return \OpenDialogAi\Core\NlpEngine\NlpEntities
+     */
+    private function getEntitiesTestResponse(): NlpEntities
+    {
+        $nlpEntities = new NlpEntities();
+
+        return $nlpEntities;
     }
 }

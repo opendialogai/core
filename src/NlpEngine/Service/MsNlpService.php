@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\NlpEngine\Service;
 
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
+use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
@@ -49,5 +50,12 @@ class MsNlpService implements NlpServiceInterface
         $sentiment = $this->client->getSentiment($this->string, 'en');
 
         return $sentiment;
+    }
+
+    public function getEntities(): NlpEntities
+    {
+        $entities = $this->client->getEntities($this->string, 'en');
+
+        return $entities;
     }
 }
