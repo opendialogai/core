@@ -46,6 +46,11 @@ class MsClient
         return new MsLanguageEntity($response);
     }
 
+    /**
+     * @param string $string
+     * @param string $language
+     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     */
     public function getSentiment(string $string, string $language): NlpSentiment
     {
         $body = [
