@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsLanguageEntity;
+use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\Core\Tests\TestCase;
 
@@ -48,6 +49,15 @@ class MsNlpServiceTest extends TestCase
         $this->assertEquals($language->getLanguageName(), 'English');
         $this->assertEquals($language->getIsoName(), 'en');
         $this->assertEquals($language->getScore(), 1.0);
+    }
+
+    public function testItGetsSentimentFromMs()
+    {
+        $this->clientMock->shouldReceive('getSentiment')->once()->andReturn($this->getSentimentTestResponse());
+        $nlpSentiment = $this->msNlpService->getSentiment();
+
+        $this->assertEquals($nlpSentiment->getInput(), $this->getTestStringForNlp());
+        $this->assertEquals($nlpSentiment->getScore(), 0.98837846517562866);
     }
 
     /**
@@ -101,5 +111,17 @@ class MsNlpServiceTest extends TestCase
         }'
         );
         return new MsLanguageEntity(new Response(200, ['Content-Type' => 'application/json'], $stream));
+    }
+
+    /**
+     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     */
+    private function getSentimentTestResponse(): NlpSentiment
+    {
+        $nlpSentiment = new NlpSentiment();
+        $nlpSentiment->setScore(0.98837846517562866);
+        $nlpSentiment->setInput($this->getTestStringForNlp());
+
+        return $nlpSentiment;
     }
 }

@@ -19,6 +19,7 @@ class NlpLanguageTest extends TestCase
     {
         parent::setUp();
         $this->nlpLanguage = new NlpLanguage();
+        $this->nlpLanguage->setInput("Hello world.");
         $this->nlpLanguage->setLanguageName('English');
         $this->nlpLanguage->setIsoName('en');
         $this->nlpLanguage->setScore(1.0);
@@ -26,6 +27,7 @@ class NlpLanguageTest extends TestCase
 
     public function testItsIntantiable()
     {
+        $this->assertEquals($this->nlpLanguage->getInput(), "Hello world.");
         $this->assertEquals($this->nlpLanguage->getLanguageName(), 'English');
         $this->assertEquals($this->nlpLanguage->getIsoName(), 'en');
         $this->assertEquals($this->nlpLanguage->getScore(), 1.0);

@@ -31,11 +31,21 @@ class MsClientTest extends TestCase
     {
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getTestResponse());
 
-        $response = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
+        $msLanguage = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
 
-        $this->assertEquals($response->getName(), 'English');
-        $this->assertEquals($response->getIsoName(), 'en');
-        $this->assertEquals($response->getScore(), 1.0);
+        $this->assertEquals($msLanguage->getName(), 'English');
+        $this->assertEquals($msLanguage->getIsoName(), 'en');
+        $this->assertEquals($msLanguage->getScore(), 1.0);
+    }
+
+    public function testItGetsSentimentFromMs()
+    {
+        $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getSentimentTestResponse());
+
+        $nlpSentiment = $this->msClient->getSentiment($this->getTestStringForNlp(), 'en');
+
+        $this->assertEquals($nlpSentiment->getInput(), 'Hello World.');
+        $this->assertEquals($nlpSentiment->getScore(), 0.7443314790725708);
     }
 
     private function getTestResponse(): Response
@@ -72,6 +82,38 @@ class MsClientTest extends TestCase
                             "score": 1.0
                         }
                     ]
+                }
+            ],
+            "errors": []
+        }'
+        );
+        return new Response(200, ['Content-Type' => 'application/json'], $stream);
+    }
+
+    private function getSentimentTestResponse(): Response
+    {
+        $stream = Psr7\stream_for(
+            '{
+            "documents": [
+                {
+                    "id": "1",
+                    "score": 0.7443314790725708
+                },
+                {
+                    "id": "2",
+                    "score": 0.188551127910614
+                },
+                {
+                    "id": "3",
+                    "score": 0.18014723062515259
+                },
+                {
+                    "id": "4",
+                    "score": 0.90277755260467529
+                },
+                {
+                    "id": "5",
+                    "score": 0.98837846517562866
                 }
             ],
             "errors": []

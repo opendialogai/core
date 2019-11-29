@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
 
+use OpenDialogAi\Core\NlpEngine\NlpSentiment;
+
 /**
  * Class MsClient
  *
@@ -42,5 +44,33 @@ class MsClient
         );
 
         return new MsLanguageEntity($response);
+    }
+
+    public function getSentiment(string $string, string $language): NlpSentiment
+    {
+        $body = [
+            'documents' => [
+                [
+                    'language' => $language,
+                    'id' => '1', // for now we set this to 1 as we aren't passing an array
+                    'text' => $string,
+                ],
+            ],
+        ];
+
+        $response = $this->client->post(
+            '/sentiment',
+            [
+                'form_params' => $body
+            ]
+        );
+
+        $entity = json_decode($response->getBody()->getContents(), true)['documents'][0];
+
+        $nlpSentiment = new NlpSentiment();
+        $nlpSentiment->setInput($string);
+        $nlpSentiment->setScore($entity['score']);
+
+        return $nlpSentiment;
     }
 }
