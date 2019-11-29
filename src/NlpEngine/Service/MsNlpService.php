@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\NlpEngine\Service;
 
-use OpenDialogAi\Core\NlpEngine\Client\MsClient;
+use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
@@ -13,7 +13,7 @@ use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
  */
 class MsNlpService implements NlpServiceInterface
 {
-    /** @var \OpenDialogAi\Core\NlpEngine\Client\MsClient  */
+    /** @var \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
     private $client;
 
     /** @var string  */
@@ -32,12 +32,12 @@ class MsNlpService implements NlpServiceInterface
      */
     public function getLanguage(): NLPLanguage
     {
-        $languageResponse = $this->client->getLanguage($this->string, self::LANGUAGE_DEFAULT);
+        $msLanguageEntity = $this->client->getLanguage($this->string, self::LANGUAGE_DEFAULT);
 
         $language = new NlpLanguage();
-        $language->setLanguageName($languageResponse[0]['name']);
-        $language->setIsoName($languageResponse[0]['iso6391Name']);
-        $language->setScore($languageResponse[0]['score']);
+        $language->setLanguageName($msLanguageEntity->getName());
+        $language->setIsoName($msLanguageEntity->getIsoName());
+        $language->setScore($msLanguageEntity->getScore());
 
         return $language;
     }

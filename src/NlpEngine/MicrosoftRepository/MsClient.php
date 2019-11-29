@@ -1,8 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine\Client;
-
-use Psr\Http\Message\StreamInterface;
+namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
 
 /**
  * Class MsClient
@@ -22,9 +20,9 @@ class MsClient
     /**
      * @param string $string
      * @param string $languageHint
-     * @return array
+     * @return MsLanguageEntity
      */
-    public function getLanguage(string $string, string $languageHint): array
+    public function getLanguage(string $string, string $languageHint): MsLanguageEntity
     {
         $body = [
             'documents' => [
@@ -43,11 +41,6 @@ class MsClient
             ]
         );
 
-        return $this->formatResponse($response->getBody());
-    }
-
-    private function formatResponse(StreamInterface $response)
-    {
-        return json_decode($response->getContents(), true)['documents'][0]['detectedLanguages'];
+        return new MsLanguageEntity($response);
     }
 }

@@ -2,7 +2,10 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
-use OpenDialogAi\Core\NlpEngine\Client\MsClient;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7;
+use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
+use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsLanguageEntity;
 use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\Core\Tests\TestCase;
 
@@ -19,16 +22,8 @@ class MsNlpServiceTest extends TestCase
     /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface  */
     private $guzzleClientMock;
 
-    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface|\OpenDialogAi\Core\NlpEngine\Client\MsClient  */
+    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface|\OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
     private $clientMock;
-
-    const LANG_STUB_RESPONSE = [
-        [
-            'name' => 'English',
-            'iso6391Name' => 'en',
-            'score' => 1.0,
-        ]
-    ];
 
     public function setUp(): void
     {
@@ -46,7 +41,7 @@ class MsNlpServiceTest extends TestCase
 
     public function testItGetsLanguageFromMs()
     {
-        $this->clientMock->shouldReceive('getLanguage')->once()->andReturn(self::LANG_STUB_RESPONSE);
+        $this->clientMock->shouldReceive('getLanguage')->once()->andReturn($this->getTestResponse());
         $language = $this->msNlpService->getLanguage();
 
         $this->assertEquals($language->getLanguageName(), 'English');
@@ -60,5 +55,46 @@ class MsNlpServiceTest extends TestCase
     public function getTestStringForNlp(): string
     {
         return 'Hello World.';
+    }
+    private function getTestResponse(): MsLanguageEntity
+    {
+        $stream = Psr7\stream_for(
+            '{
+            "documents": [
+                {
+                    "id": "1",
+                    "detectedLanguages": [
+                        {
+                            "name": "English",
+                            "iso6391Name": "en",
+                            "score": 1.0
+                        }
+                    ]
+                },
+                {
+                    "id": "2",
+                    "detectedLanguages": [
+                        {
+                            "name": "Polish",
+                            "iso6391Name": "pl",
+                            "score": 1.0
+                        }
+                    ]
+                },
+                {
+                    "id": "3",
+                    "detectedLanguages": [
+                        {
+                            "name": "Russian",
+                            "iso6391Name": "ru",
+                            "score": 1.0
+                        }
+                    ]
+                }
+            ],
+            "errors": []
+        }'
+        );
+        return new MsLanguageEntity(new Response(200, ['Content-Type' => 'application/json'], $stream));
     }
 }

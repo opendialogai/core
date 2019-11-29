@@ -4,7 +4,7 @@ namespace OpenDialogAi\NlpEngine\Tests;
 
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7;
-use OpenDialogAi\Core\NlpEngine\Client\MsClient;
+use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\Tests\TestCase;
 
 /**
@@ -33,16 +33,12 @@ class MsClientTest extends TestCase
 
         $response = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
 
-        $this->assertEquals($response, [
-            [
-                'name' => 'English',
-                'iso6391Name' => 'en',
-                'score' => 1.0,
-            ]
-        ]);
+        $this->assertEquals($response->getName(), 'English');
+        $this->assertEquals($response->getIsoName(), 'en');
+        $this->assertEquals($response->getScore(), 1.0);
     }
 
-    private function getTestResponse()
+    private function getTestResponse(): Response
     {
         $stream = Psr7\stream_for(
             '{
