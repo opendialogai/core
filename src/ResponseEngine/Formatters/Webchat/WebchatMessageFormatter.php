@@ -156,6 +156,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     {
         $message = new WebchatButtonMessage();
         $message->setText($template[self::TEXT], [], true);
+        $message->setExternal($template[self::EXTERNAL]);
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new TabSwitchButton($button[self::TEXT]));
@@ -389,8 +390,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $clearAfterInteraction = $item[self::CLEAR_AFTER_INTERACTION] == '1' ? true : false;
         }
 
+        $external = false;
+        if (isset($item->external)) {
+            $external = $item->external == 'true' ? true : false;
+        }
+
         $template = [
             self::TEXT => $this->getMessageText($item->text),
+            self::EXTERNAL => $external,
             self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
         ];
 

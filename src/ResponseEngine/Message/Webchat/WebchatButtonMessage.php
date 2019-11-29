@@ -12,7 +12,27 @@ class WebchatButtonMessage extends WebchatMessage implements ButtonMessage
     /** The message buttons. @var BaseButton[] */
     private $buttons = [];
 
+    private $external = false;
+
     private $clearAfterInteraction = true;
+
+    /**
+     * @param $external
+     * @return $this
+     */
+    public function setExternal($external)
+    {
+        $this->external = $external;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getExternal()
+    {
+        return $this->external;
+    }
 
     /**
      * @param $clearAfterInteraction
@@ -53,10 +73,11 @@ class WebchatButtonMessage extends WebchatMessage implements ButtonMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
+    public function getData(): ?array
     {
         return parent::getData() + [
                 'buttons' => $this->getButtonsArray(),
+                'external' => $this->getExternal(),
                 'clear_after_interaction' => $this->getClearAfterInteraction()
             ];
     }

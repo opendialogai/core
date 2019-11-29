@@ -85,7 +85,7 @@ class WebchatRichMessage extends WebchatMessage implements RichMessage
     /**
      * {@inheritDoc}
      */
-    public function getTitle():?string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -133,7 +133,7 @@ class WebchatRichMessage extends WebchatMessage implements RichMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
+    public function getData(): ?array
     {
         $data = [
             'title' => $this->getTitle(),

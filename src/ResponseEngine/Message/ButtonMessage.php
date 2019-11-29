@@ -9,6 +9,17 @@ interface ButtonMessage extends OpenDialogMessage
     const TYPE = 'button';
 
     /**
+     * @param $external
+     * @return $this
+     */
+    public function setExternal($external);
+
+    /**
+     * @return bool
+     */
+    public function getExternal();
+
+    /**
      * @param $clearAfterInteraction
      * @return $this
      */
