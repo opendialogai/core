@@ -18,17 +18,44 @@ class Edge
     protected $b;
 
     /**
+     * @var Map
+     */
+    private $facets;
+
+    /**
      * Edge constructor.
      * @param $id
      * @param Node $a
      * @param Node $b
+     * @param array|null $facets
      */
-    public function __construct($id, Node $a, Node $b)
+    public function __construct($id, Node $a, Node $b, array $facets = null)
     {
         $this->id = $id;
         $this->a = $a;
         $this->b = $b;
 
         $this->attributes = new Map();
+        $this->facets = new Map();
+
+        if (!is_null($facets)) {
+            $this->facets->putAll($facets);
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasFacets(): bool
+    {
+        return !$this->facets->isEmpty();
+    }
+
+    /**
+     * @return Map
+     */
+    public function getFacets(): Map
+    {
+        return $this->facets;
     }
 }

@@ -166,6 +166,27 @@ class DGraphQueryTest extends TestCase
         );
     }
 
+    public function testQueryImplicitFacetsOnUidPredicate()
+    {
+        $query = new DGraphQuery();
+        $query->eq(Model::ID, 'test_id')
+            ->setQueryGraph([
+                Model::UID,
+                Model::ID,
+                Model::FOLLOWED_BY => [
+                    DGraphQuery::WITH_FACETS,
+                    Model::UID,
+                    Model::ID
+                ]
+            ]);
+
+        $preparedQuery = $query->prepare();
+        $this->assertEquals(
+            '{ dGraphQuery( func:eq(id,"test_id")){uid id followed_by @facets {uid id }}}',
+            $preparedQuery
+        );
+    }
+
     public function testQueryExplicitFacetsOnUidPredicate()
     {
         $query = new DGraphQuery();

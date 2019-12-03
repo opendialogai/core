@@ -150,7 +150,8 @@ class DGraphMutation
                     $relationship,
                     $toId,
                     $updateFrom,
-                    $updateTo
+                    $updateTo,
+                    $edge->hasFacets() ? $edge->getFacets() : null
                 );
             }
         }
@@ -181,6 +182,7 @@ class DGraphMutation
      * @param $object
      * @param bool $updateFrom
      * @param bool $updateTo
+     * @param Map|null $facets
      * @return string
      */
     public function prepareRelationshipTriple(
@@ -188,27 +190,35 @@ class DGraphMutation
         $predicate,
         $object,
         bool $updateFrom = false,
-        bool $updateTo = false
+        bool $updateTo = false,
+        Map $facets = null
     ) {
         if ($updateFrom && $updateTo) {
-            return sprintf('<%s> <%s> <%s> .', $subject, $predicate, $this->escapeCharacters($object));
+            $prepared = sprintf('<%s> <%s> <%s>', $subject, $predicate, $this->escapeCharacters($object));
         }
 
         if ($updateFrom && !$updateTo) {
             $object = $this->normalizeString($object);
-            return sprintf('<%s> <%s> _:%s .', $subject, $predicate, $this->escapeCharacters($object));
+            $prepared = sprintf('<%s> <%s> _:%s', $subject, $predicate, $this->escapeCharacters($object));
         }
 
         if (!$updateFrom && $updateTo) {
             $subject = $this->normalizeString($subject);
-            return sprintf('_:%s <%s> <%s> .', $subject, $predicate, $this->escapeCharacters($object));
+            $prepared = sprintf('_:%s <%s> <%s>', $subject, $predicate, $this->escapeCharacters($object));
         }
 
         if (!$updateFrom && !$updateTo) {
             $subject = $this->normalizeString($subject);
             $object = $this->normalizeString($object);
-            return sprintf('_:%s <%s> _:%s .', $subject, $predicate, $this->escapeCharacters($object));
+            $prepared = sprintf('_:%s <%s> _:%s', $subject, $predicate, $this->escapeCharacters($object));
         }
+
+        if (is_null($facets)) {
+            return sprintf('%s .', $prepared);
+        } else {
+            return sprintf('%s %s .', $prepared, $this->prepareFacets($facets));
+        }
+
     }
 
     /**
@@ -302,5 +312,20 @@ class DGraphMutation
         }
 
         return $this->prepareAttributeTriple($id, 'dgraph.type', $type, $update);
+    }
+
+    /**
+     * @param Map $facets
+     * @return string
+     */
+    private function prepareFacets(Map $facets): string
+    {
+        $prepared = '(';
+        $prepared .= join(", ", $facets->map(function ($key, $value) use ($facets) {
+            return sprintf('%s=%s', $key, is_string($value) ? "\"$value\"" : $value);
+        })->toArray());
+        $prepared .= ')';
+
+        return $prepared;
     }
 }
