@@ -16,12 +16,28 @@ class MsNlpService implements NlpServiceInterface
     /** @var string  */
     private $string;
 
-    const LANGUAGE_DEFAULT = 'GB';
+    /** @var string  */
+    private $defaultLanguage;
 
+    /** @var string  */
+    private $defaultCountryCode;
+
+    /**
+     * MsNlpService constructor.
+     *
+     * @param string                                                    $string
+     * @param \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient $client
+     */
     public function __construct(string $string, MsClient $client)
     {
         $this->client = $client;
         $this->string = $string;
+        $this->defaultLanguage = config('opendialog.nlp_engine.default_language') ? config(
+            'opendialog.nlp_engine.default_language'
+        ) : 'en';
+        $this->defaultCountryCode = config('opendialog.nlp_engine.default_country_code') ? config(
+            'opendialog.nlp_engine.default_country_code'
+        ) : 'GB';
     }
 
     /**
@@ -29,7 +45,7 @@ class MsNlpService implements NlpServiceInterface
      */
     public function getLanguage(): NLPLanguage
     {
-        $nplLanguage = $this->client->getLanguage($this->string, self::LANGUAGE_DEFAULT);
+        $nplLanguage = $this->client->getLanguage($this->string, $this->defaultCountryCode);
 
         $language = new NlpLanguage();
         $language->setInput($this->string);
@@ -40,16 +56,22 @@ class MsNlpService implements NlpServiceInterface
         return $language;
     }
 
+    /**
+     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     */
     public function getSentiment(): NlpSentiment
     {
-        $sentiment = $this->client->getSentiment($this->string, 'en');
+        $sentiment = $this->client->getSentiment($this->string, $this->defaultLanguage);
 
         return $sentiment;
     }
 
+    /**
+     * @return \OpenDialogAi\Core\NlpEngine\NlpEntities
+     */
     public function getEntities(): NlpEntities
     {
-        $entities = $this->client->getEntities($this->string, 'en');
+        $entities = $this->client->getEntities($this->string, $this->defaultLanguage);
 
         return $entities;
     }
