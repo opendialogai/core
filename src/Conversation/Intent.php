@@ -502,4 +502,9 @@ class Intent extends NodeWithConditions
         $this->createOutgoingEdge(Model::FOLLOWED_BY, $toIntent)
             ->addFacet(ModelFacets::CREATED_AT, $createdAt);
     }
+
+    public function isRepeating()
+    {
+        return false;
+    }
 }

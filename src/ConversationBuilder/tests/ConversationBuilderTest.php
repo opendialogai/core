@@ -577,4 +577,24 @@ class ConversationBuilderTest extends TestCase
         $this->assertNotNull($virtualIntent);
         $this->assertEquals('intent.app.continue', $virtualIntent->getId());
     }
+
+    public function testRepeatingIntents()
+    {
+        $conversation = $this->createConversationWithVirtualIntent();
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+
+        $this->assertCount(2, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+
+        /** @var Intent $secondUserIntent */
+        $secondUserIntent = $openingScene->getIntentsSaidByUser()->skip(1)->value;
+
+        /** @var Intent $secondBotIntent */
+        $secondBotIntent = $openingScene->getIntentsSaidByBot()->skip(1)->value;
+
+        $this->assertTrue($secondUserIntent->isRepeating());
+        $this->assertFalse($secondBotIntent->isRepeating());
+    }
 }

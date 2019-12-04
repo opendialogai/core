@@ -628,6 +628,20 @@ EOT;
         }
     }
 
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithRepeatingIntent(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithRepeatingIntent();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
     public function getMarkupForConversationWithVirtualIntent(): string
     {
         /** @lang yaml */
@@ -699,6 +713,32 @@ conversation:
               i: intent.app.continue
           - b:
               i: intent.app.testResponse
+              completes: true
+EOT;
+    }
+
+    public function getMarkupForConversationWithRepeatingIntent(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_repeating_intent
+  scenes:
+    opening_scene:
+      intents:
+          - u:
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+          - u:
+              i: intent.app.question
+              repeating: true
+          - b:
+              i: intent.app.questionResponse
+          - u:
+              i: intent.app.end
+          - b:
+              i: intent.app.endResponse
               completes: true
 EOT;
     }
