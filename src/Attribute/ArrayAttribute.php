@@ -69,12 +69,4 @@ class ArrayAttribute extends AbstractAttribute
     {
         return $this->value;
     }
-
-    /**
-     * @return string
-     */
-    public function serialized(): string
-    {
-        return $this->value;
-    }
 }
