@@ -171,7 +171,7 @@ class EIModelOpeningIntents extends EIModelBase implements Countable
 
             if (key_exists(Model::BOT_PARTICIPATES_IN, $participant)) {
                 $scene = $participant[Model::BOT_PARTICIPATES_IN][0];
-            } else if (key_exists(Model::USER_PARTICIPATES_IN, $participant)) {
+            } elseif (key_exists(Model::USER_PARTICIPATES_IN, $participant)) {
                 $scene = $participant[Model::USER_PARTICIPATES_IN][0];
             } else {
                 return;

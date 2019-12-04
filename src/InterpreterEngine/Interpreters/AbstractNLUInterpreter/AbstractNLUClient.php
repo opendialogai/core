@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
-
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Response;

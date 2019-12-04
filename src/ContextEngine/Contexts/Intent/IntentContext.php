@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\Intent;
 
-
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 
