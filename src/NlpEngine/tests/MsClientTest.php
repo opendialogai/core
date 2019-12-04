@@ -7,11 +7,6 @@ use GuzzleHttp\Psr7;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\Tests\TestCase;
 
-/**
- * Class MsClientTest
- *
- * @package OpenDialogAi\NlpEngine\Tests
- */
 class MsClientTest extends TestCase
 {
     private $msClient;
@@ -31,11 +26,12 @@ class MsClientTest extends TestCase
     {
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getLanguageTestResponse());
 
-        $msLanguage = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
+        $nlpLanguage = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
 
-        $this->assertEquals($msLanguage->getName(), 'English');
-        $this->assertEquals($msLanguage->getIsoName(), 'en');
-        $this->assertEquals($msLanguage->getScore(), 1.0);
+        $this->assertEquals($nlpLanguage->getLanguageName(), 'English');
+        $this->assertEquals($nlpLanguage->getIsoName(), 'en');
+        $this->assertEquals($nlpLanguage->getScore(), 1.0);
+        $this->assertEquals($nlpLanguage->getInput(), $this->getTestStringForNlp());
     }
 
     public function testItGetsSentimentFromMs()

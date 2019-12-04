@@ -7,11 +7,6 @@ use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
-/**
- * Class NlpEngineServiceProvider
- *
- * @package OpenDialogAi\Core\NlpEngine
- */
 class NlpEngineServiceProvider extends ServiceProvider
 {
     public function boot()

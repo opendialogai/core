@@ -2,11 +2,6 @@
 
 namespace OpenDialogAi\Core\NlpEngine;
 
-/**
- * Class NlpEntityMatch
- *
- * @package OpenDialogAi\Core\NlpEngine
- */
 class NlpEntityMatch
 {
     /** @var float */

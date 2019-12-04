@@ -5,13 +5,9 @@ namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpEntity;
 use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
+use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 
-/**
- * Class MsClient
- *
- * @package OpenDialogAi\Core\NlpEngine\Client
- */
 class MsClient
 {
     /** @var \GuzzleHttp\Client  */
@@ -25,9 +21,9 @@ class MsClient
     /**
      * @param string $string
      * @param string $languageHint
-     * @return MsLanguageEntity
+     * @return NlpLanguage
      */
-    public function getLanguage(string $string, string $languageHint): MsLanguageEntity
+    public function getLanguage(string $string, string $languageHint): NlpLanguage
     {
         $body = [
             'documents' => [
@@ -46,7 +42,14 @@ class MsClient
             ]
         );
 
-        return new MsLanguageEntity($response);
+        $language = json_decode($response->getBody()->getContents(), true)['documents'][0]['detectedLanguages'][0];
+
+        $nlpLanguage = new NlpLanguage();
+        $nlpLanguage->setInput($string);
+        $nlpLanguage->setScore($language['score']);
+        $nlpLanguage->setLanguageName($language['name']);
+        $nlpLanguage->setIsoName($language['iso6391Name']);
+        return $nlpLanguage;
     }
 
     /**

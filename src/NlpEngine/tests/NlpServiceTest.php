@@ -6,11 +6,6 @@ use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
-/**
- * Class NlpServiceTest
- *
- * @package OpenDialogAi\NlpEngine\Tests
- */
 class NlpServiceTest extends TestCase
 {
     /** @var \OpenDialogAi\Core\NlpEngine\Service\MsNlpService */

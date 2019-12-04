@@ -7,11 +7,6 @@ use OpenDialogAi\Core\NlpEngine\NlpEntity;
 use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
 use OpenDialogAi\Core\Tests\TestCase;
 
-/**
- * Class NlpEntitiesTest
- *
- * @package OpenDialogAi\NlpEngine\Tests
- */
 class NlpEntityTest extends TestCase
 {
     private $nlpEntity;

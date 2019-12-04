@@ -2,11 +2,6 @@
 
 namespace OpenDialogAi\Core\NlpEngine;
 
-/**
- * Class NlpEntity
- *
- * @package OpenDialogAi\Core\NlpEngine
- */
 class NlpEntity
 {
     /** @var string */

@@ -2,20 +2,14 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsLanguageEntity;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
+use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
 use OpenDialogAi\Core\Tests\TestCase;
 
-/**
- * Class MsNlpServiceTest
- *
- * @package OpenDialogAi\NlpEngine\Tests
- */
 class MsNlpServiceTest extends TestCase
 {
     /** @var \OpenDialogAi\Core\NlpEngine\Service\MsNlpService */
@@ -78,48 +72,16 @@ class MsNlpServiceTest extends TestCase
     }
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsLanguageEntity
+     * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
      */
-    private function getTestResponse(): MsLanguageEntity
+    private function getTestResponse(): NlpLanguage
     {
-        $stream = Psr7\stream_for(
-            '{
-            "documents": [
-                {
-                    "id": "1",
-                    "detectedLanguages": [
-                        {
-                            "name": "English",
-                            "iso6391Name": "en",
-                            "score": 1.0
-                        }
-                    ]
-                },
-                {
-                    "id": "2",
-                    "detectedLanguages": [
-                        {
-                            "name": "Polish",
-                            "iso6391Name": "pl",
-                            "score": 1.0
-                        }
-                    ]
-                },
-                {
-                    "id": "3",
-                    "detectedLanguages": [
-                        {
-                            "name": "Russian",
-                            "iso6391Name": "ru",
-                            "score": 1.0
-                        }
-                    ]
-                }
-            ],
-            "errors": []
-        }'
-        );
-        return new MsLanguageEntity(new Response(200, ['Content-Type' => 'application/json'], $stream));
+        $nplLanguage = new NlpLanguage();
+        $nplLanguage->setInput($this->getTestStringForNlp());
+        $nplLanguage->setLanguageName('English');
+        $nplLanguage->setIsoName('en');
+        $nplLanguage->setScore(1.0);
+        return $nplLanguage;
     }
 
     /**
@@ -139,8 +101,6 @@ class MsNlpServiceTest extends TestCase
      */
     private function getEntitiesTestResponse(): NlpEntities
     {
-        $nlpEntities = new NlpEntities();
-
-        return $nlpEntities;
+        return new NlpEntities();
     }
 }

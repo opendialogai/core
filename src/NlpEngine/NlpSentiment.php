@@ -2,11 +2,6 @@
 
 namespace OpenDialogAi\Core\NlpEngine;
 
-/**
- * Class NlpSentiment
- *
- * @package OpenDialogAi\Core\NlpEngine
- */
 class NlpSentiment
 {
     /** @var string */

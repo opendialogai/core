@@ -8,11 +8,6 @@ use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
-/**
- * Class MsNlpService
- *
- * @package OpenDialogAi\Core\NlpEngine\Service
- */
 class MsNlpService implements NlpServiceInterface
 {
     /** @var \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
@@ -34,13 +29,13 @@ class MsNlpService implements NlpServiceInterface
      */
     public function getLanguage(): NLPLanguage
     {
-        $msLanguageEntity = $this->client->getLanguage($this->string, self::LANGUAGE_DEFAULT);
+        $nplLanguage = $this->client->getLanguage($this->string, self::LANGUAGE_DEFAULT);
 
         $language = new NlpLanguage();
         $language->setInput($this->string);
-        $language->setLanguageName($msLanguageEntity->getName());
-        $language->setIsoName($msLanguageEntity->getIsoName());
-        $language->setScore($msLanguageEntity->getScore());
+        $language->setLanguageName($nplLanguage->getLanguageName());
+        $language->setIsoName($nplLanguage->getIsoName());
+        $language->setScore($nplLanguage->getScore());
 
         return $language;
     }
