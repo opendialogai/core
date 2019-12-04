@@ -10,6 +10,7 @@ use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\ModelFacets;
 
 class EIModelIntent extends EIModelWithConditions
 {
@@ -28,6 +29,10 @@ class EIModelIntent extends EIModelWithConditions
     private $completes;
 
     private $nextScene;
+
+    private $followedBy;
+
+    private $followedByCreatedAt;
 
     /* @var Pair $action */
     private $action;
@@ -159,6 +164,13 @@ class EIModelIntent extends EIModelWithConditions
             /** @var EIModelVirtualIntent $virtualIntent */
             $virtualIntent = $eiModelCreator->createEIModel(EIModelVirtualIntent::class, $virtualIntentData);
             $intent->setVirtualIntent($virtualIntent);
+        }
+
+        if (isset($intentResponse[Model::FOLLOWED_BY])) {
+            $intent->setFollowedBy($intentResponse[Model::FOLLOWED_BY][Model::UID]);
+            $intent->setFollowedByCreatedAt(
+                $intentResponse[Model::FOLLOWED_BY][ModelFacets::facet(Model::FOLLOWED_BY, ModelFacets::CREATED_AT)]
+            );
         }
 
         return $intent;
@@ -508,5 +520,37 @@ class EIModelIntent extends EIModelWithConditions
     public function setVirtualIntent(EIModelVirtualIntent $virtualIntent): void
     {
         $this->virtualIntent = $virtualIntent;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFollowedBy(): ?string
+    {
+        return $this->followedBy;
+    }
+
+    /**
+     * @param mixed $followedBy
+     */
+    public function setFollowedBy($followedBy): void
+    {
+        $this->followedBy = $followedBy;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFollowedByCreatedAt(): ?string
+    {
+        return $this->followedByCreatedAt;
+    }
+
+    /**
+     * @param mixed $followedByCreatedAt
+     */
+    public function setFollowedByCreatedAt($followedByCreatedAt): void
+    {
+        $this->followedByCreatedAt = $followedByCreatedAt;
     }
 }

@@ -58,4 +58,13 @@ class Edge
     {
         return $this->facets;
     }
+
+    /**
+     * @param $facetName
+     * @param $facetValue
+     */
+    public function addFacet($facetName, $facetValue): void
+    {
+        $this->facets->put($facetName, $facetValue);
+    }
 }

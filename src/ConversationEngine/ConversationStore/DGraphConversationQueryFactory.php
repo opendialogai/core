@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\ModelFacets;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 /**
@@ -229,6 +230,13 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
                 Model::UID,
                 Model::ID,
                 Model::EI_TYPE
+            ],
+            Model::FOLLOWED_BY => [
+                Model::UID,
+                Model::ID,
+                DGraphQuery::WITH_FACETS => [
+                    ModelFacets::CREATED_AT
+                ]
             ],
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),

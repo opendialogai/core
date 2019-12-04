@@ -50,6 +50,7 @@ class Model
     const LISTENS_FOR_ACROSS_SCENES = 'listens_for_across_scenes';
     const LISTENED_BY_FROM_SCENES = '~listens_for_across_scenes';
     const FOLLOWED_BY = 'followed_by';
+    const PRECEDED_BY = '~followed_by';
 
     // Intents can cause actions to be performed and can define interpreters.
     const CAUSES_ACTION = 'causes_action';

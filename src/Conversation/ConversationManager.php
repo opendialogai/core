@@ -235,6 +235,22 @@ class ConversationManager
     }
 
     /**
+     * @param $fromIntentUid
+     * @param $toIntentUid
+     * @param $createdAt
+     */
+    public function intentFollows($fromIntentUid, $toIntentUid, $createdAt)
+    {
+        /** @var Intent $fromIntent */
+        $fromIntent = $this->conversation->getIntentByUid($fromIntentUid);
+
+        /** @var Intent $toIntent */
+        $toIntent = $this->conversation->getIntentByUid($toIntentUid);
+
+        $fromIntent->setFollowedBy($toIntent, $createdAt);
+    }
+
+    /**
      * @param $toStatus
      * @return array
      */

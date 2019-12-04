@@ -318,7 +318,7 @@ class DGraphMutation
      * @param Map $facets
      * @return string
      */
-    private function prepareFacets(Map $facets): string
+    public static function prepareFacets(Map $facets): string
     {
         $prepared = '(';
         $prepared .= join(", ", $facets->map(function ($key, $value) use ($facets) {

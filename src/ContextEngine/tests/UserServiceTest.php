@@ -11,8 +11,11 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\ModelFacets;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
+use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
+use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -45,10 +48,7 @@ class UserServiceTest extends TestCase
         $this->client->dropSchema();
         $this->client->initSchema();
 
-        for ($i = 1; $i <= 4; $i++) {
-            $conversationId = 'conversation' . $i;
-            $this->activateConversation($this->$conversationId());
-        }
+        $this->activateConversation($this->conversation1());
     }
 
     /**
@@ -139,41 +139,7 @@ class UserServiceTest extends TestCase
 
     public function testSettingACurrentIntent()
     {
-        $utterance = UtteranceGenerator::generateTextUtterance();
-        $userId = $utterance->getUser()->getId();
-
-        /* @var ChatbotUser $user */
-        $user = $this->userService->createOrUpdateUser($utterance);
-
-        $this->assertFalse($user->isHavingConversation());
-        $this->assertFalse($user->hasCurrentIntent());
-
-        // Get the conversation so we can attach to the user
-        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
-        $conversationResponse = $this->client->query($conversationQuery);
-
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
-
-        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
-
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
-        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
-
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
-        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
-
-        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
-
-        // Now let's retrieve this user
-        $user = $this->userService->getUser($userId);
-
-        /* @var Scene $scene */
-        $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
-
-        /* @var Intent $intent */
-        $intent = $scene->getIntentsSaidByUser()->first()->value;
-        $this->userService->setCurrentIntent($user, $intent);
+        $userId = $this->setUpConversationAndCurrentIntent();
 
         // Get the user back from dgraph
         $user = $this->userService->getUser($userId);
@@ -191,40 +157,7 @@ class UserServiceTest extends TestCase
      */
     public function testUnSettingACurrentIntent()
     {
-        $utterance = UtteranceGenerator::generateTextUtterance();
-        $userId = $utterance->getUser()->getId();
-
-        /* @var ChatbotUser $user */
-        $user = $this->userService->createOrUpdateUser($utterance);
-
-        $this->assertFalse($user->isHavingConversation());
-        $this->assertFalse($user->hasCurrentIntent());
-
-        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
-        $conversationResponse = $this->client->query($conversationQuery);
-
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
-
-        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
-
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
-        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
-
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
-        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
-
-        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
-
-        // Now let's retrieve this user
-        $user = $this->userService->getUser($userId);
-
-        /* @var Scene $scene */
-        $scene = $conversationForConnecting->getOpeningScenes()->first()->value;
-
-        /* @var Intent $intent */
-        $intent = $scene->getIntentsSaidByUser()->first()->value;
-        $this->userService->setCurrentIntent($user, $intent);
+        $userId = $this->setUpConversationAndCurrentIntent();
 
         // Get the user back from dgraph
         $user = $this->userService->getUser($userId);
@@ -292,5 +225,129 @@ class UserServiceTest extends TestCase
 
         $this->assertEquals(200, $testAttr->getValue());
         $this->assertEquals($countBeforeUpdating, $userAfterUpdating->getAllUserAttributes()->count());
+    }
+
+    public function testFollowedByAndPrecededBy()
+    {
+        $userId = $this->setUpConversationAndCurrentIntent();
+
+        $user = $this->userService->getUser($userId);
+
+        $client = resolve(DGraphClient::class);
+        $originalIntentUid = $user->getCurrentIntentUid();
+
+        $response = $client->query((new DGraphQuery())->uid($originalIntentUid)->setQueryGraph([
+            Model::UID,
+            Model::FOLLOWED_BY => [
+                DGraphQuery::WITH_FACETS,
+                Model::UID
+            ]
+        ]));
+
+        $this->assertArrayNotHasKey(Model::FOLLOWED_BY, $response->getData()[0]);
+
+        $conversation = $this->userService->getCurrentConversation($userId);
+
+        /** @var Scene $scene */
+        $scene = $conversation->getOpeningScenes()->first()->value;
+
+        /** @var Intent $intent */
+        $intent = $scene->getIntentsSaidByBotInOrder()->first()->value;
+
+        $this->userService->setCurrentIntent($user, $intent);
+
+        $response = $client->query((new DGraphQuery())->uid($originalIntentUid)->setQueryGraph([
+            Model::UID,
+            Model::FOLLOWED_BY => [
+                DGraphQuery::WITH_FACETS,
+                Model::UID
+            ]
+        ]));
+
+        $this->assertArrayHasKey(Model::FOLLOWED_BY, $response->getData()[0]);
+        $this->assertArrayHasKey(ModelFacets::facet(Model::FOLLOWED_BY, ModelFacets::CREATED_AT), $response->getData()[0][Model::FOLLOWED_BY]);
+
+        $response = $client->query((new DGraphQuery())->uid($user->getCurrentIntentUid())->setQueryGraph([
+            Model::UID,
+            Model::PRECEDED_BY => [
+                DGraphQuery::WITH_FACETS,
+                Model::UID
+            ]
+        ]));
+
+        $this->assertArrayHasKey(Model::PRECEDED_BY, $response->getData()[0]);
+        $this->assertArrayHasKey(ModelFacets::facet(Model::PRECEDED_BY, ModelFacets::CREATED_AT), $response->getData()[0][Model::PRECEDED_BY][0]);
+
+        // Ensure the conversation graph has the edge + facets too
+        $conversation = $this->userService->getCurrentConversation($userId);
+
+        /** @var Scene $scene */
+        $scene = $conversation->getOpeningScenes()->first()->value;
+
+        /** @var Intent $intent */
+        $intent = $scene->getIntentsSaidByUserInOrder()->first()->value;
+
+        $followedByEdgeSet = $intent->getOutgoingEdgesWithRelationship(Model::FOLLOWED_BY);
+
+        $this->assertNotFalse($followedByEdgeSet);
+        $this->assertNotNull($followedByEdgeSet->getEdges());
+
+        /** @var DirectedEdge $edge */
+        $edge = $followedByEdgeSet->getEdges()[0];
+        $this->assertEquals('hello_bot', $edge->getFromNode()->getId());
+        $this->assertEquals('hello_user', $edge->getToNode()->getId());
+        $this->assertTrue($edge->hasFacets());
+        $this->assertCount(1, $edge->getFacets());
+        $this->assertTrue($edge->getFacets()->hasKey(ModelFacets::CREATED_AT));
+
+        $this->assertTrue($intent->hasFollowedBy());
+        $this->assertEquals('hello_user', $intent->getFollowedBy()->getId());
+    }
+
+    /**
+     * @return string
+     * @throws FieldNotSupported
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException
+     */
+    private function setUpConversationAndCurrentIntent(): string
+    {
+        $utterance = UtteranceGenerator::generateTextUtterance();
+        $userId = $utterance->getUser()->getId();
+
+        /* @var ChatbotUser $user */
+        $user = $this->userService->createOrUpdateUser($utterance);
+
+        $this->assertFalse($user->isHavingConversation());
+        $this->assertFalse($user->hasCurrentIntent());
+
+        $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
+        $conversationResponse = $this->client->query($conversationQuery);
+
+        $conversationStore = app()->make(ConversationStoreInterface::class);
+        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+
+        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
+
+        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
+
+        $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
+
+        // Now let's retrieve this user
+        $user = $this->userService->getUser($userId);
+
+        /* @var Scene $scene */
+        $scene = $this->userService->getCurrentConversation($userId)->getOpeningScenes()->first()->value;
+
+        /* @var Intent $intent */
+        $intent = $scene->getIntentsSaidByUser()->first()->value;
+        $this->userService->setCurrentIntent($user, $intent);
+
+        return $userId;
     }
 }

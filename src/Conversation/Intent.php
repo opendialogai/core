@@ -476,4 +476,30 @@ class Intent extends NodeWithConditions
 
         return $nodes->isEmpty() ? null : $nodes->first()->value;
     }
+
+    /**
+     * @return bool
+     */
+    public function hasFollowedBy(): bool
+    {
+        return $this->hasOutgoingEdgeWithRelationship(Model::FOLLOWED_BY);
+    }
+
+    /**
+     * @return Intent
+     */
+    public function getFollowedBy(): Intent
+    {
+        return $this->getNodesConnectedByOutgoingRelationship(Model::FOLLOWED_BY)->first()->value;
+    }
+
+    /**
+     * @param Intent $toIntent
+     * @param $createdAt
+     */
+    public function setFollowedBy(Intent $toIntent, $createdAt)
+    {
+        $this->createOutgoingEdge(Model::FOLLOWED_BY, $toIntent)
+            ->addFacet(ModelFacets::CREATED_AT, $createdAt);
+    }
 }
