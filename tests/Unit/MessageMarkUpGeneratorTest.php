@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Tests\Unit;
 
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 
 class MessageMarkUpGeneratorTest extends TestCase
 {
