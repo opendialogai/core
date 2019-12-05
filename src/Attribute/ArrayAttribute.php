@@ -32,10 +32,10 @@ class ArrayAttribute extends AbstractAttribute
     public function setValue($value)
     {
         if (is_string($value)) {
-            $value = json_decode(htmlspecialchars_decode($value), true);
+            $value = Util::decode($value);
         }
 
-        $this->value = htmlspecialchars(json_encode($value), ENT_QUOTES);
+        $this->value = Util::encode($value);
     }
 
     /**
@@ -46,10 +46,10 @@ class ArrayAttribute extends AbstractAttribute
     public function getValue(array $index = [])
     {
         if (!$index) {
-            return json_decode(htmlspecialchars_decode($this->value), true);
+            return Util::decode($this->value);
         }
 
-        $arrayValue = json_decode(htmlspecialchars_decode($this->value), true);
+        $arrayValue = Util::decode($this->value);
 
         try {
             foreach ($index as $key => $value) {
