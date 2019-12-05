@@ -7,7 +7,7 @@ class AttributeMessage
     public $text;
 
     /**
-     * Attribute Message constructor.
+     * AttributeMessage constructor.
      * @param $text
      */
     public function __construct($text)

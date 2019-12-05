@@ -12,7 +12,7 @@ class ButtonMessage
     public $buttons = [];
 
     /**
-     * WebchatButtonMessage constructor.
+     * ButtonMessage constructor.
      * @param $text
      */
     public function __construct($text)
@@ -27,7 +27,7 @@ class ButtonMessage
 
     public function getMarkUp()
     {
-        $buttonMarkUp = "";
+        $buttonMarkUp = '';
 
         foreach ($this->buttons as $button) {
             $buttonMarkUp .= $button->getMarkUp();

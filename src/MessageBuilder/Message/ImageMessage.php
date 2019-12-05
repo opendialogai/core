@@ -6,21 +6,26 @@ class ImageMessage
 {
     public $src;
     public $link;
+    public $linkNewTab;
 
     /**
      * ImageMessage constructor.
      * @param $text
      */
-    public function __construct($src, $link)
+    public function __construct($src, $link, $linkNewTab)
     {
         $this->src = $src;
         $this->link = $link;
+        $this->linkNewTab = ($linkNewTab) ? 'true' : 'false';
     }
 
     public function getMarkUp()
     {
         return <<<EOT
-<image-message><link>{$this->link}</link><src>{$this->src}</src></image-message>
+<image-message>
+    <src>{$this->src}</src>
+    <link new_tab="$this->linkNewTab">{$this->link}</link>
+</image-message>
 EOT;
     }
 }
