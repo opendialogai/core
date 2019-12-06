@@ -408,7 +408,7 @@ class ResponseEngineTest extends TestCase
 
         $message = $messageWrapper->getMessages()[0];
 
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $message);
+        $this->assertInstanceOf(WebchatButtonMessage::class, $message);
 
         $this->assertEquals($message->getData()['external'], true);
     }
