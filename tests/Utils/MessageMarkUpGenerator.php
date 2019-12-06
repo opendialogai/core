@@ -45,12 +45,13 @@ class MessageMarkUpGenerator
     /**
      * @param $text
      * @param $buttons array
+     * @param $external
      *
      * @return MessageMarkUpGenerator
      */
-    public function addButtonMessage($text, $buttons)
+    public function addButtonMessage($text, $buttons, $external = false)
     {
-        $buttonMessage = new ButtonMessage($text);
+        $buttonMessage = new ButtonMessage($text, $external);
         foreach ($buttons as $button) {
             if (isset($button['tab_switch'])) {
                 $buttonMessage->addButton(
@@ -163,16 +164,21 @@ class ButtonMessage
 {
     public $text;
 
+    public $external;
+
     /** @var Button[] */
     public $buttons = [];
 
     /**
      * WebchatButtonMessage constructor.
      * @param $text
+     * @param $external
      */
-    public function __construct($text)
+    public function __construct($text, $external)
     {
         $this->text = $text;
+
+        $this->external = ($external) ? 'true' : 'false';
     }
 
     public function addButton(Button $button)
@@ -191,6 +197,7 @@ class ButtonMessage
         return <<<EOT
 <button-message>
     <text>$this->text</text>
+    <external>$this->external</external>
     $buttonMarkUp
 </button-message>
 EOT;

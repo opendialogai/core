@@ -64,7 +64,7 @@ class WebchatListMessage extends WebchatMessage implements ListMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
+    public function getData(): ?array
     {
         return [
             'items' => $this->getItemsArray(),

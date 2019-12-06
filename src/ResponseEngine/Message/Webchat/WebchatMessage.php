@@ -55,7 +55,7 @@ abstract class WebchatMessage implements OpenDialogMessage
     /**
      * {@inheritDoc}
      */
-    public function getText():?string
+    public function getText(): ?string
     {
         return $this->text;
     }
@@ -160,7 +160,7 @@ abstract class WebchatMessage implements OpenDialogMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
+    public function getData(): ?array
     {
         return [
             'text' => $this->getText(),

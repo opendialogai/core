@@ -131,7 +131,7 @@ class WebchatLongTextMessage extends WebchatMessage implements LongTextMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
+    public function getData(): ?array
     {
         return parent::getData() + [
                 'character_limit' => $this->getCharacterLimit(),
