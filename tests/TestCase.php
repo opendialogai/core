@@ -9,6 +9,7 @@ use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
@@ -362,7 +363,11 @@ EOT;
 
         $this->assertTrue($conversation->activateConversation());
 
-        return $conversation->buildConversation();
+        $dGraphConversationStore = resolve(DGraphConversationStore::class);
+
+        return $dGraphConversationStore->getConversationConverter()->convertConversation(
+            $dGraphConversationStore->getEIModelConversationTemplate($name)
+        );
     }
 
     /**

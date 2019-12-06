@@ -2,8 +2,6 @@
 
 namespace OpenDialogAi\Core\Attribute;
 
-use Illuminate\Support\Facades\Log;
-
 /**
  * A BooleanAttribute implementation.
  */

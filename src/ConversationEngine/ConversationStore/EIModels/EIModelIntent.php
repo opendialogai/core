@@ -34,6 +34,9 @@ class EIModelIntent extends EIModelWithConditions
 
     private $followedByCreatedAt;
 
+    /** @var bool $repeating */
+    private $repeating;
+
     /* @var Pair $action */
     private $action;
 
@@ -97,6 +100,7 @@ class EIModelIntent extends EIModelWithConditions
         $intent->setIntentUid($intentResponse[Model::UID]);
         $intent->setOrder($intentResponse[Model::ORDER]);
         $intent->setConfidence(isset($intentResponse[Model::CONFIDENCE]) ? $intentResponse[Model::CONFIDENCE] : 1);
+        $intent->setRepeating(isset($intentResponse[Model::REPEATING]) ? $intentResponse[Model::REPEATING] : false);
 
         if (!is_null($additionalParameter)) {
             // If there is an additional parameter it means that $response contains the conversation data
@@ -552,5 +556,21 @@ class EIModelIntent extends EIModelWithConditions
     public function setFollowedByCreatedAt($followedByCreatedAt): void
     {
         $this->followedByCreatedAt = $followedByCreatedAt;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getRepeating(): bool
+    {
+        return $this->repeating;
+    }
+
+    /**
+     * @param bool $repeating
+     */
+    public function setRepeating(bool $repeating): void
+    {
+        $this->repeating = $repeating;
     }
 }

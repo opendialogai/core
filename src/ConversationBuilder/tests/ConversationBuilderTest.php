@@ -567,7 +567,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
 
         /** @var Intent $firstBotIntent */
-        $firstBotIntent = $openingScene->getIntentsSaidByBot()->first()->value;
+        $firstBotIntent = $openingScene->getIntentsSaidByBotInOrder()->first()->value;
 
         $this->assertEquals('intent.app.welcomeResponse', $firstBotIntent->getId());
 
@@ -580,19 +580,19 @@ class ConversationBuilderTest extends TestCase
 
     public function testRepeatingIntents()
     {
-        $conversation = $this->createConversationWithVirtualIntent();
+        $conversation = $this->createConversationWithRepeatingIntent();
 
         /** @var Scene $openingScene */
         $openingScene = $conversation->getOpeningScenes()->first()->value;
 
-        $this->assertCount(2, $openingScene->getIntentsSaidByUser());
-        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+        $this->assertCount(3, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(3, $openingScene->getIntentsSaidByBot());
 
         /** @var Intent $secondUserIntent */
-        $secondUserIntent = $openingScene->getIntentsSaidByUser()->skip(1)->value;
+        $secondUserIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(1)->value;
 
         /** @var Intent $secondBotIntent */
-        $secondBotIntent = $openingScene->getIntentsSaidByBot()->skip(1)->value;
+        $secondBotIntent = $openingScene->getIntentsSaidByBotInOrder()->skip(1)->value;
 
         $this->assertTrue($secondUserIntent->isRepeating());
         $this->assertFalse($secondBotIntent->isRepeating());

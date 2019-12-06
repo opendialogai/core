@@ -134,6 +134,7 @@ class EIModelToGraphConverter
         $intent->setCompletesAttribute($intentData->getCompletes());
         $intent->setConfidence($intentData->getConfidence());
         $intent->setOrderAttribute($intentData->getOrder());
+        $intent->setRepeating($intentData->getRepeating());
 
         /* @var Pair $action */
         $actionPair = $intentData->getAction();

@@ -238,6 +238,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
                     ModelFacets::CREATED_AT
                 ]
             ],
+            Model::REPEATING,
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
             Model::HAS_CONDITION => self::getConditionGraph(),

@@ -23,7 +23,8 @@ class Intent extends NodeWithConditions
         Model::EI_TYPE,
         Model::COMPLETES,
         Model::ORDER,
-        Model::CONFIDENCE
+        Model::CONFIDENCE,
+        Model::REPEATING
     ];
 
     private $completes = false;
@@ -41,6 +42,7 @@ class Intent extends NodeWithConditions
     {
         parent::__construct($id);
         $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::INTENT));
+        $this->addAttribute(new StringAttribute(Model::REPEATING, false));
 
         $this->setCompletesAttribute($completes);
     }
@@ -503,8 +505,19 @@ class Intent extends NodeWithConditions
             ->addFacet(ModelFacets::CREATED_AT, $createdAt);
     }
 
-    public function isRepeating()
+    /**
+     * @return bool
+     */
+    public function isRepeating(): bool
     {
-        return false;
+        return $this->getAttributeValue(Model::REPEATING);
+    }
+
+    /**
+     * @param bool $repeating
+     */
+    public function setRepeating(bool $repeating)
+    {
+        $this->setAttribute(Model::REPEATING, $repeating);
     }
 }

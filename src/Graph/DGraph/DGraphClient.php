@@ -348,6 +348,7 @@ class DGraphClient
             <conversation_version>: int .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
+            <core.attribute.repeating>: default .
             <ei_type>: string @index(exact) .
             <followed_by>: uid @reverse .
             <has_bot_participant>: [uid] @reverse .
@@ -388,6 +389,7 @@ class DGraphClient
                 simulates_intent: [uid]
                 core.attribute.completes: default
                 core.attribute.order: default
+                core.attribute.repeating: default
                 ei_type: string
                 followed_by: uid
                 has_condition: [uid]
