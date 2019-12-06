@@ -71,7 +71,7 @@ class MessageMarkUpGenerator
      * @param $external
      * @return MessageMarkUpGenerator
      */
-    public function addButtonMessage($text, $buttons, $external)
+    public function addButtonMessage($text, $buttons, $external = false)
     {
         $buttonMessage = new ButtonMessage($text, $external);
         foreach ($buttons as $button) {

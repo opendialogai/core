@@ -396,6 +396,7 @@ EOT;
             [
                 'button' => [
                     'text' => 'button message text',
+                    'external' => false,
                     'buttons' => [
                         [
                             'text' => 'Yes',

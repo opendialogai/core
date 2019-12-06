@@ -20,7 +20,7 @@ class ListMessage
     public function addMessage($type, $message)
     {
         if ($type == 'button') {
-            $buttonMessage = new ButtonMessage($message['text']);
+            $buttonMessage = new ButtonMessage($message['text'], $message['external']);
             foreach ($message['buttons'] as $button) {
                 if (isset($button['tab_switch'])) {
                     $buttonMessage->addButton(
