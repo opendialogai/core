@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Attribute\Composite;
 
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Attribute\Util;
 
 /**
  * An abstract class that is used to populate CompositeAttributes.
@@ -66,7 +67,7 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
             $serializedResult[] = ['id' => $attribute->getId(), 'value' => $attribute->getValue()];
         }
 
-        return  htmlspecialchars(json_encode($serializedResult), ENT_QUOTES);
+        return Util::encode($serializedResult);
     }
 
     /**
@@ -84,7 +85,7 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
      */
     private function jsonDeserialize($input) : array
     {
-        $arrayOfAttributes = json_decode(htmlspecialchars_decode($input, ENT_QUOTES), true);
+        $arrayOfAttributes = Util::decode($input);
         $resultAttributes = [];
 
         foreach ($arrayOfAttributes as $attribute) {
