@@ -68,11 +68,12 @@ class MessageMarkUpGenerator
     /**
      * @param $text
      * @param $buttons array
+     * @param $external
      * @return MessageMarkUpGenerator
      */
-    public function addButtonMessage($text, $buttons)
+    public function addButtonMessage($text, $buttons, $external)
     {
-        $buttonMessage = new ButtonMessage($text);
+        $buttonMessage = new ButtonMessage($text, $external);
         foreach ($buttons as $button) {
             if (isset($button['tab_switch'])) {
                 $buttonMessage->addButton(

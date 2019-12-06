@@ -8,16 +8,20 @@ class ButtonMessage
 {
     public $text;
 
+    public $external;
+
     /** @var BaseButton[] */
     public $buttons = [];
 
     /**
      * ButtonMessage constructor.
      * @param $text
+     * @param $external
      */
-    public function __construct($text)
+    public function __construct($text, $external)
     {
         $this->text = $text;
+        $this->external = ($external) ? 'true' : 'false';
     }
 
     public function addButton(BaseButton $button)
@@ -36,6 +40,7 @@ class ButtonMessage
         return <<<EOT
 <button-message>
     <text>$this->text</text>
+    <external>$this->external</external>
     $buttonMarkUp
 </button-message>
 EOT;
