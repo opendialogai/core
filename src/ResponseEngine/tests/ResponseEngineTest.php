@@ -20,6 +20,7 @@ use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;

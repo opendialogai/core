@@ -421,9 +421,28 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::CLICK_TO_CALL => trim((string)$button->click_to_call),
                 ];
             } else {
+                $dom = new DOMDocument();
+                $dom->loadXML($button->text->asXml());
+
+                $buttonText = '';
+                foreach ($dom->childNodes as $node) {
+                    foreach ($node->childNodes as $item) {
+                        if ($item->nodeType === XML_TEXT_NODE) {
+                            if (!empty(trim($item->textContent))) {
+                                $buttonText .= ' ' . trim($item->textContent);
+                            }
+                        } elseif ($item->nodeType === XML_ELEMENT_NODE) {
+                            if (!empty(trim($item->textContent))) {
+                                $buttonText .= ' ';
+                                $buttonText .= sprintf('<%s>%s</%s>', $item->nodeName, trim($item->textContent), $item->nodeName);
+                            }
+                        }
+                    }
+                }
+
                 $template[self::BUTTONS][] = [
                     self::CALLBACK => trim((string)$button->callback),
-                    self::TEXT => trim((string)$button->text),
+                    self::TEXT => trim($buttonText),
                     self::VALUE => trim((string)$button->value),
                 ];
             }

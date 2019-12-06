@@ -239,6 +239,44 @@ EOT;
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 
+    public function testButtonMessageWithUnderline()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <button-message clear_after_interaction="0">
+    <text>test</text>
+    <button>
+      <text>
+        This is an <u>underline</u> text with <u>underline</u>
+      </text>
+      <callback>
+        callback_yes
+      </callback>
+      <value>
+        true
+      </value>
+    </button>
+  </button-message>
+</message>
+EOT;
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'text' => 'This is an <u>underline</u> text with <u>underline</u>',
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+            ],
+        ];
+
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
+
     public function testRichMessage1()
     {
         $markup = <<<EOT
