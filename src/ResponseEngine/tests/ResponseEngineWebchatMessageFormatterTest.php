@@ -367,6 +367,8 @@ EOT;
         $messageMarkUp = new MessageMarkUpGenerator();
         $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', [], $image);
 
+        $markup = $messageMarkUp->getMarkUp();
+
         $formatter = new WebChatMessageFormatter();
 
         /** @var OpenDialogMessage[] $messages */

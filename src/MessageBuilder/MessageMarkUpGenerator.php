@@ -56,11 +56,12 @@ class MessageMarkUpGenerator
     /**
      * @param $src
      * @param $link
+     * @param $linkNewTab
      * @return MessageMarkUpGenerator
      */
-    public function addImageMessage($src, $link = '')
+    public function addImageMessage($src, $link = '', $linkNewTab = false)
     {
-        $this->messages[] = new ImageMessage($src, $link);
+        $this->messages[] = new ImageMessage($src, $link, $linkNewTab);
         return $this;
     }
 
@@ -138,7 +139,7 @@ class MessageMarkUpGenerator
      * @param $image
      * @return MessageMarkUpGenerator
      */
-    public function addRichMessage($title, $subtitle, $text, $buttons, $image)
+    public function addRichMessage($title, $subtitle, $text, $buttons = [], $image = [])
     {
         $richMessage = new RichMessage($title, $subtitle, $text, $buttons);
         foreach ($buttons as $button) {
@@ -220,6 +221,6 @@ class MessageMarkUpGenerator
             $markUp .= $message->getMarkUp();
         }
 
-        return "<message disable_text='{$this->disableText}'>{$markUp}</message>";
+        return "<message disable_text=\"{$this->disableText}\">{$markUp}</message>";
     }
 }
