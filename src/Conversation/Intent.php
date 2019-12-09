@@ -497,7 +497,7 @@ class Intent extends NodeWithConditions
      * @param Intent $toIntent
      * @param $createdAt
      */
-    public function setFollowedBy(Intent $toIntent, $createdAt)
+    public function setFollowedBy(Intent $toIntent, $createdAt): void
     {
         $this->createOutgoingEdge(Model::FOLLOWED_BY, $toIntent)
             ->addFacet(ModelFacets::CREATED_AT, $createdAt);

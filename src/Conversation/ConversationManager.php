@@ -37,7 +37,7 @@ class ConversationManager
      * @param Conversation $conversation
      * @return ConversationManager
      */
-    public static function createManagerForExistingConversation(Conversation $conversation)
+    public static function createManagerForExistingConversation(Conversation $conversation): ConversationManager
     {
         $cm = new ConversationManager(
             $conversation->getId(),
@@ -52,7 +52,7 @@ class ConversationManager
     /**
      * @return Conversation
      */
-    public function getConversation()
+    public function getConversation(): Conversation
     {
         return $this->conversation;
     }
@@ -68,7 +68,7 @@ class ConversationManager
     /**
      * @param $conversationVersion
      */
-    public function setConversationVersion($conversationVersion)
+    public function setConversationVersion($conversationVersion): void
     {
         $this->conversation->setConversationVersion($conversationVersion);
     }
@@ -77,7 +77,7 @@ class ConversationManager
      * @param Condition $condition
      * @return ConversationManager
      */
-    public function addConditionToConversation(Condition $condition)
+    public function addConditionToConversation(Condition $condition): ConversationManager
     {
         $this->conversation->addCondition($condition);
 
@@ -89,7 +89,7 @@ class ConversationManager
      * @param bool $opening
      * @return ConversationManager
      */
-    public function createScene($id, $opening = false)
+    public function createScene($id, $opening = false): ConversationManager
     {
         $scene = new Scene($id);
 
@@ -116,7 +116,7 @@ class ConversationManager
      * @param Condition $condition
      * @return ConversationManager
      */
-    public function addConditionToScene($sceneId, Condition $condition)
+    public function addConditionToScene($sceneId, Condition $condition): ConversationManager
     {
         /* @var Scene $scene */
         $scene = $this->conversation->getScene($sceneId);
@@ -130,7 +130,7 @@ class ConversationManager
      * @param Action $action
      * @return $this
      */
-    public function addActionToIntent($intentId, Action $action)
+    public function addActionToIntent($intentId, Action $action): ConversationManager
     {
         /* @var Intent $intent */
         $intent = $this->conversation->getIntent($intentId);
@@ -145,7 +145,7 @@ class ConversationManager
      * @param $order
      * @return $this
      */
-    public function userSaysToBot($sceneId, Intent $intent, $order)
+    public function userSaysToBot($sceneId, Intent $intent, $order): ConversationManager
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
         $sceneIntent = clone $intent;
@@ -165,7 +165,7 @@ class ConversationManager
      * @param $order
      * @return $this
      */
-    public function botSaysToUser($sceneId, Intent $intent, $order)
+    public function botSaysToUser($sceneId, Intent $intent, $order): ConversationManager
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
         $sceneIntent = clone $intent;
@@ -189,7 +189,7 @@ class ConversationManager
      * @param $order
      * @return $this
      */
-    public function userSaysToBotAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order)
+    public function userSaysToBotAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order): ConversationManager
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
         $sceneIntent = clone $intent;
@@ -213,7 +213,7 @@ class ConversationManager
      * @param $order
      * @return $this
      */
-    public function botSaysToUserAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order)
+    public function botSaysToUserAcrossScenes($startingSceneId, $endingSceneId, Intent $intent, $order): ConversationManager
     {
         // Clone the intent to ensure that we don't have intent nodes pointed to from multiple scenes.
         /* @var Intent $sceneIntent */
@@ -239,7 +239,7 @@ class ConversationManager
      * @param $toIntentUid
      * @param $createdAt
      */
-    public function intentFollows($fromIntentUid, $toIntentUid, $createdAt)
+    public function intentFollows($fromIntentUid, $toIntentUid, $createdAt): void
     {
         /** @var Intent $fromIntent */
         $fromIntent = $this->conversation->getIntentByUid($fromIntentUid);
@@ -254,7 +254,7 @@ class ConversationManager
      * @param $toStatus
      * @return array
      */
-    private function getValidStartingStatuses($toStatus)
+    private function getValidStartingStatuses($toStatus): array
     {
         $filtered = array_filter(self::$validStateTransitions, function ($statuses) use ($toStatus) {
             return in_array($toStatus, $statuses);
@@ -328,7 +328,7 @@ class ConversationManager
     /**
      * @param Conversation $updateOf
      */
-    public function setUpdateOf(Conversation $updateOf)
+    public function setUpdateOf(Conversation $updateOf): void
     {
         $this->conversation->setUpdateOf($updateOf);
     }
@@ -336,7 +336,7 @@ class ConversationManager
     /**
      * @param Conversation $instanceOf
      */
-    public function setInstanceOf(Conversation $instanceOf)
+    public function setInstanceOf(Conversation $instanceOf): void
     {
         $this->conversation->setInstanceOf($instanceOf);
     }
