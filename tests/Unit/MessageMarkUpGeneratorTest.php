@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Tests\Unit;
 
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 
 class MessageMarkUpGeneratorTest extends TestCase
 {
@@ -20,7 +20,7 @@ class MessageMarkUpGeneratorTest extends TestCase
         $generator->addButtonMessage('test button', $buttons);
 
         $markUp = ($generator->getMarkUp());
-        $this->assertRegexp('/<message>/', $markUp);
+        $this->assertRegexp('/<message disable_text="false">/', $markUp);
         $this->assertRegexp('/<button-message>/', $markUp);
         $this->assertRegexp('/<button>/', $markUp);
         $this->assertRegexp('/<text>Button Text<\/text>/', $markUp);
@@ -33,7 +33,7 @@ class MessageMarkUpGeneratorTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
         $markUp = ($generator->getMarkUp());
-        $this->assertRegexp('/<message>/', $markUp);
+        $this->assertRegexp('/<message disable_text="false">/', $markUp);
         $this->assertRegexp('/<text-message>/', $markUp);
         $this->assertRegexp('/<link>/', $markUp);
         $this->assertRegexp('/<text>This is a link<\/text>/', $markUp);

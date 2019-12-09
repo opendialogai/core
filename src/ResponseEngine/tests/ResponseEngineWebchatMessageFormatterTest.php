@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 
@@ -279,36 +280,39 @@ EOT;
 
     public function testRichMessage1()
     {
-        $markup = <<<EOT
-<message disable_text="0">
-  <rich-message>
-    <title>Message Title</title>
-    <subtitle>This is a subtitle</subtitle>
-    <text>Here is a bit of text about this thing</text>
-    <button>
-      <text>Test 1</text>
-      <tab_switch>true</tab_switch>
-    </button>
-    <button>
-      <text>Test 2</text>
-      <callback>callback</callback>
-      <value>value</value>
-    </button>
-    <button>
-      <text>Test 3</text>
-      <link>https://www.opendialog.ai</link>
-    </button>
-    <button>
-      <text>Test 4</text>
-      <link new_tab="true">https://www.opendialog.ai</link>
-    </button>
-    <image>
-      <src>https://www.opendialog.ai/assets/images/logo.svg</src>
-      <url new_tab="true">https://www.opendialog.ai</url>
-    </image>
-  </rich-message>
-</message>
-EOT;
+        $buttons = [
+            [
+                'text' => 'Test 1',
+                'tab_switch' => true
+            ],
+            [
+                'text' => 'Test 2',
+                'callback' => 'callback',
+                'value' => 'value'
+            ],
+            [
+                'text' => 'Test 3',
+                'link' => 'https://www.opendialog.ai',
+                'link_new_tab' => false
+            ],
+            [
+                'text' => 'Test 4',
+                'link' => 'https://www.opendialog.ai',
+                'link_new_tab' => true
+            ]
+        ];
+
+        $image = [
+            'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+            'url' => 'https://www.opendialog.ai',
+            'new_tab' => true
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons, $image);
+
+        $markup = $messageMarkUp->getMarkUp();
+
         $formatter = new WebChatMessageFormatter();
 
         /** @var OpenDialogMessage[] $messages */
@@ -353,20 +357,19 @@ EOT;
 
     public function testRichMessage2()
     {
-        $markup = <<<EOT
-<message disable_text="0">
-  <rich-message>
-    <title>Message Title</title>
-    <subtitle>This is a subtitle</subtitle>
-    <text>Here is a bit of text about this thing</text>
-    <button>
-      <text>Test</text>
-      <callback>callback</callback>
-      <value>value</value>
-    </button>
-  </rich-message>
-</message>
-EOT;
+        $buttons = [
+            [
+                'text' => 'Test',
+                'callback' => 'callback',
+                'value' => 'value'
+            ]
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons);
+
+        $markup = $messageMarkUp->getMarkUp();
+
         $formatter = new WebChatMessageFormatter();
 
         /** @var OpenDialogMessage[] $messages */
@@ -393,19 +396,17 @@ EOT;
 
     public function testRichMessage3()
     {
-        $markup = <<<EOT
-<message disable_text="0">
-  <rich-message>
-    <title>Message Title</title>
-    <subtitle>This is a subtitle</subtitle>
-    <text>Here is a bit of text about this thing</text>
-    <image>
-      <src>https://www.opendialog.ai/assets/images/logo.svg</src>
-      <url new_tab="true">https://www.opendialog.ai</url>
-    </image>
-  </rich-message>
-</message>
-EOT;
+        $image = [
+            'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+            'url' => 'https://www.opendialog.ai',
+            'new_tab' => true
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', [], $image);
+
+        $markup = $messageMarkUp->getMarkUp();
+
         $formatter = new WebChatMessageFormatter();
 
         /** @var OpenDialogMessage[] $messages */
@@ -429,33 +430,38 @@ EOT;
 
     public function testListMessage()
     {
-        $markup = <<<EOT
-<message disable_text="0">
-  <list-message view-type="vertical">
-    <item>
-      <button-message>
-        <text>button message text</text>
-        <button>
-          <text>Yes</text>
-        </button>
-      </button-message>
-    </item>
-    <item>
-      <image-message>
-        <src>
-          https://www.opendialog.ai/assets/images/logo.svg
-        </src>
-        <link new_tab="true">
-          https://www.opendialog.ai
-        </link>
-      </image-message>
-    </item>
-    <item>
-      <text-message>message-text</text-message>
-    </item>
-  </list-message>
-</message>
-EOT;
+        $messages = [
+            [
+                'button' => [
+                    'text' => 'button message text',
+                    'external' => false,
+                    'buttons' => [
+                        [
+                            'text' => 'Yes',
+                            'callback' => 'callback',
+                            'value' => ''
+                        ]
+                    ]
+                ]
+            ],
+            [
+                'image' => [
+                    'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                    'link' => 'https://www.opendialog.ai',
+                    'new_tab' => true
+                ]
+            ],
+            [
+                'text' => [
+                    'text' => 'message-text'
+                ]
+            ]
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator(true);
+        $messageMarkUp->addListMessage('vertical', $messages);
+
+        $markup = $messageMarkUp->getMarkUp();
 
         $expectedOutput = [
             [
@@ -466,7 +472,7 @@ EOT;
                 'buttons' => [
                     [
                         'text' => 'Yes',
-                        'callback_id' => '',
+                        'callback_id' => 'callback',
                         'value' => '',
                     ],
                 ],
@@ -499,7 +505,7 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertEquals(true, $message->getData()['disable_text']);
         $this->assertEquals('vertical', $data['view_type']);
         self::assertArraySubset($expectedOutput[0], $data['items'][0]);
         self::assertArraySubset($expectedOutput[1], $data['items'][1]);
@@ -508,66 +514,63 @@ EOT;
 
     public function testFormMessage()
     {
-        $markup = <<<EOT
-<message disable_text="0">
-  <form-message>
-    <text>Here is a bit of text about this thing</text>
-    <submit_text>This is submit text</submit_text>
-    <callback>callback</callback>
-    <auto_submit>true</auto_submit>
-    <element>
-      <element_type>text</element_type>
-      <name>first_name</name>
-      <display>First name</display>
-      <required>false</required>
-    </element>
-    <element>
-      <element_type>text</element_type>
-      <name>last_name</name>
-      <display>Last name</display>
-      <required>true</required>
-    </element>
-    <element>
-      <element_type>select</element_type>
-      <name>age</name>
-      <display>Age</display>
-      <options>
-        <option>
-          <key>1</key>
-          <value>1 year</value>
-        </option>
-        <option>
-          <key>10</key>
-          <value>10 year</value>
-        </option>
-        <option>
-          <key>20</key>
-          <value>20 year</value>
-        </option>
-      </options>
-    </element>
-    <element>
-      <element_type>auto_complete_select</element_type>
-      <name>year</name>
-      <display>Year</display>
-      <options>
-        <option>
-          <key>1</key>
-          <value>2019</value>
-        </option>
-        <option>
-          <key>2</key>
-          <value>2020</value>
-        </option>
-        <option>
-          <key>3</key>
-          <value>2021</value>
-        </option>
-      </options>
-    </element>
-  </form-message>
-</message>
-EOT;
+        $elements = [
+            [
+                'element_type' => 'text',
+                'name' => 'first_name',
+                'display' => 'First name',
+                'required' => false
+            ],
+            [
+                'element_type' => 'text',
+                'name' => 'last_name',
+                'display' => 'Last name',
+                'required' => true
+            ],
+            [
+                'element_type' => 'select',
+                'name' => 'age',
+                'display' => 'Age',
+                'options' => [
+                    [
+                        'key' => '1',
+                        'value' => '1 year'
+                    ],
+                    [
+                        'key' => '10',
+                        'value' => '10 year'
+                    ],
+                    [
+                        'key' => '20',
+                        'value' => '20 year'
+                    ]
+                ]
+            ],
+            [
+                'element_type' => 'auto_complete_select',
+                'name' => 'year',
+                'display' => 'Year',
+                'options' => [
+                    [
+                        'key' => '1',
+                        'value' => '2019'
+                    ],
+                    [
+                        'key' => '2',
+                        'value' => '2020'
+                    ],
+                    [
+                        'key' => '3',
+                        'value' => '2021'
+                    ]
+                ]
+            ]
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+
+        $markup = $messageMarkUp->getMarkUp();
 
         $expectedOutput = [
             'text' => 'Here is a bit of text about this thing',
@@ -636,18 +639,10 @@ EOT;
 
     public function testLongTextMessage()
     {
-        $markup = <<<EOT
-<message disable_text="0">
-  <long-text-message>
-    <submit_text>This is submit text</submit_text>
-    <callback>callback</callback>
-    <initial_text>Initial text</initial_text>
-    <placeholder>Enter text</placeholder>
-    <confirmation_text>Thank you</confirmation_text>
-    <character_limit>200</character_limit>
-  </long-text-message>
-</message>
-EOT;
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addLongTextMessage('This is submit text', 'callback', 'Initial text', 'Enter text', 'Thank you', '200');
+
+        $markup = $messageMarkUp->getMarkUp();
 
         $expectedOutput = [
             'disable_text' => false,

@@ -11,7 +11,7 @@ use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;

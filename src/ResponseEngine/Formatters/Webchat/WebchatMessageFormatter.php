@@ -331,7 +331,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     }
                 } elseif ($item->nodeType === XML_ELEMENT_NODE) {
                     if ($item->nodeName === self::LINK) {
-                        $openNewTab = ($item->getAttribute('new_tab')) ? true : false;
+                        $openNewTab = $this->convertToBoolean((string)$item->getAttribute('new_tab'));
 
                         $link = [
                             self::OPEN_NEW_TAB => $openNewTab,
@@ -408,7 +408,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::TAB_SWITCH => true,
                 ];
             } elseif (isset($button->link)) {
-                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+                $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
 
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
@@ -473,7 +473,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     private function formatRichTemplate(SimpleXMLElement $item): array
     {
-        $linkNewTab = ($item->image->url['new_tab']) ? true : false;
+        $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
 
         $template = [
             self::TITLE => trim((string)$item->title),
@@ -493,7 +493,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::TAB_SWITCH => true,
                 ];
             } elseif (isset($button->link)) {
-                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+                $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
 
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
@@ -567,7 +567,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $elements[] = $el;
         }
 
-        $autoSubmit = ($item->auto_submit) ? true : false;
+        $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
 
         $template = [
             self::TEXT => trim((string)$item->text),
@@ -596,5 +596,17 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::CHARACTER_LIMIT => trim((string)$item->character_limit),
         ];
         return $template;
+    }
+
+    /**
+     * @param string $value
+     * @param return bool
+     */
+    private function convertToBoolean(string $value): bool
+    {
+        if ($value === '1' || $value === 'true') {
+            return true;
+        }
+        return false;
     }
 }
