@@ -738,10 +738,14 @@ conversation:
           - u:
               i: intent.app.question
               repeating: true
+          - u:
+              i: intent.app.questionStop
+              scene: stop_scene
           - b:
               i: intent.app.questionResponse
-          - u:
-              i: intent.app.end
+              completes: true
+    stop_scene:
+      intents:
           - b:
               i: intent.app.endResponse
               completes: true

@@ -263,7 +263,6 @@ EOT;
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
         $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
-
     }
 
     public function testConversationWithManyIntentsWithSameIdAndIncomingConditions()
@@ -308,6 +307,37 @@ EOT;
         $this->assertEquals('rock_paper_scissors', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
         $this->assertEquals('intent.app.you_lost', $conversationContext->getAttributeValue('next_intents')[0]);
+    }
+
+    public function testConversationWithRepeatingIntent()
+    {
+        $openDialogController = resolve(OpenDialogController::class);
+
+        $this->createConversationWithRepeatingIntent();
+        $this->activateConversation($this->noMatchConversation());
+
+        $conversationContext = ContextService::getConversationContext();
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.welcome');
+        $openDialogController->runConversation($utterance);
+        $this->assertEquals('intent.app.welcome', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_repeating_intent', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('intent.app.welcomeResponse', $conversationContext->getAttributeValue('next_intents')[0]);
+
+        for ($i = 0; $i < 3; $i++) {
+            $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('intent.app.question', $utterance->getUser()));
+            $this->assertEquals('intent.app.question', $conversationContext->getAttributeValue('interpreted_intent'), sprintf('Repetition %d', $i+1));
+            $this->assertEquals('with_repeating_intent', $conversationContext->getAttributeValue('current_conversation'), sprintf('Repetition %d', $i+1));
+            $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'), sprintf('Repetition %d', $i+1));
+            $this->assertEquals('intent.app.questionResponse', $conversationContext->getAttributeValue('next_intents')[0], sprintf('Repetition %d', $i+1));
+        }
+
+        $openDialogController->runConversation(UtteranceGenerator::generateChatOpenUtterance('intent.app.questionStop', $utterance->getUser()));
+        $this->assertEquals('intent.app.questionStop', $conversationContext->getAttributeValue('interpreted_intent'));
+        $this->assertEquals('with_repeating_intent', $conversationContext->getAttributeValue('current_conversation'));
+        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
+        $this->assertEquals('intent.app.endResponse', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
     public function testConversationWithIncomingConditions()

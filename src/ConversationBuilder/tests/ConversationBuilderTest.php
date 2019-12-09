@@ -586,15 +586,19 @@ class ConversationBuilderTest extends TestCase
         $openingScene = $conversation->getOpeningScenes()->first()->value;
 
         $this->assertCount(3, $openingScene->getIntentsSaidByUser());
-        $this->assertCount(3, $openingScene->getIntentsSaidByBot());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
 
         /** @var Intent $secondUserIntent */
         $secondUserIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(1)->value;
+
+        /** @var Intent $thirdUserIntent */
+        $thirdUserIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(2)->value;
 
         /** @var Intent $secondBotIntent */
         $secondBotIntent = $openingScene->getIntentsSaidByBotInOrder()->skip(1)->value;
 
         $this->assertTrue($secondUserIntent->isRepeating());
+        $this->assertFalse($thirdUserIntent->isRepeating());
         $this->assertFalse($secondBotIntent->isRepeating());
     }
 }
