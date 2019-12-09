@@ -44,6 +44,7 @@
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
       "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
       "OpenDialogAi\\ConversationBuilder\\": "src/ConversationBuilder",
+      "OpenDialogAi\\MessageBuilder\\": "src/MessageBuilder",
       "OpenDialogAi\\ConversationEngine\\": "src/ConversationEngine",
       "OpenDialogAi\\ConversationLog\\": "src/ConversationLog",
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",

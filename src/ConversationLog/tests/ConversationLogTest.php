@@ -8,7 +8,7 @@ use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
