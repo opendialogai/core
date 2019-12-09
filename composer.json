@@ -51,6 +51,7 @@
       "OpenDialogAi\\InterpreterEngine\\": "src/InterpreterEngine",
       "OpenDialogAi\\OperationEngine\\": "src/OperationEngine",
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
+      "OpenDialogAi\\NlpEngine\\": "src/NlpEngine",
       "OpenDialogAi\\Core\\Database\\": "database/",
       "OpenDialogAi\\Core\\Tests\\": "tests/"
     }
