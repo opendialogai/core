@@ -434,7 +434,22 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                         } elseif ($item->nodeType === XML_ELEMENT_NODE) {
                             if (!empty(trim($item->textContent))) {
                                 $buttonText .= ' ';
-                                $buttonText .= sprintf('<%s>%s</%s>', $item->nodeName, trim($item->textContent), $item->nodeName);
+                                if ($item->nodeName === 'b') {
+                                    $buttonText .= sprintf(
+                                        '<strong>%s</strong>',
+                                        trim($item->textContent)
+                                    );
+                                } elseif ($item->nodeName === 'i') {
+                                    $buttonText .= sprintf(
+                                        '<em>%s</em>',
+                                        trim($item->textContent)
+                                    );
+                                } elseif ($item->nodeName === 'u') {
+                                    $buttonText .= sprintf(
+                                        '<u>%s</u>',
+                                        trim($item->textContent)
+                                    );
+                                }
                             }
                         }
                     }
