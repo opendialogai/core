@@ -237,7 +237,7 @@ class ConversationEngine implements ConversationEngineInterface
                 ->interpret($utterance)[0];
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf(
-                'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
                 $this->interpreterService->getDefaultInterpreter()::getName()
             ));
             $defaultIntent = new NoMatchIntent();
@@ -348,7 +348,7 @@ class ConversationEngine implements ConversationEngineInterface
                 ->interpret($utterance)[0];
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf(
-                'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
                 $this->interpreterService->getDefaultInterpreter()::getName()
             ));
             $defaultIntent = new NoMatchIntent();
@@ -435,7 +435,7 @@ class ConversationEngine implements ConversationEngineInterface
                         ->interpret($utterance);
                 } catch (FieldNotSupported $e) {
                     Log::warning(sprintf(
-                        'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                        'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
                         $this->interpreterService->getDefaultInterpreter()::getName()
                     ));
                     $intentsFromInterpreter = new NoMatchIntent();
@@ -596,7 +596,7 @@ class ConversationEngine implements ConversationEngineInterface
                         ->interpret($utterance);
                 } catch (FieldNotSupported $e) {
                     Log::warning(sprintf(
-                        'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                        'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
                         $this->interpreterService->getDefaultInterpreter()::getName()
                     ));
                     $interpretedIntents = new NoMatchIntent();
