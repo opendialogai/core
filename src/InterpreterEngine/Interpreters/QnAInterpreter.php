@@ -6,7 +6,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\QnA\QnAClient;
@@ -39,9 +38,6 @@ class QnAInterpreter extends BaseInterpreter
             $intent = $this->createOdIntent($qnaResponse);
         } catch (QnARequestFailedException $e) {
             Log::warning(sprintf('QnA interpreter failed at a QnA client level with message %s', $e->getMessage()));
-            $intent = new NoMatchIntent();
-        } catch (FieldNotSupported $e) {
-            Log::warning('Trying to use QnA interpreter to interpret an utterance that does not support text ');
             $intent = new NoMatchIntent();
         }
 

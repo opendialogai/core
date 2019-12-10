@@ -232,7 +232,16 @@ class ConversationEngine implements ConversationEngineInterface
 
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
 
-        $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
+        try {
+            $defaultIntent = $this->interpreterService->getDefaultInterpreter()
+                ->interpret($utterance)[0];
+        } catch (FieldNotSupported $e) {
+            Log::warning(sprintf(
+                'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                $this->interpreterService->getDefaultInterpreter()::getName()
+            ));
+            $defaultIntent = new NoMatchIntent();
+        }
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
         $matchingIntents = $this->getMatchingIntents($utterance, $possibleNextIntents, $defaultIntent);
@@ -334,7 +343,16 @@ class ConversationEngine implements ConversationEngineInterface
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
-        $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
+        try {
+            $defaultIntent = $this->interpreterService->getDefaultInterpreter()
+                ->interpret($utterance)[0];
+        } catch (FieldNotSupported $e) {
+            Log::warning(sprintf(
+                'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                $this->interpreterService->getDefaultInterpreter()::getName()
+            ));
+            $defaultIntent = new NoMatchIntent();
+        }
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
         $openingIntents = $this->conversationStore->getAllEIModelOpeningIntents();
@@ -411,9 +429,17 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var EIModelIntent $validIntent */
         foreach ($filteredIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
-                $intentsFromInterpreter = $this->interpreterService
-                    ->getInterpreter($validIntent->getInterpreterId())
-                    ->interpret($utterance);
+                try {
+                    $intentsFromInterpreter = $this->interpreterService
+                        ->getInterpreter($validIntent->getInterpreterId())
+                        ->interpret($utterance);
+                } catch (FieldNotSupported $e) {
+                    Log::warning(sprintf(
+                        'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                        $this->interpreterService->getDefaultInterpreter()::getName()
+                    ));
+                    $intentsFromInterpreter = new NoMatchIntent();
+                }
 
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
                 foreach ($intentsFromInterpreter as $interpretedIntent) {
@@ -564,8 +590,17 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Intent $validIntent */
         foreach ($nextIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
-                $interpretedIntents = $this->interpreterService->getInterpreter($validIntent->getInterpreter()->getId())
-                    ->interpret($utterance);
+                try {
+                    $interpretedIntents = $this->interpreterService->getInterpreter($validIntent->getInterpreter()
+                        ->getId())
+                        ->interpret($utterance);
+                } catch (FieldNotSupported $e) {
+                    Log::warning(sprintf(
+                        'Trying to use %s interpreter to interpret an utterance that does is not supported.',
+                        $this->interpreterService->getDefaultInterpreter()::getName()
+                    ));
+                    $interpretedIntents = new NoMatchIntent();
+                }
             } else {
                 $interpretedIntents = [$defaultIntent];
             }

@@ -4,7 +4,6 @@ namespace OpenDialogAi\Core\Tests\Bot\Interpreters;
 
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 
@@ -14,18 +13,11 @@ class TestInterpreter extends BaseInterpreter
 
     public function interpret(UtteranceInterface $utterance): array
     {
-        try {
-            $text = $utterance->getText();
-
-            if (strpos($text, 'Hello') !== false) {
-                $intent = Intent::createIntentWithConfidence('intent.test.hello_bot', 1);
-
-                $intent->addAttribute(new StringAttribute('intent_test', 'test'));
-
-                return [$intent];
-            }
-        } catch (FieldNotSupported $e) {
-            //
+        $text = $utterance->getText();
+        if (strpos($text, 'Hello') !== false) {
+            $intent = Intent::createIntentWithConfidence('intent.test.hello_bot', 1);
+            $intent->addAttribute(new StringAttribute('intent_test', 'test'));
+            return [$intent];
         }
 
         return [];
