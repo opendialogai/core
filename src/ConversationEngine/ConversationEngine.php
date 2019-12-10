@@ -307,7 +307,7 @@ class ConversationEngine implements ConversationEngineInterface
 
             /** @var Intent $nextIntent */
             $nextIntent = $matchingIntents->first()->value;
-            Log::debug(sprintf( 'Intent chosen as %s', $nextIntent->getId()));
+            Log::debug(sprintf('Intent chosen as %s', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
 
             if ($nextIntent->causesAction()) {
