@@ -329,4 +329,18 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
                 Model::UID
             ]);
     }
+
+    /**
+     * @param $intentUid
+     * @return DGraphQuery
+     */
+    public static function getPrecedingIntent($intentUid): DGraphQuery
+    {
+        return (new DGraphQuery())
+            ->uid($intentUid)
+            ->setQueryGraph([
+                Model::UID,
+                Model::PRECEDED_BY => self::getIntentGraph()
+            ]);
+    }
 }

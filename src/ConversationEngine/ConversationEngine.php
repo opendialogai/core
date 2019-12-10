@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
-use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -108,6 +108,13 @@ class ConversationEngine implements ConversationEngineInterface
             Log::debug(sprintf('Ongoing conversation determined as %s', $ongoingConversation->getId()));
         }
 
+        $precedingIntent = null;
+        if ($userContext->getCurrentIntent()->getRepeating()) {
+            $precedingIntent = $this->getConversationStore()->getPrecedingIntent(
+                $userContext->getCurrentIntent()->getIntentUid()
+            );
+        }
+
         $nextIntent = $this->determineNextIntent($userContext);
 
         if ($isVirtual) {
@@ -147,10 +154,14 @@ class ConversationEngine implements ConversationEngineInterface
         if (!$isVirtual) {
             $lastNextIntent = $nextIntents[array_key_last($nextIntents)];
 
-            if ($lastNextIntent->completes()) {
-                $userContext->moveCurrentConversationToPast();
+            if (is_null($precedingIntent)) {
+                if ($lastNextIntent->completes()) {
+                    $userContext->moveCurrentConversationToPast();
+                } else {
+                    $userContext->setCurrentIntent($lastNextIntent);
+                }
             } else {
-                $userContext->setCurrentIntent($lastNextIntent);
+                $userContext->setCurrentIntent($precedingIntent);
             }
         }
 
