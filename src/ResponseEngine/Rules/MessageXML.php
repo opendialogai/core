@@ -63,14 +63,23 @@ class MessageXML extends BaseRule
                             return false;
                         }
                         foreach ($item->button as $button) {
+                            $buttonXml = $button->text->asXml();
+                            // Remove button text enclosing tags.
+                            $buttonText = preg_replace('/<text[^>]*>/', '', $buttonXml);
+                            $buttonText = trim(preg_replace('/<\/text>/', '', $buttonText));
+
                             if (empty((string)$button->callback) && empty((string)$button->tab_switch)
                                 && empty((string)$button->link) && empty((string)$button->click_to_call)) {
                                 // @codingStandardsIgnoreLine
                                 $this->setErrorMessage('All buttons must have with a "callback", "link", "tab_switch" or "click_to_call" set');
                                 return false;
                             }
-                            if (empty((string)$button->text)) {
+                            if (empty($buttonText)) {
                                 $this->setErrorMessage('Button must have "text"');
+                                return false;
+                            }
+                            if (strip_tags($buttonText, '<b><i><u>') !== $buttonText) {
+                                $this->setErrorMessage('Button text contains an invalid tag (allowed tags are <b>, <i> and <u>');
                                 return false;
                             }
                         }
