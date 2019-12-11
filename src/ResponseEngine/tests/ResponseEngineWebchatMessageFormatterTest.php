@@ -7,6 +7,7 @@ use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Rules\MessageXML;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
 {
@@ -298,6 +299,9 @@ EOT;
   </button-message>
 </message>
 EOT;
+
+        $messageXML = new MessageXML();
+        $this->assertTrue($messageXML->passes(null, $markup), $messageXML->message());
 
         $formatter = new WebChatMessageFormatter();
 
