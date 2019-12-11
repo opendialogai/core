@@ -286,7 +286,7 @@ EOT;
     <text>test</text>
     <button>
       <text>
-        This is an <b>bold</b> text with <i>italia</i>
+        This is an <b>bold</b> text with <i>italic</i>
       </text>
       <callback>
         callback_yes
@@ -307,7 +307,7 @@ EOT;
 
         $expectedOutput = [
             [
-                'text' => 'This is an <strong>bold</strong> text with <em>italia</em>',
+                'text' => 'This is an <strong>bold</strong> text with <em>italic</em>',
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
             ],
