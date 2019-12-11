@@ -65,8 +65,8 @@ class MessageXML extends BaseRule
                         foreach ($item->button as $button) {
                             $buttonXml = $button->text->asXml();
                             // Remove button text enclosing tags.
-                            $buttonXml = preg_replace('/<text[^>]*>/', '', $buttonXml);
-                            $buttonXml = trim(preg_replace('/<\/text>/', '', $buttonXml));
+                            $buttonText = preg_replace('/<text[^>]*>/', '', $buttonXml);
+                            $buttonText = trim(preg_replace('/<\/text>/', '', $buttonText));
 
                             if (empty((string)$button->callback) && empty((string)$button->tab_switch)
                                 && empty((string)$button->link) && empty((string)$button->click_to_call)) {
