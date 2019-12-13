@@ -22,10 +22,13 @@ class EIModelIntent extends EIModelWithConditions
 
     private $conversationUid;
 
+    /** @var int $order */
     private $order;
 
+    /** @var float $confidence */
     private $confidence;
 
+    /** @var bool $completes */
     private $completes;
 
     private $nextScene;
