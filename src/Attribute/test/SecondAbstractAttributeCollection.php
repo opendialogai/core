@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Attribute\test;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\Composite\AbstractAttributeCollection;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\Util;
 
 /**
  * A composite attribute collection containing other attribute types.
@@ -36,7 +37,7 @@ class SecondAbstractAttributeCollection extends AbstractAttributeCollection
                 'value' => $attribute->toString()
             ];
         }
-        return json_encode($result);
+        return Util::encode($result);
     }
 
 

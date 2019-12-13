@@ -156,6 +156,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     {
         $message = new WebchatButtonMessage();
         $message->setText($template[self::TEXT], [], true);
+        $message->setExternal($template[self::EXTERNAL]);
         foreach ($template[self::BUTTONS] as $button) {
             if (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new TabSwitchButton($button[self::TEXT]));
@@ -330,7 +331,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     }
                 } elseif ($item->nodeType === XML_ELEMENT_NODE) {
                     if ($item->nodeName === self::LINK) {
-                        $openNewTab = ($item->getAttribute('new_tab')) ? true : false;
+                        $openNewTab = $this->convertToBoolean((string)$item->getAttribute('new_tab'));
 
                         $link = [
                             self::OPEN_NEW_TAB => $openNewTab,
@@ -389,8 +390,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $clearAfterInteraction = $item[self::CLEAR_AFTER_INTERACTION] == '1' ? true : false;
         }
 
+        $external = false;
+        if (isset($item->external)) {
+            $external = $item->external == 'true' ? true : false;
+        }
+
         $template = [
             self::TEXT => $this->getMessageText($item->text),
+            self::EXTERNAL => $external,
             self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
         ];
 
@@ -401,7 +408,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::TAB_SWITCH => true,
                 ];
             } elseif (isset($button->link)) {
-                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+                $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
 
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
@@ -414,9 +421,43 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::CLICK_TO_CALL => trim((string)$button->click_to_call),
                 ];
             } else {
+                $dom = new DOMDocument();
+                $dom->loadXML($button->text->asXml());
+
+                $buttonText = '';
+                foreach ($dom->childNodes as $node) {
+                    foreach ($node->childNodes as $item) {
+                        if ($item->nodeType === XML_TEXT_NODE) {
+                            if (!empty(trim($item->textContent))) {
+                                $buttonText .= ' ' . trim($item->textContent);
+                            }
+                        } elseif ($item->nodeType === XML_ELEMENT_NODE) {
+                            if (!empty(trim($item->textContent))) {
+                                $buttonText .= ' ';
+                                if ($item->nodeName === 'b') {
+                                    $buttonText .= sprintf(
+                                        '<strong>%s</strong>',
+                                        trim($item->textContent)
+                                    );
+                                } elseif ($item->nodeName === 'i') {
+                                    $buttonText .= sprintf(
+                                        '<em>%s</em>',
+                                        trim($item->textContent)
+                                    );
+                                } elseif ($item->nodeName === 'u') {
+                                    $buttonText .= sprintf(
+                                        '<u>%s</u>',
+                                        trim($item->textContent)
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
                 $template[self::BUTTONS][] = [
                     self::CALLBACK => trim((string)$button->callback),
-                    self::TEXT => trim((string)$button->text),
+                    self::TEXT => trim($buttonText),
                     self::VALUE => trim((string)$button->value),
                 ];
             }
@@ -447,7 +488,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     private function formatRichTemplate(SimpleXMLElement $item): array
     {
-        $linkNewTab = ($item->image->url['new_tab']) ? true : false;
+        $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
 
         $template = [
             self::TITLE => trim((string)$item->title),
@@ -467,7 +508,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::TAB_SWITCH => true,
                 ];
             } elseif (isset($button->link)) {
-                $buttonLinkNewTab = ($button->link['new_tab']) ? true : false;
+                $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
 
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
@@ -541,7 +582,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $elements[] = $el;
         }
 
-        $autoSubmit = ($item->auto_submit) ? true : false;
+        $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
 
         $template = [
             self::TEXT => trim((string)$item->text),
@@ -570,5 +611,17 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::CHARACTER_LIMIT => trim((string)$item->character_limit),
         ];
         return $template;
+    }
+
+    /**
+     * @param string $value
+     * @param return bool
+     */
+    private function convertToBoolean(string $value): bool
+    {
+        if ($value === '1' || $value === 'true') {
+            return true;
+        }
+        return false;
     }
 }

@@ -83,7 +83,7 @@ abstract class AbstractAttribute implements AttributeInterface
     /**
      * @return string
      */
-    public function serialized(): string
+    public function serialized(): ?string
     {
         return $this->value;
     }

@@ -71,7 +71,7 @@ class WebchatImageMessage extends WebchatMessage implements ImageMessage
     /**
      * {@inheritDoc}
      */
-    public function getData():?array
+    public function getData(): ?array
     {
         return [
             'img_src' => $this->getImgSrc(),

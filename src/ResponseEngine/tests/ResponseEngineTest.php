@@ -13,13 +13,14 @@ use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\ResponseEngine\tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 use OpenDialogAi\OperationEngine\Operations\LessThanOrEqualOperation;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
 use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -358,6 +359,59 @@ class ResponseEngineTest extends TestCase
 
         // phpcs:ignore
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $messageWrapper->getMessages()[0]);
+    }
+
+    public function testWebChatButtonMessageWithExternalButtons()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $buttons = [
+            [
+                'text' => 'Button 1',
+                'callback' => 'callback1',
+                'value' => 'value'
+            ],
+            [
+                'text' => 'Button 2',
+                'callback' => 'callback2',
+                'value' => 'value'
+            ],
+            [
+                'text' => 'Button 3',
+                'callback' => 'callback3',
+                'value' => 'value'
+            ]
+        ];
+        $generator->addButtonMessage('test button', $buttons, true);
+
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+
+        $message = $messageWrapper->getMessages()[0];
+
+        $this->assertInstanceOf(WebchatButtonMessage::class, $message);
+
+        $this->assertEquals($message->getData()['external'], true);
     }
 
     public function testWebChatAttributeMessage()

@@ -13,7 +13,7 @@ use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Tests\Utils\MessageMarkUpGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;

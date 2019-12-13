@@ -44,12 +44,14 @@
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
       "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
       "OpenDialogAi\\ConversationBuilder\\": "src/ConversationBuilder",
+      "OpenDialogAi\\MessageBuilder\\": "src/MessageBuilder",
       "OpenDialogAi\\ConversationEngine\\": "src/ConversationEngine",
       "OpenDialogAi\\ConversationLog\\": "src/ConversationLog",
       "OpenDialogAi\\ResponseEngine\\": "src/ResponseEngine",
       "OpenDialogAi\\InterpreterEngine\\": "src/InterpreterEngine",
       "OpenDialogAi\\OperationEngine\\": "src/OperationEngine",
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
+      "OpenDialogAi\\NlpEngine\\": "src/NlpEngine",
       "OpenDialogAi\\Core\\Database\\": "database/",
       "OpenDialogAi\\Core\\Tests\\": "tests/"
     }

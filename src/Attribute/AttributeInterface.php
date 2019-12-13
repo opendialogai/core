@@ -41,5 +41,5 @@ interface AttributeInterface
      *
      * @return string
      */
-    public function serialized(): string;
+    public function serialized(): ?string;
 }
