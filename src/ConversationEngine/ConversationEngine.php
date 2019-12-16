@@ -233,12 +233,13 @@ class ConversationEngine implements ConversationEngineInterface
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
 
         try {
-            $defaultIntent = $this->interpreterService->getDefaultInterpreter()
-                ->interpret($utterance)[0];
+            $defaultInterpreter = $this->interpreterService->getDefaultInterpreter()::getName();
+
+            $defaultIntent = $this->interpreterService->interpret($defaultInterpreter, $utterance)[0];
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf(
                 'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
-                $this->interpreterService->getDefaultInterpreter()::getName()
+                $defaultInterpreter
             ));
             $defaultIntent = new NoMatchIntent();
         }
@@ -344,12 +345,14 @@ class ConversationEngine implements ConversationEngineInterface
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
         try {
-            $defaultIntent = $this->interpreterService->getDefaultInterpreter()
-                ->interpret($utterance)[0];
+            $defaultInterpreter = $this->interpreterService->getDefaultInterpreter()::getName();
+
+            $defaultIntent = $this->interpreterService
+                ->interpret($defaultInterpreter, $utterance)[0];
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf(
                 'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
-                $this->interpreterService->getDefaultInterpreter()::getName()
+                $defaultInterpreter
             ));
             $defaultIntent = new NoMatchIntent();
         }
@@ -430,13 +433,14 @@ class ConversationEngine implements ConversationEngineInterface
         foreach ($filteredIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 try {
+                    $interpreter = $validIntent->getInterpreterId();
+
                     $intentsFromInterpreter = $this->interpreterService
-                        ->getInterpreter($validIntent->getInterpreterId())
-                        ->interpret($utterance);
+                        ->interpret($interpreter, $utterance);
                 } catch (FieldNotSupported $e) {
                     Log::warning(sprintf(
                         'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
-                        $this->interpreterService->getDefaultInterpreter()::getName()
+                        $interpreter
                     ));
                     $intentsFromInterpreter = new NoMatchIntent();
                 }
@@ -591,13 +595,14 @@ class ConversationEngine implements ConversationEngineInterface
         foreach ($nextIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 try {
-                    $interpretedIntents = $this->interpreterService->getInterpreter($validIntent->getInterpreter()
-                        ->getId())
-                        ->interpret($utterance);
+                    $interpreter = $validIntent->getInterpreter()->getId();
+
+                    $interpretedIntents = $this->interpreterService
+                        ->interpret($interpreter, $utterance);
                 } catch (FieldNotSupported $e) {
                     Log::warning(sprintf(
                         'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
-                        $this->interpreterService->getDefaultInterpreter()::getName()
+                        $interpreter
                     ));
                     $interpretedIntents = new NoMatchIntent();
                 }
