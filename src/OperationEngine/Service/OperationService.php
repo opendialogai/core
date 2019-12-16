@@ -5,10 +5,16 @@ namespace OpenDialogAi\OperationEngine\Service;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ContextEngine\ParsedAttributeName;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
+use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
 
 class OperationService implements OperationServiceInterface
 {
@@ -85,27 +91,7 @@ class OperationService implements OperationServiceInterface
 
         foreach ($condition->getOperationAttributes() as $name => $attribute) {
             $parsedAttributeName = ContextParser::parseAttributeName($attribute);
-
-            try {
-                if (!$parsedAttributeName->getAccessor()) {
-                    $actualAttribute = ContextService::getAttribute(
-                        $parsedAttributeName->attributeId,
-                        $parsedAttributeName->contextId
-                    );
-                } else {
-                    $actualAttribute = ContextService::getAttributeValue(
-                        $parsedAttributeName->attributeId,
-                        $parsedAttributeName->contextId,
-                        $parsedAttributeName->getAccessor()
-                    );
-                }
-            } catch (\Exception $e) {
-                Log::debug($e->getMessage());
-                // If the attribute does not exist create one with a null value since we may be testing
-                // for its existence.
-                $actualAttribute = $this->attributeResolver->getAttributeFor($parsedAttributeName->attributeId, null);
-            }
-
+            $actualAttribute = $this->getActualAttribute($condition, $parsedAttributeName);
             $attributes[$name] = $actualAttribute;
         }
 
@@ -115,5 +101,61 @@ class OperationService implements OperationServiceInterface
         $operation->setAttributes($attributes);
 
         return $operation->execute();
+    }
+
+    /**
+     * @param Condition $condition
+     * @param ParsedAttributeName $parsedAttributeName
+     * @return AttributeInterface
+     */
+    private function getActualAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): AttributeInterface
+    {
+        try {
+            if (!$parsedAttributeName->getAccessor()) {
+                $actualAttribute = ContextService::getAttribute(
+                    $parsedAttributeName->attributeId,
+                    $parsedAttributeName->contextId
+                );
+            } else {
+                $actualAttribute = ContextService::getAttributeValue(
+                    $parsedAttributeName->attributeId,
+                    $parsedAttributeName->contextId,
+                    $parsedAttributeName->getAccessor()
+                );
+            }
+        } catch (AttributeDoesNotExistException $e) {
+            Log::debug(
+                sprintf(
+                    'Trying to get attribute %s from context %s for operation %s but it does not exist. Using a null value',
+                    $parsedAttributeName->attributeId,
+                    $parsedAttributeName->contextId,
+                    $condition->getEvaluationOperation()
+                )
+            );
+
+            $actualAttribute = $this->getNullValueAttribute($parsedAttributeName);
+        }
+
+        return $actualAttribute;
+    }
+
+    /**
+     * Gets a null value for the given attribute so that the operation can be used to check for existence in a
+     * @see IsSetOperation.
+     * If the attribute is not bound, a null valued StringAttribute is returned
+     * @param ParsedAttributeName $parsedAttributeName
+     * @return AttributeInterface
+     */
+    private function getNullValueAttribute(ParsedAttributeName $parsedAttributeName): AttributeInterface
+    {
+        try {
+            $actualAttribute = $this->attributeResolver->getAttributeFor($parsedAttributeName->attributeId, null);
+        } catch (AttributeIsNotSupported $e) {
+            Log::warning(sprintf(
+                'Trying to get attribute that has not been bound for condition. Defaulting to String Attribute'
+            ));
+            $actualAttribute = new StringAttribute($parsedAttributeName->attributeId, null);
+        }
+        return $actualAttribute;
     }
 }
