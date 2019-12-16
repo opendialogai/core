@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 

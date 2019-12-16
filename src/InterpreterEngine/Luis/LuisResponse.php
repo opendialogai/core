@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
-
-use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUEntity;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
 
-class LuisResponse extends AbstractNLUResponse {
+class LuisResponse extends AbstractNLUResponse
+{
     public function __construct($response)
     {
         $this->query = isset($response->query) ? $response->query : null;

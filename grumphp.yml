@@ -28,6 +28,8 @@ parameters:
       ignore_patterns:
         - "*/migrations/*"
         - "*/tests/*"
+        - '_ide_helper.php'
+        - '_ide_helper_models.php'
       sniffs: []
       triggered_by: [php]
       exclude: []

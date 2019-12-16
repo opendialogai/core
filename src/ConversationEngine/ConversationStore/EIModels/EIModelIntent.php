@@ -103,7 +103,8 @@ class EIModelIntent extends EIModelWithConditions
 
         if (isset($intentResponse[Model::CAUSES_ACTION])) {
             $intent->setAction(
-                new Pair($intentResponse[Model::CAUSES_ACTION][0][Model::ID],
+                new Pair(
+                    $intentResponse[Model::CAUSES_ACTION][0][Model::ID],
                     $intentResponse[Model::CAUSES_ACTION][0][Model::UID]
                 )
             );

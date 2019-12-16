@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
-
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 interface ConversationQueryFactoryInterface

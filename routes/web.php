@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
 
-Route::group(['middleware' => 'web'], function() {
+Route::group(['middleware' => 'web'], function () {
     Route::get('/config', function () {
         return config('opendialog.core');
     });

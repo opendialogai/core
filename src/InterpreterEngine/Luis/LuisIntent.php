@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
-
 use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUIntent;
 
 class LuisIntent extends AbstractNLUIntent
