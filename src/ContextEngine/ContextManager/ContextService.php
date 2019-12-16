@@ -13,7 +13,6 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -183,15 +182,7 @@ class ContextService implements ContextServiceInterface
             sprintf('Attempting to retrieve attribute %s in context %s', $attributeId, $context->getId())
         );
 
-        try {
-            return $context->getAttribute($attributeId);
-        } catch (AttributeDoesNotExistException $e) {
-            Log::warning(
-                sprintf('Attribute %s does not exist in context %s', $attributeId, $context->getId())
-            );
-
-            return new StringAttribute($attributeId, '');
-        }
+        return $context->getAttribute($attributeId);
     }
 
     /**

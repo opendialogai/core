@@ -9,7 +9,6 @@ use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
 use OpenDialogAi\ActionEngine\Tests\Actions\DummyAction;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
@@ -68,13 +67,14 @@ class ActionEngineServiceTest extends TestCase
         $this->assertEquals('actions.core.dummy', array_shift($availableActions)->performs());
     }
 
-    /**
-     * @throws ActionNotAvailableException
-     */
     public function testPerformActionNotBound()
     {
-        $this->expectException(ActionNotAvailableException::class);
-        $this->actionEngine->performAction('actions.core.dummy', new Map());
+        try {
+            $this->actionEngine->performAction('actions.core.dummy', new Map());
+            $this->assertTrue(true);
+        } catch (ActionNotAvailableException $e) {
+            $this->fail('Should not have thrown exception');
+        }
     }
 
     public function testPerformActionWithoutRequiredAction()
@@ -88,7 +88,7 @@ class ActionEngineServiceTest extends TestCase
 
         try {
             $result = $this->actionEngine->performAction('actions.core.dummy', $inputAttributes);
-            $this->assertTrue($result->isSuccessful());
+            $this->assertTrue(!$result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('Wrong exception thrown');
         }
@@ -98,6 +98,8 @@ class ActionEngineServiceTest extends TestCase
     {
         $this->setDummyAction();
         ContextService::createContext('test');
+
+        ContextService::getContext('test')->addAttribute(new StringAttribute('name', 'value'));
 
         $inputAttributes = new Map([
             'name' => 'test',
@@ -115,12 +117,15 @@ class ActionEngineServiceTest extends TestCase
     {
         try {
             $result = $this->actionEngine->performAction('action.core.example', new Map());
-            $this->assertTrue($result === null);
+            $this->assertFalse($result->isSuccessful());
 
             $inputAttributes = new Map([
-                'first_name' => 'user',
-                'last_name' => 'user',
+                'first_name' => 'session',
+                'last_name' => 'session',
             ]);
+
+            ContextService::getSessionContext()->addAttribute(new StringAttribute('first_name', 'First'));
+            ContextService::getSessionContext()->addAttribute(new StringAttribute('last_name', 'Last'));
 
             $result = $this->actionEngine->performAction('action.core.example', $inputAttributes);
             $this->assertTrue($result->isSuccessful());
@@ -152,8 +157,7 @@ class ActionEngineServiceTest extends TestCase
     {
         $this->setConfigValue('opendialog.action_engine.custom_actions', [DummyAction::class]);
 
-        /** @var ActionEngineInterface $actionEngine */
-        $actionEngine = app()->make(ActionEngineInterface::class);
+        $actionEngine = resolve(ActionEngineInterface::class);
 
         $this->assertContains('actions.core.dummy', array_keys($actionEngine->getAvailableActions()));
     }
