@@ -32,5 +32,5 @@ interface ActionEngineInterface
      * @return ActionResult|null
      * @throws ActionNotAvailableException
      */
-    public function performAction(string $actionName, Map $inputAttributes): ?ActionResult;
+    public function performAction(string $actionName, Map $inputAttributes): ActionResult;
 }
