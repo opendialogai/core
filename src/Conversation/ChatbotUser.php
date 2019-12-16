@@ -4,9 +4,9 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 class ChatbotUser extends Node
@@ -20,7 +20,7 @@ class ChatbotUser extends Node
     public function __construct($id = null)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CHATBOT_USER));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CHATBOT_USER));
     }
 
     /**

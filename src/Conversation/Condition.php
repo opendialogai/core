@@ -3,8 +3,8 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Node\Node;
 
@@ -28,10 +28,10 @@ class Condition extends Node
     {
         parent::__construct($id);
         $this->attributes = new Map();
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONDITION));
-        $this->addAttribute(new StringAttribute(Model::OPERATION, $evaluationOperation));
-        $this->addAttribute(new ArrayAttribute(Model::ATTRIBUTES, $attributes));
-        $this->addAttribute(new ArrayAttribute(Model::PARAMETERS, $parameters));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CONDITION));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::OPERATION, $evaluationOperation));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::ATTRIBUTES, $attributes));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::PARAMETERS, $parameters));
 
         $this->evaluationOperation = $evaluationOperation;
     }

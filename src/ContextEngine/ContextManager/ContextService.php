@@ -165,7 +165,7 @@ class ContextService implements ContextServiceInterface
             $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
         } catch (AttributeIsNotSupported $e) {
             Log::debug(sprintf('Trying to save unsupported attribute, using StringAttribute %s', $attributeName));
-            $attribute = new StringAttribute($attributeId, $attributeValue);
+            $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
         }
 
         $context->addAttribute($attribute);
@@ -190,7 +190,7 @@ class ContextService implements ContextServiceInterface
                 sprintf('Attribute %s does not exist in context %s', $attributeId, $context->getId())
             );
 
-            return new StringAttribute($attributeId, '');
+            return AttributeResolver::getAttributeFor($attributeId, '');
         }
     }
 

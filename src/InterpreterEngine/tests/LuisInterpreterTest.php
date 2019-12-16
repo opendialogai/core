@@ -129,6 +129,11 @@ class LuisInterpreterTest extends TestCase
 
     public function testMatchWithUnknownEntity()
     {
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['unknownEntity' => StringAttribute::class]
+        );
+
         $this->mock(LuisClient::class, function ($mock) {
             $mock->shouldReceive('query')->andReturn(
                 new LuisResponse(

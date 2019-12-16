@@ -7,7 +7,6 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\CallbackValueParser;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -80,7 +79,7 @@ class CallbackInterpreter extends BaseInterpreter
                 $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             );
         } catch (AttributeIsNotSupported $e) {
-            $attribute = new StringAttribute(
+            $attribute = AttributeResolver::getAttributeFor(
                 $parsed[CallbackValueParser::ATTRIBUTE_NAME],
                 $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             );

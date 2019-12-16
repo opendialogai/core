@@ -96,7 +96,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
                 )
             );
 
-            return new StringAttribute($attributeName, $entity->getResolutionValues()[0]);
+            return AttributeResolver::getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
         }
     }
 

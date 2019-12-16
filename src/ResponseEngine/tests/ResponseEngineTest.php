@@ -457,6 +457,11 @@ class ResponseEngineTest extends TestCase
 
     public function testWebChatMissingAttributeMessage()
     {
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['missingattribute' => StringAttribute::class]
+        );
+
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
@@ -573,6 +578,11 @@ class ResponseEngineTest extends TestCase
 
     public function testTimeStampAttributeNotPresent()
     {
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['last_seen' => TimestampAttribute::class]
+        );
+
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
