@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
-
 abstract class AbstractNLUEntity
 {
     /**

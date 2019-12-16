@@ -421,7 +421,6 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(1, $response->getData());
         $model = $eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
         $this->assertEquals(ConversationNode::ARCHIVED, $model->getConversationStatus());
-
     }
 
     public function testDeleting()

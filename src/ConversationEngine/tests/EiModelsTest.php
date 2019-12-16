@@ -20,17 +20,20 @@ class EiModelsTest extends TestCase
         $this->eiModelCreator = app()->make(EIModelCreator::class);
     }
 
-    public function testEiModelCreatorWithInvalidClassName() {
+    public function testEiModelCreatorWithInvalidClassName()
+    {
         $this->expectException(Exception::class);
         $this->eiModelCreator->createEIModel("invalidClassName", []);
     }
 
-    public function testEiModelCreatorWithInvalidClassInheritence() {
+    public function testEiModelCreatorWithInvalidClassInheritence()
+    {
         $this->expectException(Exception::class);
         $this->eiModelCreator->createEIModel(EiModelsTest::class, []);
     }
 
-    public function testEiModelCreatorWithInvalidResponse() {
+    public function testEiModelCreatorWithInvalidResponse()
+    {
         $this->expectException(Exception::class);
         $response = [["invalid_key" => "invalid_value"]];
         $this->eiModelCreator->createEIModel(EIModelOpeningIntents::class, $response);

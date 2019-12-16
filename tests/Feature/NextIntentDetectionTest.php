@@ -197,7 +197,6 @@ EOT;
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
         $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
-
     }
 
     public function testMultiSceneConversationWithOpeningIncomingIntentConditions()
@@ -263,7 +262,6 @@ EOT;
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
         $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
         $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
-
     }
 
     public function testConversationWithManyIntentsWithSameIdAndIncomingConditions()

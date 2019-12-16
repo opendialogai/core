@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
-use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -298,7 +298,7 @@ class ConversationEngine implements ConversationEngineInterface
 
             /** @var Intent $nextIntent */
             $nextIntent = $matchingIntents->first()->value;
-            Log::debug(sprintf( 'Intent chosen as %s', $nextIntent->getId()));
+            Log::debug(sprintf('Intent chosen as %s', $nextIntent->getId()));
             $userContext->setCurrentIntent($nextIntent);
 
             if ($nextIntent->causesAction()) {

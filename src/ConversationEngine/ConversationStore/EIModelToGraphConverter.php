@@ -268,39 +268,13 @@ class EIModelToGraphConverter
             $this->createSceneConditions($data->getId(), $data->getConditions(), $cm, $clone);
         }
 
-        $this->updateParticipant(
-            $scene->getId(),
-            $scene->getUser(),
-            $cm,
-            $data->getUserSaysIntents(),
-            $clone
-        );
+        $this->updateParticipant($scene->getId(), $scene->getUser(), $cm, $data->getUserSaysIntents(), $clone);
 
-        $this->updateParticipant(
-            $scene->getId(),
-            $scene->getUser(),
-            $cm,
-            $data->getUserSaysAcrossScenesIntents(),
-            $clone,
-            true
-        );
+        $this->updateParticipant($scene->getId(), $scene->getUser(), $cm, $data->getUserSaysAcrossScenesIntents(), $clone, true);
 
-        $this->updateParticipant(
-            $scene->getId(),
-            $scene->getBot(),
-            $cm,
-            $data->getBotSaysIntents(),
-            $clone
-        );
+        $this->updateParticipant($scene->getId(), $scene->getBot(), $cm, $data->getBotSaysIntents(), $clone);
 
-        $this->updateParticipant(
-            $scene->getId(),
-            $scene->getBot(),
-            $cm,
-            $data->getBotSaysAcrossScenesIntents(),
-            $clone,
-            true
-        );
+        $this->updateParticipant($scene->getId(), $scene->getBot(), $cm, $data->getBotSaysAcrossScenesIntents(), $clone, true);
     }
 
     /**

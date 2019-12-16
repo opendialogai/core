@@ -10,7 +10,8 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class DGraphQueryTest extends TestCase
 {
-    public function testBasicQuery() {
+    public function testBasicQuery()
+    {
         $query = new DGraphQuery();
         $query->eq(Model::ID, 'test')
         ->setQueryGraph([
@@ -22,10 +23,13 @@ class DGraphQueryTest extends TestCase
         $this->assertEquals('{ dGraphQuery( func:eq(id,"test")){uid id }}', $preparedQuery);
     }
 
-    public function testQueryWithBasicFilter() {
+    public function testQueryWithBasicFilter()
+    {
         $query = new DGraphQuery();
         $query->eq(Model::ID, 'test')
-        ->filter(function (DGraphQueryFilter $filter) { $filter->eq(Model::EI_TYPE, 'conversation_template'); })
+        ->filter(function (DGraphQueryFilter $filter) {
+            $filter->eq(Model::EI_TYPE, 'conversation_template');
+        })
         ->setQueryGraph([
             Model::UID,
             Model::ID
@@ -38,10 +42,13 @@ class DGraphQueryTest extends TestCase
         );
     }
 
-    public function testQueryWithComplexFilter() {
+    public function testQueryWithComplexFilter()
+    {
         $query = new DGraphQuery();
         $query->eq(Model::ID, 'test')
-        ->filter(function (DGraphQueryFilter $filter) { $filter->eq(Model::EI_TYPE, 'conversation_template'); })
+        ->filter(function (DGraphQueryFilter $filter) {
+            $filter->eq(Model::EI_TYPE, 'conversation_template');
+        })
         ->andFilter(function (DGraphQueryFilter $filter) {
             $filter->notHas(Model::HAS_OPENING_SCENE);
         })
@@ -57,7 +64,8 @@ class DGraphQueryTest extends TestCase
         );
     }
 
-    public function testQueryWithRecurseNoDepth() {
+    public function testQueryWithRecurseNoDepth()
+    {
         $query = new DGraphQuery();
         $query->uid("0xABCD")->recurse()->setQueryGraph([
             Model::UID,
@@ -71,7 +79,8 @@ class DGraphQueryTest extends TestCase
         );
     }
 
-    public function testQueryWithRecurseWithDepth() {
+    public function testQueryWithRecurseWithDepth()
+    {
         $query = new DGraphQuery();
         $query->uid("0xABCD")->recurse(true, 5)->setQueryGraph([
             Model::UID,
@@ -85,7 +94,8 @@ class DGraphQueryTest extends TestCase
         );
     }
 
-    public function testQueryWithSortingAndPagination() {
+    public function testQueryWithSortingAndPagination()
+    {
         $query = new DGraphQuery();
         $query->eq(Model::ID, 'test_id')->sort(Model::ORDER)->first()->setQueryGraph([
             Model::UID,

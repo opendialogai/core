@@ -8,5 +8,5 @@ abstract class BaseSensor implements SensorInterface
 {
     use HasName;
 
-    static $name = 'base';
+    public static $name = 'base';
 }
