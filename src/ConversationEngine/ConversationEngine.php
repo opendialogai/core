@@ -232,7 +232,8 @@ class ConversationEngine implements ConversationEngineInterface
 
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
 
-        $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
+        $defaultIntent = $this->interpreterService->interpretDefaultInterpreter($utterance)[0];
+
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
         $matchingIntents = $this->getMatchingIntents($utterance, $possibleNextIntents, $defaultIntent);
@@ -334,7 +335,8 @@ class ConversationEngine implements ConversationEngineInterface
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
-        $defaultIntent = $this->interpreterService->getDefaultInterpreter()->interpret($utterance)[0];
+        $defaultIntent = $this->interpreterService->interpretDefaultInterpreter($utterance)[0];
+
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
         $openingIntents = $this->conversationStore->getAllEIModelOpeningIntents();
@@ -411,9 +413,9 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var EIModelIntent $validIntent */
         foreach ($filteredIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
-                $intentsFromInterpreter = $this->interpreterService
-                    ->getInterpreter($validIntent->getInterpreterId())
-                    ->interpret($utterance);
+                $interpreter = $validIntent->getInterpreterId();
+
+                $intentsFromInterpreter = $this->interpreterService->interpret($interpreter, $utterance);
 
                 // For each intent from the interpreter check to see if it matches the opening intent candidate.
                 foreach ($intentsFromInterpreter as $interpretedIntent) {
@@ -564,8 +566,9 @@ class ConversationEngine implements ConversationEngineInterface
         /* @var Intent $validIntent */
         foreach ($nextIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
-                $interpretedIntents = $this->interpreterService->getInterpreter($validIntent->getInterpreter()->getId())
-                    ->interpret($utterance);
+                $interpreter = $validIntent->getInterpreter()->getId();
+
+                $interpretedIntents = $this->interpreterService->interpret($interpreter, $utterance);
             } else {
                 $interpretedIntents = [$defaultIntent];
             }

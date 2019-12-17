@@ -5,6 +5,7 @@ namespace InterpreterEngine\tests;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
@@ -66,10 +67,11 @@ class QnAInterpreterTest extends TestCase
     public function testInvalidUtterance()
     {
         $interpreter = new QnAInterpreter();
+        $this->expectException(FieldNotSupported::class);
+
         $intents = $interpreter->interpret(new WebchatChatOpenUtterance());
 
         $this->assertCount(1, $intents);
-        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getLabel());
     }
 
     public function testMatch()

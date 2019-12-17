@@ -4,10 +4,12 @@ namespace OpenDialogAi\InterpreterEngine\Service;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
+use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 
 class InterpreterService implements InterpreterServiceInterface
 {
@@ -33,10 +35,36 @@ class InterpreterService implements InterpreterServiceInterface
             return $cachedResult;
         }
 
-        $intepreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
-        $this->putInterpreterResultToCache($interpreterName, $utterance, $intepreterResult);
+        try {
+            $interpreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
+        } catch (FieldNotSupported $e) {
+            Log::warning(sprintf(
+                'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
+                $interpreterName
+            ));
+            $interpreterResult = [new NoMatchIntent()];
+        }
 
-        return $intepreterResult;
+        $this->putInterpreterResultToCache($interpreterName, $utterance, $interpreterResult);
+
+        return $interpreterResult;
+    }
+
+    /**
+     * Will return a @see NoMatchIntent if the name of the default interpreter is not set
+     * @inheritDoc
+     */
+    public function interpretDefaultInterpreter(UtteranceInterface $utterance): array
+    {
+        try {
+            $defaultInterpreterName = $this->getDefaultInterpreter()::getName();
+            return $this->interpret($defaultInterpreterName, $utterance);
+        } catch (InterpreterNameNotSetException $e) {
+            Log::warning(
+                'Trying to interpret using the default interpreter, but it\'s name has not been set. Using a no match'
+            );
+            return [new NoMatchIntent()];
+        }
     }
 
     /**
