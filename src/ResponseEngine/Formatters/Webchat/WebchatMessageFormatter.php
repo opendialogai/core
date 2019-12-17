@@ -92,7 +92,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 if ($message[self::HIDE_AVATAR] == '1' || $message[self::HIDE_AVATAR] == 'true') {
                     /** @var OpenDialogMessage $webChatMessage */
                     foreach ($messages as $webChatMessage) {
-                        $webChatMessage->setHideavatar(true);
+                        $webChatMessage->setHideAvatar(true);
                     }
                 }
             }

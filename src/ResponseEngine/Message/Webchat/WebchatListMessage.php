@@ -72,7 +72,7 @@ class WebchatListMessage extends WebchatMessage implements ListMessage
             'disable_text' => $this->getDisableText(),
             'internal' => $this->getInternal(),
             'hidetime' => $this->getHidetime(),
-            'hideavatar' => $this->getHideavatar(),
+            'hideavatar' => $this->getHideAvatar(),
             self::TIME => $this->getTime(),
             self::DATE => $this->getDate()
         ];
