@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
-use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -232,9 +232,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         Log::debug(sprintf('There are %s possible next intents.', count($possibleNextIntents)));
 
-        $defaultInterpreter = $this->interpreterService->getDefaultInterpreter()::getName();
-
-        $defaultIntent = $this->interpreterService->interpret($defaultInterpreter, $utterance)[0];
+        $defaultIntent = $this->interpreterService->interpretDefaultInterpreter($utterance)[0];
 
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 
@@ -337,9 +335,7 @@ class ConversationEngine implements ConversationEngineInterface
      */
     private function setCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): ?Conversation
     {
-        $defaultInterpreter = $this->interpreterService->getDefaultInterpreter()::getName();
-
-        $defaultIntent = $this->interpreterService->interpret($defaultInterpreter, $utterance)[0];
+        $defaultIntent = $this->interpreterService->interpretDefaultInterpreter($utterance)[0];
 
         Log::debug(sprintf('Default intent is %s', $defaultIntent->getId()));
 

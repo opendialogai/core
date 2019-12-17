@@ -36,18 +36,35 @@ class InterpreterService implements InterpreterServiceInterface
         }
 
         try {
-            $intepreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
+            $interpreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
         } catch (FieldNotSupported $e) {
             Log::warning(sprintf(
                 'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
                 $interpreterName
             ));
-            $intepreterResult = [new NoMatchIntent()];
+            $interpreterResult = [new NoMatchIntent()];
         }
 
-        $this->putInterpreterResultToCache($interpreterName, $utterance, $intepreterResult);
+        $this->putInterpreterResultToCache($interpreterName, $utterance, $interpreterResult);
 
-        return $intepreterResult;
+        return $interpreterResult;
+    }
+
+    /**
+     * Will return a @see NoMatchIntent if the name of the default interpreter is not set
+     * @inheritDoc
+     */
+    public function interpretDefaultInterpreter(UtteranceInterface $utterance): array
+    {
+        try {
+            $defaultInterpreterName = $this->getDefaultInterpreter()::getName();
+            return $this->interpret($defaultInterpreterName, $utterance);
+        } catch (InterpreterNameNotSetException $e) {
+            Log::warning(
+                'Trying to interpret using the default interpreter, but it\'s name has not been set. Using a no match'
+            );
+            return [new NoMatchIntent()];
+        }
     }
 
     /**
