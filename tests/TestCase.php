@@ -647,6 +647,20 @@ EOT;
         }
     }
 
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithRepeatingIntentCrossScene(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithRepeatingIntentCrossScene();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
     public function getMarkupForConversationWithVirtualIntent(): string
     {
         /** @lang yaml */
@@ -738,10 +752,47 @@ conversation:
           - u:
               i: intent.app.question
               repeating: true
+          - u:
+              i: intent.app.questionStop
+              scene: stop_scene
           - b:
               i: intent.app.questionResponse
+              completes: true
+    stop_scene:
+      intents:
+          - b:
+              i: intent.app.endResponse
+              completes: true
+EOT;
+    }
+
+    public function getMarkupForConversationWithRepeatingIntentCrossScene(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_repeating_intent
+  scenes:
+    opening_scene:
+      intents:
           - u:
-              i: intent.app.end
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+          - u:
+              i: intent.app.question
+              repeating: true
+              scene: next_scene
+          - u:
+              i: intent.app.questionStop
+              scene: stop_scene
+    next_scene:
+      intents:
+          - b:
+              i: intent.app.questionResponse
+              completes: true
+    stop_scene:
+      intents:
           - b:
               i: intent.app.endResponse
               completes: true
