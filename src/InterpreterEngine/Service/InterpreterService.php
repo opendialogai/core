@@ -4,10 +4,12 @@ namespace OpenDialogAi\InterpreterEngine\Service;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
+use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 
 class InterpreterService implements InterpreterServiceInterface
 {
@@ -33,7 +35,16 @@ class InterpreterService implements InterpreterServiceInterface
             return $cachedResult;
         }
 
-        $intepreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
+        try {
+            $intepreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
+        } catch (FieldNotSupported $e) {
+            Log::warning(sprintf(
+                'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
+                $interpreterName
+            ));
+            $intepreterResult = [new NoMatchIntent()];
+        }
+
         $this->putInterpreterResultToCache($interpreterName, $utterance, $intepreterResult);
 
         return $intepreterResult;
