@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
@@ -26,9 +26,9 @@ class Conversation extends NodeWithConditions
     public function __construct($id, $conversationStatus, $conversationVersion)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE));
-        $this->addAttribute(new StringAttribute(Model::CONVERSATION_STATUS, $conversationStatus));
-        $this->addAttribute(new IntAttribute(Model::CONVERSATION_VERSION, $conversationVersion));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONVERSATION_STATUS, $conversationStatus));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONVERSATION_VERSION, $conversationVersion));
     }
 
     /**

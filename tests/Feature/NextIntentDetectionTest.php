@@ -443,6 +443,11 @@ EOT;
 
     public function testMultipleVirtualIntents()
     {
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['test' => StringAttribute::class]
+        );
+
         $openDialogController = resolve(OpenDialogController::class);
 
         $this->createConversationWithMultipleVirtualIntents();

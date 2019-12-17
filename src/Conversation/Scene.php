@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 
 /**
  * A scene is a specific context of a conversation with the associated exchange of utterances between participants.
@@ -20,7 +20,7 @@ class Scene extends NodeWithConditions
     public function __construct($id)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::SCENE));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::SCENE));
 
         // Create the scene participants
         $this->bot = new Participant($this->botIdInScene());

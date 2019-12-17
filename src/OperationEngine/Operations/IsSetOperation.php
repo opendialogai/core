@@ -15,7 +15,7 @@ class IsSetOperation extends BaseOperation
     {
         $attribute = reset($this->attributes);
 
-        return $attribute->getValue() !== null && $attribute->getValue() !== '';
+        return $attribute->getValue() !== null && $attribute->getValue() !== '' && $attribute->getValue() !== false;
     }
 
     /**

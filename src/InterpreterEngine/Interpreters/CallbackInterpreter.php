@@ -7,7 +7,6 @@ use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\CallbackValueParser;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
@@ -66,7 +65,7 @@ class CallbackInterpreter extends BaseInterpreter
      * @param string $value
      * @return AttributeInterface
      */
-    protected function getCallbackValueAttribute(string $value): AttributeInterface
+    protected function getCallbackValueAttribute(string $value): ?AttributeInterface
     {
         $parsed = CallbackValueParser::parseCallbackValue($value);
 
@@ -75,20 +74,23 @@ class CallbackInterpreter extends BaseInterpreter
                 $parsed[CallbackValueParser::ATTRIBUTE_NAME],
                 $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             );
+
+            Log::debug(sprintf(
+                'Adding attribute %s with value %s to intent.',
+                $attribute->getId(),
+                $attribute->getValue()
+            ));
+
+            return $attribute;
         } catch (AttributeIsNotSupported $e) {
-            $attribute = new StringAttribute(
+            Log::warning(sprintf(
+                'Not adding attribute %s with value %s from the callback interpreter. The attribute is not bound to a type',
                 $parsed[CallbackValueParser::ATTRIBUTE_NAME],
-                $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
-            );
+                $parsed[CallbackValueParser::ATTRIBUTE_VALUE],
+            ));
         }
 
-        Log::debug(sprintf(
-            'Adding attribute %s with value %s to intent.',
-            $attribute->getId(),
-            $attribute->getValue()
-        ));
-
-        return $attribute;
+        return null;
     }
 
     /**
@@ -98,7 +100,7 @@ class CallbackInterpreter extends BaseInterpreter
     public function setValue(UtteranceInterface $utterance, Intent $intent): void
     {
         try {
-            if ($utterance->getValue()) {
+            if ($utterance->getValue() && $this->getCallbackValueAttribute($utterance->getValue())) {
                 $intent->addAttribute($this->getCallbackValueAttribute($utterance->getValue()));
             }
         } catch (FieldNotSupported $e) {

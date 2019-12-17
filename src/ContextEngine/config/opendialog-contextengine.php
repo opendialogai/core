@@ -19,6 +19,8 @@ return [
         'timestamp' => \OpenDialogAi\Core\Attribute\IntAttribute::class,
         'last_seen' => OpenDialogAi\Core\Attribute\TimestampAttribute::class,
         'first_seen' => OpenDialogAi\Core\Attribute\TimestampAttribute::class,
+        'attributes' => \OpenDialogAi\Core\Attribute\ArrayAttribute::class,
+        'parameters' => \OpenDialogAi\Core\Attribute\ArrayAttribute::class,
 
         'qna_answer' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
 
@@ -28,7 +30,14 @@ return [
         'interpreted_intent' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
         'next_intents' => \OpenDialogAi\Core\Attribute\ArrayAttribute::class,
 
+        \OpenDialogAi\Core\Conversation\Model::CONVERSATION_STATUS => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        \OpenDialogAi\Core\Conversation\Model::CONVERSATION_VERSION => \OpenDialogAi\Core\Attribute\IntAttribute::class,
+
+        \OpenDialogAi\Core\Conversation\Model::USER_ATTRIBUTE_TYPE => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        \OpenDialogAi\Core\Conversation\Model::USER_ATTRIBUTE_VALUE => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+
         // Intents
+        \OpenDialogAi\Core\Conversation\Model::ORDER => \OpenDialogAi\Core\Attribute\IntAttribute::class,
         \OpenDialogAi\Core\Conversation\Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class,
         \OpenDialogAi\Core\Conversation\Model::COMPLETES => \OpenDialogAi\Core\Attribute\BooleanAttribute::class
     ],
