@@ -23,6 +23,8 @@ abstract class WebchatMessage implements OpenDialogMessage
 
     private $hidetime = false;
 
+    private $hideAvatar = false;
+
     private $internal = false;
 
     private $isEmpty = false;
@@ -137,6 +139,26 @@ abstract class WebchatMessage implements OpenDialogMessage
     }
 
     /**
+     * @return bool
+     */
+    public function getHideAvatar()
+    {
+        return $this->hideAvatar;
+    }
+
+    /**
+     * Set hideAvatar property
+     *
+     * @param $hideAvatar
+     * @return $this
+     */
+    public function setHideAvatar($hideAvatar)
+    {
+        $this->hideAvatar = $hideAvatar;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getMessageType()
@@ -167,6 +189,7 @@ abstract class WebchatMessage implements OpenDialogMessage
             'disable_text' => $this->getDisableText(),
             'internal' => $this->getInternal(),
             'hidetime' => $this->getHidetime(),
+            'hideavatar' => $this->getHideAvatar(),
             self::TIME => $this->getTime(),
             self::DATE => $this->getDate()
         ];

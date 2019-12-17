@@ -5,7 +5,9 @@ namespace OpenDialogAi\MessageBuilder\Message;
 class ImageMessage
 {
     public $src;
+
     public $link;
+
     public $linkNewTab;
 
     /**

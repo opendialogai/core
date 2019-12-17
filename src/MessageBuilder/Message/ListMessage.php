@@ -12,6 +12,10 @@ class ListMessage
 
     public $messages = [];
 
+    /**
+     * ListMessage constructor.
+     * @param $viewType
+     */
     public function __construct($viewType)
     {
         $this->viewType = $viewType;
