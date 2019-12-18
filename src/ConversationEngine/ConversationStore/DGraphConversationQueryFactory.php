@@ -238,6 +238,7 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
                     ModelFacets::CREATED_AT
                 ]
             ],
+            Model::REPEATING,
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
             Model::HAS_CONDITION => self::getConditionGraph(),
@@ -326,6 +327,20 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             ->filterEq(Model::ID, $name)
             ->setQueryGraph([
                 Model::UID
+            ]);
+    }
+
+    /**
+     * @param $intentUid
+     * @return DGraphQuery
+     */
+    public static function getPrecedingIntent($intentUid): DGraphQuery
+    {
+        return (new DGraphQuery())
+            ->uid($intentUid)
+            ->setQueryGraph([
+                Model::UID,
+                Model::PRECEDED_BY => self::getIntentGraph()
             ]);
     }
 }

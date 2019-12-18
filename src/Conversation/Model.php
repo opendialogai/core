@@ -71,6 +71,7 @@ class Model
     const ORDER = 'core.attribute.order';
     const COMPLETES = 'core.attribute.completes';
     const CONFIDENCE = 'core.attribute.confidence';
+    const REPEATING = 'core.attribute.repeating';
     const CONTEXT = 'context';
     const ATTRIBUTES = 'attributes';
     const OPERATION = 'operation';

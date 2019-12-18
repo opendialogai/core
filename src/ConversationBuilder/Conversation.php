@@ -363,6 +363,7 @@ class Conversation extends Model
         $inputActionAttributes = null;
         $outputActionAttributes = null;
         $virtualIntentId = null;
+        $repeating = false;
 
         if (is_array($intentValue)) {
             $intentLabel = $intentValue['i'];
@@ -372,6 +373,7 @@ class Conversation extends Model
             $conditions = $intentValue['conditions'] ?? null;
             $intentSceneId = $intentValue['scene'] ?? null;
             $expectedAttributes = $intentValue['expected_attributes'] ?? null;
+            $repeating = $intentValue['repeating'] ?? false;
 
             if (isset($intentValue['action']) && is_array($intentValue['action'])) {
                 $actionLabel = $intentValue['action']['id'] ?? null;
@@ -431,6 +433,10 @@ class Conversation extends Model
 
         if ($virtualIntentId) {
             $intentNode->addVirtualIntent(new VirtualIntent($virtualIntentId));
+        }
+
+        if ($repeating) {
+            $intentNode->setRepeating(true);
         }
 
         return $intentNode;
