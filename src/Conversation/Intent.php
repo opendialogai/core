@@ -6,8 +6,6 @@ use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
@@ -69,7 +67,7 @@ class Intent extends NodeWithConditions
      */
     public function setConfidence($confidence): Intent
     {
-        $this->addAttribute(new FloatAttribute(Model::CONFIDENCE, $confidence));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONFIDENCE, $confidence));
         return $this;
     }
 
@@ -123,7 +121,7 @@ class Intent extends NodeWithConditions
         $this->order = $order;
 
         try {
-            $attribute = new IntAttribute(Model::ORDER, $order);
+            $attribute = AttributeResolver::getAttributeFor(Model::ORDER, $order);
         } catch (UnsupportedAttributeTypeException $e) {
             return false;
         }

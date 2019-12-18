@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
@@ -15,6 +15,6 @@ class ExpectedAttribute extends Node
     public function __construct($id)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::EXPECTED_ATTRIBUTE));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::EXPECTED_ATTRIBUTE));
     }
 }

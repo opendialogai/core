@@ -48,6 +48,11 @@ class ContextEngineServiceTest extends TestCase
 
     public function testRetrievingAnAttributeDirectly()
     {
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['test' => StringAttribute::class]
+        );
+
         // Create a context and add an attribute to it.
         $newContext = $this->contextService()->createContext('new_context');
         $newContext->addAttribute(new StringAttribute('test', 'value'));
@@ -82,6 +87,11 @@ class ContextEngineServiceTest extends TestCase
 
     public function testSavingUnsupportedAttributeNoContext()
     {
+        $this->setConfigValue(
+            'opendialog.context_engine.custom_attributes',
+            ['test_attribute' => StringAttribute::class]
+        );
+
         $attributeName = 'test_attribute';
         $attributeValue = 1;
 

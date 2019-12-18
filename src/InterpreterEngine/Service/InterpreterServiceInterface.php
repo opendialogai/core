@@ -23,6 +23,13 @@ interface InterpreterServiceInterface
     public function interpret(string $interpreterName, UtteranceInterface $utterance) : array;
 
     /**
+     * Runs @see InterpreterServiceInterface::interpret() for the default interpreter
+     * @param UtteranceInterface $utterance
+     * @return Intent[]
+     */
+    public function interpretDefaultInterpreter(UtteranceInterface $utterance) : array;
+
+    /**
      * Return the interpreter cache time if set or the global default cache time
      *
      * @param string $interpreterName Should be in the format interpreter.{namespace}.{name}

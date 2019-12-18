@@ -87,6 +87,15 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     }
                 }
             }
+
+            if (isset($message[self::HIDE_AVATAR])) {
+                if ($message[self::HIDE_AVATAR] == '1' || $message[self::HIDE_AVATAR] == 'true') {
+                    /** @var OpenDialogMessage $webChatMessage */
+                    foreach ($messages as $webChatMessage) {
+                        $webChatMessage->setHideAvatar(true);
+                    }
+                }
+            }
         } catch (Exception $e) {
             Log::warning(sprintf('Message Builder error: %s', $e->getMessage()));
             return new WebChatMessages();

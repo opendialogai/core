@@ -5,11 +5,13 @@ namespace OpenDialogAi\MessageBuilder\Message;
 class TextMessageWithLink
 {
     public $text;
+
     public $link_text;
+
     public $link_url;
 
     /**
-     * TextMessage constructor.
+     * TextMessageWithLink constructor.
      * @param $text
      */
     public function __construct($text, $link_text, $link_url)

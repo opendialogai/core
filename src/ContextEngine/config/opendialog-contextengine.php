@@ -1,43 +1,53 @@
 <?php
 
+use OpenDialogAi\Core\Attribute\ArrayAttribute;
+use OpenDialogAi\Core\Attribute\BooleanAttribute;
+use OpenDialogAi\Core\Attribute\FloatAttribute;
+use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\Conversation\Model;
 
 return [
-    'supported_attributes' => array(
+    'supported_attributes' => [
+        'attribute_name'   => StringAttribute::class,
+        'attribute_value' => StringAttribute::class,
+        'callback_value' => StringAttribute::class,
+        'context' => StringAttribute::class,
+        'ei_type' => StringAttribute::class,
+        'email' => StringAttribute::class,
+        'external_id' => StringAttribute::class,
+        'first_name' => StringAttribute::class,
+        'full_name' => StringAttribute::class,
+        'id' => StringAttribute::class,
+        'last_name' => StringAttribute::class,
+        'age' => IntAttribute::class,
+        'name' => StringAttribute::class,
+        'operation' => StringAttribute::class,
+        'timestamp' => IntAttribute::class,
+        'last_seen' => TimestampAttribute::class,
+        'first_seen' => TimestampAttribute::class,
+        'attributes' => ArrayAttribute::class,
+        'parameters' => ArrayAttribute::class,
 
-        'attribute_name'  => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'attribute_value' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'callback_value'  => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        Model::CONTEXT    => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        Model::EI_TYPE    => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'operation'       => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'timestamp'       => \OpenDialogAi\Core\Attribute\IntAttribute::class,
+        'qna_answer' => StringAttribute::class,
 
-        // QnA Interpreter
-        'qna_answer' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
+        'current_conversation' => StringAttribute::class,
+        'current_scene' => StringAttribute::class,
+        'current_intent' => StringAttribute::class,
+        'interpreted_intent' => StringAttribute::class,
+        'next_intents' => ArrayAttribute::class,
 
-        // Conversation Context
-        'current_conversation' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'current_scene'        => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'current_intent'       => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'interpreted_intent'   => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'next_intents'         => \OpenDialogAi\Core\Attribute\ArrayAttribute::class,
+        Model::CONVERSATION_STATUS => StringAttribute::class,
+        Model::CONVERSATION_VERSION => IntAttribute::class,
 
-        // Chatbot User
-        'email'       => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'external_id' => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'first_name'  => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'full_name'   => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'id'          => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'last_name'   => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'age'         => \OpenDialogAi\Core\Attribute\IntAttribute::class,
-        'name'        => \OpenDialogAi\Core\Attribute\StringAttribute::class,
-        'last_seen'   => OpenDialogAi\Core\Attribute\TimestampAttribute::class,
-        'first_seen'  => OpenDialogAi\Core\Attribute\TimestampAttribute::class,
+        Model::USER_ATTRIBUTE_TYPE => StringAttribute::class,
+        Model::USER_ATTRIBUTE_VALUE => StringAttribute::class,
 
         // Intents
-        Model::CONFIDENCE => \OpenDialogAi\Core\Attribute\FloatAttribute::class,
-        Model::COMPLETES  => \OpenDialogAi\Core\Attribute\BooleanAttribute::class,
-        Model::REPEATING  => \OpenDialogAi\Core\Attribute\BooleanAttribute::class
-    ),
+        Model::ORDER => IntAttribute::class,
+        Model::CONFIDENCE => FloatAttribute::class,
+        Model::COMPLETES => BooleanAttribute::class,
+        Model::REPEATING  => BooleanAttribute::class
+    ],
 ];

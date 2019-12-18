@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
@@ -20,11 +20,11 @@ class UserAttribute extends Node
     {
         parent::__construct($attribute->getId());
 
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::USER_ATTRIBUTE));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::USER_ATTRIBUTE));
 
-        $this->addAttribute(new StringAttribute(Model::ID, $attribute->getId()));
-        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_TYPE, $attribute->getType()));
-        $this->addAttribute(new StringAttribute(Model::USER_ATTRIBUTE_VALUE, $attribute->serialized()));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::ID, $attribute->getId()));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::USER_ATTRIBUTE_TYPE, $attribute->getType()));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::USER_ATTRIBUTE_VALUE, $attribute->serialized()));
 
         $this->attribute = $attribute;
     }

@@ -64,6 +64,7 @@ interface MessageFormatterInterface
     public const OPTIONS                 = 'options';
     public const VIEW_TYPE               = 'view_type';
     public const DISABLE_TEXT            = 'disable_text';
+    public const HIDE_AVATAR             = 'hide_avatar';
     public const CLEAR_AFTER_INTERACTION = 'clear_after_interaction';
 
     public function getMessages(string $markup): OpenDialogMessages;

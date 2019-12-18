@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatButtonResponseUtterance;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
@@ -22,11 +23,14 @@ class CallbackInterpreterTest extends TestCase
     public function testBinding()
     {
         /** @var InterpreterServiceInterface $interpreterService */
-        $interpreterService = app()->make(InterpreterServiceInterface::class);
+        $interpreterService = resolve(InterpreterServiceInterface::class);
 
         $this->assertInstanceOf(CallbackInterpreter::class, $interpreterService->getDefaultInterpreter());
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
     public function testUnmappedCallback()
     {
         $callbackInterpreter = $this->getCallbackInterpreter();
@@ -37,6 +41,9 @@ class CallbackInterpreterTest extends TestCase
         $this->assertEquals('un-mapped', $callbackInterpreter->interpret($utterance)[0]->getId());
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
     public function testValidCallback()
     {
         $callbackInterpreter = $this->getCallbackInterpreter();
@@ -47,6 +54,9 @@ class CallbackInterpreterTest extends TestCase
         $this->assertEquals('valid', $callbackInterpreter->interpret($utterance)[0]->getId());
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
     public function testGetButtonValueNoAttributeName()
     {
         $callbackInterpreter = $this->getCallbackInterpreter();
@@ -64,6 +74,9 @@ class CallbackInterpreterTest extends TestCase
         $this->assertEquals('badly_named', $intent->getNonCoreAttributes()->first()->value->getValue());
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
     public function testGetButtonValueWithAttributeName()
     {
         $customAttribute = ['age' => IntAttribute::class];
@@ -82,8 +95,22 @@ class CallbackInterpreterTest extends TestCase
         $this->assertEquals(21, $intent->getNonCoreAttributes()->first()->value->getValue());
     }
 
+    /**
+     * @throws FieldNotSupported
+     */
+    public function testCallbackInterpreterAttributeNotSet()
+    {
+        $utterance = new WebchatButtonResponseUtterance();
+        $utterance->setCallbackId('valid');
+        $utterance->setValue('not_set.21');
+
+        $intent = $this->getCallbackInterpreter()->interpret($utterance)[0];
+
+        $this->assertCount(0, $intent->getNonCoreAttributes());
+    }
+
     protected function getCallbackInterpreter(): InterpreterInterface
     {
-        return app()->make(InterpreterServiceInterface::class)->getDefaultInterpreter();
+        return resolve(InterpreterServiceInterface::class)->getDefaultInterpreter();
     }
 }

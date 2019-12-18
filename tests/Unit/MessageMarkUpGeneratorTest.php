@@ -9,7 +9,7 @@ class MessageMarkUpGeneratorTest extends TestCase
 {
     public function testButtonMarkUpGenerator()
     {
-        $generator = new MessageMarkUpGenerator();
+        $generator = new MessageMarkUpGenerator(true, true);
         $buttons = [
             [
                 'text' => 'Button Text',
@@ -20,7 +20,7 @@ class MessageMarkUpGeneratorTest extends TestCase
         $generator->addButtonMessage('test button', $buttons);
 
         $markUp = ($generator->getMarkUp());
-        $this->assertRegexp('/<message disable_text="false">/', $markUp);
+        $this->assertRegexp('/<message disable_text="true" hide_avatar="true">/', $markUp);
         $this->assertRegexp('/<button-message>/', $markUp);
         $this->assertRegexp('/<button>/', $markUp);
         $this->assertRegexp('/<text>Button Text<\/text>/', $markUp);
@@ -33,7 +33,7 @@ class MessageMarkUpGeneratorTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
         $markUp = ($generator->getMarkUp());
-        $this->assertRegexp('/<message disable_text="false">/', $markUp);
+        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
         $this->assertRegexp('/<text-message>/', $markUp);
         $this->assertRegexp('/<link>/', $markUp);
         $this->assertRegexp('/<text>This is a link<\/text>/', $markUp);
