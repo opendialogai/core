@@ -36,7 +36,7 @@ class MsClient
         ];
 
         $response = $this->client->post(
-            '/languages',
+            'languages',
             [
                 'form_params' => $body
             ]
@@ -62,7 +62,7 @@ class MsClient
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            '/sentiment',
+            'sentiment',
             [
                 'form_params' => $body
             ]
@@ -82,7 +82,7 @@ class MsClient
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            '/entities',
+            'entities',
             [
                 'form_params' => $body
             ]
