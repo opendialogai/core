@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
 
-use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpEntity;
 use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
