@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpEntity;
 use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
@@ -28,20 +29,21 @@ class MsClient
         $body = [
             'documents' => [
                 [
-                    'countryHint' => $languageHint,
+                    'countryHint' => '',
                     'id' => '1', // for now we set this to 1 as we aren't passing an array
                     'text' => $string,
                 ],
             ],
         ];
-
         $response = $this->client->post(
             'languages',
             [
-                'form_params' => $body
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode($body)
             ]
         );
-
         $language = json_decode($response->getBody()->getContents(), true)['documents'][0]['detectedLanguages'][0];
 
         $nlpLanguage = new NlpLanguage();
@@ -62,7 +64,7 @@ class MsClient
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            'sentiment',
+            '/sentiment',
             [
                 'form_params' => $body
             ]
@@ -82,7 +84,7 @@ class MsClient
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            'entities',
+            '/entities',
             [
                 'form_params' => $body
             ]
