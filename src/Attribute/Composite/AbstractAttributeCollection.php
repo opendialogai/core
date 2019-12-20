@@ -51,7 +51,7 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
     /**
      * @inheritDoc
      */
-    public function getAttributes(): array
+    public function getAttributes(): ?array
     {
         return $this->attributes;
     }
@@ -63,8 +63,12 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
     {
         $serializedResult = [];
 
-        foreach ($this->attributes as $attribute) {
-            $serializedResult[] = ['id' => $attribute->getId(), 'value' => $attribute->getValue()];
+        if (!is_null($this->attributes)) {
+            foreach ($this->attributes as $attribute) {
+                $serializedResult[] = ['id' => $attribute->getId(), 'value' => $attribute->getValue()];
+            }
+        } else {
+            $serializedResult = null;
         }
 
         return Util::encode($serializedResult);
@@ -81,17 +85,19 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
      * ]
      *
      * @param string $input A JSON Serialisation of attributes
-     * @return AttributeInterface[]
+     * @return AttributeInterface[]|null
      */
-    private function jsonDeserialize($input) : array
+    private function jsonDeserialize($input) : ?array
     {
-        $arrayOfAttributes = Util::decode($input);
-        $resultAttributes = [];
-
         if (!is_null($input)) {
+            $arrayOfAttributes = Util::decode($input);
+            $resultAttributes = [];
+
             foreach ($arrayOfAttributes as $attribute) {
                 $resultAttributes[] = AttributeResolver::getAttributeFor($attribute['id'], $attribute['value']);
             }
+        } else {
+            $resultAttributes = null;
         }
 
         return $resultAttributes;
