@@ -54,7 +54,7 @@ class NlpEngineServiceProvider extends ServiceProvider
         $this->app->bind(
             NlpServiceInterface::class,
             function ($app) {
-                $app()->make('MsNlpService');
+                $app()->make('MsNlpServiceBind');
             }
         );
     }
