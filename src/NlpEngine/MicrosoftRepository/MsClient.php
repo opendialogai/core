@@ -63,9 +63,9 @@ class MsClient
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            '/sentiment',
+            'sentiment',
             [
-                'form_params' => $body
+                'body' => json_encode($body)
             ]
         );
 
@@ -83,9 +83,9 @@ class MsClient
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            '/entities',
+            'entities',
             [
-                'form_params' => $body
+                'body' => json_encode($body)
             ]
         );
 
