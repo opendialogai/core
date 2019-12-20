@@ -107,4 +107,10 @@ interface ConversationStoreInterface
      * @return bool
      */
     public function hasConversationBeenUsed(string $name): bool;
+
+    /**
+     * @param $intentUid
+     * @return Intent|null
+     */
+    public function getPrecedingIntent($intentUid): ?Intent;
 }

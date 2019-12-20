@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
+use Ds\Map;
 use Ds\Pair;
 use Ds\Set;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
@@ -15,6 +16,7 @@ use OpenDialogAi\Core\Conversation\ExpectedAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Interpreter;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\ModelFacets;
 use OpenDialogAi\Core\Conversation\Participant;
 use OpenDialogAi\Core\Conversation\VirtualIntent;
 
@@ -69,6 +71,26 @@ class EIModelToGraphConverter
             }
         }
 
+        $allScenes = $conversation->getOpeningScenes()->merge($conversation->getScenes());
+        $followedByMap = new Map();
+
+        /** @var EIModelScene $sceneModel */
+        foreach ($allScenes as $sceneModel) {
+            /** @var EIModelIntent $intentModel */
+            foreach ($sceneModel->getIntents() as $intentModel) {
+                if ($intentModel->getFollowedBy()) {
+                    $followedByMap->put($intentModel->getIntentUid(), new Map([
+                        Model::UID => $intentModel->getFollowedBy(),
+                        ModelFacets::CREATED_AT => $intentModel->getFollowedByCreatedAt()
+                    ]));
+                }
+            }
+        }
+
+        foreach ($followedByMap as $key => $value) {
+            $cm->intentFollows($key, $value[Model::UID], $value[ModelFacets::CREATED_AT]);
+        }
+
         return $cm->getConversation();
     }
 
@@ -112,6 +134,7 @@ class EIModelToGraphConverter
         $intent->setCompletesAttribute($intentData->getCompletes());
         $intent->setConfidence($intentData->getConfidence());
         $intent->setOrderAttribute($intentData->getOrder());
+        $intent->setRepeating($intentData->getRepeating());
 
         /* @var Pair $action */
         $actionPair = $intentData->getAction();

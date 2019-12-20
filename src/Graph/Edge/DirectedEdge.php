@@ -12,10 +12,11 @@ class DirectedEdge extends Edge
      * @param $id
      * @param Node $from
      * @param Node $to
+     * @param array|null $facets
      */
-    public function __construct($id, Node $from, Node $to)
+    public function __construct($id, Node $from, Node $to, array $facets = null)
     {
-        parent::__construct($id, $from, $to);
+        parent::__construct($id, $from, $to, $facets);
         $from->addOutgoingEdge($this);
         $to->addIncomingEdge($this);
     }

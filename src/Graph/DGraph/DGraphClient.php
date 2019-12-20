@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Graph\DGraph;
 
+use Ds\Map;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
@@ -219,16 +220,17 @@ class DGraphClient
      * @param $node1Uid
      * @param $node2Uid
      * @param $relationship
+     * @param Map|null $facets
      * @return mixed
      * @throws GuzzleException
      */
-    public function createRelationship($node1Uid, $node2Uid, $relationship)
+    public function createRelationship($node1Uid, $node2Uid, $relationship, Map $facets = null)
     {
         $response = $this->client->request(
             'POST',
             self::MUTATE_COMMIT_NOW,
             [
-                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship),
+                'body' => $this->prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship, $facets),
                 'headers' => [
                     'Content-Type' => 'application/rdf'
                 ]
@@ -318,12 +320,18 @@ class DGraphClient
      * @param $node1Uid
      * @param $node2Uid
      * @param $relationship
+     * @param Map|null $facets
      * @return string
      */
-    private function prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship)
+    private function prepareCreateRelationshipStatement($node1Uid, $node2Uid, $relationship, Map $facets = null)
     {
-        $statement = sprintf('{ set { <%s> <%s> <%s> . } }', $node1Uid, $relationship, $node2Uid);
-        return $statement;
+        $prepared = sprintf('<%s> <%s> <%s>', $node1Uid, $relationship, $node2Uid);
+
+        if (!is_null($facets)) {
+            $prepared = sprintf('%s %s', $prepared, DGraphMutation::prepareFacets($facets));
+        }
+
+        return sprintf('{ set { %s . } }', $prepared);
     }
 
     /**
@@ -340,7 +348,9 @@ class DGraphClient
             <conversation_version>: int .
             <core.attribute.completes>: default .
             <core.attribute.order>: default .
+            <core.attribute.repeating>: default .
             <ei_type>: string @index(exact) .
+            <followed_by>: uid @reverse .
             <has_bot_participant>: [uid] @reverse .
             <has_condition>: [uid] .
             <has_interpreter>: [uid] .
@@ -379,7 +389,9 @@ class DGraphClient
                 simulates_intent: [uid]
                 core.attribute.completes: default
                 core.attribute.order: default
+                core.attribute.repeating: default
                 ei_type: string
+                followed_by: uid
                 has_condition: [uid]
                 has_interpreter: [uid]
                 id: string

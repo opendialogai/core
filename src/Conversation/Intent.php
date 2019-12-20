@@ -20,7 +20,8 @@ class Intent extends NodeWithConditions
         Model::EI_TYPE,
         Model::COMPLETES,
         Model::ORDER,
-        Model::CONFIDENCE
+        Model::CONFIDENCE,
+        Model::REPEATING
     ];
 
     private $completes = false;
@@ -38,6 +39,7 @@ class Intent extends NodeWithConditions
     {
         parent::__construct($id);
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::INTENT));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::REPEATING, false));
 
         $this->setCompletesAttribute($completes);
     }
@@ -472,5 +474,47 @@ class Intent extends NodeWithConditions
         $nodes = $this->getNodesConnectedByOutgoingRelationship(Model::SIMULATES_INTENT);
 
         return $nodes->isEmpty() ? null : $nodes->first()->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasFollowedBy(): bool
+    {
+        return $this->hasOutgoingEdgeWithRelationship(Model::FOLLOWED_BY);
+    }
+
+    /**
+     * @return Intent
+     */
+    public function getFollowedBy(): Intent
+    {
+        return $this->getNodesConnectedByOutgoingRelationship(Model::FOLLOWED_BY)->first()->value;
+    }
+
+    /**
+     * @param Intent $toIntent
+     * @param $createdAt
+     */
+    public function setFollowedBy(Intent $toIntent, $createdAt): void
+    {
+        $this->createOutgoingEdge(Model::FOLLOWED_BY, $toIntent)
+            ->addFacet(ModelFacets::CREATED_AT, $createdAt);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRepeating(): bool
+    {
+        return $this->getAttributeValue(Model::REPEATING);
+    }
+
+    /**
+     * @param bool $repeating
+     */
+    public function setRepeating(bool $repeating)
+    {
+        $this->setAttribute(Model::REPEATING, $repeating);
     }
 }

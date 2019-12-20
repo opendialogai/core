@@ -12,6 +12,7 @@ class DGraphQuery extends DGraphQueryAbstract
 {
     const SORT_ASC = 'sort_asc';
     const SORT_DESC = 'sort_desc';
+    const WITH_FACETS = 'with_facets';
 
 
     private $queryGraph;
@@ -184,9 +185,28 @@ class DGraphQuery extends DGraphQueryAbstract
 
         foreach ($queryGraph as $key => $item) {
             if (!is_array($item)) {
-                $result .= $item . ' ';
+                if ($item === DGraphQuery::WITH_FACETS) {
+                    $result .= $key . ' @facets';
+                } else {
+                    $result .= $item . ' ';
+                }
             } else {
                 $result .= $key;
+
+                if ($this->itemHasFacets($item)) {
+                    if ($this->itemHasExplicitFacets($item)) {
+                        $result .= $this->handleFacets($item[DGraphQuery::WITH_FACETS]);
+                        unset($item[DGraphQuery::WITH_FACETS]);
+                    } else {
+                        $result .= ' @facets ';
+                        array_splice($item, array_search(DGraphQuery::WITH_FACETS, $item), 1);
+                    }
+
+                    if (count($item) < 1) {
+                        continue;
+                    }
+                }
+
                 $result .= $this->decodeQueryGraph($item);
             }
         }
@@ -271,5 +291,53 @@ class DGraphQuery extends DGraphQueryAbstract
         }
 
         return $pagination;
+    }
+
+    /**
+     * @param array $item
+     * @return string
+     */
+    private function handleFacets(array $item): string
+    {
+        $result = " @facets(";
+
+        foreach ($item as $facet) {
+            $result .= $facet . " ";
+        }
+
+        $result .= ")";
+
+        return $result;
+    }
+
+    /**
+     * The item has an array of facets to query
+     *
+     * @param array $item
+     * @return bool
+     */
+    private function itemHasExplicitFacets(array $item): bool
+    {
+        return array_key_exists(DGraphQuery::WITH_FACETS, $item);
+    }
+
+    /**
+     * The item has an element which signifies that all facets should be queried
+     *
+     * @param array $item
+     * @return bool
+     */
+    private function itemHasImplicitFacets(array $item): bool
+    {
+        return in_array(DGraphQuery::WITH_FACETS, $item);
+    }
+
+    /**
+     * @param array $item
+     * @return bool
+     */
+    private function itemHasFacets(array $item): bool
+    {
+        return $this->itemHasExplicitFacets($item) || $this->itemHasImplicitFacets($item);
     }
 }

@@ -15,6 +15,7 @@ use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\ModelFacets;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
@@ -208,7 +209,10 @@ class UserService
             $this->dGraphClient->createRelationship(
                 $user->getCurrentIntentUid(),
                 $intent->getUid(),
-                Model::FOLLOWED_BY
+                Model::FOLLOWED_BY,
+                new Map([
+                    ModelFacets::CREATED_AT => now()->toISOString()
+                ])
             );
         }
 

@@ -7,6 +7,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningIntents;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
 
@@ -226,5 +227,27 @@ class DGraphConversationStore implements ConversationStoreInterface
         $query = DGraphConversationQueryFactory::hasConversationBeenUsed($name);
         $response = $this->dGraphClient->query($query);
         return !empty($response->getData());
+    }
+
+    /**
+     * @param $intentUid
+     * @return Intent|null
+     * @throws EIModelCreatorException
+     */
+    public function getPrecedingIntent($intentUid): ?Intent
+    {
+        $query = DGraphConversationQueryFactory::getPrecedingIntent($intentUid);
+        $response = $this->dGraphClient->query($query);
+
+        if (isset($response->getData()[0][Model::PRECEDED_BY][0])) {
+            $precededByResponse = $response->getData()[0][Model::PRECEDED_BY][0];
+
+            /* @var EIModelIntent $model */
+            $model = $this->eiModelCreator->createEIModel(EIModelIntent::class, $precededByResponse);
+
+            return $this->conversationConverter->convertIntent($model);
+        } else {
+            return null;
+        }
     }
 }
