@@ -328,10 +328,6 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
-            i: intent.app.hello
-        - b:
-            i: intent.app.response
         - u:
             i: intent.app.make_choice
             expected_attributes:
@@ -366,14 +362,7 @@ EOT;
 
         $conversationContext = ContextService::getConversationContext();
 
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('intent.app.hello');
-        $openDialogController->runConversation($utterance);
-        $this->assertEquals('intent.app.hello', $conversationContext->getAttributeValue('interpreted_intent'));
-        $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));
-        $this->assertEquals('opening_scene', $conversationContext->getAttributeValue('current_scene'));
-        $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
-
-        $utterance = UtteranceGenerator::generateButtonResponseUtterance('make_choice', 'choice.left', $utterance->getUser());
+        $utterance = UtteranceGenerator::generateButtonResponseUtterance('make_choice', 'choice.left');
         $openDialogController->runConversation($utterance);
         $this->assertEquals('intent.app.make_choice', $conversationContext->getAttributeValue('interpreted_intent'));
         $this->assertEquals('my_conversation', $conversationContext->getAttributeValue('current_conversation'));

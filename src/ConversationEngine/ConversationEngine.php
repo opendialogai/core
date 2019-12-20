@@ -17,7 +17,6 @@ use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelCondition;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
@@ -407,11 +406,8 @@ class ConversationEngine implements ConversationEngineInterface
     ): Set {
         $matchingIntents = new Set();
 
-        // Check conditions for each conversation
-        $filteredIntents = $this->filterOpeningIntentsForConditions($validOpeningIntents);
-
         /* @var EIModelIntent $validIntent */
-        foreach ($filteredIntents as $validIntent) {
+        foreach ($validOpeningIntents as $validIntent) {
             if ($validIntent->hasInterpreter()) {
                 $interpreter = $validIntent->getInterpreterId();
 
@@ -431,42 +427,10 @@ class ConversationEngine implements ConversationEngineInterface
             }
         }
 
+        // Check conditions for each conversation
+        $matchingIntents = $this->filterOpeningIntentsForConditions($matchingIntents);
+
         $matchingIntents = $this->filterNoMatchIntents($matchingIntents);
-
-        return $matchingIntents;
-    }
-
-    /**
-     * @param Map $intentsToCheck
-     * @return Set
-     */
-    private function filterOpeningIntentsForConditions(Map $intentsToCheck): Set
-    {
-        $matchingIntents = new Set();
-
-        /* @var EIModelIntent $intent */
-        foreach ($intentsToCheck as $intent) {
-            if ($intent->hasConditions()) {
-                $pass = true;
-                $conditions = $intent->getConditions();
-
-                /* @var EIModelCondition $condition */
-                foreach ($conditions as $conditionModel) {
-                    /* @var Condition $condition */
-                    $condition = $this->conversationStore->getConversationConverter()->convertCondition($conditionModel);
-
-                    if (!$this->operationService->checkCondition($condition)) {
-                        $pass = false;
-                    }
-                }
-
-                if ($pass) {
-                    $matchingIntents->add($intent);
-                }
-            } else {
-                $matchingIntents->add($intent);
-            }
-        }
 
         return $matchingIntents;
     }
@@ -664,6 +628,39 @@ class ConversationEngine implements ConversationEngineInterface
             if ($intentContext) {
                 $intentContext->refresh();
             }
+
+            return $result;
+        });
+
+        return $filteredIntents;
+    }
+
+    /**
+     * @param Set $intents
+     * @return Set
+     */
+    private function filterOpeningIntentsForConditions(Set $intents): Set
+    {
+        $intentContext = ContextService::getContext(IntentContext::INTENT_CONTEXT);
+
+        $filteredIntents = $intents->filter(function (EIModelIntent $item) use ($intentContext) {
+            foreach ($item->getInterpretedIntent()->getNonCoreAttributes() as $attribute) {
+                $intentContext->addAttribute($attribute->copy());
+            }
+
+            $result = true;
+
+            $intent = $this->getConversationStore()->getConversationConverter()->convertIntent($item);
+
+            /** @var Condition $condition */
+            foreach ($intent->getAllConditions() as $condition) {
+                if (!$this->operationService->checkCondition($condition)) {
+                    $result = false;
+                    break;
+                }
+            }
+
+            $intentContext->refresh();
 
             return $result;
         });

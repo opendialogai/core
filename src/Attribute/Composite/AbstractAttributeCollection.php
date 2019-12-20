@@ -88,8 +88,10 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
         $arrayOfAttributes = Util::decode($input);
         $resultAttributes = [];
 
-        foreach ($arrayOfAttributes as $attribute) {
-            $resultAttributes[] = AttributeResolver::getAttributeFor($attribute['id'], $attribute['value']);
+        if (!is_null($input)) {
+            foreach ($arrayOfAttributes as $attribute) {
+                $resultAttributes[] = AttributeResolver::getAttributeFor($attribute['id'], $attribute['value']);
+            }
         }
 
         return $resultAttributes;
