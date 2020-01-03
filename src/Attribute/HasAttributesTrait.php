@@ -105,7 +105,11 @@ trait HasAttributesTrait
      */
     public function getAttributeValue(string $attributeName)
     {
-        return $this->getAttribute($attributeName)->getValue();
+        if ($this->hasAttribute($attributeName)) {
+            return $this->getAttribute($attributeName)->getValue();
+        }
+
+        return '';
     }
 
     /**
