@@ -421,7 +421,6 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(1, $response->getData());
         $model = $eiModelCreator->createEIModel(EIModelConversation::class, $response->getData()[0]);
         $this->assertEquals(ConversationNode::ARCHIVED, $model->getConversationStatus());
-
     }
 
     public function testDeleting()
@@ -567,7 +566,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(2, $openingScene->getIntentsSaidByBot());
 
         /** @var Intent $firstBotIntent */
-        $firstBotIntent = $openingScene->getIntentsSaidByBot()->first()->value;
+        $firstBotIntent = $openingScene->getIntentsSaidByBotInOrder()->first()->value;
 
         $this->assertEquals('intent.app.welcomeResponse', $firstBotIntent->getId());
 
@@ -576,5 +575,29 @@ class ConversationBuilderTest extends TestCase
 
         $this->assertNotNull($virtualIntent);
         $this->assertEquals('intent.app.continue', $virtualIntent->getId());
+    }
+
+    public function testRepeatingIntents()
+    {
+        $conversation = $this->createConversationWithRepeatingIntent();
+
+        /** @var Scene $openingScene */
+        $openingScene = $conversation->getOpeningScenes()->first()->value;
+
+        $this->assertCount(3, $openingScene->getIntentsSaidByUser());
+        $this->assertCount(2, $openingScene->getIntentsSaidByBot());
+
+        /** @var Intent $secondUserIntent */
+        $secondUserIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(1)->value;
+
+        /** @var Intent $thirdUserIntent */
+        $thirdUserIntent = $openingScene->getIntentsSaidByUserInOrder()->skip(2)->value;
+
+        /** @var Intent $secondBotIntent */
+        $secondBotIntent = $openingScene->getIntentsSaidByBotInOrder()->skip(1)->value;
+
+        $this->assertTrue($secondUserIntent->isRepeating());
+        $this->assertFalse($thirdUserIntent->isRepeating());
+        $this->assertFalse($secondBotIntent->isRepeating());
     }
 }

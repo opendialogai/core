@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
@@ -11,11 +12,14 @@ use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutationResponse;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQueryResponse;
+use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class DGraphTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /* @var DGraphClient */
     private $dGraphClient;
 
@@ -144,5 +148,46 @@ class DGraphTest extends TestCase
 
         // Ensure the correct number of `intent.app.send_choice` intents were defined
         $this->assertEquals(4, preg_match_all("/<id> \"intent\.app\.send_choice\"/", $mutationString));
+    }
+
+    public function testSetAndGetFacets()
+    {
+        $client = resolve(DGraphClient::class);
+
+        $node1 = new Node('node1');
+        $node2 = new Node('node2');
+
+        $facets = [
+            "assignee" => "user1",
+            "count" => 2
+        ];
+
+        $edge = new DirectedEdge('edge_with_facets', $node1, $node2, $facets);
+        $node1->addOutgoingEdge($edge);
+
+        $client->tripleMutation(new DGraphMutation($node1));
+
+        $query = (new DGraphQuery())
+            ->eq('id', 'node1')
+            ->setQueryGraph([
+                'id',
+                'edge_with_facets' => [
+                    DGraphQuery::WITH_FACETS,
+                    'id'
+                ]
+            ]);
+
+        $response = $client->query($query);
+        $this->assertNotNull($response->getData());
+        $this->assertNotEmpty($response->getData());
+
+        $this->assertArraySubset([[
+            'id' => 'node1',
+            'edge_with_facets' => [[
+                'id' => 'node2',
+                'edge_with_facets|count' => 2,
+                'edge_with_facets|assignee' => 'user1'
+            ]]
+        ]], $response->getData());
     }
 }

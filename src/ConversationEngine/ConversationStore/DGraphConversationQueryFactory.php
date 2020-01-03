@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\ModelFacets;
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 /**
@@ -230,6 +231,14 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
                 Model::ID,
                 Model::EI_TYPE
             ],
+            Model::FOLLOWED_BY => [
+                Model::UID,
+                Model::ID,
+                DGraphQuery::WITH_FACETS => [
+                    ModelFacets::CREATED_AT
+                ]
+            ],
+            Model::REPEATING,
             Model::HAS_INTERPRETER => self::getInterpreterGraph(),
             Model::HAS_EXPECTED_ATTRIBUTE => self::getExpectedAttributesGraph(),
             Model::HAS_CONDITION => self::getConditionGraph(),
@@ -318,6 +327,20 @@ class DGraphConversationQueryFactory implements ConversationQueryFactoryInterfac
             ->filterEq(Model::ID, $name)
             ->setQueryGraph([
                 Model::UID
+            ]);
+    }
+
+    /**
+     * @param $intentUid
+     * @return DGraphQuery
+     */
+    public static function getPrecedingIntent($intentUid): DGraphQuery
+    {
+        return (new DGraphQuery())
+            ->uid($intentUid)
+            ->setQueryGraph([
+                Model::UID,
+                Model::PRECEDED_BY => self::getIntentGraph()
             ]);
     }
 }

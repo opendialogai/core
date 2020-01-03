@@ -7,6 +7,7 @@ use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Rules\MessageXML;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
 {
@@ -237,6 +238,85 @@ EOT;
 
         $this->assertEquals(false, $message->getData()['clear_after_interaction']);
         $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
+
+    public function testButtonMessageWithUnderline()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <button-message clear_after_interaction="0">
+    <text>test</text>
+    <button>
+      <text>
+        This is an <u>underline</u> text with <u>underline</u>
+      </text>
+      <callback>
+        callback_yes
+      </callback>
+      <value>
+        true
+      </value>
+    </button>
+  </button-message>
+</message>
+EOT;
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'text' => 'This is an <u>underline</u> text with <u>underline</u>',
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+            ],
+        ];
+
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
+
+    public function testButtonMessageWithBoldAndItalic()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <button-message clear_after_interaction="0">
+    <text>test</text>
+    <button>
+      <text>
+        This is an <b>bold</b> text with <i>italic</i>
+      </text>
+      <callback>
+        callback_yes
+      </callback>
+      <value>
+        true
+      </value>
+    </button>
+  </button-message>
+</message>
+EOT;
+
+        $messageXML = new MessageXML();
+        $this->assertTrue($messageXML->passes(null, $markup), $messageXML->message());
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'text' => 'This is an <strong>bold</strong> text with <em>italic</em>',
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+            ],
+        ];
+
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 

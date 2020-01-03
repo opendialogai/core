@@ -19,5 +19,4 @@ class LuisInterpreter extends AbstractNLUInterpreter
     {
         $this->client = app()->make(LuisClient::class);
     }
-
 }

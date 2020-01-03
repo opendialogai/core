@@ -50,6 +50,7 @@ class Model
     const LISTENS_FOR_ACROSS_SCENES = 'listens_for_across_scenes';
     const LISTENED_BY_FROM_SCENES = '~listens_for_across_scenes';
     const FOLLOWED_BY = 'followed_by';
+    const PRECEDED_BY = '~followed_by';
 
     // Intents can cause actions to be performed and can define interpreters.
     const CAUSES_ACTION = 'causes_action';
@@ -70,6 +71,7 @@ class Model
     const ORDER = 'core.attribute.order';
     const COMPLETES = 'core.attribute.completes';
     const CONFIDENCE = 'core.attribute.confidence';
+    const REPEATING = 'core.attribute.repeating';
     const CONTEXT = 'context';
     const ATTRIBUTES = 'attributes';
     const OPERATION = 'operation';

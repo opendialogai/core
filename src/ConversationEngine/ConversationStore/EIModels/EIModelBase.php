@@ -13,7 +13,7 @@ abstract class EIModelBase implements EIModel
      * @param $additionalParameter
      * @return bool
      */
-    public abstract static function validate(array $response, $additionalParameter = null): bool;
+    abstract public static function validate(array $response, $additionalParameter = null): bool;
 
     /**
      * This method takes the response and uses it to set up the EI model's attributes.
@@ -21,7 +21,7 @@ abstract class EIModelBase implements EIModel
      * @param $additionalParameter
      * @return EIModel
      */
-    public abstract static function handle(array $response, $additionalParameter = null): EIModel;
+    abstract public static function handle(array $response, $additionalParameter = null): EIModel;
 
     /**
      * This method returns true if the response has no data or if the data is has is of the desired EI type

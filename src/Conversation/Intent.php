@@ -6,9 +6,6 @@ use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
@@ -23,7 +20,8 @@ class Intent extends NodeWithConditions
         Model::EI_TYPE,
         Model::COMPLETES,
         Model::ORDER,
-        Model::CONFIDENCE
+        Model::CONFIDENCE,
+        Model::REPEATING
     ];
 
     private $completes = false;
@@ -40,7 +38,8 @@ class Intent extends NodeWithConditions
     public function __construct($id, $completes = false)
     {
         parent::__construct($id);
-        $this->addAttribute(new StringAttribute(Model::EI_TYPE, Model::INTENT));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::INTENT));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::REPEATING, false));
 
         $this->setCompletesAttribute($completes);
     }
@@ -68,7 +67,7 @@ class Intent extends NodeWithConditions
      */
     public function setConfidence($confidence): Intent
     {
-        $this->addAttribute(new FloatAttribute(Model::CONFIDENCE, $confidence));
+        $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONFIDENCE, $confidence));
         return $this;
     }
 
@@ -122,7 +121,7 @@ class Intent extends NodeWithConditions
         $this->order = $order;
 
         try {
-            $attribute = new IntAttribute(Model::ORDER, $order);
+            $attribute = AttributeResolver::getAttributeFor(Model::ORDER, $order);
         } catch (UnsupportedAttributeTypeException $e) {
             return false;
         }
@@ -475,5 +474,47 @@ class Intent extends NodeWithConditions
         $nodes = $this->getNodesConnectedByOutgoingRelationship(Model::SIMULATES_INTENT);
 
         return $nodes->isEmpty() ? null : $nodes->first()->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasFollowedBy(): bool
+    {
+        return $this->hasOutgoingEdgeWithRelationship(Model::FOLLOWED_BY);
+    }
+
+    /**
+     * @return Intent
+     */
+    public function getFollowedBy(): Intent
+    {
+        return $this->getNodesConnectedByOutgoingRelationship(Model::FOLLOWED_BY)->first()->value;
+    }
+
+    /**
+     * @param Intent $toIntent
+     * @param $createdAt
+     */
+    public function setFollowedBy(Intent $toIntent, $createdAt): void
+    {
+        $this->createOutgoingEdge(Model::FOLLOWED_BY, $toIntent)
+            ->addFacet(ModelFacets::CREATED_AT, $createdAt);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRepeating(): bool
+    {
+        return $this->getAttributeValue(Model::REPEATING);
+    }
+
+    /**
+     * @param bool $repeating
+     */
+    public function setRepeating(bool $repeating)
+    {
+        $this->setAttribute(Model::REPEATING, $repeating);
     }
 }

@@ -87,6 +87,15 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     }
                 }
             }
+
+            if (isset($message[self::HIDE_AVATAR])) {
+                if ($message[self::HIDE_AVATAR] == '1' || $message[self::HIDE_AVATAR] == 'true') {
+                    /** @var OpenDialogMessage $webChatMessage */
+                    foreach ($messages as $webChatMessage) {
+                        $webChatMessage->setHideAvatar(true);
+                    }
+                }
+            }
         } catch (Exception $e) {
             Log::warning(sprintf('Message Builder error: %s', $e->getMessage()));
             return new WebChatMessages();
@@ -421,9 +430,43 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::CLICK_TO_CALL => trim((string)$button->click_to_call),
                 ];
             } else {
+                $dom = new DOMDocument();
+                $dom->loadXML($button->text->asXml());
+
+                $buttonText = '';
+                foreach ($dom->childNodes as $node) {
+                    foreach ($node->childNodes as $item) {
+                        if ($item->nodeType === XML_TEXT_NODE) {
+                            if (!empty(trim($item->textContent))) {
+                                $buttonText .= ' ' . trim($item->textContent);
+                            }
+                        } elseif ($item->nodeType === XML_ELEMENT_NODE) {
+                            if (!empty(trim($item->textContent))) {
+                                $buttonText .= ' ';
+                                if ($item->nodeName === 'b') {
+                                    $buttonText .= sprintf(
+                                        '<strong>%s</strong>',
+                                        trim($item->textContent)
+                                    );
+                                } elseif ($item->nodeName === 'i') {
+                                    $buttonText .= sprintf(
+                                        '<em>%s</em>',
+                                        trim($item->textContent)
+                                    );
+                                } elseif ($item->nodeName === 'u') {
+                                    $buttonText .= sprintf(
+                                        '<u>%s</u>',
+                                        trim($item->textContent)
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
                 $template[self::BUTTONS][] = [
                     self::CALLBACK => trim((string)$button->callback),
-                    self::TEXT => trim((string)$button->text),
+                    self::TEXT => trim($buttonText),
                     self::VALUE => trim((string)$button->value),
                 ];
             }

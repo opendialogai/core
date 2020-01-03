@@ -19,7 +19,7 @@ use OpenDialogAi\SensorEngine\BaseSensor;
 
 class WebchatSensor extends BaseSensor
 {
-    static $name = 'sensor.core.webchat';
+    public static $name = 'sensor.core.webchat';
 
     /**
      * Interpret a request.

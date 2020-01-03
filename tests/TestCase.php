@@ -9,6 +9,7 @@ use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
+use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
@@ -364,7 +365,11 @@ EOT;
 
         $this->assertTrue($conversation->activateConversation());
 
-        return $conversation->buildConversation();
+        $dGraphConversationStore = resolve(DGraphConversationStore::class);
+
+        return $dGraphConversationStore->getConversationConverter()->convertConversation(
+            $dGraphConversationStore->getEIModelConversationTemplate($name)
+        );
     }
 
     /**
@@ -630,6 +635,34 @@ EOT;
         }
     }
 
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithRepeatingIntent(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithRepeatingIntent();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
+    /**
+     * @return ConversationNode
+     */
+    public function createConversationWithRepeatingIntentCrossScene(): ConversationNode
+    {
+        $conversationMarkup = $this->getMarkupForConversationWithRepeatingIntentCrossScene();
+
+        try {
+            return $this->activateConversation($conversationMarkup);
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+    }
+
     public function getMarkupForConversationWithVirtualIntent(): string
     {
         /** @lang yaml */
@@ -701,6 +734,69 @@ conversation:
               i: intent.app.continue
           - b:
               i: intent.app.testResponse
+              completes: true
+EOT;
+    }
+
+    public function getMarkupForConversationWithRepeatingIntent(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_repeating_intent
+  scenes:
+    opening_scene:
+      intents:
+          - u:
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+          - u:
+              i: intent.app.question
+              repeating: true
+          - u:
+              i: intent.app.questionStop
+              scene: stop_scene
+          - b:
+              i: intent.app.questionResponse
+              completes: true
+    stop_scene:
+      intents:
+          - b:
+              i: intent.app.endResponse
+              completes: true
+EOT;
+    }
+
+    public function getMarkupForConversationWithRepeatingIntentCrossScene(): string
+    {
+        /** @lang yaml */
+        return <<<EOT
+conversation:
+  id: with_repeating_intent
+  scenes:
+    opening_scene:
+      intents:
+          - u:
+              i: intent.app.welcome
+          - b:
+              i: intent.app.welcomeResponse
+          - u:
+              i: intent.app.question
+              repeating: true
+              scene: next_scene
+          - u:
+              i: intent.app.questionStop
+              scene: stop_scene
+    next_scene:
+      intents:
+          - b:
+              i: intent.app.questionResponse
+              completes: true
+    stop_scene:
+      intents:
+          - b:
+              i: intent.app.endResponse
               completes: true
 EOT;
     }

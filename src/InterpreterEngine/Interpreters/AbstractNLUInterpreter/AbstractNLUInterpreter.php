@@ -11,7 +11,6 @@ use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
@@ -33,9 +32,6 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
             $intent = $this->createOdIntent($clientResponse);
         } catch (AbstractNLURequestFailedException $e) {
             Log::warning(sprintf("%s failed with message: %s", static::$name, $e->getMessage()));
-            $intent = new NoMatchIntent();
-        } catch (FieldNotSupported $e) {
-            Log::warning(sprintf("Trying to use %s to interpret an utterance that does not support text", static::$name));
             $intent = new NoMatchIntent();
         }
 
@@ -96,7 +92,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
                 )
             );
 
-            return new StringAttribute($attributeName, $entity->getResolutionValues()[0]);
+            return AttributeResolver::getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
         }
     }
 

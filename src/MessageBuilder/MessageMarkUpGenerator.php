@@ -24,11 +24,14 @@ class MessageMarkUpGenerator
 {
     private $disableText;
 
+    private $hideAvatar;
+
     private $messages = [];
 
-    public function __construct($disableText = false)
+    public function __construct($disableText = false, $hideAvatar = false)
     {
         $this->disableText = ($disableText) ? 'true' : 'false';
+        $this->hideAvatar = ($hideAvatar) ? 'true' : 'false';
     }
 
     /**
@@ -222,6 +225,6 @@ class MessageMarkUpGenerator
             $markUp .= $message->getMarkUp();
         }
 
-        return "<message disable_text=\"{$this->disableText}\">{$markUp}</message>";
+        return "<message disable_text=\"{$this->disableText}\" hide_avatar=\"{$this->hideAvatar}\">{$markUp}</message>";
     }
 }

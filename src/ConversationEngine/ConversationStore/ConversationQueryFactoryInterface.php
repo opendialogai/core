@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ConversationEngine\ConversationStore;
 
-
 use OpenDialogAi\Core\Graph\DGraph\DGraphQuery;
 
 interface ConversationQueryFactoryInterface
@@ -58,4 +57,10 @@ interface ConversationQueryFactoryInterface
      * @return DGraphQuery
      */
     public static function hasConversationBeenUsed(string $name): DGraphQuery;
+
+    /**
+     * @param $intentUid
+     * @return DGraphQuery
+     */
+    public static function getPrecedingIntent($intentUid): DGraphQuery;
 }

@@ -248,7 +248,7 @@ class Node
         $nodes = new Map();
 
         foreach ($relationships as $relationship) {
-            $nodes->merge($this->getNodesConnectedByOutoingRelationship($relationship));
+            $nodes->merge($this->getNodesConnectedByOutgoingRelationship($relationship));
         }
 
         return $nodes;

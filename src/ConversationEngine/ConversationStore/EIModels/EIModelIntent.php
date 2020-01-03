@@ -10,6 +10,7 @@ use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Conversation\ModelFacets;
 
 class EIModelIntent extends EIModelWithConditions
 {
@@ -21,13 +22,23 @@ class EIModelIntent extends EIModelWithConditions
 
     private $conversationUid;
 
+    /** @var int $order */
     private $order;
 
+    /** @var float $confidence */
     private $confidence;
 
+    /** @var bool $completes */
     private $completes;
 
     private $nextScene;
+
+    private $followedBy;
+
+    private $followedByCreatedAt;
+
+    /** @var bool $repeating */
+    private $repeating;
 
     /* @var Pair $action */
     private $action;
@@ -92,6 +103,7 @@ class EIModelIntent extends EIModelWithConditions
         $intent->setIntentUid($intentResponse[Model::UID]);
         $intent->setOrder($intentResponse[Model::ORDER]);
         $intent->setConfidence(isset($intentResponse[Model::CONFIDENCE]) ? $intentResponse[Model::CONFIDENCE] : 1);
+        $intent->setRepeating(isset($intentResponse[Model::REPEATING]) ? $intentResponse[Model::REPEATING] : false);
 
         if (!is_null($additionalParameter)) {
             // If there is an additional parameter it means that $response contains the conversation data
@@ -103,7 +115,8 @@ class EIModelIntent extends EIModelWithConditions
 
         if (isset($intentResponse[Model::CAUSES_ACTION])) {
             $intent->setAction(
-                new Pair($intentResponse[Model::CAUSES_ACTION][0][Model::ID],
+                new Pair(
+                    $intentResponse[Model::CAUSES_ACTION][0][Model::ID],
                     $intentResponse[Model::CAUSES_ACTION][0][Model::UID]
                 )
             );
@@ -159,6 +172,13 @@ class EIModelIntent extends EIModelWithConditions
             /** @var EIModelVirtualIntent $virtualIntent */
             $virtualIntent = $eiModelCreator->createEIModel(EIModelVirtualIntent::class, $virtualIntentData);
             $intent->setVirtualIntent($virtualIntent);
+        }
+
+        if (isset($intentResponse[Model::FOLLOWED_BY])) {
+            $intent->setFollowedBy($intentResponse[Model::FOLLOWED_BY][Model::UID]);
+            $intent->setFollowedByCreatedAt(
+                $intentResponse[Model::FOLLOWED_BY][ModelFacets::facet(Model::FOLLOWED_BY, ModelFacets::CREATED_AT)]
+            );
         }
 
         return $intent;
@@ -508,5 +528,53 @@ class EIModelIntent extends EIModelWithConditions
     public function setVirtualIntent(EIModelVirtualIntent $virtualIntent): void
     {
         $this->virtualIntent = $virtualIntent;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFollowedBy(): ?string
+    {
+        return $this->followedBy;
+    }
+
+    /**
+     * @param mixed $followedBy
+     */
+    public function setFollowedBy($followedBy): void
+    {
+        $this->followedBy = $followedBy;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFollowedByCreatedAt(): ?string
+    {
+        return $this->followedByCreatedAt;
+    }
+
+    /**
+     * @param mixed $followedByCreatedAt
+     */
+    public function setFollowedByCreatedAt($followedByCreatedAt): void
+    {
+        $this->followedByCreatedAt = $followedByCreatedAt;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getRepeating(): bool
+    {
+        return $this->repeating;
+    }
+
+    /**
+     * @param bool $repeating
+     */
+    public function setRepeating(bool $repeating): void
+    {
+        $this->repeating = $repeating;
     }
 }
