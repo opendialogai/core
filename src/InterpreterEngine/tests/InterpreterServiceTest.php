@@ -10,7 +10,6 @@ use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
-use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\DummyInterpreter;
 use OpenDialogAi\InterpreterEngine\tests\Interpreters\NoNameInterpreter;
@@ -91,15 +90,11 @@ class InterpreterServiceTest extends TestCase
      */
     public function testInterpretNonBoundInterpreter()
     {
-        // No interpreters have been bound, so expect an exception
         $service = $this->getBoundInterpreterService();
+        $intents = $service->interpret(DummyInterpreter::getName(), new WebchatTextUtterance());
 
-        try {
-            $service->interpret(DummyInterpreter::getName(), new WebchatTextUtterance());
-            $this->fail('Exception should have been thrown');
-        } catch (InterpreterNotRegisteredException $e) {
-            $this->assertNotNull($e);
-        }
+        $this->assertCount(1, $intents);
+        $this->assertEquals('intent.core.NoMatch', $intents[0]->getLabel());
     }
 
     public function testInterpreterNoNameNotRegistered()

@@ -86,7 +86,7 @@ class CallbackInterpreter extends BaseInterpreter
             Log::warning(sprintf(
                 'Not adding attribute %s with value %s from the callback interpreter. The attribute is not bound to a type',
                 $parsed[CallbackValueParser::ATTRIBUTE_NAME],
-                $parsed[CallbackValueParser::ATTRIBUTE_VALUE],
+                $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
             ));
         }
 
