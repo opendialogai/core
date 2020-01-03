@@ -136,6 +136,6 @@ class ContextEngineServiceTest extends TestCase
         ContextServiceFacade::createContext('user');
         $value = ContextServiceFacade::getUserContext()->getAttributeValue('nonexistentvalue');
 
-        $this->assertEquals('', $value);
+        $this->assertNull($value);
     }
 }

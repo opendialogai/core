@@ -71,7 +71,7 @@ trait HasAttributesTrait
      * @param null $type
      * @return AttributeInterface
      */
-    public function setAttribute(string $attributeName, $value, $type = null): AttributeInterface
+    public function setAttribute(string $attributeName, $value): AttributeInterface
     {
         // If the attribute exists update its value
         if ($this->hasAttribute($attributeName)) {
@@ -109,7 +109,8 @@ trait HasAttributesTrait
             return $this->getAttribute($attributeName)->getValue();
         }
 
-        return '';
+        Log::debug(sprintf('Trying get value of an attribute that does not exist - %s', $attributeName));
+        return null;
     }
 
     /**
