@@ -68,7 +68,6 @@ trait HasAttributesTrait
     /**
      * @param string $attributeName
      * @param $value
-     * @param null $type
      * @return AttributeInterface
      */
     public function setAttribute(string $attributeName, $value): AttributeInterface
