@@ -130,4 +130,12 @@ class ContextEngineServiceTest extends TestCase
         $this->assertInstanceOf(IntAttribute::class, $attribute);
         $this->assertSame(1, $attribute->getValue());
     }
+
+    public function testGetNonExistentAttributeValue()
+    {
+        ContextServiceFacade::createContext('user');
+        $value = ContextServiceFacade::getUserContext()->getAttributeValue('nonexistentvalue');
+
+        $this->assertNull($value);
+    }
 }
