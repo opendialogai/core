@@ -13,6 +13,10 @@ class TimePassedLessThanOperation extends BaseOperation
      */
     public function execute(): bool
     {
+        if (!$this->checkRequiredParameters()) {
+            return false;
+        }
+
         $attribute = reset($this->attributes);
 
         // We are checking for type since the default behaviour is to return an empty string if an attribute

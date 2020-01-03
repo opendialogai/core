@@ -13,6 +13,10 @@ class EquivalenceOperation extends BaseOperation
      */
     public function execute() : bool
     {
+        if (!$this->checkRequiredParameters()) {
+            return false;
+        }
+
         $attribute = reset($this->attributes);
 
         if ($attribute->getValue() === $this->parameters['value']) {

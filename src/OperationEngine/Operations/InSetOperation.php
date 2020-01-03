@@ -13,6 +13,10 @@ class InSetOperation extends BaseOperation
      */
     public function execute(): bool
     {
+        if (!$this->checkRequiredParameters()) {
+            return false;
+        }
+
         $attribute = reset($this->attributes);
 
         return in_array($this->parameters['value'], $attribute->getValue());

@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\OperationEngine;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Traits\HasName;
 
@@ -59,5 +60,37 @@ abstract class BaseOperation implements OperationInterface
     {
         $this->parameters = $parameters;
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasParameter($parameterName) : bool
+    {
+        return isset($this->parameters[$parameterName]);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function checkRequiredParameters() : bool
+    {
+        $parameters = $this->getAllowedParameters();
+        $requiredParameters = $parameters['required'];
+
+        foreach ($requiredParameters as $parameterName) {
+            if (!$this->hasParameter($parameterName)) {
+                Log::warning(
+                    sprintf(
+                        "Missing required '%s' parameter for the '%s' operation",
+                        $parameterName,
+                        self::$name
+                    )
+                );
+                return false;
+            }
+        }
+
+        return true;
     }
 }
