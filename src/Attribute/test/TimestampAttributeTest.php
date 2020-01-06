@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Attribute\test;
 
-use Carbon\Carbon;
 use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
@@ -13,6 +12,6 @@ class TimestampAttributeTest extends TestCase
         $timestamp = "1578312373";
         $attribute = new TimestampAttribute('test', $timestamp);
 
-        $this->assertEquals(Carbon::createFromTimestamp($timestamp)->toIso8601String(), $attribute->toString());
+        $this->assertEquals("2020-01-06T12:06:13+00:00", $attribute->toString());
     }
 }
