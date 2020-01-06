@@ -9,7 +9,6 @@ use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
 use OpenDialogAi\ActionEngine\Tests\Actions\DummyAction;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
@@ -150,12 +149,8 @@ class ActionEngineServiceTest extends TestCase
 
     public function testCustomActions()
     {
-        $this->setConfigValue('opendialog.action_engine.custom_actions', [DummyAction::class]);
-
-        /** @var ActionEngineInterface $actionEngine */
-        $actionEngine = app()->make(ActionEngineInterface::class);
-
-        $this->assertContains('actions.core.dummy', array_keys($actionEngine->getAvailableActions()));
+        $this->actionEngine->registerAction(new DummyAction());
+        $this->assertContains('actions.core.dummy', array_keys($this->actionEngine->getAvailableActions()));
     }
 
     protected function setDummyAction(): void
