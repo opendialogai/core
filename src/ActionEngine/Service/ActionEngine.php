@@ -36,7 +36,7 @@ class ActionEngine implements ActionEngineInterface
 
                 /** @var ActionInterface $action */
                 $action = new $supportedAction();
-                $this->availableActions[$action->performs()] = $action;
+                $this->registerAction($action);
             } catch (ActionNameNotSetException $exception) {
                 Log::warning(
                     sprintf(
@@ -125,5 +125,16 @@ class ActionEngine implements ActionEngineInterface
             $actionInput->addAttribute($attribute);
         }
         return $actionInput;
+    }
+
+    /**
+     * Registers an action to the engine. This method is useful for mocking actions in tests.
+     *
+     * @param ActionInterface $action
+     * @throws ActionNameNotSetException
+     */
+    public function registerAction(ActionInterface $action): void
+    {
+        $this->availableActions[$action->performs()] = $action;
     }
 }

@@ -21,7 +21,7 @@ class ActionEngineServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-actionengine.php', 'opendialog.action_engine');
 
-        $this->app->bind(ActionEngineInterface::class, function () {
+        $this->app->singleton(ActionEngineInterface::class, function () {
             $actionEngineService = new ActionEngine();
             $actionEngineService->setAvailableActions(config('opendialog.action_engine.available_actions'));
 
