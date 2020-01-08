@@ -51,7 +51,7 @@ class QnAInterpreter extends BaseInterpreter
      * is returned
      *
      */
-    private function createOdIntent(QnAResponse $response)
+    protected function createOdIntent(QnAResponse $response)
     {
         $intent = new NoMatchIntent();
 
