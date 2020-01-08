@@ -47,12 +47,15 @@ class AttributeExtractionTest extends TestCase
 
         $this->conversationEngine = $this->app->make(ConversationEngineInterface::class);
         $this->odController = $this->app->make(OpenDialogController::class);
-
-        $this->activateConversation($this->getExampleConversation());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testOpeningSceneCreated()
     {
+        $this->activateConversation($this->getExampleConversation());
+
         $conversationStore = $this->conversationEngine->getConversationStore();
         $openingIntents = $conversationStore->getAllEIModelOpeningIntents();
 
@@ -69,8 +72,13 @@ class AttributeExtractionTest extends TestCase
         $this->assertContains('session.last_name', $expectedAttributes->toArray());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testCorrectIntentReturned()
     {
+        $this->activateConversation($this->getExampleConversation());
+
         $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
 
         $this->assertCount(3, ContextService::getContexts());
@@ -83,8 +91,13 @@ class AttributeExtractionTest extends TestCase
         $this->assertEquals('hello_user', $intent->getLabel());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testAttributeStorage()
     {
+        $this->activateConversation($this->getExampleConversation());
+
         $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
         $this->odController->runConversation($utterance);
 
@@ -109,8 +122,13 @@ class AttributeExtractionTest extends TestCase
         $this->assertGreaterThanOrEqual($lastSeenAttributeBefore->getValue(), $lastSeenAttributeAfter->getValue());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testFullJourney()
     {
+        $this->activateConversation($this->getExampleConversation());
+
         $outgoingIntent = OutgoingIntent::create(['name' => 'hello_user']);
         MessageTemplate::create([
             'name' => 'name message',
@@ -144,8 +162,13 @@ class AttributeExtractionTest extends TestCase
         $this->assertEquals('age: 21. DOB: 1994', $messageWrapper->getMessages()[0]->getText());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testUserContextPersisted()
     {
+        $this->activateConversation($this->getExampleConversation());
+
         $utterance1 = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
 
         /** @var UserService $userService */
@@ -164,8 +187,13 @@ class AttributeExtractionTest extends TestCase
         $this->assertEquals('first_name', $user->getUserAttributeValue('first_name'));
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationSaveActionResultsAttributes()
     {
+        $this->activateConversation($this->getExampleConversation());
+
         $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
 
         $messageWrapper = $this->odController->runConversation($utterance);
@@ -182,8 +210,13 @@ class AttributeExtractionTest extends TestCase
         $this->assertNotEquals('last_name', $fullName->getValue());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testMultipleMatchedMessageTemplates()
     {
+        $this->activateConversation($this->getExampleConversation());
+
         $outgoingIntent = OutgoingIntent::create(['name' => 'hello_user']);
         MessageTemplate::create([
             'name' => 'message 1',

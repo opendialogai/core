@@ -27,13 +27,12 @@ class DGraphTest extends TestCase
     {
         parent::setUp();
 
-        $this->initDDgraph();
-
         $this->dGraphClient = $this->app->make(DGraphClient::class);
     }
 
     /**
      * @group local
+     * @requires DGRAPH
      */
     public function testDGraphQuery()
     {
@@ -59,6 +58,7 @@ class DGraphTest extends TestCase
 
     /**
      * @group local
+     * @requires DGRAPH
      */
     public function testDGraphMutation()
     {
@@ -128,6 +128,9 @@ class DGraphTest extends TestCase
         $this->assertTrue($response->getData()[0]['name'] == 'Mario Rossi');
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testMutationWithManyIntentsWithSameId()
     {
         /** @var Conversation $conversationModel */
@@ -150,6 +153,9 @@ class DGraphTest extends TestCase
         $this->assertEquals(4, preg_match_all("/<id> \"intent\.app\.send_choice\"/", $mutationString));
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testSetAndGetFacets()
     {
         $client = resolve(DGraphClient::class);
