@@ -8,6 +8,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
 class ContextEngineServiceTest extends TestCase
 {
@@ -137,5 +138,27 @@ class ContextEngineServiceTest extends TestCase
         $value = ContextServiceFacade::getUserContext()->getAttributeValue('nonexistentvalue');
 
         $this->assertNull($value);
+    }
+
+    public function testGetAttributeValue()
+    {
+        // Session Context
+        ContextServiceFacade::getSessionContext()->addAttribute(new StringAttribute('test', 'test'));
+
+        $this->assertEquals(
+            ContextServiceFacade::getSessionContext()->getAttribute('test')->getValue(),
+            ContextServiceFacade::getSessionContext()->getAttributeValue('test')
+        );
+
+        // User context
+        $utterance = UtteranceGenerator::generateTextUtterance('test');
+        ContextServiceFacade::createUserContext($utterance);
+
+        $this->assertEquals(
+            ContextServiceFacade::getUserContext()->getAttribute('first_seen')->getValue(),
+            ContextServiceFacade::getUserContext()->getAttributeValue('first_seen')
+        );
+
+
     }
 }
