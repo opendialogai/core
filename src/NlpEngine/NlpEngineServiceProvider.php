@@ -5,8 +5,8 @@ namespace OpenDialogAi\Core\NlpEngine;
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
-use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
-use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
+use OpenDialogAi\Core\NlpEngine\Providers\MsNlpProvider;
+use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
 
 class NlpEngineServiceProvider extends ServiceProvider
 {
@@ -48,13 +48,13 @@ class NlpEngineServiceProvider extends ServiceProvider
         $this->app->singleton(
             'MsNlpServiceBind',
             function ($app, $params) {
-                $client = new MsNlpService($params['text'], new MsClient());
+                $client = new MsNlpProvider($params['text'], new MsClient());
                 return $client;
             }
         );
 
         $this->app->bind(
-            NlpServiceInterface::class,
+            NlpProviderInterface::class,
             function ($app) {
                 $app()->make('MsNlpServiceBind');
             }

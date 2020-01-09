@@ -1,14 +1,14 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine\Service;
+namespace OpenDialogAi\Core\NlpEngine\Providers;
 
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
-use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
+use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
 
-class MsNlpService implements NlpServiceInterface
+class MsNlpProvider implements NlpProviderInterface
 {
     /** @var \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
     private $client;
@@ -23,7 +23,7 @@ class MsNlpService implements NlpServiceInterface
     private $defaultCountryCode;
 
     /**
-     * MsNlpService constructor.
+     * MsNlpProvider constructor.
      *
      * @param string                                                    $string
      * @param \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient $client

@@ -1,12 +1,12 @@
 <?php
 
-namespace OpenDialogAi\NlpEngine\Service;
+namespace OpenDialogAi\NlpEngine\Providers;
 
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 
-interface NlpServiceInterface
+interface NlpProviderInterface
 {
     /**
      * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
