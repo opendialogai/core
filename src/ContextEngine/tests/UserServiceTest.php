@@ -9,6 +9,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Conversation\ModelFacets;
@@ -39,8 +40,8 @@ class UserServiceTest extends TestCase
             ]
         );
 
-        $this->conversationStore = $this->app->make(ConversationStoreInterface::class);
-        $this->userService = $this->app->make(UserService::class);
+        $this->conversationStore = resolve(ConversationStoreInterface::class);
+        $this->userService = resolve(UserService::class);
     }
 
     /**
@@ -101,19 +102,17 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $client = $this->app->make(DGraphClient::class);
         $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
-        $conversationResponse = $client->query($conversationQuery);
+        $conversationResponse = resolve(DGraphClient::class)->query($conversationQuery);
 
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
 
-        $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
+        $conversationModel = $this->conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
 
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        /** @var Conversation $conversationForCloning */
         $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
 
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        /** @var Conversation $conversationForConnecting */
         $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
 
         $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);
@@ -123,9 +122,9 @@ class UserServiceTest extends TestCase
 
         $this->assertTrue($user->isHavingConversation());
 
-        $conversationUserModel = $conversationStore->getEIModelConversation($user->getCurrentConversationUid());
+        $conversationUserModel = $this->conversationStore->getEIModelConversation($user->getCurrentConversationUid());
 
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationUser */
+        /** @var Conversation $conversationUser */
         $conversationUser = $conversationConverter->convertConversation($conversationUserModel);
 
         $this->assertEquals($conversationForCloning->getId(), $conversationUser->getId());
@@ -344,19 +343,19 @@ class UserServiceTest extends TestCase
         $this->assertFalse($user->isHavingConversation());
         $this->assertFalse($user->hasCurrentIntent());
 
-        $client = $this->app->make(DGraphClient::class);
+        $client = resolve(DGraphClient::class);
         $conversationQuery = DGraphConversationQueryFactory::getConversationTemplateIds();
         $conversationResponse = $client->query($conversationQuery);
 
-        $conversationStore = app()->make(ConversationStoreInterface::class);
-        $conversationConverter = app()->make(EIModelToGraphConverter::class);
+        $conversationStore = resolve(ConversationStoreInterface::class);
+        $conversationConverter = resolve(EIModelToGraphConverter::class);
 
         $conversationModel = $conversationStore->getEIModelConversation($conversationResponse->getData()[0]['uid']);
 
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForCloning */
+        /** @var Conversation $conversationForCloning */
         $conversationForCloning = $conversationConverter->convertConversation($conversationModel, true);
 
-        /** @var \OpenDialogAi\Core\Conversation\Conversation $conversationForConnecting */
+        /** @var Conversation $conversationForConnecting */
         $conversationForConnecting = $conversationConverter->convertConversation($conversationModel, false);
 
         $this->userService->setCurrentConversation($user, $conversationForCloning, $conversationForConnecting);

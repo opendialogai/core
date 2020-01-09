@@ -339,7 +339,11 @@ EOT;
         return $this->conversation4();
     }
 
-    private function checkRequirements() {
+    /**
+     * Checks whether the test has the appropriate requirements to run
+     */
+    private function checkRequirements()
+    {
         $annotations = $this->getAnnotations();
 
         foreach (array('class', 'method') as $depth) {
@@ -363,7 +367,7 @@ EOT;
     {
         /** @var DGraphClient $client */
         $client = $this->app->make(DGraphClient::class);
-        return $client->testConnection();
+        return $client->isConnected();
     }
 
     protected function initDDgraph(): void

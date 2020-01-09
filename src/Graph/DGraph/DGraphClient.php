@@ -17,9 +17,6 @@ class DGraphClient
     /** @var Client */
     protected $client;
 
-    /** @var string */
-    protected $dGraphQueries;
-
     const QUERY  = 'query';
     const MUTATE = 'mutate';
     const ALTER  = 'alter';
@@ -50,11 +47,14 @@ class DGraphClient
      *
      * @return bool
      */
-    public function testConnection()
+    public function isConnected()
     {
         try {
             $this->client->request('GET', '/');
         } catch (ConnectException $e) {
+            return false;
+        } catch (GuzzleException $e) {
+            Log::error(sprintf('Error connecting to DGraph when trying to test connection- %s', $e->getMessage()));
             return false;
         }
 
