@@ -14,7 +14,7 @@ class NlpEngineServiceProvider extends ServiceProvider
     {
         $this->publishes(
             [
-                __DIR__.'/config/opendialog-nlpengine.php' => config_path('opendialog/nlp_engine.php'),
+                __DIR__.'/config/opendialog-nlpengine-custom.php' => config_path('opendialog/nlp_engine.php'),
             ],
             'opendialog-config'
         );
@@ -27,6 +27,8 @@ class NlpEngineServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__ . '/config/opendialog-nlpengine.php', 'opendialog.nlp_engine');
+
         $this->app->singleton(
             'MsClient',
             function () {
