@@ -72,6 +72,17 @@ class UserContext extends AbstractContext
     }
 
     /**
+     * @param string $attributeName
+     * @return mixed
+     * @throws AttributeDoesNotExistException
+     */
+    public function getAttributeValue(string $attributeName)
+    {
+        $attribute = $this->getAttribute($attributeName);
+        return $attribute->getValue();
+    }
+
+    /**
      * @inheritDoc
      */
     public function addAttribute(AttributeInterface $attribute): UserContext

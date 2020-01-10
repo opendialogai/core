@@ -158,7 +158,5 @@ class ContextEngineServiceTest extends TestCase
             ContextServiceFacade::getUserContext()->getAttribute('first_seen')->getValue(),
             ContextServiceFacade::getUserContext()->getAttributeValue('first_seen')
         );
-
-
     }
 }
