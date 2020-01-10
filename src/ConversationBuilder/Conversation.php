@@ -78,7 +78,6 @@ class Conversation extends Model
     ];
 
     protected $appends = [
-        'history',
         'opening_intents',
         'outgoing_intents',
         'has_been_used'
