@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Tests\TestCase;
 
-class TestReadingAndStoringStatuses extends TestCase
+class ReadingAndStoringStatusesTest extends TestCase
 {
     private $dirName;
 
