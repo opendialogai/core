@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
-use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\NlpEngine\NlpLanguage;
 
 class NlpLanguageTest extends TestCase
 {

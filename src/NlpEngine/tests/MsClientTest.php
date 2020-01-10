@@ -8,8 +8,8 @@ use GuzzleHttp\Psr7\Response;
 use Mockery;
 use Mockery\LegacyMockInterface;
 use Mockery\MockInterface;
-use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient;
 
 class MsClientTest extends TestCase
 {

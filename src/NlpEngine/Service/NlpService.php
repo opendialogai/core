@@ -1,12 +1,12 @@
 <?php
 
 
-namespace OpenDialogAi\Core\NlpEngine\Service;
+namespace OpenDialogAi\NlpEngine\Service;
 
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
-use OpenDialogAi\Core\NlpEngine\Exceptions\NlpProviderNotRegisteredException;
+use OpenDialogAi\NlpEngine\Exceptions\NlpProviderNotRegisteredException;
 use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
 
 class NlpService implements NlpServiceInterface

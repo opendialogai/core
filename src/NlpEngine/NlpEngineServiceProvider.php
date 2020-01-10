@@ -1,12 +1,12 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine;
+namespace OpenDialogAi\NlpEngine;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
-use OpenDialogAi\Core\NlpEngine\Service\NlpService;
-use OpenDialogAi\Core\NlpEngine\Service\NlpServiceInterface;
+use OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient;
+use OpenDialogAi\NlpEngine\Service\NlpService;
+use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
 class NlpEngineServiceProvider extends ServiceProvider
 {

@@ -1,17 +1,17 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine\Providers;
+namespace OpenDialogAi\NlpEngine\Providers;
 
-use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
-use OpenDialogAi\Core\NlpEngine\NlpEntities;
-use OpenDialogAi\Core\NlpEngine\NlpLanguage;
-use OpenDialogAi\Core\NlpEngine\NlpSentiment;
+use OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient;
+use OpenDialogAi\NlpEngine\NlpEntities;
+use OpenDialogAi\NlpEngine\NlpLanguage;
+use OpenDialogAi\NlpEngine\NlpSentiment;
 
 class MsNlpProvider extends AbstractNlpProvider
 {
     protected static $name = "nlp_provider.core.microsoft";
 
-    /** @var \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
+    /** @var \OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient  */
     private $client;
 
     /** @var string  */
@@ -36,7 +36,7 @@ class MsNlpProvider extends AbstractNlpProvider
 
     /**
      * @param string $document
-     * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
+     * @return \OpenDialogAi\NlpEngine\NlpLanguage
      */
     public function getLanguage(string $document): NLPLanguage
     {
@@ -53,7 +53,7 @@ class MsNlpProvider extends AbstractNlpProvider
 
     /**
      * @param string $document
-     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     * @return \OpenDialogAi\NlpEngine\NlpSentiment
      */
     public function getSentiment(string $document): NlpSentiment
     {
@@ -64,7 +64,7 @@ class MsNlpProvider extends AbstractNlpProvider
 
     /**
      * @param string $document
-     * @return \OpenDialogAi\Core\NlpEngine\NlpEntities
+     * @return \OpenDialogAi\NlpEngine\NlpEntities
      */
     public function getEntities(string $document): NlpEntities
     {

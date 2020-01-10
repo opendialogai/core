@@ -1,10 +1,10 @@
 <?php
 
 
-namespace OpenDialogAi\Core\NlpEngine\Service;
+namespace OpenDialogAi\NlpEngine\Service;
 
 
-use OpenDialogAi\Core\NlpEngine\Exceptions\NlpProviderNotRegisteredException;
+use OpenDialogAi\NlpEngine\Exceptions\NlpProviderNotRegisteredException;
 use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
 
 /**

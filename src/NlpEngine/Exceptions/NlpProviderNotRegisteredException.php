@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OpenDialogAi\Core\NlpEngine\Exceptions;
+namespace OpenDialogAi\NlpEngine\Exceptions;
 
 
 use Exception;

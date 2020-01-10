@@ -1,6 +1,6 @@
 <?php
 
-use OpenDialogAi\Core\NlpEngine\Providers\MsNlpProvider;
+use OpenDialogAi\NlpEngine\Providers\MsNlpProvider;
 
 return [
     'available_nlp_providers' => [

@@ -4,21 +4,21 @@ namespace OpenDialogAi\NlpEngine\Tests;
 
 use Exception;
 use Mockery;
-use OpenDialogAi\Core\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
-use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
-use OpenDialogAi\Core\NlpEngine\NlpEntities;
-use OpenDialogAi\Core\NlpEngine\NlpLanguage;
-use OpenDialogAi\Core\NlpEngine\NlpSentiment;
-use OpenDialogAi\Core\NlpEngine\Providers\MsNlpProvider;
-use OpenDialogAi\Core\NlpEngine\Service\NlpServiceInterface;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
+use OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient;
+use OpenDialogAi\NlpEngine\NlpEntities;
+use OpenDialogAi\NlpEngine\NlpLanguage;
+use OpenDialogAi\NlpEngine\NlpSentiment;
+use OpenDialogAi\NlpEngine\Providers\MsNlpProvider;
+use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
 class MsNlpProviderTest extends TestCase
 {
-    /** @var \OpenDialogAi\Core\NlpEngine\Providers\MsNlpProvider */
+    /** @var \OpenDialogAi\NlpEngine\Providers\MsNlpProvider */
     private $msNlpProvider;
 
-    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface|\OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
+    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface|\OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient  */
     private $clientMock;
 
     public function setUp(): void
@@ -98,7 +98,7 @@ class MsNlpProviderTest extends TestCase
     }
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
+     * @return \OpenDialogAi\NlpEngine\NlpLanguage
      */
     private function getTestResponse(): NlpLanguage
     {
@@ -111,7 +111,7 @@ class MsNlpProviderTest extends TestCase
     }
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     * @return \OpenDialogAi\NlpEngine\NlpSentiment
      */
     private function getSentimentTestResponse(): NlpSentiment
     {
@@ -123,7 +123,7 @@ class MsNlpProviderTest extends TestCase
     }
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpEntities
+     * @return \OpenDialogAi\NlpEngine\NlpEntities
      */
     private function getEntitiesTestResponse(): NlpEntities
     {

@@ -1,13 +1,13 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
+namespace OpenDialogAi\NlpEngine\MicrosoftRepository;
 
 use GuzzleHttp\Client;
-use OpenDialogAi\Core\NlpEngine\NlpEntities;
-use OpenDialogAi\Core\NlpEngine\NlpEntity;
-use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
-use OpenDialogAi\Core\NlpEngine\NlpLanguage;
-use OpenDialogAi\Core\NlpEngine\NlpSentiment;
+use OpenDialogAi\NlpEngine\NlpEntities;
+use OpenDialogAi\NlpEngine\NlpEntity;
+use OpenDialogAi\NlpEngine\NlpEntityMatch;
+use OpenDialogAi\NlpEngine\NlpLanguage;
+use OpenDialogAi\NlpEngine\NlpSentiment;
 
 class MsClient
 {
@@ -65,7 +65,7 @@ class MsClient
     /**
      * @param string $string
      * @param string $language
-     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     * @return \OpenDialogAi\NlpEngine\NlpSentiment
      */
     public function getSentiment(string $string, string $language): NlpSentiment
     {
@@ -140,7 +140,7 @@ class MsClient
 
     /**
      * @param                                        $entity
-     * @param \OpenDialogAi\Core\NlpEngine\NlpEntity $nlpEntity
+     * @param \OpenDialogAi\NlpEngine\NlpEntity $nlpEntity
      */
     private function buildMatches($entity, NlpEntity $nlpEntity): void
     {

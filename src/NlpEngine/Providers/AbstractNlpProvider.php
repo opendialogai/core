@@ -1,15 +1,14 @@
 <?php
 
 
-namespace OpenDialogAi\Core\NlpEngine\Providers;
+namespace OpenDialogAi\NlpEngine\Providers;
 
 
-use OpenDialogAi\Core\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
-use OpenDialogAi\Core\NlpEngine\NlpEntities;
-use OpenDialogAi\Core\NlpEngine\NlpLanguage;
-use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 use OpenDialogAi\Core\Traits\HasName;
-use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
+use OpenDialogAi\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
+use OpenDialogAi\NlpEngine\NlpEntities;
+use OpenDialogAi\NlpEngine\NlpLanguage;
+use OpenDialogAi\NlpEngine\NlpSentiment;
 
 abstract class AbstractNlpProvider implements NlpProviderInterface
 {
