@@ -14,7 +14,7 @@ use OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient;
 class MsClientTest extends TestCase
 {
     /** @var MsClient */
-    private $mClient;
+    private $msClient;
 
     /** @var LegacyMockInterface|MockInterface  */
     private $guzzleClientMock;
@@ -28,14 +28,14 @@ class MsClientTest extends TestCase
 
         $msClient = resolve(MsClient::class);
         $msClient->setClient($this->guzzleClientMock);
-        $this->mClient = $msClient;
+        $this->msClient = $msClient;
     }
 
     public function testItGetsLanguageFromMs()
     {
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getLanguageTestResponse());
 
-        $nlpLanguage = $this->mClient->getLanguage($this->getTestStringForNlp(), 'GB');
+        $nlpLanguage = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
 
         $this->assertEquals($nlpLanguage->getLanguageName(), 'English');
         $this->assertEquals($nlpLanguage->getIsoName(), 'en');
@@ -47,7 +47,7 @@ class MsClientTest extends TestCase
     {
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getSentimentTestResponse());
 
-        $nlpSentiment = $this->mClient->getSentiment($this->getTestStringForNlp(), 'en');
+        $nlpSentiment = $this->msClient->getSentiment($this->getTestStringForNlp(), 'en');
 
         $this->assertEquals($nlpSentiment->getInput(), 'Hello World.');
         $this->assertEquals($nlpSentiment->getScore(), 0.7443314790725708);
@@ -58,7 +58,7 @@ class MsClientTest extends TestCase
         $input = 'I want to find books by David Attenborough or George Orwell about south america';
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getEntitiesTestResponse());
 
-        $nlpEntities = $this->mClient->getEntities($input, 'en');
+        $nlpEntities = $this->msClient->getEntities($input, 'en');
 
         $this->assertEquals($nlpEntities->getInput(), $input);
         $this->assertEquals($nlpEntities->getEntities()[0]->getType(), 'Person');

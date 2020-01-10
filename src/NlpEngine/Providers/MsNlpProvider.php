@@ -11,7 +11,7 @@ class MsNlpProvider extends AbstractNlpProvider
 {
     protected static $name = "nlp_provider.core.microsoft";
 
-    /** @var \OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient  */
+    /** @var MsClient */
     private $client;
 
     /** @var string  */

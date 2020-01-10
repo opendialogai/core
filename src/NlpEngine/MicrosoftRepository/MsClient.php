@@ -14,15 +14,15 @@ class MsClient
     /** @var Client */
     private $client;
 
-    /**
-     * @param Client $client
-     */
-    public function setClient(Client $client): void
+    public function __construct(Client $client)
     {
         $this->client = $client;
     }
 
-    public function __construct(Client $client)
+    /**
+     * @param Client $client
+     */
+    public function setClient(Client $client): void
     {
         $this->client = $client;
     }
@@ -65,7 +65,7 @@ class MsClient
     /**
      * @param string $string
      * @param string $language
-     * @return \OpenDialogAi\NlpEngine\NlpSentiment
+     * @return NlpSentiment
      */
     public function getSentiment(string $string, string $language): NlpSentiment
     {
@@ -139,8 +139,8 @@ class MsClient
     }
 
     /**
-     * @param                                        $entity
-     * @param \OpenDialogAi\NlpEngine\NlpEntity $nlpEntity
+     * @param $entity
+     * @param NlpEntity $nlpEntity
      */
     private function buildMatches($entity, NlpEntity $nlpEntity): void
     {
