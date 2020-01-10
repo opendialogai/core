@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
 
+use GuzzleHttp\Client;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpEntity;
 use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
@@ -10,12 +11,20 @@ use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 
 class MsClient
 {
-    /** @var \GuzzleHttp\Client  */
+    /** @var Client */
     private $client;
 
-    public function __construct()
+    /**
+     * @param Client $client
+     */
+    public function setClient(Client $client): void
     {
-        $this->client = app()->make('MsClient');
+        $this->client = $client;
+    }
+
+    public function __construct(Client $client)
+    {
+        $this->client = $client;
     }
 
     /**

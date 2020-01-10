@@ -2,31 +2,40 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Response;
+use Mockery;
+use Mockery\LegacyMockInterface;
+use Mockery\MockInterface;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class MsClientTest extends TestCase
 {
-    private $msClient;
+    /** @var MsClient */
+    private $mClient;
 
-    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface  */
+    /** @var LegacyMockInterface|MockInterface  */
     private $guzzleClientMock;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->guzzleClientMock = \Mockery::mock(app()->make('MsClient'));
-        $this->app->instance('MsClient', $this->guzzleClientMock);
-        $this->msClient = new MsClient();
+
+        /** @var Client guzzleClientMock */
+        $this->guzzleClientMock = Mockery::mock(Client::class);
+
+        $msClient = resolve(MsClient::class);
+        $msClient->setClient($this->guzzleClientMock);
+        $this->mClient = $msClient;
     }
 
     public function testItGetsLanguageFromMs()
     {
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getLanguageTestResponse());
 
-        $nlpLanguage = $this->msClient->getLanguage($this->getTestStringForNlp(), 'GB');
+        $nlpLanguage = $this->mClient->getLanguage($this->getTestStringForNlp(), 'GB');
 
         $this->assertEquals($nlpLanguage->getLanguageName(), 'English');
         $this->assertEquals($nlpLanguage->getIsoName(), 'en');
@@ -38,7 +47,7 @@ class MsClientTest extends TestCase
     {
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getSentimentTestResponse());
 
-        $nlpSentiment = $this->msClient->getSentiment($this->getTestStringForNlp(), 'en');
+        $nlpSentiment = $this->mClient->getSentiment($this->getTestStringForNlp(), 'en');
 
         $this->assertEquals($nlpSentiment->getInput(), 'Hello World.');
         $this->assertEquals($nlpSentiment->getScore(), 0.7443314790725708);
@@ -49,7 +58,7 @@ class MsClientTest extends TestCase
         $input = 'I want to find books by David Attenborough or George Orwell about south america';
         $this->guzzleClientMock->shouldReceive('post')->once()->andReturn($this->getEntitiesTestResponse());
 
-        $nlpEntities = $this->msClient->getEntities($input, 'en');
+        $nlpEntities = $this->mClient->getEntities($input, 'en');
 
         $this->assertEquals($nlpEntities->getInput(), $input);
         $this->assertEquals($nlpEntities->getEntities()[0]->getType(), 'Person');

@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\NlpEngine\Providers;
 
+use OpenDialogAi\Core\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
@@ -9,17 +10,23 @@ use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 interface NlpProviderInterface
 {
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
+     * @param string $document
+     * @return NlpLanguage
+     * @throws NlpProviderMethodNotSupportedException
      */
-    public function getLanguage(): NlpLanguage;
+    public function getLanguage(string $document): NlpLanguage;
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpEntities
+     * @param string $document
+     * @return NlpEntities
+     * @throws NlpProviderMethodNotSupportedException
      */
-    public function getEntities(): NlpEntities;
+    public function getEntities(string $document): NlpEntities;
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     * @param string $document
+     * @return NlpSentiment
+     * @throws NlpProviderMethodNotSupportedException
      */
-    public function getSentiment(): NlpSentiment;
+    public function getSentiment(string $document): NlpSentiment;
 }

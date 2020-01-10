@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'available_nlp_providers' => [
+    'custom_nlp_providers' => [
 //        ExampleProvider::class
     ],
 

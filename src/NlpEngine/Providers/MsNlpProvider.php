@@ -6,15 +6,13 @@ use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
-use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
 
-class MsNlpProvider implements NlpProviderInterface
+class MsNlpProvider extends AbstractNlpProvider
 {
+    protected static $name = "nlp_provider.core.microsoft";
+
     /** @var \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
     private $client;
-
-    /** @var string  */
-    private $string;
 
     /** @var string  */
     private $defaultLanguage;
@@ -24,14 +22,10 @@ class MsNlpProvider implements NlpProviderInterface
 
     /**
      * MsNlpProvider constructor.
-     *
-     * @param string                                                    $string
-     * @param \OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient $client
      */
-    public function __construct(string $string, MsClient $client)
+    public function __construct()
     {
-        $this->client = $client;
-        $this->string = $string;
+        $this->client = resolve(MsClient::class);
         $this->defaultLanguage = config('opendialog.nlp_engine.default_language') ? config(
             'opendialog.nlp_engine.default_language'
         ) : 'en';
@@ -41,14 +35,15 @@ class MsNlpProvider implements NlpProviderInterface
     }
 
     /**
+     * @param string $document
      * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
      */
-    public function getLanguage(): NLPLanguage
+    public function getLanguage(string $document): NLPLanguage
     {
-        $nplLanguage = $this->client->getLanguage($this->string, $this->defaultCountryCode);
+        $nplLanguage = $this->client->getLanguage($document, $this->defaultCountryCode);
 
         $language = new NlpLanguage();
-        $language->setInput($this->string);
+        $language->setInput($document);
         $language->setLanguageName($nplLanguage->getLanguageName());
         $language->setIsoName($nplLanguage->getIsoName());
         $language->setScore($nplLanguage->getScore());
@@ -57,21 +52,23 @@ class MsNlpProvider implements NlpProviderInterface
     }
 
     /**
+     * @param string $document
      * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
      */
-    public function getSentiment(): NlpSentiment
+    public function getSentiment(string $document): NlpSentiment
     {
-        $sentiment = $this->client->getSentiment($this->string, $this->defaultLanguage);
+        $sentiment = $this->client->getSentiment($document, $this->defaultLanguage);
 
         return $sentiment;
     }
 
     /**
+     * @param string $document
      * @return \OpenDialogAi\Core\NlpEngine\NlpEntities
      */
-    public function getEntities(): NlpEntities
+    public function getEntities(string $document): NlpEntities
     {
-        $entities = $this->client->getEntities($this->string, $this->defaultLanguage);
+        $entities = $this->client->getEntities($document, $this->defaultLanguage);
 
         return $entities;
     }

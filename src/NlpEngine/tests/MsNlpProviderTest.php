@@ -2,12 +2,15 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
+use Exception;
+use Mockery;
+use OpenDialogAi\Core\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
 use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
-use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsLanguageEntity;
 use OpenDialogAi\Core\NlpEngine\NlpEntities;
 use OpenDialogAi\Core\NlpEngine\NlpLanguage;
 use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 use OpenDialogAi\Core\NlpEngine\Providers\MsNlpProvider;
+use OpenDialogAi\Core\NlpEngine\Service\NlpServiceInterface;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class MsNlpProviderTest extends TestCase
@@ -15,19 +18,27 @@ class MsNlpProviderTest extends TestCase
     /** @var \OpenDialogAi\Core\NlpEngine\Providers\MsNlpProvider */
     private $msNlpProvider;
 
-    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface  */
-    private $guzzleClientMock;
-
     /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface|\OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient  */
     private $clientMock;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->guzzleClientMock = \Mockery::mock(app()->make('MsClient'));
-        $this->app->instance('MsClient', $this->clientMock);
-        $this->clientMock = \Mockery::mock(MsClient::class);
-        $this->msNlpProvider = new MsNlpProvider($this->getTestStringForNlp(), $this->clientMock);
+
+        $msClient = Mockery::mock(MsClient::class);
+
+        // Overwrite service provider binding to use the mocked MsClient instead
+        app()->singleton(MsClient::class, function () use ($msClient) {
+            return $msClient;
+        });
+
+        $this->clientMock = $msClient;
+
+        try {
+            $this->msNlpProvider = resolve(NlpServiceInterface::class)->getProvider(MsNlpProvider::getName());
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
     }
 
     public function testItsInstatiatesCorrectProviderClass()
@@ -38,7 +49,12 @@ class MsNlpProviderTest extends TestCase
     public function testItGetsLanguageFromMs()
     {
         $this->clientMock->shouldReceive('getLanguage')->once()->andReturn($this->getTestResponse());
-        $language = $this->msNlpProvider->getLanguage();
+
+        try {
+            $language = $this->msNlpProvider->getLanguage($this->getTestStringForNlp());
+        } catch (NlpProviderMethodNotSupportedException $e) {
+            $this->fail($e->getMessage());
+        }
 
         $this->assertEquals($language->getInput(), $this->getTestStringForNlp());
         $this->assertEquals($language->getLanguageName(), 'English');
@@ -49,7 +65,12 @@ class MsNlpProviderTest extends TestCase
     public function testItGetsSentimentFromMs()
     {
         $this->clientMock->shouldReceive('getSentiment')->once()->andReturn($this->getSentimentTestResponse());
-        $nlpSentiment = $this->msNlpProvider->getSentiment();
+
+        try {
+            $nlpSentiment = $this->msNlpProvider->getSentiment($this->getTestStringForNlp());
+        } catch (NlpProviderMethodNotSupportedException $e) {
+            $this->fail($e->getMessage());
+        }
 
         $this->assertEquals($nlpSentiment->getInput(), $this->getTestStringForNlp());
         $this->assertEquals($nlpSentiment->getScore(), 0.98837846517562866);
@@ -58,7 +79,12 @@ class MsNlpProviderTest extends TestCase
     public function testItGetsEntitiesFromMs()
     {
         $this->clientMock->shouldReceive('getEntities')->once()->andReturn($this->getEntitiesTestResponse());
-        $nlpEntities = $this->msNlpProvider->getEntities();
+
+        try {
+            $nlpEntities = $this->msNlpProvider->getEntities($this->getTestStringForNlp());
+        } catch (NlpProviderMethodNotSupportedException $e) {
+            $this->fail($e->getMessage());
+        }
 
         $this->assertInstanceOf(NlpEntities::class, $nlpEntities);
     }
