@@ -11,12 +11,8 @@ class TimePassedLessThanOperation extends BaseOperation
     /**
      * @inheritDoc
      */
-    public function execute(): bool
+    public function performOperation() : bool
     {
-        if (!$this->checkRequiredParameters()) {
-            return false;
-        }
-
         $attribute = reset($this->attributes);
 
         // We are checking for type since the default behaviour is to return an empty string if an attribute

@@ -11,12 +11,8 @@ class NotInSetOperation extends BaseOperation
     /**
      * @inheritDoc
      */
-    public function execute(): bool
+    public function performOperation() : bool
     {
-        if (!$this->checkRequiredParameters()) {
-            return false;
-        }
-
         $attribute = reset($this->attributes);
 
         return !in_array($this->parameters['value'], $attribute->getValue());

@@ -71,12 +71,24 @@ abstract class BaseOperation implements OperationInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function execute() : bool
+    {
+        if (!$this->checkRequiredParameters()) {
+            return false;
+        }
+
+        return $this->performOperation();
+    }
+
+    /**
      * @return bool
      */
     protected function checkRequiredParameters() : bool
     {
         $parameters = $this->getAllowedParameters();
-        $requiredParameters = $parameters['required'];
+        $requiredParameters = (isset($parameters['required'])) ? $parameters['required'] : [];
 
         foreach ($requiredParameters as $parameterName) {
             if (!$this->hasParameter($parameterName)) {

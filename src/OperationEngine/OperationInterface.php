@@ -40,6 +40,11 @@ interface OperationInterface
     public function hasParameter($parameterName): bool;
 
     /**
+     * @return bool
+     */
+    public function performOperation(): bool;
+
+    /**
      * Returns an array specifying the allowed parameters for the operations
      *
      * @return array

@@ -11,12 +11,8 @@ class EquivalenceOperation extends BaseOperation
     /**
      * @inheritDoc
      */
-    public function execute() : bool
+    public function performOperation() : bool
     {
-        if (!$this->checkRequiredParameters()) {
-            return false;
-        }
-
         $attribute = reset($this->attributes);
 
         if ($attribute->getValue() === $this->parameters['value']) {
