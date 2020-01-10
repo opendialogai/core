@@ -14,6 +14,8 @@ class CoreTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Test that requests to the incoming endpoint are logged.
      */
     public function testApiLogging()

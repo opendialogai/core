@@ -34,6 +34,9 @@ use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\OperationEngine\Operations\GreaterThanOperation;
 use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
 
+/**
+ * @requires DGRAPH
+ */
 class ConversationEngineTest extends TestCase
 {
     /* @var ConversationEngine */
@@ -413,6 +416,9 @@ conversation:
 EOT;
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testSceneConditions()
     {
         $this->activateConversation($this->conversationWithSceneConditions());

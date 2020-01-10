@@ -21,6 +21,8 @@ class ConversationLogTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Test that a Chatbot User can be created.
      *
      * @return void
@@ -44,6 +46,8 @@ class ConversationLogTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Ensure that the ChatbotUser/message relationships work correctly.
      */
     public function testChatbotUserDbRelationships()
@@ -72,6 +76,8 @@ class ConversationLogTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Ensure that messages can be retrieved from the webchat history endpoint.
      */
     public function testWebchatHistoryEndpoint()
@@ -101,6 +107,8 @@ class ConversationLogTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Ensure that the webchat history endpoint ignore param works.
      */
     public function testWebchatHistoryEndpointIgnoreParam()
@@ -133,6 +141,8 @@ class ConversationLogTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Ensure that the webchat history endpoint message limit works.
      */
     public function testWebchatHistoryEndpointLimit()
@@ -162,6 +172,8 @@ class ConversationLogTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Test that incoming & outgoing messages are logged.
      */
     public function testMessageLogging()
@@ -212,6 +224,9 @@ class ConversationLogTest extends TestCase
             ]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testInternalProperty()
     {
         $validCallback = ['welcome' => 'intent.core.welcome'];
@@ -285,6 +300,9 @@ class ConversationLogTest extends TestCase
             ->assertJson([0 => ['data' => ['hidetime' => false]]]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testChatbotUserFirstLastSeen()
     {
         ChatbotUser::create([

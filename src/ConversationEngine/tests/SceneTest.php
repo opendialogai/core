@@ -32,6 +32,8 @@ class SceneTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * @throws FieldNotSupported
      * @throws GuzzleException
      * @throws NodeDoesNotExistException
@@ -50,6 +52,9 @@ class SceneTest extends TestCase
         $this->assertEquals('hello_human', $intent->getId());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testSingleScene()
     {
         $this->activateConversation($this->singleSceneConv());

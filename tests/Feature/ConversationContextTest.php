@@ -14,6 +14,9 @@ class ConversationContextTest extends TestCase
         parent::setUp();
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationalContextNewUser()
     {
         $this->activateConversation($this->conversation4());
@@ -30,6 +33,9 @@ class ConversationContextTest extends TestCase
         $this->assertEquals($conversationContext->getAttributeValue('next_intents')[0], 'intent.core.NoMatchResponse');
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationalContextOnGoingUser()
     {
         $this->setSupportedCallbacks([

@@ -117,6 +117,8 @@ class ConversationBuilderTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Ensure that logs/revisions are cleaned up when Conversations are deleted.
      */
     public function testConversationDeletionWithSingleVersion()
@@ -161,6 +163,9 @@ class ConversationBuilderTest extends TestCase
         $conversationStore->getLatestEIModelTemplateVersionByName('hello_bot_world');
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationDeletionWithManyVersions()
     {
         /** @var Conversation $conversation */
@@ -198,6 +203,9 @@ class ConversationBuilderTest extends TestCase
         $conversationStore->getEIModelConversationTemplateByUid($graph_uid);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationActivatedDeletion()
     {
         $this->activateConversation($this->conversation1());
@@ -280,6 +288,8 @@ class ConversationBuilderTest extends TestCase
     }
 
     /**
+     * @requires DGRAPH
+     *
      * Ensure that a conversation representation can be persisted to DGraph.
      */
     public function testConversationRepresentationPersist()
@@ -296,6 +306,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('hello_bot_world', $conversation->getId());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testNewConversationVersion()
     {
         $this->activateConversation($this->conversation1());
@@ -349,6 +362,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(ConversationNode::DEACTIVATED, $originalConversation->getConversationStatus());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testDeactivating()
     {
         $this->activateConversation($this->conversation1());
@@ -390,6 +406,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(ConversationNode::DEACTIVATED, $model->getConversationStatus());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testArchiving()
     {
         $this->activateConversation($this->conversation1());
@@ -423,6 +442,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(ConversationNode::ARCHIVED, $model->getConversationStatus());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testDeleting()
     {
         $this->activateConversation($this->conversation1());
@@ -468,6 +490,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertTrue($conversation->delete());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithManyOpeningIntents()
     {
         $this->activateConversation($this->conversationWithManyOpeningIntents());
@@ -478,6 +503,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(3, $conversationModel->opening_intents);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithSceneConditions()
     {
         $this->activateConversation($this->conversationWithSceneConditions());
@@ -494,6 +522,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertCount(1, $conversation->getScene('scene2')->getConditions());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithManyIntentsWithSameIdAndIncomingConditions()
     {
         $conversation = $this->createConversationWithManyIntentsWithSameId();
@@ -555,6 +586,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('intent.app.you_lost', $secondSceneBotIntentIds->skip(0)->value);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testVirtualIntents()
     {
         $conversation = $this->createConversationWithVirtualIntent();
@@ -577,6 +611,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals('intent.app.continue', $virtualIntent->getId());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testRepeatingIntents()
     {
         $conversation = $this->createConversationWithRepeatingIntent();

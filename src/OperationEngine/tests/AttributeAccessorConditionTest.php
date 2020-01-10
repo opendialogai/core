@@ -59,6 +59,9 @@ class AttributeAccessorConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testCompositeAttributesWithUserContext()
     {
         $this->registerSingleInterpreter(new TestInterpreterComposite());
