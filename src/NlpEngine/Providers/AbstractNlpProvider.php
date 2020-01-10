@@ -4,6 +4,7 @@
 namespace OpenDialogAi\NlpEngine\Providers;
 
 
+use OpenDialogAi\Core\NlpEngine\NlpSummary;
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
 use OpenDialogAi\NlpEngine\NlpEntities;
@@ -36,6 +37,14 @@ abstract class AbstractNlpProvider implements NlpProviderInterface
      * @inheritDoc
      */
     public function getSentiment(string $document): NlpSentiment
+    {
+        throw new NlpProviderMethodNotSupportedException();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSummary(string $document): NlpSummary
     {
         throw new NlpProviderMethodNotSupportedException();
     }
