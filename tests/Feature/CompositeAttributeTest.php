@@ -60,6 +60,9 @@ class CompositeAttributeTest extends TestCase
         $this->assertEquals($attributeCollectionNew->jsonSerialize(), '[{&quot;id&quot;:&quot;test_attr&quot;,&quot;value&quot;:&quot;go&quot;}]');
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testCompositeAttributesWithUserContext()
     {
         $this->registerSingleInterpreter(new TestInterpreterComposite());

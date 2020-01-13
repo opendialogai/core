@@ -41,14 +41,17 @@ class EIModelConversationTest extends TestCase
 
         $attributes = ['test' => IntAttribute::class];
         AttributeResolver::registerAttributes($attributes);
+    }
 
+    /**
+     * @requires DGRAPH
+     */
+    public function testCanGetConversation()
+    {
         $this->activateConversation($this->conversation1());
         $this->activateConversation($this->conversation2());
         $this->activateConversation($this->conversation3());
-    }
 
-    public function testCanGetConversation()
-    {
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
         $query = $this->queryFactory::getConversationFromDGraphWithUid($conversation->graph_uid);
         $response = $this->dGraph->query($query);

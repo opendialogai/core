@@ -8,6 +8,9 @@ use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
 class CompletingConversationTest extends TestCase
 {
+    /**
+     * @requires DGRAPH
+     */
     public function testCompletingIntents()
     {
         $this->activateConversation($this->conver1());

@@ -10,6 +10,9 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelOpeningInt
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 
+/**
+ * @requires DGRAPH
+ */
 class EIModelOpeningIntentsTest extends TestCase
 {
 

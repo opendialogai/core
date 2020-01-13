@@ -41,12 +41,15 @@ class EIModelIntentTest extends TestCase
 
         $attributes = ['test' => IntAttribute::class];
         AttributeResolver::registerAttributes($attributes);
-
-        $this->activateConversation($this->conversation1());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testCanGetIntent()
     {
+        $this->activateConversation($this->conversation1());
+
         $conversation = Conversation::where('name', 'hello_bot_world')->first();
         $query = $this->queryFactory::getConversationFromDGraphWithUid($conversation->graph_uid);
         $response = $this->dGraph->query($query);
@@ -78,8 +81,13 @@ class EIModelIntentTest extends TestCase
         $this->assertEquals($intentUid, $intent->getIntentUid());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testCanGetIntentAndVirtualIntent()
     {
+        $this->activateConversation($this->conversation1());
+
         $this->createConversationWithVirtualIntent();
 
         $conversation = Conversation::where('name', 'with_virtual_intent')->first();

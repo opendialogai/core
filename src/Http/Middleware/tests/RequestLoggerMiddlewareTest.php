@@ -9,11 +9,15 @@ class RequestLoggerMiddlewareTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->activateConversation($this->conversation4());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testRequestLoggerMiddleware()
     {
+        $this->activateConversation($this->conversation4());
+
         $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
             'user_id' => 'someuser',

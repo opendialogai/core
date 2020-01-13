@@ -24,6 +24,9 @@ class ReadingAndStoringStatusesTest extends TestCase
         parent::tearDown();
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testStoring()
     {
         Artisan::call('statuses:store');
@@ -49,6 +52,9 @@ class ReadingAndStoringStatusesTest extends TestCase
         $this->assertEquals('activated', $data[2][1]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testReading()
     {
         $this->activateConversation($this->conversation1());
@@ -70,6 +76,9 @@ class ReadingAndStoringStatusesTest extends TestCase
         $this->assertEquals('deactivated', $conv2->status);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testReadingDown()
     {
         $this->activateConversation($this->conversation1());

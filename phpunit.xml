@@ -66,6 +66,10 @@
             <directory suffix="Test.php">./src/ConversationEngine/tests</directory>
         </testsuite>
 
+        <testsuite name="NlpEngine">
+            <directory suffix="Test.php">./src/NlpEngine/tests</directory>
+        </testsuite>
+
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
