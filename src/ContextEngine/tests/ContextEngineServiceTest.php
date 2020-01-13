@@ -158,5 +158,10 @@ class ContextEngineServiceTest extends TestCase
             ContextServiceFacade::getUserContext()->getAttribute('first_seen')->getValue(),
             ContextServiceFacade::getUserContext()->getAttributeValue('first_seen')
         );
+
+        $this->assertEquals(
+            null,
+            ContextServiceFacade::getUserContext()->getAttributeValue('not_exist')
+        );
     }
 }

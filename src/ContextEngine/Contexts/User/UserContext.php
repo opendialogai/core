@@ -74,12 +74,16 @@ class UserContext extends AbstractContext
     /**
      * @param string $attributeName
      * @return mixed
-     * @throws AttributeDoesNotExistException
      */
     public function getAttributeValue(string $attributeName)
     {
-        $attribute = $this->getAttribute($attributeName);
-        return $attribute->getValue();
+        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
+            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
+            return $userAttribute->getInternalAttribute()->getValue();
+        }
+
+        Log::debug(sprintf('Trying get value of a user attribute that does not exist - %s', $attributeName));
+        return null;
     }
 
     /**
