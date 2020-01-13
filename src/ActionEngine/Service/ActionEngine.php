@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
-use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Exceptions\NameNotSetException;
 
 class ActionEngine implements ActionEngineInterface
 {
@@ -37,7 +37,7 @@ class ActionEngine implements ActionEngineInterface
                 /** @var ActionInterface $action */
                 $action = new $supportedAction();
                 $this->registerAction($action);
-            } catch (ActionNameNotSetException $exception) {
+            } catch (NameNotSetException $exception) {
                 Log::warning(
                     sprintf(
                         "Skipping adding action %s to list of supported actions as it doesn't have a name",
@@ -131,10 +131,10 @@ class ActionEngine implements ActionEngineInterface
      * Registers an action to the engine. This method is useful for mocking actions in tests.
      *
      * @param ActionInterface $action
-     * @throws ActionNameNotSetException
+     * @throws NameNotSetException
      */
     public function registerAction(ActionInterface $action): void
     {
-        $this->availableActions[$action->performs()] = $action;
+        $this->availableActions[$action::getName()] = $action;
     }
 }
