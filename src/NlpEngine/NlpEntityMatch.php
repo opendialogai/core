@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine;
+namespace OpenDialogAi\NlpEngine;
 
 class NlpEntityMatch
 {
