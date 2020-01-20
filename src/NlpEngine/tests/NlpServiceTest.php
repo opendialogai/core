@@ -1,32 +1,39 @@
 <?php
 
-namespace OpenDialogAi\NlpEngine\Tests;
+namespace OpenDialogAi\Core\NlpEngine\tests;
 
-use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
+use OpenDialogAi\Core\NlpEngine\tests\Providers\BadlyNamedProvider;
+use OpenDialogAi\Core\NlpEngine\tests\Providers\NoMethods;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
+use OpenDialogAi\NlpEngine\Exceptions\NlpProviderNotRegisteredException;
+use OpenDialogAi\NlpEngine\Providers\MsNlpProvider;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
 class NlpServiceTest extends TestCase
 {
-    /** @var \OpenDialogAi\Core\NlpEngine\Service\MsNlpService */
-    private $nlpService;
-
-    public function setUp(): void
+    public function testGettingProvider()
     {
-        parent::setUp();
-        $this->nlpService = app()->make(NlpServiceInterface::class, ['string' => $this->getTestStringForNlp()]);
+        $this->assertNotNull(resolve(NlpServiceInterface::class)->getProvider(MsNlpProvider::getName()));
     }
 
-    public function testItsInstatiatesCorrectServiceClass()
+    public function testGettingUnBoundProvider()
     {
-        $this->assertInstanceOf(MsNlpService::class, $this->nlpService);
+        $this->expectException(NlpProviderNotRegisteredException::class);
+        resolve(NlpServiceInterface::class)->getProvider('unbound');
     }
 
-    /**
-     * @return string
-     */
-    public function getTestStringForNlp(): string
+    public function testBindingBadName()
     {
-        return 'Hello World.';
+        $this->app['config']->set('opendialog.nlp_engine.available_nlp_providers', [BadlyNamedProvider::class]);
+        $this->expectException(NlpProviderNotRegisteredException::class);
+        resolve(NlpServiceInterface::class)->getProvider(BadlyNamedProvider::getName());
+    }
+
+    public function testMethodNotInUse()
+    {
+        $this->app['config']->set('opendialog.nlp_engine.available_nlp_providers', [NoMethods::class]);
+        $this->expectException(NlpProviderMethodNotSupportedException::class);
+        resolve(NlpServiceInterface::class)->getProvider(NoMethods::getName())->getEntities('');
     }
 }

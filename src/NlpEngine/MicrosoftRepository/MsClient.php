@@ -1,21 +1,30 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine\MicrosoftRepository;
+namespace OpenDialogAi\NlpEngine\MicrosoftRepository;
 
-use OpenDialogAi\Core\NlpEngine\NlpEntities;
-use OpenDialogAi\Core\NlpEngine\NlpEntity;
-use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
-use OpenDialogAi\Core\NlpEngine\NlpLanguage;
-use OpenDialogAi\Core\NlpEngine\NlpSentiment;
+use GuzzleHttp\Client;
+use OpenDialogAi\NlpEngine\NlpEntities;
+use OpenDialogAi\NlpEngine\NlpEntity;
+use OpenDialogAi\NlpEngine\NlpEntityMatch;
+use OpenDialogAi\NlpEngine\NlpLanguage;
+use OpenDialogAi\NlpEngine\NlpSentiment;
 
 class MsClient
 {
-    /** @var \GuzzleHttp\Client  */
+    /** @var Client */
     private $client;
 
-    public function __construct()
+    public function __construct(Client $client)
     {
-        $this->client = app()->make('MsClient');
+        $this->client = $client;
+    }
+
+    /**
+     * @param Client $client
+     */
+    public function setClient(Client $client): void
+    {
+        $this->client = $client;
     }
 
     /**
@@ -28,20 +37,21 @@ class MsClient
         $body = [
             'documents' => [
                 [
-                    'countryHint' => $languageHint,
+                    'countryHint' => '',
                     'id' => '1', // for now we set this to 1 as we aren't passing an array
                     'text' => $string,
                 ],
             ],
         ];
-
         $response = $this->client->post(
-            '/languages',
+            'languages',
             [
-                'form_params' => $body
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode($body)
             ]
         );
-
         $language = json_decode($response->getBody()->getContents(), true)['documents'][0]['detectedLanguages'][0];
 
         $nlpLanguage = new NlpLanguage();
@@ -55,16 +65,16 @@ class MsClient
     /**
      * @param string $string
      * @param string $language
-     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     * @return NlpSentiment
      */
     public function getSentiment(string $string, string $language): NlpSentiment
     {
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            '/sentiment',
+            'sentiment',
             [
-                'form_params' => $body
+                'body' => json_encode($body)
             ]
         );
 
@@ -82,9 +92,9 @@ class MsClient
         $body = $this->getRequestBody($string, $language);
 
         $response = $this->client->post(
-            '/entities',
+            'entities',
             [
-                'form_params' => $body
+                'body' => json_encode($body)
             ]
         );
 
@@ -129,8 +139,8 @@ class MsClient
     }
 
     /**
-     * @param                                        $entity
-     * @param \OpenDialogAi\Core\NlpEngine\NlpEntity $nlpEntity
+     * @param $entity
+     * @param NlpEntity $nlpEntity
      */
     private function buildMatches($entity, NlpEntity $nlpEntity): void
     {

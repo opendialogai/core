@@ -68,7 +68,8 @@
         "OpenDialogAi\\OperationEngine\\OperationEngineServiceProvider",
         "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
-        "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider"
+        "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider",
+        "OpenDialogAi\\NlpEngine\\NlpEngineServiceProvider"
       ],
       "aliases": {
         "AttributeResolver": "OpenDialogAi\\ContextEngine\\Facades\\AttributeResolver"

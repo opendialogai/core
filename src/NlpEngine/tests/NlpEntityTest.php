@@ -2,10 +2,10 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
-use OpenDialogAi\Core\NlpEngine\NlpEntities;
-use OpenDialogAi\Core\NlpEngine\NlpEntity;
-use OpenDialogAi\Core\NlpEngine\NlpEntityMatch;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\NlpEngine\NlpEntities;
+use OpenDialogAi\NlpEngine\NlpEntity;
+use OpenDialogAi\NlpEngine\NlpEntityMatch;
 
 class NlpEntityTest extends TestCase
 {

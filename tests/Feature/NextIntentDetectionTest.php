@@ -26,6 +26,9 @@ class NextIntentDetectionTest extends TestCase
         parent::setUp();
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testComplexConversation()
     {
         $this->setSupportedCallbacks([
@@ -63,6 +66,9 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('finish', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testSaidAcrossScene()
     {
         $this->setSupportedCallbacks([
@@ -94,6 +100,9 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('doing_dandy', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConditionsOnOutgoingIntents()
     {
         $this->setCustomAttributes([
@@ -148,6 +157,9 @@ class NextIntentDetectionTest extends TestCase
         $this->assertEquals('answer_with_name', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithOpeningIncomingIntentConditions()
     {
         $this->setCustomAttributes([
@@ -204,6 +216,9 @@ EOT;
         $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testMultiSceneConversationWithOpeningIncomingIntentConditions()
     {
         $this->setCustomAttributes([
@@ -269,6 +284,9 @@ EOT;
         $this->assertEquals('intent.app.response', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithManyIntentsWithSameIdAndIncomingConditions()
     {
         $this->setCustomAttributes([
@@ -313,6 +331,9 @@ EOT;
         $this->assertEquals('intent.app.you_lost', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithRepeatingIntent()
     {
         $openDialogController = resolve(OpenDialogController::class);
@@ -322,6 +343,9 @@ EOT;
         $this->assertionsForRepeatingConversation($openDialogController);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithRepeatingIntentCrossScene()
     {
         $openDialogController = resolve(OpenDialogController::class);
@@ -331,6 +355,9 @@ EOT;
         $this->assertionsForRepeatingConversation($openDialogController);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithIncomingConditions()
     {
         $this->setSupportedCallbacks([
@@ -393,6 +420,9 @@ EOT;
         $this->assertEquals('intent.app.left_path_end', $conversationContext->getAttributeValue('next_intents')[0]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testMultipleNextIntents()
     {
         $test1 = 'This is Test1.';
@@ -435,6 +465,9 @@ EOT;
         $this->assertEquals($test2_2, $messages[2]->getText());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testSingleVirtualIntents()
     {
         $openDialogController = resolve(OpenDialogController::class);
@@ -453,6 +486,9 @@ EOT;
         $this->assertEquals('intent.app.endResponse', $conversationContext->getAttributeValue('next_intents')[1]);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testMultipleVirtualIntents()
     {
         $this->setConfigValue(

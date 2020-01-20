@@ -56,6 +56,25 @@ Test can be run with:
     
 More information on testing and setting up a local test environment can be found [on our wiki](https://github.com/opendialogai/opendialog/wiki/Running-tests-through-PHPStorm).
 
+### Tests that need DGraph
+
+Lots of tests int he suite require a DGraph instance to run. The Lando dev file spins up a test DGraph for this reason.
+`phpunit.xml` defines the DGraph host as `dgraph-alpha` to match that in the Lando file.
+
+This package makes use of a phpunit annotation to make which tests require DGraph to run. These tests need to be marked 
+with the following phpdoc:
+
+```
+    /**
+     * @requires DGRAPH
+     */
+```
+
+This will check if DGraph is reachable - if it is, it clears any data and refreshes the schema ready for the test. If 
+not, the test is marked as skipped.
+
+Remember to add this annotation to any tests that will need to load conversations or make use of the user context.
+
 ### Performance testing
 
 The Lando-configured Docker environment also installs [Blackfire](https://blackfire.io) to allow you to do performance analysis. 

@@ -1,25 +1,37 @@
 <?php
 
+
 namespace OpenDialogAi\NlpEngine\Service;
 
-use OpenDialogAi\Core\NlpEngine\NlpEntities;
-use OpenDialogAi\Core\NlpEngine\NlpLanguage;
-use OpenDialogAi\Core\NlpEngine\NlpSentiment;
 
+use OpenDialogAi\NlpEngine\Exceptions\NlpProviderNotRegisteredException;
+use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
+
+/**
+ * Deals with registering and exposing registered NLP providers
+ */
 interface NlpServiceInterface
 {
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpLanguage
+     * @param NlpProviderInterface[] $providers
      */
-    public function getLanguage(): NlpLanguage;
+    public function registerAvailableProviders(array $providers);
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpEntities
+     * @param $providerName
+     * @return bool
      */
-    public function getEntities(): NlpEntities;
+    public function isProviderAvailable($providerName): bool;
 
     /**
-     * @return \OpenDialogAi\Core\NlpEngine\NlpSentiment
+     * @return NlpProviderInterface[]
      */
-    public function getSentiment(): NlpSentiment;
+    public function getAvailableProviders(): array;
+
+    /**
+     * @param $providerName
+     * @return NlpProviderInterface
+     * @throws NlpProviderNotRegisteredException
+     */
+    public function getProvider($providerName): NlpProviderInterface;
 }

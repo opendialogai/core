@@ -14,9 +14,9 @@ use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use OpenDialogAi\Core\NlpEngine\NlpEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
+use OpenDialogAi\NlpEngine\NlpEngineServiceProvider;
 use OpenDialogAi\OperationEngine\OperationEngineServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
@@ -49,6 +49,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
         if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
             $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
         }
+
+        $this->checkRequirements();
 
         if (!defined('LARAVEL_START')) {
             define('LARAVEL_START', microtime(true));
@@ -337,6 +339,37 @@ EOT;
         return $this->conversation4();
     }
 
+    /**
+     * Checks whether the test has the appropriate requirements to run
+     */
+    private function checkRequirements()
+    {
+        $annotations = $this->getAnnotations();
+
+        foreach (array('class', 'method') as $depth) {
+            if (empty($annotations[$depth]['requires'])) {
+                continue;
+            }
+
+            $requires = array_flip($annotations[$depth]['requires']);
+
+            if (isset($requires['DGRAPH'])) {
+                if ($this->isRunningDDgraph()) {
+                    $this->initDDgraph();
+                } else {
+                    $this->markTestSkipped('Test requires DGraph to be running');
+                }
+            }
+        }
+    }
+
+    protected function isRunningDDgraph(): bool
+    {
+        /** @var DGraphClient $client */
+        $client = $this->app->make(DGraphClient::class);
+        return $client->isConnected();
+    }
+
     protected function initDDgraph(): void
     {
         if (!$this->dgraphInitialised) {
@@ -353,10 +386,6 @@ EOT;
      */
     protected function activateConversation($conversationYaml): ConversationNode
     {
-        if (!$this->dgraphInitialised) {
-            $this->initDDgraph();
-        }
-
         $name = Yaml::parse($conversationYaml)['conversation']['id'];
 
         /** @var Conversation $conversation */

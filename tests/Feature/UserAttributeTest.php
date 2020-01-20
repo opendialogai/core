@@ -17,6 +17,9 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
 class UserAttributeTest extends TestCase
 {
+    /**
+     * @requires DGRAPH
+     */
     public function testUserAttributes()
     {
         $utterance = UtteranceGenerator::generateChatOpenUtterance('WELCOME');
@@ -28,6 +31,9 @@ class UserAttributeTest extends TestCase
         $this->assertTrue(ContextService::getUserContext()->getUser()->hasUserAttribute('first_name'));
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testUserCustomAttributes()
     {
         $this->registerSingleInterpreter(new TestInterpreter());

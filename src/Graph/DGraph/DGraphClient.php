@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 
 use Ds\Map;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Conversation\Model;
@@ -15,9 +16,6 @@ class DGraphClient
 {
     /** @var Client */
     protected $client;
-
-    /** @var string */
-    protected $dGraphQueries;
 
     const QUERY  = 'query';
     const MUTATE = 'mutate';
@@ -42,6 +40,25 @@ class DGraphClient
         ]);
 
         $this->client = $client;
+    }
+
+    /**
+     * Test DGraph connection.
+     *
+     * @return bool
+     */
+    public function isConnected()
+    {
+        try {
+            $this->client->request('GET', '/');
+        } catch (ConnectException $e) {
+            return false;
+        } catch (GuzzleException $e) {
+            Log::error(sprintf('Error connecting to DGraph when trying to test connection- %s', $e->getMessage()));
+            return false;
+        }
+
+        return true;
     }
 
     /**

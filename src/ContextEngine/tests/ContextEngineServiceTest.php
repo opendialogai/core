@@ -9,6 +9,7 @@ use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
 class ContextEngineServiceTest extends TestCase
 {
@@ -128,5 +129,38 @@ class ContextEngineServiceTest extends TestCase
         $attribute = $this->contextService()->getAttribute('test_attribute', 'test_context');
         $this->assertInstanceOf(IntAttribute::class, $attribute);
         $this->assertSame(1, $attribute->getValue());
+    }
+
+    public function testGetNonExistentAttributeValue()
+    {
+        ContextServiceFacade::createContext('user');
+        $value = ContextServiceFacade::getUserContext()->getAttributeValue('nonexistentvalue');
+
+        $this->assertNull($value);
+    }
+
+    public function testGetAttributeValue()
+    {
+        // Session Context
+        ContextServiceFacade::getSessionContext()->addAttribute(new StringAttribute('test', 'test'));
+
+        $this->assertEquals(
+            ContextServiceFacade::getSessionContext()->getAttribute('test')->getValue(),
+            ContextServiceFacade::getSessionContext()->getAttributeValue('test')
+        );
+
+        // User context
+        $utterance = UtteranceGenerator::generateTextUtterance('test');
+        ContextServiceFacade::createUserContext($utterance);
+
+        $this->assertEquals(
+            ContextServiceFacade::getUserContext()->getAttribute('first_seen')->getValue(),
+            ContextServiceFacade::getUserContext()->getAttributeValue('first_seen')
+        );
+
+        $this->assertEquals(
+            null,
+            ContextServiceFacade::getUserContext()->getAttributeValue('not_exist')
+        );
     }
 }

@@ -10,6 +10,9 @@ use OpenDialogAi\Core\UserAttributes;
 
 class UserAttributesCommandTest extends TestCase
 {
+    /**
+     * @requires DGRAPH
+     */
     public function testCachingAttributes()
     {
         $this->activateConversation($this->conversation4());

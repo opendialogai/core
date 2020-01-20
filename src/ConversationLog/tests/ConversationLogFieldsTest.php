@@ -9,6 +9,9 @@ use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
 class ConversationLogFieldsTest extends TestCase
 {
+    /**
+     * @requires DGRAPH
+     */
     public function testMessageFields()
     {
         $this->activateConversation($this->conversation4());

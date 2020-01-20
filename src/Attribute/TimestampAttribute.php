@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Attribute;
 
-use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 /**
  * A TimestampAttribute implementation.
@@ -40,6 +40,6 @@ class TimestampAttribute extends AbstractAttribute
      */
     public function toString(): string
     {
-        return $this->getValue();
+        return Carbon::createFromTimestamp($this->getValue())->toIso8601String();
     }
 }

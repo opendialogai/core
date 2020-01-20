@@ -43,6 +43,13 @@ class InterpreterService implements InterpreterServiceInterface
                 $interpreterName
             ));
             $interpreterResult = [new NoMatchIntent()];
+        } catch (\Exception $e) {
+            Log::warning(sprintf(
+                'Interpreter %s fail with exception: %s',
+                $interpreterName,
+                $e->getMessage()
+            ));
+            $interpreterResult = [new NoMatchIntent()];
         }
 
         $this->putInterpreterResultToCache($interpreterName, $utterance, $interpreterResult);
