@@ -80,7 +80,7 @@ class OperationService implements OperationServiceInterface
 
         foreach ($condition->getOperationAttributes() as $name => $attribute) {
             $parsedAttributeName = ContextParser::parseAttributeName($attribute);
-            $actualAttribute = $this->getActualAttribute($condition, $parsedAttributeName);
+            $actualAttribute = $this->getAttribute($condition, $parsedAttributeName);
             $attributes[$name] = $actualAttribute;
         }
 
@@ -97,16 +97,16 @@ class OperationService implements OperationServiceInterface
      * @param ParsedAttributeName $parsedAttributeName
      * @return AttributeInterface
      */
-    private function getActualAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): AttributeInterface
+    private function getAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): AttributeInterface
     {
         try {
             if (!$parsedAttributeName->getAccessor()) {
-                $actualAttribute = ContextService::getAttribute(
+                $attribute = ContextService::getAttribute(
                     $parsedAttributeName->attributeId,
                     $parsedAttributeName->contextId
                 );
             } else {
-                $actualAttribute = ContextService::getAttributeValue(
+                $attribute = ContextService::getAttributeValue(
                     $parsedAttributeName->attributeId,
                     $parsedAttributeName->contextId,
                     $parsedAttributeName->getAccessor()
@@ -122,10 +122,10 @@ class OperationService implements OperationServiceInterface
                 )
             );
 
-            $actualAttribute = $this->getNullValueAttribute($parsedAttributeName);
+            $attribute = $this->getNullValueAttribute($parsedAttributeName);
         }
 
-        return $actualAttribute;
+        return $attribute;
     }
 
     /**
