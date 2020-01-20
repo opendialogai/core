@@ -3,9 +3,9 @@
 namespace OpenDialogAi\OperationEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
+use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ContextEngine\ParsedAttributeName;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
@@ -22,17 +22,6 @@ class OperationService implements OperationServiceInterface
      * @var OperationInterface[]
      */
     private $availableOperations = [];
-
-    /** @var AttributeResolver */
-    private $attributeResolver;
-
-    /**
-     * @inheritDoc
-     */
-    public function setAttributeResolver(AttributeResolver $attributeResolver): void
-    {
-        $this->attributeResolver = $attributeResolver;
-    }
 
     /**
      * @inheritdoc
@@ -149,7 +138,7 @@ class OperationService implements OperationServiceInterface
     private function getNullValueAttribute(ParsedAttributeName $parsedAttributeName): AttributeInterface
     {
         try {
-            $actualAttribute = $this->attributeResolver->getAttributeFor($parsedAttributeName->attributeId, null);
+            $actualAttribute = AttributeResolver::getAttributeFor($parsedAttributeName->attributeId, null);
         } catch (AttributeIsNotSupported $e) {
             Log::warning(sprintf(
                 'Trying to get attribute that has not been bound for condition. Defaulting to String Attribute'
