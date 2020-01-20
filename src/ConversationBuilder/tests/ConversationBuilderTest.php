@@ -600,4 +600,12 @@ class ConversationBuilderTest extends TestCase
         $this->assertFalse($thirdUserIntent->isRepeating());
         $this->assertFalse($secondBotIntent->isRepeating());
     }
+
+    /**
+     * Fails as we need a null check
+     */
+    public function testConversationWithHistory()
+    {
+        Conversation::conversationWithHistory(1);
+    }
 }
