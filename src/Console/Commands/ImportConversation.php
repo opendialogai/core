@@ -43,7 +43,7 @@ class ImportConversation extends Command
         $data = json_decode(file_get_contents($this->argument('filename')), true);
         if (!is_array($data) || !isset($data['conversation'])) {
             $this->error('Sorry, I could not read that file!');
-            exit;
+            return 1;
         }
 
         $deletedModelText = '';
@@ -113,7 +113,7 @@ class ImportConversation extends Command
 
         // Confirm proceeding if the --yes flag was not given.
         if (!$this->option('yes') && !$this->confirm($messageText)) {
-            exit;
+            return 1;
         }
 
         /** @var Conversation $newConversation */
