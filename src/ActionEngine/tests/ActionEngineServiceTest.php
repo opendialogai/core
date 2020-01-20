@@ -155,11 +155,8 @@ class ActionEngineServiceTest extends TestCase
 
     public function testCustomActions()
     {
-        $this->setConfigValue('opendialog.action_engine.custom_actions', [DummyAction::class]);
-
-        $actionEngine = resolve(ActionEngineInterface::class);
-
-        $this->assertContains('actions.core.dummy', array_keys($actionEngine->getAvailableActions()));
+        $this->actionEngine->registerAction(new DummyAction());
+        $this->assertContains('actions.core.dummy', array_keys($this->actionEngine->getAvailableActions()));
     }
 
     protected function setDummyAction(): void

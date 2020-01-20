@@ -139,6 +139,9 @@ class ContextEngineServiceTest extends TestCase
         $this->assertNull($value);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testGetAttributeValue()
     {
         // Session Context
