@@ -47,6 +47,8 @@ use Symfony\Component\Yaml\Yaml;
  * @property array history
  * @property bool has_been_used
  * @property string graph_uid
+ * @property bool is_draft
+ * @property string persisted_status
  */
 class Conversation extends Model
 {
@@ -74,14 +76,18 @@ class Conversation extends Model
         'history',
         'opening_intents',
         'outgoing_intents',
-        'has_been_used'
+        'has_been_used',
+        'is_draft',
+        'persisted_status'
     ];
 
     protected $appends = [
         'history',
         'opening_intents',
         'outgoing_intents',
-        'has_been_used'
+        'has_been_used',
+        'is_draft',
+        'persisted_status'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
@@ -646,6 +652,36 @@ class Conversation extends Model
                 'attributes' => $item['properties']['attributes']
             ];
         })->toArray();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsDraftAttribute(): bool
+    {
+        return in_array($this->status, [ConversationNode::SAVED, ConversationNode::ACTIVATABLE]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPersistedStatusAttribute(): string
+    {
+        if ($this->getIsDraftAttribute()) {
+            $latestState = $this->conversationStateLogs()->orderBy('id', 'desc')->first();
+
+            if (!is_null($latestState)) {
+                $stateMap = [
+                    'activate_conversation' => ConversationNode::ACTIVATED,
+                    'deactivate_conversation' => ConversationNode::DEACTIVATED
+                ];
+                $latestState = $latestState->type;
+
+                return array_key_exists($latestState, $stateMap) ? $stateMap[$latestState] : $this->status;
+            }
+        }
+
+        return $this->status;
     }
 
     /**

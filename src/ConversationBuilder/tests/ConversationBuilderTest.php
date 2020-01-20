@@ -637,4 +637,45 @@ class ConversationBuilderTest extends TestCase
         $this->assertFalse($thirdUserIntent->isRepeating());
         $this->assertFalse($secondBotIntent->isRepeating());
     }
+
+    public function testDraftConversationProperties()
+    {
+        // Create a conversation and activate it
+        /** @var Conversation $conversation */
+        $conversation = Conversation::create(['name' => 'hello_bot_world', 'model' => $this->conversation1()]);
+        $this->assertTrue($conversation->is_draft);
+        $this->assertEquals(ConversationNode::ACTIVATABLE, $conversation->persisted_status);
+        $this->assertEquals(ConversationNode::ACTIVATABLE, $conversation->status);
+
+        $conversation->activateConversation();
+        $this->assertFalse($conversation->is_draft);
+        $this->assertEquals(ConversationNode::ACTIVATED, $conversation->persisted_status);
+        $this->assertEquals(ConversationNode::ACTIVATED, $conversation->status);
+
+        // Make a change but don't activate (a draft)
+        $conversation->model .= ' ';
+        $conversation->save();
+        $this->assertTrue($conversation->is_draft);
+        $this->assertEquals(ConversationNode::ACTIVATED, $conversation->persisted_status);
+        $this->assertEquals(ConversationNode::ACTIVATABLE, $conversation->status);
+
+        // Activate then deactivate
+        sleep(1);
+        $conversation->activateConversation();
+        $this->assertFalse($conversation->is_draft);
+        $this->assertEquals(ConversationNode::ACTIVATED, $conversation->persisted_status);
+        $this->assertEquals(ConversationNode::ACTIVATED, $conversation->status);
+
+        sleep(1);
+        $conversation->deactivateConversation();
+        $this->assertFalse($conversation->is_draft);
+        $this->assertEquals(ConversationNode::DEACTIVATED, $conversation->persisted_status);
+        $this->assertEquals(ConversationNode::DEACTIVATED, $conversation->status);
+
+        $conversation->model .= ' ';
+        $conversation->save();
+        $this->assertTrue($conversation->is_draft);
+        $this->assertEquals(ConversationNode::DEACTIVATED, $conversation->persisted_status);
+        $this->assertEquals(ConversationNode::ACTIVATABLE, $conversation->status);
+    }
 }
