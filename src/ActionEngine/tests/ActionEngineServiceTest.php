@@ -69,12 +69,8 @@ class ActionEngineServiceTest extends TestCase
 
     public function testPerformActionNotBound()
     {
-        try {
-            $this->actionEngine->performAction('actions.core.dummy', new Map());
-            $this->assertTrue(true);
-        } catch (ActionNotAvailableException $e) {
-            $this->fail('Should not have thrown exception');
-        }
+        $result = $this->actionEngine->performAction('actions.core.dummy', new Map());
+        $this->assertFalse($result->isSuccessful());
     }
 
     public function testPerformActionWithoutRequiredAction()
