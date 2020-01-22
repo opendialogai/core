@@ -21,6 +21,15 @@ class ActionResult
     }
 
     /**
+     * Returns an action result with success set to false
+     * @return ActionResult
+     */
+    public static function createFailedActionResult(): ActionResult
+    {
+        return new self(false);
+    }
+
+    /**
      * @param AttributeInterface[] $attributes
      * @return ActionResult
      */

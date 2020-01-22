@@ -5,6 +5,7 @@ namespace OpenDialogAi\ContextEngine\Tests;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -64,10 +65,8 @@ class ContextEngineServiceTest extends TestCase
         $this->assertSame($attribute->getValue(), 'value');
 
         // Now try for a context that is not set
-        $attribute = $this->contextService()->getAttribute('test', 'new_context1');
-
-        $this->assertSame($attribute->getId(), 'test');
-        $this->assertSame($attribute->getValue(), '');
+        $this->expectException(AttributeDoesNotExistException::class);
+        $this->contextService()->getAttribute('test', 'new_context1');
     }
 
     public function testSessionContextCreated()
@@ -140,6 +139,9 @@ class ContextEngineServiceTest extends TestCase
         $this->assertNull($value);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testGetAttributeValue()
     {
         // Session Context
