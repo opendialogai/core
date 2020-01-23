@@ -684,12 +684,14 @@ class Conversation extends Model
 
     /**
      * @param $id
-     * @return \OpenDialogAi\ConversationBuilder\Conversation
+     * @return \OpenDialogAi\ConversationBuilder\Conversation|null
      */
-    public static function conversationWithHistory($id): Conversation
+    public static function conversationWithHistory($id): ?Conversation
     {
         $conversation = self::find($id);
-        $conversation->setAppends(['history']);
+        if (!is_null($conversation)) {
+            $conversation->setAppends(['history']);
+        }
 
         return $conversation;
     }
