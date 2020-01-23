@@ -37,7 +37,7 @@ class ExportConversation extends Command
 
         if (!$conversation) {
             $this->error(sprintf('I could not find a conversation with name %s !', $conversationName));
-            exit;
+            return 1;
         }
 
         $this->getOutput()->getErrorStyle()->success(sprintf('Exporting conversation with id %s', $conversation->id));

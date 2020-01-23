@@ -50,7 +50,14 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
         $intent = new NoMatchIntent();
 
         if ($topIntent = $response->getTopScoringIntent()) {
-            Log::debug(sprintf('Creating intent from %s with name %s', static::$name, $topIntent->getLabel()));
+            Log::debug(
+                sprintf(
+                    'Creating intent from %s with name %s and %.2f confidence.',
+                    static::$name,
+                    $topIntent->getLabel(),
+                    $topIntent->getConfidence()
+                )
+            );
             $intent = Intent::createIntentWithConfidence($topIntent->getLabel(), $topIntent->getConfidence());
         }
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine;
+namespace OpenDialogAi\NlpEngine;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
-use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
-use OpenDialogAi\Core\NlpEngine\Service\MsNlpService;
+use OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient;
+use OpenDialogAi\NlpEngine\Service\NlpService;
 use OpenDialogAi\NlpEngine\Service\NlpServiceInterface;
 
 class NlpEngineServiceProvider extends ServiceProvider
@@ -14,7 +14,7 @@ class NlpEngineServiceProvider extends ServiceProvider
     {
         $this->publishes(
             [
-                __DIR__.'/config/opendialog-nlpengine.php' => config_path('opendialog/nlp_engine.php'),
+                __DIR__.'/config/opendialog-nlpengine-custom.php' => config_path('opendialog/nlp_engine.php'),
             ],
             'opendialog-config'
         );
@@ -27,35 +27,32 @@ class NlpEngineServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(
-            'MsClient',
-            function () {
-                $client = new Client(
-                    [
-                        'base_uri' => config('opendialog.nlp_engine.ms_api_url'),
-                        'headers' => [
-                            'Content-Type' => 'application/json',
-                            'Ocp-Apim-Subscription-Key' => config('opendialog.nlp_engine.ms_api_key'),
-                        ],
-                    ]
-                );
+        $this->mergeConfigFrom(__DIR__ . '/config/opendialog-nlpengine.php', 'opendialog.nlp_engine');
 
-                return $client;
-            }
-        );
-        $this->app->singleton(
-            'MsNlpServiceBind',
-            function ($app, $params) {
-                $client = new MsNlpService($params['text'], new MsClient());
-                return $client;
-            }
-        );
+        $this->app->singleton(MsClient::class, function () {
+            $client = new Client(
+                [
+                    'base_uri' => config('opendialog.nlp_engine.ms_api_url'),
+                    'headers' => [
+                        'Content-Type' => 'application/json',
+                        'Ocp-Apim-Subscription-Key' => config('opendialog.nlp_engine.ms_api_key'),
+                    ],
+                ]
+            );
 
-        $this->app->bind(
-            NlpServiceInterface::class,
-            function ($app) {
-                $app()->make('MsNlpServiceBind');
+            return new MsClient($client);
+        });
+
+        $this->app->singleton(NlpServiceInterface::class, function () {
+            $nlpService = new NlpService();
+            $nlpService->registerAvailableProviders(config('opendialog.nlp_engine.available_nlp_providers'));
+
+            // Register custom NLP providers if they are available
+            if (is_array(config('opendialog.nlp_engine.custom_nlp_providers'))) {
+                $nlpService->registerAvailableProviders(config('opendialog.nlp_engine.custom_nlp_providers'));
             }
-        );
+
+            return $nlpService;
+        });
     }
 }

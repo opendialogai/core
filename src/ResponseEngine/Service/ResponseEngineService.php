@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
@@ -85,10 +84,16 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                     $replacement = $this->getReplacement($attributeId);
                     $replacement = $this->escapeCharacters($replacement);
                 } catch (ContextDoesNotExistException $e) {
-                    Log::warning($e->getMessage());
+                    Log::warning(
+                        sprintf(
+                            'Invalid context name "%s" when filling message attributes',
+                            ContextParser::determineContextId($attributeId)
+                        )
+                    );
                 } catch (AttributeDoesNotExistException $e) {
-                    Log::warning($e->getMessage());
+                    Log::warning(sprintf('Cannot find attribute "%s" when filling message attributes', $attributeId));
                 }
+                Log::debug(sprintf('Using "%s" for attribute "%s" when filling message attributes', $replacement, $attributeId));
                 $text = str_replace('{' . $attributeId . '}', $replacement, $text);
             }
         }

@@ -11,7 +11,7 @@ class GreaterThanOrEqualOperation extends BaseOperation
     /**
      * @inheritDoc
      */
-    public function execute(): bool
+    public function performOperation() : bool
     {
         $attribute = reset($this->attributes);
 
