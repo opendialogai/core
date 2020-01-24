@@ -22,7 +22,8 @@
     "spatie/laravel-activitylog": "^3.8",
     "opendialogai/dgraph-docker": "1.1.0",
     "doctrine/dbal": "^2.9",
-    "ext-json": "*"
+    "ext-json": "*",
+    "google/cloud-dialogflow": "^0.10.0"
   },
   "config": {
     "preferred-install": "source"

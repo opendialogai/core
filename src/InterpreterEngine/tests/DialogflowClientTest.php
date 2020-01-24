@@ -2,39 +2,20 @@
 
 namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\tests;
 
-use GuzzleHttp\Client;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\InterpreterEngine\DialogFlow\DialogflowClient;
+use OpenDialogAi\InterpreterEngine\DialogFlow\DialogFlowClient;
 
-class DialogflowClientTest extends TestCase
+class duncanDflowTest extends TestCase
 {
-    private $guzzleMock;
-
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->guzzleMock = \Mockery::mock(Client::class);
     }
 
-    public function testItsInstantiable()
+    public function testItDoesDflow()
     {
-        $config = [
-            'app_url' => 'https://dialogflow.googleapis.com/v2/',
-        ];
-        $dfClient = new DialogflowClient($this->guzzleMock, $config);
-        $this->assertInstanceOf(DialogflowClient::class, $dfClient);
-    }
-
-    public function testItCanMakeARequest()
-    {
-        $config = [
-            'app_url' => 'https://dialogflow.googleapis.com/v2/',
-        ];
-        $dfClient = new DialogflowClient($this->guzzleMock, $config);
-
-        $this->guzzleMock->shouldReceive('GET')->once();
-
-        $dfClient->sendRequest('This is a test');
+        $dfClient = new DialogFlowClient();
+        $intentMacthed = $dfClient->detectIntent('opendialogtester-vbwobs', 'Test the framework', '1234');
+        $this->assertEquals($intentMacthed, 'You are trying it already');
     }
 }

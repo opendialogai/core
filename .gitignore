@@ -9,3 +9,4 @@
 .phpunit.result.cache
 xdebug.log
 *.env
+resources/credentials
