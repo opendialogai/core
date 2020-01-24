@@ -68,7 +68,7 @@ class DialogFlowClient
 
     /**
      * @param SessionsClient $sessionsClient
-     * @param string                                     $session
+     * @param string         $session
      * @param QueryInput     $queryInput
      * @return string
      * @throws \Google\ApiCore\ApiException
