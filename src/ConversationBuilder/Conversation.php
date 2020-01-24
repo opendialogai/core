@@ -81,7 +81,6 @@ class Conversation extends Model
         'has_been_used',
         'is_draft',
         'persisted_status',
-        'conversationStateLogs'
     ];
 
     protected $appends = [
@@ -91,7 +90,6 @@ class Conversation extends Model
         'has_been_used',
         'is_draft',
         'persisted_status',
-        'conversationStateLogs'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
