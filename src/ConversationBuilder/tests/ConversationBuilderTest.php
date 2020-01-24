@@ -57,6 +57,7 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals($conversation->id, $conversationStateLog->conversation->id);
 
         // Ensure we can get a Conversation's ConversationStateLogs.
+        $conversation->refresh();
         $this->assertTrue($conversation->conversationStateLogs->contains($conversationStateLog));
     }
 

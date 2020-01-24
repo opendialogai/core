@@ -7,6 +7,7 @@ use Ds\Set;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
@@ -49,6 +50,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property string graph_uid
  * @property bool is_draft
  * @property string persisted_status
+ * @property Collection conversationStateLogs
  */
 class Conversation extends Model
 {
@@ -78,7 +80,8 @@ class Conversation extends Model
         'outgoing_intents',
         'has_been_used',
         'is_draft',
-        'persisted_status'
+        'persisted_status',
+        'conversationStateLogs'
     ];
 
     protected $appends = [
@@ -87,7 +90,8 @@ class Conversation extends Model
         'outgoing_intents',
         'has_been_used',
         'is_draft',
-        'persisted_status'
+        'persisted_status',
+        'conversationStateLogs'
     ];
 
     // Create activity logs when the model or notes attribute is updated.
@@ -105,6 +109,8 @@ class Conversation extends Model
         'scenes_validation_status',
         'model_validation_status'
     ];
+
+    protected $with = ['conversationStateLogs'];
 
     /**
      * Get the logs for the conversation.
@@ -668,7 +674,7 @@ class Conversation extends Model
     public function getPersistedStatusAttribute(): string
     {
         if ($this->getIsDraftAttribute()) {
-            $latestState = $this->conversationStateLogs()->orderBy('id', 'desc')->first();
+            $latestState = $this->conversationStateLogs->last();
 
             if (!is_null($latestState)) {
                 $stateMap = [
