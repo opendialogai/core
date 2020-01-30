@@ -637,4 +637,28 @@ class ConversationBuilderTest extends TestCase
         $this->assertFalse($thirdUserIntent->isRepeating());
         $this->assertFalse($secondBotIntent->isRepeating());
     }
+
+    public function testConversationWithHistoryNull()
+    {
+        $nonExistentConversation = Conversation::conversationWithHistory(1);
+        $this->assertEquals(null, $nonExistentConversation);
+    }
+
+    public function testConversationWithHistory()
+    {
+        $this->activateConversation($this->conversation4());
+        $createdConversation = Conversation::where('name', 'no_match_conversation')->first();
+
+        $conversation = Conversation::conversationWithHistory($createdConversation->id);
+        $this->assertArrayHasKey('history', $conversation->toArray());
+    }
+
+    public function testConversationWithOutHistory()
+    {
+        $this->activateConversation($this->conversation4());
+        $createdConversation = Conversation::where('name', 'no_match_conversation')->first();
+
+        $conversation = Conversation::find($createdConversation->id);
+        $this->assertArrayNotHasKey('history', $conversation->toArray());
+    }
 }
