@@ -7,6 +7,7 @@ use Ds\Set;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ConversationBuilder\Exceptions\ConditionDoesNotDefineOperationException;
 use OpenDialogAi\ConversationBuilder\Jobs\ValidateConversationModel;
@@ -47,6 +48,9 @@ use Symfony\Component\Yaml\Yaml;
  * @property array history
  * @property bool has_been_used
  * @property string graph_uid
+ * @property bool is_draft
+ * @property string persisted_status
+ * @property Collection conversationStateLogs
  */
 class Conversation extends Model
 {
@@ -74,13 +78,17 @@ class Conversation extends Model
         'history',
         'opening_intents',
         'outgoing_intents',
-        'has_been_used'
+        'has_been_used',
+        'is_draft',
+        'persisted_status',
     ];
 
     protected $appends = [
         'opening_intents',
         'outgoing_intents',
-        'has_been_used'
+        'has_been_used',
+        'is_draft',
+        'persisted_status',
     ];
 
     // Create activity logs when the model or notes attribute is updated.
@@ -98,6 +106,8 @@ class Conversation extends Model
         'scenes_validation_status',
         'model_validation_status'
     ];
+
+    protected $with = ['conversationStateLogs'];
 
     /**
      * Get the logs for the conversation.
@@ -650,6 +660,36 @@ class Conversation extends Model
     /**
      * @return bool
      */
+    public function getIsDraftAttribute(): bool
+    {
+        return in_array($this->status, [ConversationNode::SAVED, ConversationNode::ACTIVATABLE]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getPersistedStatusAttribute(): string
+    {
+        if ($this->getIsDraftAttribute()) {
+            $latestState = $this->conversationStateLogs->last();
+
+            if (!is_null($latestState)) {
+                $stateMap = [
+                    'activate_conversation' => ConversationNode::ACTIVATED,
+                    'deactivate_conversation' => ConversationNode::DEACTIVATED
+                ];
+                $latestState = $latestState->type;
+
+                return array_key_exists($latestState, $stateMap) ? $stateMap[$latestState] : $this->status;
+            }
+        }
+
+        return $this->status;
+    }
+
+    /**
+     * @return bool
+     */
     public function getHasBeenUsedAttribute(): bool
     {
         /** @var ConversationStoreInterface $conversationStore */
@@ -688,9 +728,10 @@ class Conversation extends Model
      */
     public static function conversationWithHistory($id): ?Conversation
     {
+        /** @var Conversation $conversation */
         $conversation = self::find($id);
         if (!is_null($conversation)) {
-            $conversation->setAppends(['history']);
+            $conversation->setAppends(array_merge($conversation->appends, ['history']));
         }
 
         return $conversation;
