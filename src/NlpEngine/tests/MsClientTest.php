@@ -2,24 +2,33 @@
 
 namespace OpenDialogAi\NlpEngine\Tests;
 
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
-use OpenDialogAi\Core\NlpEngine\MicrosoftRepository\MsClient;
+use GuzzleHttp\Psr7\Response;
+use Mockery;
+use Mockery\LegacyMockInterface;
+use Mockery\MockInterface;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\NlpEngine\MicrosoftRepository\MsClient;
 
 class MsClientTest extends TestCase
 {
+    /** @var MsClient */
     private $msClient;
 
-    /** @var \Mockery\LegacyMockInterface|\Mockery\MockInterface  */
+    /** @var LegacyMockInterface|MockInterface  */
     private $guzzleClientMock;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->guzzleClientMock = \Mockery::mock(app()->make('MsClient'));
-        $this->app->instance('MsClient', $this->guzzleClientMock);
-        $this->msClient = new MsClient();
+
+        /** @var Client guzzleClientMock */
+        $this->guzzleClientMock = Mockery::mock(Client::class);
+
+        $msClient = resolve(MsClient::class);
+        $msClient->setClient($this->guzzleClientMock);
+        $this->msClient = $msClient;
     }
 
     public function testItGetsLanguageFromMs()

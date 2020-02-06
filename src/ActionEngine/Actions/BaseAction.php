@@ -3,11 +3,13 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use Ds\Map;
-use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
+use OpenDialogAi\Core\Traits\HasName;
 
 abstract class BaseAction implements ActionInterface
 {
-    protected $performs;
+    use HasName;
+
+    protected static $name = 'action.core.base';
 
     /** @var string[] */
     protected $requiredAttributes = [];
@@ -17,18 +19,6 @@ abstract class BaseAction implements ActionInterface
 
     /** @var Map */
     protected $outputAttributes = [];
-
-    /**
-     * @inheritdoc
-     */
-    public function performs(): string
-    {
-        if (!isset($this->performs)) {
-            throw new ActionNameNotSetException();
-        }
-
-        return $this->performs;
-    }
 
     /**
      * @inheritdoc

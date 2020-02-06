@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
-use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
-use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
+use OpenDialogAi\Core\Exceptions\NameNotSetException;
 
 class ActionEngine implements ActionEngineInterface
 {
@@ -37,7 +37,7 @@ class ActionEngine implements ActionEngineInterface
                 /** @var ActionInterface $action */
                 $action = new $supportedAction();
                 $this->registerAction($action);
-            } catch (ActionNameNotSetException $exception) {
+            } catch (NameNotSetException $exception) {
                 Log::warning(
                     sprintf(
                         "Skipping adding action %s to list of supported actions as it doesn't have a name",
@@ -65,18 +65,20 @@ class ActionEngine implements ActionEngineInterface
     }
 
     /**
+     * Will not run the action if the input attributes do not match the required attributes.
      * @inheritdoc
      */
-    public function performAction(string $actionName, Map $inputAttributes): ?ActionResult
+    public function performAction(string $actionName, Map $inputAttributes): ActionResult
     {
         if ($this->actionIsAvailable($actionName)) {
             $action = $this->availableActions[$actionName];
             $action->setInputAttributes($inputAttributes);
 
-            $requiredAttributes = $action->getRequiredAttributes();
             $inputAttributes = $action->getInputAttributes();
 
-            if (!empty(array_diff($requiredAttributes, $inputAttributes->keys()->toArray()))) {
+            $actionInput = $this->getActionInput($inputAttributes);
+
+            if (!$actionInput->containsAllAttributes($action->getRequiredAttributes())) {
                 Log::warning(
                     sprintf(
                         "Skipping action %s because some required attributes does not exist",
@@ -84,21 +86,18 @@ class ActionEngine implements ActionEngineInterface
                     )
                 );
 
-                return null;
+                return ActionResult::createFailedActionResult();
             }
-
-            // Get action input
-            $actionInput = $this->getActionInput($requiredAttributes, $inputAttributes);
 
             return $action->perform($actionInput);
         }
 
-        throw new ActionNotAvailableException(
-            sprintf(
-                "Action %s is not available and cannot be performed",
-                $actionName
-            )
-        );
+        Log::warning(sprintf(
+            "Action %s is not available and cannot be performed",
+            $actionName
+        ));
+
+        return ActionResult::createFailedActionResult();
     }
 
     /**
@@ -113,16 +112,28 @@ class ActionEngine implements ActionEngineInterface
     }
 
     /**
-     * @param array $requiredAttributes
+     * Loops through all input attributes, tries to get each attribute from the given context and adds to the action input.
+     * If the specified attribute does not exist, it is not added to the action input
      * @param Map $inputAttributes
      * @return ActionInput
      */
-    private function getActionInput(array $requiredAttributes, Map $inputAttributes): ActionInput
+    private function getActionInput(Map $inputAttributes): ActionInput
     {
         $actionInput = new ActionInput();
         foreach ($inputAttributes as $attributeId => $contextId) {
-            $attribute = ContextService::getAttribute($attributeId, $contextId);
-            $actionInput->addAttribute($attribute);
+            try {
+                $attribute = ContextService::getAttribute($attributeId, $contextId);
+                $actionInput->addAttribute($attribute);
+                Log::debug(sprintf('Adding attribute %s to action input', $attributeId));
+            } catch (AttributeDoesNotExistException $e) {
+                Log::warning(
+                    sprintf(
+                        'Unable to add attribute %s to action input, it does not exist in context %s',
+                        $attributeId,
+                        $contextId
+                    )
+                );
+            }
         }
         return $actionInput;
     }
@@ -131,10 +142,10 @@ class ActionEngine implements ActionEngineInterface
      * Registers an action to the engine. This method is useful for mocking actions in tests.
      *
      * @param ActionInterface $action
-     * @throws ActionNameNotSetException
+     * @throws NameNotSetException
      */
     public function registerAction(ActionInterface $action): void
     {
-        $this->availableActions[$action->performs()] = $action;
+        $this->availableActions[$action::getName()] = $action;
     }
 }

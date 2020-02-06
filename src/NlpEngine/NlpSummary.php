@@ -1,14 +1,16 @@
 <?php
 
-namespace OpenDialogAi\NlpEngine;
 
-class NlpEntities
+namespace OpenDialogAi\Core\NlpEngine;
+
+
+class NlpSummary
 {
     /** @var string */
     private $input;
 
-    /** @var array */
-    private $entities;
+    /** @var string[] */
+    private $sentences;
 
     /**
      * @return string
@@ -29,16 +31,16 @@ class NlpEntities
     /**
      * @return array
      */
-    public function getEntities(): array
+    public function getSentences(): array
     {
-        return $this->entities;
+        return $this->sentences;
     }
 
     /**
-     * @param NlpEntity $entity
+     * @param string $sentence
      */
-    public function addEntities(NlpEntity $entity): void
+    public function addSentence(string $sentence): void
     {
-        $this->entities[] = $entity;
+        $this->sentences[] = $sentence;
     }
 }

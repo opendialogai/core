@@ -84,7 +84,6 @@ class Conversation extends Model
     ];
 
     protected $appends = [
-        'history',
         'opening_intents',
         'outgoing_intents',
         'has_been_used',
@@ -721,5 +720,19 @@ class Conversation extends Model
             }
         }
         return $conditionObjects;
+    }
+
+    /**
+     * @param $id
+     * @return \OpenDialogAi\ConversationBuilder\Conversation|null
+     */
+    public static function conversationWithHistory($id): ?Conversation
+    {
+        $conversation = self::find($id);
+        if (!is_null($conversation)) {
+            $conversation->setAppends(['history']);
+        }
+
+        return $conversation;
     }
 }

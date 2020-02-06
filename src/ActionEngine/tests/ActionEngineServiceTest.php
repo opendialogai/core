@@ -52,7 +52,7 @@ class ActionEngineServiceTest extends TestCase
 
         $availableActions = $this->actionEngine->getAvailableActions();
 
-        $this->assertEquals('actions.core.dummy', array_shift($availableActions)->performs());
+        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getName());
     }
 
     public function testCombination()
@@ -64,16 +64,13 @@ class ActionEngineServiceTest extends TestCase
 
         $availableActions = $this->actionEngine->getAvailableActions();
 
-        $this->assertEquals('actions.core.dummy', array_shift($availableActions)->performs());
+        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getName());
     }
 
-    /**
-     * @throws ActionNotAvailableException
-     */
     public function testPerformActionNotBound()
     {
-        $this->expectException(ActionNotAvailableException::class);
-        $this->actionEngine->performAction('actions.core.dummy', new Map());
+        $result = $this->actionEngine->performAction('actions.core.dummy', new Map());
+        $this->assertFalse($result->isSuccessful());
     }
 
     public function testPerformActionWithoutRequiredAction()
@@ -87,7 +84,7 @@ class ActionEngineServiceTest extends TestCase
 
         try {
             $result = $this->actionEngine->performAction('actions.core.dummy', $inputAttributes);
-            $this->assertTrue($result->isSuccessful());
+            $this->assertTrue(!$result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('Wrong exception thrown');
         }
@@ -97,6 +94,8 @@ class ActionEngineServiceTest extends TestCase
     {
         $this->setDummyAction();
         ContextService::createContext('test');
+
+        ContextService::getContext('test')->addAttribute(new StringAttribute('name', 'value'));
 
         $inputAttributes = new Map([
             'name' => 'test',
@@ -114,12 +113,15 @@ class ActionEngineServiceTest extends TestCase
     {
         try {
             $result = $this->actionEngine->performAction('action.core.example', new Map());
-            $this->assertTrue($result === null);
+            $this->assertFalse($result->isSuccessful());
 
             $inputAttributes = new Map([
-                'first_name' => 'user',
-                'last_name' => 'user',
+                'first_name' => 'session',
+                'last_name' => 'session',
             ]);
+
+            ContextService::getSessionContext()->addAttribute(new StringAttribute('first_name', 'First'));
+            ContextService::getSessionContext()->addAttribute(new StringAttribute('last_name', 'Last'));
 
             $result = $this->actionEngine->performAction('action.core.example', $inputAttributes);
             $this->assertTrue($result->isSuccessful());

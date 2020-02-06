@@ -5,9 +5,11 @@ namespace OpenDialogAi\ContextEngine\Tests;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
 class ContextEngineServiceTest extends TestCase
 {
@@ -63,10 +65,8 @@ class ContextEngineServiceTest extends TestCase
         $this->assertSame($attribute->getValue(), 'value');
 
         // Now try for a context that is not set
-        $attribute = $this->contextService()->getAttribute('test', 'new_context1');
-
-        $this->assertSame($attribute->getId(), 'test');
-        $this->assertSame($attribute->getValue(), '');
+        $this->expectException(AttributeDoesNotExistException::class);
+        $this->contextService()->getAttribute('test', 'new_context1');
     }
 
     public function testSessionContextCreated()
@@ -137,5 +137,33 @@ class ContextEngineServiceTest extends TestCase
         $value = ContextServiceFacade::getUserContext()->getAttributeValue('nonexistentvalue');
 
         $this->assertNull($value);
+    }
+
+    /**
+     * @requires DGRAPH
+     */
+    public function testGetAttributeValue()
+    {
+        // Session Context
+        ContextServiceFacade::getSessionContext()->addAttribute(new StringAttribute('test', 'test'));
+
+        $this->assertEquals(
+            ContextServiceFacade::getSessionContext()->getAttribute('test')->getValue(),
+            ContextServiceFacade::getSessionContext()->getAttributeValue('test')
+        );
+
+        // User context
+        $utterance = UtteranceGenerator::generateTextUtterance('test');
+        ContextServiceFacade::createUserContext($utterance);
+
+        $this->assertEquals(
+            ContextServiceFacade::getUserContext()->getAttribute('first_seen')->getValue(),
+            ContextServiceFacade::getUserContext()->getAttributeValue('first_seen')
+        );
+
+        $this->assertEquals(
+            null,
+            ContextServiceFacade::getUserContext()->getAttributeValue('not_exist')
+        );
     }
 }

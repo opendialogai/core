@@ -8,7 +8,7 @@ class DummyOperation extends BaseOperation
 {
     public static $name = 'dummy';
 
-    public function execute(): bool
+    public function performOperation() : bool
     {
     }
 

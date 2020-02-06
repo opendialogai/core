@@ -5,8 +5,7 @@ namespace OpenDialogAi\ActionEngine\Service;
 use Ds\Map;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
-use OpenDialogAi\ActionEngine\Exceptions\ActionNameNotSetException;
-use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
+use OpenDialogAi\Core\Exceptions\NameNotSetException;
 
 interface ActionEngineInterface
 {
@@ -32,7 +31,6 @@ interface ActionEngineInterface
      * @param string $actionName The name of the action to perform
      * @param Map $inputAttributes
      * @return ActionResult|null
-     * @throws ActionNotAvailableException
      */
     public function performAction(string $actionName, Map $inputAttributes): ?ActionResult;
 
@@ -40,7 +38,7 @@ interface ActionEngineInterface
      * Registers an action to the engine. This method is useful for mocking actions in tests.
      *
      * @param ActionInterface $action
-     * @throws ActionNameNotSetException
+     * @throws NameNotSetException
      */
     public function registerAction(ActionInterface $action): void;
 }

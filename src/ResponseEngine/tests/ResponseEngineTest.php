@@ -495,7 +495,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
-        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi dummy there  welcome');
+        $this->assertEquals('hi dummy there   welcome', $messageWrapper->getMessages()[0]->getText());
     }
 
     public function testMessageConditionRules()
@@ -718,7 +718,6 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         $this->createUserContext();
-        ;
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $userContext = $this->createUserContext();
@@ -754,6 +753,37 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
         $responseEngineService->getMessageForIntent('webchat', 'Hello');
+    }
+
+    public function testEquivalenceOperationWithMissingRequiredAttribute()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        // phpcs:ignore
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
+
+        $attributes = ['username' => 'user.name'];
+        $parameters = [];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $messageMarkUp->getMarkUp(),
+        ]);
+        MessageTemplate::where('name', 'Friendly Hello')->first();
+
+        // Setup a context to have something to compare against
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $this->expectException(NoMatchingMessagesException::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
     }
 
     /**
