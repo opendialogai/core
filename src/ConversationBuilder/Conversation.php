@@ -728,9 +728,10 @@ class Conversation extends Model
      */
     public static function conversationWithHistory($id): ?Conversation
     {
+        /** @var Conversation $conversation */
         $conversation = self::find($id);
         if (!is_null($conversation)) {
-            $conversation->setAppends(['history']);
+            $conversation->setAppends(array_merge($conversation->appends, ['history']));
         }
 
         return $conversation;

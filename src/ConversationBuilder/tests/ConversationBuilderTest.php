@@ -652,6 +652,8 @@ class ConversationBuilderTest extends TestCase
 
         $conversation = Conversation::conversationWithHistory($createdConversation->id);
         $this->assertArrayHasKey('history', $conversation->toArray());
+        $this->assertArrayHasKey('outgoing_intents', $conversation->toArray());
+        $this->assertArrayHasKey('opening_intents', $conversation->toArray());
     }
 
     public function testConversationWithOutHistory()
