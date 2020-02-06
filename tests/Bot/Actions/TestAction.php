@@ -9,7 +9,7 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 
 class TestAction extends BaseAction
 {
-    protected $performs = 'action.test.test';
+    protected static $name = 'action.test.test';
 
     protected $outputsAttributes = ['action_test'];
 
