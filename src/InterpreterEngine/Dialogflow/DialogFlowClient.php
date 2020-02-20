@@ -8,15 +8,15 @@ use Google\Cloud\Dialogflow\V2\TextInput;
 
 class DialogFlowClient
 {
-    public function detectIntent($projectId, $text, $sessionId, $languageCode = 'en-GB')
+    public function detectIntent($text, $sessionId, $languageCode = 'en-GB')
     {
-        $path = __DIR__.'/../../../resources/credentials/opendialogtester-vbwobs-4e27e830532a.json';
-        // new session
-        $sessionsClient = new SessionsClient(
-            [
-                'credentials' => $path,
-            ]
-        );
+        $projectId = config('opendialog.interpreter_engine.dialogflow.project_id');
+        $path = config('opendialog.interpreter_engine.dialogflow.credentials_path');
+
+        $sessionsClient = new SessionsClient([
+            'credentials' => $path,
+        ]);
+
         try {
             $session = $sessionsClient->sessionName($projectId, $sessionId ?: uniqid());
 

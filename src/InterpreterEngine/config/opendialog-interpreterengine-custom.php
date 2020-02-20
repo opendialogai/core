@@ -21,6 +21,15 @@ return [
 //         'example_type' => 'first_name'
     ],
 
+    /** The path to Dialogflow's JSON credentials file */
+    'dialogflow' => [
+        'project_id' => env('DIALOGFLOW_PROJECT_ID'),
+        'credentials_path' => env(
+            'DIALOGFLOW_CREDENTIALS_PATH',
+            resource_path('credentials/dialogflow.json')
+        )
+    ],
+
     /**
      * Custom interpreters registered in the format
      */
