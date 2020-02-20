@@ -11,7 +11,10 @@ class DialogFlowClient
     public function detectIntent($text, $sessionId, $languageCode = 'en-GB')
     {
         $projectId = config('opendialog.interpreter_engine.dialogflow.project_id');
-        $path = config('opendialog.interpreter_engine.dialogflow.credentials_path');
+        $path = config(
+            'opendialog.interpreter_engine.dialogflow.credentials_path',
+            resource_path('resources/credentials/dialogflow.json')
+        );
 
         $sessionsClient = new SessionsClient([
             'credentials' => $path,
