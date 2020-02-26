@@ -6,6 +6,7 @@ use OpenDialogAi\Core\Exceptions\NameNotSetException;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -19,15 +20,16 @@ use OpenDialogAi\ResponseEngine\Message\RichMessage;
 interface MessageFormatterInterface
 {
     // TYPES
-    public const ATTRIBUTE_MESSAGE = 'attribute-message';
-    public const BUTTON_MESSAGE    = 'button-message';
-    public const IMAGE_MESSAGE     = 'image-message';
-    public const LIST_MESSAGE      = 'list-message';
-    public const TEXT_MESSAGE      = 'text-message';
-    public const RICH_MESSAGE      = 'rich-message';
-    public const FORM_MESSAGE      = 'form-message';
-    public const LONG_TEXT_MESSAGE = 'long-text-message';
-    public const EMPTY_MESSAGE     = 'empty-message';
+    public const ATTRIBUTE_MESSAGE      = 'attribute-message';
+    public const BUTTON_MESSAGE         = 'button-message';
+    public const IMAGE_MESSAGE          = 'image-message';
+    public const LIST_MESSAGE           = 'list-message';
+    public const TEXT_MESSAGE           = 'text-message';
+    public const RICH_MESSAGE           = 'rich-message';
+    public const FULL_PAGE_RICH_MESSAGE = 'fp-rich-message';
+    public const FORM_MESSAGE           = 'form-message';
+    public const LONG_TEXT_MESSAGE      = 'long-text-message';
+    public const EMPTY_MESSAGE          = 'empty-message';
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';
@@ -82,6 +84,8 @@ interface MessageFormatterInterface
     public function generateLongTextMessage(array $template): LongTextMessage;
 
     public function generateRichMessage(array $template): RichMessage;
+
+    public function generateFullPageRichMessage(array $template): FullPageRichMessage;
 
     public function generateTextMessage(array $template): OpenDialogMessage;
 

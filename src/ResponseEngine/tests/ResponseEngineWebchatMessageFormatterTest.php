@@ -470,6 +470,156 @@ EOT;
         self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
 
+    public function testFullPageRichMessage1()
+    {
+        $buttons = [
+            [
+                'text' => 'Test 1',
+                'tab_switch' => true
+            ],
+            [
+                'text' => 'Test 2',
+                'callback' => 'callback',
+                'value' => 'value'
+            ],
+            [
+                'text' => 'Test 3',
+                'link' => 'https://www.opendialog.ai',
+                'link_new_tab' => false
+            ],
+            [
+                'text' => 'Test 4',
+                'link' => 'https://www.opendialog.ai',
+                'link_new_tab' => true
+            ]
+        ];
+
+        $image = [
+            'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+            'url' => 'https://www.opendialog.ai',
+            'new_tab' => true
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addFullPageRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons, $image);
+
+        $markup = $messageMarkUp->getMarkUp();
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            'title' => 'Message Title',
+            'subtitle' => 'This is a subtitle',
+            'text' => 'Here is a bit of text about this thing',
+            'buttons' => [
+                [
+                    'text' => 'Test 1',
+                    'tab_switch' => true,
+                ],
+                [
+                    'text' => 'Test 2',
+                    'callback_id' => 'callback',
+                    'value' => 'value',
+                ],
+                [
+                    'text' => 'Test 3',
+                    'link' => 'https://www.opendialog.ai',
+                    'link_new_tab' => false,
+                ],
+                [
+                    'text' => 'Test 4',
+                    'link' => 'https://www.opendialog.ai',
+                    'link_new_tab' => true,
+                ],
+            ],
+            'image' => [
+                'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                'url' => 'https://www.opendialog.ai',
+                'link_new_tab' => true,
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
+    }
+
+    public function testFullPageRichMessage2()
+    {
+        $buttons = [
+            [
+                'text' => 'Test',
+                'callback' => 'callback',
+                'value' => 'value'
+            ]
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addFullPageRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons);
+
+        $markup = $messageMarkUp->getMarkUp();
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            'title' => 'Message Title',
+            'subtitle' => 'This is a subtitle',
+            'text' => 'Here is a bit of text about this thing',
+            'buttons' => [
+                [
+                    'text' => 'Test',
+                    'callback_id' => 'callback',
+                    'value' => 'value',
+                ],
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
+    }
+
+    public function testFullPageRichMessage3()
+    {
+        $image = [
+            'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+            'url' => 'https://www.opendialog.ai',
+            'new_tab' => true
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addFullPageRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', [], $image);
+
+        $markup = $messageMarkUp->getMarkUp();
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            'title' => 'Message Title',
+            'subtitle' => 'This is a subtitle',
+            'text' => 'Here is a bit of text about this thing',
+            'image' => [
+                'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                'url' => 'https://www.opendialog.ai',
+                'link_new_tab' => true,
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
+    }
+
     public function testListMessage()
     {
         $messages = [
