@@ -10,6 +10,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
@@ -81,6 +82,46 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     public function testWebChatFormMessage()
     {
         $message = new WebchatFormMessage();
+        $element1 = new FormTextElement('name', 'Enter your Name', true);
+        $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
+        $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself');
+        $message->setDisableText(false);
+        $message->addElement($element1);
+        $message->addElement($element2);
+        $message->addElement($element3);
+
+        $expectedOutput = [
+            [
+                'name' => 'name',
+                'display' => 'Enter your Name',
+                'required' => true,
+                'element_type' => 'text',
+            ],
+            [
+                'name' => 'question',
+                'display' => 'Do you love OpenDialog?',
+                'required' => true,
+                'element_type' => 'select',
+                'options' => [
+                    0 => 'yes',
+                    1 => 'very yes',
+                ],
+            ],
+            [
+                'name' => 'tell_more',
+                'display' => 'Tell me more about yourself',
+                'required' => false,
+                'element_type' => 'textarea',
+            ],
+        ];
+
+        $this->assertEquals(0, $message->getData()['disable_text']);
+        $this->assertEquals($expectedOutput, $message->getElementsArray());
+    }
+
+    public function testWebChatFullPageFormMessage()
+    {
+        $message = new WebchatFullPageFormMessage();
         $element1 = new FormTextElement('name', 'Enter your Name', true);
         $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
         $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself');

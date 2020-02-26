@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\MessageBuilder\Message;
 
-class FormMessage extends BaseFormMessage
+class FullPageFormMessage extends BaseFormMessage
 {
     public function getMarkUp()
     {
@@ -13,13 +13,13 @@ class FormMessage extends BaseFormMessage
         }
 
         return <<<EOT
-<form-message>
+<fp-form-message>
     <text>$this->text</text>
     <submit_text>$this->submitText</submit_text>
     <callback>$this->callback</callback>
     <auto_submit>$this->autoSubmit</auto_submit>
     $elementMarkup
-</form-message>
+</fp-form-message>
 EOT;
     }
 }
