@@ -561,13 +561,13 @@ EOT;
                 'element_type' => 'text',
                 'name' => 'first_name',
                 'display' => 'First name',
-                'required' => false
+                'required' => false,
             ],
             [
                 'element_type' => 'text',
                 'name' => 'last_name',
                 'display' => 'Last name',
-                'required' => true
+                'required' => true,
             ],
             [
                 'element_type' => 'select',
@@ -576,17 +576,26 @@ EOT;
                 'options' => [
                     [
                         'key' => '1',
-                        'value' => '1 year'
+                        'value' => '1 year',
                     ],
                     [
                         'key' => '10',
-                        'value' => '10 year'
+                        'value' => '10 year',
                     ],
                     [
                         'key' => '20',
-                        'value' => '20 year'
-                    ]
-                ]
+                        'value' => '20 year',
+                    ],
+                ],
+            ],
+            [
+                'element_type' => 'radio',
+                'name' => 'gender',
+                'display' => 'Gender',
+                'options' => [
+                    'Male',
+                    'Female',
+                ],
             ],
             [
                 'element_type' => 'auto_complete_select',
@@ -595,18 +604,18 @@ EOT;
                 'options' => [
                     [
                         'key' => '1',
-                        'value' => '2019'
+                        'value' => '2019',
                     ],
                     [
                         'key' => '2',
-                        'value' => '2020'
+                        'value' => '2020',
                     ],
                     [
                         'key' => '3',
-                        'value' => '2021'
-                    ]
-                ]
-            ]
+                        'value' => '2021',
+                    ],
+                ],
+            ],
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
@@ -642,6 +651,16 @@ EOT;
                         '1' => '1 year',
                         '10' => '10 year',
                         '20' => '20 year',
+                    ],
+                ],
+                [
+                    'name' => 'gender',
+                    'display' => 'Gender',
+                    'required' => false,
+                    'element_type' => 'radio',
+                    'options' => [
+                        'Male',
+                        'Female',
                     ],
                 ],
                 [
