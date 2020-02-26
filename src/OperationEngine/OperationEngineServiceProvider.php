@@ -23,6 +23,12 @@ class OperationEngineServiceProvider extends ServiceProvider
             $operationService = new OperationService();
             $operationService->registerAvailableOperations(config('opendialog.operation_engine.available_operations'));
 
+
+            // Sets the custom operations if they have been published
+            if (is_array(config('opendialog.operation_engine.custom_operations'))) {
+                $operationService->registerAvailableOperations(config('opendialog.operation_engine.custom_operations'));
+            }
+
             return $operationService;
         });
     }
