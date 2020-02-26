@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\MessageBuilder\Message;
 
-class RichMessage extends BaseRichMessage
+class FullPageRichMessage extends BaseRichMessage
 {
     public function getMarkUp()
     {
@@ -11,13 +11,13 @@ class RichMessage extends BaseRichMessage
         $imageMarkUp = $this->getImageMarkUp();
 
         return <<<EOT
-<rich-message>
+<fp-rich-message>
     <title>$this->title</title>
     <subtitle>$this->subtitle</subtitle>
     <text>$this->text</text>
     $buttonMarkUp
     $imageMarkUp
-</rich-message>
+</fp-rich-message>
 EOT;
     }
 }

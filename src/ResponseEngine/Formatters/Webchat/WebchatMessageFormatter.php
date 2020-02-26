@@ -12,6 +12,7 @@ use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -31,6 +32,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
@@ -139,6 +141,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             case self::RICH_MESSAGE:
                 $template = $this->formatRichTemplate($item);
                 return $this->generateRichMessage($template);
+                break;
+            case self::FULL_PAGE_RICH_MESSAGE:
+                $template = $this->formatFullPageRichTemplate($item);
+                return $this->generateFullPageRichMessage($template);
                 break;
             case self::FORM_MESSAGE:
                 $template = $this->formatFormTemplate($item);
@@ -254,6 +260,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         return $message;
     }
 
+    /**
+     * @param array $template
+     * @return RichMessage
+     */
     public function generateRichMessage(array $template): RichMessage
     {
         $message = (new WebchatRichMessage())
@@ -282,6 +292,42 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         return $message;
     }
 
+    /**
+     * @param array $template
+     * @return FullPageRichMessage
+     */
+    public function generateFullPageRichMessage(array $template): FullPageRichMessage
+    {
+        $message = (new WebchatFullPageRichMessage())
+            ->setTitle($template[self::TITLE])
+            ->setSubTitle($template[self::SUBTITLE])
+            ->setText($template[self::TEXT])
+            ->setImageSrc($template[self::IMAGE][self::SRC])
+            ->setImageLink($template[self::IMAGE][self::URL])
+            ->setImageLinkNewTab($template[self::IMAGE][self::LINK_NEW_TAB]);
+
+        if (isset($template[self::BUTTONS])) {
+            foreach ($template[self::BUTTONS] as $button) {
+                if (isset($button[self::TAB_SWITCH])) {
+                    $message->addButton(new TabSwitchButton($button[self::TEXT]));
+                } elseif (isset($button[self::LINK])) {
+                    $linkNewTab = $button[self::LINK_NEW_TAB];
+                    $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab));
+                } else {
+                    $message->addButton(
+                        new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
+                    );
+                }
+            }
+        }
+
+        return $message;
+    }
+
+    /**
+     * @param array $template
+     * @return ListMessage
+     */
     public function generateListMessage(array $template): ListMessage
     {
         $message = (new WebchatListMessage())
@@ -291,6 +337,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         return $message;
     }
 
+    /**
+     * @param array $template
+     * @return LongTextMessage
+     */
     public function generateLongTextMessage(array $template): LongTextMessage
     {
         $message = (new WebchatLongTextMessage())
@@ -304,6 +354,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         return $message;
     }
 
+    /**
+     * @param array $template
+     * @return OpenDialogMessage
+     */
     public function generateTextMessage(array $template): OpenDialogMessage
     {
         $message = (new WebchatTextMessage())->setText($template[self::TEXT], [], true);
@@ -500,6 +554,47 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     }
 
     private function formatRichTemplate(SimpleXMLElement $item): array
+    {
+        $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
+
+        $template = [
+            self::TITLE => trim((string)$item->title),
+            self::SUBTITLE => trim((string)$item->subtitle),
+            self::TEXT => trim((string)$item->text),
+            self::IMAGE => [
+                self::SRC => trim((string)$item->image->src),
+                self::URL => trim((string)$item->image->url),
+                self::LINK_NEW_TAB => $linkNewTab,
+            ],
+        ];
+
+        foreach ($item->button as $button) {
+            if (isset($button->tab_switch)) {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::TAB_SWITCH => true,
+                ];
+            } elseif (isset($button->link)) {
+                $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
+
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::LINK => trim((string)$button->link),
+                    self::LINK_NEW_TAB => $buttonLinkNewTab,
+                ];
+            } else {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::CALLBACK => trim((string)$button->callback),
+                    self::VALUE => trim((string)$button->value),
+                ];
+            }
+        }
+
+        return $template;
+    }
+
+    private function formatFullPageRichTemplate(SimpleXMLElement $item): array
     {
         $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
 
