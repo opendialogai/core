@@ -558,6 +558,45 @@ class ResponseEngineTest extends TestCase
         );
     }
 
+    public function testWebChatMessageWithCustomOperation()
+    {
+        $this->setConfigValue(
+            'opendialog.operation_engine.custom_operations',
+            [
+                \OpenDialogAi\OperationEngine\Operations\ExampleOperation::class
+            ]
+        );
+
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addTextMessage('hi there');
+
+        $attributes = ['username' => 'user.age'];
+        $parameters = ['start_value' => 5, 'end_value' => 10];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'example');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new StringAttribute('age', 7));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+
+        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'hi there');
+    }
+
     public function testAllAttributesMayBeNull()
     {
         $attribute = new BooleanAttribute('name', null);
