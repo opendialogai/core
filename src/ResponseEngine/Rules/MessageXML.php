@@ -150,6 +150,13 @@ class MessageXML extends BaseRule
                                     return false;
                                 }
                             }
+                            if ((string)$element->element_type == 'radio') {
+                                if (empty((string)$element->options)) {
+                                    // @codingStandardsIgnoreLine
+                                    $this->setErrorMessage('Form message elements of type "radio" must have "options"');
+                                    return false;
+                                }
+                            }
                         }
                         break;
 

@@ -37,6 +37,7 @@ interface MessageFormatterInterface
     public const ELEMENT_TYPE            = 'element_type';
     public const AUTO_COMPLETE_SELECT    = 'auto_complete_select';
     public const SELECT                  = 'select';
+    public const RADIO                   = 'radio';
     public const TEXTAREA                = 'textarea';
     public const TEXT                    = 'text';
     public const NUMBER                  = 'number';

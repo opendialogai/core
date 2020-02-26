@@ -24,6 +24,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormAutoCompleteSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormNumberElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormRadioElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
@@ -229,6 +230,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = $el[self::OPTIONS];
                 $element = new FormAutoCompleteSelectElement($name, $display, $required, $options);
+            } elseif ($el[self::ELEMENT_TYPE] == self::RADIO) {
+                $options = $el[self::OPTIONS];
+                $element = new FormRadioElement($name, $display, $required, $options);
             }
             $message->addElement($element);
         }
@@ -584,6 +588,15 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
                 foreach ($element->options->children() as $option) {
                     $options[trim((string)$option->key)] = trim((string)$option->value);
+                }
+                $el[self::OPTIONS] = $options;
+            }
+
+            if ($el[self::ELEMENT_TYPE] == self::RADIO) {
+                $options = [];
+
+                foreach ($element->options->children() as $option) {
+                    $options[] = trim((string)$option);
                 }
                 $el[self::OPTIONS] = $options;
             }
