@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormRadioElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
@@ -85,10 +86,12 @@ class ResponseEngineWebchatMessagesTest extends TestCase
         $element1 = new FormTextElement('name', 'Enter your Name', true);
         $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
         $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself');
+        $element4 = new FormRadioElement('gender', 'Gender', true, ['Male', 'Female']);
         $message->setDisableText(false);
         $message->addElement($element1);
         $message->addElement($element2);
         $message->addElement($element3);
+        $message->addElement($element4);
 
         $expectedOutput = [
             [
@@ -112,6 +115,16 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'display' => 'Tell me more about yourself',
                 'required' => false,
                 'element_type' => 'textarea',
+            ],
+            [
+                'name' => 'gender',
+                'display' => 'Gender',
+                'required' => true,
+                'element_type' => 'radio',
+                'options' => [
+                    'Male',
+                    'Female',
+                ],
             ],
         ];
 

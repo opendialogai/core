@@ -7,6 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
+use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -59,6 +60,11 @@ class TestFormatter extends BaseMessageFormatter
     }
 
     public function generateRichMessage(array $template): RichMessage
+    {
+        //
+    }
+
+    public function generateFullPageRichMessage(array $template): FullPageRichMessage
     {
         //
     }

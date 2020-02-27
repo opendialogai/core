@@ -120,6 +120,34 @@ class MessageXML extends BaseRule
                         }
                         break;
 
+                    case 'fp-rich-message':
+                        if (empty((string)$item->text)) {
+                            $this->setErrorMessage('Full page rich messages must have "text"');
+                            return false;
+                        }
+                        if ($item->button->count() > 3) {
+                            $this->setErrorMessage('Full page rich messages can only have up to 3 buttons');
+                            return false;
+                        }
+                        foreach ($item->button as $button) {
+                            if (empty((string)$button->text)) {
+                                $this->setErrorMessage('Full page rich message buttons must have "text"');
+                                return false;
+                            }
+                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
+                                && empty((string)$button->link)) {
+                                $this->setErrorMessage('All buttons must have with a "callback", "link" or "tab_switch" set');
+                                return false;
+                            }
+                        }
+                        foreach ($item->image as $image) {
+                            if (empty((string)$image->src)) {
+                                $this->setErrorMessage('Images must have a "src"');
+                                return false;
+                            }
+                        }
+                        break;
+
                     case 'list-message':
                         foreach ($item->item as $i => $item) {
                             if ($this->passes($attribute, $item->asXML()) === false) {
@@ -147,6 +175,13 @@ class MessageXML extends BaseRule
                                 if (empty((string)$element->options)) {
                                     // @codingStandardsIgnoreLine
                                     $this->setErrorMessage('Form message elements of type "select" or "auto_complete_select" must have "options"');
+                                    return false;
+                                }
+                            }
+                            if ((string)$element->element_type == 'radio') {
+                                if (empty((string)$element->options)) {
+                                    // @codingStandardsIgnoreLine
+                                    $this->setErrorMessage('Form message elements of type "radio" must have "options"');
                                     return false;
                                 }
                             }

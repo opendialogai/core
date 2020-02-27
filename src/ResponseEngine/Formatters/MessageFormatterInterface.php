@@ -7,6 +7,7 @@ use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
+use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -28,6 +29,7 @@ interface MessageFormatterInterface
     public const RICH_MESSAGE           = 'rich-message';
     public const FORM_MESSAGE           = 'form-message';
     public const FULL_PAGE_FORM_MESSAGE = 'fp-form-message';
+    public const FULL_PAGE_RICH_MESSAGE = 'fp-rich-message';
     public const LONG_TEXT_MESSAGE      = 'long-text-message';
     public const EMPTY_MESSAGE          = 'empty-message';
 
@@ -39,6 +41,7 @@ interface MessageFormatterInterface
     public const ELEMENT_TYPE            = 'element_type';
     public const AUTO_COMPLETE_SELECT    = 'auto_complete_select';
     public const SELECT                  = 'select';
+    public const RADIO                   = 'radio';
     public const TEXTAREA                = 'textarea';
     public const TEXT                    = 'text';
     public const NUMBER                  = 'number';
@@ -86,6 +89,8 @@ interface MessageFormatterInterface
     public function generateLongTextMessage(array $template): LongTextMessage;
 
     public function generateRichMessage(array $template): RichMessage;
+
+    public function generateFullPageRichMessage(array $template): FullPageRichMessage;
 
     public function generateTextMessage(array $template): OpenDialogMessage;
 

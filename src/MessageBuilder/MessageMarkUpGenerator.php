@@ -7,6 +7,7 @@ use OpenDialogAi\MessageBuilder\Message\ButtonMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\FormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageFormMessage;
+use OpenDialogAi\MessageBuilder\Message\FullPageRichMessage;
 use OpenDialogAi\MessageBuilder\Message\ImageMessage;
 use OpenDialogAi\MessageBuilder\Message\ListMessage;
 use OpenDialogAi\MessageBuilder\Message\LongTextMessage;
@@ -17,6 +18,7 @@ use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
 use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
 use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
+use OpenDialogAi\MessageBuilder\Message\Form\RadioElement;
 use OpenDialogAi\MessageBuilder\Message\Form\SelectElement;
 use OpenDialogAi\MessageBuilder\Message\Form\TextElement;
 use OpenDialogAi\MessageBuilder\Message\Image\Image;
@@ -129,6 +131,8 @@ class MessageMarkUpGenerator
                 $formMessage->addElement(
                     new AutoCompleteSelectElement($element['name'], $element['display'], $element['options'])
                 );
+            } elseif ($element['element_type'] == 'radio') {
+                $formMessage->addElement(new RadioElement($element['name'], $element['display'], $element['options']));
             }
         }
 
@@ -174,6 +178,40 @@ class MessageMarkUpGenerator
     public function addRichMessage($title, $subtitle, $text, $buttons = [], $image = [])
     {
         $richMessage = new RichMessage($title, $subtitle, $text, $buttons);
+        foreach ($buttons as $button) {
+            if (isset($button['tab_switch'])) {
+                $richMessage->addButton(
+                    (new TabSwitchButton($button['text']))
+                );
+            } elseif (isset($button['link'])) {
+                $richMessage->addButton(
+                    (new LinkButton($button['text'], $button['link'], $button['link_new_tab']))
+                );
+            } else {
+                $richMessage->addButton(
+                    (new CallbackButton($button['text'], $button['callback'], $button['value']))
+                );
+            }
+        }
+        if (!empty($image)) {
+            $richMessage->addImage(new Image($image['src'], $image['url'], $image['new_tab']));
+        }
+
+        $this->messages[] = $richMessage;
+        return $this;
+    }
+
+    /**
+     * @param $title
+     * @param $subtitle
+     * @param $text
+     * @param $buttons
+     * @param $image
+     * @return MessageMarkUpGenerator
+     */
+    public function addFullPageRichMessage($title, $subtitle, $text, $buttons = [], $image = [])
+    {
+        $richMessage = new FullPageRichMessage($title, $subtitle, $text, $buttons);
         foreach ($buttons as $button) {
             if (isset($button['tab_switch'])) {
                 $richMessage->addButton(
