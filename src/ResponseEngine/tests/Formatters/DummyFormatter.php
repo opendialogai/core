@@ -7,6 +7,7 @@ use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
@@ -37,6 +38,11 @@ class DummyFormatter implements MessageFormatterInterface
     }
 
     public function generateFormMessage(array $template): FormMessage
+    {
+        //
+    }
+
+    public function generateFullPageFormMessage(array $template): FullPageFormMessage
     {
         //
     }

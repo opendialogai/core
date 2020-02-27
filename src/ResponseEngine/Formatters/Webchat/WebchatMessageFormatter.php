@@ -12,6 +12,7 @@ use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
+use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
@@ -32,6 +33,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
@@ -150,6 +152,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $template = $this->formatFormTemplate($item);
                 return $this->generateFormMessage($template);
                 break;
+            case self::FULL_PAGE_FORM_MESSAGE:
+                $template = $this->formatFullPageFormTemplate($item);
+                return $this->generateFullPageFormMessage($template);
+                break;
             case self::LONG_TEXT_MESSAGE:
                 $template = $this->formatLongTextTemplate($item);
                 return $this->generateLongTextMessage($template);
@@ -239,6 +245,45 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             } elseif ($el[self::ELEMENT_TYPE] == self::RADIO) {
                 $options = $el[self::OPTIONS];
                 $element = new FormRadioElement($name, $display, $required, $options);
+            }
+            $message->addElement($element);
+        }
+
+        return $message;
+    }
+
+    /**
+     * @param array $template
+     * @return FullPageFormMessage
+     */
+    public function generateFullPageFormMessage(array $template): FullPageFormMessage
+    {
+        $message = (new WebchatFullPageFormMessage())
+            ->setText($template[self::TEXT])
+            ->setCallbackId($template[self::CALLBACK])
+            ->setAutoSubmit($template[self::AUTO_SUBMIT]);
+
+        if ($template[self::SUBMIT_TEXT]) {
+            $message->setSubmitText($template[self::SUBMIT_TEXT]);
+        }
+
+        foreach ($template[self::ELEMENTS] as $el) {
+            $name = $el[self::NAME];
+            $display = $el[self::DISPLAY];
+            $required = $el[self::REQUIRED];
+
+            if ($el[self::ELEMENT_TYPE] == self::TEXTAREA) {
+                $element = new FormTextAreaElement($name, $display, $required);
+            } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
+                $element = new FormTextElement($name, $display, $required);
+            } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
+                $element = new FormNumberElement($name, $display, $required);
+            } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
+                $options = $el[self::OPTIONS];
+                $element = new FormSelectElement($name, $display, $required, $options);
+            } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
+                $options = $el[self::OPTIONS];
+                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options);
             }
             $message->addElement($element);
         }
@@ -692,6 +737,50 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
                 foreach ($element->options->children() as $option) {
                     $options[] = trim((string)$option);
+                }
+                $el[self::OPTIONS] = $options;
+            }
+
+            $elements[] = $el;
+        }
+
+        $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
+
+        $template = [
+            self::TEXT => trim((string)$item->text),
+            self::SUBMIT_TEXT => trim((string)$item->submit_text),
+            self::CALLBACK => trim((string)$item->callback),
+            self::AUTO_SUBMIT => $autoSubmit,
+            self::ELEMENTS => $elements,
+        ];
+        return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatFullPageFormTemplate(SimpleXMLElement $item): array
+    {
+        $elements = [];
+
+        foreach ($item->element as $element) {
+            $required = ($element->required) ? true : false;
+
+            $el = [
+                self::ELEMENT_TYPE => trim((string)$element->element_type),
+                self::NAME => trim((string)$element->name),
+                self::DISPLAY => trim((string)$element->display),
+                self::REQUIRED => $required,
+            ];
+
+            if ($el[self::ELEMENT_TYPE] == self::SELECT || $el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
+                $options = [];
+
+                foreach ($element->options->children() as $option) {
+                    $options[trim((string)$option->key)] = trim((string)$option->value);
                 }
                 $el[self::OPTIONS] = $options;
             }

@@ -6,6 +6,7 @@ use OpenDialogAi\MessageBuilder\Message\AttributeMessage;
 use OpenDialogAi\MessageBuilder\Message\ButtonMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\FormMessage;
+use OpenDialogAi\MessageBuilder\Message\FullPageFormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageRichMessage;
 use OpenDialogAi\MessageBuilder\Message\ImageMessage;
 use OpenDialogAi\MessageBuilder\Message\ListMessage;
@@ -132,6 +133,33 @@ class MessageMarkUpGenerator
                 );
             } elseif ($element['element_type'] == 'radio') {
                 $formMessage->addElement(new RadioElement($element['name'], $element['display'], $element['options']));
+            }
+        }
+
+        $this->messages[] = $formMessage;
+        return $this;
+    }
+
+    /**
+     * @param $text
+     * @param $submitText
+     * @param $callback
+     * @param $autoSubmit
+     * @param $elements
+     * @return MessageMarkUpGenerator
+     */
+    public function addFullPageFormMessage($text, $submitText, $callback, $autoSubmit, $elements)
+    {
+        $formMessage = new FullPageFormMessage($text, $submitText, $callback, $autoSubmit);
+        foreach ($elements as $element) {
+            if ($element['element_type'] == 'text') {
+                $formMessage->addElement(new TextElement($element['name'], $element['display'], $element['required']));
+            } elseif ($element['element_type'] == 'select') {
+                $formMessage->addElement(new SelectElement($element['name'], $element['display'], $element['options']));
+            } elseif ($element['element_type'] == 'auto_complete_select') {
+                $formMessage->addElement(
+                    new AutoCompleteSelectElement($element['name'], $element['display'], $element['options'])
+                );
             }
         }
 

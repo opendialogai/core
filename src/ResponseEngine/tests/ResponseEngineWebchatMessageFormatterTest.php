@@ -848,6 +848,131 @@ EOT;
         self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
 
+    public function testFullPageFormMessage()
+    {
+        $elements = [
+            [
+                'element_type' => 'text',
+                'name' => 'first_name',
+                'display' => 'First name',
+                'required' => false
+            ],
+            [
+                'element_type' => 'text',
+                'name' => 'last_name',
+                'display' => 'Last name',
+                'required' => true
+            ],
+            [
+                'element_type' => 'select',
+                'name' => 'age',
+                'display' => 'Age',
+                'options' => [
+                    [
+                        'key' => '1',
+                        'value' => '1 year'
+                    ],
+                    [
+                        'key' => '10',
+                        'value' => '10 year'
+                    ],
+                    [
+                        'key' => '20',
+                        'value' => '20 year'
+                    ]
+                ]
+            ],
+            [
+                'element_type' => 'auto_complete_select',
+                'name' => 'year',
+                'display' => 'Year',
+                'options' => [
+                    [
+                        'key' => '1',
+                        'value' => '2019'
+                    ],
+                    [
+                        'key' => '2',
+                        'value' => '2020'
+                    ],
+                    [
+                        'key' => '3',
+                        'value' => '2021'
+                    ]
+                ]
+            ]
+        ];
+
+        $messageMarkUp = new MessageMarkUpGenerator();
+        $messageMarkUp->addFullPageFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+
+        $markup = $messageMarkUp->getMarkUp();
+
+        $expectedOutput = [
+            'text' => 'Here is a bit of text about this thing',
+            'disable_text' => false,
+            'callback_id' => 'callback',
+            'auto_submit' => true,
+            'submit_text' => 'This is submit text',
+            'elements' => [
+                [
+                    'name' => 'first_name',
+                    'display' => 'First name',
+                    'required' => true,
+                    'element_type' => 'text',
+                ],
+                [
+                    'name' => 'last_name',
+                    'display' => 'Last name',
+                    'required' => true,
+                    'element_type' => 'text',
+                ],
+                [
+                    'name' => 'age',
+                    'display' => 'Age',
+                    'required' => false,
+                    'element_type' => 'select',
+                    'options' => [
+                        '1' => '1 year',
+                        '10' => '10 year',
+                        '20' => '20 year',
+                    ],
+                ],
+                [
+                    'name' => 'year',
+                    'display' => 'Year',
+                    'required' => false,
+                    'element_type' => 'auto-select',
+                    'options' => [
+                        [
+                            'key' => 1,
+                            'value' => '2019',
+                        ],
+                        [
+                            'key' => 2,
+                            'value' => '2020',
+                        ],
+                        [
+                            'key' => 3,
+                            'value' => '2021',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $data = $message->getData();
+
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        self::assertArraySubset($expectedOutput, $message->getData(), true);
+    }
+
     public function testLongTextMessage()
     {
         $messageMarkUp = new MessageMarkUpGenerator();
