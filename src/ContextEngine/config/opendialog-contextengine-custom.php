@@ -1,5 +1,8 @@
 <?php
 
+use OpenDialogAi\ContextEngine\Contexts\Custom\MessageHistoryContext;
+use OpenDialogAi\Core\Attribute\StringAttribute;
+
 return [
 
     /**
@@ -9,7 +12,7 @@ return [
      * Where ClassName is an implementation of @see \OpenDialogAi\Core\Attribute\AttributeInterface
      */
     'custom_attributes' => [
-        // 'attribute_name' => AttributeTypeClass::class
+        'all' => StringAttribute::class,
     ],
 
     /**
@@ -19,6 +22,6 @@ return [
      * Custom contexts are used to make available application specific attributes that are externally managed
      */
     'custom_contexts' => [
-//        \OpenDialogAi\ContextEngine\tests\contexts\DummyCustomContext::class
+        MessageHistoryContext::class,
     ]
 ];
