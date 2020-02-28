@@ -8,6 +8,7 @@ use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
+use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -23,6 +24,7 @@ interface MessageFormatterInterface
     // TYPES
     public const ATTRIBUTE_MESSAGE      = 'attribute-message';
     public const BUTTON_MESSAGE         = 'button-message';
+    public const HAND_TO_HUMAN_MESSAGE  = 'hand-to-human-message';
     public const IMAGE_MESSAGE          = 'image-message';
     public const LIST_MESSAGE           = 'list-message';
     public const TEXT_MESSAGE           = 'text-message';
@@ -93,6 +95,8 @@ interface MessageFormatterInterface
     public function generateFullPageRichMessage(array $template): FullPageRichMessage;
 
     public function generateTextMessage(array $template): OpenDialogMessage;
+
+    public function generateHandToHumanMessage(array $template): HandToHumanMessage;
 
     /**
      * @return string

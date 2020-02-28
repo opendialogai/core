@@ -8,6 +8,7 @@ use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\FormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageFormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageRichMessage;
+use OpenDialogAi\MessageBuilder\Message\HandToHumanMessage;
 use OpenDialogAi\MessageBuilder\Message\ImageMessage;
 use OpenDialogAi\MessageBuilder\Message\ListMessage;
 use OpenDialogAi\MessageBuilder\Message\LongTextMessage;
@@ -98,6 +99,12 @@ class MessageMarkUpGenerator
 
         $this->messages[] = $buttonMessage;
 
+        return $this;
+    }
+
+    public function addHandToHumanMessage($data)
+    {
+        $this->messages[] = new HandToHumanMessage($data);
         return $this;
     }
 

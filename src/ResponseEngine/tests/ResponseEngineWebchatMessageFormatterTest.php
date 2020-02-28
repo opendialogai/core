@@ -99,6 +99,21 @@ EOT;
         $this->assertEquals('hi there <a target="_parent" href="http://www.opendialog.ai">Link 1</a> <a target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
 
+    public function testHandToHumanMessage()
+    {
+        $markup = '<message disable_text="1"><hand-to-human-message><data name="history">{message_history.all}</data><data name="email">{user.email}</data></hand-to-human-message></message>';
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+        $this->assertEquals(1, $message->getData()['disable_text']);
+
+        $elements = $message->getElements();
+        $this->assertEquals('{message_history.all}', $elements['history']);
+        $this->assertEquals('{user.email}', $elements['email']);
+    }
+
     public function testImageMessage()
     {
         // phpcs:ignore

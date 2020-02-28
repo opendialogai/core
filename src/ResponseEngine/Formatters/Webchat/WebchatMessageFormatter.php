@@ -14,6 +14,7 @@ use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
+use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -36,6 +37,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageRichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToHumanMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
@@ -159,6 +161,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             case self::LONG_TEXT_MESSAGE:
                 $template = $this->formatLongTextTemplate($item);
                 return $this->generateLongTextMessage($template);
+                break;
+            case self::HAND_TO_HUMAN_MESSAGE:
+                $template = $this->formatHandToHumanTemplate($item);
+                return $this->generateHandToHumanMessage($template);
                 break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
@@ -401,6 +407,16 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     /**
      * @param array $template
+     * @return HandToHumanMessage
+     */
+    public function generateHandToHumanMessage(array $template): HandToHumanMessage
+    {
+        $message = (new WebchatHandToHumanMessage())->setElements($template[self::ELEMENTS]);
+        return $message;
+    }
+
+    /**
+     * @param array $template
      * @return OpenDialogMessage
      */
     public function generateTextMessage(array $template): OpenDialogMessage
@@ -574,6 +590,25 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 ];
             }
         }
+        return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatHandToHumanTemplate(SimpleXMLElement $item): array
+    {
+        $elements = [];
+        foreach ($item->data as $data) {
+            $elements[(string)$data['name']] = (string)$data;
+        }
+
+        $template = [
+            self::ELEMENTS => $elements,
+        ];
         return $template;
     }
 
