@@ -88,12 +88,6 @@ class UtteranceTest extends TestCase
         }
 
         try {
-            $utterance->setValue('test');
-            $this->fail('Exception not thrown');
-        } catch (FieldNotSupported $e) {
-        }
-
-        try {
             $utterance->getValue();
             $this->fail('Exception not thrown');
         } catch (FieldNotSupported $e) {

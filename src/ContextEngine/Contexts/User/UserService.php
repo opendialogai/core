@@ -64,6 +64,23 @@ class UserService
     }
 
     /**
+     * @param $userId
+     * @return string
+     */
+    public function getUserType($userId): string
+    {
+        if ($this->userExists($userId)) {
+            if ($this->userIsHavingConversation($userId)) {
+                return ChatbotUser::ONGOING_USER;
+            } else {
+                return ChatbotUser::RETURNING_USER;
+            }
+        }
+
+        return ChatbotUser::NEW_USER;
+    }
+
+    /**
      * @param UtteranceInterface $utterance
      * @return ChatbotUser
      * @throws FieldNotSupported

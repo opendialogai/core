@@ -11,6 +11,10 @@ use OpenDialogAi\Core\Graph\Node\Node;
 
 class ChatbotUser extends Node
 {
+    public const NEW_USER = 'new';
+    public const ONGOING_USER = 'ongoing';
+    public const RETURNING_USER = 'returning';
+
     /** @var string Id of the current conversation */
     private $currentConversationUid;
 
