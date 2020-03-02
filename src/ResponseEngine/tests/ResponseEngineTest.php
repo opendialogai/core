@@ -250,7 +250,7 @@ class ResponseEngineTest extends TestCase
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
         $data = [
-            'history' => 'message_history.all',
+            'history' => '{message_history.all}',
             'email' => '{user.email}',
         ];
 
@@ -278,11 +278,13 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
-        // phpcs:ignore
-        $this->assertInstanceOf(
-            WebchatHandToHumanMessage::class,
-            $messageWrapper->getMessages()[0]
-        );
+        $message = $messageWrapper->getMessages()[0];
+        $elements = $message->getElements();
+
+        $this->assertInstanceOf(WebchatHandToHumanMessage::class, $message);
+
+        $this->assertEquals($elements['history'], ' ');
+        $this->assertEquals($elements['email'], ' ');
     }
 
     public function testWebChatImageMessage()

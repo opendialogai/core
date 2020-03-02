@@ -4,5 +4,5 @@ namespace OpenDialogAi\ResponseEngine\Message;
 
 interface HandToHumanMessage extends OpenDialogMessage
 {
-    const TYPE = 'image';
+    const TYPE = 'hand-to-human';
 }
