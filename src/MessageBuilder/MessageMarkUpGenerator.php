@@ -18,6 +18,7 @@ use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
 use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
 use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
+use OpenDialogAi\MessageBuilder\Message\Form\EmailElement;
 use OpenDialogAi\MessageBuilder\Message\Form\RadioElement;
 use OpenDialogAi\MessageBuilder\Message\Form\SelectElement;
 use OpenDialogAi\MessageBuilder\Message\Form\TextElement;
@@ -133,6 +134,8 @@ class MessageMarkUpGenerator
                 );
             } elseif ($element['element_type'] == 'radio') {
                 $formMessage->addElement(new RadioElement($element['name'], $element['display'], $element['options']));
+            } elseif ($element['element_type'] == 'email') {
+                $formMessage->addElement(new EmailElement($element['name'], $element['display'], $element['required']));
             }
         }
 

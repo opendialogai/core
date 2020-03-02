@@ -720,6 +720,12 @@ EOT;
                 'required' => true,
             ],
             [
+                'element_type' => 'email',
+                'name' => 'email',
+                'display' => 'Email',
+                'required' => true,
+            ],
+            [
                 'element_type' => 'select',
                 'name' => 'age',
                 'display' => 'Age',
@@ -791,6 +797,12 @@ EOT;
                     'display' => 'Last name',
                     'required' => true,
                     'element_type' => 'text',
+                ],
+                [
+                    'name' => 'email',
+                    'display' => 'Email',
+                    'required' => true,
+                    'element_type' => 'email',
                 ],
                 [
                     'name' => 'age',
