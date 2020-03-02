@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\Contexts\Intent;
 
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;

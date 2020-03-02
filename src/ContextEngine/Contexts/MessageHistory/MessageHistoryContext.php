@@ -1,19 +1,20 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\Contexts\Custom;
+namespace OpenDialogAi\ContextEngine\Contexts\MessageHistory;
 
+use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 
-class MessageHistoryContext extends AbstractCustomContext
+class MessageHistoryContext extends AbstractContext
 {
-    public static $name = 'message_history';
+    public const MESSAGE_HISTORY_CONTEXT = 'message_history';
 
-    public function loadAttributes(): void
+    public function __construct()
     {
-        //
+        parent::__construct(self::MESSAGE_HISTORY_CONTEXT);
     }
 
     public function getAttribute(string $attributeName): AttributeInterface

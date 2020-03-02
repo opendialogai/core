@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
-use OpenDialogAi\ContextEngine\Contexts\Custom\MessageHistoryContext;
+use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -14,16 +14,6 @@ class MessageHistoryContextTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
-            ['all' => StringAttribute::class]
-        );
-
-        $this->setConfigValue(
-            'opendialog.context_engine.custom_contexts',
-            [MessageHistoryContext::class]
-        );
     }
 
     public function testMessageHistoryContext()
