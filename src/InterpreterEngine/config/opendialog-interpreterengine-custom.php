@@ -2,7 +2,7 @@
 
 return [
     /**
-     * A registration of know LUIS entities mapped to known attribute type. If an entity is returned from LUIS that is
+     * A registration of known LUIS entities mapped to known attribute type. If an entity is returned from LUIS that is
      * not an already registered attribute name and is not mapped here, a StringAttribute will be used
      *
      * Mapping is {luis_entity_type} => {OD_attribute_name}
@@ -12,7 +12,7 @@ return [
     ],
 
     /**
-     * A registration of know RASA entities mapped to known attribute type. If an entity is returned from RASA that is
+     * A registration of known RASA entities mapped to known attribute type. If an entity is returned from RASA that is
      * not an already registered attribute name and is not mapped here, a StringAttribute will be used
      *
      * Mapping is {rasa_entity_type} => {OD_attribute_name}

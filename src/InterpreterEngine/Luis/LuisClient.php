@@ -3,11 +3,11 @@
 namespace OpenDialogAi\InterpreterEngine\Luis;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
-use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUClient;
+use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUHTTPClient;
 use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLUResponse;
+use Psr\Http\Message\ResponseInterface;
 
-class LuisClient extends AbstractNLUClient
+class LuisClient extends AbstractNLUHTTPClient
 {
     /** @var string The app ID */
     private $appId;
@@ -45,7 +45,7 @@ class LuisClient extends AbstractNLUClient
     /**
      * @inheritDoc
      */
-    public function sendRequest($message): Response
+    public function sendRequest($message): ResponseInterface
     {
         return $this->client->request(
             'GET',
