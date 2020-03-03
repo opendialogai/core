@@ -8,6 +8,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFac
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -321,6 +322,34 @@ class UserServiceTest extends TestCase
 
         $this->assertTrue($intent->hasFollowedBy());
         $this->assertEquals('hello_user', $intent->getFollowedBy()->getId());
+    }
+
+    public function testGetUserTypeNew()
+    {
+        $this->assertEquals(ChatbotUser::NEW_USER, $this->userService->getUserType('newuser'));
+    }
+
+    /**
+     * @requires DGRAPH
+     */
+    public function testGetUserTypeOngoing()
+    {
+        $userId = $this->setUpConversationAndCurrentIntent();
+        $this->assertEquals(ChatbotUser::ONGOING_USER, $this->userService->getUserType($userId));
+
+    }
+
+    /**
+     * @requires DGRAPH
+     */
+    public function testGetUserTypeReturning()
+    {
+        $this->activateConversation($this->noMatchConversation());
+
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('WELCOME');
+        $controller = resolve(OpenDialogController::class);
+        $controller->runConversation($utterance);
+        $this->assertEquals(ChatbotUser::RETURNING_USER, $this->userService->getUserType($utterance->getUserId()));
     }
 
     /**
