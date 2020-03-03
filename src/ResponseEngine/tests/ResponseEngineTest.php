@@ -251,8 +251,8 @@ class ResponseEngineTest extends TestCase
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
         $data = [
-            'history' => '{message_history.all}',
-            'email' => '{user.email}',
+            'history' => 'test1',
+            'email' => 'test2',
         ];
 
         $generator = new MessageMarkUpGenerator();
@@ -272,8 +272,8 @@ class ResponseEngineTest extends TestCase
         ]);
 
         // Setup a context to have something to compare against
-        /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('Hello');
+        $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -284,8 +284,8 @@ class ResponseEngineTest extends TestCase
 
         $this->assertInstanceOf(WebchatHandToHumanMessage::class, $message);
 
-        $this->assertEquals($elements['history'], ' ');
-        $this->assertEquals($elements['email'], ' ');
+        $this->assertEquals($elements['history'], 'test1');
+        $this->assertEquals($elements['email'], 'test2');
     }
 
     public function testWebChatImageMessage()
@@ -868,8 +868,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $utterance = UtteranceGenerator::generateChatOpenUtterance('Hello');
-        $userContext = ContextService::createUserContext($utterance);
+        $userContext = $this->createUserContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
