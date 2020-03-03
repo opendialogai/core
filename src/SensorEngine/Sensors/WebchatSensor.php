@@ -44,6 +44,9 @@ class WebchatSensor extends BaseSensor
                 if (isset($content['user'])) {
                     $utterance->setUser($this->createUser($request['user_id'], $content['user']));
                 }
+                if (isset($content['data']['value'])) {
+                    $utterance->setValue($content['data']['value']);
+                }
                 return $utterance;
                 break;
 
