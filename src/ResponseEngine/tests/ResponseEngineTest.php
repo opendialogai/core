@@ -21,6 +21,7 @@ use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToHumanMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -243,6 +244,49 @@ class ResponseEngineTest extends TestCase
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\OpenDialogMessage', $messageWrapper->getMessages()[0]);
     }
 
+    public function testWebChatHandToHumanMessage()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $data = [
+            'history' => '{message_history.all}',
+            'email' => '{user.email}',
+        ];
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addHandToHumanMessage($data);
+
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+
+        $message = $messageWrapper->getMessages()[0];
+        $elements = $message->getElements();
+
+        $this->assertInstanceOf(WebchatHandToHumanMessage::class, $message);
+
+        $this->assertEquals($elements['history'], ' ');
+        $this->assertEquals($elements['email'], ' ');
+    }
+
     public function testWebChatImageMessage()
     {
         OutgoingIntent::create(['name' => 'Hello']);
@@ -319,7 +363,10 @@ class ResponseEngineTest extends TestCase
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
         // phpcs:ignore
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf(
+            WebchatButtonMessage::class,
+            $messageWrapper->getMessages()[0]
+        );
     }
 
     public function testWebChatButtonMessageWithTabSwitchButton()
@@ -358,7 +405,10 @@ class ResponseEngineTest extends TestCase
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
         // phpcs:ignore
-        $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage', $messageWrapper->getMessages()[0]);
+        $this->assertInstanceOf(
+            WebchatButtonMessage::class,
+            $messageWrapper->getMessages()[0]
+        );
     }
 
     public function testWebChatButtonMessageWithExternalButtons()
