@@ -13,6 +13,7 @@ use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\ResponseEngine\tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
+use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\OperationEngine\Operations\GreaterThanOrEqualOperation;
 use OpenDialogAi\OperationEngine\Operations\LessThanOrEqualOperation;
@@ -867,7 +868,8 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $utterance = UtteranceGenerator::generateChatOpenUtterance('Hello');
+        $userContext = ContextService::createUserContext($utterance);
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
