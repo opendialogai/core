@@ -81,10 +81,10 @@ class AttributeExtractionTest extends TestCase
 
         $utterance = UtteranceGenerator::generateChatOpenUtterance('my_name_is');
 
-        $this->assertCount(3, ContextService::getContexts());
+        $this->assertCount(4, ContextService::getContexts());
         /* @var UserContext $userContext; */
         $userContext = ContextService::createUserContext($utterance);
-        $this->assertCount(4, ContextService::getContexts());
+        $this->assertCount(5, ContextService::getContexts());
 
         list($intent) = $this->conversationEngine->getNextIntents($userContext, $utterance);
 

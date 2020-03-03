@@ -27,6 +27,7 @@ return [
         'timestamp' => IntAttribute::class,
         'last_seen' => TimestampAttribute::class,
         'first_seen' => TimestampAttribute::class,
+        'all' => StringAttribute::class,
         'attributes' => ArrayAttribute::class,
         'parameters' => ArrayAttribute::class,
 
