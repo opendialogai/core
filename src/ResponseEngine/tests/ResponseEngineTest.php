@@ -176,7 +176,10 @@ class ResponseEngineTest extends TestCase
             $messageWrapper
         );
 
-        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there dummy!');
+        $message = $messageWrapper->getMessages()[0];
+
+        $this->assertEquals($message->getIntent(), 'Hello');
+        $this->assertEquals($message->getText(), 'Hi there dummy!');
     }
 
     public function testResponseEngineServiceWithArrayAttribute()

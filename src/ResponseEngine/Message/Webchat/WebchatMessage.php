@@ -29,6 +29,8 @@ abstract class WebchatMessage implements OpenDialogMessage
 
     private $isEmpty = false;
 
+    private $intent;
+
     public function __construct()
     {
         $this->time = date('h:i A');
@@ -161,6 +163,26 @@ abstract class WebchatMessage implements OpenDialogMessage
     /**
      * @return string
      */
+    public function getIntent()
+    {
+        return $this->intent;
+    }
+
+    /**
+     * Set intent property
+     *
+     * @param $intent
+     * @return $this
+     */
+    public function setIntent($intent)
+    {
+        $this->intent = $intent;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getMessageType()
     {
         return $this->messageType;
@@ -205,7 +227,8 @@ abstract class WebchatMessage implements OpenDialogMessage
         }
         return [
             'author' => 'them',
-            'type' => $this->messageType,
+            'type' => $this->getMessageType(),
+            'intent' => $this->getIntent(),
             'data' => $this->getData()
         ];
     }
