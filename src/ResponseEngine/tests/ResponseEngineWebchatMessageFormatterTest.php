@@ -910,6 +910,15 @@ EOT;
                 ]
             ],
             [
+                'element_type' => 'radio',
+                'name' => 'gender',
+                'display' => 'Gender',
+                'options' => [
+                    'Male',
+                    'Female',
+                ],
+            ],
+            [
                 'element_type' => 'auto_complete_select',
                 'name' => 'year',
                 'display' => 'Year',
@@ -963,6 +972,16 @@ EOT;
                         '1' => '1 year',
                         '10' => '10 year',
                         '20' => '20 year',
+                    ],
+                ],
+                [
+                    'name' => 'gender',
+                    'display' => 'Gender',
+                    'required' => false,
+                    'element_type' => 'radio',
+                    'options' => [
+                        'Male',
+                        'Female',
                     ],
                 ],
                 [
