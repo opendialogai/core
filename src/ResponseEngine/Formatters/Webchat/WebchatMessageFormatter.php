@@ -684,43 +684,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     private function formatFullPageRichTemplate(SimpleXMLElement $item): array
     {
-        $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
-
-        $template = [
-            self::TITLE => trim((string)$item->title),
-            self::SUBTITLE => trim((string)$item->subtitle),
-            self::TEXT => trim((string)$item->text),
-            self::IMAGE => [
-                self::SRC => trim((string)$item->image->src),
-                self::URL => trim((string)$item->image->url),
-                self::LINK_NEW_TAB => $linkNewTab,
-            ],
-        ];
-
-        foreach ($item->button as $button) {
-            if (isset($button->tab_switch)) {
-                $template[self::BUTTONS][] = [
-                    self::TEXT => trim((string)$button->text),
-                    self::TAB_SWITCH => true,
-                ];
-            } elseif (isset($button->link)) {
-                $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
-
-                $template[self::BUTTONS][] = [
-                    self::TEXT => trim((string)$button->text),
-                    self::LINK => trim((string)$button->link),
-                    self::LINK_NEW_TAB => $buttonLinkNewTab,
-                ];
-            } else {
-                $template[self::BUTTONS][] = [
-                    self::TEXT => trim((string)$button->text),
-                    self::CALLBACK => trim((string)$button->callback),
-                    self::VALUE => trim((string)$button->value),
-                ];
-            }
-        }
-
-        return $template;
+        return $this->formatRichTemplate($item);
     }
 
     /**
@@ -807,40 +771,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
      */
     private function formatFullPageFormTemplate(SimpleXMLElement $item): array
     {
-        $elements = [];
-
-        foreach ($item->element as $element) {
-            $required = ($element->required) ? true : false;
-
-            $el = [
-                self::ELEMENT_TYPE => trim((string)$element->element_type),
-                self::NAME => trim((string)$element->name),
-                self::DISPLAY => trim((string)$element->display),
-                self::REQUIRED => $required,
-            ];
-
-            if ($el[self::ELEMENT_TYPE] == self::SELECT || $el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
-                $options = [];
-
-                foreach ($element->options->children() as $option) {
-                    $options[trim((string)$option->key)] = trim((string)$option->value);
-                }
-                $el[self::OPTIONS] = $options;
-            }
-
-            $elements[] = $el;
-        }
-
-        $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
-
-        $template = [
-            self::TEXT => trim((string)$item->text),
-            self::SUBMIT_TEXT => trim((string)$item->submit_text),
-            self::CALLBACK => trim((string)$item->callback),
-            self::AUTO_SUBMIT => $autoSubmit,
-            self::ELEMENTS => $elements,
-        ];
-        return $template;
+        return $this->formatFormTemplate($item);
     }
 
     /**

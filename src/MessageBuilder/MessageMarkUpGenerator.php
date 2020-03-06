@@ -170,6 +170,10 @@ class MessageMarkUpGenerator
                 $formMessage->addElement(
                     new AutoCompleteSelectElement($element['name'], $element['display'], $element['options'])
                 );
+            } elseif ($element['element_type'] == 'radio') {
+                $formMessage->addElement(new RadioElement($element['name'], $element['display'], $element['options']));
+            } elseif ($element['element_type'] == 'email') {
+                $formMessage->addElement(new EmailElement($element['name'], $element['display'], $element['required']));
             }
         }
 
