@@ -712,7 +712,7 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(true, $message->getData()['disable_text']);
+        $this->assertEquals(true, $data['disable_text']);
         $this->assertEquals('vertical', $data['view_type']);
         self::assertArraySubset($expectedOutput[0], $data['items'][0]);
         self::assertArraySubset($expectedOutput[1], $data['items'][1]);
@@ -764,8 +764,14 @@ EOT;
                 'name' => 'gender',
                 'display' => 'Gender',
                 'options' => [
-                    'Male',
-                    'Female',
+                    [
+                        'key' => 'male',
+                        'value' => 'Male',
+                    ],
+                    [
+                        'key' => 'female',
+                        'value' => 'Female',
+                    ],
                 ],
             ],
             [
@@ -836,8 +842,8 @@ EOT;
                     'required' => false,
                     'element_type' => 'radio',
                     'options' => [
-                        'Male',
-                        'Female',
+                        'male' => 'Male',
+                        'female' => 'Female',
                     ],
                 ],
                 [
@@ -871,8 +877,8 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(false, $message->getData()['disable_text']);
-        self::assertArraySubset($expectedOutput, $message->getData(), true);
+        $this->assertEquals(false, $data['disable_text']);
+        self::assertArraySubset($expectedOutput, $data, true);
     }
 
     public function testFullPageFormMessage()
@@ -914,8 +920,14 @@ EOT;
                 'name' => 'gender',
                 'display' => 'Gender',
                 'options' => [
-                    'Male',
-                    'Female',
+                    [
+                        'key' => 'male',
+                        'value' => 'Male',
+                    ],
+                    [
+                        'key' => 'female',
+                        'value' => 'Female',
+                    ],
                 ],
             ],
             [
@@ -980,8 +992,8 @@ EOT;
                     'required' => false,
                     'element_type' => 'radio',
                     'options' => [
-                        'Male',
-                        'Female',
+                        'male' => 'Male',
+                        'female' => 'Female',
                     ],
                 ],
                 [
@@ -1015,8 +1027,8 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(false, $message->getData()['disable_text']);
-        self::assertArraySubset($expectedOutput, $message->getData(), true);
+        $this->assertEquals(false, $data['disable_text']);
+        self::assertArraySubset($expectedOutput, $data, true);
     }
 
     public function testLongTextMessage()
@@ -1044,7 +1056,7 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(false, $message->getData()['disable_text']);
-        self::assertArraySubset($expectedOutput, $message->getData(), true);
+        $this->assertEquals(false, $data['disable_text']);
+        self::assertArraySubset($expectedOutput, $data, true);
     }
 }

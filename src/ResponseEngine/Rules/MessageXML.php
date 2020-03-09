@@ -213,10 +213,9 @@ class MessageXML extends BaseRule
                         }
                         break;
 
-                    case 'long-text-message':
-                        break;
-
                     case 'empty-message':
+                    case 'hand-to-human-message':
+                    case 'long-text-message':
                         break;
 
                     default:

@@ -37,8 +37,8 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageRichMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
@@ -743,7 +743,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $options = [];
 
                 foreach ($element->options->children() as $option) {
-                    $options[] = trim((string)$option);
+                    $options[trim((string)$option->key)] = trim((string)$option->value);
                 }
                 $el[self::OPTIONS] = $options;
             }
