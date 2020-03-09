@@ -26,7 +26,8 @@ class RadioElement extends BaseElement
         $optionsMarkUp = '';
 
         foreach ($this->options as $option) {
-            $optionsMarkUp .= '<option>' . $option . '</option>';
+            $optionsMarkUp .= '<option><key>' . $option['key'] . '</key>';
+            $optionsMarkUp .= '<value>' . $option['value'] . '</value></option>';
         }
 
         return <<<EOT
