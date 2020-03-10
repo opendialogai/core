@@ -156,6 +156,7 @@ class MessageXML extends BaseRule
                         }
                         break;
 
+                    case 'fp-form-message':
                     case 'form-message':
                         if (empty((string)$item->text)) {
                             $this->setErrorMessage('Form messages must have "text"');
@@ -182,31 +183,6 @@ class MessageXML extends BaseRule
                                 if (empty((string)$element->options)) {
                                     // @codingStandardsIgnoreLine
                                     $this->setErrorMessage('Form message elements of type "radio" must have "options"');
-                                    return false;
-                                }
-                            }
-                        }
-                        break;
-
-                    case 'fp-form-message':
-                        if (empty((string)$item->text)) {
-                            $this->setErrorMessage('Full page form messages must have "text"');
-                            return false;
-                        }
-                        foreach ($item->element as $element) {
-                            if (empty((string)$element->element_type)) {
-                                $this->setErrorMessage('Full page form message elements must have "element_type"');
-                                return false;
-                            }
-                            if (empty((string)$element->name)) {
-                                $this->setErrorMessage('Full page form message elements must have "name"');
-                                return false;
-                            }
-                            if ((string)$element->element_type == 'select' ||
-                                (string)$element->element_type == 'auto_complete_select') {
-                                if (empty((string)$element->options)) {
-                                    // @codingStandardsIgnoreLine
-                                    $this->setErrorMessage('Full page form message elements of type "select" or "auto_complete_select" must have "options"');
                                     return false;
                                 }
                             }

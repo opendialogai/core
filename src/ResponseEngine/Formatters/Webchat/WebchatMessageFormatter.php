@@ -238,6 +238,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $message->setSubmitText($template[self::SUBMIT_TEXT]);
         }
 
+        if ($template[self::CANCEL_TEXT]) {
+            $message->setCancelText($template[self::CANCEL_TEXT]);
+        }
+
+        if ($template[self::CANCEL_CALLBACK]) {
+            $message->setCancelCallback($template[self::CANCEL_CALLBACK]);
+        }
+
         foreach ($template[self::ELEMENTS] as $el) {
             $name = $el[self::NAME];
             $display = $el[self::DISPLAY];
@@ -280,6 +288,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         if ($template[self::SUBMIT_TEXT]) {
             $message->setSubmitText($template[self::SUBMIT_TEXT]);
+        }
+
+        if ($template[self::CANCEL_TEXT]) {
+            $message->setCancelText($template[self::CANCEL_TEXT]);
+        }
+
+        if ($template[self::CANCEL_CALLBACK]) {
+            $message->setCancelCallback($template[self::CANCEL_CALLBACK]);
         }
 
         foreach ($template[self::ELEMENTS] as $el) {
@@ -759,14 +775,15 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
 
-        $template = [
+        return [
             self::TEXT => trim((string)$item->text),
             self::SUBMIT_TEXT => trim((string)$item->submit_text),
             self::CALLBACK => trim((string)$item->callback),
             self::AUTO_SUBMIT => $autoSubmit,
             self::ELEMENTS => $elements,
+            self::CANCEL_CALLBACK => trim((string)$item->cancel_callback ?? null),
+            self::CANCEL_TEXT => trim((string)$item->cancel_text ?? null),
         ];
-        return $template;
     }
 
     /**

@@ -806,6 +806,8 @@ EOT;
             'callback_id' => 'callback',
             'auto_submit' => true,
             'submit_text' => 'This is submit text',
+            'cancel_text' => 'cancel',
+            'cancel_callback' => 'cancel_callback',
             'elements' => [
                 [
                     'name' => 'first_name',

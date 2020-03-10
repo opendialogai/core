@@ -48,6 +48,26 @@ interface FullPageFormMessage extends OpenDialogMessage
     public function getCallbackId();
 
     /**
+     * @param $callback string
+     */
+    public function setCancelCallback($callback);
+
+    /**
+     * @return string
+     */
+    public function getCancelCallback();
+
+    /**
+     * @param $text string
+     */
+    public function setCancelText($text);
+
+    /**
+     * @return string
+     */
+    public function getCancelText();
+
+    /**
      * @return bool
      */
     public function getAutoSubmit();
