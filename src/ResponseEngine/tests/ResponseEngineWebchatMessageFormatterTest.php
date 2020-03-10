@@ -796,7 +796,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+        $messageMarkUp->addFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements, 'cancel', 'cancel_callback');
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -954,7 +954,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addFullPageFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+        $messageMarkUp->addFullPageFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements, 'cancel', 'cancel_callback');
 
         $markup = $messageMarkUp->getMarkUp();
 
