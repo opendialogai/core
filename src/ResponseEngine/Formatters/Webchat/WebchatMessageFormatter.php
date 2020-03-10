@@ -749,7 +749,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $options = [];
 
                 foreach ($element->options->children() as $option) {
-                    $options[trim((string)$option->value)] = trim((string)$option->key);
+                    $options[trim((string)$option->key)] = trim((string)$option->value);
                 }
                 $el[self::OPTIONS] = $options;
             }
