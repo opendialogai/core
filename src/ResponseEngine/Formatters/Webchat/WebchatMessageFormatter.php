@@ -33,6 +33,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatCtaMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
@@ -167,6 +168,11 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $template = $this->formatHandToHumanTemplate($item);
                 return $this->generateHandToHumanMessage($template);
                 break;
+            case self::CTA_MESSAGE:
+                $text = $this->getMessageText($item);
+                $template = [self::TEXT => $text];
+                return $this->generateCtaMessage($template);
+                break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
                 break;
@@ -232,6 +238,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $message->setSubmitText($template[self::SUBMIT_TEXT]);
         }
 
+        if ($template[self::CANCEL_TEXT]) {
+            $message->setCancelText($template[self::CANCEL_TEXT]);
+        }
+
+        if ($template[self::CANCEL_CALLBACK]) {
+            $message->setCancelCallback($template[self::CANCEL_CALLBACK]);
+        }
+
         foreach ($template[self::ELEMENTS] as $el) {
             $name = $el[self::NAME];
             $display = $el[self::DISPLAY];
@@ -274,6 +288,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         if ($template[self::SUBMIT_TEXT]) {
             $message->setSubmitText($template[self::SUBMIT_TEXT]);
+        }
+
+        if ($template[self::CANCEL_TEXT]) {
+            $message->setCancelText($template[self::CANCEL_TEXT]);
+        }
+
+        if ($template[self::CANCEL_CALLBACK]) {
+            $message->setCancelCallback($template[self::CANCEL_CALLBACK]);
         }
 
         foreach ($template[self::ELEMENTS] as $el) {
@@ -753,14 +775,15 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
 
-        $template = [
+        return [
             self::TEXT => trim((string)$item->text),
             self::SUBMIT_TEXT => trim((string)$item->submit_text),
             self::CALLBACK => trim((string)$item->callback),
             self::AUTO_SUBMIT => $autoSubmit,
             self::ELEMENTS => $elements,
+            self::CANCEL_CALLBACK => trim((string)$item->cancel_callback ?? null),
+            self::CANCEL_TEXT => trim((string)$item->cancel_text ?? null),
         ];
-        return $template;
     }
 
     /**
@@ -794,8 +817,17 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     }
 
     /**
+     * @param array $template
+     * @return OpenDialogMessage
+     */
+    public function generateCtaMessage(array $template): OpenDialogMessage
+    {
+        return (new WebchatCtaMessage())->setText($template[self::TEXT], [], true);
+    }
+
+    /**
      * @param string $value
-     * @param return bool
+     * @return bool
      */
     private function convertToBoolean(string $value): bool
     {

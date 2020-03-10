@@ -796,7 +796,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+        $messageMarkUp->addFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements, 'cancel', 'cancel_callback');
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -806,6 +806,8 @@ EOT;
             'callback_id' => 'callback',
             'auto_submit' => true,
             'submit_text' => 'This is submit text',
+            'cancel_text' => 'cancel',
+            'cancel_callback' => 'cancel_callback',
             'elements' => [
                 [
                     'name' => 'first_name',
@@ -952,7 +954,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addFullPageFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+        $messageMarkUp->addFullPageFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements, 'cancel', 'cancel_callback');
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -1058,5 +1060,27 @@ EOT;
 
         $this->assertEquals(false, $data['disable_text']);
         self::assertArraySubset($expectedOutput, $data, true);
+    }
+
+    public function testCtaMessage()
+    {
+        $markup = '<message disable_text="1"><cta-message>hi there.</cta-message></message>';
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('hi there.', $messages[0]->getText());
+        $this->assertEquals(1, $messages[0]->getData()['disable_text']);
+
+        $markup = <<<EOT
+<message disable_text="0">
+  <cta-message>hi there.</cta-message>
+</message>
+EOT;
+
+        $formatter = new WebChatMessageFormatter();
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('hi there.', $messages[0]->getText());
+        $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
 }
