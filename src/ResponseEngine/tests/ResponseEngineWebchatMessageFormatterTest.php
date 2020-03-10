@@ -1047,4 +1047,26 @@ EOT;
         $this->assertEquals(false, $message->getData()['disable_text']);
         self::assertArraySubset($expectedOutput, $message->getData(), true);
     }
+
+    public function testCtaMessage()
+    {
+        $markup = '<message disable_text="1"><cta-message>hi there.</cta-message></message>';
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('hi there.', $messages[0]->getText());
+        $this->assertEquals(1, $messages[0]->getData()['disable_text']);
+
+        $markup = <<<EOT
+<message disable_text="0">
+  <cta-message>hi there.</cta-message>
+</message>
+EOT;
+
+        $formatter = new WebChatMessageFormatter();
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('hi there.', $messages[0]->getText());
+        $this->assertEquals(0, $messages[0]->getData()['disable_text']);
+    }
 }

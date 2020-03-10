@@ -34,6 +34,7 @@ interface MessageFormatterInterface
     public const FULL_PAGE_RICH_MESSAGE = 'fp-rich-message';
     public const LONG_TEXT_MESSAGE      = 'long-text-message';
     public const EMPTY_MESSAGE          = 'empty-message';
+    public const CTA_MESSAGE            = 'cta-message';
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';

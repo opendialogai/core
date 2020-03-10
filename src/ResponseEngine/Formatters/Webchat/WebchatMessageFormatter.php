@@ -33,6 +33,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatCtaMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
@@ -166,6 +167,11 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             case self::HAND_TO_HUMAN_MESSAGE:
                 $template = $this->formatHandToHumanTemplate($item);
                 return $this->generateHandToHumanMessage($template);
+                break;
+            case self::CTA_MESSAGE:
+                $text = $this->getMessageText($item);
+                $template = [self::TEXT => $text];
+                return $this->generateCtaMessage($template);
                 break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
@@ -794,8 +800,17 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     }
 
     /**
+     * @param array $template
+     * @return OpenDialogMessage
+     */
+    public function generateCtaMessage(array $template): OpenDialogMessage
+    {
+        return (new WebchatCtaMessage())->setText($template[self::TEXT], [], true);
+    }
+
+    /**
      * @param string $value
-     * @param return bool
+     * @return bool
      */
     private function convertToBoolean(string $value): bool
     {
