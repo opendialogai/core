@@ -712,7 +712,7 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(true, $message->getData()['disable_text']);
+        $this->assertEquals(true, $data['disable_text']);
         $this->assertEquals('vertical', $data['view_type']);
         self::assertArraySubset($expectedOutput[0], $data['items'][0]);
         self::assertArraySubset($expectedOutput[1], $data['items'][1]);
@@ -764,8 +764,14 @@ EOT;
                 'name' => 'gender',
                 'display' => 'Gender',
                 'options' => [
-                    'Male',
-                    'Female',
+                    [
+                        'key' => 'male',
+                        'value' => 'Male',
+                    ],
+                    [
+                        'key' => 'female',
+                        'value' => 'Female',
+                    ],
                 ],
             ],
             [
@@ -790,7 +796,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+        $messageMarkUp->addFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements, 'cancel', 'cancel_callback');
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -800,6 +806,8 @@ EOT;
             'callback_id' => 'callback',
             'auto_submit' => true,
             'submit_text' => 'This is submit text',
+            'cancel_text' => 'cancel',
+            'cancel_callback' => 'cancel_callback',
             'elements' => [
                 [
                     'name' => 'first_name',
@@ -836,8 +844,8 @@ EOT;
                     'required' => false,
                     'element_type' => 'radio',
                     'options' => [
-                        'Male',
-                        'Female',
+                        'male' => 'Male',
+                        'female' => 'Female',
                     ],
                 ],
                 [
@@ -871,8 +879,8 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(false, $message->getData()['disable_text']);
-        self::assertArraySubset($expectedOutput, $message->getData(), true);
+        $this->assertEquals(false, $data['disable_text']);
+        self::assertArraySubset($expectedOutput, $data, true);
     }
 
     public function testFullPageFormMessage()
@@ -914,8 +922,14 @@ EOT;
                 'name' => 'gender',
                 'display' => 'Gender',
                 'options' => [
-                    'Male',
-                    'Female',
+                    [
+                        'key' => 'male',
+                        'value' => 'Male',
+                    ],
+                    [
+                        'key' => 'female',
+                        'value' => 'Female',
+                    ],
                 ],
             ],
             [
@@ -940,7 +954,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addFullPageFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements);
+        $messageMarkUp->addFullPageFormMessage('Here is a bit of text about this thing', 'This is submit text', 'callback', true, $elements, 'cancel', 'cancel_callback');
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -980,8 +994,8 @@ EOT;
                     'required' => false,
                     'element_type' => 'radio',
                     'options' => [
-                        'Male',
-                        'Female',
+                        'male' => 'Male',
+                        'female' => 'Female',
                     ],
                 ],
                 [
@@ -1015,8 +1029,8 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(false, $message->getData()['disable_text']);
-        self::assertArraySubset($expectedOutput, $message->getData(), true);
+        $this->assertEquals(false, $data['disable_text']);
+        self::assertArraySubset($expectedOutput, $data, true);
     }
 
     public function testLongTextMessage()
@@ -1044,8 +1058,8 @@ EOT;
 
         $data = $message->getData();
 
-        $this->assertEquals(false, $message->getData()['disable_text']);
-        self::assertArraySubset($expectedOutput, $message->getData(), true);
+        $this->assertEquals(false, $data['disable_text']);
+        self::assertArraySubset($expectedOutput, $data, true);
     }
 
     public function testCtaMessage()

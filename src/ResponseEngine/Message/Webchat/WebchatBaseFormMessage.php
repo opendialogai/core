@@ -15,6 +15,10 @@ class WebchatBaseFormMessage extends WebchatMessage
 
     private $callbackId = null;
 
+    private $cancelText = null;
+
+    private $cancelCallback = null;
+
     /**
      * @param FormElement $element
      * @return $this
@@ -88,6 +92,38 @@ class WebchatBaseFormMessage extends WebchatMessage
     }
 
     /**
+     * @param $callback string
+     */
+    public function setCancelCallback($callback)
+    {
+        $this->cancelCallback = $callback;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCancelCallback()
+    {
+        return $this->cancelCallback;
+    }
+
+    /**
+     * @param $text string
+     */
+    public function setCancelText($text)
+    {
+        $this->cancelText = $text;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCancelText()
+    {
+        return $this->cancelText;
+    }
+
+    /**
      * @return array
      */
     public function getElementsArray()
@@ -110,7 +146,9 @@ class WebchatBaseFormMessage extends WebchatMessage
                 'callback_id' => $this->getCallbackId(),
                 'elements' => $this->getElementsArray(),
                 'auto_submit' => $this->getAutoSubmit(),
-                'submit_text' => $this->getSubmitText()
+                'submit_text' => $this->getSubmitText(),
+                'cancel_text' => $this->getCancelText(),
+                'cancel_callback' => $this->getCancelCallback(),
             ];
     }
 }
