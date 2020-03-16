@@ -129,8 +129,15 @@ class MessageMarkUpGenerator
      * @param $cancelCallback
      * @return MessageMarkUpGenerator
      */
-    public function addFormMessage($text, $submitText, $callback, $autoSubmit, $elements, $cancelText = null, $cancelCallback = null)
-    {
+    public function addFormMessage(
+        $text,
+        $submitText,
+        $callback,
+        $autoSubmit,
+        $elements,
+        $cancelText = null,
+        $cancelCallback = null
+    ) {
         $formMessage = new FormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
         foreach ($elements as $element) {
             if ($element['element_type'] == 'text') {
@@ -162,8 +169,15 @@ class MessageMarkUpGenerator
      * @param null $cancelCallback
      * @return MessageMarkUpGenerator
      */
-    public function addFullPageFormMessage($text, $submitText, $callback, $autoSubmit, $elements, $cancelText = null, $cancelCallback = null)
-    {
+    public function addFullPageFormMessage(
+        $text,
+        $submitText,
+        $callback,
+        $autoSubmit,
+        $elements,
+        $cancelText = null,
+        $cancelCallback = null
+    ) {
         $formMessage = new FullPageFormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
         foreach ($elements as $element) {
             if ($element['element_type'] == 'text') {
