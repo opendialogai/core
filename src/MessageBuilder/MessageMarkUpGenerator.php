@@ -3,27 +3,27 @@
 namespace OpenDialogAi\MessageBuilder;
 
 use OpenDialogAi\MessageBuilder\Message\AttributeMessage;
+use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
+use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
+use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
 use OpenDialogAi\MessageBuilder\Message\ButtonMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
+use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
+use OpenDialogAi\MessageBuilder\Message\Form\EmailElement;
+use OpenDialogAi\MessageBuilder\Message\Form\RadioElement;
+use OpenDialogAi\MessageBuilder\Message\Form\SelectElement;
+use OpenDialogAi\MessageBuilder\Message\Form\TextElement;
 use OpenDialogAi\MessageBuilder\Message\FormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageFormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageRichMessage;
 use OpenDialogAi\MessageBuilder\Message\HandToHumanMessage;
+use OpenDialogAi\MessageBuilder\Message\Image\Image;
 use OpenDialogAi\MessageBuilder\Message\ImageMessage;
 use OpenDialogAi\MessageBuilder\Message\ListMessage;
 use OpenDialogAi\MessageBuilder\Message\LongTextMessage;
 use OpenDialogAi\MessageBuilder\Message\RichMessage;
 use OpenDialogAi\MessageBuilder\Message\TextMessage;
 use OpenDialogAi\MessageBuilder\Message\TextMessageWithLink;
-use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
-use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
-use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
-use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
-use OpenDialogAi\MessageBuilder\Message\Form\EmailElement;
-use OpenDialogAi\MessageBuilder\Message\Form\RadioElement;
-use OpenDialogAi\MessageBuilder\Message\Form\SelectElement;
-use OpenDialogAi\MessageBuilder\Message\Form\TextElement;
-use OpenDialogAi\MessageBuilder\Message\Image\Image;
 
 class MessageMarkUpGenerator
 {
@@ -125,11 +125,14 @@ class MessageMarkUpGenerator
      * @param $callback
      * @param $autoSubmit
      * @param $elements
+     * @param $cancelText
+     * @param $cancelCallback
      * @return MessageMarkUpGenerator
      */
-    public function addFormMessage($text, $submitText, $callback, $autoSubmit, $elements)
+    // phpcs:ignore
+    public function addFormMessage($text, $submitText, $callback, $autoSubmit, $elements, $cancelText = null, $cancelCallback = null)
     {
-        $formMessage = new FormMessage($text, $submitText, $callback, $autoSubmit);
+        $formMessage = new FormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
         foreach ($elements as $element) {
             if ($element['element_type'] == 'text') {
                 $formMessage->addElement(new TextElement($element['name'], $element['display'], $element['required']));
@@ -156,11 +159,14 @@ class MessageMarkUpGenerator
      * @param $callback
      * @param $autoSubmit
      * @param $elements
+     * @param null $cancelText
+     * @param null $cancelCallback
      * @return MessageMarkUpGenerator
      */
-    public function addFullPageFormMessage($text, $submitText, $callback, $autoSubmit, $elements)
+    // phpcs:ignore
+    public function addFullPageFormMessage($text, $submitText, $callback, $autoSubmit, $elements, $cancelText = null, $cancelCallback = null)
     {
-        $formMessage = new FullPageFormMessage($text, $submitText, $callback, $autoSubmit);
+        $formMessage = new FullPageFormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
         foreach ($elements as $element) {
             if ($element['element_type'] == 'text') {
                 $formMessage->addElement(new TextElement($element['name'], $element['display'], $element['required']));
@@ -170,6 +176,10 @@ class MessageMarkUpGenerator
                 $formMessage->addElement(
                     new AutoCompleteSelectElement($element['name'], $element['display'], $element['options'])
                 );
+            } elseif ($element['element_type'] == 'radio') {
+                $formMessage->addElement(new RadioElement($element['name'], $element['display'], $element['options']));
+            } elseif ($element['element_type'] == 'email') {
+                $formMessage->addElement(new EmailElement($element['name'], $element['display'], $element['required']));
             }
         }
 

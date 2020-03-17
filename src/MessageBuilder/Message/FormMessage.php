@@ -18,6 +18,8 @@ class FormMessage extends BaseFormMessage
     <submit_text>$this->submitText</submit_text>
     <callback>$this->callback</callback>
     <auto_submit>$this->autoSubmit</auto_submit>
+    <cancel_text>$this->cancelText</cancel_text>
+    <cancel_callback>$this->cancelCallback</cancel_callback>
     $elementMarkup
 </form-message>
 EOT;

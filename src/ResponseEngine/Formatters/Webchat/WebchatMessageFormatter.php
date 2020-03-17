@@ -33,12 +33,13 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatCtaMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageRichMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
@@ -167,6 +168,11 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $template = $this->formatHandToHumanTemplate($item);
                 return $this->generateHandToHumanMessage($template);
                 break;
+            case self::CTA_MESSAGE:
+                $text = $this->getMessageText($item);
+                $template = [self::TEXT => $text];
+                return $this->generateCtaMessage($template);
+                break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
                 break;
@@ -232,6 +238,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $message->setSubmitText($template[self::SUBMIT_TEXT]);
         }
 
+        if ($template[self::CANCEL_TEXT]) {
+            $message->setCancelText($template[self::CANCEL_TEXT]);
+        }
+
+        if ($template[self::CANCEL_CALLBACK]) {
+            $message->setCancelCallback($template[self::CANCEL_CALLBACK]);
+        }
+
         foreach ($template[self::ELEMENTS] as $el) {
             $name = $el[self::NAME];
             $display = $el[self::DISPLAY];
@@ -274,6 +288,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         if ($template[self::SUBMIT_TEXT]) {
             $message->setSubmitText($template[self::SUBMIT_TEXT]);
+        }
+
+        if ($template[self::CANCEL_TEXT]) {
+            $message->setCancelText($template[self::CANCEL_TEXT]);
+        }
+
+        if ($template[self::CANCEL_CALLBACK]) {
+            $message->setCancelCallback($template[self::CANCEL_CALLBACK]);
         }
 
         foreach ($template[self::ELEMENTS] as $el) {
@@ -684,43 +706,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     private function formatFullPageRichTemplate(SimpleXMLElement $item): array
     {
-        $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
-
-        $template = [
-            self::TITLE => trim((string)$item->title),
-            self::SUBTITLE => trim((string)$item->subtitle),
-            self::TEXT => trim((string)$item->text),
-            self::IMAGE => [
-                self::SRC => trim((string)$item->image->src),
-                self::URL => trim((string)$item->image->url),
-                self::LINK_NEW_TAB => $linkNewTab,
-            ],
-        ];
-
-        foreach ($item->button as $button) {
-            if (isset($button->tab_switch)) {
-                $template[self::BUTTONS][] = [
-                    self::TEXT => trim((string)$button->text),
-                    self::TAB_SWITCH => true,
-                ];
-            } elseif (isset($button->link)) {
-                $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
-
-                $template[self::BUTTONS][] = [
-                    self::TEXT => trim((string)$button->text),
-                    self::LINK => trim((string)$button->link),
-                    self::LINK_NEW_TAB => $buttonLinkNewTab,
-                ];
-            } else {
-                $template[self::BUTTONS][] = [
-                    self::TEXT => trim((string)$button->text),
-                    self::CALLBACK => trim((string)$button->callback),
-                    self::VALUE => trim((string)$button->value),
-                ];
-            }
-        }
-
-        return $template;
+        return $this->formatRichTemplate($item);
     }
 
     /**
@@ -779,50 +765,6 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $options = [];
 
                 foreach ($element->options->children() as $option) {
-                    $options[] = trim((string)$option);
-                }
-                $el[self::OPTIONS] = $options;
-            }
-
-            $elements[] = $el;
-        }
-
-        $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
-
-        $template = [
-            self::TEXT => trim((string)$item->text),
-            self::SUBMIT_TEXT => trim((string)$item->submit_text),
-            self::CALLBACK => trim((string)$item->callback),
-            self::AUTO_SUBMIT => $autoSubmit,
-            self::ELEMENTS => $elements,
-        ];
-        return $template;
-    }
-
-    /**
-     * Formats the XML item into the required template format
-     *
-     * @param SimpleXMLElement $item
-     * @return array
-     */
-    private function formatFullPageFormTemplate(SimpleXMLElement $item): array
-    {
-        $elements = [];
-
-        foreach ($item->element as $element) {
-            $required = ($element->required) ? true : false;
-
-            $el = [
-                self::ELEMENT_TYPE => trim((string)$element->element_type),
-                self::NAME => trim((string)$element->name),
-                self::DISPLAY => trim((string)$element->display),
-                self::REQUIRED => $required,
-            ];
-
-            if ($el[self::ELEMENT_TYPE] == self::SELECT || $el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
-                $options = [];
-
-                foreach ($element->options->children() as $option) {
                     $options[trim((string)$option->key)] = trim((string)$option->value);
                 }
                 $el[self::OPTIONS] = $options;
@@ -833,14 +775,26 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         $autoSubmit = $this->convertToBoolean((string)$item->auto_submit);
 
-        $template = [
+        return [
             self::TEXT => trim((string)$item->text),
             self::SUBMIT_TEXT => trim((string)$item->submit_text),
             self::CALLBACK => trim((string)$item->callback),
             self::AUTO_SUBMIT => $autoSubmit,
             self::ELEMENTS => $elements,
+            self::CANCEL_CALLBACK => trim((string)$item->cancel_callback ?? null),
+            self::CANCEL_TEXT => trim((string)$item->cancel_text ?? null),
         ];
-        return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatFullPageFormTemplate(SimpleXMLElement $item): array
+    {
+        return $this->formatFormTemplate($item);
     }
 
     /**
@@ -863,8 +817,17 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     }
 
     /**
+     * @param array $template
+     * @return OpenDialogMessage
+     */
+    public function generateCtaMessage(array $template): OpenDialogMessage
+    {
+        return (new WebchatCtaMessage())->setText($template[self::TEXT], [], true);
+    }
+
+    /**
      * @param string $value
-     * @param return bool
+     * @return bool
      */
     private function convertToBoolean(string $value): bool
     {

@@ -34,6 +34,7 @@ interface MessageFormatterInterface
     public const FULL_PAGE_RICH_MESSAGE = 'fp-rich-message';
     public const LONG_TEXT_MESSAGE      = 'long-text-message';
     public const EMPTY_MESSAGE          = 'empty-message';
+    public const CTA_MESSAGE            = 'cta-message';
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';
@@ -74,6 +75,8 @@ interface MessageFormatterInterface
     public const DISABLE_TEXT            = 'disable_text';
     public const HIDE_AVATAR             = 'hide_avatar';
     public const CLEAR_AFTER_INTERACTION = 'clear_after_interaction';
+    public const CANCEL_CALLBACK         = 'cancel_callback';
+    public const CANCEL_TEXT             = 'cancel_text';
 
     public function getMessages(string $markup): OpenDialogMessages;
 

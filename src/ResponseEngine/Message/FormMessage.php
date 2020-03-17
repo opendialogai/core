@@ -53,6 +53,26 @@ interface FormMessage extends OpenDialogMessage
     public function getAutoSubmit();
 
     /**
+     * @param $callback string
+     */
+    public function setCancelCallback($callback);
+
+    /**
+     * @return string
+     */
+    public function getCancelCallback();
+
+    /**
+     * @param $text string
+     */
+    public function setCancelText($text);
+
+    /**
+     * @return string
+     */
+    public function getCancelText();
+
+    /**
      * @return array
      */
     public function getElementsArray();
