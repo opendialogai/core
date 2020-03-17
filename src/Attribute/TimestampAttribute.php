@@ -32,7 +32,7 @@ class TimestampAttribute extends AbstractAttribute
      */
     public function setValue($value)
     {
-        $this->value = $value === null ? $value : filter_var($value, FILTER_VALIDATE_INT);
+        $this->value = ($value === null || $value === '') ? null : filter_var($value, FILTER_VALIDATE_INT);
     }
 
     /**
