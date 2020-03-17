@@ -129,6 +129,7 @@ class MessageMarkUpGenerator
      * @param $cancelCallback
      * @return MessageMarkUpGenerator
      */
+    // phpcs:ignore
     public function addFormMessage($text, $submitText, $callback, $autoSubmit, $elements, $cancelText = null, $cancelCallback = null)
     {
         $formMessage = new FormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
@@ -162,6 +163,7 @@ class MessageMarkUpGenerator
      * @param null $cancelCallback
      * @return MessageMarkUpGenerator
      */
+    // phpcs:ignore
     public function addFullPageFormMessage($text, $submitText, $callback, $autoSubmit, $elements, $cancelText = null, $cancelCallback = null)
     {
         $formMessage = new FullPageFormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
