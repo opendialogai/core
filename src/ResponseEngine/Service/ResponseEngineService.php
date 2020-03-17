@@ -64,6 +64,8 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             $markup = $this->fillAttributes($selectedMessageTemplate->message_markup);
 
             $messages = $formatter->getMessages($markup);
+
+            $this->setMessagesIntent($intentName, $messages);
         }
 
         return $messages;
@@ -312,5 +314,16 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             return $attributeValue;
         }
         return $replacement->toString();
+    }
+
+    /**
+     * @param $intentName
+     * @param $messages
+     */
+    private function setMessagesIntent($intentName, $messages)
+    {
+        foreach ($messages->getMessages() as $message) {
+            $message->setIntent($intentName);
+        }
     }
 }
