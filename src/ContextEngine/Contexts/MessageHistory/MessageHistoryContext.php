@@ -53,7 +53,7 @@ class MessageHistoryContext extends AbstractContext
             $messageHistory[] = sprintf('%s: %s<br/>', $author, $messageText);
         }
 
-        $messageHistory = implode("\n", $messageHistory);
+        $messageHistory = urlencode(implode("\n", $messageHistory));
 
         return new StringAttribute('all', $messageHistory);
     }
