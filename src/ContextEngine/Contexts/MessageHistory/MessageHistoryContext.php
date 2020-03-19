@@ -49,7 +49,12 @@ class MessageHistoryContext extends AbstractContext
                 $messageText = $message->data['text'];
             }
 
-            $messageHistory[] = sprintf('%s: %s - %s', $message->author, $messageText, $message->created_at);
+            $authorNames = [
+                'me' => 'User',
+                'them' => 'Bot'
+            ];
+            $author = $authorNames[$message->author];
+            $messageHistory[] = sprintf('%s: %s<br/>', $author, $messageText);
         }
 
         $messageHistory = implode("\n", $messageHistory);
