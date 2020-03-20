@@ -7,6 +7,9 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Utterances\FormResponseUtterance;
+use OpenDialogAi\Core\Utterances\TriggerUtterance;
+use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
 
 class MessageHistoryContext extends AbstractContext
 {
@@ -38,7 +41,7 @@ class MessageHistoryContext extends AbstractContext
         $userId = ContextService::getUserContext()->getUserId();
 
         $messages = Message::where('user_id', $userId)
-            ->orderBy('microtime', 'desc')
+            ->orderBy('microtime', 'asc')
             ->whereNotIn('type', ['chat_open'])
             ->get();
 
@@ -47,12 +50,19 @@ class MessageHistoryContext extends AbstractContext
 
             if ($messageText == '' && isset($message->data['text'])) {
                 $messageText = $message->data['text'];
+            } else if ($message->type == FormResponseUtterance::TYPE) {
+                $messageText = 'Form submitted.';
+            } else if ($message->type == TriggerUtterance::TYPE) {
+                $messageText = '(Trigger message)';
+            } else if ($message->type == HandToHumanMessage::TYPE) {
+                $messageText = '(User speaking to human)';
             }
 
-            $messageHistory[] = sprintf('%s: %s - %s', $message->author, $messageText, $message->created_at);
+            $author = $message->author == "them" ? "Bot" : "User";
+            $messageHistory[] = sprintf('%s: %s<br/>', $author, $messageText);
         }
 
-        $messageHistory = implode("\n", $messageHistory);
+        $messageHistory = urlencode(implode("\n", $messageHistory));
 
         return new StringAttribute('all', $messageHistory);
     }

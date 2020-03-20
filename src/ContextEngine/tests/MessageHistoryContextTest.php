@@ -2,10 +2,8 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
-use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
@@ -31,7 +29,7 @@ class MessageHistoryContextTest extends TestCase
 
         $messageHistoryAttribute = ContextService::getAttributeValue('all', 'message_history');
 
-        $this->assertStringContainsString('me: send message', $messageHistoryAttribute);
-        $this->assertStringContainsString('them: received message', $messageHistoryAttribute);
+        $this->assertStringContainsString(urlencode('User: send message'), $messageHistoryAttribute);
+        $this->assertStringContainsString(urlencode('Bot: received message'), $messageHistoryAttribute);
     }
 }
