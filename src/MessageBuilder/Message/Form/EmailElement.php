@@ -7,6 +7,7 @@ class EmailElement extends BaseElement
     public $name;
     public $display;
     public $required;
+    public $defaultValue;
 
     /**
      * EmailElement constructor.
@@ -14,11 +15,12 @@ class EmailElement extends BaseElement
      * @param $display
      * @param $required
      */
-    public function __construct($name, $display, $required)
+    public function __construct($name, $display, $required, $defaultValue = '')
     {
         $this->name = $name;
         $this->display = $display;
         $this->required = ($required) ? 'true' : 'false';
+        $this->defaultValue = $defaultValue;
     }
 
     public function getMarkUp()
@@ -29,6 +31,7 @@ class EmailElement extends BaseElement
     <name>$this->name</name>
     <display>$this->display</display>
     <required>$this->required</required>
+    <default_value>$this->defaultValue</default_value>
 </element>
 EOT;
     }

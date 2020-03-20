@@ -7,6 +7,7 @@ class RadioElement extends BaseElement
     public $name;
     public $display;
     public $options;
+    public $defaultValue;
 
     /**
      * RadioElement constructor.
@@ -14,11 +15,12 @@ class RadioElement extends BaseElement
      * @param $display
      * @param $options
      */
-    public function __construct($name, $display, $options)
+    public function __construct($name, $display, $options, $defaultValue = '')
     {
         $this->name = $name;
         $this->display = $display;
         $this->options = $options;
+        $this->defaultValue = $defaultValue;
     }
 
     public function getMarkUp()
@@ -36,6 +38,7 @@ class RadioElement extends BaseElement
     <name>$this->name</name>
     <display>$this->display</display>
     <options>$optionsMarkUp</options>
+    <default_value>$this->defaultValue</default_value>
 </element>
 EOT;
     }

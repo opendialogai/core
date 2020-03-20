@@ -83,10 +83,10 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     public function testWebChatFormMessage()
     {
         $message = new WebchatFormMessage();
-        $element1 = new FormTextElement('name', 'Enter your Name', true);
-        $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
-        $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself');
-        $element4 = new FormRadioElement('gender', 'Gender', true, ['Male', 'Female']);
+        $element1 = new FormTextElement('name', 'Enter your Name', true, 'value');
+        $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes'], 'yes');
+        $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself', false, 'value');
+        $element4 = new FormRadioElement('gender', 'Gender', true, ['Male', 'Female'], 'Male');
         $message->setDisableText(false);
         $message->addElement($element1);
         $message->addElement($element2);
@@ -99,6 +99,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'display' => 'Enter your Name',
                 'required' => true,
                 'element_type' => 'text',
+                'default_value' => 'value',
             ],
             [
                 'name' => 'question',
@@ -109,12 +110,14 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                     0 => 'yes',
                     1 => 'very yes',
                 ],
+                'default_value' => 'yes',
             ],
             [
                 'name' => 'tell_more',
                 'display' => 'Tell me more about yourself',
                 'required' => false,
                 'element_type' => 'textarea',
+                'default_value' => 'value',
             ],
             [
                 'name' => 'gender',
@@ -125,6 +128,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                     'Male',
                     'Female',
                 ],
+                'default_value' => 'Male',
             ],
         ];
 
@@ -135,9 +139,9 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     public function testWebChatFullPageFormMessage()
     {
         $message = new WebchatFullPageFormMessage();
-        $element1 = new FormTextElement('name', 'Enter your Name', true);
-        $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes']);
-        $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself');
+        $element1 = new FormTextElement('name', 'Enter your Name', true, 'value');
+        $element2 = new FormSelectElement('question', 'Do you love OpenDialog?', true, ['yes', 'very yes'], 'yes');
+        $element3 = new FormTextAreaElement('tell_more', 'Tell me more about yourself', false, 'value');
         $message->setDisableText(false);
         $message->addElement($element1);
         $message->addElement($element2);
@@ -149,6 +153,7 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'display' => 'Enter your Name',
                 'required' => true,
                 'element_type' => 'text',
+                'default_value' => 'value',
             ],
             [
                 'name' => 'question',
@@ -159,12 +164,14 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                     0 => 'yes',
                     1 => 'very yes',
                 ],
+                'default_value' => 'yes',
             ],
             [
                 'name' => 'tell_more',
                 'display' => 'Tell me more about yourself',
                 'required' => false,
                 'element_type' => 'textarea',
+                'default_value' => 'value',
             ],
         ];
 

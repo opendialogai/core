@@ -71,6 +71,7 @@ interface MessageFormatterInterface
     public const DISPLAY                 = 'display';
     public const REQUIRED                = 'required';
     public const OPTIONS                 = 'options';
+    public const DEFAULT_VALUE           = 'default_value';
     public const VIEW_TYPE               = 'view_type';
     public const DISABLE_TEXT            = 'disable_text';
     public const HIDE_AVATAR             = 'hide_avatar';
