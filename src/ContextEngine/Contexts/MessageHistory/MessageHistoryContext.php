@@ -53,9 +53,9 @@ class MessageHistoryContext extends AbstractContext
             } else if ($message->type == FormResponseUtterance::TYPE) {
                 $messageText = 'Form submitted.';
             } else if ($message->type == TriggerUtterance::TYPE) {
-                $messageText = '[Trigger message]';
+                $messageText = sprintf('Trigger message (%s)', $message->getCallbackId());
             } else if ($message->type == HandToHumanMessage::TYPE) {
-                $messageText = '[User speaking to human]';
+                $messageText = '(User speaking to human)';
             }
 
             $author = $message->author == "them" ? "Bot" : "User";
