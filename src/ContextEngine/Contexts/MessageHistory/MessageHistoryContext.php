@@ -38,7 +38,7 @@ class MessageHistoryContext extends AbstractContext
         $userId = ContextService::getUserContext()->getUserId();
 
         $messages = Message::where('user_id', $userId)
-            ->orderBy('microtime', 'desc')
+            ->orderBy('microtime', 'asc')
             ->whereNotIn('type', ['chat_open'])
             ->get();
 
@@ -47,6 +47,8 @@ class MessageHistoryContext extends AbstractContext
 
             if ($messageText == '' && isset($message->data['text'])) {
                 $messageText = $message->data['text'];
+            } else if ($message->type == 'form_response') {
+                $messageText = 'Form submitted.';
             }
 
             $author = $message->author == "them" ? "Bot" : "User";
