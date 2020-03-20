@@ -134,18 +134,28 @@ class MessageMarkUpGenerator
     {
         $formMessage = new FormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
         foreach ($elements as $element) {
+            $defaultValue = (isset($element['default_value'])) ? $element['default_value'] : '';
+
             if ($element['element_type'] == 'text') {
-                $formMessage->addElement(new TextElement($element['name'], $element['display'], $element['required']));
+                $formMessage->addElement(
+                    new TextElement($element['name'], $element['display'], $element['required'], $defaultValue)
+                );
             } elseif ($element['element_type'] == 'select') {
-                $formMessage->addElement(new SelectElement($element['name'], $element['display'], $element['options']));
+                $formMessage->addElement(
+                    new SelectElement($element['name'], $element['display'], $element['options'], $defaultValue)
+                );
             } elseif ($element['element_type'] == 'auto_complete_select') {
                 $formMessage->addElement(
-                    new AutoCompleteSelectElement($element['name'], $element['display'], $element['options'])
+                    new AutoCompleteSelectElement($element['name'], $element['display'], $element['options'], $defaultValue)
                 );
             } elseif ($element['element_type'] == 'radio') {
-                $formMessage->addElement(new RadioElement($element['name'], $element['display'], $element['options']));
+                $formMessage->addElement(
+                    new RadioElement($element['name'], $element['display'], $element['options'], $defaultValue)
+                );
             } elseif ($element['element_type'] == 'email') {
-                $formMessage->addElement(new EmailElement($element['name'], $element['display'], $element['required']));
+                $formMessage->addElement(
+                    new EmailElement($element['name'], $element['display'], $element['required'], $defaultValue)
+                );
             }
         }
 

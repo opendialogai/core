@@ -727,6 +727,7 @@ EOT;
                 'name' => 'first_name',
                 'display' => 'First name',
                 'required' => false,
+                'default_value' => 'value',
             ],
             [
                 'element_type' => 'text',
@@ -744,6 +745,7 @@ EOT;
                 'element_type' => 'select',
                 'name' => 'age',
                 'display' => 'Age',
+                'default_value' => '10',
                 'options' => [
                     [
                         'key' => '1',
@@ -814,6 +816,7 @@ EOT;
                     'display' => 'First name',
                     'required' => true,
                     'element_type' => 'text',
+                    'default_value' => 'value',
                 ],
                 [
                     'name' => 'last_name',
@@ -837,6 +840,7 @@ EOT;
                         '10' => '10 year',
                         '20' => '20 year',
                     ],
+                    'default_value' => '10',
                 ],
                 [
                     'name' => 'gender',

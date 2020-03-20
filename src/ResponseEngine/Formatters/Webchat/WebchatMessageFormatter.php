@@ -250,24 +250,25 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $name = $el[self::NAME];
             $display = $el[self::DISPLAY];
             $required = $el[self::REQUIRED];
+            $defaultValue = $el[self::DEFAULT_VALUE];
 
             if ($el[self::ELEMENT_TYPE] == self::TEXTAREA) {
-                $element = new FormTextAreaElement($name, $display, $required);
+                $element = new FormTextAreaElement($name, $display, $required, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
-                $element = new FormTextElement($name, $display, $required);
+                $element = new FormTextElement($name, $display, $required, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
-                $element = new FormNumberElement($name, $display, $required);
+                $element = new FormNumberElement($name, $display, $required, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new FormSelectElement($name, $display, $required, $options);
+                $element = new FormSelectElement($name, $display, $required, $options, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options);
+                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::RADIO) {
                 $options = $el[self::OPTIONS];
-                $element = new FormRadioElement($name, $display, $required, $options);
+                $element = new FormRadioElement($name, $display, $required, $options, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::EMAIL) {
-                $element = new FormEmailElement($name, $display, $required);
+                $element = new FormEmailElement($name, $display, $required, $defaultValue);
             }
             $message->addElement($element);
         }
@@ -302,24 +303,25 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $name = $el[self::NAME];
             $display = $el[self::DISPLAY];
             $required = $el[self::REQUIRED];
+            $defaultValue = $el[self::DEFAULT_VALUE];
 
             if ($el[self::ELEMENT_TYPE] == self::TEXTAREA) {
-                $element = new FormTextAreaElement($name, $display, $required);
+                $element = new FormTextAreaElement($name, $display, $required, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
-                $element = new FormTextElement($name, $display, $required);
+                $element = new FormTextElement($name, $display, $required, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
-                $element = new FormNumberElement($name, $display, $required);
+                $element = new FormNumberElement($name, $display, $required, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new FormSelectElement($name, $display, $required, $options);
+                $element = new FormSelectElement($name, $display, $required, $options, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options);
+                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::RADIO) {
                 $options = $el[self::OPTIONS];
-                $element = new FormRadioElement($name, $display, $required, $options);
+                $element = new FormRadioElement($name, $display, $required, $options, $defaultValue);
             } elseif ($el[self::ELEMENT_TYPE] == self::EMAIL) {
-                $element = new FormEmailElement($name, $display, $required);
+                $element = new FormEmailElement($name, $display, $required, $defaultValue);
             }
             $message->addElement($element);
         }
@@ -749,6 +751,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 self::ELEMENT_TYPE => trim((string)$element->element_type),
                 self::NAME => trim((string)$element->name),
                 self::DISPLAY => trim((string)$element->display),
+                self::DEFAULT_VALUE => trim((string)$element->default_value),
                 self::REQUIRED => $required,
             ];
 

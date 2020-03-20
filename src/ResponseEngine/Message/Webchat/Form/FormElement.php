@@ -4,23 +4,26 @@ namespace OpenDialogAi\ResponseEngine\Message\Webchat\Form;
 
 abstract class FormElement
 {
-    private $name = null;
+    protected $name = null;
 
     /** @var string The display name of the form element */
-    private $display = null;
+    protected $display = null;
 
-    private $required = false;
+    protected $required = false;
+
+    protected $defaultValue = '';
 
     /**
      * @param $name
      * @param $display
      * @param $required
      */
-    public function __construct($name, $display, $required = false)
+    public function __construct($name, $display, $required = false, $defaultValue = '')
     {
         $this->name = $name;
         $this->display = $display;
         $this->required = $required;
+        $this->defaultValue = $defaultValue;
     }
 
     /**
@@ -54,6 +57,16 @@ abstract class FormElement
     }
 
     /**
+     * @param $defaultValue
+     * @return $this
+     */
+    public function setDefaultValue($defaultValue)
+    {
+        $this->defaultValue = $defaultValue;
+        return $this;
+    }
+
+    /**
      * @return null|string
      */
     public function getName()
@@ -78,14 +91,28 @@ abstract class FormElement
     }
 
     /**
+     * @return string
+     */
+    public function getDefaultValue()
+    {
+        return $this->defaultValue;
+    }
+
+    /**
      * @return array
      */
     public function getData()
     {
-        return [
+        $data = [
             'name' => $this->getName(),
             'display' => $this->getDisplay(),
             'required' => $this->getRequired()
         ];
+
+        if ($defaultValue = $this->getDefaultValue()) {
+            $data['default_value'] = $defaultValue;
+        }
+
+        return $data;
     }
 }

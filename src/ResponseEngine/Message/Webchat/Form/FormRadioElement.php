@@ -14,12 +14,14 @@ class FormRadioElement extends FormElement
      * @param $display
      * @param $required
      * @param $options
+     * @param $defaultValue
      */
-    public function __construct($name, $display, $required = false, $options = [])
+    public function __construct($name, $display, $required = false, $options = [], $defaultValue = '')
     {
         parent::__construct($name, $display, $required);
 
         $this->options = $options;
+        $this->defaultValue = $defaultValue;
     }
 
     /**
