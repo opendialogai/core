@@ -529,10 +529,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     protected function generateLinkHtml($url, $text, $openNewTab)
     {
         if ($openNewTab) {
-            return '<a target="_blank" href="' . $url . '">' . $text . '</a>';
+            return '<a class="linkified" target="_blank" href="' . $url . '">' . $text . '</a>';
         }
 
-        return '<a target="_parent" href="' . $url . '">' . $text . '</a>';
+        return '<a class="linkified" target="_parent" href="' . $url . '">' . $text . '</a>';
     }
 
     /**
