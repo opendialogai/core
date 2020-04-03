@@ -248,6 +248,9 @@ class ResponseEngineTest extends TestCase
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\OpenDialogMessage', $messageWrapper->getMessages()[0]);
     }
 
+    /**
+     * @requires  DGRAPH
+     */
     public function testWebChatHandToHumanMessage()
     {
         OutgoingIntent::create(['name' => 'Hello']);
@@ -608,7 +611,7 @@ class ResponseEngineTest extends TestCase
 
         $this->assertEquals(
             $messageWrapper->getMessages()[0]->getText(),
-            'This is an example <a target="_blank" href="http://www.example.com">This is a link</a>'
+            'This is an example <a class="linkified" target="_blank" href="http://www.example.com">This is a link</a>'
         );
     }
 
