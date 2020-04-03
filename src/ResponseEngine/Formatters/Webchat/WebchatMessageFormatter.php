@@ -352,10 +352,13 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message = (new WebchatRichMessage())
             ->setTitle($template[self::TITLE])
             ->setSubTitle($template[self::SUBTITLE])
-            ->setText($template[self::TEXT])
-            ->setImageSrc($template[self::IMAGE][self::SRC])
-            ->setImageLink($template[self::IMAGE][self::URL])
-            ->setImageLinkNewTab($template[self::IMAGE][self::LINK_NEW_TAB]);
+            ->setText($template[self::TEXT]);
+
+        if (isset($template[self::IMAGE])) {
+            $message->setImageSrc($template[self::IMAGE][self::SRC]);
+            $message->setImageLink($template[self::IMAGE][self::URL]);
+            $message->setImageLinkNewTab($template[self::IMAGE][self::LINK_NEW_TAB]);
+        }
 
         if (isset($template[self::BUTTONS])) {
             foreach ($template[self::BUTTONS] as $button) {
@@ -384,10 +387,13 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message = (new WebchatFullPageRichMessage())
             ->setTitle($template[self::TITLE])
             ->setSubTitle($template[self::SUBTITLE])
-            ->setText($template[self::TEXT])
-            ->setImageSrc($template[self::IMAGE][self::SRC])
-            ->setImageLink($template[self::IMAGE][self::URL])
-            ->setImageLinkNewTab($template[self::IMAGE][self::LINK_NEW_TAB]);
+            ->setText($template[self::TEXT]);
+
+        if (isset($template[self::IMAGE])) {
+            $message->setImageSrc($template[self::IMAGE][self::SRC]);
+            $message->setImageLink($template[self::IMAGE][self::URL]);
+            $message->setImageLinkNewTab($template[self::IMAGE][self::LINK_NEW_TAB]);
+        }
 
         if (isset($template[self::BUTTONS])) {
             foreach ($template[self::BUTTONS] as $button) {
@@ -667,18 +673,21 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     private function formatRichTemplate(SimpleXMLElement $item): array
     {
-        $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
-
         $template = [
             self::TITLE => trim((string)$item->title),
             self::SUBTITLE => trim((string)$item->subtitle),
             self::TEXT => trim((string)$item->text),
-            self::IMAGE => [
+        ];
+
+        if ($item->image->count()) {
+            $linkNewTab = $this->convertToBoolean((string)$item->image->url['new_tab']);
+
+            $template[self::IMAGE] = [
                 self::SRC => trim((string)$item->image->src),
                 self::URL => trim((string)$item->image->url),
                 self::LINK_NEW_TAB => $linkNewTab,
-            ],
-        ];
+            ];
+        }
 
         foreach ($item->button as $button) {
             if (isset($button->tab_switch)) {
