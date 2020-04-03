@@ -248,6 +248,9 @@ class ResponseEngineTest extends TestCase
         $this->assertInstanceOf('OpenDialogAi\ResponseEngine\Message\OpenDialogMessage', $messageWrapper->getMessages()[0]);
     }
 
+    /**
+     * @requires  DGRAPH
+     */
     public function testWebChatHandToHumanMessage()
     {
         OutgoingIntent::create(['name' => 'Hello']);
