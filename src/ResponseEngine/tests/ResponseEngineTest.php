@@ -376,6 +376,48 @@ class ResponseEngineTest extends TestCase
         );
     }
 
+    public function testWebChatButtonMessageWithTranscriptDownloadButton()
+    {
+        OutgoingIntent::create(['name' => 'Hello']);
+        $intent = OutgoingIntent::where('name', 'Hello')->first();
+
+        $generator = new MessageMarkUpGenerator();
+        $buttons = [
+            [
+                'text' => 'Button Text',
+                'download' => true
+            ]
+        ];
+        $generator->addButtonMessage('test button', $buttons);
+
+        $attributes = ['username' => 'user.name'];
+        $parameters = ['value' => 'dummy'];
+
+        $conditions = new ConditionsYamlGenerator();
+        $conditions->addCondition($attributes, $parameters, 'eq');
+
+        MessageTemplate::create([
+            'name' => 'Friendly Hello',
+            'outgoing_intent_id' => $intent->id,
+            'conditions' => $conditions->getYaml(),
+            'message_markup' => $generator->getMarkUp(),
+        ]);
+
+        // Setup a context to have something to compare against
+        /* @var ContextService $contextService */
+        $userContext = $this->createUserContext();
+        $userContext->addAttribute(new StringAttribute('name', 'dummy'));
+
+        $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
+        $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
+
+        // phpcs:ignore
+        $this->assertInstanceOf(
+            WebchatButtonMessage::class,
+            $messageWrapper->getMessages()[0]
+        );
+    }
+
     public function testWebChatButtonMessageWithTabSwitchButton()
     {
         OutgoingIntent::create(['name' => 'Hello']);

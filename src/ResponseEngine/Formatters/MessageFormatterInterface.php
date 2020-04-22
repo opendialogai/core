@@ -60,6 +60,7 @@ interface MessageFormatterInterface
     public const LINK_NEW_TAB            = 'link_new_tab';
     public const CLICK_TO_CALL           = 'click_to_call';
     public const TAB_SWITCH              = 'tab_switch';
+    public const DOWNLOAD                = 'download';
     public const EXTERNAL                = 'external';
     public const PLACEHOLDER             = 'placeholder';
     public const INITIAL_TEXT            = 'initial_text';
