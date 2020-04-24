@@ -49,7 +49,7 @@ class RequestLoggerMiddleware
 
         $userId = LoggingHelper::getUserIdFromRequest();
 
-        if (env('API_LOG_TO_DB', true)) {
+        if (env('API_LOG_TO_DB', false)) {
             RequestLog::create([
                 'user_id' => ($userId) ? $userId : '',
                 'url' => $request->url(),
@@ -72,7 +72,7 @@ class RequestLoggerMiddleware
             ])->save();
         }
 
-        if (env('API_LOG_TO_FILE', false)) {
+        if (env('API_LOG_TO_FILE', true)) {
             Log::info(
                 sprintf(
                     'Request (User: %s, IP address: %s, Request time: %s, Raw request: %s)',
