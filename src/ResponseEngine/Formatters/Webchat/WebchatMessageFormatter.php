@@ -25,6 +25,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\CallbackButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\ClickToCallButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TabSwitchButton;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TranscriptDownloadButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormAutoCompleteSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormEmailElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormNumberElement;
@@ -193,7 +194,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message->setText($template[self::TEXT], [], true);
         $message->setExternal($template[self::EXTERNAL]);
         foreach ($template[self::BUTTONS] as $button) {
-            if (isset($button[self::TAB_SWITCH])) {
+            if (isset($button[self::DOWNLOAD])) {
+                $message->addButton(new TranscriptDownloadButton($button[self::TEXT]));
+            } elseif (isset($button[self::TAB_SWITCH])) {
                 $message->addButton(new TabSwitchButton($button[self::TEXT]));
             } elseif (isset($button[self::LINK])) {
                 $message->addButton(new LinkButton(
@@ -362,7 +365,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         if (isset($template[self::BUTTONS])) {
             foreach ($template[self::BUTTONS] as $button) {
-                if (isset($button[self::TAB_SWITCH])) {
+                if (isset($button[self::DOWNLOAD])) {
+                    $message->addButton(new TranscriptDownloadButton($button[self::TEXT]));
+                } elseif (isset($button[self::TAB_SWITCH])) {
                     $message->addButton(new TabSwitchButton($button[self::TEXT]));
                 } elseif (isset($button[self::LINK])) {
                     $linkNewTab = $button[self::LINK_NEW_TAB];
@@ -397,7 +402,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         if (isset($template[self::BUTTONS])) {
             foreach ($template[self::BUTTONS] as $button) {
-                if (isset($button[self::TAB_SWITCH])) {
+                if (isset($button[self::DOWNLOAD])) {
+                    $message->addButton(new TranscriptDownloadButton($button[self::TEXT]));
+                } elseif (isset($button[self::TAB_SWITCH])) {
                     $message->addButton(new TabSwitchButton($button[self::TEXT]));
                 } elseif (isset($button[self::LINK])) {
                     $linkNewTab = $button[self::LINK_NEW_TAB];
@@ -568,7 +575,12 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         ];
 
         foreach ($item->button as $button) {
-            if (isset($button->tab_switch)) {
+            if (isset($button->download)) {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::DOWNLOAD => true,
+                ];
+            } elseif (isset($button->tab_switch)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,
@@ -690,7 +702,12 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         }
 
         foreach ($item->button as $button) {
-            if (isset($button->tab_switch)) {
+            if (isset($button->download)) {
+                $template[self::BUTTONS][] = [
+                    self::TEXT => trim((string)$button->text),
+                    self::DOWNLOAD => true,
+                ];
+            } elseif (isset($button->tab_switch)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,

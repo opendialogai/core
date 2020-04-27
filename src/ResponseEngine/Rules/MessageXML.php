@@ -68,10 +68,11 @@ class MessageXML extends BaseRule
                             $buttonText = preg_replace('/<text[^>]*>/', '', $buttonXml);
                             $buttonText = trim(preg_replace('/<\/text>/', '', $buttonText));
 
-                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
-                                && empty((string)$button->link) && empty((string)$button->click_to_call)) {
+                            if (empty((string)$button->callback) && empty((string)$button->download)
+                                && empty((string)$button->tab_switch) && empty((string)$button->link)
+                                && empty((string)$button->click_to_call)) {
                                 // @codingStandardsIgnoreLine
-                                $this->setErrorMessage('All buttons must have with a "callback", "link", "tab_switch" or "click_to_call" set');
+                                $this->setErrorMessage('All buttons must have with a "callback", "download", "link", "tab_switch" or "click_to_call" set');
                                 return false;
                             }
                             if (empty($buttonText)) {
@@ -106,9 +107,11 @@ class MessageXML extends BaseRule
                                 $this->setErrorMessage('Rich message buttons must have "text"');
                                 return false;
                             }
-                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
-                                && empty((string)$button->link)) {
-                                $this->setErrorMessage('All buttons must have with a "callback", "link" or "tab_switch" set');
+                            if (empty((string)$button->callback) && empty((string)$button->download)
+                                && empty((string)$button->tab_switch) && empty((string)$button->link)) {
+                                $this->setErrorMessage(
+                                    'All buttons must have with a "callback", "download", "link" or "tab_switch" set'
+                                );
                                 return false;
                             }
                         }
@@ -134,9 +137,11 @@ class MessageXML extends BaseRule
                                 $this->setErrorMessage('Full page rich message buttons must have "text"');
                                 return false;
                             }
-                            if (empty((string)$button->callback) && empty((string)$button->tab_switch)
-                                && empty((string)$button->link)) {
-                                $this->setErrorMessage('All buttons must have with a "callback", "link" or "tab_switch" set');
+                            if (empty((string)$button->callback) && empty((string)$button->download)
+                                && empty((string)$button->tab_switch) && empty((string)$button->link)) {
+                                $this->setErrorMessage(
+                                    'All buttons must have with a "callback", "download", "link" or "tab_switch" set'
+                                );
                                 return false;
                             }
                         }

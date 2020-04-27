@@ -95,8 +95,7 @@ EOT;
 
         $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup)->getMessages();
-        // phpcs:ignore
-        $this->assertEquals( 'hi there <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 1</a> <a class="linkified" target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
+        $this->assertEquals('hi there <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 1</a> <a class="linkified" target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
 
     public function testHandToHumanMessage()
@@ -340,23 +339,27 @@ EOT;
         $buttons = [
             [
                 'text' => 'Test 1',
-                'tab_switch' => true
+                'tab_switch' => true,
             ],
             [
                 'text' => 'Test 2',
                 'callback' => 'callback',
-                'value' => 'value'
+                'value' => 'value',
             ],
             [
                 'text' => 'Test 3',
                 'link' => 'https://www.opendialog.ai',
-                'link_new_tab' => false
+                'link_new_tab' => false,
             ],
             [
                 'text' => 'Test 4',
                 'link' => 'https://www.opendialog.ai',
-                'link_new_tab' => true
-            ]
+                'link_new_tab' => true,
+            ],
+            [
+                'text' => 'Test 5',
+                'download' => true,
+            ],
         ];
 
         $image = [
@@ -399,6 +402,10 @@ EOT;
                     'text' => 'Test 4',
                     'link' => 'https://www.opendialog.ai',
                     'link_new_tab' => true,
+                ],
+                [
+                    'text' => 'Test 5',
+                    'download' => true,
                 ],
             ],
             'image' => [
@@ -490,23 +497,27 @@ EOT;
         $buttons = [
             [
                 'text' => 'Test 1',
-                'tab_switch' => true
+                'tab_switch' => true,
             ],
             [
                 'text' => 'Test 2',
                 'callback' => 'callback',
-                'value' => 'value'
+                'value' => 'value',
             ],
             [
                 'text' => 'Test 3',
                 'link' => 'https://www.opendialog.ai',
-                'link_new_tab' => false
+                'link_new_tab' => false,
             ],
             [
                 'text' => 'Test 4',
                 'link' => 'https://www.opendialog.ai',
-                'link_new_tab' => true
-            ]
+                'link_new_tab' => true,
+            ],
+            [
+                'text' => 'Test 5',
+                'download' => true,
+            ],
         ];
 
         $image = [
@@ -549,6 +560,10 @@ EOT;
                     'text' => 'Test 4',
                     'link' => 'https://www.opendialog.ai',
                     'link_new_tab' => true,
+                ],
+                [
+                    'text' => 'Test 5',
+                    'download' => true,
                 ],
             ],
             'image' => [

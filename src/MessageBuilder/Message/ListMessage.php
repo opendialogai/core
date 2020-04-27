@@ -5,6 +5,7 @@ namespace OpenDialogAi\MessageBuilder\Message;
 use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
 use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
+use OpenDialogAi\MessageBuilder\Message\Button\TranscriptDownloadButton;
 
 class ListMessage
 {
@@ -26,7 +27,11 @@ class ListMessage
         if ($type == 'button') {
             $buttonMessage = new ButtonMessage($message['text'], $message['external']);
             foreach ($message['buttons'] as $button) {
-                if (isset($button['tab_switch'])) {
+                if (isset($button['download'])) {
+                    $buttonMessage->addButton(
+                        (new TranscriptDownloadButton($button['text']))
+                    );
+                } elseif (isset($button['tab_switch'])) {
                     $buttonMessage->addButton(
                         (new TabSwitchButton($button['text']))
                     );

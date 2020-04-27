@@ -6,6 +6,7 @@ use OpenDialogAi\MessageBuilder\Message\AttributeMessage;
 use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
 use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
+use OpenDialogAi\MessageBuilder\Message\Button\TranscriptDownloadButton;
 use OpenDialogAi\MessageBuilder\Message\ButtonMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
@@ -83,7 +84,11 @@ class MessageMarkUpGenerator
     {
         $buttonMessage = new ButtonMessage($text, $external);
         foreach ($buttons as $button) {
-            if (isset($button['tab_switch'])) {
+            if (isset($button['download'])) {
+                $buttonMessage->addButton(
+                    (new TranscriptDownloadButton($button['text']))
+                );
+            } elseif (isset($button['tab_switch'])) {
                 $buttonMessage->addButton(
                     (new TabSwitchButton($button['text']))
                 );
@@ -209,7 +214,11 @@ class MessageMarkUpGenerator
     {
         $richMessage = new RichMessage($title, $subtitle, $text, $buttons);
         foreach ($buttons as $button) {
-            if (isset($button['tab_switch'])) {
+            if (isset($button['download'])) {
+                $richMessage->addButton(
+                    (new TranscriptDownloadButton($button['text']))
+                );
+            } elseif (isset($button['tab_switch'])) {
                 $richMessage->addButton(
                     (new TabSwitchButton($button['text']))
                 );
@@ -243,7 +252,11 @@ class MessageMarkUpGenerator
     {
         $richMessage = new FullPageRichMessage($title, $subtitle, $text, $buttons);
         foreach ($buttons as $button) {
-            if (isset($button['tab_switch'])) {
+            if (isset($button['download'])) {
+                $richMessage->addButton(
+                    (new TranscriptDownloadButton($button['text']))
+                );
+            } elseif (isset($button['tab_switch'])) {
                 $richMessage->addButton(
                     (new TabSwitchButton($button['text']))
                 );
