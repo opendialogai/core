@@ -128,8 +128,8 @@ class MessageXML extends BaseRule
                             $this->setErrorMessage('Full page rich messages must have "text"');
                             return false;
                         }
-                        if ($item->button->count() > 3) {
-                            $this->setErrorMessage('Full page rich messages can only have up to 3 buttons');
+                        if ($item->button->count() > 4) {
+                            $this->setErrorMessage('Full page rich messages can only have up to 4 buttons');
                             return false;
                         }
                         foreach ($item->button as $button) {
