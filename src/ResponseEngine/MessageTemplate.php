@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -18,10 +19,13 @@ use Symfony\Component\Yaml\Yaml;
  * @property String $conditions
  * @property String $message_markup
  * @property OutgoingIntent $outgoing_intent
+ * @property array history
  * @method static Builder forIntent($intentName) Local scope for messages for intent name
  */
 class MessageTemplate extends Model
 {
+    use LogsActivity;
+
     const CONDITION = 'condition';
     const CONDITIONS = 'conditions';
     const ATTRIBUTES = 'attributes';
@@ -42,6 +46,24 @@ class MessageTemplate extends Model
         'outgoing_intent_id',
         'created_at',
         'updated_at',
+        'version_number',
+        'history',
+    ];
+
+    // Create activity logs when the conditions or message markup attribute is updated.
+    protected static $logAttributes = ['conditions', 'message_markup', 'version_number'];
+
+    protected static $logName = 'message_template_log';
+
+    protected static $submitEmptyLogs = false;
+
+    // Don't create activity logs when these model attributes are updated.
+    protected static $ignoreChangedAttributes = [
+        'updated_at',
+        'yaml_validation_status',
+        'yaml_schema_validation_status',
+        'scenes_validation_status',
+        'model_validation_status'
     ];
 
     /**
@@ -126,5 +148,42 @@ class MessageTemplate extends Model
         }
 
         return $conditions;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHistoryAttribute(): array
+    {
+        $history = MessageTemplateActivity::forSubjectOrdered($this->id)->get();
+
+        return $history->filter(function ($item) {
+            // Retain if it's the first activity record or if it's a record with the version has incremented
+            return isset($item['properties']['old'])
+                && isset($item['properties']['old']['version_number'])
+                && isset($item['properties']['attributes']['version_number'])
+                && $item['properties']['attributes']['version_number'] != $item['properties']['old']['version_number'];
+        })->values()->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'timestamp' => $item['updated_at'],
+                'attributes' => $item['properties']['attributes']
+            ];
+        })->toArray();
+    }
+
+    /**
+     * $id
+     * @return \OpenDialogAi\ResponseEngine\MessageTemplate
+     */
+    public static function messageTemplateWithHistory($id): MessageTemplate
+    {
+        /** @var MessageTemplate $messageTemplate */
+        $messageTemplate = self::find($id);
+        if (!is_null($messageTemplate)) {
+            $messageTemplate->setAppends(array_merge($messageTemplate->appends, ['history']));
+        }
+
+        return $messageTemplate;
     }
 }
