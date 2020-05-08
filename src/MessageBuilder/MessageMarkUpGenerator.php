@@ -326,13 +326,25 @@ class MessageMarkUpGenerator
         return $this;
     }
 
-    public function getMarkUp()
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    public function getMessagesMarkUp()
     {
         $markUp = '';
 
-        foreach ($this->messages as $message) {
+        foreach ($this->getMessages() as $message) {
             $markUp .= $message->getMarkUp();
         }
+
+        return $markUp;
+    }
+
+    public function getMarkUp()
+    {
+        $markUp = $this->getMessagesMarkUp();
 
         return "<message disable_text=\"{$this->disableText}\" hide_avatar=\"{$this->hideAvatar}\">{$markUp}</message>";
     }
