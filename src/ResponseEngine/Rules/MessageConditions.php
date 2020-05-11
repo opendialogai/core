@@ -34,11 +34,6 @@ class MessageConditions implements Rule
                     return false;
                 }
 
-                // Each condition must have at least an operation and an attribute.
-                if (count($condition['condition']) < 2) {
-                    return false;
-                }
-
                 // Each condition must have an operation.
                 if (!isset($condition['condition']['operation']) || empty($condition['condition']['operation'])) {
                     return false;
