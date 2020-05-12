@@ -10,6 +10,7 @@ class DummyOperation extends BaseOperation
 
     public function performOperation() : bool
     {
+        return true;
     }
 
     public static function getAllowedParameters(): array
