@@ -17,6 +17,7 @@
     "php": "^7.3.0",
     "symfony/yaml": "^4.3",
     "php-ds/php-ds": "~1.2.",
+    "google/cloud": "^0.132.0",
     "guzzlehttp/guzzle": "~6.3",
     "justinrainbow/json-schema": "^5.2",
     "spatie/laravel-activitylog": "^3.8",

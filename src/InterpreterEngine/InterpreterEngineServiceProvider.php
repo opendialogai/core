@@ -4,6 +4,7 @@ namespace OpenDialogAi\InterpreterEngine;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
+use OpenDialogAi\InterpreterEngine\Dialogflow\DialogflowClient;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
 use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
@@ -24,6 +25,11 @@ class InterpreterEngineServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-interpreterengine.php', 'opendialog.interpreter_engine');
+
+        $this->app->bind(DialogflowClient::class, function () {
+            $config = config('opendialog.interpreter_engine.dialogflow_config');
+            return new DialogflowClient($config);
+        });
 
         $this->app->bind(RasaClient::class, function () {
             $config = config('opendialog.interpreter_engine.rasa_config');

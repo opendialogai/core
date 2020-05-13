@@ -23,11 +23,17 @@ return [
         'app_url'      => env('RASA_APP_URL'),
     ],
 
+    'dialogflow_config' => [
+        'project_ids' => [],
+        'credentials' => [],
+    ],
+
     // Register the application interfaces
     'available_interpreters' => [
         OpenDialogAi\InterpreterEngine\Interpreters\RasaInterpreter::class,
         OpenDialogAi\InterpreterEngine\Interpreters\LuisInterpreter::class,
         OpenDialogAi\InterpreterEngine\Interpreters\QnAInterpreter::class,
+        OpenDialogAi\InterpreterEngine\Interpreters\DialogflowInterpreter::class,
         OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter::class
     ],
 
