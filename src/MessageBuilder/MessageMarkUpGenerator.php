@@ -84,21 +84,23 @@ class MessageMarkUpGenerator
     {
         $buttonMessage = new ButtonMessage($text, $external);
         foreach ($buttons as $button) {
+            $display = (isset($button['display'])) ? $button['display'] : true;
+
             if (isset($button['download'])) {
                 $buttonMessage->addButton(
-                    (new TranscriptDownloadButton($button['text']))
+                    (new TranscriptDownloadButton($button['text'], $display))
                 );
             } elseif (isset($button['tab_switch'])) {
                 $buttonMessage->addButton(
-                    (new TabSwitchButton($button['text']))
+                    (new TabSwitchButton($button['text'], $display))
                 );
             } elseif (isset($button['link'])) {
                 $buttonMessage->addButton(
-                    (new LinkButton($button['text'], $button['link'], $button['link_new_tab']))
+                    (new LinkButton($button['text'], $button['link'], $button['link_new_tab'], $display))
                 );
             } else {
                 $buttonMessage->addButton(
-                    (new CallbackButton($button['text'], $button['callback'], $button['value']))
+                    (new CallbackButton($button['text'], $button['callback'], $button['value'], $display))
                 );
             }
         }
@@ -252,21 +254,23 @@ class MessageMarkUpGenerator
     {
         $richMessage = new FullPageRichMessage($title, $subtitle, $text, $buttons);
         foreach ($buttons as $button) {
+            $display = (isset($button['display'])) ? $button['display'] : true;
+
             if (isset($button['download'])) {
                 $richMessage->addButton(
-                    (new TranscriptDownloadButton($button['text']))
+                    (new TranscriptDownloadButton($button['text'], $display))
                 );
             } elseif (isset($button['tab_switch'])) {
                 $richMessage->addButton(
-                    (new TabSwitchButton($button['text']))
+                    (new TabSwitchButton($button['text'], $display))
                 );
             } elseif (isset($button['link'])) {
                 $richMessage->addButton(
-                    (new LinkButton($button['text'], $button['link'], $button['link_new_tab']))
+                    (new LinkButton($button['text'], $button['link'], $button['link_new_tab'], $display))
                 );
             } else {
                 $richMessage->addButton(
-                    (new CallbackButton($button['text'], $button['callback'], $button['value']))
+                    (new CallbackButton($button['text'], $button['callback'], $button['value'], $display))
                 );
             }
         }

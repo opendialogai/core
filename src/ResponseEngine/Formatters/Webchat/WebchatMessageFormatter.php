@@ -194,22 +194,32 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message->setText($template[self::TEXT], [], true);
         $message->setExternal($template[self::EXTERNAL]);
         foreach ($template[self::BUTTONS] as $button) {
+            $display = (isset($button[self::DISPLAY])) ? $button[self::DISPLAY] : true;
+
             if (isset($button[self::DOWNLOAD])) {
-                $message->addButton(new TranscriptDownloadButton($button[self::TEXT]));
+                $message->addButton(new TranscriptDownloadButton($button[self::TEXT], $display));
             } elseif (isset($button[self::TAB_SWITCH])) {
-                $message->addButton(new TabSwitchButton($button[self::TEXT]));
+                $message->addButton(new TabSwitchButton($button[self::TEXT], $display));
             } elseif (isset($button[self::LINK])) {
                 $message->addButton(new LinkButton(
                     $button[self::TEXT],
                     $button[self::LINK],
-                    $button[self::LINK_NEW_TAB]
+                    $button[self::LINK_NEW_TAB],
+                    $display
                 ));
             } elseif (isset($button[self::CLICK_TO_CALL])) {
-                $message->addButton(new ClickToCallButton($button[self::TEXT], $button[self::CLICK_TO_CALL]));
+                $message->addButton(new ClickToCallButton(
+                    $button[self::TEXT],
+                    $button[self::CLICK_TO_CALL],
+                    $display
+                ));
             } else {
-                $message->addButton(
-                    new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
-                );
+                $message->addButton(new CallbackButton(
+                    $button[self::TEXT],
+                    $button[self::CALLBACK],
+                    $button[self::VALUE],
+                    $display
+                ));
             }
         }
 
@@ -402,16 +412,18 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         if (isset($template[self::BUTTONS])) {
             foreach ($template[self::BUTTONS] as $button) {
+                $display = (isset($button[self::DISPLAY])) ? $button[self::DISPLAY] : true;
+
                 if (isset($button[self::DOWNLOAD])) {
-                    $message->addButton(new TranscriptDownloadButton($button[self::TEXT]));
+                    $message->addButton(new TranscriptDownloadButton($button[self::TEXT], $display));
                 } elseif (isset($button[self::TAB_SWITCH])) {
-                    $message->addButton(new TabSwitchButton($button[self::TEXT]));
+                    $message->addButton(new TabSwitchButton($button[self::TEXT], $display));
                 } elseif (isset($button[self::LINK])) {
                     $linkNewTab = $button[self::LINK_NEW_TAB];
-                    $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab));
+                    $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab, $display));
                 } else {
                     $message->addButton(
-                        new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE])
+                        new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE], $display)
                     );
                 }
             }
@@ -575,15 +587,19 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         ];
 
         foreach ($item->button as $button) {
+            $display = ((string)$button->display) ? $this->convertToBoolean((string)$button->display) : true;
+
             if (isset($button->download)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::DOWNLOAD => true,
+                    self::DISPLAY => $display,
                 ];
             } elseif (isset($button->tab_switch)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,
+                    self::DISPLAY => $display,
                 ];
             } elseif (isset($button->link)) {
                 $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
@@ -592,11 +608,13 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::TEXT => trim((string)$button->text),
                     self::LINK => trim((string)$button->link),
                     self::LINK_NEW_TAB => $buttonLinkNewTab,
+                    self::DISPLAY => $display,
                 ];
             } elseif (isset($button->click_to_call)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::CLICK_TO_CALL => trim((string)$button->click_to_call),
+                    self::DISPLAY => $display,
                 ];
             } else {
                 $dom = new DOMDocument();
@@ -637,6 +655,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::CALLBACK => trim((string)$button->callback),
                     self::TEXT => trim($buttonText),
                     self::VALUE => trim((string)$button->value),
+                    self::DISPLAY => $display,
                 ];
             }
         }
@@ -702,15 +721,19 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         }
 
         foreach ($item->button as $button) {
+            $display = ((string)$button->display) ? $this->convertToBoolean((string)$button->display) : true;
+
             if (isset($button->download)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::DOWNLOAD => true,
+                    self::DISPLAY => $display,
                 ];
             } elseif (isset($button->tab_switch)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,
+                    self::DISPLAY => $display,
                 ];
             } elseif (isset($button->link)) {
                 $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
@@ -719,12 +742,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::TEXT => trim((string)$button->text),
                     self::LINK => trim((string)$button->link),
                     self::LINK_NEW_TAB => $buttonLinkNewTab,
+                    self::DISPLAY => $display,
                 ];
             } else {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::CALLBACK => trim((string)$button->callback),
                     self::VALUE => trim((string)$button->value),
+                    self::DISPLAY => $display,
                 ];
             }
         }

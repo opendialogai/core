@@ -194,11 +194,13 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'text' => 'Yes',
                 'callback_id' => 'callback_yes',
                 'value' => true,
+                'display' => true,
             ],
             [
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => false,
+                'display' => true,
             ],
         ];
 

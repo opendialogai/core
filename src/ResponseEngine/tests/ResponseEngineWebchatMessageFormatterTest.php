@@ -152,7 +152,7 @@ EOT;
     public function testButtonMessage()
     {
         // phpcs:ignore
-        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
+        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button><button><text>Hidden</text><callback>hidden</callback><display>false</display></button></button-message></message>';
         $formatter = new WebChatMessageFormatter();
 
         /** @var OpenDialogMessage[] $messages */
@@ -164,11 +164,19 @@ EOT;
                 'text' => 'Yes',
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
+                'display' => true,
             ],
             [
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => 'false',
+                'display' => true,
+            ],
+            [
+                'text' => 'Hidden',
+                'callback_id' => 'hidden',
+                'value' => '',
+                'display' => false,
             ],
         ];
 
@@ -233,20 +241,24 @@ EOT;
                 'text' => 'Yes',
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
+                'display' => true,
             ],
             [
                 'text' => 'This is a link',
                 'link' => 'https://www.opendialog.ai',
                 'link_new_tab' => true,
+                'display' => true,
             ],
             [
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => 'false',
+                'display' => true,
             ],
             [
                 'text' => 'Click to call',
                 'phone_number' => '12312412',
+                'display' => true,
             ],
         ];
 
@@ -287,6 +299,7 @@ EOT;
                 'text' => 'This is an <u>underline</u> text with <u>underline</u>',
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
+                'display' => true,
             ],
         ];
 
@@ -328,6 +341,7 @@ EOT;
                 'text' => 'This is an <strong>bold</strong> text with <em>italic</em>',
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
+                'display' => true,
             ],
         ];
 
@@ -503,6 +517,7 @@ EOT;
                 'text' => 'Test 2',
                 'callback' => 'callback',
                 'value' => 'value',
+                'display' => false,
             ],
             [
                 'text' => 'Test 3',
@@ -545,25 +560,30 @@ EOT;
                 [
                     'text' => 'Test 1',
                     'tab_switch' => true,
+                    'display' => true,
                 ],
                 [
                     'text' => 'Test 2',
                     'callback_id' => 'callback',
                     'value' => 'value',
+                    'display' => false,
                 ],
                 [
                     'text' => 'Test 3',
                     'link' => 'https://www.opendialog.ai',
                     'link_new_tab' => false,
+                    'display' => true,
                 ],
                 [
                     'text' => 'Test 4',
                     'link' => 'https://www.opendialog.ai',
                     'link_new_tab' => true,
+                    'display' => true,
                 ],
                 [
                     'text' => 'Test 5',
                     'download' => true,
+                    'display' => true,
                 ],
             ],
             'image' => [
