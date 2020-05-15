@@ -6,6 +6,8 @@ abstract class BaseButton
 {
     protected $text = null;
 
+    protected $display = true;
+
     /**
      * @param $text
      * @return $this
@@ -17,6 +19,16 @@ abstract class BaseButton
     }
 
     /**
+     * @param $display
+     * @return $this
+     */
+    public function setDisplay($display)
+    {
+        $this->display = $display;
+        return $this;
+    }
+
+    /**
      * @return null|string
      */
     public function getText()
@@ -24,10 +36,19 @@ abstract class BaseButton
         return $this->text;
     }
 
+    /**
+     * @return bool
+     */
+    public function getDisplay()
+    {
+        return $this->display;
+    }
+
     public function getData()
     {
         return [
-            'text' => $this->getText()
+            'text' => $this->getText(),
+            'display' => $this->getDisplay(),
         ];
     }
 }
