@@ -4,6 +4,7 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use OpenDialogAi\InterpreterEngine\Dialogflow\DialogflowClient;
 use OpenDialogAi\InterpreterEngine\Dialogflow\DialogflowResponse;
+use OpenDialogAi\InterpreterEngine\Interpreters\Utils\InterpreterUtility;
 use Google\Cloud\Dialogflow\V2\Intent\Message\Platform;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
@@ -23,7 +24,7 @@ class DialogflowInterpreter extends BaseInterpreter
 
     public function interpret(UtteranceInterface $utterance): array
     {
-        $client = resolve(DialogflowClient::class);
+        $client = app()->make(DialogflowClient::class);
         $client->setDefaultProjectId(env('DIALOG_FLOW_DEFAULT_PROJECT_ID'));
         return $this->interpretWithClient($utterance, $client);
     }
@@ -60,7 +61,7 @@ class DialogflowInterpreter extends BaseInterpreter
                 $response = Intent::createIntentWithConfidence(self::DIALOG_FLOW_INTENT, 1);
             }
 
-            $dialogflowMessage = $this->formatLinks($result->getResponse());
+            $dialogflowMessage = InterpreterUtility::formatTextMessageWithLinks($result->getResponse());
 
             foreach ($result->getResponseMessages() as $responseMessage) {
                 if ($responseMessage->getPlatform() == Platform::ACTIONS_ON_GOOGLE) {
@@ -77,35 +78,5 @@ class DialogflowInterpreter extends BaseInterpreter
         }
 
         return [new NoMatchIntent()];
-    }
-
-    /**
-     * @param $text
-     * @return string
-     */
-    private function formatLinks($text)
-    {
-        $regex = '/<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>/siU';
-        preg_match_all($regex, $text, $links, PREG_SET_ORDER);
-
-        $responseText = $text;
-
-        foreach ($links as $link) {
-            $linkTag = $link[0];
-            $linkUrl = $link[2];
-            $linkText = $link[3];
-
-            $linkMarkup = sprintf(
-                '<link new_tab="true"><url>%s</url><text>%s</text></link>',
-                $linkUrl,
-                $linkText
-            );
-
-            $responseText = str_replace($linkTag, $linkMarkup, $responseText);
-        }
-
-        $responseText = '<text-message>' . $responseText . '</text-message>';
-
-        return $responseText;
     }
 }
