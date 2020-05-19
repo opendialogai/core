@@ -13,6 +13,8 @@ class WebchatListMessage extends WebchatMessage implements ListMessage
 
     private $viewType = 'horizontal';
 
+    private $title;
+
     /**
      * @param OpenDialogMessage $message
      * @return $this
@@ -62,11 +64,30 @@ class WebchatListMessage extends WebchatMessage implements ListMessage
     }
 
     /**
+     * @param $title
+     * @return $this
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getData(): ?array
     {
         return [
+            'title' => $this->getTitle(),
             'items' => $this->getItemsArray(),
             'view_type' => $this->getViewType(),
             'disable_text' => $this->getDisableText(),

@@ -315,12 +315,13 @@ class MessageMarkUpGenerator
 
     /**
      * @param $viewType
+     * @param $title
      * @param $messages
      * @return MessageMarkUpGenerator
      */
-    public function addListMessage($viewType, $messages)
+    public function addListMessage($viewType, $title, $messages)
     {
-        $listMessage = new ListMessage($viewType);
+        $listMessage = new ListMessage($viewType, $title);
         foreach ($messages as $message) {
             $type = key($message);
             $listMessage->addMessage($type, $message[$type]);

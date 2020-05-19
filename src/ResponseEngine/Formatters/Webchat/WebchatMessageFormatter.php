@@ -440,7 +440,8 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     {
         $message = (new WebchatListMessage())
             ->addItems($template[self::ITEMS])
-            ->setViewType($template[self::VIEW_TYPE]);
+            ->setViewType($template[self::VIEW_TYPE])
+            ->setTitle($template[self::TITLE]);
 
         return $message;
     }
@@ -774,11 +775,12 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         $viewType = ($item['view-type']) ? (string)$item['view-type'] : 'horizontal';
 
-        foreach ($item->item as $i => $item) {
-            $items[] = $this->parseMessage($item->children()[0]);
+        foreach ($item->item as $i => $itemMessage) {
+            $items[] = $this->parseMessage($itemMessage->children()[0]);
         }
 
         $template = [
+            self::TITLE => trim((string)$item->title),
             self::ITEMS => $items,
             self::VIEW_TYPE => $viewType,
         ];

@@ -701,7 +701,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator(true);
-        $messageMarkUp->addListMessage('vertical', $messages);
+        $messageMarkUp->addListMessage('vertical', 'Test title', $messages);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -749,6 +749,7 @@ EOT;
 
         $this->assertEquals(true, $data['disable_text']);
         $this->assertEquals('vertical', $data['view_type']);
+        $this->assertEquals('Test title', $data['title']);
         self::assertArraySubset($expectedOutput[0], $data['items'][0]);
         self::assertArraySubset($expectedOutput[1], $data['items'][1]);
         self::assertArraySubset($expectedOutput[2], $data['items'][2]);
