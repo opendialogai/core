@@ -734,19 +734,24 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         }
 
         foreach ($item->button as $button) {
+            $attributes = $button->attributes();
+
             $display = ((string)$button->display) ? $this->convertToBoolean((string)$button->display) : true;
+            $type = $attributes[self::TYPE] ?: "";
 
             if (isset($button->download)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::DOWNLOAD => true,
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             } elseif (isset($button->tab_switch)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             } elseif (isset($button->link)) {
                 $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
@@ -756,6 +761,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::LINK => trim((string)$button->link),
                     self::LINK_NEW_TAB => $buttonLinkNewTab,
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             } else {
                 $template[self::BUTTONS][] = [
@@ -763,6 +769,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::CALLBACK => trim((string)$button->callback),
                     self::VALUE => trim((string)$button->value),
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             }
         }
