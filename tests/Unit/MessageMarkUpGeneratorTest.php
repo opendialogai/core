@@ -40,4 +40,16 @@ class MessageMarkUpGeneratorTest extends TestCase
         $this->assertRegexp('/<url>http:\/\/www.example.com<\/url>/', $markUp);
         $this->assertRegexp('/<open-new-tab>true<\/open-new-tab>/', $markUp);
     }
+
+    public function testMetaMarkUpGenerator()
+    {
+        $generator = new MessageMarkUpGenerator();
+        $generator->addMetaMessage([
+            'myName' => 'myValue'
+        ]);
+        $markUp = ($generator->getMarkUp());
+        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertRegexp('/<meta-message>/', $markUp);
+        $this->assertRegexp('/<data name="myName">myValue<\/data>/', $markUp);
+    }
 }

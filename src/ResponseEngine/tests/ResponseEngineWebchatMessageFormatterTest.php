@@ -1122,4 +1122,18 @@ EOT;
         $this->assertEquals('hi there.', $messages[0]->getText());
         $this->assertEquals(0, $messages[0]->getData()['disable_text']);
     }
+
+    public function testMetaMessage()
+    {
+        $markup = '<message disable_text="1"><meta-message><data name="myData">myValue</data></meta-message></message>';
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertTrue($messages[0]->isEmpty());
+        $this->assertEquals(1, $messages[0]->getData()['disable_text']);
+
+        $elements = $messages[0]->getElements();
+        $this->assertEquals('myValue', $elements['myData']);
+    }
 }
