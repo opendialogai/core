@@ -417,17 +417,18 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         if (isset($template[self::BUTTONS])) {
             foreach ($template[self::BUTTONS] as $button) {
                 $display = (isset($button[self::DISPLAY])) ? $button[self::DISPLAY] : true;
+                $type = (isset($button[self::TYPE]) ? $button[self::TYPE] : '');
 
                 if (isset($button[self::DOWNLOAD])) {
-                    $message->addButton(new TranscriptDownloadButton($button[self::TEXT], $display));
+                    $message->addButton(new TranscriptDownloadButton($button[self::TEXT], $display, $type));
                 } elseif (isset($button[self::TAB_SWITCH])) {
-                    $message->addButton(new TabSwitchButton($button[self::TEXT], $display));
+                    $message->addButton(new TabSwitchButton($button[self::TEXT], $display, $type));
                 } elseif (isset($button[self::LINK])) {
                     $linkNewTab = $button[self::LINK_NEW_TAB];
-                    $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab, $display));
+                    $message->addButton(new LinkButton($button[self::TEXT], $button[self::LINK], $linkNewTab, $display, $type));
                 } else {
                     $message->addButton(
-                        new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE], $display)
+                        new CallbackButton($button[self::TEXT], $button[self::CALLBACK], $button[self::VALUE], $display, $type)
                     );
                 }
             }
