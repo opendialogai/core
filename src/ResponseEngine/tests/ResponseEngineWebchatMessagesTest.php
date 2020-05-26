@@ -183,8 +183,13 @@ class ResponseEngineWebchatMessagesTest extends TestCase
     {
         $message = new WebchatButtonMessage();
         $message->setClearAfterInteraction(false);
-        $button1 = new CallbackButton('Yes', 'callback_yes', true);
+
+        $button1 = new CallbackButton('Yes', 'callback_yes', true, true);
+        $button1->setType('yes-button');
+
         $button2 = new CallbackButton('No', 'callback_no', false);
+        $button2->setType('no-button');
+
         $message->addButton($button1);
         $message->addButton($button2);
         $message->setDisableText(false);
@@ -195,12 +200,14 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'callback_id' => 'callback_yes',
                 'value' => true,
                 'display' => true,
+                'type' => 'yes-button',
             ],
             [
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => false,
                 'display' => true,
+                'type' => 'no-button',
             ],
         ];
 

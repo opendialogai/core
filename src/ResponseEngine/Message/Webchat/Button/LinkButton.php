@@ -11,15 +11,17 @@ class LinkButton extends BaseButton
     /**
      * @param $text
      * @param $link
-     * @param $linkNewTab
-     * @param $display
+     * @param bool $linkNewTab
+     * @param bool $display
+     * @param string $type
      */
-    public function __construct($text, $link, $linkNewTab = false, $display = true)
+    public function __construct($text, $link, $linkNewTab = false, $display = true, $type = "")
     {
         $this->text = $text;
         $this->link = $link;
         $this->linkNewTab = $linkNewTab;
         $this->display = $display;
+        $this->type = $type;
     }
 
     /**

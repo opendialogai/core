@@ -12,14 +12,16 @@ class CallbackButton extends BaseButton
      * @param $text
      * @param $callbackId
      * @param null $value
-     * @param $display
+     * @param bool $display
+     * @param string $type
      */
-    public function __construct($text, $callbackId, $value = null, $display = true)
+    public function __construct($text, $callbackId, $value = null, $display = true, $type = "")
     {
         $this->text = $text;
         $this->callbackId = $callbackId;
         $this->value = $value;
         $this->display = $display;
+        $this->type = $type;
     }
 
     /**

@@ -195,30 +195,34 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message->setExternal($template[self::EXTERNAL]);
         foreach ($template[self::BUTTONS] as $button) {
             $display = (isset($button[self::DISPLAY])) ? $button[self::DISPLAY] : true;
+            $type = (isset($button[self::TYPE]) ? $button[self::TYPE] : '');
 
             if (isset($button[self::DOWNLOAD])) {
-                $message->addButton(new TranscriptDownloadButton($button[self::TEXT], $display));
+                $message->addButton(new TranscriptDownloadButton($button[self::TEXT], $display, $type));
             } elseif (isset($button[self::TAB_SWITCH])) {
-                $message->addButton(new TabSwitchButton($button[self::TEXT], $display));
+                $message->addButton(new TabSwitchButton($button[self::TEXT], $display, $type));
             } elseif (isset($button[self::LINK])) {
                 $message->addButton(new LinkButton(
                     $button[self::TEXT],
                     $button[self::LINK],
                     $button[self::LINK_NEW_TAB],
-                    $display
+                    $display,
+                    $type
                 ));
             } elseif (isset($button[self::CLICK_TO_CALL])) {
                 $message->addButton(new ClickToCallButton(
                     $button[self::TEXT],
                     $button[self::CLICK_TO_CALL],
-                    $display
+                    $display,
+                    $type
                 ));
             } else {
                 $message->addButton(new CallbackButton(
                     $button[self::TEXT],
                     $button[self::CALLBACK],
                     $button[self::VALUE],
-                    $display
+                    $display,
+                    $type
                 ));
             }
         }
@@ -587,19 +591,24 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         ];
 
         foreach ($item->button as $button) {
+            $attributes = $button->attributes();
+
             $display = ((string)$button->display) ? $this->convertToBoolean((string)$button->display) : true;
+            $type = $attributes[self::TYPE] ?: "";
 
             if (isset($button->download)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::DOWNLOAD => true,
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             } elseif (isset($button->tab_switch)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::TAB_SWITCH => true,
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             } elseif (isset($button->link)) {
                 $buttonLinkNewTab = $this->convertToBoolean((string)$button->link['new_tab']);
@@ -609,12 +618,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::LINK => trim((string)$button->link),
                     self::LINK_NEW_TAB => $buttonLinkNewTab,
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             } elseif (isset($button->click_to_call)) {
                 $template[self::BUTTONS][] = [
                     self::TEXT => trim((string)$button->text),
                     self::CLICK_TO_CALL => trim((string)$button->click_to_call),
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             } else {
                 $dom = new DOMDocument();
@@ -656,6 +667,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                     self::TEXT => trim($buttonText),
                     self::VALUE => trim((string)$button->value),
                     self::DISPLAY => $display,
+                    self::TYPE => $type,
                 ];
             }
         }

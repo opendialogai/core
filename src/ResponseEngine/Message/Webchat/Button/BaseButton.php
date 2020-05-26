@@ -8,6 +8,8 @@ abstract class BaseButton
 
     protected $display = true;
 
+    protected $type = "";
+
     /**
      * @param $text
      * @return $this
@@ -44,11 +46,28 @@ abstract class BaseButton
         return $this->display;
     }
 
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
     public function getData()
     {
         return [
             'text' => $this->getText(),
             'display' => $this->getDisplay(),
+            'type' => $this->getType(),
         ];
     }
 }

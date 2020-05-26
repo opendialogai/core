@@ -152,7 +152,7 @@ EOT;
     public function testButtonMessage()
     {
         // phpcs:ignore
-        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button><text>No</text><callback>callback_no</callback><value>false</value></button><button><text>Hidden</text><callback>hidden</callback><display>false</display></button></button-message></message>';
+        $markup = '<message disable_text="1"><button-message clear_after_interaction="1"><text>test</text><button type="yes-button"><text>Yes</text><callback>callback_yes</callback><value>true</value></button><button type="no-button"><text>No</text><callback>callback_no</callback><value>false</value></button><button><text>Hidden</text><callback>hidden</callback><display>false</display></button></button-message></message>';
         $formatter = new WebChatMessageFormatter();
 
         /** @var OpenDialogMessage[] $messages */
@@ -165,18 +165,21 @@ EOT;
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
                 'display' => true,
+                'type' => 'yes-button',
             ],
             [
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => 'false',
                 'display' => true,
+                'type' => 'no-button',
             ],
             [
                 'text' => 'Hidden',
                 'callback_id' => 'hidden',
                 'value' => '',
                 'display' => false,
+                'type' => ''
             ],
         ];
 
@@ -242,23 +245,27 @@ EOT;
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
                 'display' => true,
+                'type' => '',
             ],
             [
                 'text' => 'This is a link',
                 'link' => 'https://www.opendialog.ai',
                 'link_new_tab' => true,
                 'display' => true,
+                'type' => '',
             ],
             [
                 'text' => 'No',
                 'callback_id' => 'callback_no',
                 'value' => 'false',
                 'display' => true,
+                'type' => '',
             ],
             [
                 'text' => 'Click to call',
                 'phone_number' => '12312412',
                 'display' => true,
+                'type' => '',
             ],
         ];
 
@@ -300,6 +307,7 @@ EOT;
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
                 'display' => true,
+                'type' => '',
             ],
         ];
 
@@ -342,6 +350,7 @@ EOT;
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
                 'display' => true,
+                'type' => '',
             ],
         ];
 

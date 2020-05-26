@@ -79,6 +79,7 @@ interface MessageFormatterInterface
     public const CLEAR_AFTER_INTERACTION = 'clear_after_interaction';
     public const CANCEL_CALLBACK         = 'cancel_callback';
     public const CANCEL_TEXT             = 'cancel_text';
+    public const TYPE                    = 'type';
 
     public function getMessages(string $markup): OpenDialogMessages;
 
