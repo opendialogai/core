@@ -9,13 +9,15 @@ class ClickToCallButton extends BaseButton
     /**
      * @param $text
      * @param $phoneNumber
-     * @param $display
+     * @param bool $display
+     * @param string $type
      */
-    public function __construct($text, $phoneNumber, $display = true)
+    public function __construct($text, $phoneNumber, $display = true, $type = "")
     {
         $this->text = $text;
         $this->phoneNumber = $phoneNumber;
         $this->display = $display;
+        $this->type = $type;
     }
 
     /**
