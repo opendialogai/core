@@ -10,13 +10,6 @@ class WebchatMetaMessage extends WebchatMessage implements MetaMessage
 
     private $elements = [];
 
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->setAsEmpty();
-    }
-
     /**
      * @param $submitText
      * @return $this
