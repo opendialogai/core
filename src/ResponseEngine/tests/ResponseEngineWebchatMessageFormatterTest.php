@@ -1139,7 +1139,6 @@ EOT;
 
         /** @var OpenDialogMessage[] $messages */
         $messages = $formatter->getMessages($markup)->getMessages();
-        $this->assertTrue($messages[0]->isEmpty());
         $this->assertEquals(1, $messages[0]->getData()['disable_text']);
 
         $elements = $messages[0]->getElements();
