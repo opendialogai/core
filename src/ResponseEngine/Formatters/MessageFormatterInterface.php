@@ -35,6 +35,7 @@ interface MessageFormatterInterface
     public const LONG_TEXT_MESSAGE      = 'long-text-message';
     public const EMPTY_MESSAGE          = 'empty-message';
     public const CTA_MESSAGE            = 'cta-message';
+    public const META_MESSAGE           = 'meta-message';
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';

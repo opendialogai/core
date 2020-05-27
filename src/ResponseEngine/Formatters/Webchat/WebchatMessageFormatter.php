@@ -18,6 +18,7 @@ use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\MetaMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\RichMessage;
@@ -44,6 +45,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatMetaMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatRichMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatTextMessage;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
@@ -173,6 +175,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $text = $this->getMessageText($item);
                 $template = [self::TEXT => $text];
                 return $this->generateCtaMessage($template);
+                break;
+            case self::META_MESSAGE:
+                $template = $this->formatMetaTemplate($item);
+                return $this->generateMetaMessage($template);
                 break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
@@ -487,6 +493,15 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         return $message;
     }
 
+    /**
+     * @param array $template
+     * @return MetaMessage
+     */
+    public function generateMetaMessage(array $template): MetaMessage
+    {
+        $message = (new WebchatMetaMessage())->setElements($template[self::ELEMENTS]);
+        return $message;
+    }
     /**
      * Resolves the attribute by name to get the value for the attribute message, then resolves any attributes
      * in the resulting text
@@ -886,6 +901,25 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::PLACEHOLDER => trim((string)$item->placeholder),
             self::CONFIRMATION_TEXT => trim((string)$item->confirmation_text),
             self::CHARACTER_LIMIT => trim((string)$item->character_limit),
+        ];
+        return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatMetaTemplate(SimpleXMLElement $item): array
+    {
+        $elements = [];
+        foreach ($item->data as $data) {
+            $elements[(string)$data['name']] = (string)$data;
+        }
+
+        $template = [
+            self::ELEMENTS => $elements,
         ];
         return $template;
     }

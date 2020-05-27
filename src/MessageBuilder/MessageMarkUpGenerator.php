@@ -22,6 +22,7 @@ use OpenDialogAi\MessageBuilder\Message\Image\Image;
 use OpenDialogAi\MessageBuilder\Message\ImageMessage;
 use OpenDialogAi\MessageBuilder\Message\ListMessage;
 use OpenDialogAi\MessageBuilder\Message\LongTextMessage;
+use OpenDialogAi\MessageBuilder\Message\MetaMessage;
 use OpenDialogAi\MessageBuilder\Message\RichMessage;
 use OpenDialogAi\MessageBuilder\Message\TextMessage;
 use OpenDialogAi\MessageBuilder\Message\TextMessageWithLink;
@@ -123,6 +124,12 @@ class MessageMarkUpGenerator
     public function addAttributeMessage($text)
     {
         $this->messages[] = new AttributeMessage($text);
+        return $this;
+    }
+
+    public function addMetaMessage($data)
+    {
+        $this->messages[] = new MetaMessage($data);
         return $this;
     }
 
