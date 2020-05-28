@@ -831,7 +831,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $elements = [];
 
         foreach ($item->element as $element) {
-            $required = ($element->required) ? true : false;
+            $required = $this->convertToBoolean((string)$element->required) ? true : false;
 
             $el = [
                 self::ELEMENT_TYPE => trim((string)$element->element_type),
