@@ -939,7 +939,8 @@ EOT;
                 'element_type' => 'text',
                 'name' => 'first_name',
                 'display' => 'First name',
-                'required' => false
+                'required' => false,
+                'default_value' => 'value',
             ],
             [
                 'element_type' => 'text',
@@ -964,7 +965,8 @@ EOT;
                         'key' => '20',
                         'value' => '20 year'
                     ]
-                ]
+                ],
+                'default_value' => '10',
             ],
             [
                 'element_type' => 'radio',
@@ -1019,6 +1021,7 @@ EOT;
                     'display' => 'First name',
                     'required' => true,
                     'element_type' => 'text',
+                    'default_value' => 'value',
                 ],
                 [
                     'name' => 'last_name',
@@ -1036,6 +1039,7 @@ EOT;
                         '10' => '10 year',
                         '20' => '20 year',
                     ],
+                    'default_value' => '10',
                 ],
                 [
                     'name' => 'gender',
