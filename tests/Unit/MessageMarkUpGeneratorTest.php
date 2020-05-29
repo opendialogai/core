@@ -52,4 +52,14 @@ class MessageMarkUpGeneratorTest extends TestCase
         $this->assertRegexp('/<meta-message>/', $markUp);
         $this->assertRegexp('/<data name="myName">myValue<\/data>/', $markUp);
     }
+
+    public function testCtaMarkUpGenerator()
+    {
+        $generator = new MessageMarkUpGenerator();
+        $generator->addCtaMessage('My CTA text');
+        $markUp = ($generator->getMarkUp());
+        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertRegexp('/<cta-message>/', $markUp);
+        $this->assertRegexp('/My CTA text/', $markUp);
+    }
 }
