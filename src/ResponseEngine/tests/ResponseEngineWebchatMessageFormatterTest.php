@@ -790,6 +790,7 @@ EOT;
                 'element_type' => 'select',
                 'name' => 'age',
                 'display' => 'Age',
+                'required' => false,
                 'default_value' => '10',
                 'options' => [
                     [
@@ -810,6 +811,7 @@ EOT;
                 'element_type' => 'radio',
                 'name' => 'gender',
                 'display' => 'Gender',
+                'required' => false,
                 'options' => [
                     [
                         'key' => 'male',
@@ -825,6 +827,7 @@ EOT;
                 'element_type' => 'auto_complete_select',
                 'name' => 'year',
                 'display' => 'Year',
+                'required' => false,
                 'options' => [
                     [
                         'key' => '1',
@@ -859,7 +862,7 @@ EOT;
                 [
                     'name' => 'first_name',
                     'display' => 'First name',
-                    'required' => true,
+                    'required' => false,
                     'element_type' => 'text',
                     'default_value' => 'value',
                 ],
@@ -952,6 +955,7 @@ EOT;
                 'element_type' => 'select',
                 'name' => 'age',
                 'display' => 'Age',
+                'required' => false,
                 'options' => [
                     [
                         'key' => '1',
@@ -972,6 +976,7 @@ EOT;
                 'element_type' => 'radio',
                 'name' => 'gender',
                 'display' => 'Gender',
+                'required' => false,
                 'options' => [
                     [
                         'key' => 'male',
@@ -987,6 +992,7 @@ EOT;
                 'element_type' => 'auto_complete_select',
                 'name' => 'year',
                 'display' => 'Year',
+                'required' => false,
                 'options' => [
                     [
                         'key' => '1',
@@ -1019,7 +1025,7 @@ EOT;
                 [
                     'name' => 'first_name',
                     'display' => 'First name',
-                    'required' => true,
+                    'required' => false,
                     'element_type' => 'text',
                     'default_value' => 'value',
                 ],

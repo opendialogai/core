@@ -14,6 +14,7 @@ class TextElement extends BaseElement
      * @param $name
      * @param $display
      * @param $required
+     * @param $defaultValue
      */
     public function __construct($name, $display, $required, $defaultValue = '')
     {

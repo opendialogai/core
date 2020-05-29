@@ -7,6 +7,7 @@ class SelectElement extends BaseElement
     public $name;
     public $display;
     public $options;
+    public $required;
     public $defaultValue;
 
     /**
@@ -14,12 +15,15 @@ class SelectElement extends BaseElement
      * @param $name
      * @param $display
      * @param $options
+     * @param $required
+     * @param $defaultValue
      */
-    public function __construct($name, $display, $options, $defaultValue = '')
+    public function __construct($name, $display, $options, $required, $defaultValue = '')
     {
         $this->name = $name;
         $this->display = $display;
         $this->options = $options;
+        $this->required = ($required) ? 'true' : 'false';
         $this->defaultValue = $defaultValue;
     }
 
@@ -38,6 +42,7 @@ class SelectElement extends BaseElement
     <name>$this->name</name>
     <display>$this->display</display>
     <options>$optionsMarkUp</options>
+    <required>$this->required</required>
     <default_value>$this->defaultValue</default_value>
 </element>
 EOT;
