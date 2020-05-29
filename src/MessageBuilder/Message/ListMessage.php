@@ -11,15 +11,18 @@ class ListMessage
 {
     public $viewType;
 
+    public $title;
+
     public $messages = [];
 
     /**
      * ListMessage constructor.
      * @param $viewType
      */
-    public function __construct($viewType)
+    public function __construct($viewType, $title = '')
     {
         $this->viewType = $viewType;
+        $this->title = $title;
     }
 
     public function addMessage($type, $message)
@@ -63,6 +66,7 @@ class ListMessage
 
         return <<<EOT
 <list-message view-type="$this->viewType">
+    <title>$this->title</title>
     $itemMarkup
 </list-message>
 EOT;
