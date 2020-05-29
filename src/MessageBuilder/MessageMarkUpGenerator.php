@@ -210,11 +210,21 @@ class MessageMarkUpGenerator
     {
         $formMessage = new FullPageFormMessage($text, $submitText, $callback, $autoSubmit, $cancelText, $cancelCallback);
         foreach ($elements as $element) {
+            $defaultValue = (isset($element['default_value'])) ? $element['default_value'] : '';
+
             if ($element['element_type'] == 'text') {
-                $formMessage->addElement(new TextElement($element['name'], $element['display'], $element['required']));
+                $formMessage->addElement(
+                    new TextElement($element['name'], $element['display'], $element['required'], $defaultValue)
+                );
             } elseif ($element['element_type'] == 'select') {
                 $formMessage->addElement(
-                    new SelectElement($element['name'], $element['display'], $element['options'], $element['required'])
+                    new SelectElement(
+                        $element['name'],
+                        $element['display'],
+                        $element['options'],
+                        $element['required'],
+                        $defaultValue
+                    )
                 );
             } elseif ($element['element_type'] == 'auto_complete_select') {
                 $formMessage->addElement(
@@ -222,15 +232,24 @@ class MessageMarkUpGenerator
                         $element['name'],
                         $element['display'],
                         $element['options'],
-                        $element['required']
+                        $element['required'],
+                        $defaultValue
                     )
                 );
             } elseif ($element['element_type'] == 'radio') {
                 $formMessage->addElement(
-                    new RadioElement($element['name'], $element['display'], $element['options'], $element['required'])
+                    new RadioElement(
+                        $element['name'],
+                        $element['display'],
+                        $element['options'],
+                        $element['required'],
+                        $defaultValue
+                    )
                 );
             } elseif ($element['element_type'] == 'email') {
-                $formMessage->addElement(new EmailElement($element['name'], $element['display'], $element['required']));
+                $formMessage->addElement(
+                    new EmailElement($element['name'], $element['display'], $element['required'], $defaultValue)
+                );
             }
         }
 
@@ -349,12 +368,13 @@ class MessageMarkUpGenerator
 
     /**
      * @param $viewType
+     * @param $title
      * @param $messages
      * @return MessageMarkUpGenerator
      */
-    public function addListMessage($viewType, $messages)
+    public function addListMessage($viewType, $title, $messages)
     {
-        $listMessage = new ListMessage($viewType);
+        $listMessage = new ListMessage($viewType, $title);
         foreach ($messages as $message) {
             $type = key($message);
             $listMessage->addMessage($type, $message[$type]);

@@ -710,7 +710,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator(true);
-        $messageMarkUp->addListMessage('vertical', $messages);
+        $messageMarkUp->addListMessage('vertical', 'Test title', $messages);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -758,6 +758,7 @@ EOT;
 
         $this->assertEquals(true, $data['disable_text']);
         $this->assertEquals('vertical', $data['view_type']);
+        $this->assertEquals('Test title', $data['title']);
         self::assertArraySubset($expectedOutput[0], $data['items'][0]);
         self::assertArraySubset($expectedOutput[1], $data['items'][1]);
         self::assertArraySubset($expectedOutput[2], $data['items'][2]);
@@ -938,7 +939,8 @@ EOT;
                 'element_type' => 'text',
                 'name' => 'first_name',
                 'display' => 'First name',
-                'required' => false
+                'required' => false,
+                'default_value' => 'value',
             ],
             [
                 'element_type' => 'text',
@@ -963,7 +965,8 @@ EOT;
                         'key' => '20',
                         'value' => '20 year'
                     ]
-                ]
+                ],
+                'default_value' => '10',
             ],
             [
                 'element_type' => 'radio',
@@ -1018,6 +1021,7 @@ EOT;
                     'display' => 'First name',
                     'required' => true,
                     'element_type' => 'text',
+                    'default_value' => 'value',
                 ],
                 [
                     'name' => 'last_name',
@@ -1035,6 +1039,7 @@ EOT;
                         '10' => '10 year',
                         '20' => '20 year',
                     ],
+                    'default_value' => '10',
                 ],
                 [
                     'name' => 'gender',

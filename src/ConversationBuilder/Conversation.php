@@ -497,7 +497,12 @@ class Conversation extends Model
         }
 
         // Now we can create the condition - we set an id as a helper
-        $id = sprintf('%s-%s-%s', implode($attributes), $operation, implode($parameters));
+        if (empty($attributes)) {
+            $id = sprintf('%s-%s', $operation, implode($parameters));
+        } else {
+            $id = sprintf('%s-%s-%s', implode($attributes), $operation, implode($parameters));
+        }
+
         $condition = new Condition($operation, $attributes, $parameters, $id);
         Log::debug('Created condition from Yaml.');
         return $condition;
