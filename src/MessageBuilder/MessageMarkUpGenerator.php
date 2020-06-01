@@ -8,6 +8,7 @@ use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TranscriptDownloadButton;
 use OpenDialogAi\MessageBuilder\Message\ButtonMessage;
+use OpenDialogAi\MessageBuilder\Message\CtaMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
 use OpenDialogAi\MessageBuilder\Message\Form\EmailElement;
@@ -130,6 +131,12 @@ class MessageMarkUpGenerator
     public function addMetaMessage($data)
     {
         $this->messages[] = new MetaMessage($data);
+        return $this;
+    }
+
+    public function addCtaMessage($text)
+    {
+        $this->messages[] = new CtaMessage($text);
         return $this;
     }
 
