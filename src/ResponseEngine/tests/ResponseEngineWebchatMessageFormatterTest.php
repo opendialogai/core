@@ -706,6 +706,25 @@ EOT;
                 'text' => [
                     'text' => 'message-text'
                 ]
+            ],
+            [
+                'rich' => [
+                    'title' => 'rich message title',
+                    'subtitle' => 'rich message subtitle',
+                    'text' => 'rich message text',
+                    'buttons' => [
+                        [
+                            'text' => 'Yes',
+                            'callback' => 'callback',
+                            'value' => ''
+                        ]
+                    ],
+                    'image' => [
+                        'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                        'url' => 'https://www.opendialog.ai',
+                        'new_tab' => true
+                    ]
+                ]
             ]
         ];
 
@@ -745,6 +764,23 @@ EOT;
                 'internal' => false,
                 'hidetime' => false,
                 'message_type' => 'text',
+            ],
+            [
+                'title' => 'rich message title',
+                'subtitle' => 'rich message subtitle',
+                'text' => 'rich message text',
+                'buttons' => [
+                    [
+                        'text' => 'Yes',
+                        'callback_id' => 'callback',
+                        'value' => '',
+                    ],
+                ],
+                'image' => [
+                    'src' => 'https://www.opendialog.ai/assets/images/logo.svg',
+                    'url' => 'https://www.opendialog.ai',
+                    'new_tab' => true,
+                ],
             ],
         ];
 
