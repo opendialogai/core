@@ -392,7 +392,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons, $image);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', $buttons, $image);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -453,7 +453,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', 'callback_yes', 'value', $buttons);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -467,6 +467,8 @@ EOT;
             'title' => 'Message Title',
             'subtitle' => 'This is a subtitle',
             'text' => 'Here is a bit of text about this thing',
+            'callback' => 'callback_yes',
+            'callback_value' => 'value',
             'buttons' => [
                 [
                     'text' => 'Test',
@@ -490,7 +492,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', [], $image);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', [], $image);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -712,6 +714,8 @@ EOT;
                     'title' => 'rich message title',
                     'subtitle' => 'rich message subtitle',
                     'text' => 'rich message text',
+                    'callback' => 'callback_yes',
+                    'callback_value' => 'value',
                     'buttons' => [
                         [
                             'text' => 'Yes',
@@ -769,6 +773,8 @@ EOT;
                 'title' => 'rich message title',
                 'subtitle' => 'rich message subtitle',
                 'text' => 'rich message text',
+                'callback' => 'callback_yes',
+                'callback_value' => 'value',
                 'buttons' => [
                     [
                         'text' => 'Yes',
