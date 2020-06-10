@@ -55,7 +55,13 @@ class ListMessage
         } elseif ($type == 'text') {
             $this->messages[] = new TextMessage($message['text']);
         } elseif ($type == 'rich') {
-            $richMessage = new RichMessage($message['title'], $message['subtitle'], $message['text']);
+            $richMessage = new RichMessage(
+                $message['title'],
+                $message['subtitle'],
+                $message['text'],
+                $message['callback'],
+                $message['callback_value']
+            );
 
             if (!empty($message['buttons'])) {
                 foreach ($message['buttons'] as $button) {

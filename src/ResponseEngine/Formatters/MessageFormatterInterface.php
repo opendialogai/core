@@ -53,6 +53,7 @@ interface MessageFormatterInterface
     public const TITLE                   = 'title';
     public const SUBTITLE                = 'subtitle';
     public const CALLBACK                = 'callback';
+    public const CALLBACK_VALUE          = 'callback_value';
     public const VALUE                   = 'value';
     public const LINK                    = 'link';
     public const URL                     = 'url';

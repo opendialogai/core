@@ -375,7 +375,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message = (new WebchatRichMessage())
             ->setTitle($template[self::TITLE])
             ->setSubTitle($template[self::SUBTITLE])
-            ->setText($template[self::TEXT]);
+            ->setText($template[self::TEXT])
+            ->setCallback($template[self::CALLBACK])
+            ->setCallbackValue($template[self::CALLBACK_VALUE]);
 
         if (isset($template[self::IMAGE])) {
             $message->setImageSrc($template[self::IMAGE][self::SRC]);
@@ -737,6 +739,8 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::TITLE => trim((string)$item->title),
             self::SUBTITLE => trim((string)$item->subtitle),
             self::TEXT => trim((string)$item->text),
+            self::CALLBACK => trim((string)$item->callback),
+            self::CALLBACK_VALUE => trim((string)$item->callback_value),
         ];
 
         if ($item->image->count()) {
