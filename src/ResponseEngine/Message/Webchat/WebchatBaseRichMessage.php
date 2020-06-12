@@ -14,6 +14,8 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
 
     private $callbackValue;
 
+    private $link;
+
     private $imgSrc = null;
 
     private $imgLink = null;
@@ -60,6 +62,16 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
     public function setCallbackValue($callbackValue)
     {
         $this->callbackValue = $callbackValue;
+        return $this;
+    }
+
+    /**
+     * @param $link
+     * @return $this
+     */
+    public function setLink($link)
+    {
+        $this->link = $link;
         return $this;
     }
 
@@ -138,6 +150,14 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
     /**
      * @return null|string
      */
+    public function getLink()
+    {
+        return $this->link;
+    }
+
+    /**
+     * @return null|string
+     */
     public function getImageSrc()
     {
         return $this->imgSrc;
@@ -177,6 +197,7 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
             'subtitle' => $this->getSubTitle(),
             'callback' => $this->getCallback(),
             'callback_value' => $this->getCallbackValue(),
+            'link' => $this->getLink(),
             'buttons' => $this->getButtonsArray(),
         ];
 

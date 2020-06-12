@@ -60,7 +60,8 @@ class ListMessage
                 $message['subtitle'],
                 $message['text'],
                 $message['callback'],
-                $message['callback_value']
+                $message['callback_value'],
+                $message['link']
             );
 
             if (!empty($message['buttons'])) {
