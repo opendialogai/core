@@ -392,7 +392,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', $buttons, $image);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', 'http://www.example.com', $buttons, $image);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -406,6 +406,7 @@ EOT;
             'title' => 'Message Title',
             'subtitle' => 'This is a subtitle',
             'text' => 'Here is a bit of text about this thing',
+            'link' => 'http://www.example.com',
             'buttons' => [
                 [
                     'text' => 'Test 1',
@@ -453,7 +454,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', 'callback_yes', 'value', $buttons);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', 'callback_yes', 'value', '', $buttons);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -492,7 +493,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', [], $image);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', '', [], $image);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -716,6 +717,7 @@ EOT;
                     'text' => 'rich message text',
                     'callback' => 'callback_yes',
                     'callback_value' => 'value',
+                    'link' => '',
                     'buttons' => [
                         [
                             'text' => 'Yes',
@@ -729,7 +731,17 @@ EOT;
                         'new_tab' => true
                     ]
                 ]
-            ]
+            ],
+            [
+                'rich' => [
+                    'title' => 'rich message title 2',
+                    'subtitle' => 'rich message subtitle 2',
+                    'text' => 'rich message text 2',
+                    'callback' => '',
+                    'callback_value' => '',
+                    'link' => 'http://www.example.com',
+                ]
+            ],
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator(true);
@@ -787,6 +799,14 @@ EOT;
                     'url' => 'https://www.opendialog.ai',
                     'new_tab' => true,
                 ],
+            ],
+            [
+                'title' => 'rich message title 2',
+                'subtitle' => 'rich message subtitle 2',
+                'text' => 'rich message text 2',
+                'callback' => '',
+                'callback_value' => '',
+                'link' => 'http://www.example.com',
             ],
         ];
 

@@ -270,13 +270,14 @@ class MessageMarkUpGenerator
      * @param $text
      * @param $callback
      * @param $callbackValue
+     * @param $link
      * @param $buttons
      * @param $image
      * @return MessageMarkUpGenerator
      */
-    public function addRichMessage($title, $subtitle, $text, $callback, $callbackValue, $buttons = [], $image = [])
+    public function addRichMessage($title, $subtitle, $text, $callback, $callbackValue, $link, $buttons = [], $image = [])
     {
-        $richMessage = new RichMessage($title, $subtitle, $text, $callback, $callbackValue);
+        $richMessage = new RichMessage($title, $subtitle, $text, $callback, $callbackValue, $link);
         foreach ($buttons as $button) {
             if (isset($button['download'])) {
                 $richMessage->addButton(
