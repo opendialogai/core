@@ -49,7 +49,14 @@ class QnAClientTest extends TestCase
       ],
       "context": {
         "isContextOnly": false,
-        "prompts": []
+        "prompts": [
+          {
+            "displayOrder": 0,
+            "qnaId": 101,
+            "qna": null,
+            "displayText": "What is an audit?"
+          }
+        ]
       }
     }
   ],
@@ -57,7 +64,13 @@ class QnAClientTest extends TestCase
 }
 EOT;
         $response = new QnAResponse(json_decode($qnaResponse));
+        $answers = $response->getAnswers();
 
-        $this->assertCount(1, $response->getAnswers());
+        $this->assertCount(1, $answers);
+
+        $prompts = $answers[0]->getPrompts();
+        $this->assertCount(1, $prompts);
+
+        $this->assertEquals('What is an audit?', $prompts[0]->getDisplayText());
     }
 }

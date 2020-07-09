@@ -146,7 +146,7 @@ class QnAInterpreterTest extends TestCase
                         'name' => 'editorial',
                         'value' => 'chitchat',
                     ],
-                    'context' => [
+                    'context' => (object) [
                         'isContextOnly' => false,
                         'prompts' => [],
                     ],
