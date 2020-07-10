@@ -64,12 +64,15 @@ class QnAInterpreter extends BaseInterpreter
                     $intent->setConfidence($answer->getScore() / 100);
                     $intent->addAttribute($attribute);
 
+                    $i = 0;
                     foreach ($answer->getPrompts() as $prompt) {
                         $promptAttribute = AttributeResolver::getAttributeFor(
-                            'qna_prompt_' . $prompt->getDisplayOrder(),
+                            'qna_prompt_' . $i,
                             $prompt->getDisplayText()
                         );
                         $intent->addAttribute($promptAttribute);
+
+                        $i++;
                     }
 
                     return $intent;

@@ -97,6 +97,11 @@ class QnAInterpreterTest extends TestCase
 
         $answer = $intents[0]->getNonCoreAttributes()->get('qna_answer');
         $this->assertEquals('People created me.', $answer->getValue());
+
+        $prompt0 = $intents[0]->getNonCoreAttributes()->get('qna_prompt_0');
+        $prompt1 = $intents[0]->getNonCoreAttributes()->get('qna_prompt_1');
+        $this->assertEquals('What is an audit?', $prompt0->getValue());
+        $this->assertEquals('Where are you?', $prompt1->getValue());
     }
 
     private function createUtteranceWithText($text)
@@ -148,7 +153,20 @@ class QnAInterpreterTest extends TestCase
                     ],
                     'context' => (object) [
                         'isContextOnly' => false,
-                        'prompts' => [],
+                        'prompts' => [
+                            (object) [
+                                'displayOrder' => 0,
+                                'qnaId' => 101,
+                                'qna' => null,
+                                'displayText' => 'What is an audit?',
+                            ],
+                            (object) [
+                                'displayOrder' => 0,
+                                'qnaId' => 32,
+                                'qna' => null,
+                                'displayText' => 'Where are you?',
+                            ],
+                        ],
                     ],
                 ],
             ],

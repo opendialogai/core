@@ -55,6 +55,12 @@ class QnAClientTest extends TestCase
             "qnaId": 101,
             "qna": null,
             "displayText": "What is an audit?"
+          },
+          {
+            "displayOrder": 0,
+            "qnaId": 32,
+            "qna": null,
+            "displayText": "Where are you?"
           }
         ]
       }
@@ -68,9 +74,21 @@ EOT;
 
         $this->assertCount(1, $answers);
 
+        $this->assertCount(6, $answers[0]->getQuestions());
+        $this->assertEquals('People created me.', $answers[0]->getAnswer());
+        $this->assertEquals(100, $answers[0]->getScore());
+        $this->assertEquals(8, $answers[0]->getId());
+        $this->assertEquals('qna_chitchat_the_professional.tsv', $answers[0]->getSource());
+        $this->assertCount(1, $answers[0]->getMetadata());
+
         $prompts = $answers[0]->getPrompts();
-        $this->assertCount(1, $prompts);
+        $this->assertCount(2, $prompts);
 
         $this->assertEquals('What is an audit?', $prompts[0]->getDisplayText());
+        $this->assertEquals(0, $prompts[0]->getDisplayOrder());
+        $this->assertEquals(101, $prompts[0]->getQnaId());
+        $this->assertEquals('Where are you?', $prompts[1]->getDisplayText());
+        $this->assertEquals(0, $prompts[1]->getDisplayOrder());
+        $this->assertEquals(32, $prompts[1]->getQnaId());
     }
 }
