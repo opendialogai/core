@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationLog\tests;
 
 use Illuminate\Support\Str;
 use OpenDialogAi\ConversationLog\Message;
+use OpenDialogAi\ConversationLog\ChatbotUser;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class MessageTest extends TestCase
@@ -31,8 +32,12 @@ class MessageTest extends TestCase
 
     private function createMessage($message, $intents): void
     {
+        $userId = Str::random(20);
+
+        (new ChatbotUser(['user_id' => $userId]))->save();
+
         (new Message([
-            'user_id' => Str::random(20),
+            'user_id' => $userId,
             'author' => 'them',
             'message' => $message,
             'message_id' => Str::random(20),

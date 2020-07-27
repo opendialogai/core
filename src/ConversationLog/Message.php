@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $updated_at
  * @property string $user
  * @property array $intents
- * @property int microtime
+ * @property string microtime
  * @method static QueryBuilder containingIntent($intent)
  * @method static QueryBuilder containingIntents($intents)
  */
