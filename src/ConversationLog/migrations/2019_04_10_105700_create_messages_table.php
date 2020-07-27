@@ -21,7 +21,7 @@ class CreateMessagesTable extends Migration
             $table->string('author');
             $table->text('message');
             $table->string('type');
-            $table->binary('data')->nullable(true);
+            $table->text('data')->nullable(true);
             $table->string('message_id')->nullable();
             $table->text('user')->nullable();
 
