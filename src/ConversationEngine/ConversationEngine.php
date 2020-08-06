@@ -105,25 +105,8 @@ class ConversationEngine implements ConversationEngineInterface
         $ongoingConversation = $this->determineCurrentConversation($userContext, $utterance);
         Log::debug(sprintf('Ongoing conversation determined as %s', $ongoingConversation->getId()));
 
-        $isRepeating = $userContext->getCurrentIntent()->getRepeating();
-        $precedingIntent = $this->getConversationStore()->getPrecedingIntent(
-            $userContext->getCurrentIntent()->getIntentUid()
-        );
-
         ContextService::saveAttribute('conversation.next_intents', []);
         $followingIntents = $this->getAndHandleFollowingIntents($userContext, $utterance);
-
-        $lastIntent = $followingIntents[array_key_last($followingIntents)];
-
-        if ($isRepeating) {
-            $userContext->setCurrentIntent($precedingIntent);
-        } else {
-            if ($lastIntent->completes()) {
-                $userContext->moveCurrentConversationToPast();
-            } else {
-                $userContext->setCurrentIntent($lastIntent);
-            }
-        }
 
         return $followingIntents;
     }
@@ -759,6 +742,8 @@ class ConversationEngine implements ConversationEngineInterface
 
         $this->handleIntent($userContext, $nextIntent);
 
+        $this->updateUserCurrentIntent($userContext, $nextIntent);
+
         return $this->getVirtualIntents($nextIntent, $userContext, $utterance);
     }
 
@@ -781,8 +766,13 @@ class ConversationEngine implements ConversationEngineInterface
 
         if ($nextIntent->getVirtualIntent()) {
             try {
-                $userContext->setCurrentIntent($nextIntent);
-                $this->updateConversationFollowingVirtualUserInput($userContext, $nextIntent->getVirtualIntent());
+                // If we are in a completing intent, we need to look back at all possible opening intents
+                if ($nextIntent->completes()) {
+                    $utterance->setCallbackId($nextIntent->getVirtualIntent()->getId());
+                    $this->determineCurrentConversation($userContext, $utterance);
+                } else {
+                    $this->updateConversationFollowingVirtualUserInput($userContext, $nextIntent->getVirtualIntent());
+                }
 
                 $nextIntents = array_merge(
                     $nextIntents,
@@ -813,6 +803,33 @@ class ConversationEngine implements ConversationEngineInterface
 
         if ($nextIntent->causesAction()) {
             $this->performIntentAction($userContext, $nextIntent);
+        }
+    }
+
+    /**
+     * Checks whether the sent intent is either repeating meaning current intent of the user should point to the previous intent
+     * or completing in which case the user's curent conversation is moved to the past and all conversations will be considered on
+     * the next incoming utterance
+     *
+     * @param UserContext $userContext The user context applicable to the current user
+     * @param Intent $intent The intent that has just been sent to the User
+     * @throws EIModelCreatorException
+     * @throws GuzzleException
+     */
+    protected function updateUserCurrentIntent(UserContext $userContext, Intent $intent): void
+    {
+        $isRepeating = $userContext->getCurrentIntent()->getRepeating();
+        if ($isRepeating) {
+            $precedingIntent = $this->getConversationStore()->getPrecedingIntent(
+                $userContext->getCurrentIntent()->getIntentUid()
+            );
+            $userContext->setCurrentIntent($precedingIntent);
+        } else {
+            if ($intent->completes()) {
+                $userContext->moveCurrentConversationToPast();
+            } else {
+                $userContext->setCurrentIntent($intent);
+            }
         }
     }
 }
