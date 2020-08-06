@@ -199,6 +199,7 @@ class MessageXML extends BaseRule
                     case 'meta-message':
                     case 'long-text-message':
                     case 'cta-message':
+                    case 'autocomplete-message':
                         break;
 
                     default:

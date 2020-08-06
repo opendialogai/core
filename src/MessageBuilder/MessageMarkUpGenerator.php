@@ -3,6 +3,7 @@
 namespace OpenDialogAi\MessageBuilder;
 
 use OpenDialogAi\MessageBuilder\Message\AttributeMessage;
+use OpenDialogAi\MessageBuilder\Message\AutoCompleteMessage;
 use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
 use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
@@ -391,6 +392,25 @@ class MessageMarkUpGenerator
         }
 
         $this->messages[] = $listMessage;
+        return $this;
+    }
+
+    /**
+     * @param $title
+     * @param $endpointUrl,
+     * @param $endpointParams
+     * @param $queryParamName
+     *
+     * @return MessageMarkUpGenerator
+     */
+    public function addAutoCompleteMessage($title, $endpointUrl, $queryParamName, $endpointParams = array())
+    {
+        $this->messages[] = new AutoCompleteMessage(
+            $title,
+            $endpointUrl,
+            $queryParamName,
+            $endpointParams
+        );
         return $this;
     }
 

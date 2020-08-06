@@ -62,4 +62,17 @@ class MessageMarkUpGeneratorTest extends TestCase
         $this->assertRegexp('/<cta-message>/', $markUp);
         $this->assertRegexp('/My CTA text/', $markUp);
     }
+
+    public function testAutoCompleteMarkUpGenerator()
+    {
+        $endpoint_params_array = array('country' => 'gb', 'query' => 'value');
+
+        $generator = new MessageMarkUpGenerator();
+        $generator->addAutoCompleteMessage('This is the title', '/api/v3/endpoint-url', 'query', $endpoint_params_array);
+        $markUp = ($generator->getMarkUp());
+        $this->assertMatchesRegularExpression('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertMatchesRegularExpression('/<autocomplete-message>/', $markUp);
+        $this->assertMatchesRegularExpression('/This is the title/', $markUp);
+        $this->assertMatchesRegularExpression('/<url>\/api\/v3\/endpoint-url<\/url>/', $markUp);
+    }
 }
