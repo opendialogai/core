@@ -5,10 +5,12 @@ namespace OpenDialogAi\MessageBuilder\Message;
 class AutoCompleteMessage
 {
     public $title;
-    public $endpointUrl;
-    public $endpointParams = array();
-    public $queryParamName;
 
+    public $endpointUrl;
+
+    public $endpointParams = [];
+
+    public $queryParamName;
 
     /**
      * AutoCompleteMessage constructor.
@@ -16,7 +18,7 @@ class AutoCompleteMessage
      * @param $endpointUrl
      * @param $endpointParams
      */
-    public function __construct($title, $endpointUrl, $queryParamName, $endpointParams = array())
+    public function __construct($title, $endpointUrl, $queryParamName, $endpointParams = [])
     {
         $this->title = $title;
         $this->endpointUrl =$endpointUrl;
@@ -32,7 +34,7 @@ class AutoCompleteMessage
     <options-endpoint>
         <url>$this->endpointUrl</url>
         <params>
-            {$this->getParamsString()}
+            {$this->getParams()}
         </params>
         <query-param-name>$this->queryParamName<query-param-name>
     </options-endpoint>
@@ -43,12 +45,12 @@ EOT;
     /**
      * @return string
      */
-    public function getParamsString()
+    protected function getParams()
     {
-        $params_string = "";
+        $params = "";
         foreach ($this->endpointParams as $key => $value) {
-            $params_string .= '<param name="' . $key . '" value="' . $value . '"/>\n';
+            $params .= '<param name="' . $key . '" value="' . $value . '"/>\n';
         }
-        return $params_string;
+        return $params;
     }
 }

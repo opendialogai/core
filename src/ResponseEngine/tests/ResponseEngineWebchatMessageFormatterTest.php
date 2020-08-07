@@ -1217,4 +1217,22 @@ EOT;
         $elements = $messages[0]->getElements();
         $this->assertEquals('myValue', $elements['myData']);
     }
+
+    public function testAutocompleteMessage()
+    {
+        $markup = '<message disable_text="1"><autocomplete-message><title>Title</title><options-endpoint><url>/api/to-hit</url><params><param name="country" value="uk" /><param name="language" value="en" /></params><query-param-name>name</query-param-name></options-endpoint></autocomplete-message></message>';
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('Title', $messages[0]->getData()['title']);
+        $this->assertEquals('/api/to-hit', $messages[0]->getData()['endpoint_url']);
+        $this->assertEquals('name', $messages[0]->getData()['query_param_name']);
+
+        $endpointParams = $messages[0]->getData()['endpoint_params'];
+        $this->assertEquals('country', $endpointParams[0]['name']);
+        $this->assertEquals('uk', $endpointParams[0]['value']);
+        $this->assertEquals('language', $endpointParams[1]['name']);
+        $this->assertEquals('en', $endpointParams[1]['value']);
+    }
 }

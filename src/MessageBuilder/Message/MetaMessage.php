@@ -7,7 +7,7 @@ class MetaMessage
     public $data;
 
     /**
-     * HandToHumanMessage constructor.
+     * MetaMessage constructor.
      * @param $data
      */
     public function __construct($data)
