@@ -6,6 +6,8 @@ use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 
 class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteMessage
 {
+    protected $messageType = self::TYPE;
+
     private $title;
 
     private $endpointUrl;
