@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ResponseEngine\Formatters;
 
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
+use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
@@ -12,6 +13,7 @@ use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\MetaMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\RichMessage;
@@ -36,6 +38,7 @@ interface MessageFormatterInterface
     public const EMPTY_MESSAGE          = 'empty-message';
     public const CTA_MESSAGE            = 'cta-message';
     public const META_MESSAGE           = 'meta-message';
+    public const AUTOCOMPLETE_MESSAGE   = 'autocomplete-message';
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';
@@ -82,8 +85,13 @@ interface MessageFormatterInterface
     public const CANCEL_CALLBACK         = 'cancel_callback';
     public const CANCEL_TEXT             = 'cancel_text';
     public const TYPE                    = 'type';
+    public const ENDPOINT_URL            = 'endpoint_url';
+    public const ENDPOINT_PARAMS         = 'endpoint_params';
+    public const QUERY_PARAM_NAME        = 'query_param_name';
 
     public function getMessages(string $markup): OpenDialogMessages;
+
+    public function generateAutocompleteMessage(array $template): AutocompleteMessage;
 
     public function generateButtonMessage(array $template): ButtonMessage;
 
@@ -96,6 +104,8 @@ interface MessageFormatterInterface
     public function generateImageMessage(array $template): ImageMessage;
 
     public function generateListMessage(array $template): ListMessage;
+
+    public function generateMetaMessage(array $template): MetaMessage;
 
     public function generateLongTextMessage(array $template): LongTextMessage;
 

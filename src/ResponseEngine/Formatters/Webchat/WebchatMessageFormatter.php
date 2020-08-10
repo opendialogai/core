@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
+use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
@@ -34,6 +35,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormRadioElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatAutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatCtaMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
@@ -179,6 +181,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             case self::META_MESSAGE:
                 $template = $this->formatMetaTemplate($item);
                 return $this->generateMetaMessage($template);
+                break;
+            case self::AUTOCOMPLETE_MESSAGE:
+                $template = $this->formatAutocompleteTemplate($item);
+                return $this->generateAutocompleteMessage($template);
                 break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
@@ -506,6 +512,21 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message = (new WebchatMetaMessage())->setElements($template[self::ELEMENTS]);
         return $message;
     }
+
+    /**
+     * @param array $template
+     * @return AutocompleteMessage
+     */
+    public function generateAutocompleteMessage(array $template): AutocompleteMessage
+    {
+        $message = (new WebchatAutocompleteMessage())
+            ->setTitle($template[self::TITLE])
+            ->setEndpointUrl($template[self::ENDPOINT_URL])
+            ->setEndpointParams($template[self::ENDPOINT_PARAMS])
+            ->setQueryParamName($template[self::QUERY_PARAM_NAME]);
+        return $message;
+    }
+
     /**
      * Resolves the attribute by name to get the value for the attribute message, then resolves any attributes
      * in the resulting text
@@ -928,6 +949,34 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
         $template = [
             self::ELEMENTS => $elements,
+        ];
+        return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatAutocompleteTemplate(SimpleXMLElement $item): array
+    {
+        $endpointParams = [];
+
+        if (isset($item->{'options-endpoint'}->params)) {
+            foreach ($item->{'options-endpoint'}->params->param as $param) {
+                $endpointParams[] = [
+                    self::NAME => (string)$param['name'],
+                    self::VALUE => (string)$param['value'],
+                ];
+            }
+        }
+
+        $template = [
+            self::TITLE => trim((string)$item->title),
+            self::ENDPOINT_URL => (string)$item->{'options-endpoint'}->url,
+            self::ENDPOINT_PARAMS => $endpointParams,
+            self::QUERY_PARAM_NAME => (string)$item->{'options-endpoint'}->{'query-param-name'},
         ];
         return $template;
     }
