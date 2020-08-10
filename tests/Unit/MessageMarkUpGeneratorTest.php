@@ -68,7 +68,13 @@ class MessageMarkUpGeneratorTest extends TestCase
         $endpointParams = ['country' => 'gb', 'query' => 'value'];
 
         $generator = new MessageMarkUpGenerator();
-        $generator->addAutoCompleteMessage('This is the title', '/api/v3/endpoint-url', 'query', $endpointParams);
+        $generator->addAutoCompleteMessage(
+            'This is the title',
+            '/api/v3/endpoint-url',
+            'query',
+            'callback',
+            'Submit',
+            $endpointParams);
         $markUp = $generator->getMarkUp();
         $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
         $this->assertRegexp('/<autocomplete-message>/', $markUp);

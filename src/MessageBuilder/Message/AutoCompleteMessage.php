@@ -12,17 +12,26 @@ class AutoCompleteMessage
 
     public $queryParamName;
 
+    public $callback;
+
+    public $submitText;
+
     /**
      * AutoCompleteMessage constructor.
      * @param $title
      * @param $endpointUrl
-     * @param $endpointParams
+     * @param $queryParamName
+     * @param $callback
+     * @param $submitText
+     * @param array $endpointParams
      */
-    public function __construct($title, $endpointUrl, $queryParamName, $endpointParams = [])
+    public function __construct($title, $endpointUrl, $queryParamName, $callback, $submitText, $endpointParams = [])
     {
         $this->title = $title;
         $this->endpointUrl =$endpointUrl;
         $this->queryParamName= $queryParamName;
+        $this->callback = $callback;
+        $this->submitText = $submitText;
         $this->endpointParams = $endpointParams;
     }
 
@@ -31,6 +40,8 @@ class AutoCompleteMessage
         return <<<EOT
 <autocomplete-message>
     <title>$this->title</title>
+    <callback>$this->callback</callback>
+    <submit_text>$this->submitText</submit_text>
     <options-endpoint>
         <url>$this->endpointUrl</url>
         <params>

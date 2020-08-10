@@ -523,6 +523,8 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             ->setTitle($template[self::TITLE])
             ->setEndpointUrl($template[self::ENDPOINT_URL])
             ->setEndpointParams($template[self::ENDPOINT_PARAMS])
+            ->setCallback($template[self::CALLBACK])
+            ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setQueryParamName($template[self::QUERY_PARAM_NAME]);
         return $message;
     }
@@ -975,6 +977,8 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $template = [
             self::TITLE => trim((string)$item->title),
             self::ENDPOINT_URL => (string)$item->{'options-endpoint'}->url,
+            self::SUBMIT_TEXT => (string)$item->submit_text,
+            self::CALLBACK => (string)$item->callback,
             self::ENDPOINT_PARAMS => $endpointParams,
             self::QUERY_PARAM_NAME => (string)$item->{'options-endpoint'}->{'query-param-name'},
         ];

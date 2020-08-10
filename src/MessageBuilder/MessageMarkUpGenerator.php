@@ -397,17 +397,21 @@ class MessageMarkUpGenerator
 
     /**
      * @param $title
-     * @param $endpointUrl,
-     * @param $endpointParams
+     * @param $endpointUrl ,
      * @param $queryParamName
+     * @param $callback
+     * @param $submit
+     * @param array $endpointParams
      * @return MessageMarkUpGenerator
      */
-    public function addAutoCompleteMessage($title, $endpointUrl, $queryParamName, $endpointParams = [])
+    public function addAutoCompleteMessage($title, $endpointUrl, $queryParamName, $callback, $submit, $endpointParams = [])
     {
         $this->messages[] = new AutoCompleteMessage(
             $title,
             $endpointUrl,
             $queryParamName,
+            $callback,
+            $submit,
             $endpointParams
         );
         return $this;
