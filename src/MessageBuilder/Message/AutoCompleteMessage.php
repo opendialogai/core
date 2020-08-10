@@ -21,18 +21,18 @@ class AutoCompleteMessage
      * @param $title
      * @param $endpointUrl
      * @param $queryParamName
-     * @param array $endpointParams
      * @param $callback
      * @param $submitText
+     * @param array $endpointParams
      */
     public function __construct($title, $endpointUrl, $queryParamName, $callback, $submitText, $endpointParams = [])
     {
         $this->title = $title;
         $this->endpointUrl =$endpointUrl;
         $this->queryParamName= $queryParamName;
-        $this->endpointParams = $endpointParams;
         $this->callback = $callback;
         $this->submitText = $submitText;
+        $this->endpointParams = $endpointParams;
     }
 
     public function getMarkUp()
