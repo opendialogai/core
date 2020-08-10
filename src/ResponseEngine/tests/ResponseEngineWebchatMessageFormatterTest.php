@@ -1220,7 +1220,24 @@ EOT;
 
     public function testAutocompleteMessage()
     {
-        $markup = '<message disable_text="1"><autocomplete-message><title>Title</title><options-endpoint><url>/api/to-hit</url><params><param name="country" value="uk" /><param name="language" value="en" /></params><query-param-name>name</query-param-name></options-endpoint></autocomplete-message></message>';
+        /** @lang X<L */
+        $markup = <<<EOT
+<message disable_text="1">
+    <autocomplete-message>
+        <title>Title</title>
+        <submit_text>Submit</submit_text>
+        <callback>Callback</callback>
+        <options-endpoint>
+            <url>/api/to-hit</url>
+            <params>
+                <param name="country" value="uk" />
+                <param name="language" value="en" />
+            </params>
+            <query-param-name>name</query-param-name>
+        </options-endpoint>
+    </autocomplete-message>
+</message>
+EOT;
         $formatter = new WebChatMessageFormatter();
 
         /** @var OpenDialogMessage[] $messages */

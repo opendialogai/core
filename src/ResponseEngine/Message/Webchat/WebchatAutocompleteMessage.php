@@ -16,6 +16,10 @@ class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteM
 
     private $queryParamName;
 
+    private $callback;
+
+    private $submitText;
+
     /**
      * @param $title
      * @return $this
@@ -89,6 +93,60 @@ class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteM
     }
 
     /**
+     * @return string
+     */
+    public function getMessageType(): string
+    {
+        return $this->messageType;
+    }
+
+    /**
+     * @param string $messageType
+     * @return WebchatAutocompleteMessage
+     */
+    public function setMessageType(string $messageType): WebchatAutocompleteMessage
+    {
+        $this->messageType = $messageType;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCallback()
+    {
+        return $this->callback;
+    }
+
+    /**
+     * @param mixed $callback
+     * @return WebchatAutocompleteMessage
+     */
+    public function setCallback($callback)
+    {
+        $this->callback = $callback;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSubmitText()
+    {
+        return $this->submitText;
+    }
+
+    /**
+     * @param mixed $submitText
+     * @return WebchatAutocompleteMessage
+     */
+    public function setSubmitText($submitText)
+    {
+        $this->submitText = $submitText;
+        return $this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getData(): ?array
@@ -98,6 +156,8 @@ class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteM
             'endpoint_url' => $this->getEndpointUrl(),
             'endpoint_params' => $this->getEndpointParams(),
             'query_param_name' => $this->getQueryParamName(),
+            'callback' => $this->getCallback(),
+            'submit_text' => $this->getSubmitText(),
         ];
     }
 }
