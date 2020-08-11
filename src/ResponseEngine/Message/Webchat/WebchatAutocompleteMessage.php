@@ -151,7 +151,7 @@ class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteM
      */
     public function getData(): ?array
     {
-        return [
+        return parent::getData() + [
             'title' => $this->getTitle(),
             'endpoint_url' => $this->getEndpointUrl(),
             'endpoint_params' => $this->getEndpointParams(),
