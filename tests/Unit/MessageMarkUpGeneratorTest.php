@@ -81,4 +81,29 @@ class MessageMarkUpGeneratorTest extends TestCase
         $this->assertRegexp('/This is the title/', $markUp);
         $this->assertRegexp('/<url>\/api\/v3\/endpoint-url<\/url>/', $markUp);
     }
+
+    public function testDatePickerUpGenerator()
+    {
+        $generator = new MessageMarkUpGenerator();
+        $generator->addDatePickerMessage(
+            'Message text',
+            'callback',
+            'Submit',
+            'today',
+            '20200101',
+            false,
+        false,
+        true);
+        $markUp = $generator->getMarkUp();
+
+        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertRegexp('/<date-picker-message>/', $markUp);
+        $this->assertRegexp('/<text>Message text<\/text>/', $markUp);
+        $this->assertRegexp('/<callback>callback<\/callback>/', $markUp);
+        $this->assertRegexp('/<submit_text>Submit<\/submit_text>/', $markUp);
+        $this->assertRegexp('/<month_required><\/month_required>/', $markUp);
+        $this->assertRegexp('/<year_required>1<\/year_required>/', $markUp);
+        $this->assertRegexp('/<max_date>today<\/max_date>/', $markUp);
+        $this->assertRegexp('/<min_date>20200101<\/min_date>/', $markUp);
+    }
 }

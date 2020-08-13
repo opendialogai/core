@@ -191,6 +191,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             case self::DATE_PICKER_MESSAGE:
                 $template = $this->formatDatePickerMessage($item);
                 return $this->generateDatePickerMessage($template);
+                break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
                 break;
@@ -1009,11 +1010,11 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::TEXT => trim((string)$item->text),
             self::SUBMIT_TEXT => trim((string)$item->submit_text),
             self::CALLBACK => trim((string)$item->callback),
-            self::MIN_DATE => $item->min_date ?? null,
-            self::MAX_DATE => $item->max_date ?? null,
-            self::DAY_REQUIRED => $item->day_required ?? true,
-            self::MONTH_REQUIRED => $item->month_required ?? true,
-            self::YEAR_REQUIRED => $item->min_date ?? true,
+            self::MIN_DATE => (string)$item->min_date ?? null,
+            self::MAX_DATE => (string)$item->max_date ?? null,
+            self::DAY_REQUIRED => (string)$item->day_required ?? true,
+            self::MONTH_REQUIRED => (string)$item->month_required ?? true,
+            self::YEAR_REQUIRED => (string)$item->year_required ?? true,
         ];
     }
 
