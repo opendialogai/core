@@ -74,6 +74,7 @@ class MessageMarkUpGeneratorTest extends TestCase
             'query',
             'callback',
             'Submit',
+            'placeholder...',
             $endpointParams);
         $markUp = $generator->getMarkUp();
         $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);

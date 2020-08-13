@@ -1227,6 +1227,7 @@ EOT;
         <title>Title</title>
         <submit_text>Submit</submit_text>
         <callback>Callback</callback>
+        <placeholder>placeholder...</placeholder>
         <options-endpoint>
             <url>/api/to-hit</url>
             <params>
@@ -1245,6 +1246,7 @@ EOT;
         $this->assertEquals('Title', $messages[0]->getData()['title']);
         $this->assertEquals('/api/to-hit', $messages[0]->getData()['endpoint_url']);
         $this->assertEquals('name', $messages[0]->getData()['query_param_name']);
+        $this->assertEquals('placeholder...', $messages[0]->getData()['placeholder']);
 
         $endpointParams = $messages[0]->getData()['endpoint_params'];
         $this->assertEquals('country', $endpointParams[0]['name']);

@@ -59,7 +59,7 @@ use SimpleXMLElement;
 /**
  * Webchat Message formatter.
  */
-class WebChatMessageFormatter extends BaseMessageFormatter
+class WebchatMessageFormatter extends BaseMessageFormatter
 {
     /** @var ResponseEngineService */
     private $responseEngineService;
@@ -531,7 +531,8 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             ->setEndpointParams($template[self::ENDPOINT_PARAMS])
             ->setCallback($template[self::CALLBACK])
             ->setSubmitText($template[self::SUBMIT_TEXT])
-            ->setQueryParamName($template[self::QUERY_PARAM_NAME]);
+            ->setQueryParamName($template[self::QUERY_PARAM_NAME])
+            ->setPlaceholder($template[self::PLACEHOLDER]);
         return $message;
     }
 
@@ -998,6 +999,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::ENDPOINT_URL => (string)$item->{'options-endpoint'}->url,
             self::SUBMIT_TEXT => (string)$item->submit_text,
             self::CALLBACK => (string)$item->callback,
+            self::PLACEHOLDER => (string)$item->placeholder,
             self::ENDPOINT_PARAMS => $endpointParams,
             self::QUERY_PARAM_NAME => (string)$item->{'options-endpoint'}->{'query-param-name'},
         ];
