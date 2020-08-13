@@ -22,6 +22,8 @@ class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteM
 
     private $placeholder;
 
+    private $attributeName;
+
     /**
      * @param $title
      * @return $this
@@ -167,6 +169,24 @@ class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteM
     }
 
     /**
+     * @return mixed
+     */
+    public function getAttributeName()
+    {
+        return $this->attributeName;
+    }
+
+    /**
+     * @param mixed $attributeName
+     * @return WebchatAutocompleteMessage
+     */
+    public function setAttributeName($attributeName)
+    {
+        $this->attributeName = $attributeName;
+        return $this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getData(): ?array
@@ -178,7 +198,8 @@ class WebchatAutocompleteMessage extends WebchatMessage implements AutocompleteM
             'query_param_name' => $this->getQueryParamName(),
             'callback' => $this->getCallback(),
             'submit_text' => $this->getSubmitText(),
-            'placeholder' => $this->getPlaceholder()
+            'placeholder' => $this->getPlaceholder(),
+            'attribute_name' => $this->getAttributeName(),
         ];
     }
 }

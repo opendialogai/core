@@ -532,7 +532,8 @@ class WebchatMessageFormatter extends BaseMessageFormatter
             ->setCallback($template[self::CALLBACK])
             ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setQueryParamName($template[self::QUERY_PARAM_NAME])
-            ->setPlaceholder($template[self::PLACEHOLDER]);
+            ->setPlaceholder($template[self::PLACEHOLDER])
+            ->setAttributeName($template[self::ATTRIBUTE_NAME]);
         return $message;
     }
 
@@ -1000,6 +1001,7 @@ class WebchatMessageFormatter extends BaseMessageFormatter
             self::SUBMIT_TEXT => (string)$item->submit_text,
             self::CALLBACK => (string)$item->callback,
             self::PLACEHOLDER => (string)$item->placeholder,
+            self::ATTRIBUTE_NAME => (string)$item->attribute_name,
             self::ENDPOINT_PARAMS => $endpointParams,
             self::QUERY_PARAM_NAME => (string)$item->{'options-endpoint'}->{'query-param-name'},
         ];

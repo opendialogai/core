@@ -403,6 +403,7 @@ class MessageMarkUpGenerator
      * @param $callback
      * @param $submit
      * @param $placeholder
+     * @param $attributeName
      * @param array $endpointParams
      * @return MessageMarkUpGenerator
      */
@@ -413,6 +414,7 @@ class MessageMarkUpGenerator
         $callback,
         $submit,
         $placeholder,
+        $attributeName,
         $endpointParams = []
     ) {
         $this->messages[] = new AutoCompleteMessage(
@@ -422,6 +424,7 @@ class MessageMarkUpGenerator
             $callback,
             $submit,
             $placeholder,
+            $attributeName,
             $endpointParams
         );
         return $this;
