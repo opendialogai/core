@@ -10,6 +10,7 @@ use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TranscriptDownloadButton;
 use OpenDialogAi\MessageBuilder\Message\ButtonMessage;
 use OpenDialogAi\MessageBuilder\Message\CtaMessage;
+use OpenDialogAi\MessageBuilder\Message\DatePickerMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
 use OpenDialogAi\MessageBuilder\Message\Form\EmailElement;
@@ -414,6 +415,28 @@ class MessageMarkUpGenerator
             $submit,
             $endpointParams
         );
+        return $this;
+    }
+
+    public function addDatePickerMessage(
+        $text,
+        $callback,
+        $submitText,
+        $maxDate = null,
+        $minDate = null,
+        $dayRequired = true,
+        $monthRequired = true,
+        $yearRequired = true
+    ) {
+        $this->messages[] = new DatePickerMessage(
+            $text,
+            $callback,
+            $submitText,
+            $maxDate,
+            $minDate,
+            $dayRequired,
+            $monthRequired,
+            $yearRequired);
         return $this;
     }
 
