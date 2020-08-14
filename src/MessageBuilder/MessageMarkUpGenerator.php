@@ -317,7 +317,7 @@ class MessageMarkUpGenerator
      */
     public function addFullPageRichMessage($title, $subtitle, $text, $buttons = [], $image = [])
     {
-        $richMessage = new FullPageRichMessage($title, $subtitle, $text, $buttons);
+        $richMessage = new FullPageRichMessage($title, $subtitle, $text);
         foreach ($buttons as $button) {
             $display = (isset($button['display'])) ? $button['display'] : true;
 
@@ -402,17 +402,29 @@ class MessageMarkUpGenerator
      * @param $queryParamName
      * @param $callback
      * @param $submit
+     * @param $placeholder
+     * @param $attributeName
      * @param array $endpointParams
      * @return MessageMarkUpGenerator
      */
-    public function addAutoCompleteMessage($title, $endpointUrl, $queryParamName, $callback, $submit, $endpointParams = [])
-    {
+    public function addAutoCompleteMessage(
+        $title,
+        $endpointUrl,
+        $queryParamName,
+        $callback,
+        $submit,
+        $placeholder,
+        $attributeName,
+        $endpointParams = []
+    ) {
         $this->messages[] = new AutoCompleteMessage(
             $title,
             $endpointUrl,
             $queryParamName,
             $callback,
             $submit,
+            $placeholder,
+            $attributeName,
             $endpointParams
         );
         return $this;

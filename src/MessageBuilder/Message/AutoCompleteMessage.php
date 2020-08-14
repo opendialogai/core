@@ -16,6 +16,10 @@ class AutoCompleteMessage
 
     public $submitText;
 
+    public $placeholder;
+
+    public $attributeName;
+
     /**
      * AutoCompleteMessage constructor.
      * @param $title
@@ -23,15 +27,27 @@ class AutoCompleteMessage
      * @param $queryParamName
      * @param $callback
      * @param $submitText
+     * @param $placeholder
+     * @param $attributeName
      * @param array $endpointParams
      */
-    public function __construct($title, $endpointUrl, $queryParamName, $callback, $submitText, $endpointParams = [])
-    {
+    public function __construct(
+        $title,
+        $endpointUrl,
+        $queryParamName,
+        $callback,
+        $submitText,
+        $placeholder,
+        $attributeName,
+        $endpointParams = []
+    ) {
         $this->title = $title;
         $this->endpointUrl =$endpointUrl;
         $this->queryParamName= $queryParamName;
         $this->callback = $callback;
         $this->submitText = $submitText;
+        $this->placeholder = $placeholder;
+        $this->attributeName = $attributeName;
         $this->endpointParams = $endpointParams;
     }
 
@@ -42,6 +58,8 @@ class AutoCompleteMessage
     <title>$this->title</title>
     <callback>$this->callback</callback>
     <submit_text>$this->submitText</submit_text>
+    <placeholder>$this->placeholder</placeholder>
+    <attribute_name>$this->attributeName</attribute_name>
     <options-endpoint>
         <url>$this->endpointUrl</url>
         <params>

@@ -74,12 +74,16 @@ class MessageMarkUpGeneratorTest extends TestCase
             'query',
             'callback',
             'Submit',
+            'placeholder...',
+            'Product',
             $endpointParams);
         $markUp = $generator->getMarkUp();
         $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
         $this->assertRegexp('/<autocomplete-message>/', $markUp);
         $this->assertRegexp('/This is the title/', $markUp);
         $this->assertRegexp('/<url>\/api\/v3\/endpoint-url<\/url>/', $markUp);
+        $this->assertRegexp('/<attribute_name>Product<\/attribute_name>/', $markUp);
+
     }
 
     public function testDatePickerUpGenerator()

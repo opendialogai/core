@@ -1220,13 +1220,15 @@ EOT;
 
     public function testAutocompleteMessage()
     {
-        /** @lang X<L */
+        /** @lang XML */
         $markup = <<<EOT
 <message disable_text="1">
     <autocomplete-message>
         <title>Title</title>
         <submit_text>Submit</submit_text>
         <callback>Callback</callback>
+        <placeholder>placeholder...</placeholder>
+        <attribute_name>Product</attribute_name>
         <options-endpoint>
             <url>/api/to-hit</url>
             <params>
@@ -1245,6 +1247,8 @@ EOT;
         $this->assertEquals('Title', $messages[0]->getData()['title']);
         $this->assertEquals('/api/to-hit', $messages[0]->getData()['endpoint_url']);
         $this->assertEquals('name', $messages[0]->getData()['query_param_name']);
+        $this->assertEquals('placeholder...', $messages[0]->getData()['placeholder']);
+        $this->assertEquals('Product', $messages[0]->getData()['attribute_name']);
 
         $endpointParams = $messages[0]->getData()['endpoint_params'];
         $this->assertEquals('country', $endpointParams[0]['name']);
