@@ -11,6 +11,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
@@ -38,6 +39,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatAutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatCtaMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatDatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
@@ -185,6 +187,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             case self::AUTOCOMPLETE_MESSAGE:
                 $template = $this->formatAutocompleteTemplate($item);
                 return $this->generateAutocompleteMessage($template);
+                break;
+            case self::DATE_PICKER_MESSAGE:
+                $template = $this->formatDatePickerMessage($item);
+                return $this->generateDatePickerMessage($template);
                 break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
@@ -527,6 +533,19 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             ->setSubmitText($template[self::SUBMIT_TEXT])
             ->setQueryParamName($template[self::QUERY_PARAM_NAME]);
         return $message;
+    }
+
+    public function generateDatePickerMessage(array $template): DatePickerMessage
+    {
+         return (new WebchatDatePickerMessage())
+             ->setSubmitText($template[self::SUBMIT_TEXT])
+             ->setText($template[self::TEXT])
+             ->setCallback($template[self::CALLBACK])
+             ->setDayRequired($template[self::DAY_REQUIRED])
+             ->setMonthRequired($template[self::MONTH_REQUIRED])
+             ->setYearRequired($template[self::YEAR_REQUIRED])
+             ->setMaxDate($template[self::MAX_DATE])
+             ->setMinDate($template[self::MIN_DATE]);
     }
 
     /**
@@ -983,6 +1002,20 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::QUERY_PARAM_NAME => (string)$item->{'options-endpoint'}->{'query-param-name'},
         ];
         return $template;
+    }
+
+    public function formatDatePickerMessage(SimpleXMLElement $item): array
+    {
+        return [
+            self::TEXT => trim((string)$item->text),
+            self::SUBMIT_TEXT => trim((string)$item->submit_text),
+            self::CALLBACK => trim((string)$item->callback),
+            self::MIN_DATE => (string)$item->min_date ?? null,
+            self::MAX_DATE => (string)$item->max_date ?? null,
+            self::DAY_REQUIRED => (string)$item->day_required ?? true,
+            self::MONTH_REQUIRED => (string)$item->month_required ?? true,
+            self::YEAR_REQUIRED => (string)$item->year_required ?? true,
+        ];
     }
 
     /**

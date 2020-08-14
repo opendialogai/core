@@ -5,6 +5,7 @@ namespace OpenDialogAi\ResponseEngine\Formatters;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
 use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
@@ -39,6 +40,7 @@ interface MessageFormatterInterface
     public const CTA_MESSAGE            = 'cta-message';
     public const META_MESSAGE           = 'meta-message';
     public const AUTOCOMPLETE_MESSAGE   = 'autocomplete-message';
+    public const DATE_PICKER_MESSAGE    = 'date-picker-message';
 
     // PROPERTIES
     public const BUTTONS                 = 'buttons';
@@ -88,6 +90,11 @@ interface MessageFormatterInterface
     public const ENDPOINT_URL            = 'endpoint_url';
     public const ENDPOINT_PARAMS         = 'endpoint_params';
     public const QUERY_PARAM_NAME        = 'query_param_name';
+    public const DAY_REQUIRED            = 'day_required';
+    public const MONTH_REQUIRED          = 'month_required';
+    public const YEAR_REQUIRED           = 'year_required';
+    public const MAX_DATE                = 'max_date';
+    public const MIN_DATE                = 'min_date';
 
     public function getMessages(string $markup): OpenDialogMessages;
 
@@ -116,6 +123,8 @@ interface MessageFormatterInterface
     public function generateTextMessage(array $template): OpenDialogMessage;
 
     public function generateHandToHumanMessage(array $template): HandToHumanMessage;
+
+    public function generateDatePickerMessage(array $template): DatePickerMessage;
 
     /**
      * @return string

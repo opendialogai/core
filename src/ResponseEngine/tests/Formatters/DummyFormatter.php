@@ -6,6 +6,7 @@ use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
@@ -93,5 +94,10 @@ class DummyFormatter implements MessageFormatterInterface
     public function generateTextMessage(array $template): OpenDialogMessage
     {
         //
+    }
+
+    public function generateDatePickerMessage(array $template): DatePickerMessage
+    {
+        // TODO: Implement generateDatePickerMessage() method.
     }
 }

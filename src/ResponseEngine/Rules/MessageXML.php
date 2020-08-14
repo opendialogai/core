@@ -200,6 +200,7 @@ class MessageXML extends BaseRule
                     case 'long-text-message':
                     case 'cta-message':
                     case 'autocomplete-message':
+                    case 'date-picker-message':
                         break;
 
                     default:

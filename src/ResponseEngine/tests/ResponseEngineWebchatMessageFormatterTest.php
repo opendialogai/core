@@ -1252,4 +1252,36 @@ EOT;
         $this->assertEquals('language', $endpointParams[1]['name']);
         $this->assertEquals('en', $endpointParams[1]['value']);
     }
+
+    public function testDatePickerMessage()
+    {
+        /** @lang XML */
+        $markup = <<<EOT
+<message disable_text="1">
+    <date-picker-message>
+        <text>Text</text>
+        <submit_text>Submit</submit_text>
+        <callback>Callback</callback>
+        <max_date>today</max_date>
+        <min_date>20200101</min_date>
+        <year_required>false</year_required>
+        <month_required>true</month_required>
+        <day_required>false</day_required>
+    </date-picker-message>
+</message>
+EOT;
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('Text', $messages[0]->getData()['text']);
+        $this->assertEquals('Submit', $messages[0]->getData()['submit_text']);
+        $this->assertEquals('Callback', $messages[0]->getData()['callback']);
+        $this->assertEquals('Callback', $messages[0]->getData()['callback']);
+        $this->assertEquals('today', $messages[0]->getData()['max_date']);
+        $this->assertEquals('20200101', $messages[0]->getData()['min_date']);
+        $this->assertEquals('false', $messages[0]->getData()['year_required']);
+        $this->assertEquals('true', $messages[0]->getData()['month_required']);
+        $this->assertEquals('false', $messages[0]->getData()['day_required']);
+    }
 }

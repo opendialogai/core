@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\ResponseEngine\tests\Formatters;
 use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
@@ -90,5 +91,10 @@ class TestFormatter extends BaseMessageFormatter
     public function generateTextMessage(array $template): OpenDialogMessage
     {
         //
+    }
+
+    public function generateDatePickerMessage(array $template): DatePickerMessage
+    {
+        // TODO: Implement generateDatePickerMessage() method.
     }
 }
