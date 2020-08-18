@@ -96,6 +96,8 @@ interface MessageFormatterInterface
     public const MAX_DATE                = 'max_date';
     public const MIN_DATE                = 'min_date';
     public const ATTRIBUTE_NAME          = 'attribute_name';
+    public const MIN                     = 'min';
+    public const MAX                     = 'max';
 
     public function getMessages(string $markup): OpenDialogMessages;
 
