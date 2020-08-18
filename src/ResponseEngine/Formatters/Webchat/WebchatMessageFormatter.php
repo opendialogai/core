@@ -549,7 +549,8 @@ class WebchatMessageFormatter extends BaseMessageFormatter
              ->setMonthRequired($template[self::MONTH_REQUIRED])
              ->setYearRequired($template[self::YEAR_REQUIRED])
              ->setMaxDate($template[self::MAX_DATE])
-             ->setMinDate($template[self::MIN_DATE]);
+             ->setMinDate($template[self::MIN_DATE])
+             ->setAttributeName($template[self::ATTRIBUTE_NAME]);
     }
 
     /**
@@ -1023,6 +1024,7 @@ class WebchatMessageFormatter extends BaseMessageFormatter
             self::DAY_REQUIRED => (string)$item->day_required ?? true,
             self::MONTH_REQUIRED => (string)$item->month_required ?? true,
             self::YEAR_REQUIRED => (string)$item->year_required ?? true,
+            self::ATTRIBUTE_NAME => (string)$item->attribute_name ?? true,
         ];
     }
 

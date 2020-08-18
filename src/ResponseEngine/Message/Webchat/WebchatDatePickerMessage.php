@@ -22,6 +22,8 @@ class WebchatDatePickerMessage extends WebchatMessage implements DatePickerMessa
 
     private $yearRequired;
 
+    private $attributeName;
+
     /**
      * @return string
      */
@@ -167,6 +169,24 @@ class WebchatDatePickerMessage extends WebchatMessage implements DatePickerMessa
     }
 
     /**
+     * @return mixed
+     */
+    public function getAttributeName()
+    {
+        return $this->attributeName;
+    }
+
+    /**
+     * @param mixed $attributeName
+     * @return WebchatDatePickerMessage
+     */
+    public function setAttributeName($attributeName)
+    {
+        $this->attributeName = $attributeName;
+        return $this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getData(): ?array
@@ -179,6 +199,7 @@ class WebchatDatePickerMessage extends WebchatMessage implements DatePickerMessa
                 'min_date' => $this->getMinDate(),
                 'callback' => $this->getCallback(),
                 'submit_text' => $this->getSubmitText(),
+                'attribute_name' => $this->getAttributeName()
             ];
     }
 }

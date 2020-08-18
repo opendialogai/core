@@ -1271,6 +1271,7 @@ EOT;
         <year_required>false</year_required>
         <month_required>true</month_required>
         <day_required>false</day_required>
+        <attribute_name>Attribute</attribute_name>
     </date-picker-message>
 </message>
 EOT;
@@ -1287,5 +1288,6 @@ EOT;
         $this->assertEquals('false', $messages[0]->getData()['year_required']);
         $this->assertEquals('true', $messages[0]->getData()['month_required']);
         $this->assertEquals('false', $messages[0]->getData()['day_required']);
+        $this->assertEquals('Attribute', $messages[0]->getData()['attribute_name']);
     }
 }
