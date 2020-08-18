@@ -100,6 +100,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'required' => true,
                 'element_type' => 'text',
                 'default_value' => 'value',
+                'min' => null,
+                'max' => null,
             ],
             [
                 'name' => 'question',
@@ -111,6 +113,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                     1 => 'very yes',
                 ],
                 'default_value' => 'yes',
+                'min' => null,
+                'max' => null,
             ],
             [
                 'name' => 'tell_more',
@@ -118,6 +122,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'required' => false,
                 'element_type' => 'textarea',
                 'default_value' => 'value',
+                'min' => null,
+                'max' => null,
             ],
             [
                 'name' => 'gender',
@@ -129,6 +135,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                     'Female',
                 ],
                 'default_value' => 'Male',
+                'min' => null,
+                'max' => null,
             ],
         ];
 
@@ -154,6 +162,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'required' => true,
                 'element_type' => 'text',
                 'default_value' => 'value',
+                'min' => null,
+                'max' => null,
             ],
             [
                 'name' => 'question',
@@ -165,6 +175,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                     1 => 'very yes',
                 ],
                 'default_value' => 'yes',
+                'min' => null,
+                'max' => null,
             ],
             [
                 'name' => 'tell_more',
@@ -172,6 +184,8 @@ class ResponseEngineWebchatMessagesTest extends TestCase
                 'required' => false,
                 'element_type' => 'textarea',
                 'default_value' => 'value',
+                'min' => null,
+                'max' => null,
             ],
         ];
 

@@ -12,13 +12,15 @@ class FormSelectElement extends FormElement
     /**
      * @param $name
      * @param $display
-     * @param $required
-     * @param $options
-     * @param $defaultValue
+     * @param bool $required
+     * @param array $options
+     * @param string $defaultValue
+     * @param null $min
+     * @param null $max
      */
-    public function __construct($name, $display, $required = false, $options = [], $defaultValue = '')
+    public function __construct($name, $display, $required = false, $options = [], $defaultValue = '', $min = null, $max = null)
     {
-        parent::__construct($name, $display, $required);
+        parent::__construct($name, $display, $required, $min, $max);
 
         $this->options = $options;
         $this->defaultValue = $defaultValue;
