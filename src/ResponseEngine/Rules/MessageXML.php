@@ -58,10 +58,6 @@ class MessageXML extends BaseRule
                         break;
 
                     case 'button-message':
-                        if (empty((string)$item->text)) {
-                            $this->setErrorMessage('Button messages must have "text"');
-                            return false;
-                        }
                         foreach ($item->button as $button) {
                             $buttonXml = $button->text->asXml();
                             // Remove button text enclosing tags.
