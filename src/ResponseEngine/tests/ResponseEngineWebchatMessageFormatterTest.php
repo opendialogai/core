@@ -1268,7 +1268,7 @@ EOT;
         <callback>Callback</callback>
         <max_date>today</max_date>
         <min_date>20200101</min_date>
-        <year_required>false</year_required>
+        <year_required>true</year_required>
         <month_required>true</month_required>
         <day_required>false</day_required>
         <attribute_name>Attribute</attribute_name>
@@ -1285,9 +1285,9 @@ EOT;
         $this->assertEquals('Callback', $messages[0]->getData()['callback']);
         $this->assertEquals('today', $messages[0]->getData()['max_date']);
         $this->assertEquals('20200101', $messages[0]->getData()['min_date']);
-        $this->assertEquals('false', $messages[0]->getData()['year_required']);
-        $this->assertEquals('true', $messages[0]->getData()['month_required']);
-        $this->assertEquals('false', $messages[0]->getData()['day_required']);
+        $this->assertTrue($messages[0]->getData()['year_required']);
+        $this->assertTrue($messages[0]->getData()['month_required']);
+        $this->assertFalse($messages[0]->getData()['day_required']);
         $this->assertEquals('Attribute', $messages[0]->getData()['attribute_name']);
     }
 }
