@@ -652,7 +652,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         }
 
         $template = [
-            self::TEXT => $this->getMessageText($item->text),
+            self::TEXT => $item->text ? $this->getMessageText($item->text) : null,
             self::EXTERNAL => $external,
             self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
         ];
@@ -1021,9 +1021,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::CALLBACK => trim((string)$item->callback),
             self::MIN_DATE => (string)$item->min_date ?? null,
             self::MAX_DATE => (string)$item->max_date ?? null,
-            self::DAY_REQUIRED => (string)$item->day_required ?? true,
-            self::MONTH_REQUIRED => (string)$item->month_required ?? true,
-            self::YEAR_REQUIRED => (string)$item->year_required ?? true,
+            self::DAY_REQUIRED => filter_var($item->day_required, FILTER_VALIDATE_BOOLEAN),
+            self::MONTH_REQUIRED => filter_var($item->month_required, FILTER_VALIDATE_BOOLEAN),
+            self::YEAR_REQUIRED => filter_var($item->year_required, FILTER_VALIDATE_BOOLEAN),
             self::ATTRIBUTE_NAME => (string)$item->attribute_name ?? true,
         ];
     }

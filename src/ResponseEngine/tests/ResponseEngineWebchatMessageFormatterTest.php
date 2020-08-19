@@ -357,6 +357,42 @@ EOT;
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 
+    public function testButtonMessageNoText()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <button-message clear_after_interaction="0">
+    <button>
+      <text>Text</text>
+      <callback>callback_yes</callback>
+      <value>true</value>
+    </button>
+  </button-message>
+</message>
+EOT;
+
+        $messageXML = new MessageXML();
+        $this->assertTrue($messageXML->passes(null, $markup), $messageXML->message());
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+                'display' => true,
+                'type' => '',
+                'text' => 'Text'
+            ],
+        ];
+
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
+
     public function testRichMessage1()
     {
         $buttons = [
@@ -1268,7 +1304,7 @@ EOT;
         <callback>Callback</callback>
         <max_date>today</max_date>
         <min_date>20200101</min_date>
-        <year_required>false</year_required>
+        <year_required>true</year_required>
         <month_required>true</month_required>
         <day_required>false</day_required>
         <attribute_name>Attribute</attribute_name>
@@ -1285,9 +1321,9 @@ EOT;
         $this->assertEquals('Callback', $messages[0]->getData()['callback']);
         $this->assertEquals('today', $messages[0]->getData()['max_date']);
         $this->assertEquals('20200101', $messages[0]->getData()['min_date']);
-        $this->assertEquals('false', $messages[0]->getData()['year_required']);
-        $this->assertEquals('true', $messages[0]->getData()['month_required']);
-        $this->assertEquals('false', $messages[0]->getData()['day_required']);
+        $this->assertTrue($messages[0]->getData()['year_required']);
+        $this->assertTrue($messages[0]->getData()['month_required']);
+        $this->assertFalse($messages[0]->getData()['day_required']);
         $this->assertEquals('Attribute', $messages[0]->getData()['attribute_name']);
     }
 }
