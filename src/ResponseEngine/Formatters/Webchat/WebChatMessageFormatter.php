@@ -59,7 +59,7 @@ use SimpleXMLElement;
 /**
  * Webchat Message formatter.
  */
-class WebchatMessageFormatter extends BaseMessageFormatter
+class WebChatMessageFormatter extends BaseMessageFormatter
 {
     /** @var ResponseEngineService */
     private $responseEngineService;
