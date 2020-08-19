@@ -652,7 +652,7 @@ class WebchatMessageFormatter extends BaseMessageFormatter
         }
 
         $template = [
-            self::TEXT => $this->getMessageText($item->text),
+            self::TEXT => $item->text ? $this->getMessageText($item->text) : null,
             self::EXTERNAL => $external,
             self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
         ];

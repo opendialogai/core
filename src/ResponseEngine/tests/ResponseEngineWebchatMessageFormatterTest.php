@@ -357,6 +357,42 @@ EOT;
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 
+    public function testButtonMessageNoText()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <button-message clear_after_interaction="0">
+    <button>
+      <text>Text</text>
+      <callback>callback_yes</callback>
+      <value>true</value>
+    </button>
+  </button-message>
+</message>
+EOT;
+
+        $messageXML = new MessageXML();
+        $this->assertTrue($messageXML->passes(null, $markup), $messageXML->message());
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+                'display' => true,
+                'type' => '',
+                'text' => 'Text'
+            ],
+        ];
+
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
+
     public function testRichMessage1()
     {
         $buttons = [
