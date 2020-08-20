@@ -16,7 +16,7 @@ use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
-use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\HandToSystemMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -44,7 +44,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageRichMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToSystemMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatListMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatLongTextMessage;
@@ -171,9 +171,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $template = $this->formatLongTextTemplate($item);
                 return $this->generateLongTextMessage($template);
                 break;
-            case self::HAND_TO_HUMAN_MESSAGE:
-                $template = $this->formatHandToHumanTemplate($item);
-                return $this->generateHandToHumanMessage($template);
+            case self::HAND_TO_SYSTEM_MESSAGE:
+                $template = $this->formatHandToSystemTemplate($item);
+                return $this->generateHandToSystemMessage($template);
                 break;
             case self::CTA_MESSAGE:
                 $text = $this->getMessageText($item);
@@ -493,11 +493,13 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     /**
      * @param array $template
-     * @return HandToHumanMessage
+     * @return HandToSystemMessage
      */
-    public function generateHandToHumanMessage(array $template): HandToHumanMessage
+    public function generateHandToSystemMessage(array $template): HandToSystemMessage
     {
-        $message = (new WebchatHandToHumanMessage())->setElements($template[self::ELEMENTS]);
+        $message = (new WebchatHandToSystemMessage())
+            ->setSystem($template[self::SYSTEM])
+            ->setElements($template[self::ELEMENTS]);
         return $message;
     }
 
@@ -747,14 +749,17 @@ class WebChatMessageFormatter extends BaseMessageFormatter
      * @param SimpleXMLElement $item
      * @return array
      */
-    private function formatHandToHumanTemplate(SimpleXMLElement $item): array
+    private function formatHandToSystemTemplate(SimpleXMLElement $item): array
     {
+        $system = $item->attributes()[self::SYSTEM];
+
         $elements = [];
         foreach ($item->data as $data) {
             $elements[(string)$data['name']] = (string)$data;
         }
 
         $template = [
+            self::SYSTEM => $system,
             self::ELEMENTS => $elements,
         ];
         return $template;

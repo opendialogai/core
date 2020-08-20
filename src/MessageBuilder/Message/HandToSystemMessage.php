@@ -2,17 +2,21 @@
 
 namespace OpenDialogAi\MessageBuilder\Message;
 
-class HandToHumanMessage
+class HandToSystemMessage
 {
     public $data;
 
+    public $system;
+
     /**
-     * HandToHumanMessage constructor.
+     * HandToSystemMessage constructor.
+     * @param $system
      * @param $data
      */
-    public function __construct($data)
+    public function __construct($system, $data)
     {
         $this->data = $data;
+        $this->system = $system;
     }
 
     public function getMarkUp()
@@ -24,9 +28,9 @@ class HandToHumanMessage
         }
 
         return <<<EOT
-<hand-to-human-message>
+<hand-to-system-message system="$this->system">
     $messageMarkUp
-</hand-to-human-message>
+</hand-to-system-message>
 EOT;
     }
 }

@@ -7,6 +7,7 @@ use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToSystemMessage;
 use OpenDialogAi\ResponseEngine\Rules\MessageXML;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
@@ -98,14 +99,28 @@ EOT;
         $this->assertEquals('hi there <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 1</a> <a class="linkified" target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
     }
 
-    public function testHandToHumanMessage()
+    public function testHandToSystemMessage()
     {
-        $markup = '<message disable_text="1"><hand-to-human-message><data name="history">{message_history.all}</data><data name="email">{user.email}</data></hand-to-human-message></message>';
+        $system = 'my-custom-chat-system';
+        $markup = <<<EOT
+<message disable_text="1">
+    <hand-to-system-message system="$system">
+        <data name="history">{message_history.all}</data>
+        <data name="email">{user.email}</data>
+    </hand-to-system-message>
+</message>
+EOT;
+        $messageXML = new MessageXML();
+        $this->assertTrue($messageXML->passes(null, $markup), $messageXML->message());
+
         $formatter = new WebChatMessageFormatter();
 
-        /** @var OpenDialogMessage[] $messages */
         $messages = $formatter->getMessages($markup)->getMessages();
+
+        /** @var WebchatHandToSystemMessage $message */
         $message = $messages[0];
+        $this->assertEquals($system, $message->getSystem());
+        $this->assertEquals($system, $message->getData()['system']);
         $this->assertEquals(1, $message->getData()['disable_text']);
 
         $elements = $message->getElements();

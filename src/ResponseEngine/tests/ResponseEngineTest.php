@@ -22,7 +22,7 @@ use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
-use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToSystemMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatImageMessage;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -251,7 +251,7 @@ class ResponseEngineTest extends TestCase
     /**
      * @requires  DGRAPH
      */
-    public function testWebChatHandToHumanMessage()
+    public function testWebChatHandToSystemMessage()
     {
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
@@ -262,7 +262,8 @@ class ResponseEngineTest extends TestCase
         ];
 
         $generator = new MessageMarkUpGenerator();
-        $generator->addHandToHumanMessage($data);
+        $system = "my-custom-chat-system";
+        $generator->addHandToSystemMessage($system, $data);
 
         $attributes = ['username' => 'user.name'];
         $parameters = ['value' => 'dummy'];
@@ -285,11 +286,12 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
+        /** @var WebchatHandToSystemMessage $message */
         $message = $messageWrapper->getMessages()[0];
         $elements = $message->getElements();
 
-        $this->assertInstanceOf(WebchatHandToHumanMessage::class, $message);
-
+        $this->assertInstanceOf(WebchatHandToSystemMessage::class, $message);
+        $this->assertEquals($system, $message->getSystem());
         $this->assertEquals($elements['history'], 'test1');
         $this->assertEquals($elements['email'], 'test2');
     }
