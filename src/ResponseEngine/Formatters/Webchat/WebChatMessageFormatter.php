@@ -751,7 +751,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
      */
     private function formatHandToSystemTemplate(SimpleXMLElement $item): array
     {
-        $system = $item->attributes()[self::SYSTEM];
+        $system = (string)$item->attributes()[self::SYSTEM];
 
         $elements = [];
         foreach ($item->data as $data) {

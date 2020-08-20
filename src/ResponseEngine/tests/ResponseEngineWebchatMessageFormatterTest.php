@@ -119,8 +119,8 @@ EOT;
 
         /** @var WebchatHandToSystemMessage $message */
         $message = $messages[0];
-        $this->assertEquals($system, $message->getSystem());
-        $this->assertEquals($system, $message->getData()['system']);
+        $this->assertSame($system, $message->getSystem());
+        $this->assertSame($system, $message->getData()['system']);
         $this->assertEquals(1, $message->getData()['disable_text']);
 
         $elements = $message->getElements();
