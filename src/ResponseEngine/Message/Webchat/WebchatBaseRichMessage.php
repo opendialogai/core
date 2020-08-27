@@ -10,6 +10,12 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
 
     private $subTitle;
 
+    private $callback;
+
+    private $callbackValue;
+
+    private $link;
+
     private $imgSrc = null;
 
     private $imgLink = null;
@@ -36,6 +42,36 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
     public function setSubTitle($subTitle)
     {
         $this->subTitle = $subTitle;
+        return $this;
+    }
+
+    /**
+     * @param $callback
+     * @return $this
+     */
+    public function setCallback($callback)
+    {
+        $this->callback = $callback;
+        return $this;
+    }
+
+    /**
+     * @param $callbackValue
+     * @return $this
+     */
+    public function setCallbackValue($callbackValue)
+    {
+        $this->callbackValue = $callbackValue;
+        return $this;
+    }
+
+    /**
+     * @param $link
+     * @return $this
+     */
+    public function setLink($link)
+    {
+        $this->link = $link;
         return $this;
     }
 
@@ -98,6 +134,30 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
     /**
      * @return null|string
      */
+    public function getCallback()
+    {
+        return $this->callback;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getCallbackValue()
+    {
+        return $this->callbackValue;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLink()
+    {
+        return $this->link;
+    }
+
+    /**
+     * @return null|string
+     */
     public function getImageSrc()
     {
         return $this->imgSrc;
@@ -135,6 +195,9 @@ abstract class WebchatBaseRichMessage extends WebchatMessage
         $data = [
             'title' => $this->getTitle(),
             'subtitle' => $this->getSubTitle(),
+            'callback' => $this->getCallback(),
+            'callback_value' => $this->getCallbackValue(),
+            'link' => $this->getLink(),
             'buttons' => $this->getButtonsArray(),
         ];
 

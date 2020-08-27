@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
+use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
@@ -34,8 +36,10 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormRadioElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormSelectElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextAreaElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormTextElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatAutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatCtaMessage;
+use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatDatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatEmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFormMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatFullPageFormMessage;
@@ -180,6 +184,14 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $template = $this->formatMetaTemplate($item);
                 return $this->generateMetaMessage($template);
                 break;
+            case self::AUTOCOMPLETE_MESSAGE:
+                $template = $this->formatAutocompleteTemplate($item);
+                return $this->generateAutocompleteMessage($template);
+                break;
+            case self::DATE_PICKER_MESSAGE:
+                $template = $this->formatDatePickerMessage($item);
+                return $this->generateDatePickerMessage($template);
+                break;
             case self::EMPTY_MESSAGE:
                 return new WebchatEmptyMessage();
                 break;
@@ -274,24 +286,26 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             $display = $el[self::DISPLAY];
             $required = $el[self::REQUIRED];
             $defaultValue = $el[self::DEFAULT_VALUE];
+            $min = $el[self::MIN];
+            $max = $el[self::MAX];
 
             if ($el[self::ELEMENT_TYPE] == self::TEXTAREA) {
-                $element = new FormTextAreaElement($name, $display, $required, $defaultValue);
+                $element = new FormTextAreaElement($name, $display, $required, $defaultValue, $min, $max);
             } elseif ($el[self::ELEMENT_TYPE] == self::TEXT) {
-                $element = new FormTextElement($name, $display, $required, $defaultValue);
+                $element = new FormTextElement($name, $display, $required, $defaultValue, $min, $max);
             } elseif ($el[self::ELEMENT_TYPE] == self::NUMBER) {
-                $element = new FormNumberElement($name, $display, $required, $defaultValue);
+                $element = new FormNumberElement($name, $display, $required, $defaultValue, $min, $max);
             } elseif ($el[self::ELEMENT_TYPE] == self::SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new FormSelectElement($name, $display, $required, $options, $defaultValue);
+                $element = new FormSelectElement($name, $display, $required, $options, $defaultValue, $min, $max);
             } elseif ($el[self::ELEMENT_TYPE] == self::AUTO_COMPLETE_SELECT) {
                 $options = $el[self::OPTIONS];
-                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options, $defaultValue);
+                $element = new FormAutoCompleteSelectElement($name, $display, $required, $options, $defaultValue, $min, $max);
             } elseif ($el[self::ELEMENT_TYPE] == self::RADIO) {
                 $options = $el[self::OPTIONS];
-                $element = new FormRadioElement($name, $display, $required, $options, $defaultValue);
+                $element = new FormRadioElement($name, $display, $required, $options, $defaultValue, $min, $max);
             } elseif ($el[self::ELEMENT_TYPE] == self::EMAIL) {
-                $element = new FormEmailElement($name, $display, $required, $defaultValue);
+                $element = new FormEmailElement($name, $display, $required, $defaultValue, $min, $max);
             }
             $message->addElement($element);
         }
@@ -375,7 +389,10 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message = (new WebchatRichMessage())
             ->setTitle($template[self::TITLE])
             ->setSubTitle($template[self::SUBTITLE])
-            ->setText($template[self::TEXT]);
+            ->setText($template[self::TEXT])
+            ->setCallback($template[self::CALLBACK])
+            ->setCallbackValue($template[self::CALLBACK_VALUE])
+            ->setLink($template[self::LINK]);
 
         if (isset($template[self::IMAGE])) {
             $message->setImageSrc($template[self::IMAGE][self::SRC]);
@@ -503,6 +520,39 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         $message = (new WebchatMetaMessage())->setElements($template[self::ELEMENTS]);
         return $message;
     }
+
+    /**
+     * @param array $template
+     * @return AutocompleteMessage
+     */
+    public function generateAutocompleteMessage(array $template): AutocompleteMessage
+    {
+        $message = (new WebchatAutocompleteMessage())
+            ->setTitle($template[self::TITLE])
+            ->setEndpointUrl($template[self::ENDPOINT_URL])
+            ->setEndpointParams($template[self::ENDPOINT_PARAMS])
+            ->setCallback($template[self::CALLBACK])
+            ->setSubmitText($template[self::SUBMIT_TEXT])
+            ->setQueryParamName($template[self::QUERY_PARAM_NAME])
+            ->setPlaceholder($template[self::PLACEHOLDER])
+            ->setAttributeName($template[self::ATTRIBUTE_NAME]);
+        return $message;
+    }
+
+    public function generateDatePickerMessage(array $template): DatePickerMessage
+    {
+         return (new WebchatDatePickerMessage())
+             ->setSubmitText($template[self::SUBMIT_TEXT])
+             ->setText($template[self::TEXT])
+             ->setCallback($template[self::CALLBACK])
+             ->setDayRequired($template[self::DAY_REQUIRED])
+             ->setMonthRequired($template[self::MONTH_REQUIRED])
+             ->setYearRequired($template[self::YEAR_REQUIRED])
+             ->setMaxDate($template[self::MAX_DATE])
+             ->setMinDate($template[self::MIN_DATE])
+             ->setAttributeName($template[self::ATTRIBUTE_NAME]);
+    }
+
     /**
      * Resolves the attribute by name to get the value for the attribute message, then resolves any attributes
      * in the resulting text
@@ -602,7 +652,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
         }
 
         $template = [
-            self::TEXT => $this->getMessageText($item->text),
+            self::TEXT => $item->text ? $this->getMessageText($item->text) : null,
             self::EXTERNAL => $external,
             self::CLEAR_AFTER_INTERACTION => $clearAfterInteraction
         ];
@@ -737,6 +787,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::TITLE => trim((string)$item->title),
             self::SUBTITLE => trim((string)$item->subtitle),
             self::TEXT => trim((string)$item->text),
+            self::CALLBACK => trim((string)$item->callback),
+            self::CALLBACK_VALUE => trim((string)$item->callback_value),
+            self::LINK => trim((string)$item->link),
         ];
 
         if ($item->image->count()) {
@@ -840,6 +893,8 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 self::NAME => trim((string)$element->name),
                 self::DISPLAY => trim((string)$element->display),
                 self::DEFAULT_VALUE => trim((string)$element->default_value),
+                self::MIN => trim((string)$element->min),
+                self::MAX => trim((string)$element->max),
                 self::REQUIRED => $required,
             ];
 
@@ -924,6 +979,53 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             self::ELEMENTS => $elements,
         ];
         return $template;
+    }
+
+    /**
+     * Formats the XML item into the required template format
+     *
+     * @param SimpleXMLElement $item
+     * @return array
+     */
+    private function formatAutocompleteTemplate(SimpleXMLElement $item): array
+    {
+        $endpointParams = [];
+
+        if (isset($item->{'options-endpoint'}->params)) {
+            foreach ($item->{'options-endpoint'}->params->param as $param) {
+                $endpointParams[] = [
+                    self::NAME => (string)$param['name'],
+                    self::VALUE => (string)$param['value'],
+                ];
+            }
+        }
+
+        $template = [
+            self::TITLE => trim((string)$item->title),
+            self::ENDPOINT_URL => (string)$item->{'options-endpoint'}->url,
+            self::SUBMIT_TEXT => (string)$item->submit_text,
+            self::CALLBACK => (string)$item->callback,
+            self::PLACEHOLDER => (string)$item->placeholder,
+            self::ATTRIBUTE_NAME => (string)$item->attribute_name,
+            self::ENDPOINT_PARAMS => $endpointParams,
+            self::QUERY_PARAM_NAME => (string)$item->{'options-endpoint'}->{'query-param-name'},
+        ];
+        return $template;
+    }
+
+    public function formatDatePickerMessage(SimpleXMLElement $item): array
+    {
+        return [
+            self::TEXT => trim((string)$item->text),
+            self::SUBMIT_TEXT => trim((string)$item->submit_text),
+            self::CALLBACK => trim((string)$item->callback),
+            self::MIN_DATE => (string)$item->min_date ?? null,
+            self::MAX_DATE => (string)$item->max_date ?? null,
+            self::DAY_REQUIRED => filter_var($item->day_required, FILTER_VALIDATE_BOOLEAN),
+            self::MONTH_REQUIRED => filter_var($item->month_required, FILTER_VALIDATE_BOOLEAN),
+            self::YEAR_REQUIRED => filter_var($item->year_required, FILTER_VALIDATE_BOOLEAN),
+            self::ATTRIBUTE_NAME => (string)$item->attribute_name ?? true,
+        ];
     }
 
     /**

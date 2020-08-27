@@ -13,17 +13,26 @@ abstract class FormElement
 
     protected $defaultValue = '';
 
+    protected $min;
+
+    protected $max;
+
     /**
      * @param $name
      * @param $display
-     * @param $required
+     * @param bool $required
+     * @param string $defaultValue
+     * @param null $min
+     * @param null $max
      */
-    public function __construct($name, $display, $required = false, $defaultValue = '')
+    public function __construct($name, $display, $required = false, $defaultValue = '', $min = null, $max = null)
     {
         $this->name = $name;
         $this->display = $display;
         $this->required = $required;
         $this->defaultValue = $defaultValue;
+        $this->min = $min;
+        $this->max = $max;
     }
 
     /**
@@ -99,6 +108,42 @@ abstract class FormElement
     }
 
     /**
+     * @return mixed
+     */
+    public function getMin()
+    {
+        return $this->min;
+    }
+
+    /**
+     * @param mixed $min
+     * @return FormElement
+     */
+    public function setMin($min)
+    {
+        $this->min = $min;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMax()
+    {
+        return $this->max;
+    }
+
+    /**
+     * @param mixed $max
+     * @return FormElement
+     */
+    public function setMax($max)
+    {
+        $this->max = $max;
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function getData()
@@ -106,7 +151,9 @@ abstract class FormElement
         $data = [
             'name' => $this->getName(),
             'display' => $this->getDisplay(),
-            'required' => $this->getRequired()
+            'required' => $this->getRequired(),
+            'min' => $this->getMin(),
+            'max' => $this->getMax()
         ];
 
         if ($defaultValue = $this->getDefaultValue()) {

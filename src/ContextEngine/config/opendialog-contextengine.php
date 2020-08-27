@@ -32,6 +32,11 @@ return [
         'parameters' => ArrayAttribute::class,
 
         'qna_answer' => StringAttribute::class,
+        'qna_prompt_0' => StringAttribute::class,
+        'qna_prompt_1' => StringAttribute::class,
+        'qna_prompt_2' => StringAttribute::class,
+        'qna_prompt_3' => StringAttribute::class,
+        'qna_prompt_4' => StringAttribute::class,
 
         'current_conversation' => StringAttribute::class,
         'current_scene' => StringAttribute::class,

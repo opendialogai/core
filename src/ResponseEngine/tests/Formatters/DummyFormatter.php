@@ -4,7 +4,9 @@ namespace OpenDialogAi\Core\ResponseEngine\tests\Formatters;
 
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
+use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
+use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
 use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
@@ -13,6 +15,7 @@ use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
+use OpenDialogAi\ResponseEngine\Message\MetaMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\RichMessage;
@@ -24,6 +27,11 @@ class DummyFormatter implements MessageFormatterInterface
     public static $name = 'badly_formed';
 
     public function getMessages(string $markup): OpenDialogMessages
+    {
+        //
+    }
+
+    public function generateAutocompleteMessage(array $template): AutocompleteMessage
     {
         //
     }
@@ -68,6 +76,11 @@ class DummyFormatter implements MessageFormatterInterface
         //
     }
 
+    public function generateMetaMessage(array $template): MetaMessage
+    {
+        //
+    }
+
     public function generateRichMessage(array $template): RichMessage
     {
         //
@@ -81,5 +94,10 @@ class DummyFormatter implements MessageFormatterInterface
     public function generateTextMessage(array $template): OpenDialogMessage
     {
         //
+    }
+
+    public function generateDatePickerMessage(array $template): DatePickerMessage
+    {
+        // TODO: Implement generateDatePickerMessage() method.
     }
 }

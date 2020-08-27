@@ -3,12 +3,14 @@
 namespace OpenDialogAi\MessageBuilder;
 
 use OpenDialogAi\MessageBuilder\Message\AttributeMessage;
+use OpenDialogAi\MessageBuilder\Message\AutoCompleteMessage;
 use OpenDialogAi\MessageBuilder\Message\Button\CallbackButton;
 use OpenDialogAi\MessageBuilder\Message\Button\LinkButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TabSwitchButton;
 use OpenDialogAi\MessageBuilder\Message\Button\TranscriptDownloadButton;
 use OpenDialogAi\MessageBuilder\Message\ButtonMessage;
 use OpenDialogAi\MessageBuilder\Message\CtaMessage;
+use OpenDialogAi\MessageBuilder\Message\DatePickerMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
 use OpenDialogAi\MessageBuilder\Message\Form\EmailElement;
@@ -268,13 +270,16 @@ class MessageMarkUpGenerator
      * @param $title
      * @param $subtitle
      * @param $text
+     * @param $callback
+     * @param $callbackValue
+     * @param $link
      * @param $buttons
      * @param $image
      * @return MessageMarkUpGenerator
      */
-    public function addRichMessage($title, $subtitle, $text, $buttons = [], $image = [])
+    public function addRichMessage($title, $subtitle, $text, $callback, $callbackValue, $link, $buttons = [], $image = [])
     {
-        $richMessage = new RichMessage($title, $subtitle, $text, $buttons);
+        $richMessage = new RichMessage($title, $subtitle, $text, $callback, $callbackValue, $link);
         foreach ($buttons as $button) {
             if (isset($button['download'])) {
                 $richMessage->addButton(
@@ -312,7 +317,7 @@ class MessageMarkUpGenerator
      */
     public function addFullPageRichMessage($title, $subtitle, $text, $buttons = [], $image = [])
     {
-        $richMessage = new FullPageRichMessage($title, $subtitle, $text, $buttons);
+        $richMessage = new FullPageRichMessage($title, $subtitle, $text);
         foreach ($buttons as $button) {
             $display = (isset($button['display'])) ? $button['display'] : true;
 
@@ -388,6 +393,62 @@ class MessageMarkUpGenerator
         }
 
         $this->messages[] = $listMessage;
+        return $this;
+    }
+
+    /**
+     * @param $title
+     * @param $endpointUrl ,
+     * @param $queryParamName
+     * @param $callback
+     * @param $submit
+     * @param $placeholder
+     * @param $attributeName
+     * @param array $endpointParams
+     * @return MessageMarkUpGenerator
+     */
+    public function addAutoCompleteMessage(
+        $title,
+        $endpointUrl,
+        $queryParamName,
+        $callback,
+        $submit,
+        $placeholder,
+        $attributeName,
+        $endpointParams = []
+    ) {
+        $this->messages[] = new AutoCompleteMessage(
+            $title,
+            $endpointUrl,
+            $queryParamName,
+            $callback,
+            $submit,
+            $placeholder,
+            $attributeName,
+            $endpointParams
+        );
+        return $this;
+    }
+
+    public function addDatePickerMessage(
+        $text,
+        $callback,
+        $submitText,
+        $maxDate = null,
+        $minDate = null,
+        $dayRequired = true,
+        $monthRequired = true,
+        $yearRequired = true
+    ) {
+        $this->messages[] = new DatePickerMessage(
+            $text,
+            $callback,
+            $submitText,
+            $maxDate,
+            $minDate,
+            $dayRequired,
+            $monthRequired,
+            $yearRequired);
         return $this;
     }
 

@@ -24,7 +24,7 @@ class AlterStatusInConversationsTable extends Migration
         $filename = 'statuses_' . $numberOfStatuses . '_' . date('Y-m-d-H-i-s');
         Artisan::call('statuses:store', [ 'filename' => $filename ]);
 
-        if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
+        if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite' || DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'pgsql') {
             Schema::table('conversations', function (Blueprint $table) {
                 $table->dropColumn('status');
             });
@@ -53,7 +53,7 @@ class AlterStatusInConversationsTable extends Migration
     {
         Artisan::call('statuses:store');
 
-        if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
+        if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite' || DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'pgsql') {
             Schema::table('conversations', function (Blueprint $table) {
                 $table->dropColumn('status');
                 $table->enum('status', ['imported', 'invalid', 'validated', 'published']);

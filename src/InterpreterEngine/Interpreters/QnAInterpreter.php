@@ -57,12 +57,24 @@ class QnAInterpreter extends BaseInterpreter
 
         if (!empty($response->getAnswers())) {
             foreach ($response->getAnswers() as $answer) {
-                if ($answer->id >= 0) {
-                    $attribute = AttributeResolver::getAttributeFor('qna_answer', $answer->answer);
+                if ($answer->getId() >= 0) {
+                    $attribute = AttributeResolver::getAttributeFor('qna_answer', $answer->getAnswer());
 
                     $intent = new QnAQuestionMatchedIntent();
+                    $intent->setConfidence($answer->getScore() / 100);
                     $intent->addAttribute($attribute);
-                    $intent->setConfidence($answer->score / 100);
+
+                    $i = 0;
+                    foreach ($answer->getPrompts() as $prompt) {
+                        $promptAttribute = AttributeResolver::getAttributeFor(
+                            'qna_prompt_' . $i,
+                            $prompt->getDisplayText()
+                        );
+                        $intent->addAttribute($promptAttribute);
+
+                        $i++;
+                    }
+
                     return $intent;
                 }
             }

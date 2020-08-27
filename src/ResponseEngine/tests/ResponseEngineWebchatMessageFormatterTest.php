@@ -357,6 +357,42 @@ EOT;
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 
+    public function testButtonMessageNoText()
+    {
+        $markup = <<<EOT
+<message disable_text="0">
+  <button-message clear_after_interaction="0">
+    <button>
+      <text>Text</text>
+      <callback>callback_yes</callback>
+      <value>true</value>
+    </button>
+  </button-message>
+</message>
+EOT;
+
+        $messageXML = new MessageXML();
+        $this->assertTrue($messageXML->passes(null, $markup), $messageXML->message());
+
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'callback_id' => 'callback_yes',
+                'value' => 'true',
+                'display' => true,
+                'type' => '',
+                'text' => 'Text'
+            ],
+        ];
+
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+    }
+
     public function testRichMessage1()
     {
         $buttons = [
@@ -392,7 +428,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons, $image);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', 'http://www.example.com', $buttons, $image);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -406,6 +442,7 @@ EOT;
             'title' => 'Message Title',
             'subtitle' => 'This is a subtitle',
             'text' => 'Here is a bit of text about this thing',
+            'link' => 'http://www.example.com',
             'buttons' => [
                 [
                     'text' => 'Test 1',
@@ -453,7 +490,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', $buttons);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', 'callback_yes', 'value', '', $buttons);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -467,6 +504,8 @@ EOT;
             'title' => 'Message Title',
             'subtitle' => 'This is a subtitle',
             'text' => 'Here is a bit of text about this thing',
+            'callback' => 'callback_yes',
+            'callback_value' => 'value',
             'buttons' => [
                 [
                     'text' => 'Test',
@@ -490,7 +529,7 @@ EOT;
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator();
-        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', [], $image);
+        $messageMarkUp->addRichMessage('Message Title', 'This is a subtitle', 'Here is a bit of text about this thing', '', '', '', [], $image);
 
         $markup = $messageMarkUp->getMarkUp();
 
@@ -712,6 +751,9 @@ EOT;
                     'title' => 'rich message title',
                     'subtitle' => 'rich message subtitle',
                     'text' => 'rich message text',
+                    'callback' => 'callback_yes',
+                    'callback_value' => 'value',
+                    'link' => '',
                     'buttons' => [
                         [
                             'text' => 'Yes',
@@ -725,7 +767,17 @@ EOT;
                         'new_tab' => true
                     ]
                 ]
-            ]
+            ],
+            [
+                'rich' => [
+                    'title' => 'rich message title 2',
+                    'subtitle' => 'rich message subtitle 2',
+                    'text' => 'rich message text 2',
+                    'callback' => '',
+                    'callback_value' => '',
+                    'link' => 'http://www.example.com',
+                ]
+            ],
         ];
 
         $messageMarkUp = new MessageMarkUpGenerator(true);
@@ -769,6 +821,8 @@ EOT;
                 'title' => 'rich message title',
                 'subtitle' => 'rich message subtitle',
                 'text' => 'rich message text',
+                'callback' => 'callback_yes',
+                'callback_value' => 'value',
                 'buttons' => [
                     [
                         'text' => 'Yes',
@@ -781,6 +835,14 @@ EOT;
                     'url' => 'https://www.opendialog.ai',
                     'new_tab' => true,
                 ],
+            ],
+            [
+                'title' => 'rich message title 2',
+                'subtitle' => 'rich message subtitle 2',
+                'text' => 'rich message text 2',
+                'callback' => '',
+                'callback_value' => '',
+                'link' => 'http://www.example.com',
             ],
         ];
 
@@ -1190,5 +1252,78 @@ EOT;
 
         $elements = $messages[0]->getElements();
         $this->assertEquals('myValue', $elements['myData']);
+    }
+
+    public function testAutocompleteMessage()
+    {
+        /** @lang XML */
+        $markup = <<<EOT
+<message disable_text="1">
+    <autocomplete-message>
+        <title>Title</title>
+        <submit_text>Submit</submit_text>
+        <callback>Callback</callback>
+        <placeholder>placeholder...</placeholder>
+        <attribute_name>Product</attribute_name>
+        <options-endpoint>
+            <url>/api/to-hit</url>
+            <params>
+                <param name="country" value="uk" />
+                <param name="language" value="en" />
+            </params>
+            <query-param-name>name</query-param-name>
+        </options-endpoint>
+    </autocomplete-message>
+</message>
+EOT;
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('Title', $messages[0]->getData()['title']);
+        $this->assertEquals('/api/to-hit', $messages[0]->getData()['endpoint_url']);
+        $this->assertEquals('name', $messages[0]->getData()['query_param_name']);
+        $this->assertEquals('placeholder...', $messages[0]->getData()['placeholder']);
+        $this->assertEquals('Product', $messages[0]->getData()['attribute_name']);
+
+        $endpointParams = $messages[0]->getData()['endpoint_params'];
+        $this->assertEquals('country', $endpointParams[0]['name']);
+        $this->assertEquals('uk', $endpointParams[0]['value']);
+        $this->assertEquals('language', $endpointParams[1]['name']);
+        $this->assertEquals('en', $endpointParams[1]['value']);
+    }
+
+    public function testDatePickerMessage()
+    {
+        /** @lang XML */
+        $markup = <<<EOT
+<message disable_text="1">
+    <date-picker-message>
+        <text>Text</text>
+        <submit_text>Submit</submit_text>
+        <callback>Callback</callback>
+        <max_date>today</max_date>
+        <min_date>20200101</min_date>
+        <year_required>true</year_required>
+        <month_required>true</month_required>
+        <day_required>false</day_required>
+        <attribute_name>Attribute</attribute_name>
+    </date-picker-message>
+</message>
+EOT;
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('Text', $messages[0]->getData()['text']);
+        $this->assertEquals('Submit', $messages[0]->getData()['submit_text']);
+        $this->assertEquals('Callback', $messages[0]->getData()['callback']);
+        $this->assertEquals('Callback', $messages[0]->getData()['callback']);
+        $this->assertEquals('today', $messages[0]->getData()['max_date']);
+        $this->assertEquals('20200101', $messages[0]->getData()['min_date']);
+        $this->assertTrue($messages[0]->getData()['year_required']);
+        $this->assertTrue($messages[0]->getData()['month_required']);
+        $this->assertFalse($messages[0]->getData()['day_required']);
+        $this->assertEquals('Attribute', $messages[0]->getData()['attribute_name']);
     }
 }

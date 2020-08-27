@@ -21,7 +21,7 @@ class CreateMessagesTable extends Migration
             $table->string('author');
             $table->text('message');
             $table->string('type');
-            $table->binary('data')->nullable(true);
+            $table->text('data')->nullable(true);
             $table->string('message_id')->nullable();
             $table->text('user')->nullable();
 
@@ -29,6 +29,8 @@ class CreateMessagesTable extends Migration
 
             if (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'sqlite') {
                 $table->timestamp('microtime', 6)->nullable();
+            } elseif (DB::connection()->getPdo()->getAttribute(PDO::ATTR_DRIVER_NAME) == 'pgsql') {
+                $table->text('microtime', 6)->default(DB::raw('CURRENT_TIMESTAMP(6)'));
             } else {
                 $table->timestamp('microtime', 6)->default(DB::raw('CURRENT_TIMESTAMP(6)'));
             }
