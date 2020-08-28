@@ -190,8 +190,14 @@ class MessageXML extends BaseRule
                         }
                         break;
 
+                    case 'hand-to-system-message':
+                        if ((string)$item->attributes()['system'] == '') {
+                            $this->setErrorMessage('Hand to system messages must have a non-empty "system" attribute.');
+                            return false;
+                        }
+                        break;
+
                     case 'empty-message':
-                    case 'hand-to-human-message':
                     case 'meta-message':
                     case 'long-text-message':
                     case 'cta-message':

@@ -20,7 +20,7 @@ use OpenDialogAi\MessageBuilder\Message\Form\TextElement;
 use OpenDialogAi\MessageBuilder\Message\FormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageFormMessage;
 use OpenDialogAi\MessageBuilder\Message\FullPageRichMessage;
-use OpenDialogAi\MessageBuilder\Message\HandToHumanMessage;
+use OpenDialogAi\MessageBuilder\Message\HandToSystemMessage;
 use OpenDialogAi\MessageBuilder\Message\Image\Image;
 use OpenDialogAi\MessageBuilder\Message\ImageMessage;
 use OpenDialogAi\MessageBuilder\Message\ListMessage;
@@ -114,9 +114,9 @@ class MessageMarkUpGenerator
         return $this;
     }
 
-    public function addHandToHumanMessage($data)
+    public function addHandToSystemMessage($system, $data)
     {
-        $this->messages[] = new HandToHumanMessage($data);
+        $this->messages[] = new HandToSystemMessage($system, $data);
         return $this;
     }
 

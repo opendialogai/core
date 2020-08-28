@@ -11,7 +11,7 @@ use OpenDialogAi\ResponseEngine\Message\EmptyMessage;
 use OpenDialogAi\ResponseEngine\Message\FormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageFormMessage;
 use OpenDialogAi\ResponseEngine\Message\FullPageRichMessage;
-use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\HandToSystemMessage;
 use OpenDialogAi\ResponseEngine\Message\ImageMessage;
 use OpenDialogAi\ResponseEngine\Message\ListMessage;
 use OpenDialogAi\ResponseEngine\Message\LongTextMessage;
@@ -56,7 +56,7 @@ class DummyFormatter implements MessageFormatterInterface
         //
     }
 
-    public function generateHandToHumanMessage(array $template): HandToHumanMessage
+    public function generateHandToSystemMessage(array $template): HandToSystemMessage
     {
         //
     }
