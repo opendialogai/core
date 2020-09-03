@@ -9,7 +9,7 @@ use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Utterances\FormResponseUtterance;
 use OpenDialogAi\Core\Utterances\TriggerUtterance;
-use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\HandToSystemMessage;
 
 class MessageHistoryContext extends AbstractContext
 {
@@ -54,8 +54,8 @@ class MessageHistoryContext extends AbstractContext
                 $messageText = 'Form submitted.';
             } else if ($message->type == TriggerUtterance::TYPE) {
                 $messageText = '(Trigger message)';
-            } else if ($message->type == HandToHumanMessage::TYPE) {
-                $messageText = '(User speaking to human)';
+            } else if ($message->type == HandToSystemMessage::TYPE) {
+                $messageText = '(User was handed over to another system)';
             }
 
             $author = $message->author == "them" ? "Bot" : "User";

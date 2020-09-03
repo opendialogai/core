@@ -2,16 +2,35 @@
 
 namespace OpenDialogAi\ResponseEngine\Message\Webchat;
 
-use OpenDialogAi\ResponseEngine\Message\HandToHumanMessage;
+use OpenDialogAi\ResponseEngine\Message\HandToSystemMessage;
 
-class WebchatHandToHumanMessage extends WebchatMessage implements HandToHumanMessage
+class WebchatHandToSystemMessage extends WebchatMessage implements HandToSystemMessage
 {
     protected $messageType = self::TYPE;
+
+    private $system;
 
     private $elements = [];
 
     /**
-     * @param $submitText
+     * @return string
+     */
+    public function getSystem()
+    {
+        return $this->system;
+    }
+
+    /**
+     * @param string $system
+     */
+    public function setSystem($system)
+    {
+        $this->system = $system;
+        return $this;
+    }
+
+    /**
+     * @param $elements
      * @return $this
      */
     public function setElements($elements)
@@ -48,6 +67,7 @@ class WebchatHandToHumanMessage extends WebchatMessage implements HandToHumanMes
     public function getData(): ?array
     {
         return [
+            'system' => $this->getSystem(),
             'elements' => $this->getElementsArray(),
             'disable_text' => $this->getDisableText(),
             'internal' => $this->getInternal(),
