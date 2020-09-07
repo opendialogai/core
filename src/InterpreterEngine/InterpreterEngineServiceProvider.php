@@ -6,8 +6,6 @@ use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Interpreters\CallbackInterpreter;
-use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
-use OpenDialogAi\InterpreterEngine\QnA\QnAClient;
 use OpenDialogAi\InterpreterEngine\Rasa\RasaClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterService;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -28,16 +26,6 @@ class InterpreterEngineServiceProvider extends ServiceProvider
         $this->app->bind(RasaClient::class, function () {
             $config = config('opendialog.interpreter_engine.rasa_config');
             return new RasaClient(new Client(), $config);
-        });
-
-        $this->app->bind(LuisClient::class, function () {
-            $config = config('opendialog.interpreter_engine.luis_config');
-            return new LuisClient(new Client(), $config);
-        });
-
-        $this->app->bind(QnAClient::class, function () {
-            $config = config('opendialog.interpreter_engine.qna_config');
-            return new QnAClient(new Client(), $config);
         });
 
         $this->app->singleton(InterpreterServiceInterface::class, function () {

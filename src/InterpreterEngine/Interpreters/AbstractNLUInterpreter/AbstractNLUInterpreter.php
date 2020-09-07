@@ -104,14 +104,14 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
     }
 
     /**
-     * @param AbstractNLUEntity[] $luisEntities
+     * @param AbstractNLUEntity[] $entities
      * @return Map
      */
-    protected function extractAttributes(array $luisEntities): Map
+    protected function extractAttributes(array $entities): Map
     {
         $attributes = new AttributeBag();
 
-        foreach ($luisEntities as $entity) {
+        foreach ($entities as $entity) {
             $attributes->addAttribute($this->resolveEntity($entity));
         }
 
