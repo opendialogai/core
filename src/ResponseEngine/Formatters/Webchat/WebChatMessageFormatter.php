@@ -916,7 +916,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $el[self::OPTIONS] = $options;
             }
 
-            if ($el[self::ELEMENT_TYPE] == self::RADIO) {
+            if ($el[self::ELEMENT_TYPE] == self::RADIO || $el[self::ELEMENT_TYPE] == self::CHECKBOX) {
                 $options = [];
 
                 foreach ($element->options->children() as $option) {
