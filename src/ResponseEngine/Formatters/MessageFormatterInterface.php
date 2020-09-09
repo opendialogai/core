@@ -52,6 +52,7 @@ interface MessageFormatterInterface
     public const SELECT                  = 'select';
     public const EMAIL                   = 'email';
     public const RADIO                   = 'radio';
+    public const CHECKBOX                = 'checkbox';
     public const TEXTAREA                = 'textarea';
     public const TEXT                    = 'text';
     public const NUMBER                  = 'number';
