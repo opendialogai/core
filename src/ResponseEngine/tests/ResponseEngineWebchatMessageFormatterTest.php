@@ -937,6 +937,22 @@ EOT;
                 ],
             ],
             [
+                'element_type' => 'checkbox',
+                'name' => 'preference',
+                'display' => 'Preference',
+                'required' => false,
+                'options' => [
+                    [
+                        'key' => 'option_1',
+                        'value' => 'Option 1',
+                    ],
+                    [
+                        'key' => 'option_2',
+                        'value' => 'Option 2',
+                    ],
+                ],
+            ],
+            [
                 'element_type' => 'auto_complete_select',
                 'name' => 'year',
                 'display' => 'Year',
@@ -1011,6 +1027,16 @@ EOT;
                     'options' => [
                         'male' => 'Male',
                         'female' => 'Female',
+                    ],
+                ],
+                [
+                    'name' => 'preference',
+                    'display' => 'Preference',
+                    'required' => false,
+                    'element_type' => 'checkbox',
+                    'options' => [
+                        'option_1' => 'Option 1',
+                        'option_2' => 'Option 2',
                     ],
                 ],
                 [
