@@ -76,14 +76,14 @@ class MessageMarkUpGeneratorTest extends TestCase
             'Submit',
             'placeholder...',
             'Product',
-            $endpointParams);
+            $endpointParams
+        );
         $markUp = $generator->getMarkUp();
         $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
         $this->assertRegexp('/<autocomplete-message>/', $markUp);
         $this->assertRegexp('/This is the title/', $markUp);
         $this->assertRegexp('/<url>\/api\/v3\/endpoint-url<\/url>/', $markUp);
         $this->assertRegexp('/<attribute_name>Product<\/attribute_name>/', $markUp);
-
     }
 
     public function testDatePickerUpGenerator()
@@ -93,11 +93,13 @@ class MessageMarkUpGeneratorTest extends TestCase
             'Message text',
             'callback',
             'Submit',
+            'Product',
             'today',
             '20200101',
             false,
-        false,
-        true);
+            false,
+            true
+        );
         $markUp = $generator->getMarkUp();
 
         $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
@@ -109,5 +111,6 @@ class MessageMarkUpGeneratorTest extends TestCase
         $this->assertRegexp('/<year_required>1<\/year_required>/', $markUp);
         $this->assertRegexp('/<max_date>today<\/max_date>/', $markUp);
         $this->assertRegexp('/<min_date>20200101<\/min_date>/', $markUp);
+        $this->assertRegexp('/<attribute_name>Product<\/attribute_name>/', $markUp);
     }
 }

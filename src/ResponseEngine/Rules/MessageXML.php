@@ -44,6 +44,54 @@ class MessageXML extends BaseRule
 
                         break;
 
+                    case 'autocomplete-message':
+                        if (empty($item->title)) {
+                            $this->setErrorMessage('Autocomplete messages must have "title"');
+                            return false;
+                        }
+                        if (empty($item->callback)) {
+                            $this->setErrorMessage('Autocomplete messages must have "callback"');
+                            return false;
+                        }
+                        if (empty($item->submit_text)) {
+                            $this->setErrorMessage('Autocomplete messages must have "submit_text"');
+                            return false;
+                        }
+                        if (empty($item->attribute_name)) {
+                            $this->setErrorMessage('Autocomplete messages must have "attribute_name"');
+                            return false;
+                        }
+                        if (empty($item->{'options-endpoint'})) {
+                            $this->setErrorMessage('Autocomplete messages must have "options-endpoint"');
+                            return false;
+                        }
+                        if (empty($item->{'options-endpoint'}->{'query-param-name'})) {
+                            $this->setErrorMessage(
+                                'Autocomplete messages must have "query-param-name" inside "options-endpoint"'
+                            );
+                            return false;
+                        }
+                        break;
+
+                    case 'date-picker-message':
+                        if (empty($item->text)) {
+                            $this->setErrorMessage('Date picker messages must have "text"');
+                            return false;
+                        }
+                        if (empty($item->callback)) {
+                            $this->setErrorMessage('Date picker messages must have "callback"');
+                            return false;
+                        }
+                        if (empty($item->submit_text)) {
+                            $this->setErrorMessage('Date picker messages must have "submit_text"');
+                            return false;
+                        }
+                        if (empty($item->attribute_name)) {
+                            $this->setErrorMessage('Date picker messages must have "attribute_name"');
+                            return false;
+                        }
+                        break;
+
                     case 'text-message':
                         if (empty((string)$item) && empty($item->link)) {
                             $this->setErrorMessage('Text messages must have "text"');
