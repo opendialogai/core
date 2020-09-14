@@ -17,6 +17,10 @@ abstract class CallbackValueParser
     const ATTRIBUTE_NAME = 'attribute_name';
     const ATTRIBUTE_VALUE = 'attribute_value';
 
+    const DOT = '.';
+    const DOT_REPLACE = '{dot}';
+    const ESCAPE_STRING = "\.";
+
     /**
      * Parses the callback value and returns an array in the format:
      * [
@@ -31,15 +35,17 @@ abstract class CallbackValueParser
      */
     public static function parseCallbackValue($value): array
     {
+        $value = self::replaceEscaped($value);
         $matches = explode('.', $value);
 
         switch (count($matches)) {
             case 1:
                 $attributeName = self::CALLBACK_VALUE;
-                $attributeValue = $value;
+                $attributeValue = self::restoreEscaped($value);
                 break;
             case 2:
-                [$attributeName, $attributeValue] = $matches;
+                $attributeName = $matches[0];
+                $attributeValue = self::restoreEscaped($matches[1]);
                 break;
             default:
                 Log::warning(sprintf('Parsing invalid button value %s', $value));
@@ -52,5 +58,26 @@ abstract class CallbackValueParser
             self::ATTRIBUTE_NAME  => $attributeName,
             self::ATTRIBUTE_VALUE => $attributeValue
         ];
+    }
+
+    /**
+     * Replaces all \. character sequences with {dot} so that it doesn't affect splitting
+     *
+     * @param $value
+     * @return string
+     */
+    private static function replaceEscaped($value)
+    {
+        return str_replace(self::ESCAPE_STRING, self::DOT_REPLACE, $value);
+    }
+
+    /**
+     * Restores the escaped string {dot} with an actual .
+     * @param string $value
+     * @return string
+     */
+    private static function restoreEscaped(string $value)
+    {
+        return str_replace(self::DOT_REPLACE, self::DOT, $value);
     }
 }
