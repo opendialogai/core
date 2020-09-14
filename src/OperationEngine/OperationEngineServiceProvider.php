@@ -12,7 +12,7 @@ class OperationEngineServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/config/opendialog-operationengine-custom.php' => config_path('opendialog/operation_engine.php')
-        ], 'config');
+        ], 'opendialog-config');
     }
 
     public function register()

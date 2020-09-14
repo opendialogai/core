@@ -20,11 +20,14 @@ class DatePickerMessage
 
     public $yearRequired;
 
+    public $attributeName;
+
     /**
      * DatePickerMessage constructor.
      * @param string $text
      * @param string $callback
      * @param string $submitText
+     * @param string $attributeName
      * @param string $maxDate 'today' or 'yyyymmdd'
      * @param string $minDate 'today' or 'yyyymmdd'
      * @param bool $dayRequired
@@ -35,6 +38,7 @@ class DatePickerMessage
         $text,
         $callback,
         $submitText,
+        $attributeName,
         $maxDate = null,
         $minDate = null,
         $dayRequired = true,
@@ -44,6 +48,7 @@ class DatePickerMessage
         $this->text = $text;
         $this->callback = $callback;
         $this->submitText = $submitText;
+        $this->attributeName = $attributeName;
         $this->maxDate = $maxDate;
         $this->minDate = $minDate;
         $this->dayRequired = $dayRequired;
@@ -63,6 +68,7 @@ class DatePickerMessage
     <year_required>$this->yearRequired</year_required>
     <max_date>$this->maxDate</max_date>
     <min_date>$this->minDate</min_date>
+    <attribute_name>$this->attributeName</attribute_name>
 </date-picker-message>
 EOT;
     }

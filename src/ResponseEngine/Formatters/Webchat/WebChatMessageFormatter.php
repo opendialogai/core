@@ -30,6 +30,7 @@ use OpenDialogAi\ResponseEngine\Message\Webchat\Button\LinkButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TabSwitchButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Button\TranscriptDownloadButton;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormAutoCompleteSelectElement;
+use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormCheckboxElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormEmailElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormNumberElement;
 use OpenDialogAi\ResponseEngine\Message\Webchat\Form\FormRadioElement;
@@ -304,6 +305,9 @@ class WebChatMessageFormatter extends BaseMessageFormatter
             } elseif ($el[self::ELEMENT_TYPE] == self::RADIO) {
                 $options = $el[self::OPTIONS];
                 $element = new FormRadioElement($name, $display, $required, $options, $defaultValue, $min, $max);
+            } elseif ($el[self::ELEMENT_TYPE] == self::CHECKBOX) {
+                $options = $el[self::OPTIONS];
+                $element = new FormCheckboxElement($name, $display, $required, $options, $defaultValue, $min, $max);
             } elseif ($el[self::ELEMENT_TYPE] == self::EMAIL) {
                 $element = new FormEmailElement($name, $display, $required, $defaultValue, $min, $max);
             }
@@ -912,7 +916,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
                 $el[self::OPTIONS] = $options;
             }
 
-            if ($el[self::ELEMENT_TYPE] == self::RADIO) {
+            if ($el[self::ELEMENT_TYPE] == self::RADIO || $el[self::ELEMENT_TYPE] == self::CHECKBOX) {
                 $options = [];
 
                 foreach ($element->options->children() as $option) {

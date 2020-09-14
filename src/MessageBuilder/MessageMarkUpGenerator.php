@@ -13,6 +13,7 @@ use OpenDialogAi\MessageBuilder\Message\CtaMessage;
 use OpenDialogAi\MessageBuilder\Message\DatePickerMessage;
 use OpenDialogAi\MessageBuilder\Message\EmptyMessage;
 use OpenDialogAi\MessageBuilder\Message\Form\AutoCompleteSelectElement;
+use OpenDialogAi\MessageBuilder\Message\Form\CheckboxElement;
 use OpenDialogAi\MessageBuilder\Message\Form\EmailElement;
 use OpenDialogAi\MessageBuilder\Message\Form\RadioElement;
 use OpenDialogAi\MessageBuilder\Message\Form\SelectElement;
@@ -186,6 +187,16 @@ class MessageMarkUpGenerator
             } elseif ($element['element_type'] == 'radio') {
                 $formMessage->addElement(
                     new RadioElement(
+                        $element['name'],
+                        $element['display'],
+                        $element['options'],
+                        $element['required'],
+                        $defaultValue
+                    )
+                );
+            } elseif ($element['element_type'] == 'checkbox') {
+                $formMessage->addElement(
+                    new CheckboxElement(
                         $element['name'],
                         $element['display'],
                         $element['options'],
@@ -434,6 +445,7 @@ class MessageMarkUpGenerator
         $text,
         $callback,
         $submitText,
+        $attributeName,
         $maxDate = null,
         $minDate = null,
         $dayRequired = true,
@@ -444,11 +456,13 @@ class MessageMarkUpGenerator
             $text,
             $callback,
             $submitText,
+            $attributeName,
             $maxDate,
             $minDate,
             $dayRequired,
             $monthRequired,
-            $yearRequired);
+            $yearRequired
+        );
         return $this;
     }
 
