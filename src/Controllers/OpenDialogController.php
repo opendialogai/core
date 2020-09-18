@@ -9,6 +9,7 @@ use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
+use OpenDialogAi\ConversationEngine\Exceptions\NoConversationsException;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
@@ -71,8 +72,12 @@ class OpenDialogController
     {
         $userContext = ContextService::createUserContext($utterance);
 
-        /** @var Intent[] $intents */
-        $intents = $this->conversationEngine->getNextIntents($userContext, $utterance);
+        try {
+            /** @var Intent[] $intents */
+            $intents = $this->conversationEngine->getNextIntents($userContext, $utterance);
+        } catch (NoConversationsException $e) {
+            return $this->getNoConversationsMessages($utterance);
+        }
 
         // Log incoming message.
         $this->conversationLogService->logIncomingMessage($utterance);
@@ -100,6 +105,22 @@ class OpenDialogController
                 $message->setInternal(true);
             }
         }
+    }
+
+    /**
+     * Return text message when no conversations are defined or activated in Dgraph.
+     *
+     * @param UtteranceInterface $utterance
+     * @return OpenDialogMessages
+     */
+    private function getNoConversationsMessages(UtteranceInterface $utterance): OpenDialogMessages
+    {
+        $platform = $utterance->getPlatform();
+        $formatter = $this->responseEngineService->getFormatter("formatter.core.{$platform}");
+
+        $message = 'No conversations are defined or activated';
+
+        return $formatter->getMessages(sprintf('<message><text-message>%s</text-message></message>', $message));
     }
 
     /**

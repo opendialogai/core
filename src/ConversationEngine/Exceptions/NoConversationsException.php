@@ -4,6 +4,6 @@ namespace OpenDialogAi\ConversationEngine\Exceptions;
 
 use RuntimeException;
 
-class NoMatchingIntentsException extends RuntimeException
+class NoConversationsException extends RuntimeException
 {
 }
