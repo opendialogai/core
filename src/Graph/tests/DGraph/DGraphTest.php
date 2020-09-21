@@ -164,8 +164,8 @@ class DGraphTest extends TestCase
         $node2 = new Node('node2');
 
         $facets = [
-            "assignee" => "user1",
-            "count" => 2
+            'assignee' => 'user1',
+            'count' => 2,
         ];
 
         $edge = new DirectedEdge('edge_with_facets', $node1, $node2, $facets);
@@ -179,8 +179,8 @@ class DGraphTest extends TestCase
                 'id',
                 'edge_with_facets' => [
                     DGraphQuery::WITH_FACETS,
-                    'id'
-                ]
+                    'id',
+                ],
             ]);
 
         $response = $client->query($query);
@@ -191,9 +191,13 @@ class DGraphTest extends TestCase
             'id' => 'node1',
             'edge_with_facets' => [[
                 'id' => 'node2',
-                'edge_with_facets|count' => 2,
-                'edge_with_facets|assignee' => 'user1'
-            ]]
+            ]],
+            'edge_with_facets|count' => [
+                2,
+            ],
+            'edge_with_facets|assignee' => [
+                'user1',
+            ],
         ]], $response->getData());
     }
 }
