@@ -1,18 +1,8 @@
 {
   "name": "opendialogai/core",
-  "description": "The OpenDialog core package",
+  "description": "The OpenDialog Core package",
   "type": "library",
   "license": "Apache-2.0",
-  "authors": [
-    {
-      "name": "Stuart Haigh",
-      "email": "stuarth@greenshootlabs.com"
-    },
-    {
-      "name": "Ronald Ashri",
-      "email": "ronalda@greenshootlabs.com"
-    }
-  ],
   "require": {
     "php": "^7.3.0",
     "symfony/yaml": "^4.3",
