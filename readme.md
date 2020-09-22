@@ -46,15 +46,7 @@ go into git.
 
 ## Running Tests
 
-We provide a Docker-based environment for running tests and provide a database environment with [Dgraph](https://Dgraph.io) to run complete conversation tests. 
-
-A Lando file is included for running tests. Before trying to use Lando make sure to copy `lando.example.env` to `lando.env`. 
-
-Test can be run with:
-
-    lando test
-    
-More information on testing and setting up a local test environment can be found [on our wiki](https://github.com/opendialogai/opendialog/wiki/Running-tests-through-PHPStorm).
+We provide a [Docker-based environment](https://github.com/opendialogai/opendialog-dev-environment) for running tests - check the instructions there for running tests on core. 
 
 ### Tests that need DGraph
 
@@ -74,20 +66,6 @@ This will check if DGraph is reachable - if it is, it clears any data and refres
 not, the test is marked as skipped.
 
 Remember to add this annotation to any tests that will need to load conversations or make use of the user context.
-
-### Performance testing
-
-The Lando-configured Docker environment also installs [Blackfire](https://blackfire.io) to allow you to do performance analysis. 
-
-To use Blackfire you can use: 
-
-```lando blackfire run <php_script>```
-
-For example, to run Blackfire tracing on a specific test you could do:
-
-```lando blackfire run phpunit /app/src/ConversationEngine/tests/ConversationEngineTest --filter=testDeterminingNextIntentsInMultiSceneConversation```
-
-Make sure to add your Blackfire configuration in `lando.env`. 
 
 ### Dgraph Query Logging
 
