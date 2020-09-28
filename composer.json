@@ -11,7 +11,7 @@
     "justinrainbow/json-schema": "^5.2",
     "spatie/laravel-activitylog": "^3.8",
     "opendialogai/dgraph-docker": "1.2.5",
-    "doctrine/dbal": "^2.10",
+    "doctrine/dbal": "^2.11",
     "ext-json": "*"
   },
   "config": {
