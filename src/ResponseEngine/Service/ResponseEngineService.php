@@ -318,7 +318,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
 
     /**
      * @param $intentName
-     * @param $messages
+     * @param OpenDialogMessages $messages
      */
     private function setMessagesIntent($intentName, $messages)
     {

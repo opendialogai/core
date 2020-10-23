@@ -174,7 +174,7 @@ abstract class WebchatMessage implements OpenDialogMessage
      * @param $intent
      * @return $this
      */
-    public function setIntent($intent)
+    public function setIntent(string $intent): OpenDialogMessage
     {
         $this->intent = $intent;
         return $this;
