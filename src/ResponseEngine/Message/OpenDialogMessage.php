@@ -29,4 +29,12 @@ interface OpenDialogMessage
      * @return bool
      */
     public function isEmpty(): bool;
+
+    /**
+     * Sets the interpreter intent string to the message
+     *
+     * @param string $intent
+     * @return $this
+     */
+    public function setIntent(string $intent): self;
 }
