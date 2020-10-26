@@ -49,6 +49,16 @@ class Message extends Model
     ];
 
     /**
+     * Returns the microtime always formatted to include the trailing decimals, even for an exact hit on a second
+     *
+     * @return string
+     */
+    protected static function getMicrotime()
+    {
+        return number_format(microtime(true), 6, '.', '');
+    }
+
+    /**
      * Deserialize the data field
      *
      * @param $value
@@ -113,7 +123,7 @@ class Message extends Model
 
         // Generate a timestamp if we weren't given one.
         if (empty($microtime)) {
-            $microtime = DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u');
+            $microtime = DateTime::createFromFormat('U.u', self::getMicrotime())->format('Y-m-d H:i:s.u');
         }
 
         $message = new self([

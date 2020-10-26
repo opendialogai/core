@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.3-fpm
+      - image: circleci/php:7.4.10-fpm
 
     resource_class: large
 

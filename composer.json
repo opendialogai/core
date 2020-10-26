@@ -1,18 +1,8 @@
 {
   "name": "opendialogai/core",
-  "description": "The OpenDialog core package",
+  "description": "The OpenDialog Core package",
   "type": "library",
   "license": "Apache-2.0",
-  "authors": [
-    {
-      "name": "Stuart Haigh",
-      "email": "stuarth@greenshootlabs.com"
-    },
-    {
-      "name": "Ronald Ashri",
-      "email": "ronalda@greenshootlabs.com"
-    }
-  ],
   "require": {
     "php": "^7.3.0",
     "symfony/yaml": "^4.3",
@@ -20,8 +10,8 @@
     "guzzlehttp/guzzle": "~6.3",
     "justinrainbow/json-schema": "^5.2",
     "spatie/laravel-activitylog": "^3.8",
-    "opendialogai/dgraph-docker": "1.1.0",
-    "doctrine/dbal": "2.10.2",
+    "opendialogai/dgraph-docker": "1.2.5",
+    "doctrine/dbal": "^2.11",
     "ext-json": "*"
   },
   "config": {

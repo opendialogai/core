@@ -285,7 +285,7 @@ class UserServiceTest extends TestCase
         ]));
 
         $this->assertArrayHasKey(Model::FOLLOWED_BY, $response->getData()[0]);
-        $this->assertArrayHasKey(ModelFacets::facet(Model::FOLLOWED_BY, ModelFacets::CREATED_AT), $response->getData()[0][Model::FOLLOWED_BY]);
+        $this->assertArrayHasKey(ModelFacets::facet(Model::FOLLOWED_BY, ModelFacets::CREATED_AT), $response->getData()[0]);
 
         $response = $client->query((new DGraphQuery())->uid($user->getCurrentIntentUid())->setQueryGraph([
             Model::UID,
@@ -296,7 +296,7 @@ class UserServiceTest extends TestCase
         ]));
 
         $this->assertArrayHasKey(Model::PRECEDED_BY, $response->getData()[0]);
-        $this->assertArrayHasKey(ModelFacets::facet(Model::PRECEDED_BY, ModelFacets::CREATED_AT), $response->getData()[0][Model::PRECEDED_BY][0]);
+        $this->assertArrayHasKey(ModelFacets::facet(Model::PRECEDED_BY, ModelFacets::CREATED_AT), $response->getData()[0]);
 
         // Ensure the conversation graph has the edge + facets too
         $conversation = $this->userService->getCurrentConversation($userId);
@@ -336,7 +336,6 @@ class UserServiceTest extends TestCase
     {
         $userId = $this->setUpConversationAndCurrentIntent();
         $this->assertEquals(ChatbotUser::ONGOING_USER, $this->userService->getUserType($userId));
-
     }
 
     /**
