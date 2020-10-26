@@ -18,6 +18,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
+use OpenDialogAi\ConversationEngine\Exceptions\NoConversationsException;
 use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -120,6 +121,7 @@ class ConversationEngine implements ConversationEngineInterface
      * @throws FieldNotSupported
      * @throws EIModelCreatorException
      * @throws CurrentIntentNotSetException
+     * @throws NoConversationsException
      */
     public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation
     {
@@ -143,7 +145,7 @@ class ConversationEngine implements ConversationEngineInterface
                 } catch (NoMatchingIntentsException $e) {
                     Log::debug(sprintf('No intent for ongoing conversation matched, simulating a NoMatch.'));
                     $utterance->setCallbackId(self::NO_MATCH);
-                    return self::determineCurrentConversation($userContext, $utterance);
+                    return $this->determineCurrentConversation($userContext, $utterance);
                 }
             }
 
@@ -152,9 +154,14 @@ class ConversationEngine implements ConversationEngineInterface
 
         $ongoingConversation = $this->setCurrentConversation($userContext, $utterance);
         if (!isset($ongoingConversation)) {
-            Log::debug(sprintf('No opening conversation found for utterance, simulating a NoMatch.'));
-            $utterance->setCallbackId(self::NO_MATCH);
-            return self::determineCurrentConversation($userContext, $utterance);
+            if ($utterance->getCallbackId() == self::NO_MATCH) {
+                Log::debug(sprintf('No conversation found for callback NoMatch.'));
+                throw new NoConversationsException();
+            } else {
+                Log::debug(sprintf('No opening conversation found for utterance, simulating a NoMatch.'));
+                $utterance->setCallbackId(self::NO_MATCH);
+                return $this->determineCurrentConversation($userContext, $utterance);
+            }
         }
 
         Log::debug(
@@ -166,7 +173,7 @@ class ConversationEngine implements ConversationEngineInterface
         );
 
         // Start from the top - we should eventually have a conversation.
-        return self::determineCurrentConversation($userContext, $utterance);
+        return $this->determineCurrentConversation($userContext, $utterance);
     }
 
     /**
