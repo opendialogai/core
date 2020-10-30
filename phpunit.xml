@@ -19,55 +19,55 @@
         </testsuite>
 
         <testsuite name="ActionEngine">
-            <directory suffix="Test.php">./src/ActionEngine/tests</directory>
+            <directory suffix="Test.php">./src/ActionEngine/Tests</directory>
         </testsuite>
 
         <testsuite name="Console">
-            <directory suffix="Test.php">./src/Console/Commands/tests</directory>
+            <directory suffix="Test.php">./src/Console/Commands/Tests</directory>
         </testsuite>
 
         <testsuite name="ContextEngine">
-            <directory suffix="Test.php">./src/ContextEngine/tests</directory>
+            <directory suffix="Test.php">./src/ContextEngine/Tests</directory>
         </testsuite>
 
         <testsuite name="ResponseEngine">
-            <directory suffix="Test.php">./src/ResponseEngine/tests</directory>
+            <directory suffix="Test.php">./src/ResponseEngine/Tests</directory>
         </testsuite>
 
         <testsuite name="InterpreterEngine">
-            <directory suffix="Test.php">./src/InterpreterEngine/tests</directory>
+            <directory suffix="Test.php">./src/InterpreterEngine/Tests</directory>
         </testsuite>
 
         <testsuite name="OperationEngine">
-            <directory suffix="Test.php">./src/OperationEngine/tests</directory>
+            <directory suffix="Test.php">./src/OperationEngine/Tests</directory>
         </testsuite>
 
         <testsuite name="Graph">
-            <directory suffix="Test.php">./src/Graph/tests</directory>
+            <directory suffix="Test.php">./src/Graph/Tests</directory>
         </testsuite>
 
         <testsuite name="ConversationBuilder">
-            <directory suffix="Test.php">./src/ConversationBuilder/tests</directory>
+            <directory suffix="Test.php">./src/ConversationBuilder/Tests</directory>
         </testsuite>
 
         <testsuite name="ConversationLog">
-            <directory suffix="Test.php">./src/ConversationLog/tests</directory>
+            <directory suffix="Test.php">./src/ConversationLog/Tests</directory>
         </testsuite>
 
         <testsuite name="RequestLoggerMiddleware">
-            <directory suffix="Test.php">./src/Http/Middleware/tests</directory>
+            <directory suffix="Test.php">./src/Http/Middleware/Tests</directory>
         </testsuite>
 
         <testsuite name="SensorEngine">
-            <directory suffix="Test.php">./src/SensorEngine/tests</directory>
+            <directory suffix="Test.php">./src/SensorEngine/Tests</directory>
         </testsuite>
 
         <testsuite name="ConversationEngine">
-            <directory suffix="Test.php">./src/ConversationEngine/tests</directory>
+            <directory suffix="Test.php">./src/ConversationEngine/Tests</directory>
         </testsuite>
 
         <testsuite name="NlpEngine">
-            <directory suffix="Test.php">./src/NlpEngine/tests</directory>
+            <directory suffix="Test.php">./src/NlpEngine/Tests</directory>
         </testsuite>
 
     </testsuites>

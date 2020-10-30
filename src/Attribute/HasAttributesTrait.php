@@ -87,7 +87,7 @@ trait HasAttributesTrait
     /**
      * @inheritdoc
      */
-    public function getAttribute(string $attributeName) : AttributeInterface
+    public function getAttribute(string $attributeName): AttributeInterface
     {
         if ($this->hasAttribute($attributeName)) {
             return $this->attributes->get($attributeName);

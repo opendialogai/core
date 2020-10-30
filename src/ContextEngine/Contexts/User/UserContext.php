@@ -149,7 +149,7 @@ class UserContext extends AbstractContext
     /**
      * @return bool
      */
-    public function isUserHavingConversation() : bool
+    public function isUserHavingConversation(): bool
     {
         return $this->user->isHavingConversation();
     }

@@ -50,11 +50,11 @@ class MessageHistoryContext extends AbstractContext
 
             if ($messageText == '' && isset($message->data['text'])) {
                 $messageText = $message->data['text'];
-            } else if ($message->type == FormResponseUtterance::TYPE) {
+            } elseif ($message->type == FormResponseUtterance::TYPE) {
                 $messageText = 'Form submitted.';
-            } else if ($message->type == TriggerUtterance::TYPE) {
+            } elseif ($message->type == TriggerUtterance::TYPE) {
                 $messageText = '(Trigger message)';
-            } else if ($message->type == HandToSystemMessage::TYPE) {
+            } elseif ($message->type == HandToSystemMessage::TYPE) {
                 $messageText = '(User was handed over to another system)';
             }
 

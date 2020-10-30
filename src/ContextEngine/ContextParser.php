@@ -8,7 +8,7 @@ use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
 {
-    public static function parseAttributeName($attribute) : ParsedAttributeName
+    public static function parseAttributeName($attribute): ParsedAttributeName
     {
         $matches = array_map(
             function ($i) {
@@ -23,7 +23,7 @@ abstract class ContextParser
             $parsedAttribute->setContextId($matches[0]);
             $parsedAttribute->setAttributeId($matches[1]);
 
-            if (count($matches)>2) {
+            if (count($matches) > 2) {
                 $parsedAttribute->setAccessor(array_slice($matches, 2));
             }
         } else {
@@ -77,7 +77,7 @@ abstract class ContextParser
      * @param string $attribute
      * @return bool
      */
-    public static function containsContextName(string $attribute):  bool
+    public static function containsContextName(string $attribute): bool
     {
         return self::determineContextId($attribute) !== AbstractAttribute::UNDEFINED_CONTEXT;
     }
