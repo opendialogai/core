@@ -5,10 +5,10 @@ namespace OpenDialogAi\ContextEngine\Tests;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\Test\ExampleAbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\Test\ExampleAbstractCompositeAttribute;
-use OpenDialogAi\Core\Attribute\Test\SecondAbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\Test\SecondAbstractCompositeAttribute;
+use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractAttributeCollection;
+use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractCompositeAttribute;
+use OpenDialogAi\Core\Attribute\Tests\SecondAbstractAttributeCollection;
+use OpenDialogAi\Core\Attribute\Tests\SecondAbstractCompositeAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
