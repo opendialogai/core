@@ -7,14 +7,14 @@ use OpenDialogAi\Core\Attribute\ArrayAttribute;
 use OpenDialogAi\Core\Attribute\Composite\AbstractCompositeAttribute;
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\test\ExampleAbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\test\ExampleAbstractCompositeAttribute;
+use OpenDialogAi\Core\Attribute\Test\ExampleAbstractAttributeCollection;
+use OpenDialogAi\Core\Attribute\Test\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
