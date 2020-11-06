@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine\tests\Providers;
+namespace OpenDialogAi\Core\NlpEngine\Tests\Providers;
 
 use OpenDialogAi\Core\NlpEngine\NlpSummary;
 use OpenDialogAi\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;

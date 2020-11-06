@@ -11,8 +11,8 @@ use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
-use OpenDialogAi\InterpreterEngine\tests\Interpreters\DummyInterpreter;
-use OpenDialogAi\InterpreterEngine\tests\Interpreters\NoNameInterpreter;
+use OpenDialogAi\InterpreterEngine\Tests\Interpreters\DummyInterpreter;
+use OpenDialogAi\InterpreterEngine\Tests\Interpreters\NoNameInterpreter;
 
 class InterpreterServiceTest extends TestCase
 {

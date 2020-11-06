@@ -43,7 +43,7 @@
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
       "OpenDialogAi\\NlpEngine\\": "src/NlpEngine",
       "OpenDialogAi\\Core\\Database\\": "database/",
-      "OpenDialogAi\\Core\\Tests\\": "tests/"
+      "OpenDialogAi\\Core\\Tests\\": "Tests/"
     }
   },
   "extra": {

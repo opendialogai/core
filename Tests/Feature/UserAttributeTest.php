@@ -10,8 +10,8 @@ use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreter;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 

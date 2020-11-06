@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\InterpreterEngine\tests\Interpreters;
+namespace OpenDialogAi\InterpreterEngine\Tests\Interpreters;
 
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;

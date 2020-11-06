@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\NlpEngine\tests;
 
-use OpenDialogAi\Core\NlpEngine\tests\Providers\BadlyNamedProvider;
-use OpenDialogAi\Core\NlpEngine\tests\Providers\NoMethods;
+use OpenDialogAi\Core\NlpEngine\Tests\Providers\BadlyNamedProvider;
+use OpenDialogAi\Core\NlpEngine\Tests\Providers\NoMethods;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;
 use OpenDialogAi\NlpEngine\Exceptions\NlpProviderNotRegisteredException;

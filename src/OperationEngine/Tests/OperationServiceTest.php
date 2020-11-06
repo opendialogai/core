@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\OperationEngine\OperationEngine\tests;
+namespace OpenDialogAi\Core\OperationEngine\OperationEngine\Tests;
 
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;

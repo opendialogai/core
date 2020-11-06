@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ConversationEngine;
+namespace OpenDialogAi\ConversationEngine\Exceptions;
 
 class CouldNotCreateConversationForUserException extends \RuntimeException
 {

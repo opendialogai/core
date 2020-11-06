@@ -4,11 +4,9 @@ namespace OpenDialogAi\Core\Tests\Unit\Conversation;
 
 use Ds\Map;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ScenesTest extends TestCase
