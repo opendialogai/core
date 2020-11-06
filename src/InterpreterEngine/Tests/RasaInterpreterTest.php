@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\Tests;
+namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use Exception;
 use OpenDialogAi\Core\Attribute\AttributeInterface;

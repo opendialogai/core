@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\Tests;
+namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Attribute\StringAttribute;

@@ -1,9 +1,10 @@
 <?php
 
-namespace OpenDialogAi\Core\Tests;
+namespace OpenDialogAi\Core\Tests\Feature;
 
 use OpenDialogAi\Core\RequestLog;
 use OpenDialogAi\Core\ResponseLog;
+use Tests\TestCase;
 
 class CoreTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\InterpreterEngine\tests;
+namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\InterpreterEngine\Luis\LuisEntity;

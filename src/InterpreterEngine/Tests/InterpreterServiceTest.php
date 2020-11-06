@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\InterpreterEngine\InterpreterEngine\Tests;
+namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Attribute\StringAttribute;

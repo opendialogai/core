@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\NlpEngine\tests;
+namespace OpenDialogAi\Core\NlpEngine\Tests;
 
 use OpenDialogAi\Core\NlpEngine\Tests\Providers\BadlyNamedProvider;
 use OpenDialogAi\Core\NlpEngine\Tests\Providers\NoMethods;
