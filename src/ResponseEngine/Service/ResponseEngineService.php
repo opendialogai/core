@@ -62,6 +62,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             throw new NoMatchingMessagesException($message);
         } else {
             $markup = $this->fillAttributes($selectedMessageTemplate->message_markup);
+            $markup = $this->escapeCharacters($markup);
 
             $messages = $formatter->getMessages($markup);
 
@@ -84,7 +85,6 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 $replacement = ' ';
                 try {
                     $replacement = $this->getReplacement($attributeId);
-                    $replacement = $this->escapeCharacters($replacement);
                 } catch (ContextDoesNotExistException $e) {
                     Log::warning(
                         sprintf(
@@ -246,9 +246,10 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      * @param $replacement
      * @return string
      */
-    private function escapeCharacters($replacement): string
+    public function escapeCharacters($replacement): string
     {
         $replacement = str_replace('&', '&amp;', $replacement);
+        $replacement = str_replace('%', '%%', $replacement);
 
         return $replacement;
     }
