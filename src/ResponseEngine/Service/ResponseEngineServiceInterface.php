@@ -90,4 +90,12 @@ interface ResponseEngineServiceInterface
      * @param OperationServiceInterface $operationService
      */
     public function setOperationService(OperationServiceInterface $operationService): void;
+
+    /**
+     * Escapes the ampersand character (& => &amp;)
+     *
+     * @param $replacement
+     * @return string
+     */
+    public function escapeCharacters($replacement): string;
 }

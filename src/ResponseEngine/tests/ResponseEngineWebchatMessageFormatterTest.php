@@ -9,6 +9,7 @@ use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToSystemMessage;
 use OpenDialogAi\ResponseEngine\Rules\MessageXML;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
 {
@@ -97,6 +98,17 @@ EOT;
         $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals('hi there <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 1</a> <a class="linkified" target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
+    }
+
+    public function testTextMessageWithSpecialCharacters()
+    {
+        $markup = resolve(ResponseEngineServiceInterface::class)->escapeCharacters(
+            "<message><text-message>Hello % world &.</text-message></message>"
+        );
+
+        $formatter = new WebChatMessageFormatter();
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('Hello % world &.', $messages[0]->getText());
     }
 
     public function testHandToSystemMessage()
