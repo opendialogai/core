@@ -33,5 +33,5 @@ interface AttributeCollectionInterface extends \JsonSerializable
      *
      * @return AttributeInterface[]
      */
-    public function getAttributes() : ?array;
+    public function getAttributes(): ?array;
 }

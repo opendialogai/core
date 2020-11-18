@@ -25,8 +25,8 @@
     "barryvdh/laravel-ide-helper": "^2.6",
     "matthewbdaly/artisan-standalone": "^0.0.8",
     "dms/phpunit-arraysubset-asserts": "^0.1.0",
-    "phpro/grumphp": "^0.16.0",
-    "friendsofphp/php-cs-fixer": "^2.15"
+    "friendsofphp/php-cs-fixer": "^2.15",
+    "phpro/grumphp": "^v0.18.1"
   },
   "autoload": {
     "psr-4": {
@@ -43,7 +43,7 @@
       "OpenDialogAi\\SensorEngine\\": "src/SensorEngine",
       "OpenDialogAi\\NlpEngine\\": "src/NlpEngine",
       "OpenDialogAi\\Core\\Database\\": "database/",
-      "OpenDialogAi\\Core\\Tests\\": "tests/"
+      "OpenDialogAi\\Core\\Tests\\": "Tests/"
     }
   },
   "extra": {

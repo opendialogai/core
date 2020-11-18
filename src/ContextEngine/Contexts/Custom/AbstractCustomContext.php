@@ -37,5 +37,5 @@ abstract class AbstractCustomContext extends AbstractContext
      *
      * All attributes should be added using @see AbstractContext::addAttribute()
      */
-    abstract public function loadAttributes() :void;
+    abstract public function loadAttributes(): void;
 }

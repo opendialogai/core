@@ -25,7 +25,7 @@ return [
      * Custom interpreters registered in the format
      */
     'custom_interpreters' => [
-//    \OpenDialogAi\InterpreterEngine\tests\Interpreters\DummyInterpreter::class
+//    \OpenDialogAi\InterpreterEngine\Tests\Interpreters\DummyInterpreter::class
     ],
 
     /**

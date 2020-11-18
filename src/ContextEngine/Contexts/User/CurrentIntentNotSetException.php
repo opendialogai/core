@@ -1,6 +1,5 @@
 <?php
 
-
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Exception;

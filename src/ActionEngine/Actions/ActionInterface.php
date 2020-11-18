@@ -16,21 +16,21 @@ interface ActionInterface
      * @param ActionInput $actionInput
      * @return ActionResult
      */
-    public function perform(ActionInput $actionInput) : ActionResult;
+    public function perform(ActionInput $actionInput): ActionResult;
 
     /**
      * Returns an array of attribute names that the action requires in order to be performed
      *
      * @return string[]
      */
-    public function getRequiredAttributes() : array;
+    public function getRequiredAttributes(): array;
 
     /**
      * Returns an array of attribute names that the action give as input
      *
      * @return Map
      */
-    public function getInputAttributes() : Map;
+    public function getInputAttributes(): Map;
 
     /**
      * Checks whether the action requires the specified attribute
@@ -38,14 +38,14 @@ interface ActionInterface
      * @param $attributeName string The name of the attribute to check
      * @return bool True if the action requires this attribute, false if not
      */
-    public function requiresAttribute($attributeName) : bool;
+    public function requiresAttribute($attributeName): bool;
 
     /**
      * Returns an array of attribute names that the action will output if successful
      *
      * @return Map
      */
-    public function getOutputAttributes() : Map;
+    public function getOutputAttributes(): Map;
 
     /**
      * Whether this action outputs the given attribute

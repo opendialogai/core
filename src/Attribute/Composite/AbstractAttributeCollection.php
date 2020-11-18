@@ -87,7 +87,7 @@ abstract class AbstractAttributeCollection implements AttributeCollectionInterfa
      * @param string $input A JSON Serialisation of attributes
      * @return AttributeInterface[]|null
      */
-    private function jsonDeserialize($input) : ?array
+    private function jsonDeserialize($input): ?array
     {
         if (!is_null($input)) {
             $arrayOfAttributes = Util::decode($input);
