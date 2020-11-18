@@ -47,7 +47,9 @@ abstract class WebchatMessage implements OpenDialogMessage
      */
     public function setText($format, $args = [], bool $noSpecialChars = false)
     {
-        if ($noSpecialChars) {
+        if (is_null($format) || $format == "") {
+            $this->text = null;
+        } elseif ($noSpecialChars) {
             $this->text = vsprintf($format, $args);
         } else {
             // Escape &, <, > characters

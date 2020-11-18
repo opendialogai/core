@@ -9,6 +9,7 @@ use OpenDialogAi\ResponseEngine\Formatters\Webchat\WebChatMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebchatHandToSystemMessage;
 use OpenDialogAi\ResponseEngine\Rules\MessageXML;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 
 class ResponseEngineWebchatMessageFormatterTest extends TestCase
 {
@@ -97,6 +98,17 @@ EOT;
         $formatter = new WebChatMessageFormatter();
         $messages = $formatter->getMessages($markup)->getMessages();
         $this->assertEquals('hi there <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 1</a> <a class="linkified" target="_blank" href="http://www.opendialog.ai">Link 2</a> test <a class="linkified" target="_parent" href="http://www.opendialog.ai">Link 3</a>', $messages[0]->getText());
+    }
+
+    public function testTextMessageWithSpecialCharacters()
+    {
+        $markup = resolve(ResponseEngineServiceInterface::class)->escapeCharacters(
+            "<message><text-message>Hello % world &.</text-message></message>"
+        );
+
+        $formatter = new WebChatMessageFormatter();
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $this->assertEquals('Hello % world &.', $messages[0]->getText());
     }
 
     public function testHandToSystemMessage()
@@ -200,6 +212,7 @@ EOT;
 
         $this->assertEquals(true, $message->getData()['clear_after_interaction']);
         $this->assertEquals(true, $message->getData()['disable_text']);
+        $this->assertEquals('test', $message->getData()['text']);
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
 
         $markup = <<<EOT
@@ -286,6 +299,30 @@ EOT;
 
         $this->assertEquals(false, $message->getData()['clear_after_interaction']);
         $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertEquals('test', $message->getData()['text']);
+        $this->assertEquals($expectedOutput, $message->getButtonsArray());
+
+        // phpcs:ignore
+        $markup = '<message><button-message><text></text><button type="no-button"><text>No</text><callback>callback_no</callback><value>false</value></button></button-message></message>';
+        $formatter = new WebChatMessageFormatter();
+
+        /** @var OpenDialogMessage[] $messages */
+        $messages = $formatter->getMessages($markup)->getMessages();
+        $message = $messages[0];
+
+        $expectedOutput = [
+            [
+                'text' => 'No',
+                'callback_id' => 'callback_no',
+                'value' => 'false',
+                'display' => true,
+                'type' => 'no-button',
+            ],
+        ];
+
+        $this->assertEquals(false, $message->getData()['clear_after_interaction']);
+        $this->assertEquals(false, $message->getData()['disable_text']);
+        $this->assertNull($message->getData()['text']);
         $this->assertEquals($expectedOutput, $message->getButtonsArray());
     }
 

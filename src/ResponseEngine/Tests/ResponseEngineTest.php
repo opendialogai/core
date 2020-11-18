@@ -212,7 +212,7 @@ class ResponseEngineTest extends TestCase
             $messageWrapper
         );
 
-        $this->assertEquals($messageWrapper->getMessages()[0]->getText(), '{&quot;greeting&quot;:&quot;hello&quot;,&quot;subject&quot;:&quot;world&quot;}');
+        $this->assertEquals('{&quot;greeting&quot;:&quot;hello&quot;,&quot;subject&quot;:&quot;world&quot;}', $messageWrapper->getMessages()[0]->getText());
     }
 
     public function testWebChatMessage()
