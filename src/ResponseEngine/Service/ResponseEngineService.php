@@ -85,6 +85,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
                 $replacement = ' ';
                 try {
                     $replacement = $this->getReplacement($attributeId);
+                    $replacement = htmlentities($replacement);
                 } catch (ContextDoesNotExistException $e) {
                     Log::warning(
                         sprintf(
