@@ -349,7 +349,7 @@ EOT;
     <text>test</text>
     <button>
       <text>
-        This is an <b>bold</b> text with <i>italic</i>
+        This is <b>bold</b> <![CDATA[&]]> <i>italic</i> text
       </text>
       <callback>
         callback_yes
@@ -373,7 +373,7 @@ EOT;
 
         $expectedOutput = [
             [
-                'text' => 'This is an <strong>bold</strong> text with <em>italic</em>',
+                'text' => 'This is <strong>bold</strong> & <em>italic</em> text',
                 'callback_id' => 'callback_yes',
                 'value' => 'true',
                 'display' => true,

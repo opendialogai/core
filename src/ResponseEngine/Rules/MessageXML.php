@@ -123,7 +123,7 @@ class MessageXML extends BaseRule
                                 $this->setErrorMessage('Button must have "text"');
                                 return false;
                             }
-                            if (strip_tags($buttonText, '<b><i><u>') !== $buttonText) {
+                            if ($this->stripTags($buttonText)) {
                                 $this->setErrorMessage('Button text contains an invalid tag (allowed tags are <b>, <i> and <u>');
                                 return false;
                             }
@@ -264,5 +264,18 @@ class MessageXML extends BaseRule
         }
 
         return true;
+    }
+
+    /**
+     * Takes button text and strips out all HTML tags except <b>, <i> and <u>
+     * Will also strip out and <![CDATA]> tags as they are considered valid for XML messages
+     *
+     * @param string $buttonText
+     * @return bool
+     */
+    private function stripTags(string $buttonText): bool
+    {
+        $buttonText = preg_replace('/<!\[CDATA.*?>/', '', $buttonText);
+        return strip_tags($buttonText, '<b><i><u>') !== $buttonText;
     }
 }

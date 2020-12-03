@@ -86,7 +86,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     {
         $messages = [];
         try {
-            $message = new SimpleXMLElement($markup);
+            $message = new SimpleXMLElement($markup, LIBXML_NOCDATA);
 
             foreach ($message->children() as $item) {
                 if ($item->getName() === self::ATTRIBUTE_MESSAGE) {
