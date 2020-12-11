@@ -4,7 +4,6 @@ namespace OpenDialogAi\Core\Graph\DGraph;
 
 use Ds\Map;
 use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
@@ -218,7 +217,6 @@ class DGraphMutation
         } else {
             return sprintf('%s %s .', $prepared, $this->prepareFacets($facets));
         }
-
     }
 
     /**
@@ -265,53 +263,13 @@ class DGraphMutation
      * @param bool $update
      * @return string|null
      */
-    private function prepareNodeType(Node $node, $id, bool $update): ?string
+    private function prepareNodeType(Node $node, string $id, bool $update): ?string
     {
-        try {
-            $attribute = $node->getAttribute(Model::EI_TYPE)->getValue();
-        } catch (AttributeDoesNotExistException $e) {
+        if ($node->hasGraphType()) {
+            return $this->prepareAttributeTriple($id, 'dgraph.type', $node->getGraphType(), $update);
+        } else {
             return null;
         }
-
-        switch ($attribute) {
-            case Model::CHATBOT_USER:
-                $type = DGraphClient::USER;
-                break;
-
-            case Model::CONDITION:
-                $type = DGraphClient::CONDITION;
-                break;
-
-            case Model::CONVERSATION_USER:
-            case Model::CONVERSATION_TEMPLATE:
-                $type = DGraphClient::CONVERSATION;
-                break;
-
-            case Model::SCENE:
-                $type = DGraphClient::SCENE;
-                break;
-
-            case Model::PARTICIPANT:
-                $type = DGraphClient::PARTICIPANT;
-                break;
-
-            case Model::INTENT:
-                $type = DGraphClient::INTENT;
-                break;
-
-            case Model::USER_ATTRIBUTE:
-                $type = DGraphClient::USER_ATTRIBUTE;
-                break;
-
-            case Model::VIRTUAL_INTENT:
-                $type = DGraphClient::VIRTUAL_INTENT;
-                break;
-
-            default:
-                return null;
-        }
-
-        return $this->prepareAttributeTriple($id, 'dgraph.type', $type, $update);
     }
 
     /**

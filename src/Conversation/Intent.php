@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 
 /**
@@ -38,6 +39,7 @@ class Intent extends NodeWithConditions
     public function __construct($id, $completes = false)
     {
         parent::__construct($id);
+        $this->setGraphType(DGraphClient::INTENT);
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::INTENT));
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::REPEATING, false));
 

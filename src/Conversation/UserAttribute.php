@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
@@ -19,7 +20,7 @@ class UserAttribute extends Node
     public function __construct(AttributeInterface $attribute)
     {
         parent::__construct($attribute->getId());
-
+        $this->setGraphType(DGraphClient::USER_ATTRIBUTE);
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::USER_ATTRIBUTE));
 
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::ID, $attribute->getId()));

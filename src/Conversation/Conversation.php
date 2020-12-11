@@ -4,7 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 /**
  * A Conversation is a collection of Scenes.
@@ -26,6 +26,8 @@ class Conversation extends NodeWithConditions
     public function __construct($id, $conversationStatus, $conversationVersion)
     {
         parent::__construct($id);
+        $this->setGraphType(DGraphClient::CONVERSATION);
+
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE));
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONVERSATION_STATUS, $conversationStatus));
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONVERSATION_VERSION, $conversationVersion));

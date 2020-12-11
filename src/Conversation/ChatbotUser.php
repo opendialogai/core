@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 class ChatbotUser extends Node
@@ -24,13 +25,14 @@ class ChatbotUser extends Node
     public function __construct($id = null)
     {
         parent::__construct($id);
+        $this->setGraphType(DGraphClient::USER);
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CHATBOT_USER));
     }
 
     /**
      * @return bool
      */
-    public function isHavingConversation() : bool
+    public function isHavingConversation(): bool
     {
         return isset($this->currentConversationUid);
     }

@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 /**
  * A scene is a specific context of a conversation with the associated exchange of utterances between participants.
@@ -20,6 +21,7 @@ class Scene extends NodeWithConditions
     public function __construct($id)
     {
         parent::__construct($id);
+        $this->setGraphType(DGraphClient::SCENE);
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::SCENE));
 
         // Create the scene participants
@@ -121,7 +123,7 @@ class Scene extends NodeWithConditions
         return $allIntents;
     }
 
-    public function getIntentByOrder($order):Intent
+    public function getIntentByOrder($order): Intent
     {
         $intents =  $this->getAllIntents()->filter(function ($key, $value) use ($order) {
             /* @var Intent $value */
