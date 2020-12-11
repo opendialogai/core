@@ -4,7 +4,7 @@ namespace OpenDialogAi\Core\Tests\Feature;
 
 use OpenDialogAi\Core\RequestLog;
 use OpenDialogAi\Core\ResponseLog;
-use Tests\TestCase;
+use OpenDialogAi\Core\Tests\TestCase;
 
 class CoreTest extends TestCase
 {

@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
@@ -14,6 +15,7 @@ class Participant extends Node
     public function __construct($id)
     {
         parent::__construct($id);
+        $this->setGraphType(DGraphClient::PARTICIPANT);
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::PARTICIPANT));
     }
 

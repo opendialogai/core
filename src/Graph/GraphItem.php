@@ -13,6 +13,9 @@ trait GraphItem
     /* @var string $id - a human friendly identifier for the item */
     protected $id;
 
+    /** @var ?string $graph_type - the node type used by the graph */
+    protected $graph_type = null;
+
     /**
      * @return string
      */
@@ -63,5 +66,29 @@ trait GraphItem
     public function uidIsSet()
     {
         return isset($this->uid);
+    }
+
+    /**
+     * @return ?string
+     */
+    public function getGraphType(): ?string
+    {
+        return $this->graph_type;
+    }
+
+    /**
+     * @param ?string $graph_type
+     */
+    public function setGraphType(?string $graph_type): void
+    {
+        $this->graph_type = $graph_type;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasGraphType(): bool
+    {
+        return !is_null($this->graph_type);
     }
 }

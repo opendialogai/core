@@ -4,8 +4,7 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**
@@ -27,6 +26,8 @@ class Condition extends Node
     public function __construct($evaluationOperation, $attributes, $parameters = [], $id = null)
     {
         parent::__construct($id);
+        $this->setGraphType(DGraphClient::CONDITION);
+
         $this->attributes = new Map();
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CONDITION));
         $this->addAttribute(AttributeResolver::getAttributeFor(Model::OPERATION, $evaluationOperation));

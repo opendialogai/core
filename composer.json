@@ -50,6 +50,7 @@
     "laravel": {
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
+        "OpenDialogAi\\Core\\Graph\\GraphServiceProvider",
         "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
         "OpenDialogAi\\ConversationEngine\\ConversationEngineServiceProvider",
         "OpenDialogAi\\ConversationLog\\ConversationLogServiceProvider",
