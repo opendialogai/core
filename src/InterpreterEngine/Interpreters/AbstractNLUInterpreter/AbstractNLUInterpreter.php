@@ -4,7 +4,6 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
@@ -88,19 +87,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
             $attributeName = $entityList[$entity->getType()];
         }
 
-        try {
-            return AttributeResolver::getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
-        } catch (AttributeIsNotSupported $e) {
-            Log::warning(
-                sprintf(
-                    "Unsupported attribute type %s returned from %s - using StringAttribute",
-                    $attributeName,
-                    static::$name
-                )
-            );
-
-            return AttributeResolver::getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
-        }
+        return AttributeResolver::getAttributeFor($attributeName, $entity->getResolutionValues()[0]);
     }
 
     /**

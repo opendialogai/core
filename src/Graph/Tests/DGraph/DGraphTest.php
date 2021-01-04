@@ -3,7 +3,6 @@
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Attribute\StringAttribute;
@@ -99,13 +98,8 @@ class DGraphTest extends TestCase
                 continue;
             }
 
-            try {
-                $attribute = AttributeResolver::getAttributeFor($name, $value);
-                $node1->addAttribute($attribute);
-            } catch (AttributeIsNotSupported $e) {
-                // Simply skip attributes we can't deal with.
-                continue;
-            }
+            $attribute = AttributeResolver::getAttributeFor($name, $value);
+            $node1->addAttribute($attribute);
         }
 
         $this->assertTrue($node1->hasAttribute('name'));

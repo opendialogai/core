@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
@@ -38,9 +37,8 @@ class AttributeResolverServiceTest extends TestCase
 
     public function testAccessToUnsupportedAttribute()
     {
-        $this->expectException(AttributeIsNotSupported::class);
-
-        $this->getAttributeResolver()->getAttributeFor('name2', 'John Smith');
+        $attribute = $this->getAttributeResolver()->getAttributeFor('name2', 'John Smith');
+        $this->assertEquals(StringAttribute::class, get_class($attribute));
     }
 
     public function testBindingCustomAttributes()
@@ -64,8 +62,8 @@ class AttributeResolverServiceTest extends TestCase
 
         $attributeResolver = $this->getAttributeResolver();
 
-        $this->expectException(AttributeIsNotSupported::class);
-        $attributeResolver->getAttributeFor('test_attribute', null);
+        $attribute = $attributeResolver->getAttributeFor('test_attribute', null);
+        $this->assertEquals(StringAttribute::class, get_class($attribute));
     }
 
     /**

@@ -645,6 +645,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertEquals(null, $nonExistentConversation);
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithHistory()
     {
         $this->activateConversation($this->conversation4());
@@ -656,6 +659,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertArrayHasKey('opening_intents', $conversation->toArray());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testConversationWithOutHistory()
     {
         $this->activateConversation($this->conversation4());
@@ -665,6 +671,9 @@ class ConversationBuilderTest extends TestCase
         $this->assertArrayNotHasKey('history', $conversation->toArray());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testDraftConversationProperties()
     {
         // Create a conversation and activate it
