@@ -84,7 +84,7 @@ class ActionEngineServiceTest extends TestCase
 
         try {
             $result = $this->actionEngine->performAction('actions.core.dummy', $inputAttributes);
-            $this->assertTrue(!$result->isSuccessful());
+            $this->assertTrue($result->isSuccessful());
         } catch (ActionNotAvailableException $e) {
             $this->fail('Wrong exception thrown');
         }

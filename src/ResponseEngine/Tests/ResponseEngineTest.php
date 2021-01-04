@@ -596,7 +596,7 @@ class ResponseEngineTest extends TestCase
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
 
-        $this->assertEquals('hi dummy there   welcome', $messageWrapper->getMessages()[0]->getText());
+        $this->assertEquals('hi dummy there  welcome', $messageWrapper->getMessages()[0]->getText());
     }
 
     public function testMessageConditionRules()
