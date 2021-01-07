@@ -106,7 +106,8 @@ class CallbackInterpreterTest extends TestCase
 
         $intent = $this->getCallbackInterpreter()->interpret($utterance)[0];
 
-        $this->assertCount(0, $intent->getNonCoreAttributes());
+        $this->assertCount(1, $intent->getNonCoreAttributes());
+        $this->assertEquals(StringAttribute::class, get_class($intent->getNonCoreAttributes()->first()->value));
     }
 
     protected function getCallbackInterpreter(): InterpreterInterface

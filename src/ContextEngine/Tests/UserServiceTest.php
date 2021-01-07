@@ -324,6 +324,9 @@ class UserServiceTest extends TestCase
         $this->assertEquals('hello_user', $intent->getFollowedBy()->getId());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testGetUserTypeNew()
     {
         $this->assertEquals(ChatbotUser::NEW_USER, $this->userService->getUserType('newuser'));

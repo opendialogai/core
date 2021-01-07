@@ -5,7 +5,6 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 use Ds\Map;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
@@ -577,23 +576,12 @@ class UserService
 
                 if ($name === Model::HAS_ATTRIBUTE) {
                     foreach ($value as $userAttribute) {
-                        try {
-                            $attribute = AttributeResolver::getAttributeFor(
-                                $userAttribute[Model::ID],
-                                $userAttribute[Model::USER_ATTRIBUTE_VALUE]
-                            );
+                        $attribute = AttributeResolver::getAttributeFor(
+                            $userAttribute[Model::ID],
+                            $userAttribute[Model::USER_ATTRIBUTE_VALUE]
+                        );
 
-                            $user->addUserAttribute($attribute)->setUid($userAttribute[Model::UID]);
-                        } catch (AttributeIsNotSupported $e) {
-                            Log::warning(
-                                sprintf(
-                                    'Attribute for user could not be resolved %s => %s',
-                                    $userAttribute[Model::ID],
-                                    $userAttribute[Model::USER_ATTRIBUTE_VALUE]
-                                )
-                            );
-                            continue;
-                        }
+                        $user->addUserAttribute($attribute)->setUid($userAttribute[Model::UID]);
                     }
                 }
             }
@@ -618,11 +606,7 @@ class UserService
      */
     private function resolveAndAddUserAttribute(ChatbotUser $chatbotUser, $attributeName, $attributeValue): void
     {
-        try {
-            $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
-            $this->addUserAttribute($chatbotUser, $attribute);
-        } catch (AttributeIsNotSupported $e) {
-            Log::warning(sprintf('Trying to set unsupported attribute %s to user', $attributeName));
-        }
+        $attribute = AttributeResolver::getAttributeFor($attributeName, $attributeValue);
+        $this->addUserAttribute($chatbotUser, $attribute);
     }
 }

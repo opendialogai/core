@@ -12,10 +12,11 @@ class ImportExportConversationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->initDDgraph();
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testImportConversation()
     {
         $exitCode = Artisan::call('conversation:import ' . dirname(__FILE__) . '/example_conversation --activate --yes');
@@ -31,6 +32,9 @@ class ImportExportConversationTest extends TestCase
         $this->assertEquals('intent.core.NoMatchResponse', $intent->getLabel());
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testExportConversation()
     {
         Artisan::call('conversation:import ' . dirname(__FILE__) . '/example_conversation --activate --yes');

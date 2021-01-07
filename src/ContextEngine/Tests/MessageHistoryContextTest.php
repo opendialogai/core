@@ -14,6 +14,9 @@ class MessageHistoryContextTest extends TestCase
         parent::setUp();
     }
 
+    /**
+     * @requires DGRAPH
+     */
     public function testMessageHistoryContext()
     {
         $utterance = UtteranceGenerator::generateTextUtterance('test');

@@ -10,12 +10,11 @@ use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
+use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService implements ContextServiceInterface
@@ -162,12 +161,7 @@ class ContextService implements ContextServiceInterface
         }
 
         $attributeId = ContextParser::determineAttributeId($attributeName);
-        try {
-            $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
-        } catch (AttributeIsNotSupported $e) {
-            Log::debug(sprintf('Trying to save unsupported attribute, using StringAttribute %s', $attributeName));
-            $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
-        }
+        $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
 
         $context->addAttribute($attribute);
     }

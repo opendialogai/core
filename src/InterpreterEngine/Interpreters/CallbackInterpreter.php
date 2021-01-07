@@ -3,7 +3,6 @@
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Attribute\CallbackValueParser;
@@ -69,28 +68,18 @@ class CallbackInterpreter extends BaseInterpreter
     {
         $parsed = CallbackValueParser::parseCallbackValue($value);
 
-        try {
-            $attribute = AttributeResolver::getAttributeFor(
-                $parsed[CallbackValueParser::ATTRIBUTE_NAME],
-                $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
-            );
+        $attribute = AttributeResolver::getAttributeFor(
+            $parsed[CallbackValueParser::ATTRIBUTE_NAME],
+            $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
+        );
 
-            Log::debug(sprintf(
-                'Adding attribute %s with value %s to intent.',
-                $attribute->getId(),
-                $attribute->getValue()
-            ));
+        Log::debug(sprintf(
+            'Adding attribute %s with value %s to intent.',
+            $attribute->getId(),
+            $attribute->getValue()
+        ));
 
-            return $attribute;
-        } catch (AttributeIsNotSupported $e) {
-            Log::warning(sprintf(
-                'Not adding attribute %s with value %s from the callback interpreter. The attribute is not bound to a type',
-                $parsed[CallbackValueParser::ATTRIBUTE_NAME],
-                $parsed[CallbackValueParser::ATTRIBUTE_VALUE]
-            ));
-        }
-
-        return null;
+        return $attribute;
     }
 
     /**

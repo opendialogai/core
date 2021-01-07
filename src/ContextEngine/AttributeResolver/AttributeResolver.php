@@ -3,9 +3,9 @@
 namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Exceptions\AttributeIsNotSupported;
 use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\Core\Attribute\StringAttribute;
 
 /**
  * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.
@@ -64,15 +64,14 @@ class AttributeResolver
      * @param string $attributeId
      * @param $value
      * @return AttributeInterface
-     * @throws AttributeIsNotSupported
      */
     public function getAttributeFor(string $attributeId, $value)
     {
         if ($this->isAttributeSupported($attributeId)) {
             return new $this->supportedAttributes[$attributeId]($attributeId, $value);
         } else {
-            Log::debug(sprintf('Attribute %s could not be resolved', $attributeId));
-            throw new AttributeIsNotSupported(sprintf('Attribute %s could not be resolved', $attributeId));
+            Log::debug(sprintf('Attribute %s is not registered, defaulting to String type', $attributeId));
+            return new StringAttribute($attributeId, $value);
         }
     }
 }
