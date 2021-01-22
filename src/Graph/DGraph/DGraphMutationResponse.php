@@ -10,7 +10,7 @@ class DGraphMutationResponse
 
     private $response;
 
-    private $data;
+    private $data = null;
 
     private $errors;
 
@@ -47,7 +47,7 @@ class DGraphMutationResponse
 
     public function isSuccessful()
     {
-        if ($this->getData()['code'] == self::SUCCESS) {
+        if ($this->getData() && $this->getData()['code'] == self::SUCCESS) {
             return true;
         }
 
