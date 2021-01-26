@@ -1,9 +1,9 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\AttributeBag;
+namespace OpenDialogAi\AttributeEngine\AttributeBag;
 
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeDoesNotExistException;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 
 /**
  * An attribute bag holds a set of attributes that can be set or retrieved

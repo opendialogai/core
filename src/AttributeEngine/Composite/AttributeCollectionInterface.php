@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Composite;
+namespace OpenDialogAi\AttributeEngine\Composite;
 
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 
 /**
  * An attribute collection contains the logic for building up

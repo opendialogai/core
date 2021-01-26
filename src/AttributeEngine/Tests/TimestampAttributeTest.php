@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Tests;
+namespace OpenDialogAi\AttributeEngine\Tests;
 
-use OpenDialogAi\Core\Attribute\TimestampAttribute;
+use OpenDialogAi\AttributeEngine\TimestampAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class TimestampAttributeTest extends TestCase

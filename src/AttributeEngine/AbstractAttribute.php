@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute;
+namespace OpenDialogAi\AttributeEngine;
 
 /**
  * Abstract class implementation of the AttributeInterface.

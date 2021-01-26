@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute;
+namespace OpenDialogAi\AttributeEngine;
 
 /**
  * BasicAttribute is a simple implementation of the AttributeInterface that

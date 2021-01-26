@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Tests;
+namespace OpenDialogAi\AttributeEngine\Tests;
 
-use OpenDialogAi\Core\Attribute\Composite\AbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Composite\AbstractCompositeAttribute;
 
 class ExampleAbstractCompositeAttribute extends AbstractCompositeAttribute
 {

@@ -1,25 +1,23 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Tests;
+namespace OpenDialogAi\AttributeEngine\Tests;
 
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\Composite\AbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\Util;
+use OpenDialogAi\AttributeEngine\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Composite\AbstractAttributeCollection;
+use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\Util;
 
 /**
  * A composite attribute collection containing other attribute types.
- * This specific composite attribute will also container another composite attribute.
  *
  * createFromInput()
  * @return
  * [
  *  total = IntAttribute,
- *  results = ArrayAttribute,
- *  test = ExampleAbstractCompositeAttribute
+ *  results = ArrayAttribute
  * ]
  */
-class SecondAbstractAttributeCollection extends AbstractAttributeCollection
+class ExampleAbstractAttributeCollection extends AbstractAttributeCollection
 {
     const EXAMPLE_TYPE = 'api';
     const EXAMPLE_TYPE_ARRAY = 'array';
@@ -48,8 +46,7 @@ class SecondAbstractAttributeCollection extends AbstractAttributeCollection
      * @return array
      * [
      *  total = IntAttribute,
-     *  results = ArrayAttribute,
-     *  test = ExampleAbstractCompositeAttribute
+     *  results = ArrayAttribute
      * ]
      */
     public function createFromInput($input, $type): array
@@ -59,13 +56,6 @@ class SecondAbstractAttributeCollection extends AbstractAttributeCollection
         if ($type === self::EXAMPLE_TYPE_ARRAY) {
             $attributes[] = new IntAttribute('total', count($input));
             $attributes[] = new ArrayAttribute('results', $input);
-            $attributes[] = new ExampleAbstractCompositeAttribute(
-                'test',
-                new ExampleAbstractAttributeCollection(
-                    [1 => 'first', 2 => 'second', 3 => 'third'],
-                    ExampleAbstractAttributeCollection::EXAMPLE_TYPE_ARRAY
-                )
-            );
         }
 
         return $attributes;

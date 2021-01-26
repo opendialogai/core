@@ -1,10 +1,10 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\Composite;
+namespace OpenDialogAi\AttributeEngine\Composite;
 
+use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Util;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\Util;
 
 /**
  * An abstract class that is used to populate CompositeAttributes.

@@ -1,9 +1,9 @@
 <?php
 
-namespace OpenDialogAi\Core\Attribute\AttributeBag;
+namespace OpenDialogAi\AttributeEngine\AttributeBag;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\HasAttributesTrait;
+use OpenDialogAi\AttributeEngine\HasAttributesTrait;
 
 class AttributeBag implements AttributeBagInterface
 {
