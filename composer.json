@@ -32,6 +32,7 @@
     "psr-4": {
       "OpenDialogAi\\Core\\": "src/",
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
+      "OpenDialogAi\\AttributeEngine\\": "src/AttributeEngine",
       "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
       "OpenDialogAi\\ConversationBuilder\\": "src/ConversationBuilder",
       "OpenDialogAi\\MessageBuilder\\": "src/MessageBuilder",
