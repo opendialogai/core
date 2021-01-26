@@ -3,7 +3,7 @@
 namespace OpenDialogAi\AttributeEngine\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 
 /**
  * @method static AttributeInterface getAttributeFor(string $attributeId, mixed $value)

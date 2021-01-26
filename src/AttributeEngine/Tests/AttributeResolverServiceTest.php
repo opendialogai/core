@@ -3,7 +3,7 @@
 namespace OpenDialogAi\AttributeEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
-use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeResolverServiceTest extends TestCase

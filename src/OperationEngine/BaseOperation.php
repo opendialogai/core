@@ -3,7 +3,6 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
 use OpenDialogAi\Core\Traits\HasName;
 
 abstract class BaseOperation implements OperationInterface
@@ -11,7 +10,7 @@ abstract class BaseOperation implements OperationInterface
     use HasName;
 
     /**
-     * @var AttributeInterface[]
+     * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
      */
     protected $attributes;
 

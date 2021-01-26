@@ -4,7 +4,7 @@ namespace OpenDialogAi\ActionEngine\Actions;
 
 use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
 use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBagInterface;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 
 /**
  * An Action Input must be provided to all actions so that they can perform their action. It holds an

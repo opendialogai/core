@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 
 /**
  * An action result
@@ -64,7 +64,7 @@ class ActionResult
 
     /**
      * @param $attributeName
-     * @return AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
      */
     public function getResultAttribute($attributeName): AttributeInterface
     {
@@ -74,7 +74,7 @@ class ActionResult
     /**
      * Adds the given attribute to the attribute bag
      *
-     * @param AttributeInterface $attribute
+     * @param \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface $attribute
      */
     public function addAttribute(AttributeInterface $attribute)
     {

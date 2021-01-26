@@ -3,8 +3,8 @@
 namespace OpenDialogAi\Core\Graph\Tests\DGraph;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphMutation;

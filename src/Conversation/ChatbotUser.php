@@ -4,8 +4,8 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AttributeDoesNotExistException;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\Node;
@@ -168,7 +168,7 @@ class ChatbotUser extends Node
     /**
      * @param string $userAttributeId
      * @return AttributeInterface
-     * @throws AttributeDoesNotExistException
+     * @throws \OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException
      */
     public function getUserAttribute(string $userAttributeId): AttributeInterface
     {
@@ -187,7 +187,7 @@ class ChatbotUser extends Node
     /**
      * @param string $userAttributeId
      * @return AttributeInterface|null
-     * @throws AttributeDoesNotExistException
+     * @throws \OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException
      */
     public function getUserAttributeValue(string $userAttributeId): string
     {

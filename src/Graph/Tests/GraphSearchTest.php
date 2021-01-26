@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Graph\Tests;
 
 use Ds\Map;
-use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Graph\Search\DFS;
 use OpenDialogAi\Core\Tests\TestCase;

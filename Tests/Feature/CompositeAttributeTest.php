@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
-use OpenDialogAi\AttributeEngine\ArrayAttribute;
-use OpenDialogAi\AttributeEngine\Composite\AbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\Composite\AbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\AttributeEngine\IntAttribute;
-use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractAttributeCollection;
 use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;

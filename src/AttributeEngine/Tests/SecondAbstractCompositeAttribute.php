@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
-use OpenDialogAi\AttributeEngine\Composite\AbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\Composite\AbstractCompositeAttribute;
 
 class SecondAbstractCompositeAttribute extends AbstractCompositeAttribute
 {

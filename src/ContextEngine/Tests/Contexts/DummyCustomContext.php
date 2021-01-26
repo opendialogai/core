@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ContextEngine\Tests\Contexts;
 
-use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
 
 /**

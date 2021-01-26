@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
-use OpenDialogAi\AttributeEngine\ArrayAttribute;
-use OpenDialogAi\AttributeEngine\Composite\AbstractAttributeCollection;
-use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\Composite\AbstractAttributeCollection;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Util;
 
 /**

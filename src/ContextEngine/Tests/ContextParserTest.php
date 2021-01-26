@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
-use OpenDialogAi\AttributeEngine\AbstractAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Tests\TestCase;
 

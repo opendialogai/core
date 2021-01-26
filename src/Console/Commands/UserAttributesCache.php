@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Console\Commands;
 
 use Illuminate\Console\Command;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\UserAttribute;

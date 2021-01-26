@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\ResponseEngine\Tests;
 
-use OpenDialogAi\AttributeEngine\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Tests\TestCase;

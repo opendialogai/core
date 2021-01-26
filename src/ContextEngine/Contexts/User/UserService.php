@@ -5,7 +5,7 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 use Ds\Map;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistUserRecordException;
 use OpenDialogAi\ContextEngine\Exceptions\NoOngoingConversationException;
@@ -524,7 +524,7 @@ class UserService
      * Adds an attribute on a chatbot user
      *
      * @param ChatbotUser $chatbotUser
-     * @param AttributeInterface $attribute
+     * @param \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface $attribute
      */
     public function addUserAttribute(ChatbotUser $chatbotUser, AttributeInterface $attribute): void
     {

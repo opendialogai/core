@@ -3,8 +3,8 @@
 namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use Exception;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
-use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;

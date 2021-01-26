@@ -4,8 +4,8 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\AttributeEngine\UnsupportedAttributeTypeException;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
@@ -34,7 +34,7 @@ class Intent extends NodeWithConditions
      * Intent constructor.
      * @param $id
      * @param bool $completes
-     * @throws UnsupportedAttributeTypeException
+     * @throws \OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException
      */
     public function __construct($id, $completes = false)
     {

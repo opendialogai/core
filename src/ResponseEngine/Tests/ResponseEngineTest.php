@@ -2,12 +2,12 @@
 
 namespace OpenDialogAi\ResponseEngine\Tests;
 
-use OpenDialogAi\AttributeEngine\ArrayAttribute;
-use OpenDialogAi\AttributeEngine\BooleanAttribute;
-use OpenDialogAi\AttributeEngine\FloatAttribute;
-use OpenDialogAi\AttributeEngine\IntAttribute;
-use OpenDialogAi\AttributeEngine\StringAttribute;
-use OpenDialogAi\AttributeEngine\TimestampAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\DummyFormatter;

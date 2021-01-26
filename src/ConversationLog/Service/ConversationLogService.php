@@ -4,7 +4,7 @@ namespace OpenDialogAi\ConversationLog\Service;
 
 use DateTime;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AttributeDoesNotExistException;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;

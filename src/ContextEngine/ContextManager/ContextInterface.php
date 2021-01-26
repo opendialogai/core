@@ -3,8 +3,8 @@
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
-use OpenDialogAi\AttributeEngine\AttributeDoesNotExistException;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 
 /**
  * A context is a semantically-related grouping of Attributes. It provides
@@ -32,8 +32,8 @@ interface ContextInterface
      * what context we should use.
      *
      * @param string $attributeName
-     * @return AttributeInterface
-     * @throws AttributeDoesNotExistException
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
+     * @throws \OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException
      */
     public function getAttribute(string $attributeName): AttributeInterface;
 

@@ -4,6 +4,8 @@ namespace OpenDialogAi\AttributeEngine;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 
 /**
  * A trait that anything that needs to deal with Attributes can use.

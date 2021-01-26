@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\MessageHistory;
 
-use OpenDialogAi\AttributeEngine\AttributeInterface;
-use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;

@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Bot\Interpreters;
 
-use OpenDialogAi\AttributeEngine\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
 use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractAttributeCollection;
 use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Conversation\Intent;

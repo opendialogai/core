@@ -3,9 +3,9 @@
 namespace OpenDialogAi\AttributeEngine\AttributeResolver;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AbstractAttribute;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
-use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 
 /**
  * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.
@@ -32,7 +32,7 @@ class AttributeResolver
     /**
      * Registers an array of attributes. The original set of attributes is preserved so this can be run multiple times
      *
-     * @param $attributes AttributeInterface[]
+     * @param $attributes \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
      */
     public function registerAttributes($attributes): void
     {
@@ -63,7 +63,7 @@ class AttributeResolver
      *
      * @param string $attributeId
      * @param $value
-     * @return AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
      */
     public function getAttributeFor(string $attributeId, $value)
     {

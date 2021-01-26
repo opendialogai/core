@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
-use OpenDialogAi\AttributeEngine\IntAttribute;
-use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Conversation\Model;

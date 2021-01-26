@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ContextEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AbstractAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 
 abstract class ContextParser
@@ -46,11 +46,11 @@ abstract class ContextParser
      * Attempts to work out the context ID for a fully qualified attribute name.
      * For example, an attribute with the name user.name would return: 'user'
      *
-     * If no context is included with the attribute @see AbstractAttribute::UNDEFINED_CONTEXT is returned for the
+     * If no context is included with the attribute @param $attribute
+     * @return string
+     * @see \OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute::UNDEFINED_CONTEXT is returned for the
      * context id
      *
-     * @param $attribute
-     * @return string
      */
     public static function determineContextId($attribute): string
     {

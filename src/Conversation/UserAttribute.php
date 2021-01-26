@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\Node;
@@ -13,7 +13,7 @@ use OpenDialogAi\Core\Graph\Node\Node;
 class UserAttribute extends Node
 {
     /**
-     * @var AttributeInterface
+     * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
      */
     private $attribute;
 
@@ -31,7 +31,7 @@ class UserAttribute extends Node
     }
 
     /**
-     * @return AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
      */
     public function getInternalAttribute(): AttributeInterface
     {
@@ -39,7 +39,7 @@ class UserAttribute extends Node
     }
 
     /**
-     * @param AttributeInterface $attribute
+     * @param \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface $attribute
      */
     public function updateInternalAttribute(AttributeInterface $attribute): void
     {

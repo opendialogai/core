@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ConversationEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\AttributeEngine\IntAttribute;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;

@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
 
-use OpenDialogAi\AttributeEngine\ArrayAttribute;
-use OpenDialogAi\AttributeEngine\BooleanAttribute;
-use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeTest extends TestCase

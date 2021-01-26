@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
-use OpenDialogAi\AttributeEngine\TimestampAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class TimestampAttributeTest extends TestCase

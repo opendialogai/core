@@ -5,7 +5,7 @@ namespace OpenDialogAi\Core\Tests\Feature;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Mockery\MockInterface;
-use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
