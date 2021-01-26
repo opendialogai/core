@@ -1,10 +1,10 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine\Composite;
+namespace OpenDialogAi\AttributeEngine\Attributes\Composite;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AbstractAttribute;
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 
 /**
  * A composite attribute is one that contains a number of attributes within

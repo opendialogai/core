@@ -1,6 +1,8 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine;
+namespace OpenDialogAi\AttributeEngine\Attributes;
+
+use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 
 /**
  * A BooleanAttribute implementation.

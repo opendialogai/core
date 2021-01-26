@@ -1,8 +1,9 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine;
+namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use Carbon\Carbon;
+use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 
 /**
  * A TimestampAttribute implementation.

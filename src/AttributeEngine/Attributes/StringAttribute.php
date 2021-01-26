@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine;
+namespace OpenDialogAi\AttributeEngine\Attributes;
 
 /**
  * String implementation of Attribute.

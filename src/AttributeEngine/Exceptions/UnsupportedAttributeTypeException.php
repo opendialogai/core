@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine;
+namespace OpenDialogAi\AttributeEngine\Exceptions;
 
 /**
  * Thrown if we try to create an attribute of a type that is not supported.

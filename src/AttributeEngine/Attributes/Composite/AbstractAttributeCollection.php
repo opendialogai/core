@@ -1,8 +1,8 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine\Composite;
+namespace OpenDialogAi\AttributeEngine\Attributes\Composite;
 
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Util;
 

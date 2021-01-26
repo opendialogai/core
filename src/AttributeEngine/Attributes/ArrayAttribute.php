@@ -1,8 +1,9 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine;
+namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\Util;
 
 /**
  * A ArrayAttribute implementation.

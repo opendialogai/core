@@ -1,8 +1,6 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine\Composite;
-
-use OpenDialogAi\AttributeEngine\AttributeInterface;
+namespace OpenDialogAi\AttributeEngine\Attributes\Composite;
 
 /**
  * An attribute collection contains the logic for building up
@@ -31,7 +29,7 @@ interface AttributeCollectionInterface extends \JsonSerializable
     /**
      * Returns the attributes from this collection
      *
-     * @return AttributeInterface[]
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
      */
     public function getAttributes(): ?array;
 }
