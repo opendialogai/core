@@ -3,8 +3,8 @@
 namespace OpenDialogAi\ConversationEngine\Tests;
 
 use Exception;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\IntAttribute;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;

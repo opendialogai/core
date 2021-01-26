@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\Facades;
+namespace OpenDialogAi\AttributeEngine\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use OpenDialogAi\AttributeEngine\AttributeInterface;
@@ -14,6 +14,6 @@ class AttributeResolver extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver::class;
+        return \OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver::class;
     }
 }

@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ContextEngine;
 
 use Carbon\Laravel\ServiceProvider;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;

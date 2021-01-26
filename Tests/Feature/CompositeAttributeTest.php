@@ -4,11 +4,11 @@ namespace OpenDialogAi\Core\Tests\Feature;
 
 use OpenDialogAi\AttributeEngine\ArrayAttribute;
 use OpenDialogAi\AttributeEngine\Composite\AbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\IntAttribute;
 use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractAttributeCollection;
 use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractCompositeAttribute;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;

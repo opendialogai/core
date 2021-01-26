@@ -3,8 +3,8 @@
 namespace OpenDialogAi\AttributeEngine\Composite;
 
 use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Util;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 
 /**
  * An abstract class that is used to populate CompositeAttributes.

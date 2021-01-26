@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\AttributeResolver;
+namespace OpenDialogAi\AttributeEngine\AttributeResolver;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\AbstractAttribute;

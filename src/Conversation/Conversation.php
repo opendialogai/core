@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 /**

@@ -1,9 +1,9 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\Tests;
+namespace OpenDialogAi\AttributeEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\StringAttribute;
-use OpenDialogAi\ContextEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeResolverServiceTest extends TestCase

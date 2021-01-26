@@ -64,7 +64,7 @@
         "OpenDialogAi\\NlpEngine\\NlpEngineServiceProvider"
       ],
       "aliases": {
-        "AttributeResolver": "OpenDialogAi\\ContextEngine\\Facades\\AttributeResolver"
+        "AttributeResolver": "OpenDialogAi\\AttributeEngine\\Facades\\AttributeResolver"
       }
     }
   },
