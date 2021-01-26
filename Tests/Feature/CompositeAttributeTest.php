@@ -29,7 +29,7 @@ class CompositeAttributeTest extends TestCase
         );
 
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             [
                 'c' => ExampleAbstractCompositeAttribute::class,
                 'test_attr' => StringAttribute::class,

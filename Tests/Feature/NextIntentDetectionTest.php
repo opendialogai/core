@@ -492,7 +492,7 @@ EOT;
     public function testMultipleVirtualIntents()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['test' => StringAttribute::class]
         );
 

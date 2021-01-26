@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Tests;
 use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
+use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
@@ -83,6 +84,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ConversationEngineServiceProvider::class,
             ConversationLogServiceProvider::class,
             ResponseEngineServiceProvider::class,
+            AttributeEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
             OperationEngineServiceProvider::class,
@@ -496,7 +498,7 @@ EOT;
      */
     protected function setCustomAttributes(array $customAttribute)
     {
-        $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $customAttribute);
     }
 
     protected function conversationWithSceneConditions()

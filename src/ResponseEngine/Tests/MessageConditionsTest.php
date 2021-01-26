@@ -28,7 +28,7 @@ class MessageConditionsTest extends TestCase
         $this->intent = OutgoingIntent::create(['name' => 'test']);
 
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['false' => BooleanAttribute::class]
         );
 

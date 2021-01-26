@@ -35,7 +35,7 @@ class UserServiceTest extends TestCase
         parent::setUp();
 
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             [
                 'testAttr' => IntAttribute::class
             ]

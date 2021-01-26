@@ -77,7 +77,7 @@ class QnAInterpreterTest extends TestCase
     public function testMatch()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['answer' => StringAttribute::class]
         );
 

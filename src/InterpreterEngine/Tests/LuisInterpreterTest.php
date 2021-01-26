@@ -35,7 +35,7 @@ class LuisInterpreterTest extends TestCase
             'first_name' => StringAttribute::class,
             'age' => IntAttribute::class
         ];
-        $this->setConfigValue('opendialog.context_engine.custom_attributes', $knownAttributes);
+        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $knownAttributes);
     }
 
     public function testSetUp()
@@ -132,7 +132,7 @@ class LuisInterpreterTest extends TestCase
     public function testMatchWithUnknownEntity()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['unknownEntity' => StringAttribute::class]
         );
 

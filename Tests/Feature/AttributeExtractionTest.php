@@ -38,7 +38,7 @@ class AttributeExtractionTest extends TestCase
 
         // Add 'age' and 'dob_year' as a known attributes
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             [
                 'age' => IntAttribute::class,
                 'dob_year' => IntAttribute::class

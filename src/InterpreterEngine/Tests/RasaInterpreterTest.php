@@ -33,7 +33,7 @@ class RasaInterpreterTest extends TestCase
         $knownAttributes = [
             'direction_location' => StringAttribute::class
         ];
-        $this->setConfigValue('opendialog.context_engine.custom_attributes', $knownAttributes);
+        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $knownAttributes);
     }
 
     public function testSetUp()
