@@ -3,8 +3,8 @@
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeDoesNotExistException;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 
 /**
  * A context is a semantically-related grouping of Attributes. It provides

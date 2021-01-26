@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
 
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\FloatAttribute;
+use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;

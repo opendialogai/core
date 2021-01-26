@@ -3,7 +3,7 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 use OpenDialogAi\Core\Traits\HasName;
 
 abstract class BaseOperation implements OperationInterface

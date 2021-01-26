@@ -3,9 +3,9 @@
 namespace OpenDialogAi\ContextEngine\AttributeResolver;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\AbstractAttribute;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\StringAttribute;
 
 /**
  * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.

@@ -4,11 +4,11 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\AbstractAttribute;
+use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
+use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
-use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;

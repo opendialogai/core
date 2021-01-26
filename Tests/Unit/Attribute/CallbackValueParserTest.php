@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
 
-use OpenDialogAi\Core\Attribute\CallbackValueParser;
+use OpenDialogAi\AttributeEngine\CallbackValueParser;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class CallbackValueParserTest extends TestCase

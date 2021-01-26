@@ -1,11 +1,11 @@
 <?php
 
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\TimestampAttribute;
+use OpenDialogAi\AttributeEngine\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\FloatAttribute;
+use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\TimestampAttribute;
 use OpenDialogAi\Core\Conversation\Model;
 
 return [

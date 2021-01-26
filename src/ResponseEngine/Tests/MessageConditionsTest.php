@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\Core\ResponseEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\BooleanAttribute;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;

@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;

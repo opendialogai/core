@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\InterpreterEngine\Tests\Interpreters;
 
-use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\AttributeEngine\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;

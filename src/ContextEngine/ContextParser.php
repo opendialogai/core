@@ -3,8 +3,8 @@
 namespace OpenDialogAi\ContextEngine;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\AbstractAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 
 abstract class ContextParser
 {

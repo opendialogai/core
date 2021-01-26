@@ -3,12 +3,12 @@
 namespace OpenDialogAi\OperationEngine\Service;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\AttributeDoesNotExistException;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ContextEngine\ParsedAttributeName;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;

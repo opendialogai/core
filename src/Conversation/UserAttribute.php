@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\Node;
 

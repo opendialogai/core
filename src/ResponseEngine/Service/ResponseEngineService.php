@@ -3,11 +3,11 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\AttributeDoesNotExistException;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;

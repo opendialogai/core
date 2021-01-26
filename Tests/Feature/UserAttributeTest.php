@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;

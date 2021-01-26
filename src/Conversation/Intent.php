@@ -4,9 +4,9 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\UnsupportedAttributeTypeException;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
 

@@ -2,14 +2,14 @@
 
 namespace OpenDialogAi\ResponseEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\FloatAttribute;
+use OpenDialogAi\AttributeEngine\IntAttribute;
+use OpenDialogAi\AttributeEngine\StringAttribute;
+use OpenDialogAi\AttributeEngine\TimestampAttribute;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;

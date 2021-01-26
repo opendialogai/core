@@ -3,8 +3,8 @@
 namespace OpenDialogAi\Core\Graph\DGraph;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\AttributeEngine\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Model;
 use OpenDialogAi\Core\Graph\Edge\DirectedEdge;
 use OpenDialogAi\Core\Graph\Edge\EdgeSet;

@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\StringAttribute;
 
 /**
  * This is an example action to demonstrate how actions can be implemented for OpenDialog.

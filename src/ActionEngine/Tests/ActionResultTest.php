@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ActionEngine\Tests;
 
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ActionResultTest extends TestCase

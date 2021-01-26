@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
-use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 
 /**
  * An action result

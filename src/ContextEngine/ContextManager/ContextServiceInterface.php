@@ -2,12 +2,12 @@
 
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
+use OpenDialogAi\AttributeEngine\AttributeInterface;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 

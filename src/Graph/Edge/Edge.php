@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Graph\Edge;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\HasAttributesTrait;
+use OpenDialogAi\AttributeEngine\HasAttributesTrait;
 use OpenDialogAi\Core\Graph\GraphItem;
 use OpenDialogAi\Core\Graph\Node\Node;
 

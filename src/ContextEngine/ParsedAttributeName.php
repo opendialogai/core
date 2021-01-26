@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\ContextEngine;
 
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
+use OpenDialogAi\AttributeEngine\AbstractAttribute;
 
 /**
  * A breakdown of a parsed attribute name

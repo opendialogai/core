@@ -120,7 +120,7 @@ class Conversation extends NodeWithConditions
      */
     public function setConversationType(string $type)
     {
-        /* @var \OpenDialogAi\Core\Attribute\StringAttribute $eiType */
+        /* @var \OpenDialogAi\AttributeEngine\StringAttribute $eiType */
         $eiType = $this->getAttribute(Model::EI_TYPE);
         $eiType->setValue($type);
     }
