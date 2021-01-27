@@ -41,15 +41,40 @@ class AttributeResolverServiceTest extends TestCase
         $this->assertEquals(StringAttribute::class, get_class($attribute));
     }
 
-    public function testBindingCustomAttributes()
+    public function testBindingCustomAttributesWithUnregisteredCustomType()
     {
+        // Don't register any attribute types
         $this->setConfigValue(
-            'opendialog.attribute_engine.custom_attributes',
-            ['test_attribute' => StringAttribute::class]
+            'opendialog.attribute_engine.custom_attribute_types',
+            []
         );
 
+        $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attributes',
+            ['test_attribute' => ExampleCustomAttributeType::class]
+        );
+
+        // Our custom attribute type isn't register so we should fallback to a string attribute
         $attributeResolver = $this->getAttributeResolver();
         $this->assertEquals(StringAttribute::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
+    }
+
+    public function testBindingCustomAttributesWithRegisteredCustomType()
+    {
+        // Don't register any attribute types
+        $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attribute_types',
+            [ExampleCustomAttributeType::class]
+        );
+
+        $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attributes',
+            ['test_attribute' => ExampleCustomAttributeType::class]
+        );
+
+        // Our custom attribute type isn't register so we should fallback to a string attribute
+        $attributeResolver = $this->getAttributeResolver();
+        $this->assertEquals(ExampleCustomAttributeType::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
     }
 
     public function testBadBinding()
