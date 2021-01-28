@@ -9,6 +9,15 @@ use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
 use OpenDialogAi\Core\Conversation\Model;
 
 return [
+    'supported_attribute_types' => [
+        ArrayAttribute::class,
+        BooleanAttribute::class,
+        FloatAttribute::class,
+        IntAttribute::class,
+        StringAttribute::class,
+        TimestampAttribute::class,
+    ],
+
     'supported_attributes' => [
         'attribute_name'   => StringAttribute::class,
         'attribute_value' => StringAttribute::class,

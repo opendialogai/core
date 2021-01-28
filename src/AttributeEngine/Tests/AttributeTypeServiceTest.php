@@ -21,7 +21,7 @@ class AttributeTypeServiceTest extends TestCase
     public function testCoreAttributeTypesAreRegistered()
     {
         $attributeTypeService = resolve(AttributeTypeServiceInterface::class);
-        $this->assertGreaterThan(0, $attributeTypeService->getAvailableAttributeTypes());
+        $this->assertGreaterThan(0, count($attributeTypeService->getAvailableAttributeTypes()));
 
         $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(ArrayAttribute::$type));
         $this->assertEquals(ArrayAttribute::class, $attributeTypeService->getAttributeTypeClass(ArrayAttribute::$type));
