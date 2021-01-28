@@ -65,14 +65,18 @@ class AttributeAccessorConditionTest extends TestCase
     public function testCompositeAttributesWithUserContext()
     {
         $this->registerSingleInterpreter(new TestInterpreterComposite());
-        $this->setCustomAttributes(
-            [
-                'total' => IntAttribute::class,
-                'results' => ArrayAttribute::class,
-                'array_test' => ArrayAttribute::class,
-                'result_test' => ExampleAbstractCompositeAttribute::class,
-            ]
-        );
+
+        $this->setCustomAttributeTypes([
+            ExampleAbstractCompositeAttribute::class,
+        ]);
+
+        $this->setCustomAttributes([
+            'total' => IntAttribute::class,
+            'results' => ArrayAttribute::class,
+            'array_test' => ArrayAttribute::class,
+            'result_test' => ExampleAbstractCompositeAttribute::class,
+        ]);
+
         $compositeAttributeCollection = new ExampleAbstractCompositeAttribute(
             'result_test',
             new ExampleAbstractAttributeCollection(
