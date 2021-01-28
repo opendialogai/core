@@ -2,22 +2,18 @@
 
 namespace OpenDialogAi\Core;
 
+use App\Http\Resources\DynamicAttributeCollection;
 use Illuminate\Database\Eloquent\Model;
 
 class DynamicAttribute extends Model
 {
-    static private $validIdPattern = "/^([a-z]+_)*[a-z]+$/";
-    static private $validTypePattern = "/^attribute\.[A-Za-z]*\.[A-Za-z_]*$/";
-
-    public $incrementing = false;
+    static public $validIdPattern = "/^([a-z]+_)*[a-z]+$/";
+    static public $validTypePattern = "/^attribute\.[A-Za-z]*\.[A-Za-z_]*$/";
 
     public $timestamps = false;
 
     protected $table = 'dynamic_attributes';
-    protected $fillable = ['id', 'type'];
-    protected $keyType = 'string';
-    protected $primaryKey = 'id';
-
+    protected $fillable = ['attribute_id', 'attribute_type'];
 
     /**
      * Checks if the id of the DynamicAttribute is in the right format
