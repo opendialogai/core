@@ -2,10 +2,10 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ContextEngine\Tests\Contexts\BadlyNamedCustomContext;
 use OpenDialogAi\ContextEngine\Tests\Contexts\DummyCustomContext;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class CustomContextsTest extends TestCase

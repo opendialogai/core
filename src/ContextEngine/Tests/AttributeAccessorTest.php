@@ -2,13 +2,13 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractAttributeCollection;
+use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Tests\SecondAbstractAttributeCollection;
+use OpenDialogAi\AttributeEngine\Tests\SecondAbstractCompositeAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractCompositeAttribute;
-use OpenDialogAi\Core\Attribute\Tests\SecondAbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\Tests\SecondAbstractCompositeAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 

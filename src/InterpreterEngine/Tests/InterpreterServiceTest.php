@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;

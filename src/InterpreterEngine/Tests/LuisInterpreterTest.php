@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -35,7 +35,7 @@ class LuisInterpreterTest extends TestCase
             'first_name' => StringAttribute::class,
             'age' => IntAttribute::class
         ];
-        $this->setConfigValue('opendialog.context_engine.custom_attributes', $knownAttributes);
+        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $knownAttributes);
     }
 
     public function testSetUp()
@@ -132,7 +132,7 @@ class LuisInterpreterTest extends TestCase
     public function testMatchWithUnknownEntity()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['unknownEntity' => StringAttribute::class]
         );
 

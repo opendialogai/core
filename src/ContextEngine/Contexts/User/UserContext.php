@@ -4,12 +4,12 @@ namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;

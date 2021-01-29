@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
@@ -20,7 +21,6 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\Exceptions\NoConversationsException;
 use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -558,7 +558,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         $filteredIntents = $intents->filter(function ($key, Intent $item) use ($intentContext) {
             if ($intentContext) {
-                /** @var AttributeInterface $attribute */
+                /** @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface $attribute */
                 foreach ($item->getNonCoreAttributes() as $attribute) {
                     $intentContext->addAttribute($attribute->copy());
                 }

@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\Intent;
 
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 
 class IntentContext extends AbstractContext
 {

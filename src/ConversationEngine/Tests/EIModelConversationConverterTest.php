@@ -2,13 +2,13 @@
 
 namespace OpenDialogAi\ConversationEngine\Tests;
 
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;

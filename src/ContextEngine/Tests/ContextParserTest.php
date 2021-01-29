@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class ContextParserTest extends TestCase

@@ -3,8 +3,8 @@
 namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use Exception;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -33,7 +33,7 @@ class RasaInterpreterTest extends TestCase
         $knownAttributes = [
             'direction_location' => StringAttribute::class
         ];
-        $this->setConfigValue('opendialog.context_engine.custom_attributes', $knownAttributes);
+        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $knownAttributes);
     }
 
     public function testSetUp()

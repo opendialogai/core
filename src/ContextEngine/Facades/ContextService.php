@@ -3,10 +3,10 @@
 namespace OpenDialogAi\ContextEngine\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\ContextEngine\ContextManager\BaseContext;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 /**

@@ -5,11 +5,11 @@ namespace OpenDialogAi\Core\Tests\Feature;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Mockery\MockInterface;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
@@ -492,7 +492,7 @@ EOT;
     public function testMultipleVirtualIntents()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['test' => StringAttribute::class]
         );
 

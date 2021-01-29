@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\Core\Graph\Tests;
 
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Graph\Node\Node;
 use OpenDialogAi\Core\Tests\TestCase;
 

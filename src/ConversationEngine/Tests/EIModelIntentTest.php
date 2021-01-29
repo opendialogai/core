@@ -3,7 +3,8 @@
 namespace OpenDialogAi\ConversationEngine\Tests;
 
 use Exception;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationQueryFactoryInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
@@ -11,7 +12,6 @@ use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelConversati
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelScene;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelVirtualIntent;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Tests\TestCase;
 

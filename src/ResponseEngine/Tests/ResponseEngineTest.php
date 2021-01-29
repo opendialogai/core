@@ -2,14 +2,14 @@
 
 namespace OpenDialogAi\ResponseEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
 use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
-use OpenDialogAi\Core\Attribute\FloatAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\TimestampAttribute;
 use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
@@ -559,7 +559,7 @@ class ResponseEngineTest extends TestCase
     public function testWebChatMissingAttributeMessage()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['missingattribute' => StringAttribute::class]
         );
 
@@ -719,7 +719,7 @@ class ResponseEngineTest extends TestCase
     public function testTimeStampAttributeNotPresent()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['last_seen' => TimestampAttribute::class]
         );
 

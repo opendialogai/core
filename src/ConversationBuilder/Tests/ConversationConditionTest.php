@@ -3,9 +3,9 @@
 namespace OpenDialogAi\ConversationBuilder\Tests;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationBuilder\Conversation;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\Conversation\ConversationManager;
 use OpenDialogAi\Core\Conversation\Model;

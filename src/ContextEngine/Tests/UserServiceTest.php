@@ -2,12 +2,12 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFactory;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Conversation\ChatbotUser;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -35,7 +35,7 @@ class UserServiceTest extends TestCase
         parent::setUp();
 
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             [
                 'testAttr' => IntAttribute::class
             ]

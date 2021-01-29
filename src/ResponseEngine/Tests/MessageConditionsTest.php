@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\Core\ResponseEngine\Tests;
 
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Attribute\BooleanAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConditionsYamlGenerator;
 use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
@@ -28,7 +28,7 @@ class MessageConditionsTest extends TestCase
         $this->intent = OutgoingIntent::create(['name' => 'test']);
 
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['false' => BooleanAttribute::class]
         );
 

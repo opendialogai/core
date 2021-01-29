@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\ContextEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\ContextManager\ContextService;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
@@ -50,7 +50,7 @@ class ContextEngineServiceTest extends TestCase
     public function testRetrievingAnAttributeDirectly()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['test' => StringAttribute::class]
         );
 
@@ -87,7 +87,7 @@ class ContextEngineServiceTest extends TestCase
     public function testSavingUnsupportedAttributeNoContext()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['test_attribute' => StringAttribute::class]
         );
 

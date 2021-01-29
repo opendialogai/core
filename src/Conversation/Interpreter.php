@@ -2,7 +2,7 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Graph\Node\Node;
 
 /**

@@ -4,8 +4,8 @@ namespace OpenDialogAi\Core\Controllers;
 
 use Ds\Set;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;

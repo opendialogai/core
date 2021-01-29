@@ -3,7 +3,7 @@
 namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
-use OpenDialogAi\Core\Attribute\HasAttributesTrait;
+use OpenDialogAi\AttributeEngine\HasAttributesTrait;
 
 class AbstractContext implements ContextInterface
 {

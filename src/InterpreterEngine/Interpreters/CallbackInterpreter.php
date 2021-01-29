@@ -3,9 +3,9 @@
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\CallbackValueParser;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\CallbackValueParser;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;

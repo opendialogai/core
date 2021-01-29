@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\Core\Tests\Bot\Interpreters;
 
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractAttributeCollection;
+use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
