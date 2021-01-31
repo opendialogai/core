@@ -2,7 +2,7 @@
 
 namespace InterpreterEngine\tests;
 
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -77,7 +77,7 @@ class QnAInterpreterTest extends TestCase
     public function testMatch()
     {
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             ['answer' => StringAttribute::class]
         );
 

@@ -3,6 +3,8 @@
 namespace OpenDialogAi\Core\Tests\Feature;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
@@ -10,8 +12,6 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
@@ -38,7 +38,7 @@ class AttributeExtractionTest extends TestCase
 
         // Add 'age' and 'dob_year' as a known attributes
         $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
+            'opendialog.attribute_engine.custom_attributes',
             [
                 'age' => IntAttribute::class,
                 'dob_year' => IntAttribute::class

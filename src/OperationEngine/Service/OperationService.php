@@ -3,12 +3,12 @@
 namespace OpenDialogAi\OperationEngine\Service;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ContextEngine\ParsedAttributeName;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
@@ -93,7 +93,7 @@ class OperationService implements OperationServiceInterface
     /**
      * @param Condition $condition
      * @param ParsedAttributeName $parsedAttributeName
-     * @return AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
      */
     private function getAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): AttributeInterface
     {
@@ -128,10 +128,10 @@ class OperationService implements OperationServiceInterface
 
     /**
      * Gets a null value for the given attribute so that the operation can be used to check for existence in a
-     * @see IsSetOperation.
-     * If the attribute is not bound, a null valued StringAttribute is returned
      * @param ParsedAttributeName $parsedAttributeName
-     * @return AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
+     *@see IsSetOperation.
+     * If the attribute is not bound, a null valued StringAttribute is returned
      */
     private function getNullValueAttribute(ParsedAttributeName $parsedAttributeName): AttributeInterface
     {

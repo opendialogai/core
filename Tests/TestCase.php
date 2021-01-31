@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Tests;
 use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
+use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\Conversation;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
@@ -83,6 +84,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ConversationEngineServiceProvider::class,
             ConversationLogServiceProvider::class,
             ResponseEngineServiceProvider::class,
+            AttributeEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
             InterpreterEngineServiceProvider::class,
             OperationEngineServiceProvider::class,
@@ -490,13 +492,23 @@ EOT;
     }
 
     /**
-     * Adds the custom attributes and unsets the ContextService to unbind from the service layer
+     * Adds the custom attributes
      *
-     * @param array $customAttribute
+     * @param array $customAttributes
      */
-    protected function setCustomAttributes(array $customAttribute)
+    protected function setCustomAttributes(array $customAttributes)
     {
-        $this->setConfigValue('opendialog.context_engine.custom_attributes', $customAttribute);
+        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $customAttributes);
+    }
+
+    /**
+     * Adds the custom attribute types
+     *
+     * @param array $customAttributeTypes
+     */
+    protected function setCustomAttributeTypes(array $customAttributeTypes)
+    {
+        $this->setConfigValue('opendialog.attribute_engine.custom_attribute_types', $customAttributeTypes);
     }
 
     protected function conversationWithSceneConditions()

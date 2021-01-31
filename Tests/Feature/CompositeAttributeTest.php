@@ -2,13 +2,13 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\ArrayAttribute;
-use OpenDialogAi\Core\Attribute\Composite\AbstractCompositeAttribute;
-use OpenDialogAi\Core\Attribute\IntAttribute;
-use OpenDialogAi\Core\Attribute\StringAttribute;
-use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractAttributeCollection;
-use OpenDialogAi\Core\Attribute\Tests\ExampleAbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\Composite\AbstractCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractAttributeCollection;
+use OpenDialogAi\AttributeEngine\Tests\ExampleAbstractCompositeAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Actions\TestAction;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
@@ -28,15 +28,17 @@ class CompositeAttributeTest extends TestCase
             'array'
         );
 
-        $this->setConfigValue(
-            'opendialog.context_engine.custom_attributes',
-            [
-                'c' => ExampleAbstractCompositeAttribute::class,
-                'test_attr' => StringAttribute::class,
-                'total' => IntAttribute::class,
-                'results' => ArrayAttribute::class
-            ]
-        );
+        $this->setCustomAttributeTypes([
+            ExampleAbstractCompositeAttribute::class,
+        ]);
+
+        $this->setCustomAttributes([
+            'c' => ExampleAbstractCompositeAttribute::class,
+            'test_attr' => StringAttribute::class,
+            'total' => IntAttribute::class,
+            'results' => ArrayAttribute::class
+        ]);
+
         $attributeCollectionSerialized = $attributeCollection->jsonSerialize();
         $compositeAttributeFromSerializedCollection = AttributeResolver::getAttributeFor('c', $attributeCollectionSerialized);
 
@@ -68,6 +70,12 @@ class CompositeAttributeTest extends TestCase
         $this->registerSingleInterpreter(new TestInterpreterComposite());
 
         $this->registerSingleAction(new TestAction());
+
+        $this->setCustomAttributeTypes(
+            [
+                ExampleAbstractCompositeAttribute::class,
+            ]
+        );
 
         $this->setCustomAttributes(
             [

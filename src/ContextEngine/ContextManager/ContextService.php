@@ -4,6 +4,9 @@ namespace OpenDialogAi\ContextEngine\ContextManager;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextParser;
 use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
@@ -11,10 +14,7 @@ use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserService;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\Core\Attribute\AttributeDoesNotExistException;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 
 class ContextService implements ContextServiceInterface

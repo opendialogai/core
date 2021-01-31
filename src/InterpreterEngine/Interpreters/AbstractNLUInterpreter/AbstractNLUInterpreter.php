@@ -4,11 +4,10 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Attribute\AbstractAttribute;
-use OpenDialogAi\Core\Attribute\AttributeBag\AttributeBag;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
+use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
@@ -71,14 +70,14 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
 
     /**
      * Tries to resolve the entity type with any registered in config. If there is not an entry for the entity, a
+     * @param AbstractNLUEntity $entity
+     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
      * @see StringAttribute is used.
      *
-     * @param AbstractNLUEntity $entity
-     * @return AttributeInterface
      */
     protected function resolveEntity(AbstractNLUEntity $entity): AttributeInterface
     {
-        /** @var AbstractAttribute[] $entityList */
+        /** @var \OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute[] $entityList */
         $entityList = config($this->getEntityConfigKey());
 
         $attributeName = $entity->getType();

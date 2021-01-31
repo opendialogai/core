@@ -3,7 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\ContextEngine\Facades\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 
 /**
@@ -120,7 +120,7 @@ class Conversation extends NodeWithConditions
      */
     public function setConversationType(string $type)
     {
-        /* @var \OpenDialogAi\Core\Attribute\StringAttribute $eiType */
+        /* @var \OpenDialogAi\AttributeEngine\Attributes\StringAttribute $eiType */
         $eiType = $this->getAttribute(Model::EI_TYPE);
         $eiType->setValue($type);
     }

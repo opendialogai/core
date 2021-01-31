@@ -5,7 +5,7 @@ namespace OpenDialogAi\Core\Tests\Bot\Actions;
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Actions\BaseAction;
-use OpenDialogAi\Core\Attribute\IntAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 
 class TestAction extends BaseAction
 {

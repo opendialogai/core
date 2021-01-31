@@ -2,11 +2,11 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\MessageHistory;
 
+use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
-use OpenDialogAi\Core\Attribute\AttributeInterface;
-use OpenDialogAi\Core\Attribute\StringAttribute;
 use OpenDialogAi\Core\Utterances\FormResponseUtterance;
 use OpenDialogAi\Core\Utterances\TriggerUtterance;
 use OpenDialogAi\ResponseEngine\Message\HandToSystemMessage;
