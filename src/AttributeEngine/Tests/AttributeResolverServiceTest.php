@@ -54,7 +54,7 @@ class AttributeResolverServiceTest extends TestCase
             ['test_attribute' => ExampleCustomAttributeType::class]
         );
 
-        // Our custom attribute type isn't register so we should fallback to a string attribute
+        // Our custom attribute type isn't registered so we should fallback to a string attribute
         $attributeResolver = $this->getAttributeResolver();
         $this->assertEquals(StringAttribute::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
     }
@@ -72,7 +72,6 @@ class AttributeResolverServiceTest extends TestCase
             ['test_attribute' => ExampleCustomAttributeType::class]
         );
 
-        // Our custom attribute type isn't register so we should fallback to a string attribute
         $attributeResolver = $this->getAttributeResolver();
         $this->assertEquals(ExampleCustomAttributeType::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
     }
