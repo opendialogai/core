@@ -15,6 +15,7 @@ class CreateDynamicAttributesTable extends Migration
     {
         Schema::create('dynamic_attributes', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->timestamps();
             $table->string('attribute_id')->unique();
             $table->string('attribute_type');
         });
