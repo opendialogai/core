@@ -7,7 +7,7 @@ namespace OpenDialogAi\Core\Reflection\Reflections;
 use Ds\Map;
 use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 
-interface ResponseEngineReflectionInterface
+interface ResponseEngineReflectionInterface extends \JsonSerializable
 {
     /**
      * @return Map|MessageFormatterInterface[]

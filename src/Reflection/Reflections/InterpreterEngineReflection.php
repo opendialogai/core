@@ -22,4 +22,15 @@ class InterpreterEngineReflection implements InterpreterEngineReflectionInterfac
     {
         return new InterpreterEngineConfiguration([]);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "available_interpreters" => $this->getAvailableInterpreters()->toArray(),
+            "engine_configuration" => $this->getEngineConfiguration()
+        ];
+    }
 }

@@ -22,4 +22,15 @@ class AttributeEngineReflection implements AttributeEngineReflectionInterface
     {
         return new Map();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "available_attributes" => $this->getAvailableAttributes()->toArray(),
+            "available_attribute_types" => $this->getAvailableAttributeTypes()->toArray(),
+        ];
+    }
 }

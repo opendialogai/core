@@ -14,4 +14,14 @@ class SensorEngineReflection implements SensorEngineReflectionInterface
     {
         return new Map();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "available_sensors" => $this->getAvailableSensors()->toArray(),
+        ];
+    }
 }

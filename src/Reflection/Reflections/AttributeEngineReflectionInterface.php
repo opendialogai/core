@@ -7,7 +7,7 @@ namespace OpenDialogAi\Core\Reflection\Reflections;
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 
-interface AttributeEngineReflectionInterface
+interface AttributeEngineReflectionInterface extends \JsonSerializable
 {
     /**
      * @return Map|AttributeInterface[]

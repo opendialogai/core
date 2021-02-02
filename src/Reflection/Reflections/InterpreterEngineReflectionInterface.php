@@ -7,7 +7,7 @@ namespace OpenDialogAi\Core\Reflection\Reflections;
 use Ds\Map;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 
-interface InterpreterEngineReflectionInterface
+interface InterpreterEngineReflectionInterface extends \JsonSerializable
 {
     /**
      * @return Map|InterpreterInterface[]

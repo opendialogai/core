@@ -14,4 +14,14 @@ class OperationEngineReflection implements OperationEngineReflectionInterface
     {
         return new Map();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "available_operations" => $this->getAvailableOperations()->toArray(),
+        ];
+    }
 }

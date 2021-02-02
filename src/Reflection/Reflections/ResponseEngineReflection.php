@@ -14,4 +14,14 @@ class ResponseEngineReflection implements ResponseEngineReflectionInterface
     {
         return new Map();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "available_formatters" => $this->getAvailableFormatters()->toArray(),
+        ];
+    }
 }

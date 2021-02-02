@@ -14,4 +14,14 @@ class ContextEngineReflection implements ContextEngineReflectionInterface
     {
         return new Map();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "available_contexts" => $this->getAvailableContexts()->toArray(),
+        ];
+    }
 }

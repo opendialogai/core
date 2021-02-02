@@ -29,4 +29,14 @@ class ActionEngineReflection implements ActionEngineReflectionInterface
     {
         return new Map($this->actionEngine->getAvailableActions());
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return [
+            "available_actions" => $this->getAvailableActions()->toArray(),
+        ];
+    }
 }
