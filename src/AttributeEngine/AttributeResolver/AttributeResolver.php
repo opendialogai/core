@@ -80,8 +80,8 @@ class AttributeResolver
     {
         foreach (DynamicAttribute::all() as $dynamicAttribute) {
             if ($this->isAttributeSupported($dynamicAttribute->attribute_id)) {
-                Log::error(sprintf("Not registering dynamic attribute %s (database id: %d) - the attribute name is already in use.",
-                    $dynamicAttribute->attribute_id, $dynamicAttribute->id));
+                Log::error(sprintf("Not registering dynamic attribute %s (database id: %d)
+                     - the attribute name is already in use.", $dynamicAttribute->attribute_id, $dynamicAttribute->id));
                 continue;
             }
             if ($this->attributeTypeService->isAttributeTypeAvailable($dynamicAttribute->attribute_type)) {
@@ -125,5 +125,22 @@ class AttributeResolver
             Log::debug(sprintf('Attribute %s is not registered, defaulting to String type', $attributeId));
             return new StringAttribute($attributeId, $value);
         }
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getValidIdPattern(): string
+    {
+        return static::$validIdPattern;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValidTypePattern(): string
+    {
+        return static::$validTypePattern;
     }
 }

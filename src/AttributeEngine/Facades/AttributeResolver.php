@@ -9,6 +9,9 @@ use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
  * @method static AttributeInterface getAttributeFor(string $attributeId, mixed $value)
  * @method static AttributeInterface[] getSupportedAttributes()
  * @method static void registerAttributes($attributes)
+ * @method static void registerAllDynamicAttributes()
+ * @method static string getValidIdPattern()
+ * @method static string getValidTypePattern()
  */
 class AttributeResolver extends Facade
 {
