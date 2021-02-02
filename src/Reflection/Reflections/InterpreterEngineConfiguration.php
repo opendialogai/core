@@ -10,48 +10,40 @@ use JsonSerializable;
 class InterpreterEngineConfiguration implements JsonSerializable
 {
     /** @var string */
-    private $defaultInterpreter;
-
-    /** @var int */
-    private $defaultCacheTime;
-
-    /** @var Map */
-    private $supportedCallbacks;
-
-    /** @var array */
-    private $configuration;
+    private $configurationKey;
 
     /**
      * InterpreterEngineConfiguration constructor.
-     * @param array $configuration
+     * @param string $configurationKey
      */
-    public function __construct(array $configuration)
+    public function __construct(string $configurationKey)
     {
-        $this->configuration = $configuration;
+        $this->configurationKey = $configurationKey;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDefaultInterpreter(): string
+    public function getDefaultInterpreter(): ?string
     {
-        return $this->defaultInterpreter;
+        return config("$this->configurationKey.default_interpreter");
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getDefaultCacheTime(): int
+    public function getDefaultCacheTime(): ?int
     {
-        return $this->defaultCacheTime;
+        return config("$this->configurationKey.default_cache_time");
     }
 
     /**
-     * @return Map
+     * @return Map|null
      */
-    public function getSupportedCallbacks(): Map
+    public function getSupportedCallbacks(): ?Map
     {
-        return $this->supportedCallbacks;
+        $supportedCallbacks = config("$this->configurationKey.supported_callbacks");
+        return !is_null($supportedCallbacks) ? new Map($supportedCallbacks) : $supportedCallbacks;
     }
 
     /**

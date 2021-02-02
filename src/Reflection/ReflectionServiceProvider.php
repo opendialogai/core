@@ -4,6 +4,9 @@ namespace OpenDialogAi\Core\Reflection;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
+use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelper;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelperInterface;
 use OpenDialogAi\Core\Reflection\Reflections\ActionEngineReflection;
@@ -20,6 +23,10 @@ use OpenDialogAi\Core\Reflection\Reflections\ResponseEngineReflection;
 use OpenDialogAi\Core\Reflection\Reflections\ResponseEngineReflectionInterface;
 use OpenDialogAi\Core\Reflection\Reflections\SensorEngineReflection;
 use OpenDialogAi\Core\Reflection\Reflections\SensorEngineReflectionInterface;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
+use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
+use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
 class ReflectionServiceProvider extends ServiceProvider
 {
@@ -35,39 +42,35 @@ class ReflectionServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(AttributeEngineReflectionInterface::class, function () {
-            $reflection = new AttributeEngineReflection();
-
-            return $reflection;
+            $attributeResolver = resolve(AttributeResolver::class);
+            $attributeTypeService = resolve(AttributeTypeServiceInterface::class);
+            return new AttributeEngineReflection($attributeResolver, $attributeTypeService);
         });
 
         $this->app->singleton(ContextEngineReflectionInterface::class, function () {
-            $reflection = new ContextEngineReflection();
-
-            return $reflection;
+            $contextService = resolve(ContextServiceInterface::class);
+            return new ContextEngineReflection($contextService);
         });
 
         $this->app->singleton(InterpreterEngineReflectionInterface::class, function () {
-            $reflection = new InterpreterEngineReflection();
-
-            return $reflection;
+            $interpreterService = resolve(InterpreterServiceInterface::class);
+            $configurationKey = 'opendialog.interpreter_engine';
+            return new InterpreterEngineReflection($interpreterService, $configurationKey);
         });
 
         $this->app->singleton(OperationEngineReflectionInterface::class, function () {
-            $reflection = new OperationEngineReflection();
-
-            return $reflection;
+            $operationService = resolve(OperationServiceInterface::class);
+            return new OperationEngineReflection($operationService);
         });
 
         $this->app->singleton(ResponseEngineReflectionInterface::class, function () {
-            $reflection = new ResponseEngineReflection();
-
-            return $reflection;
+            $responseEngineService = resolve(ResponseEngineServiceInterface::class);
+            return new ResponseEngineReflection($responseEngineService);
         });
 
         $this->app->singleton(SensorEngineReflectionInterface::class, function () {
-            $reflection = new SensorEngineReflection();
-
-            return $reflection;
+            $sensorService = resolve(SensorServiceInterface::class);
+            return new SensorEngineReflection($sensorService);
         });
     }
 }

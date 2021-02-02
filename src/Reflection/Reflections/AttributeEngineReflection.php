@@ -4,15 +4,38 @@ namespace OpenDialogAi\Core\Reflection\Reflections;
 
 
 use Ds\Map;
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 
 class AttributeEngineReflection implements AttributeEngineReflectionInterface
 {
+    /**
+     * @var AttributeResolver
+     */
+    private $attributeResolver;
+
+    /**
+     * @var AttributeTypeServiceInterface
+     */
+    private $attributeTypeService;
+
+    /**
+     * AttributeEngineReflection constructor.
+     * @param AttributeResolver $attributeResolver
+     * @param AttributeTypeServiceInterface $attributeTypeService
+     */
+    public function __construct(AttributeResolver $attributeResolver, AttributeTypeServiceInterface $attributeTypeService)
+    {
+        $this->attributeResolver = $attributeResolver;
+        $this->attributeTypeService = $attributeTypeService;
+    }
+
     /**
      * @inheritDoc
      */
     public function getAvailableAttributes(): Map
     {
-        return new Map();
+        return new Map($this->attributeResolver->getSupportedAttributes());
     }
 
     /**
@@ -20,7 +43,7 @@ class AttributeEngineReflection implements AttributeEngineReflectionInterface
      */
     public function getAvailableAttributeTypes(): Map
     {
-        return new Map();
+        return $this->attributeTypeService->getAvailableAttributeTypes();
     }
 
     /**

@@ -10,7 +10,7 @@ use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Tests\ExampleCustomAttributeType;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelperInterface;
-use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\DummyFormatter;
+use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\TestFormatter;
 use OpenDialogAi\Core\SensorEngine\Tests\Sensors\DummySensor;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -57,7 +57,7 @@ class ReflectionHelperTest extends TestCase
 
         $typeId = ExampleCustomAttributeType::getType();
         $this->assertTrue($attributeTypes->hasKey($typeId));
-        $this->assertEquals($typeId, $attributeTypes->get($typeId));
+        $this->assertEquals(ExampleCustomAttributeType::class, $attributeTypes->get($typeId));
     }
 
     public function testGetAvailableAttributes()
@@ -116,7 +116,7 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount($numberOfCoreInterpreters + 1, $interpreters);
 
         $this->assertTrue($interpreters->hasKey($interpreterId));
-        $this->assertEquals(DummyInterpreter::class, $interpreters->get($interpreterId));
+        $this->assertInstanceOf(DummyInterpreter::class, $interpreters->get($interpreterId));
     }
 
     public function testGetInterpreterEngineConfiguration()
@@ -169,7 +169,7 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount($numberOfCoreOperations + 1, $operations);
 
         $this->assertTrue($operations->hasKey($operationId));
-        $this->assertEquals(DummyOperation::class, $operations->get($operationId));
+        $this->assertInstanceOf(DummyOperation::class, $operations->get($operationId));
     }
 
     public function testGetAvailableFormatters()
@@ -181,7 +181,7 @@ class ReflectionHelperTest extends TestCase
         $numberOfCoreFormatters = count($responseEngineService->getAvailableFormatters());
         $this->assertCount($numberOfCoreFormatters, $formatters);
 
-        $formatter = new DummyFormatter();
+        $formatter = new TestFormatter();
         $responseEngineService->registerFormatter($formatter);
 
         $formatters = $reflection->getAvailableFormatters();
