@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core;
+namespace OpenDialogAi\AttributeEngine;
 
 use Illuminate\Database\Eloquent\Model;
 
