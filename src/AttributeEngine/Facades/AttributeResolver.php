@@ -12,6 +12,7 @@ use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
  * @method static void registerAllDynamicAttributes()
  * @method static string getValidIdPattern()
  * @method static string getValidTypePattern()
+ * @method static bool isAttributeSupported(string $attributeId)
  */
 class AttributeResolver extends Facade
 {
