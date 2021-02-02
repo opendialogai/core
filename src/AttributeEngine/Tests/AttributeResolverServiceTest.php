@@ -4,6 +4,7 @@ namespace OpenDialogAi\AttributeEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeResolverServiceTest extends TestCase
@@ -41,29 +42,58 @@ class AttributeResolverServiceTest extends TestCase
         $this->assertEquals(StringAttribute::class, get_class($attribute));
     }
 
-    public function testBindingCustomAttributes()
+    public function testBindingCustomAttributesWithUnregisteredCustomType()
     {
+        // Don't register any attribute types
+        $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attribute_types',
+            []
+        );
+
         $this->setConfigValue(
             'opendialog.attribute_engine.custom_attributes',
-            ['test_attribute' => StringAttribute::class]
+            ['test_attribute' => ExampleCustomAttributeType::class]
+        );
+
+        $this->expectException(UnsupportedAttributeTypeException::class);
+
+        // Our custom attribute type isn't registered so we expect an unsupported attribute type exception
+        $this->getAttributeResolver();
+    }
+
+    public function testBindingCustomAttributesWithRegisteredCustomType()
+    {
+        $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attribute_types',
+            [ExampleCustomAttributeType::class]
+        );
+
+        $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attributes',
+            ['test_attribute' => ExampleCustomAttributeType::class]
         );
 
         $attributeResolver = $this->getAttributeResolver();
-        $this->assertEquals(StringAttribute::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
+        $this->assertEquals(ExampleCustomAttributeType::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
     }
 
     public function testBadBinding()
     {
         // Bind attribute to non-class
         $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attribute_types',
+            ['nothing']
+        );
+
+        $this->setConfigValue(
             'opendialog.attribute_engine.custom_attributes',
             ['test_attribute' => 'nothing']
         );
 
-        $attributeResolver = $this->getAttributeResolver();
+        $this->expectException(UnsupportedAttributeTypeException::class);
 
-        $attribute = $attributeResolver->getAttributeFor('test_attribute', null);
-        $this->assertEquals(StringAttribute::class, get_class($attribute));
+        // Our custom attribute type isn't valid so we expect an unsupported attribute type exception
+        $this->getAttributeResolver();
     }
 
     /**

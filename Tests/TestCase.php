@@ -492,13 +492,23 @@ EOT;
     }
 
     /**
-     * Adds the custom attributes and unsets the ContextService to unbind from the service layer
+     * Adds the custom attributes
      *
-     * @param array $customAttribute
+     * @param array $customAttributes
      */
-    protected function setCustomAttributes(array $customAttribute)
+    protected function setCustomAttributes(array $customAttributes)
     {
-        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $customAttribute);
+        $this->setConfigValue('opendialog.attribute_engine.custom_attributes', $customAttributes);
+    }
+
+    /**
+     * Adds the custom attribute types
+     *
+     * @param array $customAttributeTypes
+     */
+    protected function setCustomAttributeTypes(array $customAttributeTypes)
+    {
+        $this->setConfigValue('opendialog.attribute_engine.custom_attribute_types', $customAttributeTypes);
     }
 
     protected function conversationWithSceneConditions()

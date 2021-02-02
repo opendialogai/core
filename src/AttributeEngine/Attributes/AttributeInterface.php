@@ -17,7 +17,7 @@ interface AttributeInterface
     /**
      * @return string
      */
-    public function getType(): string;
+    public static function getType(): string;
 
     /**
      * @param array $arg

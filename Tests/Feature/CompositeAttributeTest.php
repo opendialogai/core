@@ -28,15 +28,17 @@ class CompositeAttributeTest extends TestCase
             'array'
         );
 
-        $this->setConfigValue(
-            'opendialog.attribute_engine.custom_attributes',
-            [
-                'c' => ExampleAbstractCompositeAttribute::class,
-                'test_attr' => StringAttribute::class,
-                'total' => IntAttribute::class,
-                'results' => ArrayAttribute::class
-            ]
-        );
+        $this->setCustomAttributeTypes([
+            ExampleAbstractCompositeAttribute::class,
+        ]);
+
+        $this->setCustomAttributes([
+            'c' => ExampleAbstractCompositeAttribute::class,
+            'test_attr' => StringAttribute::class,
+            'total' => IntAttribute::class,
+            'results' => ArrayAttribute::class
+        ]);
+
         $attributeCollectionSerialized = $attributeCollection->jsonSerialize();
         $compositeAttributeFromSerializedCollection = AttributeResolver::getAttributeFor('c', $attributeCollectionSerialized);
 
@@ -68,6 +70,12 @@ class CompositeAttributeTest extends TestCase
         $this->registerSingleInterpreter(new TestInterpreterComposite());
 
         $this->registerSingleAction(new TestAction());
+
+        $this->setCustomAttributeTypes(
+            [
+                ExampleAbstractCompositeAttribute::class,
+            ]
+        );
 
         $this->setCustomAttributes(
             [
