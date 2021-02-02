@@ -4,6 +4,7 @@ namespace OpenDialogAi\AttributeEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeResolverServiceTest extends TestCase
@@ -54,14 +55,14 @@ class AttributeResolverServiceTest extends TestCase
             ['test_attribute' => ExampleCustomAttributeType::class]
         );
 
-        // Our custom attribute type isn't registered so we should fallback to a string attribute
-        $attributeResolver = $this->getAttributeResolver();
-        $this->assertEquals(StringAttribute::class, get_class($attributeResolver->getAttributeFor('test_attribute', null)));
+        $this->expectException(UnsupportedAttributeTypeException::class);
+
+        // Our custom attribute type isn't registered so we expect an unsupported attribute type exception
+        $this->getAttributeResolver();
     }
 
     public function testBindingCustomAttributesWithRegisteredCustomType()
     {
-        // Don't register any attribute types
         $this->setConfigValue(
             'opendialog.attribute_engine.custom_attribute_types',
             [ExampleCustomAttributeType::class]
@@ -80,14 +81,19 @@ class AttributeResolverServiceTest extends TestCase
     {
         // Bind attribute to non-class
         $this->setConfigValue(
+            'opendialog.attribute_engine.custom_attribute_types',
+            ['nothing']
+        );
+
+        $this->setConfigValue(
             'opendialog.attribute_engine.custom_attributes',
             ['test_attribute' => 'nothing']
         );
 
-        $attributeResolver = $this->getAttributeResolver();
+        $this->expectException(UnsupportedAttributeTypeException::class);
 
-        $attribute = $attributeResolver->getAttributeFor('test_attribute', null);
-        $this->assertEquals(StringAttribute::class, get_class($attribute));
+        // Our custom attribute type isn't valid so we expect an unsupported attribute type exception
+        $this->getAttributeResolver();
     }
 
     /**

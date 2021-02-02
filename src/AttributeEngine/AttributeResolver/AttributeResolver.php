@@ -7,6 +7,7 @@ use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 
 /**
  * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.
@@ -36,6 +37,7 @@ class AttributeResolver
      * Registers an array of attributes. The original set of attributes is preserved so this can be run multiple times
      *
      * @param $attributes string[]|AttributeInterface[] Array of attribute class names
+     * @throws UnsupportedAttributeTypeException
      */
     public function registerAttributes(array $attributes): void
     {
@@ -43,7 +45,13 @@ class AttributeResolver
             if ($this->attributeTypeService->isAttributeTypeClassRegistered($type)) {
                 $this->supportedAttributes[$name] = $type;
             } else {
-                Log::error(sprintf("Not registering attribute %s - has unknown type %s", $name, $type));
+                Log::error(sprintf(
+                    "Not registering attribute %s as it has an unknown type %s, please ensure all "
+                        . "custom attribute types are registered.",
+                    $name,
+                    $type
+                ));
+                throw new UnsupportedAttributeTypeException();
             }
         }
     }
