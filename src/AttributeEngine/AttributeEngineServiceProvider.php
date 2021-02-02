@@ -31,6 +31,8 @@ class AttributeEngineServiceProvider extends ServiceProvider
             if (is_array(config('opendialog.attribute_engine.custom_attributes'))) {
                 $attributeResolver->registerAttributes(config('opendialog.attribute_engine.custom_attributes'));
             }
+            // Gets custom dynamic attributes from the database
+            $attributeResolver->registerAllDynamicAttributes();
 
             return $attributeResolver;
         });

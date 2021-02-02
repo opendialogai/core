@@ -7,6 +7,7 @@ use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
+use OpenDialogAi\Core\DynamicAttribute;
 
 /**
  * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.
@@ -15,7 +16,7 @@ use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterf
 class AttributeResolver
 {
     public static $validIdPattern = "/^([a-z]+_)*[a-z]+$/";
-    public static $validTypePattern = "/^attribute\.[A-Za-z]*\.[A-Za-z_]*$/";
+    public static $validTypePattern = "/^attribute\.[A-Za-z]+\.[A-Za-z_]+$/";
     /* @var array */
     private $supportedAttributes = [];
     private $attributeTypeService;
@@ -37,7 +38,8 @@ class AttributeResolver
     /**
      * Checks if the id of the DynamicAttribute is in the right format
      *
-     * @param string $id
+     * @param  string  $id
+     *
      * @return bool
      */
     public static function isValidId(string $id): bool
@@ -48,7 +50,8 @@ class AttributeResolver
     /**
      * Checks if the type of the DynamicAttribute is in the right format
      *
-     * @param string $type
+     * @param  string  $type
+     *
      * @return bool
      */
     public static function isValidType(string $type): bool
@@ -72,8 +75,29 @@ class AttributeResolver
         }
     }
 
+
+    public function registerAllDynamicAttributes(): void
+    {
+        foreach (DynamicAttribute::all() as $dynamicAttribute) {
+            if ($this->isAttributeSupported($dynamicAttribute->attribute_id)) {
+                Log::error(sprintf("Not registering dynamic attribute %s (database id: %d) - the attribute name is already in use.",
+                    $dynamicAttribute->attribute_id, $dynamicAttribute->id));
+                continue;
+            }
+            if ($this->attributeTypeService->isAttributeTypeAvailable($dynamicAttribute->attribute_type)) {
+                $attributeTypeClass = $this->attributeTypeService->getAttributeTypeClass($dynamicAttribute->attribute_type);
+                $this->supportedAttributes[$dynamicAttribute->attribute_id] = $attributeTypeClass;
+            } else {
+                Log::error(sprintf("Not registering dynamic attribute %s - has unknown attribute type identifier %s",
+                    $dynamicAttribute->attribute_id, $dynamicAttribute->attribute_type));
+            }
+        }
+
+    }
+
     /**
-     * @param string $attributeId
+     * @param  string  $attributeId
+     *
      * @return bool
      */
     public function isAttributeSupported(string $attributeId)
@@ -88,8 +112,9 @@ class AttributeResolver
     /**
      * Tries to resolve an attribute with the given id to a supported type.
      *
-     * @param string $attributeId
-     * @param $value
+     * @param  string  $attributeId
+     * @param          $value
+     *
      * @return AttributeInterface
      */
     public function getAttributeFor(string $attributeId, $value)
