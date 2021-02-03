@@ -3,11 +3,15 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Traits\HasName;
 
-abstract class BaseOperation implements OperationInterface
+abstract class BaseOperation extends BaseOpenDialogComponent implements OperationInterface
 {
     use HasName;
+
+    protected static string $componentType = BaseOpenDialogComponent::OPERATION_COMPONENT_TYPE;
+    protected static string $componentSource = BaseOpenDialogComponent::APP_COMPONENT_SOURCE;
 
     /**
      * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]

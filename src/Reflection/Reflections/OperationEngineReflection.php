@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Reflection\Reflections;
 
 
 use Ds\Map;
+use OpenDialogAi\OperationEngine\OperationInterface;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class OperationEngineReflection implements OperationEngineReflectionInterface
@@ -33,8 +34,18 @@ class OperationEngineReflection implements OperationEngineReflectionInterface
      */
     public function jsonSerialize()
     {
+        $operations = $this->getAvailableOperations();
+
+        $operationsWithData = array_map(function ($operation) {
+            /** @var OperationInterface $operation */
+            return [
+                'component_data' => (array) $operation::getComponentData(),
+                'operation_data' => []
+            ];
+        }, $operations->toArray());
+
         return [
-            "available_operations" => $this->getAvailableOperations()->toArray(),
+            "available_operations" => $operationsWithData,
         ];
     }
 }

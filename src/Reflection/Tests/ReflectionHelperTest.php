@@ -16,6 +16,7 @@ use OpenDialogAi\Core\SensorEngine\Tests\Sensors\DummySensor;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\InterpreterEngine\Tests\Interpreters\DummyInterpreter;
+use OpenDialogAi\OperationEngine\Operations\EquivalenceOperation;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\OperationEngine\Tests\Operations\DummyOperation;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
@@ -345,8 +346,8 @@ class ReflectionHelperTest extends TestCase
                         'type' => 'operation',
                         'source' => 'core',
                         'id' => 'eq',
-                        'name' => 'Equals',
-                        'description' => 'An operation that determines if the given attribute has a value equal the given parameter.',
+                        'name' => EquivalenceOperation::getComponentName(),
+                        'description' => EquivalenceOperation::getComponentDescription(),
                     ],
                     'operation_data' => [
                         'attributes' => [

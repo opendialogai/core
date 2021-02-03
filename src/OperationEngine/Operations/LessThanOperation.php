@@ -2,11 +2,14 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class LessThanOperation extends BaseOperation
 {
     public static $name  = 'lt';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * @inheritDoc
