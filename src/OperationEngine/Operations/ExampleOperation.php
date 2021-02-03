@@ -11,6 +11,11 @@ class ExampleOperation extends BaseOperation
 
     protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
+    protected static array $requiredParametersArgumentNames = [
+        'start_value',
+        'end_value',
+    ];
+
     /**
      * @inheritDoc
      */
@@ -23,18 +28,5 @@ class ExampleOperation extends BaseOperation
             return true;
         }
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'start_value',
-                'end_value',
-            ],
-        ];
     }
 }

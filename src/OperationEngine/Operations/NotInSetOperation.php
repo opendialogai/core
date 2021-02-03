@@ -20,16 +20,4 @@ class NotInSetOperation extends BaseOperation
 
         return !in_array($this->parameters['value'], $attribute->getValue());
     }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'value',
-            ],
-        ];
-    }
 }

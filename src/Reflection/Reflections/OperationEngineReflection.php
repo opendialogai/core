@@ -38,9 +38,27 @@ class OperationEngineReflection implements OperationEngineReflectionInterface
 
         $operationsWithData = array_map(function ($operation) {
             /** @var OperationInterface $operation */
+
+            $attributeArguments = [];
+            foreach ($operation::getRequiredAttributeArgumentNames() as $argumentName) {
+                $attributeArguments[$argumentName] = [
+                    'required' => true,
+                ];
+            }
+
+            $parameterArguments = [];
+            foreach ($operation::getRequiredParameterArgumentNames() as $argumentName) {
+                $parameterArguments[$argumentName] = [
+                    'required' => true,
+                ];
+            }
+
             return [
                 'component_data' => (array) $operation::getComponentData(),
-                'operation_data' => []
+                'operation_data' => [
+                    'attributes' => $attributeArguments,
+                    'parameters' => $parameterArguments,
+                ]
             ];
         }, $operations->toArray());
 

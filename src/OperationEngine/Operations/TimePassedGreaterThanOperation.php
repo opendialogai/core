@@ -29,16 +29,4 @@ class TimePassedGreaterThanOperation extends BaseOperation
         }
         return false;
     }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'value',
-            ],
-        ];
-    }
 }

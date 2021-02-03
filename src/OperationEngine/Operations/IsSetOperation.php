@@ -11,6 +11,8 @@ class IsSetOperation extends BaseOperation
 
     protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
+    protected static array $requiredParametersArgumentNames = [];
+
     /**
      * @inheritDoc
      */
@@ -19,13 +21,5 @@ class IsSetOperation extends BaseOperation
         $attribute = reset($this->attributes);
 
         return $attribute->getValue() !== null && $attribute->getValue() !== '' && $attribute->getValue() !== false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [];
     }
 }

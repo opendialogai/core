@@ -14,6 +14,17 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
     protected static string $componentSource = BaseOpenDialogComponent::APP_COMPONENT_SOURCE;
 
     /**
+     * @var array|string[]
+     */
+    protected static array $requiredAttributeArgumentNames = [
+        'attribute',
+    ];
+
+    protected static array $requiredParametersArgumentNames = [
+        'value',
+    ];
+
+    /**
      * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
      */
     protected $attributes;
@@ -86,12 +97,27 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
     }
 
     /**
+     * @inheritDoc
+     */
+    final public static function getRequiredAttributeArgumentNames(): array
+    {
+        return static::$requiredAttributeArgumentNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    final public static function getRequiredParameterArgumentNames(): array
+    {
+        return static::$requiredParametersArgumentNames;
+    }
+
+    /**
      * @return bool
      */
     protected function checkRequiredParameters() : bool
     {
-        $parameters = $this->getAllowedParameters();
-        $requiredParameters = (isset($parameters['required'])) ? $parameters['required'] : [];
+        $requiredParameters = $this->getRequiredParameterArgumentNames();
 
         foreach ($requiredParameters as $parameterName) {
             if (!$this->hasParameter($parameterName)) {

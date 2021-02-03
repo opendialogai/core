@@ -351,11 +351,13 @@ class ReflectionHelperTest extends TestCase
                     ],
                     'operation_data' => [
                         'attributes' => [
-                            'attribute' => []
+                            'attribute' => [
+                                'required' => true,
+                            ]
                         ],
                         'parameters' => [
                             'value' => [
-                                'required' => true
+                                'required' => true,
                             ]
                         ],
                     ]
