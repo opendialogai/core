@@ -3,17 +3,19 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 
 /**
  * A BooleanAttribute implementation.
  */
 class BooleanAttribute extends AbstractAttribute
 {
-
     /**
      * @var string
      */
     public static $type = 'attribute.core.boolean';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * BooleanAttribute constructor.

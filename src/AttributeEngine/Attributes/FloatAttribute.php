@@ -2,16 +2,19 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+
 /**
  * Float implementation of Attribute.
  */
 class FloatAttribute extends BasicAttribute
 {
-
     /**
      * @var string
      */
     public static $type = 'attribute.core.float';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * FloatAttribute constructor.

@@ -2,12 +2,14 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\Core\Components\OpenDialogComponentInterface;
+
 /**
  * An Attribute is a perceivable feature of the environment (username, time, etc)
  * and through them entities (users, bots) and the environment in which they are
  * situated can be described.
  */
-interface AttributeInterface
+interface AttributeInterface extends OpenDialogComponentInterface
 {
     /**
      * @return string

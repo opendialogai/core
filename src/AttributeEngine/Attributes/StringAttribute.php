@@ -2,16 +2,22 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+
 /**
  * String implementation of Attribute.
  */
 class StringAttribute extends BasicAttribute
 {
-
     /**
      * @var string
      */
     public static $type = 'attribute.core.string';
+
+    protected static ?string $componentName = 'String';
+    protected static ?string $componentDescription = 'An attribute type for representing strings.';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * StringAttribute constructor.

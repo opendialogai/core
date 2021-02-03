@@ -95,8 +95,8 @@ class ReflectionHelperTest extends TestCase
                         'type' => 'attribute_type',
                         'source' => 'core',
                         'id' => 'attribute.core.string',
-                        'name' => 'String',
-                        'description' => 'An attribute type for representing strings.',
+                        'name' => StringAttribute::getComponentName(),
+                        'description' => StringAttribute::getComponentDescription(),
                     ]
                 ],
                 $typeId => [

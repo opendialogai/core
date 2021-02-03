@@ -2,16 +2,19 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+
 /**
  * Int implementation of Attribute.
  */
 class IntAttribute extends BasicAttribute
 {
-
     /**
      * @var string
      */
     public static $type = 'attribute.core.int';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * IntAttribute constructor.
