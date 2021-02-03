@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Reflection\Tests;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\ActionEngine\Actions\ExampleAction;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
@@ -23,6 +24,8 @@ use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
 class ReflectionHelperTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function testGetAvailableActions()
     {
         $reflection = resolve(ReflectionHelperInterface::class)->getActionEngineReflection();
@@ -38,6 +41,31 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount(1, $actions);
         $this->assertTrue($actions->hasKey($exampleAction::getName()));
         $this->assertEquals($exampleAction, $actions->get($exampleAction::getName()));
+
+        $this->assertArraySubset([
+            'available_actions' => [
+                $exampleAction::getName() => [
+                    'component_data' => [
+                        'type' => 'action',
+                        'source' => 'app',
+                        'id' => $exampleAction::getName(),
+                        'name' => 'Example action',
+                        'description' => 'Just an example action.',
+                    ],
+                    'action_data' => [
+                        'required_attributes' => [
+                            'first_name',
+                            'last_name',
+                        ],
+                        'output_attributes' => [
+                            'first_name',
+                            'last_name',
+                            'full_name',
+                        ]
+                    ]
+                ]
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetAvailableAttributeTypes()
@@ -58,6 +86,29 @@ class ReflectionHelperTest extends TestCase
         $typeId = ExampleCustomAttributeType::getType();
         $this->assertTrue($attributeTypes->hasKey($typeId));
         $this->assertEquals(ExampleCustomAttributeType::class, $attributeTypes->get($typeId));
+
+        $this->assertArraySubset([
+            'available_attribute_types' => [
+                'attribute.core.string' => [
+                    'component_data' => [
+                        'type' => 'attribute_type',
+                        'source' => 'core',
+                        'id' => 'attribute.core.string',
+                        'name' => 'String',
+                        'description' => 'An attribute type for representing strings.',
+                    ]
+                ],
+                $typeId => [
+                    'component_data' => [
+                        'type' => 'attribute_type',
+                        'source' => 'app',
+                        'id' => $typeId,
+                        'name' => 'Example attribute type',
+                        'description' => 'Just an example attribute type.',
+                    ]
+                ],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetAvailableAttributes()
@@ -78,6 +129,50 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertTrue($attributes->hasKey($attributeId));
         $this->assertEquals(StringAttribute::class, $attributes->get($attributeId));
+
+        $this->assertArraySubset([
+            'available_attributes' => [
+                'last_seen' => [
+                    'component_data' => [
+                        'type' => 'attribute',
+                        'source' => 'core',
+                        'id' => 'last_seen',
+                        'name' => null,
+                        'description' => null,
+                    ],
+                    'attribute_data' => [
+                        "type" => "attribute.core.timestamp",
+                        "resourceReadOnly" => true,
+                    ],
+                ],
+                $attributeId => [
+                    'component_data' => [
+                        'type' => 'attribute',
+                        'source' => 'app',
+                        'id' => $attributeId,
+                        'name' => null,
+                        'description' => null,
+                    ],
+                    'attribute_data' => [
+                        "type" => "attribute.core.string",
+                        "resourceReadOnly" => true,
+                    ],
+                ],
+                $attributeId => [
+                    'component_data' => [
+                        'type' => 'attribute',
+                        'source' => 'app',
+                        'id' => $attributeId,
+                        'name' => null,
+                        'description' => null,
+                    ],
+                    'attribute_data' => [
+                        "type" => "attribute.core.string",
+                        "resourceReadOnly" => true,
+                    ],
+                ],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetAvailableContexts()
@@ -96,6 +191,47 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertTrue($contexts->hasKey($contextId));
         $this->assertEquals($context, $contexts->get($contextId));
+
+        $this->assertArraySubset([
+            'available_contexts' => [
+                'user' => [
+                    'component_data' => [
+                        'type' => 'context',
+                        'source' => 'core',
+                        'id' => 'user',
+                        'name' => 'User',
+                        'description' => 'A context for storing data about the user.',
+                    ],
+                    'context_data' => [
+                        'attributesReadOnly' => false,
+                    ],
+                ],
+                '_intent' => [
+                    'component_data' => [
+                        'type' => 'context',
+                        'source' => 'core',
+                        'id' => '_intent',
+                        'name' => 'User',
+                        'description' => 'A context managed by OpenDialog for storing data about each interpreted intent.',
+                    ],
+                    'context_data' => [
+                        'attributesReadOnly' => true,
+                    ],
+                ],
+                $contextId => [
+                    'component_data' => [
+                        'type' => 'context',
+                        'source' => 'app',
+                        'id' => $contextId,
+                        'name' => null,
+                        'description' => null,
+                    ],
+                    'context_data' => [
+                        'attributesReadOnly' => false,
+                    ],
+                ],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetAvailableInterpreters()
@@ -117,6 +253,29 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertTrue($interpreters->hasKey($interpreterId));
         $this->assertInstanceOf(DummyInterpreter::class, $interpreters->get($interpreterId));
+
+        $this->assertArraySubset([
+            'available_interpreters' => [
+                'interpreter.core.callback' => [
+                    'component_data' => [
+                        'type' => 'interpreter',
+                        'source' => 'core',
+                        'id' => 'interpreter.core.callback',
+                        'name' => 'Callback',
+                        'description' => 'An interpreter for directly matching intent names.',
+                    ],
+                ],
+                $interpreterId => [
+                    'component_data' => [
+                        'type' => 'interpreter',
+                        'source' => 'app',
+                        'id' => $interpreterId,
+                        'name' => null,
+                        'description' => null,
+                    ],
+                ],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetInterpreterEngineConfiguration()
@@ -149,6 +308,14 @@ class ReflectionHelperTest extends TestCase
             "default_cache_time" => 0,
             "supported_callbacks" => [],
         ]), json_encode($configuration));
+
+        $this->assertArraySubset([
+            'engine_configuration' => [
+                "default_interpreter" => 'test_interpreter',
+                "default_cache_time" => 0,
+                "supported_callbacks" => [],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetAvailableOperations()
@@ -170,6 +337,43 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertTrue($operations->hasKey($operationId));
         $this->assertInstanceOf(DummyOperation::class, $operations->get($operationId));
+
+        $this->assertArraySubset([
+            'available_operations' => [
+                'eq' => [
+                    'component_data' => [
+                        'type' => 'operation',
+                        'source' => 'core',
+                        'id' => 'eq',
+                        'name' => 'Equals',
+                        'description' => 'An operation that determines if the given attribute has a value equal the given parameter.',
+                    ],
+                    'operation_data' => [
+                        'attributes' => [
+                            'attribute' => []
+                        ],
+                        'parameters' => [
+                            'value' => [
+                                'required' => true
+                            ]
+                        ],
+                    ]
+                ],
+                $operationId => [
+                    'component_data' => [
+                        'type' => 'operation',
+                        'source' => 'app',
+                        'id' => $operationId,
+                        'name' => 'Example operation',
+                        'description' => 'Just an example operation.',
+                    ],
+                    'operation_data' => [
+                        'attributes' => [],
+                        'parameters' => [],
+                    ]
+                ],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetAvailableFormatters()
@@ -189,6 +393,54 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertTrue($formatters->hasKey($formatter::getName()));
         $this->assertEquals($formatter, $formatters->get($formatter::getName()));
+
+        $this->assertArraySubset([
+            'available_formatters' => [
+                'formatter.core.webchat' => [
+                    'component_data' => [
+                        'type' => 'formatter',
+                        'source' => 'core',
+                        'id' => 'formatter.core.webchat',
+                        'name' => 'Webchat',
+                        'description' => 'A formatter for sending messages to OpenDialog Webchat.',
+                    ],
+                    'formatter_data' => [
+                        'supported_message_types' => [
+                            'attribute-message',
+                            'button-message',
+                            'hand-to-system-message',
+                            'image-message',
+                            'list-message',
+                            'text-message',
+                            'rich-message',
+                            'form-message',
+                            'fp-form-message',
+                            'fp-rich-message',
+                            'long-text-message',
+                            'empty-message',
+                            'cta-message',
+                            'meta-message',
+                            'autocomplete-message',
+                            'date-picker-message',
+                        ],
+                    ]
+                ],
+                $formatter::getName() => [
+                    'component_data' => [
+                        'type' => 'formatter',
+                        'source' => 'app',
+                        'id' => $formatter::getName(),
+                        'name' => 'Example formatter',
+                        'description' => 'Just an example formatter.',
+                    ],
+                    'formatter_data' => [
+                        'supported_message_types' => [
+                            'text-message'
+                        ]
+                    ]
+                ],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 
     public function testGetAvailableSensors()
@@ -208,6 +460,45 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertTrue($sensors->hasKey($sensor::getName()));
         $this->assertEquals($sensor, $sensors->get($sensor::getName()));
+
+        $this->assertArraySubset([
+            'available_sensors' => [
+                'sensor.core.webchat' => [
+                    'component_data' => [
+                        'type' => 'sensor',
+                        'source' => 'core',
+                        'id' => 'sensor.core.webchat',
+                        'name' => 'Webchat',
+                        'description' => 'A sensor for receiving messages from OpenDialog Webchat.',
+                    ],
+                    'sensor_data' => [
+                        'supported_utterance_types' => [
+                            'chat_open',
+                            'text',
+                            'trigger',
+                            'button_response',
+                            'url_click',
+                            'longtext_response',
+                            'form_response',
+                        ],
+                    ]
+                ],
+                $sensor::getName() => [
+                    'component_data' => [
+                        'type' => 'sensor',
+                        'source' => 'app',
+                        'id' => $sensor::getName(),
+                        'name' => 'Example sensor',
+                        'description' => 'Just an example sensor.',
+                    ],
+                    'sensor_data' => [
+                        'supported_utterance_types' => [
+                            'text'
+                        ]
+                    ]
+                ],
+            ]
+        ], json_decode(json_encode($reflection), true));
     }
 }
 
