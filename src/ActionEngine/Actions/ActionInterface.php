@@ -3,12 +3,13 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use Ds\Map;
+use OpenDialogAi\Core\Components\OpenDialogComponentInterface;
 
 /**
  * An action takes an input of attributes, performs its action and returns a response containing details of the action
  * results.
  */
-interface ActionInterface
+interface ActionInterface extends OpenDialogComponentInterface
 {
     /**
      * Performs the action

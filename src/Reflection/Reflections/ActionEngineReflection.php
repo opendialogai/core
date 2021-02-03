@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Reflection\Reflections;
 
 
 use Ds\Map;
+use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 
 class ActionEngineReflection implements ActionEngineReflectionInterface
@@ -27,7 +28,16 @@ class ActionEngineReflection implements ActionEngineReflectionInterface
      */
     public function getAvailableActions(): Map
     {
-        return new Map($this->actionEngine->getAvailableActions());
+        $actions = $this->actionEngine->getAvailableActions();
+
+        $actionsWithData = array_map(function ($action) {
+            /** @var ActionInterface $action */
+            return [
+                'component_data' => (array) $action::getComponentData(),
+            ];
+        }, $actions);
+
+        return new Map($actionsWithData);
     }
 
     /**

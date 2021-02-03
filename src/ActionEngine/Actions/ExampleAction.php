@@ -11,6 +11,9 @@ class ExampleAction extends BaseAction
 {
     protected static $name = 'action.core.example';
 
+    protected static ?string $componentName = 'Example action';
+    protected static ?string $componentDescription = 'Just an example action.';
+
     public function __construct()
     {
         $this->requiredAttributes = ['first_name', 'last_name'];

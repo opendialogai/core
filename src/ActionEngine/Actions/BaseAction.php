@@ -3,11 +3,15 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use Ds\Map;
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Traits\HasName;
 
-abstract class BaseAction implements ActionInterface
+abstract class BaseAction extends BaseOpenDialogComponent implements ActionInterface
 {
     use HasName;
+
+    protected static string $componentType = BaseOpenDialogComponent::ACTION_COMPONENT_TYPE;
+    protected static string $componentSource = BaseOpenDialogComponent::APP_COMPONENT_SOURCE;
 
     protected static $name = 'action.core.base';
 
