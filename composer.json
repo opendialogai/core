@@ -52,7 +52,7 @@
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
         "OpenDialogAi\\Core\\Graph\\GraphServiceProvider",
-        "OpenDialogAi\\Core\\ReflectionServiceProvider",
+        "OpenDialogAi\\Core\\Reflection\\ReflectionServiceProvider",
         "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
         "OpenDialogAi\\ConversationEngine\\ConversationEngineServiceProvider",
         "OpenDialogAi\\ConversationLog\\ConversationLogServiceProvider",
