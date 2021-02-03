@@ -28,16 +28,7 @@ class ActionEngineReflection implements ActionEngineReflectionInterface
      */
     public function getAvailableActions(): Map
     {
-        $actions = $this->actionEngine->getAvailableActions();
-
-        $actionsWithData = array_map(function ($action) {
-            /** @var ActionInterface $action */
-            return [
-                'component_data' => (array) $action::getComponentData(),
-            ];
-        }, $actions);
-
-        return new Map($actionsWithData);
+        return new Map($this->actionEngine->getAvailableActions());
     }
 
     /**
@@ -45,8 +36,21 @@ class ActionEngineReflection implements ActionEngineReflectionInterface
      */
     public function jsonSerialize()
     {
+        $actions = $this->getAvailableActions();
+
+        $actionsWithData = array_map(function ($action) {
+            /** @var ActionInterface $action */
+            return [
+                'component_data' => (array) $action::getComponentData(),
+                'action_data' => [
+                    'required_attributes' => $action::getRequiredAttributes(),
+                    'output_attributes' => $action::getOutputAttributes(),
+                ]
+            ];
+        }, $actions->toArray());
+
         return [
-            "available_actions" => $this->getAvailableActions()->toArray(),
+            "available_actions" => $actionsWithData,
         ];
     }
 }
