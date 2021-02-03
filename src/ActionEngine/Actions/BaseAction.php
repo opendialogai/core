@@ -15,14 +15,14 @@ abstract class BaseAction extends BaseOpenDialogComponent implements ActionInter
 
     protected static $name = 'action.core.base';
 
-    /** @var string[] */
-    protected $requiredAttributes = [];
+    /** @var array|string[] */
+    protected static $requiredAttributes = [];
 
     /** @var Map */
     protected $inputAttributes = [];
 
-    /** @var Map */
-    protected $outputAttributes = [];
+    /** @var array|string[] */
+    protected static $outputAttributes = [];
 
     /**
      * @inheritdoc
@@ -35,9 +35,9 @@ abstract class BaseAction extends BaseOpenDialogComponent implements ActionInter
     /**
      * @inheritdoc
      */
-    public function getRequiredAttributes(): array
+    public static function getRequiredAttributes(): array
     {
-        return $this->requiredAttributes;
+        return static::$requiredAttributes;
     }
 
     /**
@@ -59,9 +59,9 @@ abstract class BaseAction extends BaseOpenDialogComponent implements ActionInter
     /**
      * @inheritdoc
      */
-    public function getOutputAttributes(): Map
+    public static function getOutputAttributes(): array
     {
-        return $this->outputAttributes;
+        return static::$outputAttributes;
     }
 
     /**
