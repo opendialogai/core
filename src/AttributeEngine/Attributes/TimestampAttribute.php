@@ -4,17 +4,19 @@ namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use Carbon\Carbon;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 
 /**
  * A TimestampAttribute implementation.
  */
 class TimestampAttribute extends AbstractAttribute
 {
-
     /**
      * @var string
      */
     public static $type = 'attribute.core.timestamp';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * TimestampAttribute constructor.

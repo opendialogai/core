@@ -4,17 +4,19 @@ namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Util;
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 
 /**
  * A ArrayAttribute implementation.
  */
 class ArrayAttribute extends AbstractAttribute
 {
-
     /**
      * @var string
      */
     public static $type = 'attribute.core.array';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * ArrayAttribute constructor.

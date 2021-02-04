@@ -2,13 +2,18 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+
 /**
  * Abstract class implementation of the AttributeInterface.
  */
-abstract class AbstractAttribute implements AttributeInterface
+abstract class AbstractAttribute extends BaseOpenDialogComponent implements AttributeInterface
 {
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
+
+    protected static string $componentType = BaseOpenDialogComponent::ATTRIBUTE_TYPE_COMPONENT_TYPE;
+    protected static string $componentSource = BaseOpenDialogComponent::APP_COMPONENT_SOURCE;
 
     /* @var string $id - a unique id for this attribute class. */
     protected $id;
@@ -28,6 +33,11 @@ abstract class AbstractAttribute implements AttributeInterface
     {
         $this->id = $id;
         $this->value = $value;
+    }
+
+    public static function getName(): string
+    {
+        return static::$type;
     }
 
     /**

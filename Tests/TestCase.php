@@ -16,6 +16,7 @@ use OpenDialogAi\Core\Conversation\Conversation as ConversationNode;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\Core\Graph\GraphServiceProvider;
+use OpenDialogAi\Core\Reflection\ReflectionServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\NlpEngine\NlpEngineServiceProvider;
@@ -89,7 +90,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
             InterpreterEngineServiceProvider::class,
             OperationEngineServiceProvider::class,
             SensorEngineServiceProvider::class,
-            NlpEngineServiceProvider::class
+            NlpEngineServiceProvider::class,
+            ReflectionServiceProvider::class,
         ];
     }
 

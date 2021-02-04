@@ -3,12 +3,13 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use Ds\Map;
+use OpenDialogAi\Core\Components\OpenDialogComponentInterface;
 
 /**
  * An action takes an input of attributes, performs its action and returns a response containing details of the action
  * results.
  */
-interface ActionInterface
+interface ActionInterface extends OpenDialogComponentInterface
 {
     /**
      * Performs the action
@@ -23,7 +24,7 @@ interface ActionInterface
      *
      * @return string[]
      */
-    public function getRequiredAttributes(): array;
+    public static function getRequiredAttributes(): array;
 
     /**
      * Returns an array of attribute names that the action give as input
@@ -45,7 +46,7 @@ interface ActionInterface
      *
      * @return Map
      */
-    public function getOutputAttributes(): Map;
+    public static function getOutputAttributes(): array;
 
     /**
      * Whether this action outputs the given attribute
