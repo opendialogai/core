@@ -16,13 +16,13 @@ abstract class BaseAction extends BaseOpenDialogComponent implements ActionInter
     protected static $name = 'action.core.base';
 
     /** @var array|string[] */
-    protected static $requiredAttributes = [];
-
-    /** @var Map */
-    protected $inputAttributes = [];
+    protected static array $requiredAttributes = [];
 
     /** @var array|string[] */
-    protected static $outputAttributes = [];
+    protected static array $outputAttributes = [];
+
+    /** @var Map */
+    private $inputAttributes = [];
 
     /**
      * @inheritdoc
