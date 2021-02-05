@@ -2,16 +2,14 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
-/**
- * String implementation of Attribute.
- */
-class StringAttribute extends BasicAttribute
-{
+use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
 
-    /**
-     * @var string
-     */
-    public static $type = 'attribute.core.string';
+/**
+ * StringAttribute implementation.
+ */
+class StringAttribute extends BasicScalarAttribute
+{
+    public static $attributeType = 'attribute.core.string';
 
     /**
      * StringAttribute constructor.
@@ -19,20 +17,24 @@ class StringAttribute extends BasicAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $value)
+    public function __construct($id, $rawValue = null, ?StringAttributeValue $value = null)
     {
-        parent::__construct($id, $value);
+        if (!is_null($value)) {
+            parent::__construct($id, $value);
+        } else {
+            $attributeValue = new StringAttributeValue($rawValue);
+            parent::__construct($id, $attributeValue);
+        }
     }
 
-    /**
-     * Returns null or an strval
-     *
-     * @param array $arg
-     *
-     * @return null | string
-     */
-    public function getValue(array $arg = [])
+    public function setRawValue($rawValue)
     {
-        return $this->value === null ? $this->value : strval($this->value);
+        is_null($this->value) ?
+            $this->setAttributeValue(new StringAttributeValue($rawValue)) : $this->value->setRawValue($rawValue);
+    }
+
+    public function toString(): ?string
+    {
+        return $this->getAttributeValue()->toString();
     }
 }

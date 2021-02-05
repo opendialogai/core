@@ -1,19 +1,16 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine\AttributeBag;
-
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
-use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
+namespace OpenDialogAi\AttributeEngine\Contracts;
 
 /**
  * An attribute bag holds a set of attributes that can be set or retrieved
  */
-interface AttributeBagInterface
+interface AttributeBag
 {
     /**
      * Adds an attribute to the map of attributes
      *
-     * @param \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface $attribute
+     * @param AttributeInterface $attribute
      */
     public function addAttribute(AttributeInterface $attribute);
 
@@ -21,8 +18,7 @@ interface AttributeBagInterface
      * Tries to get an attribute from attributes if it exists
      *
      * @param $attributeName
-     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
-     * @throws \OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException
+     * @return AttributeInterface
      */
     public function getAttribute(string $attributeName): AttributeInterface;
 
@@ -32,7 +28,7 @@ interface AttributeBagInterface
      * @param string $attributeName
      * @return mixed
      */
-    public function getAttributeValue(string $attributeName);
+    public function getAttributeValue(string $attributeName): AttributeValueInterface;
 
     /**
      * Checks whether the attribute with given name exists

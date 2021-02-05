@@ -17,7 +17,7 @@ class DGraphSchemaTest extends TestCase
         $dGraphClient = $this->app->make(DGraphClient::class);
 
         if ($withCustomSchema) {
-                $dGraphClient->setSchema($dGraphClient->getSchema() . "
+            $dGraphClient->setSchema($dGraphClient->getSchema() . "
                     <tag_name>: string @index(exact) .
                     <has_tag>: [uid] @reverse .
                     

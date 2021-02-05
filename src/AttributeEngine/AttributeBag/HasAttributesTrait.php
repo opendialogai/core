@@ -1,10 +1,12 @@
 <?php
 
-namespace OpenDialogAi\AttributeEngine;
+namespace OpenDialogAi\AttributeEngine\AttributeBag;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
+use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 
 /**
@@ -40,10 +42,10 @@ trait HasAttributesTrait
     }
 
     /**
-     * @param AttributeInterface $attribute
+     * @param Attribute $attribute
      * @return $this
      */
-    public function addAttribute(AttributeInterface $attribute)
+    public function addAttribute(Attribute $attribute)
     {
         $this->attributes->put($attribute->getId(), $attribute);
         return $this;
@@ -70,9 +72,9 @@ trait HasAttributesTrait
     /**
      * @param string $attributeName
      * @param $value
-     * @return AttributeInterface
+     * @return Attribute
      */
-    public function setAttribute(string $attributeName, $value): AttributeInterface
+    public function setAttribute(string $attributeName, $value): Attribute
     {
         // If the attribute exists update its value
         if ($this->hasAttribute($attributeName)) {
@@ -89,10 +91,10 @@ trait HasAttributesTrait
     /**
      * @inheritdoc
      */
-    public function getAttribute(string $attributeName): AttributeInterface
+    public function getAttribute(string $attributeName): Attribute
     {
         if ($this->hasAttribute($attributeName)) {
-            return $this->attributes->get($attributeName);
+            return  $this->attributes->get($attributeName);
         }
 
         Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));

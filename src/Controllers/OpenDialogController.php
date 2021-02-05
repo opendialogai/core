@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\Controllers;
 
 use Ds\Set;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -60,7 +61,7 @@ class OpenDialogController
      * or intent and return back a system level no match message if we don't get that from
      * the response engine.
      *
-     * @param UtteranceInterface $utterance
+     * @param UtteranceAttribute $utterance
      * @return OpenDialogMessages
      * @throws FieldNotSupported
      * @throws GuzzleException
@@ -68,28 +69,29 @@ class OpenDialogController
      * @throws EIModelCreatorException
      * @throws NodeDoesNotExistException
      */
-    public function runConversation(UtteranceInterface $utterance): OpenDialogMessages
+    public function runConversation(UtteranceAttribute $utterance): OpenDialogMessages
     {
-        $userContext = ContextService::createUserContext($utterance);
+//        $userContext = ContextService::createUserContext($utterance);
+        return $this->getNoConversationsMessages($utterance);
 
-        try {
-            /** @var Intent[] $intents */
-            $intents = $this->conversationEngine->getNextIntents($userContext, $utterance);
-        } catch (NoConversationsException $e) {
-            return $this->getNoConversationsMessages($utterance);
-        }
+//        try {
+//            /** @var Intent[] $intents */
+//            $intents = $this->conversationEngine->getNextIntents($userContext, $utterance);
+//        } catch (NoConversationsException $e) {
+//            return $this->getNoConversationsMessages($utterance);
+//        }
 
         // Log incoming message.
-        $this->conversationLogService->logIncomingMessage($utterance);
+//        $this->conversationLogService->logIncomingMessage($utterance);
 
-        $messages = $this->getMessages($utterance, $intents);
+//        $messages = $this->getMessages($utterance, $intents);
 
-        $this->processInternalMessages($messages);
+//        $this->processInternalMessages($messages);
 
-        $this->conversationLogService->logOutgoingMessages($messages, $utterance);
+//        $this->conversationLogService->logOutgoingMessages($messages, $utterance);
 
-        $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
-        $userContext->updateUser();
+//        $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
+//       $userContext->updateUser();
 
         return $messages;
     }
@@ -110,10 +112,10 @@ class OpenDialogController
     /**
      * Return text message when no conversations are defined or activated in Dgraph.
      *
-     * @param UtteranceInterface $utterance
+     * @param UtteranceAttribute $utterance
      * @return OpenDialogMessages
      */
-    private function getNoConversationsMessages(UtteranceInterface $utterance): OpenDialogMessages
+    private function getNoConversationsMessages(UtteranceAttribute $utterance): OpenDialogMessages
     {
         $platform = $utterance->getPlatform();
         $formatter = $this->responseEngineService->getFormatter("formatter.core.{$platform}");

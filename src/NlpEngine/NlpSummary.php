@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\Core\NlpEngine;
 
-
 class NlpSummary
 {
     /** @var string */

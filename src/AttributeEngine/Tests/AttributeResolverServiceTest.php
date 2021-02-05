@@ -2,19 +2,37 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
+use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\AttributeValues\IntAttributeValue;
+use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
-use OpenDialogAi\Core\Tests\TestCase;
 
-class AttributeResolverServiceTest extends TestCase
+class AttributeResolverServiceTest extends \Orchestra\Testbench\TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
     }
 
-    public function testContextServiceCreation()
+    public function getPackageProviders($app)
+    {
+        return [
+            AttributeEngineServiceProvider::class,
+        ];
+    }
+
+    public function setConfigValue($configName, $config)
+    {
+        $this->app['config']->set($configName, $config);
+    }
+
+
+    public function testAttributeServiceCreation()
     {
         $this->assertTrue($this->getAttributeResolver() instanceof AttributeResolver);
     }
@@ -29,16 +47,17 @@ class AttributeResolverServiceTest extends TestCase
 
     public function testAttributeResolution()
     {
-        $attribute = $this->getAttributeResolver()->getAttributeFor('name', 'John Smith');
+        $attribute = $this->getAttributeResolver()->getAttributeFor('name', null, new StringAttributeValue('John Smith'));
 
         $this->assertInstanceOf(StringAttribute::class, $attribute);
         $this->assertEquals($attribute->getValue(), 'John Smith');
-        $this->assertNotEquals($attribute->getValue(), 'Mario Rossi');
+        $this->assertEquals($attribute->getAttributeValue()->getTypedValue(), 'John Smith');
+        $this->assertNotEquals($attribute->getAttributeValue()->getTypedValue(), 'Mario Rossi');
     }
 
     public function testAccessToUnsupportedAttribute()
     {
-        $attribute = $this->getAttributeResolver()->getAttributeFor('name2', 'John Smith');
+        $attribute = $this->getAttributeResolver()->getAttributeFor('name2', null, new StringAttributeValue('John Smith'));
         $this->assertEquals(StringAttribute::class, get_class($attribute));
     }
 
@@ -94,6 +113,34 @@ class AttributeResolverServiceTest extends TestCase
 
         // Our custom attribute type isn't valid so we expect an unsupported attribute type exception
         $this->getAttributeResolver();
+    }
+
+    public function testResolutionThroughCoreCompositeAttribute()
+    {
+        $resolver = $this->getAttributeResolver();
+        /* @var UtteranceAttribute $utteranceAttribute */
+        $utteranceAttribute = $resolver->getAttributeFor('utterance');
+        $this->assertTrue($utteranceAttribute instanceof UtteranceAttribute);
+        $this->assertEquals('utterance', $utteranceAttribute->getId());
+
+        // Add a scalar attribute using an AttributeValue Object
+        $utteranceAttribute->setUtteranceAttribute('timestamp', 123456789);
+        /* @var IntAttribute $timestamp  */
+        $timestamp = $utteranceAttribute->getattribute('timestamp');
+        $this->assertEquals(123456789, $timestamp->getValue());
+
+        // Add a composite attribute
+        $user = $resolver->getAttributeFor('utterance_user');
+        $user->setUserAttribute('first_name', 'mork');
+
+        $utteranceAttribute->setUtteranceAttribute('utterance_user', $user);
+        /* @var UserAttribute $retrievedUser */
+        $retrieved_user = $utteranceAttribute->getAttribute('utterance_user');
+        $this->assertEquals('utterance_user', $retrieved_user->getId());
+
+        /* @var StringAttribute $nameAttribute */
+        $nameAttribute = $retrieved_user->getAttribute('first_name');
+        $this->assertEquals('mork', $nameAttribute->toString());
     }
 
     /**

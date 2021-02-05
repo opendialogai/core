@@ -2,11 +2,16 @@
 
 namespace OpenDialogAi\AttributeEngine\AttributeResolver;
 
+use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeValue;
+use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
+use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 
 /**
@@ -74,15 +79,34 @@ class AttributeResolver
      *
      * @param string $attributeId
      * @param $value
-     * @return AttributeInterface
+     * @return Attribute
      */
-    public function getAttributeFor(string $attributeId, $value)
+    public function getAttributeFor(string $attributeId, $rawValue = null, AttributeValue $value = null)
     {
         if ($this->isAttributeSupported($attributeId)) {
-            return new $this->supportedAttributes[$attributeId]($attributeId, $value);
+            // First instantiate the attribute so we can see what type it is and construct appropriately.
+            $attribute = new $this->supportedAttributes[$attributeId]($attributeId);
+
+            // For scalar attribute we prefer setting the AttributeValue object, but if that is not
+            // available we set the raw value. Scalar attributes should always be able to handle null
+            // raw values as well.
+            if ($attribute instanceof ScalarAttribute) {
+                is_null($value) ? $attribute->setRawValue($rawValue) : $attribute->setAttributeValue($value);
+            }
+
+            // For composite attributes we expect to either be provided with a prepopulated Ds\Map of
+            // attributes or with a single attribute that we add to the composite attribute.
+            if ($attribute instanceof CompositeAttribute) {
+                if ($rawValue instanceof Map) {
+                    $attribute->setAttributes($rawValue);
+                } elseif ($rawValue instanceof Attribute) {
+                    $attribute->addAttribute($rawValue);
+                }
+            }
+            return $attribute;
         } else {
             Log::debug(sprintf('Attribute %s is not registered, defaulting to String type', $attributeId));
-            return new StringAttribute($attributeId, $value);
+            return new StringAttribute($attributeId, $rawValue);
         }
     }
 }

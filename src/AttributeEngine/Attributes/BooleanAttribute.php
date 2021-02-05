@@ -2,56 +2,39 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
-use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
+use OpenDialogAi\AttributeEngine\AttributeValues\BooleanAttributeValue;
 
 /**
  * A BooleanAttribute implementation.
  */
-class BooleanAttribute extends AbstractAttribute
+class BooleanAttribute extends BasicScalarAttribute
 {
-
-    /**
-     * @var string
-     */
-    public static $type = 'attribute.core.boolean';
+    public static $attributeType = 'attribute.core.boolean';
 
     /**
      * BooleanAttribute constructor.
      * @param $id
-     * @param $value
-     * @throws UnsupportedAttributeTypeException
+     * @param mixed | null $rawValue
+     * @param BooleanAttributeValue|null $value
      */
-    public function __construct($id, $value)
+    public function __construct($id, $rawValue = null, ?BooleanAttributeValue $value = null)
     {
-        parent::__construct($id, $this->value);
-        $this->setValue($value);
+        if (!is_null($value)) {
+            parent::__construct($id, $value);
+        } else {
+            $attributeValue = new BooleanAttributeValue($rawValue);
+            parent::__construct($id, $attributeValue);
+        }
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setValue($value)
+    public function setRawValue($rawValue)
     {
-        $this->value = is_null($value) ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        is_null($this->value) ?
+            $this->setAttributeValue(new BooleanAttributeValue($rawValue)) : $this->value->setRawValue($rawValue);
     }
 
-    /**
-     * @return string
-     */
-    public function toString(): string
+    public function toString(): ?string
     {
-        return $this->getValue() ? 'true' : 'false';
-    }
-
-    /**
-     * Returns boolean
-     *
-     * @param array $arg
-     *
-     * @return boolean
-     */
-    public function getValue(array $arg = [])
-    {
-        return $this->value === null ? $this->value :  boolval($this->value);
+        return $this->getAttributeValue()->toString();
     }
 }

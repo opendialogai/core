@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
-
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 
 class ExampleCustomAttributeType extends StringAttribute
@@ -11,7 +10,7 @@ class ExampleCustomAttributeType extends StringAttribute
     /**
      * @var string
      */
-    public static $type = 'attribute.app.custom';
+    public static $attributeType = 'attribute.app.custom';
 
     /**
      * ExampleCustomAttribute constructor.
@@ -19,7 +18,7 @@ class ExampleCustomAttributeType extends StringAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $value)
+    public function __construct($id, StringAttributeValue $value = null)
     {
         parent::__construct($id, $value);
     }
@@ -27,13 +26,11 @@ class ExampleCustomAttributeType extends StringAttribute
     /**
      * Returns null or an strval prepended with 'custom: '
      *
-     * @param array $arg
-     *
      * @return null | string
      */
-    public function getValue(array $arg = [])
+    public function toString(): ?string
     {
-        $stringValue = parent::getValue($arg);
+        $stringValue = parent::toString();
         return is_null($stringValue) ? null : ('custom: ' . $stringValue);
     }
 }

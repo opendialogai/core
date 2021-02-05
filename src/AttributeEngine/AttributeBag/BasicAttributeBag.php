@@ -3,9 +3,9 @@
 namespace OpenDialogAi\AttributeEngine\AttributeBag;
 
 use Ds\Map;
-use OpenDialogAi\AttributeEngine\HasAttributesTrait;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeBag;
 
-class AttributeBag implements AttributeBagInterface
+class BasicAttributeBag implements AttributeBag
 {
     use HasAttributesTrait;
 

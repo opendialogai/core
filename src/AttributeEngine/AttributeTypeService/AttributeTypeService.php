@@ -3,10 +3,9 @@
 
 namespace OpenDialogAi\AttributeEngine\AttributeTypeService;
 
-
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeAlreadyRegisteredException;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeInvalidException;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
@@ -33,7 +32,7 @@ class AttributeTypeService implements AttributeTypeServiceInterface
     public function isValidAttributeType(string $attributeType): bool
     {
         return class_exists($attributeType)
-            && in_array(AttributeInterface::class, class_implements($attributeType));
+            && in_array(Attribute::class, class_implements($attributeType));
     }
 
 

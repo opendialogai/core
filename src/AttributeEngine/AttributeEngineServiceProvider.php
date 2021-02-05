@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\AttributeEngine;
 
-
 use Carbon\Laravel\ServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeService;

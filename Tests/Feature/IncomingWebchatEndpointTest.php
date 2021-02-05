@@ -12,14 +12,10 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
     }
 
     /**
-     * @requires DGRAPH
-     *
      * Test top-level parameter validation.
      */
     public function testRequiredParams()
     {
-        $this->activateConversation($this->conversation4());
-
         // Ensure that the author field is required.
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
@@ -49,14 +45,10 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
     }
 
     /**
-     * @requires DGRAPH
-     *
      * Test message content validation.
      */
     public function testMessageContent()
     {
-        $this->activateConversation($this->conversation4());
-
         // Ensure that the content field is required for messages.
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
@@ -110,14 +102,10 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
     }
 
     /**
-     * @requires DGRAPH
-     *
      * Test message response.
      */
     public function testMessageResponse()
     {
-        $this->activateConversation($this->conversation4());
-
         // Test a valid message.
         $response = $this->json('POST', '/incoming/webchat', $this->generateResponseMessage('text', [
             'text' => 'test'

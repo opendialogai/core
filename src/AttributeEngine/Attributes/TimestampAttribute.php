@@ -2,45 +2,33 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
-use Carbon\Carbon;
-use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
+use OpenDialogAi\AttributeEngine\AttributeValues\TimestampAttributeValue;
 
 /**
  * A TimestampAttribute implementation.
  */
-class TimestampAttribute extends AbstractAttribute
+class TimestampAttribute extends AbstractScalarAttribute
 {
+    public static $attributeType = 'attribute.core.timestamp';
 
-    /**
-     * @var string
-     */
-    public static $type = 'attribute.core.timestamp';
-
-    /**
-     * TimestampAttribute constructor.
-     * @param $id
-     * @param $value
-     * @throws UnsupportedAttributeTypeException
-     */
-    public function __construct($id, $value)
+    public function __construct($id, $rawValue = null, ?TimestampAttributeValue $value = null)
     {
-        parent::__construct($id, $this->value);
-        $this->setValue($value);
+        if (!is_null($value)) {
+            parent::__construct($id, $value);
+        } else {
+            $attributeValue = new TimestampAttributeValue($rawValue);
+            parent::__construct($id, $attributeValue);
+        }
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setValue($value)
+    public function setRawValue($rawValue)
     {
-        $this->value = ($value === null || $value === '') ? null : filter_var($value, FILTER_VALIDATE_INT);
+        is_null($this->value) ?
+            $this->setAttributeValue(new TimestampAttributeValue($rawValue)) : $this->value->setRawValue($rawValue);
     }
 
-    /**
-     * @return string
-     */
-    public function toString(): string
+    public function toString(): ?string
     {
-        return Carbon::createFromTimestamp($this->getValue())->toIso8601String();
+        return $this->getAttributeValue()->toString();
     }
 }

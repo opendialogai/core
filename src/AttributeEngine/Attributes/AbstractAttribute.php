@@ -2,10 +2,13 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeValue;
+
 /**
  * Abstract class implementation of the AttributeInterface.
  */
-abstract class AbstractAttribute implements AttributeInterface
+abstract class AbstractAttribute implements Attribute
 {
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
@@ -14,20 +17,16 @@ abstract class AbstractAttribute implements AttributeInterface
     protected $id;
 
     /* @var string $type - one of the valid string types. */
-    public static $type;
-
-    /* @var mixed $value - the value for this attribute. */
-    protected $value;
+    public static $attributeType;
 
     /**
      * AbstractAttribute constructor.
      * @param $id
      * @param $value
      */
-    public function __construct($id, $value)
+    public function __construct(string $id)
     {
         $this->id = $id;
-        $this->value = $value;
     }
 
     /**
@@ -35,25 +34,7 @@ abstract class AbstractAttribute implements AttributeInterface
      */
     public static function getType(): string
     {
-        return static::$type;
-    }
-
-    /**
-     * @param array $arg
-     *
-     * @return mixed
-     */
-    public function getValue(array $arg = [])
-    {
-        return $this->value;
-    }
-
-    /**
-     * @param mixed $value
-     */
-    public function setValue($value)
-    {
-        $this->value = $value;
+        return static::$attributeType;
     }
 
     /**
@@ -80,11 +61,11 @@ abstract class AbstractAttribute implements AttributeInterface
         return clone $this;
     }
 
-    /**
-     * @return string
-     */
-    public function serialized(): ?string
+    public function jsonSerialize()
     {
-        return $this->value;
+        return [
+            'name' => $this->getId(),
+            'attributeValue' => json_encode($this->getValue())
+        ];
     }
 }

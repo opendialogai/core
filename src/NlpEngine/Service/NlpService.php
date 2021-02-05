@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\NlpEngine\Service;
 
-
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
 use OpenDialogAi\NlpEngine\Exceptions\NlpProviderNotRegisteredException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\SensorEngine\Http\Controllers;
+namespace OpenDialogAi\Core\Http\Controllers;
 
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\BindingResolutionException;

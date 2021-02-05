@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\Core\Utterances\Exceptions;
+namespace OpenDialogAi\Core\SensorEngine\Exceptions;
 
 class UtteranceUnknownMessageType extends \Exception
 {

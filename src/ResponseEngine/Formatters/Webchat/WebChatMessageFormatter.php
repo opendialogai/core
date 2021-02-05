@@ -547,7 +547,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
 
     public function generateDatePickerMessage(array $template): DatePickerMessage
     {
-         return (new WebchatDatePickerMessage())
+        return (new WebchatDatePickerMessage())
              ->setSubmitText($template[self::SUBMIT_TEXT])
              ->setText($template[self::TEXT])
              ->setCallback($template[self::CALLBACK])
