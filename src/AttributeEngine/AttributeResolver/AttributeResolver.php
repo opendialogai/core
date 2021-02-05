@@ -8,7 +8,6 @@ use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
-use OpenDialogAi\AttributeEngine\DynamicAttribute;
 
 /**
  * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.
@@ -81,26 +80,6 @@ class AttributeResolver
                 throw new UnsupportedAttributeTypeException();
             }
         }
-    }
-
-
-    public function registerAllDynamicAttributes(): void
-    {
-        foreach (DynamicAttribute::all() as $dynamicAttribute) {
-            if ($this->isAttributeSupported($dynamicAttribute->attribute_id)) {
-                Log::error(sprintf("Not registering dynamic attribute %s (database id: %d)
-                     - the attribute name is already in use.", $dynamicAttribute->attribute_id, $dynamicAttribute->id));
-                continue;
-            }
-            if ($this->attributeTypeService->isAttributeTypeAvailable($dynamicAttribute->attribute_type)) {
-                $attributeTypeClass = $this->attributeTypeService->getAttributeTypeClass($dynamicAttribute->attribute_type);
-                $this->supportedAttributes[$dynamicAttribute->attribute_id] = $attributeTypeClass;
-            } else {
-                Log::error(sprintf("Not registering dynamic attribute %s - has unknown attribute type identifier %s",
-                    $dynamicAttribute->attribute_id, $dynamicAttribute->attribute_type));
-            }
-        }
-
     }
 
     /**

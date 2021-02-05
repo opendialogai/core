@@ -81,6 +81,8 @@ class AttributeTypeService implements AttributeTypeServiceInterface
     public function registerAttributeType(string $attributeType): void
     {
         if ($this->isValidAttributeType($attributeType)) {
+            //TODO: Move me!
+            $attributeType::getComponentData();
             if ($this->isAttributeTypeAvailable($attributeType::getType())) {
                 throw new AttributeTypeAlreadyRegisteredException();
             } else {
@@ -98,7 +100,6 @@ class AttributeTypeService implements AttributeTypeServiceInterface
     {
         foreach ($attributeTypes as $attributeType) {
             try {
-                $attributeType::getComponentData();
                 $this->registerAttributeType($attributeType);
             } catch (AttributeTypeAlreadyRegisteredException $e) {
                 Log::warning(sprintf(

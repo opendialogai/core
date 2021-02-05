@@ -2,19 +2,17 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
 use OpenDialogAi\AttributeEngine\DynamicAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeResolverServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function setUp(): void
     {
         parent::setUp();
@@ -79,13 +77,12 @@ class AttributeResolverServiceTest extends TestCase
 
         // Our custom attribute type isn't registered so we should fallback to a string attribute
         Log::spy();
+        $this->expectException(AttributeTypeNotRegisteredException::class);
         $attributeResolver = $this->getAttributeResolver();
         Log::shouldHaveReceived('error', [
             sprintf("Not registering dynamic attribute %s - has unknown attribute type identifier %s",
                 $dynamicAttribute->attribute_id, $dynamicAttribute->attribute_type)
         ]);
-        $this->assertEquals(StringAttribute::class,
-            get_class($attributeResolver->getAttributeFor('test_dynamic_attribute', null)));
     }
 
     public function testBindingDynamicAttributesWithRegisteredCustomType()
@@ -115,11 +112,12 @@ class AttributeResolverServiceTest extends TestCase
             'attribute_id' => 'test_attribute', 'attribute_type' => 'attribute.core.string'
         ]);
 
-        Log::spy();
+        \Illuminate\Support\Facades\Log::spy();
         $attributeResolver = $this->getAttributeResolver();
-        Log::shouldHaveReceived('error',[sprintf("Not registering dynamic attribute %s (database id: %d)
-                     - the attribute name is already in use.", $dynamicAttribute->attribute_id,
-            $dynamicAttribute->id)]);
+        \Illuminate\Support\Facades\Log::shouldHaveReceived('error',[sprintf(
+            "Not registering dynamic attribute %s as it would shadow an existing attribute with the same name.",
+            $dynamicAttribute->attribute_id,
+        )]);
         $this->assertArrayHasKey('test_attribute', $attributeResolver->getSupportedAttributes());
         $attribute = $this->getAttributeResolver()->getAttributeFor('test_attribute', 1);
         $this->assertInstanceOf(IntAttribute::class, $attribute);
@@ -132,15 +130,14 @@ class AttributeResolverServiceTest extends TestCase
             'attribute_id' => 'test_dynamic_attribute', 'attribute_type' => 'nothing'
         ]);
 
+        $this->expectException(AttributeTypeNotRegisteredException::class);
         Log::spy();
         $attributeResolver = $this->getAttributeResolver();
         Log::shouldHaveReceived('error', [
             sprintf("Not registering dynamic attribute %s - has unknown attribute type identifier %s",
                 $dynamicAttribute->attribute_id, $dynamicAttribute->attribute_type)
         ]);
-
-        $attribute = $attributeResolver->getAttributeFor('test_dynamic_attribute', null);
-        $this->assertInstanceOf(StringAttribute::class, $attribute);
+        $this->arrayHasNotKey('test_dynamic_attribute', $attributeResolver->getSupportedAttributes());
     }
 
     public function testAttributeResolution()
@@ -199,9 +196,24 @@ class AttributeResolverServiceTest extends TestCase
             ['test_attribute' => 'nothing']
         );
 
+        // Registering the attribute type will fail, but NOT fatally so.
+        // Registering the attribute should throw an execption because the attribute type is not registered.
         $this->expectException(UnsupportedAttributeTypeException::class);
 
-        // Our custom attribute type isn't valid so we expect an unsupported attribute type exception
+        Log::spy();
         $this->getAttributeResolver();
+        Log::shouldHaveReceived('error', [
+            Log::warning(sprintf(
+                'Not registering attribute type \'%s\', the attribute type was invalid.',
+                'nothing'
+            ))
+        ]);
+        Log::shouldHaveReceived('error',[sprintf(
+            "Not registering attribute %s as it has an unknown type %s, please ensure all "
+            . "custom attribute types are registered.",
+            'test_attribute',
+            'nothing'
+        )]);
+
     }
 }
