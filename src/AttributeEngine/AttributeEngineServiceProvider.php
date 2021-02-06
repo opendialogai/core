@@ -39,7 +39,7 @@ class AttributeEngineServiceProvider extends ServiceProvider
                 $distinctDynamicAttributes = DynamicAttribute::all()->filter(function ($attr) use ($attributeResolver) {
                     if ($attributeResolver->isAttributeSupported($attr->attribute_id)) {
                         Log::error(sprintf("Not registering dynamic attribute %s as it would shadow"
-                            ."an existing attribute with the same name.",
+                            ." an existing attribute with the same name.",
                             $attr->attribute_id));
                         return false;
                     }
