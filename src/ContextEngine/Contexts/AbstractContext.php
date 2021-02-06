@@ -1,11 +1,12 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine\ContextManager;
+namespace OpenDialogAi\ContextEngine\Contexts;
 
 use Ds\Map;
-use OpenDialogAi\AttributeEngine\HasAttributesTrait;
+use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 
-class AbstractContext implements ContextInterface
+class AbstractContext implements Context
 {
     use HasAttributesTrait;
 

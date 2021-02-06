@@ -2,13 +2,11 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\MessageHistory;
 
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
-use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
+use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
-use OpenDialogAi\Core\Utterances\FormResponseUtterance;
-use OpenDialogAi\Core\Utterances\TriggerUtterance;
 use OpenDialogAi\ResponseEngine\Message\HandToSystemMessage;
 
 class MessageHistoryContext extends AbstractContext
@@ -20,7 +18,7 @@ class MessageHistoryContext extends AbstractContext
         parent::__construct(self::MESSAGE_HISTORY_CONTEXT);
     }
 
-    public function getAttribute(string $attributeName): AttributeInterface
+    public function getAttribute(string $attributeName): Attribute
     {
         switch ($attributeName) {
             case 'all':
@@ -38,7 +36,7 @@ class MessageHistoryContext extends AbstractContext
     {
         $messageHistory = [];
 
-        $userId = ContextService::getUserContext()->getUserId();
+        //$userId = ContextService::getUserContext()->getUserId();
 
         $messages = Message::where('user_id', $userId)
             ->orderBy('microtime', 'asc')
@@ -50,9 +48,9 @@ class MessageHistoryContext extends AbstractContext
 
             if ($messageText == '' && isset($message->data['text'])) {
                 $messageText = $message->data['text'];
-            } elseif ($message->type == FormResponseUtterance::TYPE) {
+            } elseif ($message->type == 'form_response') {
                 $messageText = 'Form submitted.';
-            } elseif ($message->type == TriggerUtterance::TYPE) {
+            } elseif ($message->type == 'trigger') {
                 $messageText = '(Trigger message)';
             } elseif ($message->type == HandToSystemMessage::TYPE) {
                 $messageText = '(User was handed over to another system)';

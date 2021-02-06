@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\ContextEngine;
+namespace OpenDialogAi\ContextEngine\ContextService;
 
 use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
 
