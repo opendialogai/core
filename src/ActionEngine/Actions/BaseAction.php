@@ -3,22 +3,26 @@
 namespace OpenDialogAi\ActionEngine\Actions;
 
 use Ds\Map;
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Traits\HasName;
 
-abstract class BaseAction implements ActionInterface
+abstract class BaseAction extends BaseOpenDialogComponent implements ActionInterface
 {
     use HasName;
 
+    protected static string $componentType = BaseOpenDialogComponent::ACTION_COMPONENT_TYPE;
+    protected static string $componentSource = BaseOpenDialogComponent::APP_COMPONENT_SOURCE;
+
     protected static $name = 'action.core.base';
 
-    /** @var string[] */
-    protected $requiredAttributes = [];
+    /** @var array|string[] */
+    protected static $requiredAttributes = [];
 
     /** @var Map */
     protected $inputAttributes = [];
 
-    /** @var Map */
-    protected $outputAttributes = [];
+    /** @var array|string[] */
+    protected static $outputAttributes = [];
 
     /**
      * @inheritdoc
@@ -31,9 +35,9 @@ abstract class BaseAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function getRequiredAttributes(): array
+    public static function getRequiredAttributes(): array
     {
-        return $this->requiredAttributes;
+        return static::$requiredAttributes;
     }
 
     /**
@@ -55,9 +59,9 @@ abstract class BaseAction implements ActionInterface
     /**
      * @inheritdoc
      */
-    public function getOutputAttributes(): Map
+    public static function getOutputAttributes(): array
     {
-        return $this->outputAttributes;
+        return static::$outputAttributes;
     }
 
     /**

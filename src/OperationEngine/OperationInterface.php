@@ -2,7 +2,9 @@
 
 namespace OpenDialogAi\OperationEngine;
 
-interface OperationInterface
+use OpenDialogAi\Core\Components\OpenDialogComponentInterface;
+
+interface OperationInterface extends OpenDialogComponentInterface
 {
     /**
      * Run the operation and return the result. True means all conditions are met
@@ -45,11 +47,18 @@ interface OperationInterface
     public function performOperation(): bool;
 
     /**
-     * Returns an array specifying the allowed parameters for the operations
+     * Returns an array specifying the required attributes argument names for the operation
+     *
+     * @return array|string[]
+     */
+    public static function getRequiredAttributeArgumentNames(): array;
+
+    /**
+     * Returns an array specifying the required parameter argument names for the operation
      *
      * @return array
      */
-    public static function getAllowedParameters(): array;
+    public static function getRequiredParameterArgumentNames(): array;
 
     /**
      * @return string

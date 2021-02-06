@@ -9,6 +9,8 @@ use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeAlreadyRegisteredException;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeInvalidException;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
+use OpenDialogAi\Core\Components\InvalidComponentDataException;
+use OpenDialogAi\Core\Components\MissingRequiredComponentDataException;
 
 class AttributeTypeService implements AttributeTypeServiceInterface
 {
@@ -95,6 +97,7 @@ class AttributeTypeService implements AttributeTypeServiceInterface
     {
         foreach ($attributeTypes as $attributeType) {
             try {
+                $attributeType::getComponentData();
                 $this->registerAttributeType($attributeType);
             } catch (AttributeTypeAlreadyRegisteredException $e) {
                 Log::warning(sprintf(
@@ -107,6 +110,25 @@ class AttributeTypeService implements AttributeTypeServiceInterface
                     'Not registering attribute type \'%s\', the attribute type was invalid.',
                     $attributeType
                 ));
+            } catch (MissingRequiredComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding attribute type %s to list of supported attribute types as it doesn't"
+                            . "have a %s",
+                        $attributeType,
+                        $e->data
+                    )
+                );
+            } catch (InvalidComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding attribute type %s to list of supported attribute types as its given %s"
+                            . " ('%s') is invalid",
+                        $attributeType,
+                        $e->data,
+                        $e->value
+                    )
+                );
             }
         }
     }

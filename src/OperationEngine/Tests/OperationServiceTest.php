@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\OperationEngine\Tests;
 
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+use OpenDialogAi\Core\Components\OpenDialogComponentData;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -113,6 +115,11 @@ EOT;
     {
         $mockOperation = \Mockery::mock(OperationInterface::class);
         $mockOperation->shouldReceive('getName')->andReturn($operationName);
+        $mockOperation->shouldReceive('getComponentData')->andReturn(new OpenDialogComponentData(
+            BaseOpenDialogComponent::OPERATION_COMPONENT_TYPE,
+            BaseOpenDialogComponent::APP_COMPONENT_SOURCE,
+            $operationName
+        ));
 
         return $mockOperation;
     }

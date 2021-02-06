@@ -4,7 +4,7 @@
   "type": "library",
   "license": "Apache-2.0",
   "require": {
-    "php": "^7.3.0",
+    "php": "^7.4.0",
     "symfony/yaml": "^4.3",
     "php-ds/php-ds": "~1.2.",
     "guzzlehttp/guzzle": "~6.3",
@@ -25,8 +25,7 @@
     "barryvdh/laravel-ide-helper": "^2.6",
     "matthewbdaly/artisan-standalone": "^0.0.8",
     "dms/phpunit-arraysubset-asserts": "^0.1.0",
-    "friendsofphp/php-cs-fixer": "^2.15",
-    "phpro/grumphp": "^v0.18.1"
+    "friendsofphp/php-cs-fixer": "^2.15"
   },
   "autoload": {
     "psr-4": {
@@ -52,6 +51,7 @@
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
         "OpenDialogAi\\Core\\Graph\\GraphServiceProvider",
+        "OpenDialogAi\\Core\\Reflection\\ReflectionServiceProvider",
         "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
         "OpenDialogAi\\ConversationEngine\\ConversationEngineServiceProvider",
         "OpenDialogAi\\ConversationLog\\ConversationLogServiceProvider",

@@ -2,11 +2,14 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
+use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class TimePassedEqualsOperation extends BaseOperation
 {
     public static $name  = 'time_passed_equals';
+
+    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 
     /**
      * @inheritDoc
@@ -23,17 +26,5 @@ class TimePassedEqualsOperation extends BaseOperation
             return true;
         }
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'value',
-            ],
-        ];
     }
 }

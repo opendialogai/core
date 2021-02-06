@@ -9,6 +9,8 @@ use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Components\InvalidComponentDataException;
+use OpenDialogAi\Core\Components\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
 
 class ActionEngine implements ActionEngineInterface
@@ -36,12 +38,30 @@ class ActionEngine implements ActionEngineInterface
 
                 /** @var ActionInterface $action */
                 $action = new $supportedAction();
+                $action::getComponentData();
                 $this->registerAction($action);
             } catch (NameNotSetException $exception) {
                 Log::warning(
                     sprintf(
                         "Skipping adding action %s to list of supported actions as it doesn't have a name",
                         $supportedAction
+                    )
+                );
+            } catch (MissingRequiredComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding action %s to list of supported actions as it doesn't have a %s",
+                        $supportedAction,
+                        $e->data
+                    )
+                );
+            } catch (InvalidComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding action %s to list of supported actions as its given %s ('%s') is invalid",
+                        $supportedAction,
+                        $e->data,
+                        $e->value
                     )
                 );
             }
