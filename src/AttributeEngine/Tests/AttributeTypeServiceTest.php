@@ -42,20 +42,20 @@ class AttributeTypeServiceTest extends \Orchestra\Testbench\TestCase
         //$this->assertTrue($attributeTypeService->isAttributeTypeAvailable(ArrayAttribute::$type));
         //$this->assertEquals(ArrayAttribute::class, $attributeTypeService->getAttributeTypeClass(ArrayAttribute::$type));
 
-        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(BooleanAttribute::$attributeType));
-        $this->assertEquals(BooleanAttribute::class, $attributeTypeService->getAttributeTypeClass(BooleanAttribute::$attributeType));
+        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(BooleanAttribute::getComponentId()));
+        $this->assertEquals(BooleanAttribute::class, $attributeTypeService->getAttributeTypeClass(BooleanAttribute::getComponentId()));
 
-        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(FloatAttribute::$attributeType));
-        $this->assertEquals(FloatAttribute::class, $attributeTypeService->getAttributeTypeClass(FloatAttribute::$attributeType));
+        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(FloatAttribute::getComponentId()));
+        $this->assertEquals(FloatAttribute::class, $attributeTypeService->getAttributeTypeClass(FloatAttribute::getComponentId()));
 
-        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(IntAttribute::$attributeType));
-        $this->assertEquals(IntAttribute::class, $attributeTypeService->getAttributeTypeClass(IntAttribute::$attributeType));
+        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(IntAttribute::getComponentId()));
+        $this->assertEquals(IntAttribute::class, $attributeTypeService->getAttributeTypeClass(IntAttribute::getComponentId()));
 
-        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(StringAttribute::$attributeType));
-        $this->assertEquals(StringAttribute::class, $attributeTypeService->getAttributeTypeClass(StringAttribute::$attributeType));
+        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(StringAttribute::getComponentId()));
+        $this->assertEquals(StringAttribute::class, $attributeTypeService->getAttributeTypeClass(StringAttribute::getComponentId()));
 
-        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(TimestampAttribute::$attributeType));
-        $this->assertEquals(TimestampAttribute::class, $attributeTypeService->getAttributeTypeClass(TimestampAttribute::$attributeType));
+        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(TimestampAttribute::getComponentId()));
+        $this->assertEquals(TimestampAttribute::class, $attributeTypeService->getAttributeTypeClass(TimestampAttribute::getComponentId()));
     }
 
     public function testGetUnregisteredAttributeType()
@@ -65,9 +65,9 @@ class AttributeTypeServiceTest extends \Orchestra\Testbench\TestCase
         // attribute.app.custom hasn't been registered so when we try to get the attribute type class
         // we should get this exception
         $this->expectException(AttributeTypeNotRegisteredException::class);
-        $this->assertFalse($attributeTypeService->isAttributeTypeAvailable(ExampleCustomAttributeType::$attributeType));
+        $this->assertFalse($attributeTypeService->isAttributeTypeAvailable(ExampleCustomAttributeType::getComponentId()));
 
-        $attributeTypeService->getAttributeTypeClass(ExampleCustomAttributeType::$attributeType);
+        $attributeTypeService->getAttributeTypeClass(ExampleCustomAttributeType::getComponentId());
     }
 
     public function testRegisterCustomAttributeType()
@@ -76,7 +76,7 @@ class AttributeTypeServiceTest extends \Orchestra\Testbench\TestCase
 
         $attributeTypeService->registerAttributeType(ExampleCustomAttributeType::class);
 
-        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(ExampleCustomAttributeType::$attributeType));
+        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(ExampleCustomAttributeType::getComponentId()));
     }
 
     public function testRegisterCustomAttributeTypeWithUsedId()

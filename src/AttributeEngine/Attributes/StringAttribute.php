@@ -3,13 +3,15 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * StringAttribute implementation.
  */
 class StringAttribute extends BasicScalarAttribute
 {
-    public static $attributeType = 'attribute.core.string';
+    protected static ?string $componentId = 'attribute.core.string';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * StringAttribute constructor.

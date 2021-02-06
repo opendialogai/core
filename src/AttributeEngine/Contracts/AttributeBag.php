@@ -10,17 +10,17 @@ interface AttributeBag
     /**
      * Adds an attribute to the map of attributes
      *
-     * @param AttributeInterface $attribute
+     * @param Attribute $attribute
      */
-    public function addAttribute(AttributeInterface $attribute);
+    public function addAttribute(Attribute $attribute);
 
     /**
      * Tries to get an attribute from attributes if it exists
      *
      * @param $attributeName
-     * @return AttributeInterface
+     * @return Attribute
      */
-    public function getAttribute(string $attributeName): AttributeInterface;
+    public function getAttribute(string $attributeName): Attribute;
 
     /**
      * Tries to get the value of the named attribute
@@ -28,7 +28,7 @@ interface AttributeBag
      * @param string $attributeName
      * @return mixed
      */
-    public function getAttributeValue(string $attributeName): AttributeValueInterface;
+    public function getAttributeValue(string $attributeName): ?AttributeValue;
 
     /**
      * Checks whether the attribute with given name exists

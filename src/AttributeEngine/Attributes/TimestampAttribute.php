@@ -3,13 +3,15 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\AttributeValues\TimestampAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * A TimestampAttribute implementation.
  */
 class TimestampAttribute extends AbstractScalarAttribute
 {
-    public static $attributeType = 'attribute.core.timestamp';
+    protected static ?string $componentId = 'attribute.core.timestamp';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     public function __construct($id, $rawValue = null, ?TimestampAttributeValue $value = null)
     {

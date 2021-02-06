@@ -3,21 +3,24 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
-use OpenDialogAi\AttributeEngine\Contracts\AttributeValue;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * Abstract class implementation of the AttributeInterface.
  */
-abstract class AbstractAttribute implements Attribute
+abstract class AbstractAttribute implements Attribute, OpenDialogComponent
 {
+    use ODComponent;
+
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
 
-    /* @var string $id - a unique id for this attribute class. */
-    protected $id;
+    protected static string $componentType = ODComponentTypes::ATTRIBUTE_TYPE_COMPONENT_TYPE;
 
-    /* @var string $type - one of the valid string types. */
-    public static $attributeType;
+    /* @var string $id - the attribute id. */
+    protected string $id;
 
     /**
      * AbstractAttribute constructor.
@@ -34,7 +37,7 @@ abstract class AbstractAttribute implements Attribute
      */
     public static function getType(): string
     {
-        return static::$attributeType;
+        return static::$componentId;
     }
 
     /**
@@ -64,7 +67,8 @@ abstract class AbstractAttribute implements Attribute
     public function jsonSerialize()
     {
         return [
-            'name' => $this->getId(),
+            'attribute_id' => $this->getId(),
+            'attribute_type_id' => $this->getType(),
             'attributeValue' => json_encode($this->getValue())
         ];
     }

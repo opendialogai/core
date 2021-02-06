@@ -3,14 +3,15 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\AttributeValues\IntAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * Int implementation of Attribute.
  */
 class IntAttribute extends BasicScalarAttribute
 {
-    public static $attributeType = 'attribute.core.int';
-
+    protected static ?string $componentId = 'attribute.core.int';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
     /**
      * IntAttribute constructor.
      *

@@ -3,13 +3,16 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\AttributeValues\BooleanAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * A BooleanAttribute implementation.
  */
 class BooleanAttribute extends BasicScalarAttribute
 {
-    public static $attributeType = 'attribute.core.boolean';
+    protected static ?string $componentId = 'attribute.core.boolean';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+
 
     /**
      * BooleanAttribute constructor.

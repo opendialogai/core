@@ -1,7 +1,7 @@
 <?php
 
 
-namespace OpenDialogAi\Core\Components;
+namespace OpenDialogAi\Core\Components\Contracts;
 
 class OpenDialogComponentData
 {

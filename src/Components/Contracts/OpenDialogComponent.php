@@ -1,16 +1,14 @@
 <?php
 
 
-namespace OpenDialogAi\Core\Components;
+namespace OpenDialogAi\Core\Components\Contracts;
 
-interface OpenDialogComponentInterface
+interface OpenDialogComponent
 {
     /**
      * Returns an object containing relevant information about the component.
      *
      * @return OpenDialogComponentData
-     * @throws MissingRequiredComponentDataException
-     * @throws InvalidComponentDataException
      */
     public static function getComponentData(): OpenDialogComponentData;
 
@@ -28,9 +26,6 @@ interface OpenDialogComponentInterface
 
     /**
      * The type of the OpenDialog component (eg. 'action', 'interpreter', etc).
-     *
-     * @throws MissingRequiredComponentDataException
-     * @throws InvalidComponentDataException
      */
     public static function getComponentType(): string;
 
@@ -39,17 +34,12 @@ interface OpenDialogComponentInterface
      * For now this is a static method meaning the source is predetermined prior to run-time.
      * TODO: In the future this could be an instance method but it would require all components to be instantiated at
      *  registration which does not currently consistently happen across all component types.
-     *
-     * @throws MissingRequiredComponentDataException
-     * @throws InvalidComponentDataException
      */
     public static function getComponentSource(): string;
 
     /**
      * The ID of the OpenDialog component. Depending on the component type this may be a namespaced component ID (such as
      * 'interpreter.core.callback' interpreter) or a regular ID (such as 'eq' operation)
-     *
-     * @throws MissingRequiredComponentDataException
      */
     public static function getComponentId(): string;
 }

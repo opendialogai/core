@@ -3,13 +3,15 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\AttributeValues\FloatAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * Float implementation of Attribute.
  */
 class FloatAttribute extends BasicScalarAttribute
 {
-    public static $attributeType = 'attribute.core.float';
+    protected static ?string $componentId = 'attribute.core.float';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * FloatAttribute constructor.

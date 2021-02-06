@@ -12,8 +12,6 @@ use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
 
 class ExampleCompositeAttribute extends BasicCompositeAttribute
 {
-    public static $attributeType = 'attribute.core.example_composite';
-
     public static function generate(): ExampleCompositeAttribute
     {
         $name = new StringAttribute('name', new StringAttributeValue('Gigi'));

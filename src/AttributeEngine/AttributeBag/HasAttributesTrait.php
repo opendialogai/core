@@ -5,8 +5,7 @@ namespace OpenDialogAi\AttributeEngine\AttributeBag;
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
-use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
-use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeValue;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 
 /**
@@ -106,7 +105,7 @@ trait HasAttributesTrait
     /**
      * @inheritdoc
      */
-    public function getAttributeValue(string $attributeName)
+    public function getAttributeValue(string $attributeName): ?AttributeValue
     {
         if ($this->hasAttribute($attributeName)) {
             return $this->getAttribute($attributeName)->getValue();

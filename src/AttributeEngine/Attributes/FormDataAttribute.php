@@ -3,6 +3,7 @@
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
 use OpenDialogAi\AttributeEngine\AttributeValues\SerializedArrayAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * FormData implementation of Attribute.
@@ -13,7 +14,8 @@ use OpenDialogAi\AttributeEngine\AttributeValues\SerializedArrayAttributeValue;
  */
 class FormDataAttribute extends BasicScalarAttribute
 {
-    public static $attributeType = 'attribute.core.formData';
+    protected static ?string $componentId = 'attribute.core.formData';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * FloatAttribute constructor.
