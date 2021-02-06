@@ -25,16 +25,16 @@ class WebchatSensor extends BaseSensor
 
         $content = $request['content'];
         $utterance = new UtteranceAttribute('utterance');
-        $utterance->setUtteranceAttribute('utterance_platform', 'webchat');
+        $utterance->setPlatform(UtteranceAttribute::WEBCHAT_PLATFORM);
 
         switch ($content['type']) {
-            case 'chat_open':
+            case UtteranceAttribute::CHAT_OPEN:
                 Log::debug('Received webchat open request.');
                 $utterance
-                    ->setUtteranceAttribute('utterance_type', 'chat_open')
-                    ->setUtteranceAttribute('utterance_data', $content['data'])
-                    ->setUtteranceAttribute('callback_id', $content['callback_id'])
-                    ->setUtteranceAttribute('utterance_user_id', $request['user_id']);
+                    ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::CHAT_OPEN)
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA, $content['data'])
+                    ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $content['callback_id'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $request['user_id']);
                 if (isset($content['user'])) {
                     $utterance->setUtteranceAttribute(
                         'utterance_user',
@@ -42,7 +42,7 @@ class WebchatSensor extends BaseSensor
                     );
                 }
                 if (isset($content['data']['value'])) {
-                    $utterance->setUtteranceAttribute('utterance_data', $content['data']['value']);
+                    $utterance->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA_VALUE, $content['data']['value']);
                 }
 
                 return $utterance;
@@ -51,10 +51,10 @@ class WebchatSensor extends BaseSensor
             case 'text':
                 Log::debug('Received webchat message.');
                 $utterance
-                    ->setUtteranceAttribute('utterance_type', 'webchat_message')
-                    ->setUtteranceAttribute('utterance_data', $content['data'])
-                    ->setUtteranceAttribute('utterance_text', $content['data']['text'])
-                    ->setUtteranceAttribute('utterance_user_id', $request['user_id']);
+                    ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE)
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA, $content['data'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_TEXT, $content['data']['text'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $request['user_id']);
                 if (isset($content['user'])) {
                     $utterance->setUtteranceAttribute(
                         'utterance_user',
@@ -67,10 +67,10 @@ class WebchatSensor extends BaseSensor
             case 'trigger':
                 Log::debug('Received webchat trigger message.');
                 $utterance
-                    ->setUtteranceAttribute('utterance_type', 'webchat_trigger')
-                    ->setUtteranceAttribute('utterance_data', $content['data'])
-                    ->setUtteranceAttribute('callback_id', $content['callback_id'])
-                    ->setUtteranceAttribute('utterance_user_id', $request['user_id']);
+                    ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_TRIGGER)
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA, $content['data'])
+                    ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $content['callback_id'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $request['user_id']);
                 if (isset($content['user'])) {
                     $utterance->setUtteranceAttribute(
                         'utterance_user',
@@ -78,7 +78,7 @@ class WebchatSensor extends BaseSensor
                     );
                 }
                 if (isset($content['data']['value'])) {
-                    $utterance->setUtteranceAttribute('utterance_data', $content['data']['value']);
+                    $utterance->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA_VALUE, $content['data']['value']);
                 }
 
                 return $utterance;
@@ -87,10 +87,10 @@ class WebchatSensor extends BaseSensor
             case 'button_response':
                 Log::debug('Received webchat button_response message.');
                 $utterance
-                    ->setUtteranceAttribute('utterance_type', 'webchat_button_response')
-                    ->setUtteranceAttribute('utterance_data', $content['data'])
-                    ->setUtteranceAttribute('callback_id', $content['callback_id'])
-                    ->setUtteranceAttribute('utterance_user_id', $request['user_id']);
+                    ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_BUTTON_RESPONSE)
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA, $content['data'])
+                    ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $content['callback_id'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $request['user_id']);
                 if (isset($content['user'])) {
                     $utterance->setUtteranceAttribute(
                         'utterance_user',
@@ -98,7 +98,7 @@ class WebchatSensor extends BaseSensor
                     );
                 }
                 if (isset($content['data']['value'])) {
-                    $utterance->setUtteranceAttribute('utterance_data', $content['data']['value']);
+                    $utterance->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA_VALUE, $content['data']['value']);
                 }
 
                 return $utterance;
@@ -107,9 +107,9 @@ class WebchatSensor extends BaseSensor
             case 'url_click':
                 Log::debug('Received webchat url_click message.');
                 $utterance
-                    ->setUtteranceAttribute('utterance_type', 'webchat_click')
-                    ->setUtteranceAttribute('utterance_data', $content['data'])
-                    ->setUtteranceAttribute('utterance_user_id', $request['user_id']);
+                    ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_CLICK)
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA, $content['data'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $request['user_id']);
                 if (isset($content['user'])) {
                     $utterance->setUtteranceAttribute(
                         'utterance_user',
@@ -123,9 +123,9 @@ class WebchatSensor extends BaseSensor
             case 'longtext_response':
                 Log::debug('Received webchat longtext_response message.');
                 $utterance
-                    ->setUtteranceAttribute('utterance_type', 'webchat_longtext_response')
-                    ->setUtteranceAttribute('utterance_data', $content['data'])
-                    ->setUtteranceAttribute('utterance_user_id', $request['user_id']);
+                    ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_LONGTEXT_RESPONSE)
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA, $content['data'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $request['user_id']);
                 if (isset($content['user'])) {
                     $utterance->setUtteranceAttribute(
                         'utterance_user',
@@ -139,10 +139,10 @@ class WebchatSensor extends BaseSensor
             case 'form_response':
                 Log::debug('Received webchat form_response message.');
                 $utterance
-                    ->setUtteranceAttribute('utterance_type', 'webchat_form_response')
-                    ->setUtteranceAttribute('utterance_data', $content['data'])
-                    ->setUtteranceAttribute('callback_id', $content['callback_id'])
-                    ->setUtteranceAttribute('utterance_user_id', $request['user_id'])
+                    ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_FORM_RESPONSE)
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA, $content['data'])
+                    ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $content['callback_id'])
+                    ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $request['user_id'])
                     ->setFormValues($content['data']);
                 if (isset($content['user'])) {
                     $utterance->setUtteranceAttribute(

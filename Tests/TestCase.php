@@ -6,6 +6,7 @@ use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
@@ -188,5 +189,16 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function setCustomAttributeTypes(array $customAttributeTypes)
     {
         $this->setConfigValue('opendialog.attribute_engine.custom_attribute_types', $customAttributeTypes);
+    }
+
+    protected function createWebchatMessageUtteranceAttribute(): UtteranceAttribute
+    {
+        $utterance = new UtteranceAttribute('utterance');
+        return $utterance
+            ->setPlatform(UtteranceAttribute::WEBCHAT_PLATFORM)
+            ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_TEXT, 'Hello')
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, '1234');
+
     }
 }
