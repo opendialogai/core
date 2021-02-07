@@ -8,6 +8,7 @@ class Intent extends ConversationObject
 
     public function __construct(Turn $turn)
     {
+        parent::__construct();
         $this->turn = $turn;
     }
 
