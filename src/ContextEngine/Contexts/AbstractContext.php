@@ -6,10 +6,8 @@ use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\ContextEngine\Contracts\Context;
 
-class AbstractContext implements Context
+abstract class AbstractContext implements Context
 {
-    use HasAttributesTrait;
-
     private $id;
 
     public function __construct($id)

@@ -3,9 +3,9 @@
 namespace OpenDialogAi\ContextEngine\Contexts\Intent;
 
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
-use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
+use OpenDialogAi\ContextEngine\Contexts\BaseContext;
 
-class IntentContext extends AbstractContext
+class IntentContext extends BaseContext
 {
     public const INTENT_CONTEXT = '_intent';
 

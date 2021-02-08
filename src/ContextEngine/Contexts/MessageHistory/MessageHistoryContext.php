@@ -4,12 +4,11 @@ namespace OpenDialogAi\ContextEngine\Contexts\MessageHistory;
 
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
-use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
-use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ContextEngine\Contexts\BaseContext;
 use OpenDialogAi\ConversationLog\Message;
 use OpenDialogAi\ResponseEngine\Message\HandToSystemMessage;
 
-class MessageHistoryContext extends AbstractContext
+class MessageHistoryContext extends BaseContext
 {
     public const MESSAGE_HISTORY_CONTEXT = 'message_history';
 

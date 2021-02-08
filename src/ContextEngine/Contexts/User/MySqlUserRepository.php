@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
+use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\ConversationLog\ChatbotUser;
-use OpenDialogAi\Core\Utterances\User;
 
 class MySqlUserRepository
 {
@@ -11,13 +11,13 @@ class MySqlUserRepository
      * Creates a user in mysql using the @see ChatbotUser model.
      * Uses the user id as the
      *
-     * @param User $user
+     * @param UserAttribute $user
      */
-    public static function persistUserToMySql(User $user): void
+    public static function persistUserToMySql(UserAttribute $user): void
     {
         ChatbotUser::updateOrCreate(
             [
-                'user_id' => $user->getId(),
+                'user_id' => $user->getUserId(),
             ],
             [
                 'ip_address' => $user->getIPAddress(),
