@@ -57,9 +57,4 @@ interface OperationInterface
      * @return array
      */
     public static function getRequiredParameterArgumentNames(): array;
-
-    /**
-     * @return string
-     */
-    public static function getName(): string;
 }

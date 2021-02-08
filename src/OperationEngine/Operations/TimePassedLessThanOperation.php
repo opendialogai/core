@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class TimePassedLessThanOperation extends BaseOperation
 {
-    public static $name = 'time_passed_less_than';
+    public static ?string $componentId = 'time_passed_less_than';
 
     protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 

@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class GreaterThanOperation extends BaseOperation
 {
-    public static $name = 'gt';
+    public static ?string $componentId = 'gt';
 
     protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 

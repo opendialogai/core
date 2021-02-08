@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class ExampleOperation extends BaseOperation
 {
-    public static $name = 'example';
+    public static ?string $componentId = 'example';
 
     protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
 

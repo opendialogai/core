@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class EquivalenceOperation extends BaseOperation
 {
-    public static $name = 'eq';
+    public static ?string $componentId = 'eq';
 
     protected static ?string $componentName = 'Equals';
     protected static ?string $componentDescription

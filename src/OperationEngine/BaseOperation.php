@@ -3,11 +3,9 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
 use OpenDialogAi\Core\Components\ODComponent;
 use OpenDialogAi\Core\Components\ODComponentTypes;
-use OpenDialogAi\Core\Traits\HasName;
 
 abstract class BaseOperation implements OperationInterface, OpenDialogComponent
 {
@@ -36,8 +34,6 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
      * @var array
      */
     protected $parameters;
-
-    protected static $name = 'base';
 
     public function __construct($attributes = [], $parameters = [])
     {
