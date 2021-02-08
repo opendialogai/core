@@ -168,17 +168,18 @@ class WebchatSensor extends BaseSensor
      */
     protected function createUser(string $userId, array $userData): UserAttribute
     {
-        $user = new UserAttribute($userId);
-        isset($userData['first_name']) ? $user->setUserAttribute('first_name', $userData['first_name']) : null;
-        isset($userData['last_name']) ? $user->setUserAttribute('last_name', $userData['last_name']) : null;
-        isset($userData['email']) ? $user->setUserAttribute('email', $userData['email']) : null;
-        isset($userData['external_id']) ? $user->setUserAttribute('external_id', $userData['external_id']) : null;
-        isset($userData['ipAddress']) ? $user->setUserAttribute('ipAddress', $userData['ipAddress']) : null;
-        isset($userData['browserLanguage']) ? $user->setUserAttribute('browserLanguage', $userData['browserLanguage']) : null;
-        isset($userData['os']) ? $user->setUserAttribute('os', $userData['os']) : null;
-        isset($userData['browser']) ? $user->setUserAttribute('browser', $userData['browser']) : null;
-        isset($userData['timezone']) ? $user->setUserAttribute('timezone', $userData['timezone']) : null;
-        isset($userData['custom']) ? $user->setUserAttribute('custom', $userData['custom']) : null;
+        $user = new UserAttribute(UtteranceAttribute::UTTERANCE_USER);
+        isset($userData[UserAttribute::FIRST_NAME]) ? $user->setUserAttribute('first_name', $userData['first_name']) : null;
+        isset($userData[UserAttribute::LAST_NAME]) ? $user->setUserAttribute('last_name', $userData['last_name']) : null;
+        isset($userData[UserAttribute::EMAIL]) ? $user->setUserAttribute('email', $userData['email']) : null;
+        isset($userData[UserAttribute::EXTERNAL_ID]) ? $user->setUserAttribute('external_id', $userData['external_id']) : null;
+        isset($userData[UserAttribute::IP_ADDRESS]) ? $user->setUserAttribute('ipAddress', $userData['ipAddress']) : null;
+        isset($userData[UserAttribute::COUNTRY]) ? $user->setUserAttribute('country', $userData['country']) : null;
+        isset($userData[UserAttribute::BROWSER_LANGUAGE]) ? $user->setUserAttribute('browserLanguage', $userData['browserLanguage']) : null;
+        isset($userData[UserAttribute::OS]) ? $user->setUserAttribute('os', $userData['os']) : null;
+        isset($userData[UserAttribute::BROWSER]) ? $user->setUserAttribute('browser', $userData['browser']) : null;
+        isset($userData[UserAttribute::TIMEZONE]) ? $user->setUserAttribute('timezone', $userData['timezone']) : null;
+        isset($userData[UserAttribute::CUSTOM]) ? $user->setUserAttribute(UserAttribute::CUSTOM, $userData['custom']) : null;
 
 
         return $user;
