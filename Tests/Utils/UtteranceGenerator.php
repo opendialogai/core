@@ -3,12 +3,9 @@
 namespace OpenDialogAi\Core\Tests\Utils;
 
 use Faker\Factory;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\User;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatButtonResponseUtterance;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatFormResponseUtterance;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+
 
 /**
  * Static methods to help generating utterances to use in tests
@@ -19,24 +16,20 @@ class UtteranceGenerator
      * If no user is passed in, a random user is generated
      *
      * @param $callbackId
-     * @param User $user
-     * @return WebchatChatOpenUtterance
+     * @param UserAttribute $user
+     * @return UtteranceAttribute
      */
-    public static function generateChatOpenUtterance($callbackId, User $user = null): WebchatChatOpenUtterance
+    public static function generateChatOpenUtterance($callbackId, User $user = null): UtteranceAttribute
     {
         if ($user === null) {
             $user = self::generateUser();
         }
 
-        $utterance = new WebchatChatOpenUtterance();
-        try {
-            $utterance->setCallbackId($callbackId);
-            $utterance->setUser($user);
-            $utterance->setUserId($user->getId());
-        } catch (FieldNotSupported $e) {
-            //
-        }
-
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::CHAT_OPEN)
+            ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $callbackId)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER, $user)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $user->getId());
         return $utterance;
     }
 
@@ -44,24 +37,22 @@ class UtteranceGenerator
      * If no user is passed in, a random user is generated
      *
      * @param $text
-     * @param User $user
-     * @return WebchatTextUtterance
+     * @param UserAttribute $user
+     * @return UtteranceAttribute
      */
-    public static function generateTextUtterance($text = '', $user = null): WebchatTextUtterance
+    public static function generateTextUtterance($text = '', $user = null): UtteranceAttribute
     {
         if ($user === null) {
             $user = self::generateUser();
         }
 
-        $utterance = new WebchatTextUtterance();
-        try {
-            $utterance->setText($text);
-            $utterance->setUser($user);
-            $utterance->setUserId($user->getId());
-        } catch (FieldNotSupported $e) {
-            //
-        }
 
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_PLATFORM, UtteranceAttribute::WEBCHAT_PLATFORM)
+            ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_TEXT, $text)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER, $user)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $user->getId());
         return $utterance;
     }
 
@@ -70,27 +61,24 @@ class UtteranceGenerator
      *
      * @param $callbackId
      * @param $value
-     * @param User $user
-     * @return WebchatButtonResponseUtterance
+     * @param UserAttribute $user
+     * @return UtteranceAttribute
      */
     public static function generateButtonResponseUtterance(
         $callbackId = '',
         $value = '',
         $user = null
-    ): WebchatButtonResponseUtterance {
+    ): UtteranceAttribute {
         if ($user === null) {
             $user = self::generateUser();
         }
 
-        $utterance = new WebchatButtonResponseUtterance();
-        try {
-            $utterance->setCallbackId($callbackId);
-            $utterance->setValue($value);
-            $utterance->setUser($user);
-            $utterance->setUserId($user->getId());
-        } catch (FieldNotSupported $e) {
-            //
-        }
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_BUTTON_RESPONSE)
+            ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $callbackId)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA_VALUE, $value)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER, $user)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $user->getId());
 
         return $utterance;
     }
@@ -100,39 +88,36 @@ class UtteranceGenerator
      *
      * @param $callbackId
      * @param $formValues
-     * @param User $user
-     * @return WebchatFormResponseUtterance
+     * @param UserAttribute $user
+     * @return UtteranceAttribute
      */
     public static function generateFormResponseUtterance(
         $callbackId,
         $formValues,
         $user = null
-    ): WebchatFormResponseUtterance {
+    ): UtteranceAttribute {
         if ($user === null) {
             $user = self::generateUser();
         }
 
-        $utterance = new WebchatFormResponseUtterance();
-        try {
-            $utterance->setCallbackId($callbackId);
-            $utterance->setFormValues($formValues);
-            $utterance->setUser($user);
-            $utterance->setUserId($user->getId());
-        } catch (FieldNotSupported $e) {
-            //
-        }
-
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_FORM_RESPONSE)
+            ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $callbackId)
+            ->setFormValues($formValues)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER, $user)
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $user->getId());
         return $utterance;
     }
 
     /**
-     * @return User
+     * @return UserAttribute
      */
-    public static function generateUser(): User
+    public static function generateUser(): UserAttribute
     {
         $generator = Factory::create();
 
-        $user = new User($generator->uuid);
+        $user = new UserAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $user->setUserId($generator->uuid);
         $user->setFirstName($generator->firstName);
         $user->setLastName($generator->lastName);
         return $user;
