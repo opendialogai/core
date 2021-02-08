@@ -24,8 +24,8 @@ class ResponseEngineServiceProvider extends ServiceProvider
         $this->app->singleton(ResponseEngineServiceInterface::class, function () {
             $service = new ResponseEngineService();
 
-            $operationService = $this->app->make(OperationServiceInterface::class);
-            $service->setOperationService($operationService);
+            //$operationService = $this->app->make(OperationServiceInterface::class);
+            //$service->setOperationService($operationService);
 
             return $service;
         });
