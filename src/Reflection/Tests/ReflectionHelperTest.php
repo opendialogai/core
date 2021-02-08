@@ -39,16 +39,16 @@ class ReflectionHelperTest extends TestCase
 
         $actions = $reflection->getAvailableActions();
         $this->assertCount(1, $actions);
-        $this->assertTrue($actions->hasKey($exampleAction::getName()));
-        $this->assertEquals($exampleAction, $actions->get($exampleAction::getName()));
+        $this->assertTrue($actions->hasKey($exampleAction::getComponentId()));
+        $this->assertEquals($exampleAction, $actions->get($exampleAction::getComponentId()));
 
         $this->assertArraySubset([
             'available_actions' => [
-                $exampleAction::getName() => [
+                $exampleAction::getComponentId() => [
                     'component_data' => [
                         'type' => 'action',
                         'source' => 'app',
-                        'id' => $exampleAction::getName(),
+                        'id' => $exampleAction::getComponentId(),
                         'name' => 'Example action',
                         'description' => 'Just an example action.',
                     ],
@@ -243,7 +243,7 @@ class ReflectionHelperTest extends TestCase
         $numberOfCoreInterpreters = count($interpreterService->getAvailableInterpreters());
         $this->assertCount($numberOfCoreInterpreters, $interpreters);
 
-        $interpreterId = DummyInterpreter::getName();
+        $interpreterId = DummyInterpreter::getComponentId();
         $interpreterService->registerAvailableInterpreters([
             DummyInterpreter::class
         ]);
@@ -327,7 +327,7 @@ class ReflectionHelperTest extends TestCase
         $numberOfCoreOperations = count($operationService->getAvailableOperations());
         $this->assertCount($numberOfCoreOperations, $operations);
 
-        $operationId = DummyOperation::getName();
+        $operationId = DummyOperation::getComponentId();
         $operationService->registerAvailableOperations([
             DummyOperation::class
         ]);
@@ -393,8 +393,8 @@ class ReflectionHelperTest extends TestCase
         $formatters = $reflection->getAvailableFormatters();
         $this->assertCount($numberOfCoreFormatters + 1, $formatters);
 
-        $this->assertTrue($formatters->hasKey($formatter::getName()));
-        $this->assertEquals($formatter, $formatters->get($formatter::getName()));
+        $this->assertTrue($formatters->hasKey($formatter::getComponentId()));
+        $this->assertEquals($formatter, $formatters->get($formatter::getComponentId()));
 
         $this->assertArraySubset([
             'available_formatters' => [
@@ -427,11 +427,11 @@ class ReflectionHelperTest extends TestCase
                         ],
                     ]
                 ],
-                $formatter::getName() => [
+                $formatter::getComponentId() => [
                     'component_data' => [
                         'type' => 'formatter',
                         'source' => 'app',
-                        'id' => $formatter::getName(),
+                        'id' => $formatter::getComponentId(),
                         'name' => 'Example formatter',
                         'description' => 'Just an example formatter.',
                     ],
@@ -460,8 +460,8 @@ class ReflectionHelperTest extends TestCase
         $sensors = $reflection->getAvailableSensors();
         $this->assertCount($numberOfCoreSensors + 1, $sensors);
 
-        $this->assertTrue($sensors->hasKey($sensor::getName()));
-        $this->assertEquals($sensor, $sensors->get($sensor::getName()));
+        $this->assertTrue($sensors->hasKey($sensor::getComponentId()));
+        $this->assertEquals($sensor, $sensors->get($sensor::getComponentId()));
 
         $this->assertArraySubset([
             'available_sensors' => [
@@ -485,11 +485,11 @@ class ReflectionHelperTest extends TestCase
                         ],
                     ]
                 ],
-                $sensor::getName() => [
+                $sensor::getComponentId() => [
                     'component_data' => [
                         'type' => 'sensor',
                         'source' => 'app',
-                        'id' => $sensor::getName(),
+                        'id' => $sensor::getComponentId(),
                         'name' => 'Example sensor',
                         'description' => 'Just an example sensor.',
                     ],
