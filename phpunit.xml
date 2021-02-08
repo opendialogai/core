@@ -84,6 +84,12 @@
         <env name="PACKAGE_NAME" value="TestDialog"/>
         <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
         <env name="API_LOG_TO_DB" value="true"/>
+        <env name="DGRAPH_URL" value="http://10.0.2.2"/>
+        <env name="DGRAPH_PORT" value="8080"/>
+        <env name="DGRAPH_API_KEY" value=""/>
+        <env name="OVERWRITE_DGRAPH_URL" value="true"/>
+        <env name="OVERWRITE_DGRAPH_PORT" value="true"/>
+        <env name="DGRAPH_API_KEY" value="true"/>
     </php>
     <logging>
         <log type="coverage-text" target="build/coverage.txt"/>
