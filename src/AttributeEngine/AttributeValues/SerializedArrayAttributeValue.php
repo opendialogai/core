@@ -5,7 +5,7 @@ namespace OpenDialogAi\AttributeEngine\AttributeValues;
 
 class SerializedArrayAttributeValue extends AbstractAttributeValue
 {
-    public static $attributeValueType = 'attributeValue.core.serializedArray';
+    public static $attributeValueType = 'attribute_value.core.serialized_array';
 
     public function setRawValue($rawValue)
     {

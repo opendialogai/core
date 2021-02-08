@@ -5,7 +5,7 @@ namespace OpenDialogAi\AttributeEngine\AttributeValues;
 
 class FloatAttributeValue extends AbstractAttributeValue
 {
-    public static $attributeValueType = 'attributeValue.core.float';
+    public static $attributeValueType = 'attribute_value.core.float';
 
     public function getTypedValue()
     {

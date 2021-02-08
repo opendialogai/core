@@ -5,7 +5,7 @@ namespace OpenDialogAi\AttributeEngine\AttributeValues;
 
 class IntAttributeValue extends AbstractAttributeValue
 {
-    public static $attributeValueType = 'attributeValue.core.int';
+    public static $attributeValueType = 'attribute_value.core.int';
 
     public function getTypedValue()
     {

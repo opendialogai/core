@@ -5,7 +5,7 @@ namespace OpenDialogAi\AttributeEngine\AttributeValues;
 
 class StringAttributeValue extends AbstractAttributeValue
 {
-    public static $attributeValueType = 'attributeValue.core.string';
+    public static $attributeValueType = 'attribute_value.core.string';
 
     public function getTypedValue()
     {

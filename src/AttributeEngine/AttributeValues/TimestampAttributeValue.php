@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class TimestampAttributeValue extends AbstractAttributeValue
 {
-    public static $attributeValueType = 'attributeValue.core.timestamp';
+    public static $attributeValueType = 'attribute_value.core.timestamp';
 
     public function getTypedValue()
     {

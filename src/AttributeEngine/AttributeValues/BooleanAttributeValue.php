@@ -5,7 +5,7 @@ namespace OpenDialogAi\AttributeEngine\AttributeValues;
 
 class BooleanAttributeValue extends AbstractAttributeValue
 {
-    public static $attributeValueType = 'attributeValue.core.boolean';
+    public static $attributeValueType = 'attribute_value.core.boolean';
 
     public function getTypedValue()
     {
