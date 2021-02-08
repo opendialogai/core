@@ -2,14 +2,10 @@
 
 namespace OpenDialogAi\SensorEngine\Tests;
 
-use OpenDialogAi\Core\SensorEngine\Tests\WebchatSensorTestBase;
+use OpenDialogAi\Core\Tests\TestCase;
 
-class IncomingWebchatEndpointTest extends WebchatSensorTestBase
+class IncomingWebchatEndpointTest extends TestCase
 {
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
 
     /**
      * Test top-level parameter validation.
@@ -21,9 +17,11 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
             'notification' => 'message',
             'user_id' => 'someuser',
         ]);
+
         $response
             ->assertStatus(422)
             ->assertJson(['errors' => ['author' => ['The author field is required.']]]);
+
 
         // Ensure that the user_id field is required.
         $response = $this->json('POST', '/incoming/webchat', [
@@ -110,11 +108,38 @@ class IncomingWebchatEndpointTest extends WebchatSensorTestBase
         $response = $this->json('POST', '/incoming/webchat', $this->generateResponseMessage('text', [
             'text' => 'test'
         ]));
-
         $response
             ->assertStatus(200)
             ->assertJson(['data' => ['text' => 'No messages found for intent intent.core.NoMatchResponse']]);
 
         //@todo full valid tests need to mock ODController responses.
+    }
+
+    protected function generateResponseMessage($type, $data, $callbackId = null): array
+    {
+        $arr = [
+            'notification' => 'message',
+            'user_id' => 'someuser',
+            'author' => 'me',
+            'content' => [
+                'author' => 'me',
+                'type' => $type,
+                'data' => $data,
+                'user' => [
+                    'ipAddress' => '127.0.0.1',
+                    'country' => 'UK',
+                    'browserLanguage' => 'en-gb',
+                    'os' => 'macos',
+                    'browser' => 'safari',
+                    'timezone' => 'GMT',
+                ],
+            ],
+        ];
+
+        if ($callbackId) {
+            $arr['content']['callback_id'] = $callbackId;
+        }
+
+        return $arr;
     }
 }
