@@ -13,7 +13,7 @@ use OpenDialogAi\InterpreterEngine\BaseInterpreter;
  */
 class TestAgeInterpreter extends BaseInterpreter
 {
-    protected static $name = 'interpreter.test.age';
+    protected static ?string $componentId = 'interpreter.test.age';
 
     /**
      * @inheritdoc

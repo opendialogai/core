@@ -14,7 +14,7 @@ use OpenDialogAi\InterpreterEngine\QnA\QnAResponse;
 
 class QnAInterpreter extends BaseInterpreter
 {
-    protected static $name = 'interpreter.core.qna';
+    protected static ?string $componentId = 'interpreter.core.qna';
 
     /** @var QnAClient */
     private $client;

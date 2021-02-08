@@ -4,8 +4,10 @@ namespace OpenDialogAi\InterpreterEngine\Service;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
@@ -128,14 +130,13 @@ class InterpreterService implements InterpreterServiceInterface
      * Loops through all available interpreters from config, and creates a local array keyed by the name of the
      * interpreter
      *
-     * @param $interpreters InterpreterInterface[]
+     * @param $interpreters BaseInterpreter[]
      */
     public function registerAvailableInterpreters($interpreters): void
     {
-        /** @var InterpreterInterface $interpreter */
         foreach ($interpreters as $interpreter) {
             try {
-                $name = $interpreter::getName();
+                $name = $interpreter::getComponentId();
 
                 if ($this->isValidName($name)) {
                     $this->availableInterpreters[$name] = new $interpreter();
@@ -144,7 +145,7 @@ class InterpreterService implements InterpreterServiceInterface
                         sprintf("Not adding interpreter with name %s. Name is in wrong format", $name)
                     );
                 }
-            } catch (InterpreterNameNotSetException $e) {
+            } catch (MissingRequiredComponentDataException $e) {
                 Log::warning(
                     sprintf("Not adding interpreter %s. It has not defined a name", $interpreter)
                 );

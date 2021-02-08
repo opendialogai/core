@@ -13,7 +13,7 @@ use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 
 class CallbackInterpreter extends BaseInterpreter
 {
-    protected static $name = 'interpreter.core.callbackInterpreter';
+    protected static ?string $componentId = 'interpreter.core.callbackInterpreter';
 
     /**
      * @var array - the callbacks supported by the application.

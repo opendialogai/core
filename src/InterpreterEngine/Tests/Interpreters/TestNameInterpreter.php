@@ -14,7 +14,7 @@ use OpenDialogAi\InterpreterEngine\BaseInterpreter;
  */
 class TestNameInterpreter extends BaseInterpreter
 {
-    protected static $name = 'interpreter.test.name';
+    protected static ?string $componentId = 'interpreter.test.name';
 
     /**
      * @inheritdoc
