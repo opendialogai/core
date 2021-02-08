@@ -6,6 +6,7 @@ use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
 use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
+use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Components\ODComponentTypes;
 
@@ -30,6 +31,7 @@ class UtteranceAttribute extends BasicCompositeAttribute
     public const UTTERANCE_TEXT = 'utterance_text';
     public const CALLBACK_ID = 'callback_id';
     public const UTTERANCE_DATA_VALUE = 'utterance_value';
+    public const UTTERANCE_FORM_DATA = 'utterance_form_data';
     public const UTTERANCE_USER_ID = 'utterance_user_id';
     public const UTTERANCE_USER = 'utterance_user';
 
@@ -57,7 +59,23 @@ class UtteranceAttribute extends BasicCompositeAttribute
 
     public function getUtteranceAttribute(string $type)
     {
-        return $this->getAttribute($type)->getValue();
+        if ($this->hasAttribute($type)) {
+            $attribute = $this->getAttribute($type);
+            if ($attribute instanceof CompositeAttribute) {
+                return $attribute;
+            } elseif ($attribute instanceof ScalarAttribute) {
+                return $this->getAttribute($type)->getValue();
+            }
+        }
+
+        // @todo - might make more sense to return null or through an exception but for now
+        // going down the more permissive path
+        return '';
+    }
+
+    public function getUtteranceType()
+    {
+        return $this->getUtteranceAttribute(self::TYPE);
     }
 
     public function getPlatform()
@@ -73,7 +91,7 @@ class UtteranceAttribute extends BasicCompositeAttribute
 
     public function getFormValues()
     {
-        return $this->getUtteranceAttribute('utterance_form_data');
+        return $this->getUtteranceAttribute(self::UTTERANCE_FORM_DATA);
     }
 
     public function setFormValues(array $formValues)
@@ -84,7 +102,7 @@ class UtteranceAttribute extends BasicCompositeAttribute
                 $newFormValues[$name] = $value;
             }
         }
-        $this->setUtteranceAttribute('utterance_form_data', $newFormValues);
+        $this->setUtteranceAttribute(self::UTTERANCE_FORM_DATA, $newFormValues);
         return $this;
     }
 
@@ -101,5 +119,15 @@ class UtteranceAttribute extends BasicCompositeAttribute
     public function getUser()
     {
         return $this->getUtteranceAttribute(self::UTTERANCE_USER);
+    }
+
+    public function getText()
+    {
+        return $this->getUtteranceAttribute(self::UTTERANCE_TEXT);
+    }
+
+    public function getData()
+    {
+        return $this->getUtteranceAttribute(self::UTTERANCE_DATA);
     }
 }

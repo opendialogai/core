@@ -57,10 +57,16 @@ return [
         'utterance_platform' => StringAttribute::class,
         'utterance_type' => StringAttribute::class,
         'utterance_data' => FormDataAttribute::class,
+        'utterance_value' => StringAttribute::class,
         'utterance_form_data' => FormDataAttribute::class,
         'utterance_text' => StringAttribute::class,
         'callback_id'=> StringAttribute::class,
         'utterance_user_id' => StringAttribute::class,
-        'utterance_user' => UserAttribute::class
+        'utterance_user' => UserAttribute::class,
+
+        // User
+        'incoming_user' => UserAttribute::class,
+        'current_user' => UserAttribute::class,
+        'custom_parameters' => FormDataAttribute::class,
     ],
 ];

@@ -5,7 +5,6 @@ namespace OpenDialogAi\AttributeEngine\AttributeResolver;
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
@@ -31,7 +30,7 @@ class AttributeResolver
     }
 
     /**
-     * @return AttributeInterface[]
+     * @return Attribute[]
      */
     public function getSupportedAttributes()
     {
@@ -41,7 +40,7 @@ class AttributeResolver
     /**
      * Registers an array of attributes. The original set of attributes is preserved so this can be run multiple times
      *
-     * @param $attributes string[]|AttributeInterface[] Array of attribute class names
+     * @param $attributes string[]|Attribute[] Array of attribute class names
      * @throws UnsupportedAttributeTypeException
      */
     public function registerAttributes(array $attributes): void
@@ -81,7 +80,7 @@ class AttributeResolver
      * @param $value
      * @return Attribute
      */
-    public function getAttributeFor(string $attributeId, $rawValue = null, AttributeValue $value = null)
+    public function getAttributeFor(string $attributeId, $rawValue = null, AttributeValue $value = null): Attribute
     {
         if ($this->isAttributeSupported($attributeId)) {
             // First instantiate the attribute so we can see what type it is and construct appropriately.
