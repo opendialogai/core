@@ -3,12 +3,12 @@
 namespace OpenDialogAi\ContextEngine\Tests\Contexts;
 
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
-use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
+use OpenDialogAi\ContextEngine\Contexts\Custom\BaseCustomContext;
 
 /**
  * Just used for tests
  */
-class DummyCustomContext extends AbstractCustomContext
+class DummyCustomContext extends BaseCustomContext
 {
     public static $name = 'dummy_context';
 

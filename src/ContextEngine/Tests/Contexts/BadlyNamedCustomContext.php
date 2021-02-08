@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\ContextEngine\Tests\Contexts;
 
-use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
+use OpenDialogAi\ContextEngine\Contexts\Custom\BaseCustomContext;
 
-class BadlyNamedCustomContext extends AbstractCustomContext
+class BadlyNamedCustomContext extends BaseCustomContext
 {
     public function loadAttributes(): void
     {

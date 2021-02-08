@@ -3,7 +3,7 @@
 return [
     /**
      * Register your custom contexts here. Custom contexts must extend
-     * @see \OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext
+     * @see \OpenDialogAi\ContextEngine\Contexts\Custom\BaseCustomContext
      *
      * Custom contexts are used to make available application specific attributes that are externally managed
      */

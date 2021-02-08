@@ -14,7 +14,7 @@ use OpenDialogAi\ContextEngine\Contexts\BaseContext;
  * They should be registered in the 'custom_contexts' section of the opendialog-contextengine config file
  *
  * The Context Manager will loop though all registered custom contexts, instantiate them and call the
- * @see AbstractCustomContext::loadAttributes() method to make the custom context attributes available to the application
+ * @see BaseCustomContext::loadAttributes() method to make the custom context attributes available to the application
  */
 abstract class BaseCustomContext extends BaseContext
 {
@@ -26,7 +26,7 @@ abstract class BaseCustomContext extends BaseContext
     public static $name = '';
 
     /**
-     * AbstractCustomContext constructor.
+     * BaseCustomContext constructor.
      */
     public function __construct()
     {
