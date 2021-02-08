@@ -3,18 +3,18 @@
 namespace OpenDialogAi\Core\Reflection\Reflections;
 
 use Ds\Map;
-use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
+use OpenDialogAi\ContextEngine\Contracts\ContextService;
 
 class ContextEngineReflection implements ContextEngineReflectionInterface
 {
-    /** @var ContextServiceInterface */
+    /** @var ContextService */
     private $contextService;
 
     /**
      * ContextEngineReflection constructor.
-     * @param ContextServiceInterface $contextService
+     * @param ContextService $contextService
      */
-    public function __construct(ContextServiceInterface $contextService)
+    public function __construct(ContextService $contextService)
     {
         $this->contextService = $contextService;
     }
