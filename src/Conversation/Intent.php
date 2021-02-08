@@ -4,9 +4,9 @@ namespace OpenDialogAi\Core\Conversation;
 
 class Intent extends ConversationObject
 {
-    protected Turn $turn;
+    protected ?Turn $turn;
 
-    public function __construct(Turn $turn)
+    public function __construct(Turn $turn = null)
     {
         parent::__construct();
         $this->turn = $turn;
