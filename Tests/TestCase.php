@@ -6,6 +6,7 @@ use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
 use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
@@ -35,6 +36,19 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
+        if ($overwriteDgraphUrl = getenv("OVERWRITE_DGRAPH_URL")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
+        }
+
+        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
+        }
+
+        if ($overwriteDgraphAPIKey = getenv("OVERWRITE_DGRAPH_PORT")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_API_KEY', $overwriteDgraphAPIKey);
+        }
+
+
         if (!defined('LARAVEL_START')) {
             define('LARAVEL_START', microtime(true));
         }
@@ -59,9 +73,9 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         return [
             CoreServiceProvider::class,
-//            ActionEngineServiceProvider::class,
+            ActionEngineServiceProvider::class,
 //            ConversationBuilderServiceProvider::class,
-//            ConversationEngineServiceProvider::class,
+            ConversationEngineServiceProvider::class,
             ConversationLogServiceProvider::class,
             ResponseEngineServiceProvider::class,
             AttributeEngineServiceProvider::class,
@@ -194,11 +208,17 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function createWebchatMessageUtteranceAttribute(): UtteranceAttribute
     {
         $utterance = new UtteranceAttribute('utterance');
+
+        $utteranceUser = new UserAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utteranceUser->setUserAttribute(UserAttribute::FIRST_NAME, 'Jean-Luc');
+        $utteranceUser->setUserAttribute(UserAttribute::LAST_NAME, 'Picard');
+        $utteranceUser->setUserAttribute(UserAttribute::EMAIL, 'picard@enterprise.federation');
+
         return $utterance
             ->setPlatform(UtteranceAttribute::WEBCHAT_PLATFORM)
             ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE)
             ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_TEXT, 'Hello')
-            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, '1234');
-
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, '1234')
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER, $utteranceUser);
     }
 }

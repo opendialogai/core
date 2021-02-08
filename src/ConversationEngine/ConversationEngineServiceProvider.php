@@ -10,6 +10,7 @@ use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationQueryFac
 use OpenDialogAi\ConversationEngine\ConversationStore\DGraphConversationStore;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelToGraphConverter;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreator;
+use OpenDialogAi\Core\Conversation\ConversationDataClient;
 use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
@@ -22,37 +23,12 @@ class ConversationEngineServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app->singleton(EIModelCreator::class);
-
-        $this->app->singleton(ConversationQueryFactoryInterface::class, function () {
-            return new DGraphConversationQueryFactory();
-        });
-
-        $this->app->singleton(ConversationStoreInterface::class, function () {
-            return new DGraphConversationStore(
-                $this->app->make(DGraphClient::class),
-                $this->app->make(EIModelCreator::class),
-                $this->app->make(ConversationQueryFactoryInterface::class),
-                $this->app->make(EIModelToGraphConverter::class)
+        $this->app->singleton(ConversationDataClient::class, function () {
+            return new ConversationDataClient(
+                config('opendialog.core.DGRAPH_URL'),
+                config('opendialog.core.DGRAPH_PORT'),
+                config('opendialog.core.DGRAPH_API_KEY'),
             );
-        });
-
-        $this->app->singleton(EIModelToGraphConverter::class);
-
-        $this->app->singleton(ConversationEngineInterface::class, function () {
-            $conversationEngine = new ConversationEngine();
-            $conversationEngine->setConversationStore($this->app->make(ConversationStoreInterface::class));
-
-            $interpreterService = $this->app->make(InterpreterServiceInterface::class);
-            $conversationEngine->setInterpreterService($interpreterService);
-
-            $operationService = $this->app->make(OperationServiceInterface::class);
-            $conversationEngine->setOperationService($operationService);
-
-            $actionEngine = $this->app->make(ActionEngineInterface::class);
-            $conversationEngine->setActionEngine($actionEngine);
-
-            return $conversationEngine;
         });
     }
 }
