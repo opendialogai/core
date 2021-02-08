@@ -12,6 +12,7 @@ use OpenDialogAi\ContextEngine\ParsedAttributeName;
 use OpenDialogAi\Core\Components\InvalidComponentDataException;
 use OpenDialogAi\Core\Components\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\OperationEngine\BaseOperation;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
 use OpenDialogAi\OperationEngine\Operations\IsSetOperation;
@@ -63,10 +64,10 @@ class OperationService implements OperationServiceInterface
      */
     public function registerAvailableOperations($operations): void
     {
-        /** @var OperationInterface $operation */
+        /** @var BaseOperation $operation */
         foreach ($operations as $operation) {
             try {
-                $name = $operation::getName();
+                $name = $operation::getComponentId();
 
                 /** @var OperationInterface $registeredOperation */
                 $registeredOperation = new $operation();

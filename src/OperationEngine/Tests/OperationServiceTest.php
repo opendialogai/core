@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\OperationEngine\Tests;
 
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Components\OpenDialogComponentData;
 use OpenDialogAi\Core\Controllers\OpenDialogController;

@@ -2,14 +2,14 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class ExampleOperation extends BaseOperation
 {
     public static ?string $componentId = 'example';
 
-    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     protected static array $requiredParametersArgumentNames = [
         'start_value',

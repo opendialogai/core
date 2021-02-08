@@ -2,14 +2,14 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class NotInSetOperation extends BaseOperation
 {
     public static ?string $componentId  = 'not_in_set';
 
-    protected static string $componentSource = BaseOpenDialogComponent::CORE_COMPONENT_SOURCE;
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * @inheritDoc
