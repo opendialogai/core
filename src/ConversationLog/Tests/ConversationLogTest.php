@@ -164,6 +164,7 @@ class ConversationLogTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      *
      * Test that incoming & outgoing messages are logged.
      */
@@ -217,6 +218,7 @@ class ConversationLogTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testInternalProperty()
     {

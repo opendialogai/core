@@ -16,6 +16,7 @@ class ConversationContextTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationalContextNewUser()
     {
@@ -35,6 +36,7 @@ class ConversationContextTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationalContextOnGoingUser()
     {
@@ -83,16 +85,16 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: hello_bot
-        - b: 
+        - b:
             i: hello_user
             scene: scene2
     scene2:
       intents:
-        - u: 
+        - u:
             i: how_are_you
-        - b: 
+        - b:
             i: doing_dandy
             scene: scene3
     scene3:

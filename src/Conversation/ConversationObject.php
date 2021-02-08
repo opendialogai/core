@@ -118,7 +118,9 @@ class ConversationObject
      */
     public function hasConditions(): bool
     {
-        if ($this->conditions->isEmpty()) return false;
+        if ($this->conditions->isEmpty()) {
+            return false;
+        }
 
         return true;
     }
@@ -138,7 +140,9 @@ class ConversationObject
      */
     public function hasBehaviors(): bool
     {
-        if ($this->behaviors->isEmpty()) return false;
+        if ($this->behaviors->isEmpty()) {
+            return false;
+        }
 
         return true;
     }

@@ -32,6 +32,9 @@ class ConditionTest extends TestCase
         $this->operationService = app()->make(OperationServiceInterface::class);
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionEvaluationOperation()
     {
         $parameters = [ 'value' => true ];
@@ -41,6 +44,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($condition->getEvaluationOperation() == EquivalenceOperation::$name);
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionEquivalenceComparison()
     {
         $parameters = [ 'value' => true ];
@@ -60,6 +66,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionGreaterThanComparison()
     {
         $parameters = [ 'value' => 2 ];
@@ -81,6 +90,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionLessThanComparison()
     {
         $parameters = [ 'value' => 0 ];
@@ -102,6 +114,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionGreaterThanOrEqualComparison()
     {
         $parameters = [ 'value' => 1.8 ];
@@ -123,6 +138,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionLessThanOrEqualComparison()
     {
         $parameters = [ 'value' => 1.2 ];
@@ -144,6 +162,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionInSetComparison()
     {
         $parameters = [ 'value' => 'baz' ];
@@ -165,6 +186,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionNotInSetComparison()
     {
         $parameters = [ 'value' => 'foo' ];
@@ -186,6 +210,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionIsSetComparison()
     {
         $parameters = [ 'value' => null ];
@@ -205,6 +232,9 @@ class ConditionTest extends TestCase
         $this->assertTrue($operation->execute());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionIsNotSetComparison()
     {
         $parameters = [ 'value' => null ];

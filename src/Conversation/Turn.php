@@ -15,7 +15,9 @@ class Turn extends ConversationObject
 
     public function hasIntents(): bool
     {
-        if ($this->intents->isNotEmpty()) return true;
+        if ($this->intents->isNotEmpty()) {
+            return true;
+        }
 
         return false;
     }

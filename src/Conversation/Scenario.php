@@ -17,7 +17,9 @@ class Scenario extends ConversationObject
 
     public function hasConversations(): bool
     {
-        if ($this->conversations->isEmpty()) return false;
+        if ($this->conversations->isEmpty()) {
+            return false;
+        }
 
         return true;
     }

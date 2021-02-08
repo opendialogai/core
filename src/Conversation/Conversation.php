@@ -15,7 +15,9 @@ class Conversation extends ConversationObject
 
     public function hasScenes():bool
     {
-        if ($this->scenes->isNotEmpty()) return true;
+        if ($this->scenes->isNotEmpty()) {
+            return true;
+        }
 
         return false;
     }

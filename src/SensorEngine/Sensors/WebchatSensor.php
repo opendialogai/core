@@ -175,7 +175,8 @@ class WebchatSensor extends BaseSensor
         isset($userData[UserAttribute::EXTERNAL_ID]) ? $user->setUserAttribute('external_id', $userData['external_id']) : null;
         isset($userData[UserAttribute::IP_ADDRESS]) ? $user->setUserAttribute('ipAddress', $userData['ipAddress']) : null;
         isset($userData[UserAttribute::COUNTRY]) ? $user->setUserAttribute('country', $userData['country']) : null;
-        isset($userData[UserAttribute::BROWSER_LANGUAGE]) ? $user->setUserAttribute('browserLanguage', $userData['browserLanguage']) : null;
+        isset($userData[UserAttribute::BROWSER_LANGUAGE]) ?
+            $user->setUserAttribute('browserLanguage', $userData['browserLanguage']) : null;
         isset($userData[UserAttribute::OS]) ? $user->setUserAttribute('os', $userData['os']) : null;
         isset($userData[UserAttribute::BROWSER]) ? $user->setUserAttribute('browser', $userData['browser']) : null;
         isset($userData[UserAttribute::TIMEZONE]) ? $user->setUserAttribute('timezone', $userData['timezone']) : null;

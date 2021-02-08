@@ -15,7 +15,9 @@ class Scene extends ConversationObject
 
     public function hasTurns(): bool
     {
-        if ($this->turns->isNotEmpty()) return true;
+        if ($this->turns->isNotEmpty()) {
+            return true;
+        }
 
         return false;
     }

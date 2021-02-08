@@ -36,7 +36,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     public function getMessageForIntent(string $platform, string $intentName): OpenDialogMessages
     {
         $this->registerAvailableFormatters();
-dump("This is the platfom   ". $platform);
+
         try {
             $formatter = $this->getFormatter("formatter.core.{$platform}");
         } catch (FormatterNotRegisteredException $e) {

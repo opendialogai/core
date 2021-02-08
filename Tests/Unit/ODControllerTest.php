@@ -15,6 +15,9 @@ class ODControllerTest extends TestCase
         $this->assertEquals(OpenDialogController::class, get_class($this->app->make(OpenDialogController::class)));
     }
 
+    /**
+     * @group skip
+     */
     public function testODTemp()
     {
         $od = $this->app->make(OpenDialogController::class);
@@ -24,6 +27,9 @@ class ODControllerTest extends TestCase
 
     }
 
+    /**
+     * @group skip
+     */
     public function testConnectToDgraph()
     {
         $dataClient = $this->app->make(ConversationDataClient::class);

@@ -9,6 +9,9 @@ use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
 class ConversationLogFieldsTest extends TestCase
 {
+    /**
+     * @group skip
+     */
     public function testMessageFields()
     {
         $utterance = UtteranceGenerator::generateTextUtterance('hello?');

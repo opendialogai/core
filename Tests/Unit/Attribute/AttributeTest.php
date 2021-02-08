@@ -18,7 +18,7 @@ class AttributeTest extends TestCase
         $a = new BooleanAttribute('a', false);
         $this->assertEquals($a->toString(), 'false');
 
-        $a->setValue(true);
+        $a->setRawValue(true);
         $this->assertEquals($a->toString(), 'true');
 
         $b = new IntAttribute('b', 50);

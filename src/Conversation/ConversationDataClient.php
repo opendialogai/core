@@ -22,7 +22,8 @@ class ConversationDataClient
         $this->api = $api;
     }
 
-    public function exampleGQLQuery(){
+    public function exampleGQLQuery()
+    {
         return $array =  [
             "query" => "
 query Scenarios {

@@ -101,6 +101,7 @@ class IncomingWebchatEndpointTest extends TestCase
 
     /**
      * Test message response.
+     * @group skip
      */
     public function testMessageResponse()
     {

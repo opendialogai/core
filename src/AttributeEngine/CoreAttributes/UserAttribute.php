@@ -181,7 +181,9 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function hasConversationRecord(): bool
     {
-        if ($this->hasAttribute(self::LAST_RECORD)) return true;
+        if ($this->hasAttribute(self::LAST_RECORD)) {
+            return true;
+        }
 
         return false;
     }
