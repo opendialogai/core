@@ -2,8 +2,9 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
-use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeBag;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 
 /**
  * An action result
@@ -17,7 +18,7 @@ class ActionResult
     public function __construct($success)
     {
         $this->success = $success;
-        $this->attributes = new AttributeBag();
+        $this->attributes = new BasicAttributeBag();
     }
 
     /**
@@ -30,7 +31,7 @@ class ActionResult
     }
 
     /**
-     * @param AttributeInterface[] $attributes
+     * @param Attribute[] $attributes
      * @return ActionResult
      */
     public static function createSuccessfulActionResultWithAttributes($attributes)
@@ -64,9 +65,9 @@ class ActionResult
 
     /**
      * @param $attributeName
-     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Contracts\Attribute
      */
-    public function getResultAttribute($attributeName): AttributeInterface
+    public function getResultAttribute($attributeName): Attribute
     {
         return $this->attributes->getAttribute($attributeName);
     }
@@ -74,9 +75,9 @@ class ActionResult
     /**
      * Adds the given attribute to the attribute bag
      *
-     * @param \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface $attribute
+     * @param \OpenDialogAi\AttributeEngine\Contracts\Attribute $attribute
      */
-    public function addAttribute(AttributeInterface $attribute)
+    public function addAttribute(Attribute $attribute)
     {
         $this->attributes->addAttribute($attribute);
     }

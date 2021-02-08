@@ -166,6 +166,6 @@ class ActionEngine implements ActionEngineInterface
      */
     public function registerAction(ActionInterface $action): void
     {
-        $this->availableActions[$action::getName()] = $action;
+        $this->availableActions[$action::getComponentId()] = $action;
     }
 }

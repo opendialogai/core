@@ -9,7 +9,7 @@ use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
  */
 class ExampleAction extends BaseAction
 {
-    protected static $name = 'action.core.example';
+    protected static ?string $componentId = 'action.core.example';
 
     protected static ?string $componentName = 'Example action';
     protected static ?string $componentDescription = 'Just an example action.';
