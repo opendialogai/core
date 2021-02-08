@@ -23,12 +23,12 @@ class FormDataAttribute extends BasicScalarAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $rawValue = null, ?SerializedArrayAttributeValue $value = null)
+    public function __construct($id, $value = null)
     {
-        if (!is_null($value)) {
+        if ($value instanceof SerializedArrayAttributeValue) {
             parent::__construct($id, $value);
         } else {
-            $attributeValue = new SerializedArrayAttributeValue($rawValue);
+            $attributeValue = new SerializedArrayAttributeValue($value);
             parent::__construct($id, $attributeValue);
         }
     }

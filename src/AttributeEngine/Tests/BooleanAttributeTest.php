@@ -10,7 +10,7 @@ class BooleanAttributeTest extends \Orchestra\Testbench\TestCase
     public function testRawValueSetting()
     {
         $rawValue = "false";
-        $attribute = new BooleanAttribute('test', null, new BooleanAttributeValue($rawValue));
+        $attribute = new BooleanAttribute('test', new BooleanAttributeValue($rawValue));
         $this->assertFalse($attribute->getAttributeValue()->getTypedValue());
 
         $attribute->getAttributeValue()->setRawValue(0);
@@ -49,11 +49,11 @@ class BooleanAttributeTest extends \Orchestra\Testbench\TestCase
     public function testToString()
     {
         $rawValue = "false";
-        $attribute = new BooleanAttribute('test', null, new BooleanAttributeValue($rawValue));
+        $attribute = new BooleanAttribute('test', new BooleanAttributeValue($rawValue));
         $this->assertEquals("false", $attribute->toString());
 
         $rawValue = "true";
-        $attribute = new BooleanAttribute('test', null, new BooleanAttributeValue($rawValue));
+        $attribute = new BooleanAttribute('test', new BooleanAttributeValue($rawValue));
         $this->assertEquals("true", $attribute->toString());
     }
 }

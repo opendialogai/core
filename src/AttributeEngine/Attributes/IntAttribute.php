@@ -18,12 +18,12 @@ class IntAttribute extends BasicScalarAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $rawValue = null, ?IntAttributeValue $value = null)
+    public function __construct($id, $value = null)
     {
-        if (!is_null($value)) {
+        if ($value instanceof IntAttributeValue) {
             parent::__construct($id, $value);
         } else {
-            $attributeValue = new IntAttributeValue($rawValue);
+            $attributeValue = new IntAttributeValue($value);
             parent::__construct($id, $attributeValue);
         }
     }

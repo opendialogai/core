@@ -19,12 +19,12 @@ class StringAttribute extends BasicScalarAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $rawValue = null, ?StringAttributeValue $value = null)
+    public function __construct($id, $value = null)
     {
-        if (!is_null($value)) {
+        if ($value instanceof StringAttributeValue) {
             parent::__construct($id, $value);
         } else {
-            $attributeValue = new StringAttributeValue($rawValue);
+            $attributeValue = new StringAttributeValue($value);
             parent::__construct($id, $attributeValue);
         }
     }

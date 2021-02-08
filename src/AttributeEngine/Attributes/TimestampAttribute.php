@@ -13,12 +13,12 @@ class TimestampAttribute extends AbstractScalarAttribute
     protected static ?string $componentId = 'attribute.core.timestamp';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
-    public function __construct($id, $rawValue = null, ?TimestampAttributeValue $value = null)
+    public function __construct($id, $value = null)
     {
-        if (!is_null($value)) {
+        if ($value instanceof TimestampAttributeValue) {
             parent::__construct($id, $value);
         } else {
-            $attributeValue = new TimestampAttributeValue($rawValue);
+            $attributeValue = new TimestampAttributeValue($value);
             parent::__construct($id, $attributeValue);
         }
     }

@@ -14,10 +14,14 @@ class FormDataAttributeTest extends \Orchestra\Testbench\TestCase
             'text' => 'name: value'
         ];
 
-        $attribute = new FormDataAttribute('testFloat', null, new SerializedArrayAttributeValue($data));
-
-
+        $attribute = new FormDataAttribute('testFloat', new SerializedArrayAttributeValue($data));
         $form = $attribute->getAttributeValue()->getTypedValue();
+
+        $this->assertEquals($data['name'], $form['name']);
+        $this->assertEquals($data['text'], $form['text']);
+
+        $fromRawAttribute = new FormDataAttribute('testFloat', $data);
+        $form = $fromRawAttribute->getAttributeValue()->getTypedValue();
 
         $this->assertEquals($data['name'], $form['name']);
         $this->assertEquals($data['text'], $form['text']);

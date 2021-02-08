@@ -19,12 +19,12 @@ class FloatAttribute extends BasicScalarAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $rawValue = null, ?FloatAttributeValue $value = null)
+    public function __construct($id, $value = null)
     {
-        if (!is_null($value)) {
+        if ($value instanceof FloatAttributeValue) {
             parent::__construct($id, $value);
         } else {
-            $attributeValue = new FloatAttributeValue($rawValue);
+            $attributeValue = new FloatAttributeValue($value);
             parent::__construct($id, $attributeValue);
         }
     }

@@ -10,7 +10,7 @@ class IntAttributeTest extends \Orchestra\Testbench\TestCase
     public function testRawValueSetting()
     {
         $rawValue = "5";
-        $attribute = new IntAttribute('testFloat', null, new IntAttributeValue($rawValue));
+        $attribute = new IntAttribute('testFloat', new IntAttributeValue($rawValue));
         $this->assertEquals($attribute->getAttributeValue()->getTypedValue(), 5);
 
 
@@ -22,11 +22,11 @@ class IntAttributeTest extends \Orchestra\Testbench\TestCase
     public function testToString()
     {
         $rawValue = "14.45";
-        $attribute = new IntAttribute('test', null, new IntAttributeValue($rawValue));
+        $attribute = new IntAttribute('test', new IntAttributeValue($rawValue));
         $this->assertEquals("14", $attribute->toString());
 
         $rawValue = "1565454";
-        $attribute = new IntAttribute('test', null, new IntAttributeValue($rawValue));
+        $attribute = new IntAttribute('test', new IntAttributeValue($rawValue));
         $this->assertEquals("1565454", $attribute->toString());
     }
 }

@@ -20,12 +20,12 @@ class BooleanAttribute extends BasicScalarAttribute
      * @param mixed | null $rawValue
      * @param BooleanAttributeValue|null $value
      */
-    public function __construct($id, $rawValue = null, ?BooleanAttributeValue $value = null)
+    public function __construct($id, $value = null)
     {
-        if (!is_null($value)) {
+        if ($value instanceof BooleanAttributeValue) {
             parent::__construct($id, $value);
         } else {
-            $attributeValue = new BooleanAttributeValue($rawValue);
+            $attributeValue = new BooleanAttributeValue($value);
             parent::__construct($id, $attributeValue);
         }
     }
