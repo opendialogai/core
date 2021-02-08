@@ -7,15 +7,10 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
-use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
 use OpenDialogAi\ResponseEngine\LinkClickInterface;
 use OpenDialogAi\ResponseEngine\Message\Webchat\WebChatMessages;
-use OpenDialogAi\SensorEngine\Http\Requests\IncomingWebchatMessage;
+use OpenDialogAi\Core\Http\Requests\IncomingWebchatMessage;
 use OpenDialogAi\SensorEngine\SensorInterface;
 use OpenDialogAi\SensorEngine\Service\SensorService;
 
@@ -45,11 +40,7 @@ class WebchatIncomingController extends BaseController
      * @param IncomingWebchatMessage $request
      * @return Response
      * @throws BindingResolutionException
-     * @throws FieldNotSupported
      * @throws GuzzleException
-     * @throws CurrentIntentNotSetException
-     * @throws EIModelCreatorException
-     * @throws NodeDoesNotExistException
      */
     public function receive(IncomingWebchatMessage $request): Response
     {
@@ -62,7 +53,7 @@ class WebchatIncomingController extends BaseController
         $utterance = $this->webchatSensor->interpret($request);
 
         // Save "url_click" messages.
-        if ($utterance instanceof WebchatUrlClickUtterance) {
+        if ($utterance->getUtteranceAttribute('utterance_type') == 'webchat_click') {
             $linkClick = app()->make(LinkClickInterface::class);
             $linkClick->save($utterance);
 
@@ -71,6 +62,7 @@ class WebchatIncomingController extends BaseController
 
         /** @var WebChatMessages $messageWrapper */
         $messageWrapper = $this->odController->runConversation($utterance);
+        dump($messageWrapper);
 
         Log::debug(sprintf('Sending response: %s', json_encode($messageWrapper->getMessageToPost())));
 
