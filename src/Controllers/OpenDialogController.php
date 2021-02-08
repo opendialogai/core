@@ -64,11 +64,12 @@ class OpenDialogController
     public function runConversation(UtteranceAttribute $utterance): ?OpenDialogMessages
     {
 
-        // The UtteranceReasoner uses the incoming utterance to determine whether it can return a
-        // current user.
+        // The UtteranceReasoner uses the incoming utterance and returns an appropriate User attribute.
         $currentUser = UtteranceReasoner::analyseUtterance($utterance);
-        // Log incoming message.
         $this->conversationLogService->logIncomingMessage($utterance);
+
+        // The ConversationStateReasoner determines whether the user is in an ongoing conversation or not and
+        // retrieves a conversation state attribute that allows us
 
         // create a dummy intent as a response
         $intent = new Intent();

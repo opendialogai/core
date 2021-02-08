@@ -15,7 +15,6 @@ class UserAttribute extends BasicCompositeAttribute
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     public const CURRENT_USER = 'current_user';
-    public const INCOMING_USER = 'incoming_user';
     public const USER_ID = 'user_id';
     public const FIRST_NAME = 'first_name';
     public const LAST_NAME = 'last_name';
@@ -28,6 +27,7 @@ class UserAttribute extends BasicCompositeAttribute
     public const BROWSER = 'browser';
     public const TIMEZONE = 'timezone';
     public const CUSTOM = 'custom_parameters';
+    public const LAST_RECORD = 'last_record';
 
 
     public function setUserAttribute(string $type, $value)
@@ -177,6 +177,13 @@ class UserAttribute extends BasicCompositeAttribute
     public function getCustomParameters()
     {
         return $this->getUserAttribute(self::CUSTOM);
+    }
+
+    public function hasConversationRecord(): bool
+    {
+        if ($this->hasAttribute(self::LAST_RECORD)) return true;
+
+        return false;
     }
 
 }

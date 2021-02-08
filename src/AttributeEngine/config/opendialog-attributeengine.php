@@ -1,6 +1,6 @@
 <?php
 
-use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+
 use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
@@ -9,7 +9,8 @@ use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\FormDataAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
-use OpenDialogAi\Core\Conversation\Model;
+use OpenDialogAi\AttributeEngine\CoreAttributes\ConversationStateAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayDataAttribute;
 
 return [
     'supported_attribute_types' => [
@@ -21,6 +22,8 @@ return [
         UserAttribute::class,
         UtteranceAttribute::class,
         FormDataAttribute::class,
+        ArrayDataAttribute::class,
+        ConversationStateAttribute::class,
     ],
 
     'supported_attributes' => [
@@ -65,8 +68,19 @@ return [
         'utterance_user' => UserAttribute::class,
 
         // User
-        'incoming_user' => UserAttribute::class,
         'current_user' => UserAttribute::class,
         'custom_parameters' => FormDataAttribute::class,
+        'last_record' => ConversationStateAttribute::class,
+
+        // Conversation State
+        'platform' => StringAttribute::class,
+        'workspace' => StringAttribute::class,
+        'speaker' => StringAttribute::class,
+        'intent_id' => StringAttribute::class,
+        'scenario_id' => StringAttribute::class,
+        'conversation_id' => StringAttribute::class,
+        'turn_id' => StringAttribute::class,
+        'actions_performed' => ArrayDataAttribute::class,
+        'conditions_evaluated' => ArrayDataAttribute::class,
     ],
 ];

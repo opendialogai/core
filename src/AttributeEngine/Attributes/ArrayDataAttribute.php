@@ -12,13 +12,13 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  *
  * $formData->getTypedValue() retrieves the array itself.
  */
-class FormDataAttribute extends BasicScalarAttribute
+class ArrayDataAttribute extends BasicScalarAttribute
 {
-    protected static ?string $componentId = 'attribute.core.formData';
+    protected static ?string $componentId = 'attribute.core.arrayData';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
-     * FormAttribute constructor.
+     * ArrayAttribute constructor.
      *
      * @param $id
      * @param $value
