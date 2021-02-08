@@ -6,13 +6,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
-use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
-use OpenDialogAi\Core\Console\Commands\ExportConversation;
-use OpenDialogAi\Core\Console\Commands\ImportConversation;
-use OpenDialogAi\Core\Console\Commands\ReadStatuses;
-use OpenDialogAi\Core\Console\Commands\StoreStatuses;
-use OpenDialogAi\Core\Console\Commands\UserAttributesCache;
+//use OpenDialogAi\Core\Console\Commands\ExportConversation;
+//use OpenDialogAi\Core\Console\Commands\ImportConversation;
+//use OpenDialogAi\Core\Console\Commands\ReadStatuses;
+//use OpenDialogAi\Core\Console\Commands\StoreStatuses;
+//use OpenDialogAi\Core\Console\Commands\UserAttributesCache;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Http\Middleware\RequestLoggerMiddleware;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
@@ -40,11 +39,11 @@ class CoreServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ExportConversation::class,
-                ImportConversation::class,
-                UserAttributesCache::class,
-                ReadStatuses::class,
-                StoreStatuses::class
+                //ExportConversation::class,
+                //ImportConversation::class,
+                //UserAttributesCache::class,
+                //ReadStatuses::class,
+                //StoreStatuses::class
             ]);
         }
 
@@ -68,7 +67,7 @@ class CoreServiceProvider extends ServiceProvider
             $odController = new OpenDialogController();
 
             $odController->setConversationLogService($this->app->make(ConversationLogService::class));
-            $odController->setConversationEngine($this->app->make(ConversationEngineInterface::class));
+//            $odController->setConversationEngine($this->app->make(ConversationEngineInterface::class));
             $odController->setResponseEngine($this->app->make(ResponseEngineServiceInterface::class));
 
             return $odController;

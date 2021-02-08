@@ -11,6 +11,7 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\Exceptions\NoConversationsException;
+use OpenDialogAi\ConversationEngine\Reasoners\UtteranceReasoner;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
@@ -57,22 +58,27 @@ class OpenDialogController
     }
 
     /**
-     * @todo - return a system level no match intent if we don't get back a usercontext,
-     * or intent and return back a system level no match message if we don't get that from
-     * the response engine.
-     *
      * @param UtteranceAttribute $utterance
      * @return OpenDialogMessages
-     * @throws FieldNotSupported
-     * @throws GuzzleException
-     * @throws CurrentIntentNotSetException
-     * @throws EIModelCreatorException
-     * @throws NodeDoesNotExistException
      */
-    public function runConversation(UtteranceAttribute $utterance): OpenDialogMessages
+    public function runConversation(UtteranceAttribute $utterance): ?OpenDialogMessages
     {
+
+        // The UtteranceReasoner uses the incoming utterance to determine whether it can return a
+        // current user.
+        $currentUser = UtteranceReasoner::analyseUtterance($utterance);
+        // Log incoming message.
+        $this->conversationLogService->logIncomingMessage($utterance);
+
+        // create a dummy intent as a response
+        $intent = new Intent();
+        $intent->setODId('intent.core.chat_open_response');
+        $messages = $this->getMessages($utterance, $intent);
+
+        return $messages;
+
 //        $userContext = ContextService::createUserContext($utterance);
-        return $this->getNoConversationsMessages($utterance);
+        //return $this->getNoConversationsMessages($utterance);
 
 //        try {
 //            /** @var Intent[] $intents */
@@ -81,10 +87,7 @@ class OpenDialogController
 //            return $this->getNoConversationsMessages($utterance);
 //        }
 
-        // Log incoming message.
-//        $this->conversationLogService->logIncomingMessage($utterance);
 
-//        $messages = $this->getMessages($utterance, $intents);
 
 //        $this->processInternalMessages($messages);
 
@@ -93,7 +96,6 @@ class OpenDialogController
 //        $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
 //       $userContext->updateUser();
 
-        return $messages;
     }
 
     private function processInternalMessages(OpenDialogMessages $messageWrapper)
@@ -128,26 +130,24 @@ class OpenDialogController
     /**
      * Collects messages for each intent and if there is more than one intent, gather all messages into the first wrapper
      *
-     * @param UtteranceInterface $utterance
-     * @param array $intents
+     * @param UtteranceAttribute $utterance
+     * @param Intent $intent
      * @return OpenDialogMessages
      */
-    private function getMessages(UtteranceInterface $utterance, array $intents): OpenDialogMessages
+    private function getMessages(UtteranceAttribute $utterance, $intent): OpenDialogMessages
     {
         $messagesSet = new Set();
 
-        foreach ($intents as $intent) {
-            try {
-                $messagesSet->add($this->responseEngineService->getMessageForIntent(
-                    $utterance->getPlatform(),
-                    $intent->getId()
-                ));
-            } catch (NoMatchingMessagesException $e) {
-                $messagesSet->add($this->responseEngineService->buildTextFormatterErrorMessage(
-                    $utterance->getPlatform(),
-                    $e->getMessage()
-                ));
-            }
+        try {
+            $messagesSet->add($this->responseEngineService->getMessageForIntent(
+                $utterance->getPlatform(),
+                $intent->getODId()
+            ));
+        } catch (NoMatchingMessagesException $e) {
+            $messagesSet->add($this->responseEngineService->buildTextFormatterErrorMessage(
+                $utterance->getPlatform(),
+                $e->getMessage()
+            ));
         }
 
         $messages = $messagesSet->first();

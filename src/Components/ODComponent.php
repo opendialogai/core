@@ -14,7 +14,6 @@ trait ODComponent
     protected static ?string $componentDescription = null;
     protected static ?string $componentId = null;
 
-
     /**
      * @inheritDoc
      */
