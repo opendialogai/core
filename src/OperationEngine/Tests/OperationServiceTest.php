@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\OperationEngine\Tests;
 
 use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Components\OpenDialogComponentData;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
@@ -56,7 +57,7 @@ class OperationServiceTest extends TestCase
 
         $this->registerSingleInterpreter(new TestInterpreterComposite());
 
-        $this->activateConversation($this->getConversation());
+        //$this->activateConversation($this->getConversation());
 
         /** @var OutgoingIntent $intent */
         $intent = OutgoingIntent::create(['name' => 'intent.test.hello_user']);
@@ -116,8 +117,8 @@ EOT;
         $mockOperation = \Mockery::mock(OperationInterface::class);
         $mockOperation->shouldReceive('getName')->andReturn($operationName);
         $mockOperation->shouldReceive('getComponentData')->andReturn(new OpenDialogComponentData(
-            BaseOpenDialogComponent::OPERATION_COMPONENT_TYPE,
-            BaseOpenDialogComponent::APP_COMPONENT_SOURCE,
+            ODComponentTypes::OPERATION_COMPONENT_TYPE,
+            ODComponentTypes::APP_COMPONENT_SOURCE,
             $operationName
         ));
 
