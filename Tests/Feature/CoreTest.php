@@ -5,14 +5,80 @@ namespace OpenDialogAi\Core\Tests\Feature;
 use OpenDialogAi\Core\RequestLog;
 use OpenDialogAi\Core\ResponseLog;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\MessageBuilder\MessageMarkUpGenerator;
+use OpenDialogAi\ResponseEngine\MessageTemplate;
+use OpenDialogAi\ResponseEngine\OutgoingIntent;
+use OpenDialogAi\ResponseEngine\Service\ResponseEngineService;
 
 class CoreTest extends TestCase
 {
     public function setUp(): void
     {
         parent::setUp();
-        $this->activateConversation($this->conversation4());
     }
+
+    public function testEndToEndFunctionality() {
+
+        // Make sure we have a ResponseEngine
+        $service = $this->app->make(ResponseEngineService::class);
+        $service->registerAvailableFormatters();
+        $formatters = $service->getAvailableFormatters();
+        $this->assertCount(1, $formatters);
+        $this->assertContains('formatter.core.webchat', array_keys($formatters));
+
+        // Create a message and assign it to an intent
+        // Ensure that we can create an intent.
+        OutgoingIntent::create(['name' => 'intent.core.welcomeReply']);
+        $intent = OutgoingIntent::where('name', 'intent.core.welcomeReply')->first();
+        $this->assertEquals('intent.core.welcomeReply', $intent->name);
+
+        $markUp = (new MessageMarkUpGenerator())->addTextMessage('Friendly Reply.');
+        $messageTemplate = MessageTemplate::create(
+            [
+                'name' => 'Friendly Reply',
+                'outgoing_intent_id' => $intent->id,
+                'message_markup' => $markUp->getMarkUp(),
+            ]
+        );
+
+        $this->assertEquals('Friendly Reply', MessageTemplate::where('name', 'Friendly Reply')->first()->name);
+
+        // Ensure we can get a MessageTemplate's OutgoingIntent.
+        $this->assertEquals($intent->id, $messageTemplate->outgoingIntent->id);
+
+        // Ensure we can get a OutgoingIntent's MessageTemplates.
+        $this->assertTrue($intent->messageTemplates->contains($messageTemplate));
+
+
+        // Ensure we have a conversation to work with
+
+
+        // Send a message to /incoming/webchat
+        $response = $this->json('POST', '/incoming/webchat', [
+            'notification' => 'message',
+            'user_id' => 'someuser',
+            'author' => 'me',
+            'content' => [
+                'author' => 'me',
+                'type' => 'text',
+                'data' => [
+                    'text' => 'test message'
+                ],
+                'user' => [
+                    'ipAddress' => '127.0.0.1',
+                    'country' => 'UK',
+                    'browserLanguage' => 'en-gb',
+                    'os' => 'macos',
+                    'browser' => 'safari',
+                    'timezone' => 'GMT',
+                ],
+            ],
+        ]);
+        $response
+            ->assertStatus(200)
+            ->assertJson(['data' => ['text' => 'Friendly Reply.']]);
+    }
+
 
     /**
      * @requires DGRAPH
