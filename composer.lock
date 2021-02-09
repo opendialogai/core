@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "07bee95c4240132e0e75e3b4bbffee63",
+    "content-hash": "bc657bb0aa486b66b97a5588bd700cd7",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -1416,16 +1416,16 @@
         },
         {
             "name": "opendialogai/dgraph-docker",
-            "version": "1.2.5",
+            "version": "dev-feature/dgraph-v20.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opendialogai/dgraph-docker.git",
-                "reference": "8d1984dd62268c6e95c964e57b9ad442fe385ae2"
+                "reference": "93acdc66d3fd4b7e0b0c57e915097f1595882b9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/8d1984dd62268c6e95c964e57b9ad442fe385ae2",
-                "reference": "8d1984dd62268c6e95c964e57b9ad442fe385ae2",
+                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/93acdc66d3fd4b7e0b0c57e915097f1595882b9b",
+                "reference": "93acdc66d3fd4b7e0b0c57e915097f1595882b9b",
                 "shasum": ""
             },
             "type": "library",
@@ -1444,7 +1444,11 @@
                 }
             ],
             "description": "The OpenDialog DGraph Docker compose file",
-            "time": "2020-06-08T13:23:00+00:00"
+            "support": {
+                "issues": "https://github.com/opendialogai/dgraph-docker/issues",
+                "source": "https://github.com/opendialogai/dgraph-docker/tree/feature/dgraph-v20.11.0"
+            },
+            "time": "2021-02-09T14:08:26+00:00"
         },
         {
             "name": "opis/closure",
@@ -7713,7 +7717,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "opendialogai/dgraph-docker": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -7721,5 +7727,5 @@
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }
