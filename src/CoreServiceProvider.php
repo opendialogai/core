@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
+use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 //use OpenDialogAi\Core\Console\Commands\ExportConversation;
 //use OpenDialogAi\Core\Console\Commands\ImportConversation;

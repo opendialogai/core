@@ -62,7 +62,6 @@ class WebchatIncomingController extends BaseController
 
         /** @var WebChatMessages $messageWrapper */
         $messageWrapper = $this->odController->runConversation($utterance);
-        dump($messageWrapper);
 
         Log::debug(sprintf('Sending response: %s', json_encode($messageWrapper->getMessageToPost())));
 

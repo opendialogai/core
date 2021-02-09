@@ -50,15 +50,15 @@ class ConversationObject
      */
     public function getODId(): string
     {
-        return $this->id;
+        return $this->od_id;
     }
 
     /**
-     * @param string $id
+     * @param string $od_id
      */
-    public function setODId(string $id): void
+    public function setODId(string $od_id): void
     {
-        $this->id = $id;
+        $this->od_id = $od_id;
     }
 
     /**
