@@ -98,7 +98,7 @@ class DGraphClient
             [
                 'body' => $prepared,
                 'headers' => [
-                    'Content-Type' => 'application/graphql+-'
+                    'Content-Type' => 'application/dql'
                 ]
             ]
         );
