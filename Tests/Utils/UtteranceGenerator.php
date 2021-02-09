@@ -19,7 +19,7 @@ class UtteranceGenerator
      * @param UserAttribute $user
      * @return UtteranceAttribute
      */
-    public static function generateChatOpenUtterance($callbackId, User $user = null): UtteranceAttribute
+    public static function generateChatOpenUtterance($callbackId, UserAttribute $user = null): UtteranceAttribute
     {
         if ($user === null) {
             $user = self::generateUser();

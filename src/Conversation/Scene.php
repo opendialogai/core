@@ -6,20 +6,16 @@ class Scene extends ConversationObject
     protected TurnCollection $turns;
     protected Conversation $conversation;
 
-    public function __construct(Conversation $conversation)
+    public function __construct(?Conversation $conversation = null)
     {
         parent::__construct();
         $this->turns = new TurnCollection();
-        $this->conversation = $conversation;
+        isset($conversation) ? $this->conversation = $conversation : null;
     }
 
     public function hasTurns(): bool
     {
-        if ($this->turns->isNotEmpty()) {
-            return true;
-        }
-
-        return false;
+        return $this->turns->isNotEmpty();
     }
 
     public function getTurns(): TurnCollection
@@ -35,5 +31,15 @@ class Scene extends ConversationObject
     public function getConversation(): Conversation
     {
         return $this->conversation;
+    }
+
+    public function addTurn(Turn $turn)
+    {
+        $this->turns->addObject($turn);
+    }
+
+    public function getTurn(string $odId): ?Turn
+    {
+        return $this->turns->getObject($odId);
     }
 }

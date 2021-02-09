@@ -7,6 +7,6 @@ use Illuminate\Support\Collection;
 /**
  * An intent collection holds a set of intent objects that can be set or retrieved
  */
-class IntentCollection extends Collection
+class IntentCollection extends ODObjectCollection
 {
 }

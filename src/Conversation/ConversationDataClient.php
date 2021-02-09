@@ -47,4 +47,13 @@ query Scenarios {
         return($response->json());
     }
 
+    public function tempSetDummyData($scenario)
+    {
+
+    }
+
+    public function getDummyData($scenario)
+    {
+
+    }
 }

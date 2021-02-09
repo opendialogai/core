@@ -2,9 +2,6 @@
 namespace OpenDialogAi\Core\Conversation;
 
 
-
-use App\Http\Resources\ConversationCollection;
-
 class Scenario extends ConversationObject
 {
     protected ConversationCollection $conversations;
@@ -17,15 +14,21 @@ class Scenario extends ConversationObject
 
     public function hasConversations(): bool
     {
-        if ($this->conversations->isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return $this->conversations->isNotEmpty();
     }
 
     public function getConversations(): ConversationCollection
     {
         return $this->conversations;
+    }
+
+    public function addConversation(Conversation $conversation)
+    {
+        $this->conversations->addObject($conversation);
+    }
+
+    public function getConversation(string $odId): ?Conversation
+    {
+        return $this->conversations->getObject($odId);
     }
 }

@@ -9,14 +9,10 @@ use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
 use OpenDialogAi\ConversationEngine\Exceptions\NoConversationsException;
 use OpenDialogAi\ConversationEngine\Reasoners\UtteranceReasoner;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -64,39 +60,26 @@ class OpenDialogController
     public function runConversation(UtteranceAttribute $utterance): ?OpenDialogMessages
     {
 
-        // The UtteranceReasoner uses the incoming utterance and returns an appropriate User attribute.
-        $currentUser = UtteranceReasoner::analyseUtterance($utterance);
         $this->conversationLogService->logIncomingMessage($utterance);
 
-        // The ConversationStateReasoner determines whether the user is in an ongoing conversation or not and
-        // retrieves a conversation state attribute that allows us
+        try {
+            /** @var Intent $intent */
+            $intent = $this->conversationEngine->getNextIntents($utterance);
+        } catch (NoConversationsException $e) {
+            return $this->getNoConversationsMessages($utterance);
+        }
 
-        // create a dummy intent as a response
-        $intent = new Intent();
-        $intent->setODId('intent.core.chat_open_response');
         $messages = $this->getMessages($utterance, $intent);
+
+        $this->processInternalMessages($messages);
+
+        $this->conversationLogService->logOutgoingMessages($messages, $utterance);
 
         return $messages;
 
-//        $userContext = ContextService::createUserContext($utterance);
-        //return $this->getNoConversationsMessages($utterance);
-
-//        try {
-//            /** @var Intent[] $intents */
-//            $intents = $this->conversationEngine->getNextIntents($userContext, $utterance);
-//        } catch (NoConversationsException $e) {
-//            return $this->getNoConversationsMessages($utterance);
-//        }
-
-
-
-//        $this->processInternalMessages($messages);
-
-//        $this->conversationLogService->logOutgoingMessages($messages, $utterance);
-
-//        $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
-//       $userContext->updateUser();
-
+//      @todo determine whether we still need this
+//      $userContext->addAttribute(AttributeResolver::getAttributeFor('last_seen', now()->timestamp));
+//      $userContext->updateUser();
     }
 
     private function processInternalMessages(OpenDialogMessages $messageWrapper)
@@ -138,7 +121,6 @@ class OpenDialogController
     private function getMessages(UtteranceAttribute $utterance, $intent): OpenDialogMessages
     {
         $messagesSet = new Set();
-
         try {
             $messagesSet->add($this->responseEngineService->getMessageForIntent(
                 $utterance->getPlatform(),
