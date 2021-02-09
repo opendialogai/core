@@ -50,7 +50,6 @@ class AttributeAccessorTest extends TestCase
         );
 
         $arrayValue = ContextService::getAttributeValue('test', 'session');
-        dump($arrayValue);
         $generic = ContextService::getAttributeValue('test', 'session');
         $this->assertEquals([1], $arrayValue['random']);
         $this->assertEquals(1, $arrayValue['random'][0]);

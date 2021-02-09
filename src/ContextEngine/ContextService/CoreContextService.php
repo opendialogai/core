@@ -68,7 +68,6 @@ class CoreContextService extends BasicContextService
      */
     public function getCustomContexts(): array
     {
-        dump($this->activeContexts);
         return $this->activeContexts->filter(static function ($context) {
             return !in_array($context, self::$coreContexts, true);
         })->toArray();
