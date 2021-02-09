@@ -23,6 +23,11 @@ class ConversationEngineServiceProvider extends ServiceProvider
 
     public function register()
     {
+        $this->app->singleton(ConversationEngineInterface::class, function () {
+            $conversationEngine = new ConversationEngine();
+            return $conversationEngine;
+        });
+
         $this->app->singleton(ConversationDataClient::class, function () {
             return new ConversationDataClient(
                 config('opendialog.core.DGRAPH_URL'),

@@ -4,6 +4,7 @@ namespace OpenDialogAi\ConversationEngine;
 
 use GuzzleHttp\Exception\GuzzleException;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
@@ -16,15 +17,6 @@ use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 interface ConversationEngineInterface
 {
-    /**
-     * @param ConversationStoreInterface $conversationStore
-     */
-    public function setConversationStore(ConversationStoreInterface $conversationStore);
-
-    /**
-     * @return ConversationStoreInterface
-     */
-    public function getConversationStore(): ConversationStoreInterface;
 
     /**
      * @param InterpreterServiceInterface $interpreterService
@@ -37,29 +29,10 @@ interface ConversationEngineInterface
     public function setActionEngine(ActionEngineInterface $actionEngine);
 
     /**
-     * Given a user context and an utterance determine what the next intent should be.
-     * @param UserContext $userContext
-     * @param UtteranceInterface $utterance
-     * @return Intent[]
-     * @throws FieldNotSupported
-     * @throws GuzzleException
-     * @throws NodeDoesNotExistException
-     * @throws ConversationStore\EIModelCreatorException
-     * @throws CurrentIntentNotSetException
+     * Given an utterance attribute.
+     * @param UtteranceAttribute $utterance
+     * @return Intent
      */
-    public function getNextIntents(UserContext $userContext, UtteranceInterface $utterance): array;
+    public function getNextIntents(UtteranceAttribute $utterance): Intent;
 
-    /**
-     * @param UserContext $userContext
-     * @param UtteranceInterface $utterance
-     * @return Conversation
-     */
-    public function determineCurrentConversation(UserContext $userContext, UtteranceInterface $utterance): Conversation;
-
-    /**
-     * @param UserContext $userContext
-     * @param UtteranceInterface $utterance
-     * @return Conversation
-     */
-    public function updateConversationFollowingUserInput(UserContext $userContext, UtteranceInterface $utterance);
 }

@@ -67,7 +67,7 @@ class CoreServiceProvider extends ServiceProvider
             $odController = new OpenDialogController();
 
             $odController->setConversationLogService($this->app->make(ConversationLogService::class));
-//            $odController->setConversationEngine($this->app->make(ConversationEngineInterface::class));
+            $odController->setConversationEngine($this->app->make(ConversationEngineInterface::class));
             $odController->setResponseEngine($this->app->make(ResponseEngineServiceInterface::class));
 
             return $odController;
