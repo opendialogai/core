@@ -5,7 +5,7 @@ namespace OpenDialogAi\Core\Tests\Feature;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\ConversationGenerator;
 
-class ConversationContextTest extends TestCase
+class ConversationModelTest extends TestCase
 {
     public function testScenarioCreation()
     {

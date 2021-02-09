@@ -68,7 +68,6 @@ class OpenDialogController
         } catch (NoConversationsException $e) {
             return $this->getNoConversationsMessages($utterance);
         }
-        dump($intent);
 
         $messages = $this->getMessages($utterance, $intent);
 
