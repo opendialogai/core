@@ -42,9 +42,9 @@
             <directory suffix="Test.php">./src/InterpreterEngine/Tests</directory>
         </testsuite> -->
 
-<!--    <testsuite name="OperationEngine">
+       <testsuite name="OperationEngine">
             <directory suffix="Test.php">./src/OperationEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite> 
 
 <!--    <testsuite name="ConversationBuilder">
             <directory suffix="Test.php">./src/ConversationBuilder/Tests</directory>
@@ -54,7 +54,7 @@
             <directory suffix="Test.php">./src/ConversationLog/Tests</directory>
         </testsuite>
 
-<!--    <testsuite name="RequestLoggerMiddleware">
+<!--   <testsuite name="RequestLoggerMiddleware">
             <directory suffix="Test.php">./src/Http/Middleware/Tests</directory>
         </testsuite> -->
 

@@ -3,7 +3,6 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
 use OpenDialogAi\Core\Components\ODComponent;
 use OpenDialogAi\Core\Components\ODComponentTypes;
@@ -28,7 +27,7 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
     ];
 
     /**
-     * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
+     * @var \OpenDialogAi\AttributeEngine\Attributes\Attribute[]
      */
     protected $attributes;
 
