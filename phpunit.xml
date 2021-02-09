@@ -18,9 +18,9 @@
             <directory suffix="Test.php">./Tests/Feature</directory>
         </testsuite>
 
-<!--    <testsuite name="ActionEngine">
+       <testsuite name="ActionEngine">
             <directory suffix="Test.php">./src/ActionEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
         <testsuite name="AttributeEngine">
             <directory suffix="Test.php">./src/AttributeEngine/Tests</directory>
@@ -82,6 +82,9 @@
         <env name="API_LOG_TO_DB" value="true"/>
         <env name="DGRAPH_URL" value="http://10.0.2.2"/>
         <env name="DGRAPH_PORT" value="8080"/>
+        <env name="DGRAPH_API_KEY" value=""/>
+        <env name="OVERWRITE_DGRAPH_URL" value="https://capricious-flight.eu-central-1.aws.cloud.dgraph.io"/>
+        <env name="OVERWRITE_DGRAPH_PORT" value="8080"/>
         <env name="DGRAPH_API_KEY" value=""/>
     </php>
     <logging>

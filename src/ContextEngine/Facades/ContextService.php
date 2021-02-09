@@ -17,6 +17,7 @@ use OpenDialogAi\ContextEngine\Contracts\Context;
  * @method static Context[] getCustomContexts()
  * @method static void saveAttribute(string $attributeName, $attributeValue)
  * @method static Context getContext(string $contextId)
+ * @method static Context getSessionContext()
  */
 class ContextService extends Facade
 {

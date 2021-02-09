@@ -3,6 +3,7 @@
 namespace OpenDialogAi\ContextEngine\ContextService;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
@@ -31,5 +32,13 @@ class CoreContextService extends BasicContextService
         $attribute = AttributeResolver::getAttributeFor($attributeId, $attributeValue);
 
         $context->addAttribute($attribute);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSessionContext(): Context
+    {
+        return $this->getContext(self::SESSION_CONTEXT);
     }
 }

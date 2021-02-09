@@ -9,13 +9,13 @@ use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Components\InvalidComponentDataException;
-use OpenDialogAi\Core\Components\MissingRequiredComponentDataException;
+use OpenDialogAi\Core\Components\Exceptions\InvalidComponentDataException;
+use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
 
 class ActionEngine implements ActionEngineInterface
 {
-    /** @var ActionInterface[] */
+    /** @var Action[] */
     private $availableActions = [];
 
     /**
@@ -36,7 +36,7 @@ class ActionEngine implements ActionEngineInterface
                     break;
                 }
 
-                /** @var ActionInterface $action */
+                /** @var BaseAction $action */
                 $action = new $supportedAction();
                 $action::getComponentData();
                 $this->registerAction($action);
