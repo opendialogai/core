@@ -15,6 +15,7 @@ class MessageHistoryContextTest extends TestCase
     }
 
     /**
+     * @group skip
      * @requires DGRAPH
      */
     public function testMessageHistoryContext()

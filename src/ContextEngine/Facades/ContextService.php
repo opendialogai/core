@@ -12,7 +12,7 @@ use OpenDialogAi\ContextEngine\Contracts\Context;
  * @method static void addContext(Context $context)
  * @method static bool hasContext(string $contextId)
  * @method static Attribute getAttribute(string $attributeId, string $contextId)
- * @method static mixed getAttributeValue(string $attributeId, string $contextId, array $index = [])
+ * @method static mixed getAttributeValue(string $attributeId, string $contextId)
  * @method static Context[] getContexts()
  * @method static Context[] getCustomContexts()
  * @method static void saveAttribute(string $attributeName, $attributeValue)

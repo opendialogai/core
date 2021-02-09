@@ -32,6 +32,15 @@ interface ContextService
     public function getContext(string $contextId): Context;
 
     /**
+     * @param Context [] $contexts
+     */
+    public function loadCustomContexts(array $contexts): void;
+
+    /**
+     * @param Context $customContext
+     */
+    public function loadCustomContext($customContext): void;
+    /**
      * @param string $contextId
      * @return bool
      */
@@ -58,12 +67,11 @@ interface ContextService
     /**
      * Calls @param string $attributeId
      * @param string $contextId
-     * @param array $index
      * @return mixed
      * @see ContextService::getAttribute() to resolve an attribute and returns its concrete value
      *
      */
-    public function getAttributeValue(string $attributeId, string $contextId, array $index = []);
+    public function getAttributeValue(string $attributeId, string $contextId);
 
     /**
      * Returns all available contexts as an array
@@ -71,5 +79,19 @@ interface ContextService
      * @return Context[]
      */
     public function getContexts(): array;
+
+    /**
+     * Returns all custom contexts
+     *
+     * @return Context []
+     */
+    public function getCustomContexts(): array;
+
+    /**
+     *  Helper method to return the session context
+     *
+     * @return Context
+     */
+    public function getSessionContext(): Context;
 
 }

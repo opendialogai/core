@@ -32,6 +32,9 @@ class CustomContextsTest extends TestCase
         $this->assertCount(0, ContextService::getCustomContexts());
     }
 
+    /**
+     * @group skip
+     */
     public function testValidCustomContext()
     {
         $this->addCustomContextToConfig(DummyCustomContext::class);

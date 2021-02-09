@@ -30,9 +30,9 @@
             <directory suffix="Test.php">./src/Console/Commands/Tests</directory>
         </testsuite> -->
 
-<!--    <testsuite name="ContextEngine">
+        <testsuite name="ContextEngine">
             <directory suffix="Test.php">./src/ContextEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
 <!--    <testsuite name="ResponseEngine">
             <directory suffix="Test.php">./src/ResponseEngine/Tests</directory>
