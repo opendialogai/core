@@ -81,6 +81,7 @@
         <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
         <env name="DGRAPH_URL" value="dgraph-server-test"/>
         <env name="DGRAPH_PORT" value="8082"/>
+        <env name="DGRAPH_AUTH_TOKEN" value="dgraphtestservertoken"/>
         <env name="API_LOG_TO_DB" value="true"/>
     </php>
     <logging>
