@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class TimePassedEqualsOperation extends BaseOperation
 {
-    public static $name  = 'time_passed_equals';
+    protected static ?string $componentId = 'time_passed_equals';
 
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 

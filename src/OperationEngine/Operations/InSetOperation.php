@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class InSetOperation extends BaseOperation
 {
-    public static $name  = 'in_set';
+    protected static ?string $componentId = 'in_set';
 
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
