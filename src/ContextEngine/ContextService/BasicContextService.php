@@ -8,7 +8,6 @@ use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 
 
-class BasicContextService extends AbstractContextService
+abstract class BasicContextService extends AbstractContextService
 {
-
 }

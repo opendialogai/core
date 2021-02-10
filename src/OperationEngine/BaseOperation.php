@@ -3,7 +3,6 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
 use OpenDialogAi\Core\Components\ODComponent;
 use OpenDialogAi\Core\Components\ODComponentTypes;
@@ -28,7 +27,7 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
     ];
 
     /**
-     * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
+     * @var \OpenDialogAi\AttributeEngine\Attributes\Attribute[]
      */
     protected $attributes;
 
@@ -36,8 +35,6 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
      * @var array
      */
     protected $parameters;
-
-    protected static $name = 'base';
 
     public function __construct($attributes = [], $parameters = [])
     {
@@ -82,7 +79,7 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
     /**
      * @inheritdoc
      */
-    public function hasParameter($parameterName) : bool
+    public function hasParameter($parameterName): bool
     {
         return isset($this->parameters[$parameterName]);
     }
@@ -90,7 +87,7 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
     /**
      * @inheritDoc
      */
-    public function execute() : bool
+    public function execute(): bool
     {
         if (!$this->checkRequiredParameters()) {
             return false;
@@ -118,7 +115,7 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
     /**
      * @return bool
      */
-    protected function checkRequiredParameters() : bool
+    protected function checkRequiredParameters(): bool
     {
         $requiredParameters = $this->getRequiredParameterArgumentNames();
 
@@ -128,7 +125,7 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
                     sprintf(
                         "Missing required '%s' parameter for the '%s' operation",
                         $parameterName,
-                        self::$name
+                        self::$componentId
                     )
                 );
                 return false;
@@ -136,5 +133,10 @@ abstract class BaseOperation implements OperationInterface, OpenDialogComponent
         }
 
         return true;
+    }
+
+    public static function getName(): string
+    {
+        return static::$componentId;
     }
 }

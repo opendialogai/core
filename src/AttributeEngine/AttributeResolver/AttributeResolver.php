@@ -80,7 +80,7 @@ class AttributeResolver
      * @param $value
      * @return Attribute
      */
-    public function getAttributeFor(string $attributeId, $rawValue = null, AttributeValue $value = null): Attribute
+    public function getAttributeFor(string $attributeId, $value = null): Attribute
     {
         if ($this->isAttributeSupported($attributeId)) {
             // First instantiate the attribute so we can see what type it is and construct appropriately.
@@ -90,22 +90,28 @@ class AttributeResolver
             // available we set the raw value. Scalar attributes should always be able to handle null
             // raw values as well.
             if ($attribute instanceof ScalarAttribute) {
-                is_null($value) ? $attribute->setRawValue($rawValue) : $attribute->setAttributeValue($value);
+                if ($value instanceof AttributeValue) {
+                    $attribute->setAttributeValue($value);
+                } else {
+                    $attribute->setRawValue($value);
+                }
             }
 
             // For composite attributes we expect to either be provided with a prepopulated Ds\Map of
             // attributes or with a single attribute that we add to the composite attribute.
             if ($attribute instanceof CompositeAttribute) {
-                if ($rawValue instanceof Map) {
-                    $attribute->setAttributes($rawValue);
-                } elseif ($rawValue instanceof Attribute) {
-                    $attribute->addAttribute($rawValue);
+                if ($value instanceof Map) {
+                    $attribute->setAttributes($value);
+                } elseif ($value instanceof Attribute) {
+                    $attribute->addAttribute($value);
+                } elseif (!isset($value)) {
+                    return $attribute;
                 }
             }
             return $attribute;
         } else {
             Log::debug(sprintf('Attribute %s is not registered, defaulting to String type', $attributeId));
-            return new StringAttribute($attributeId, $rawValue);
+            return new StringAttribute($attributeId, $value);
         }
     }
 }

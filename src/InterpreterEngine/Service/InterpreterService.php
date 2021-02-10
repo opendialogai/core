@@ -4,6 +4,9 @@ namespace OpenDialogAi\InterpreterEngine\Service;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
@@ -28,7 +31,7 @@ class InterpreterService implements InterpreterServiceInterface
     /**
      * @inheritdoc
      */
-    public function interpret(string $interpreterName, UtteranceInterface $utterance): array
+    public function interpret(string $interpreterName, UtteranceAttribute $utterance): IntentCollection
     {
         if ($cachedResult = $this->getInterpreterResultFromCache($interpreterName, $utterance)) {
             Log::info(sprintf("Getting result from the cache for interpreter %s", $interpreterName));
@@ -37,19 +40,15 @@ class InterpreterService implements InterpreterServiceInterface
 
         try {
             $interpreterResult = $this->getInterpreter($interpreterName)->interpret($utterance);
-        } catch (FieldNotSupported $e) {
-            Log::warning(sprintf(
-                'Trying to use %s interpreter to interpret an utterance/field that is not supported.',
-                $interpreterName
-            ));
-            $interpreterResult = [new NoMatchIntent()];
         } catch (\Exception $e) {
             Log::warning(sprintf(
                 'Interpreter %s fail with exception: %s',
                 $interpreterName,
                 $e->getMessage()
             ));
-            $interpreterResult = [new NoMatchIntent()];
+            $collection = new IntentCollection();
+            $collection->add(Intent::createNoMatchIntent());
+            return $collection;
         }
 
         $this->putInterpreterResultToCache($interpreterName, $utterance, $interpreterResult);
@@ -61,7 +60,7 @@ class InterpreterService implements InterpreterServiceInterface
      * Will return a @see NoMatchIntent if the name of the default interpreter is not set
      * @inheritDoc
      */
-    public function interpretDefaultInterpreter(UtteranceInterface $utterance): array
+    public function interpretDefaultInterpreter(UtteranceAttribute $utterance): IntentCollection
     {
         try {
             $defaultInterpreterName = $this->getDefaultInterpreter()::getName();
@@ -183,10 +182,10 @@ class InterpreterService implements InterpreterServiceInterface
      * Gets a cached value from
      *
      * @param string $interpreterName
-     * @param UtteranceInterface $utterance
-     * @return array|false
+     * @param UtteranceAttribute $utterance
+     * @return IntentCollection |false
      */
-    private function getInterpreterResultFromCache(string $interpreterName, UtteranceInterface $utterance)
+    private function getInterpreterResultFromCache(string $interpreterName, UtteranceAttribute $utterance)
     {
         $cacheKey = $this->generateCacheKey($interpreterName, $utterance);
 
@@ -202,12 +201,15 @@ class InterpreterService implements InterpreterServiceInterface
      * Saves the interpreter result to cache
      *
      * @param string $interpreterName
-     * @param UtteranceInterface $utterance
-     * @param array $intents
+     * @param UtteranceAttribute $utterance
+     * @param IntentCollection $intents
      * @return bool
      */
-    private function putInterpreterResultToCache(string $interpreterName, UtteranceInterface $utterance, array $intents): bool
-    {
+    private function putInterpreterResultToCache(
+        string $interpreterName,
+        UtteranceAttribute $utterance,
+        IntentCollection $intents
+    ): bool {
         $cacheKey = $this->generateCacheKey($interpreterName, $utterance);
         $cacheTime = $this->getInterpreterCacheTime($interpreterName);
 
@@ -223,10 +225,10 @@ class InterpreterService implements InterpreterServiceInterface
      * Returns the name of the interpreter and a serialisation of the entire utterance.
      *
      * @param string $interpreterName
-     * @param UtteranceInterface $utterance
+     * @param UtteranceAttribute $utterance
      * @return string
      */
-    private function generateCacheKey(string $interpreterName, UtteranceInterface $utterance): string
+    private function generateCacheKey(string $interpreterName, UtteranceAttribute $utterance): string
     {
         $cacheKey = $interpreterName . '|' . serialize($utterance);
         return $cacheKey;

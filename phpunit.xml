@@ -18,9 +18,9 @@
             <directory suffix="Test.php">./Tests/Feature</directory>
         </testsuite>
 
-<!--    <testsuite name="ActionEngine">
+       <testsuite name="ActionEngine">
             <directory suffix="Test.php">./src/ActionEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
         <testsuite name="AttributeEngine">
             <directory suffix="Test.php">./src/AttributeEngine/Tests</directory>
@@ -30,21 +30,21 @@
             <directory suffix="Test.php">./src/Console/Commands/Tests</directory>
         </testsuite> -->
 
-<!--    <testsuite name="ContextEngine">
+        <testsuite name="ContextEngine">
             <directory suffix="Test.php">./src/ContextEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
-<!--    <testsuite name="ResponseEngine">
+       <testsuite name="ResponseEngine">
             <directory suffix="Test.php">./src/ResponseEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
-<!--    <testsuite name="InterpreterEngine">
+        <testsuite name="InterpreterEngine">
             <directory suffix="Test.php">./src/InterpreterEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
-<!--    <testsuite name="OperationEngine">
+       <testsuite name="OperationEngine">
             <directory suffix="Test.php">./src/OperationEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
 <!--    <testsuite name="ConversationBuilder">
             <directory suffix="Test.php">./src/ConversationBuilder/Tests</directory>
@@ -54,7 +54,7 @@
             <directory suffix="Test.php">./src/ConversationLog/Tests</directory>
         </testsuite>
 
-<!--    <testsuite name="RequestLoggerMiddleware">
+<!--   <testsuite name="RequestLoggerMiddleware">
             <directory suffix="Test.php">./src/Http/Middleware/Tests</directory>
         </testsuite> -->
 
@@ -82,6 +82,9 @@
         <env name="API_LOG_TO_DB" value="true"/>
         <env name="DGRAPH_URL" value="http://10.0.2.2"/>
         <env name="DGRAPH_PORT" value="8080"/>
+        <env name="DGRAPH_API_KEY" value=""/>
+        <env name="OVERWRITE_DGRAPH_URL" value="https://capricious-flight.eu-central-1.aws.cloud.dgraph.io"/>
+        <env name="OVERWRITE_DGRAPH_PORT" value="8080"/>
         <env name="DGRAPH_API_KEY" value=""/>
     </php>
     <logging>

@@ -2,9 +2,8 @@
 
 namespace OpenDialogAi\Core\OperationEngine\Tests;
 
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
 use OpenDialogAi\Core\Components\ODComponentTypes;
-use OpenDialogAi\Core\Components\OpenDialogComponentData;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponentData;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -45,6 +44,7 @@ class OperationServiceTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationConditionWithOnlyOperation()
     {
@@ -57,7 +57,7 @@ class OperationServiceTest extends TestCase
 
         $this->registerSingleInterpreter(new TestInterpreterComposite());
 
-        //$this->activateConversation($this->getConversation());
+        $this->activateConversation($this->getConversation());
 
         /** @var OutgoingIntent $intent */
         $intent = OutgoingIntent::create(['name' => 'intent.test.hello_user']);

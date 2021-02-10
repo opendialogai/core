@@ -7,7 +7,7 @@ use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Contracts\AttributeValue;
 
 /**
- * @method static Attribute getAttributeFor(string $attributeId, $rawValue = null, AttributeValue $value = null)
+ * @method static Attribute getAttributeFor(string $attributeId, $value)
  * @method static Attribute[] getSupportedAttributes()
  * @method static void registerAttributes($attributes)
  */

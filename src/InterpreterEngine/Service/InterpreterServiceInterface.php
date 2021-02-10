@@ -2,8 +2,8 @@
 
 namespace OpenDialogAi\InterpreterEngine\Service;
 
-use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 
@@ -16,18 +16,18 @@ interface InterpreterServiceInterface
      * Takes an utterance and returns the matching intents with their match score
      *
      * @param string $interpreterName Should be in the format interpreter.{namespace}.{name}
-     * @param UtteranceInterface $utterance
-     * @return Intent[]
+     * @param UtteranceAttribute $utterance
+     * @return IntentCollection
      * @throws InterpreterNotRegisteredException
      */
-    public function interpret(string $interpreterName, UtteranceInterface $utterance) : array;
+    public function interpret(string $interpreterName, UtteranceAttribute $utterance) : IntentCollection;
 
     /**
      * Runs @see InterpreterServiceInterface::interpret() for the default interpreter
-     * @param UtteranceInterface $utterance
-     * @return Intent[]
+     * @param UtteranceAttribute $utterance
+     * @return IntentCollection
      */
-    public function interpretDefaultInterpreter(UtteranceInterface $utterance) : array;
+    public function interpretDefaultInterpreter(UtteranceAttribute $utterance) : IntentCollection;
 
     /**
      * Return the interpreter cache time if set or the global default cache time

@@ -110,12 +110,9 @@ abstract class AbstractContextService implements ContextService
     /**
      * @inheritDoc
      */
-    public function getAttributeValue(string $attributeId, string $contextId, array $index = [])
+    public function getAttributeValue(string $attributeId, string $contextId)
     {
-        if (!$index) {
-            return $this->getAttribute($attributeId, $contextId)->getValue();
-        }
-        return $this->getAttribute($attributeId, $contextId)->getValue($index);
+        return $this->getAttribute($attributeId, $contextId)->getValue();
     }
 
     /**

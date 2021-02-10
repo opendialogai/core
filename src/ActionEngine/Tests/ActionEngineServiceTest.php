@@ -64,7 +64,7 @@ class ActionEngineServiceTest extends TestCase
 
         $availableActions = $this->actionEngine->getAvailableActions();
 
-        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getComponetId());
+        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getComponentId());
     }
 
     public function testPerformActionNotBound()

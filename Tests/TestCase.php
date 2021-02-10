@@ -80,7 +80,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ResponseEngineServiceProvider::class,
             AttributeEngineServiceProvider::class,
             ContextEngineServiceProvider::class,
-//            InterpreterEngineServiceProvider::class,
+            InterpreterEngineServiceProvider::class,
             OperationEngineServiceProvider::class,
             SensorEngineServiceProvider::class,
             NlpEngineServiceProvider::class,

@@ -4,12 +4,13 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 
@@ -23,17 +24,19 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
     /**
      * @inheritdoc
      */
-    public function interpret(UtteranceInterface $utterance): array
+    public function interpret(UtteranceAttribute $utterance): IntentCollection
     {
         try {
             $clientResponse = $this->client->query($utterance->getText());
             $intent = $this->createOdIntent($clientResponse);
         } catch (AbstractNLURequestFailedException $e) {
             Log::warning(sprintf("%s failed with message: %s", static::$name, $e->getMessage()));
-            $intent = new NoMatchIntent();
+            $intent = new Intent();
+            $intent->setODId('intent.core.NoMatch');
         }
-
-        return [$intent];
+        $collection = new IntentCollection();
+        $collection->add($intent);
+        return $collection;
     }
 
     /**
@@ -45,7 +48,8 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
      */
     protected function createOdIntent(AbstractNLUResponse $response): Intent
     {
-        $intent = new NoMatchIntent();
+        $intent = new Intent();
+        $intent->setODId('intent.core.NoMatch');
 
         if ($topIntent = $response->getTopScoringIntent()) {
             Log::debug(
@@ -56,10 +60,12 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
                     $topIntent->getConfidence()
                 )
             );
-            $intent = Intent::createIntentWithConfidence($topIntent->getLabel(), $topIntent->getConfidence());
+            $intent = new Intent();
+            $intent->setODId($topIntent->getLabel());
+            $intent->setConfidence($topIntent->getConfidence());
         }
 
-        /* @var AttributeInterface $attribute */
+        /* @var Attribute $attribute */
         foreach ($this->extractAttributes($response->getEntities()) as $attribute) {
             Log::debug(sprintf('Adding attribute %s to intent.', $attribute->getId()));
             $intent->addAttribute($attribute);
@@ -71,11 +77,11 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
     /**
      * Tries to resolve the entity type with any registered in config. If there is not an entry for the entity, a
      * @param AbstractNLUEntity $entity
-     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Contracts\Attribute
      * @see StringAttribute is used.
      *
      */
-    protected function resolveEntity(AbstractNLUEntity $entity): AttributeInterface
+    protected function resolveEntity(AbstractNLUEntity $entity): Attribute
     {
         /** @var \OpenDialogAi\AttributeEngine\Attributes\AbstractAttribute[] $entityList */
         $entityList = config($this->getEntityConfigKey());
@@ -95,7 +101,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
      */
     protected function extractAttributes(array $luisEntities): Map
     {
-        $attributes = new AttributeBag();
+        $attributes = new BasicAttributeBag();
 
         foreach ($luisEntities as $entity) {
             $attributes->addAttribute($this->resolveEntity($entity));

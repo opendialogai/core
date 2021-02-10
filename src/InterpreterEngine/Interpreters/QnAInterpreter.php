@@ -4,8 +4,10 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\QnA\QnAClient;
@@ -31,29 +33,30 @@ class QnAInterpreter extends BaseInterpreter
     /**
      * @inheritdoc
      */
-    public function interpret(UtteranceInterface $utterance): array
+    public function interpret(UtteranceAttribute $utterance): IntentCollection
     {
         try {
             $qnaResponse = $this->client->queryQnA($utterance->getText());
             $intent = $this->createOdIntent($qnaResponse);
         } catch (QnARequestFailedException $e) {
             Log::warning(sprintf('QnA interpreter failed at a QnA client level with message %s', $e->getMessage()));
-            $intent = new NoMatchIntent();
+            $intent = Intent::createNoMatchIntent();
         }
-
-        return [$intent];
+        $collection = new IntentCollection();
+        $collection->add($intent);
+        return $collection;
     }
 
     /**
      * Creates an @param QnAResponse $response
-     * @return NoMatchIntent|Intent
+     * @return Intent
      * @see Intent from the QnA response. If there is no intent in the response, a default NO_MATCH intent
      * is returned
      *
      */
     protected function createOdIntent(QnAResponse $response)
     {
-        $intent = new NoMatchIntent();
+        $intent = Intent::createNoMatchIntent();
 
         if (!empty($response->getAnswers())) {
             foreach ($response->getAnswers() as $answer) {

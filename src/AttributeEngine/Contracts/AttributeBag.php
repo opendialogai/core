@@ -28,7 +28,7 @@ interface AttributeBag
      * @param string $attributeName
      * @return mixed
      */
-    public function getAttributeValue(string $attributeName): ?AttributeValue;
+    public function getAttributeValue(string $attributeName);
 
     /**
      * Checks whether the attribute with given name exists

@@ -16,7 +16,7 @@ use OpenDialogAi\ContextEngine\Contexts\BaseContext;
  * The Context Manager will loop though all registered custom contexts, instantiate them and call the
  * @see AbstractCustomContext::loadAttributes() method to make the custom context attributes available to the application
  */
-abstract class BaseCustomContext extends BaseContext
+abstract class AbstractCustomContext extends BaseContext
 {
     /**
      * The name to give the custom context.

@@ -3,6 +3,7 @@
 namespace OpenDialogAi\AttributeEngine\CoreAttributes;
 
 use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
@@ -106,9 +107,26 @@ class UtteranceAttribute extends BasicCompositeAttribute
         return $this;
     }
 
+    public function getCallbackValue()
+    {
+        return $this->getUtteranceAttribute(self::UTTERANCE_DATA_VALUE);
+    }
+
+    public function setCallbackValue($value)
+    {
+        $this->setUtteranceAttribute(self::UTTERANCE_DATA_VALUE, $value);
+        return $this;
+    }
+
     public function getCallbackId()
     {
         return $this->getUtteranceAttribute('callback_id');
+    }
+
+    public function setCallbackId($callback_id)
+    {
+        $this->setUtteranceAttribute(self::CALLBACK_ID, $callback_id);
+        return $this;
     }
 
     public function getUserId()
@@ -124,6 +142,12 @@ class UtteranceAttribute extends BasicCompositeAttribute
     public function getText()
     {
         return $this->getUtteranceAttribute(self::UTTERANCE_TEXT);
+    }
+
+    public function setText($value)
+    {
+        $this->setUtteranceAttribute(self::UTTERANCE_TEXT, $value);
+        return $this;
     }
 
     public function getData()

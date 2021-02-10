@@ -6,6 +6,7 @@ namespace OpenDialogAi\AttributeEngine\Tests;
 use Doctrine\Common\Annotations\Annotation\Attribute;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
@@ -35,7 +36,7 @@ class CompositeAttributeTest extends \Orchestra\Testbench\TestCase
 
         $this->setConfigValue(
             'opendialog.attribute_engine.custom_attributes',
-            ['test_composite_attribute' => ExampleCompositeAttribute::class]
+            ['test_composite_attribute' => BasicCompositeAttribute::class]
         );
     }
 

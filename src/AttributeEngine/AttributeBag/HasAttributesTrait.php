@@ -16,7 +16,7 @@ trait HasAttributesTrait
     /**
      * @var Map $attributes - the set of attributes related to this object.
      */
-    protected $attributes;
+    protected Map $attributes;
 
     /**
      * @inheritdoc
@@ -105,7 +105,7 @@ trait HasAttributesTrait
     /**
      * @inheritdoc
      */
-    public function getAttributeValue(string $attributeName): ?AttributeValue
+    public function getAttributeValue(string $attributeName)
     {
         if ($this->hasAttribute($attributeName)) {
             return $this->getAttribute($attributeName)->getValue();
@@ -124,7 +124,7 @@ trait HasAttributesTrait
     public function removeAttribute(string $attributeName): bool
     {
         if ($this->hasAttribute($attributeName)) {
-            $this->getAttribute($attributeName)->setValue(null);
+            $this->getAttribute($attributeName)->setRawValue(null);
             return true;
         }
 
