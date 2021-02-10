@@ -8,7 +8,7 @@ use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
-use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\DummyFormatter;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -927,9 +927,9 @@ class ResponseEngineTest extends TestCase
     }
 
     /**
-     * @return ContextInterface
+     * @return Context
      */
-    public function createUserContext(): ContextInterface
+    public function createUserContext(): Context
     {
         $userContext = ContextService::createContext('user');
         return $userContext;
