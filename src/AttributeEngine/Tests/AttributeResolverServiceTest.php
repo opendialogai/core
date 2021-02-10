@@ -2,8 +2,10 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
+use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
+use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeValues\IntAttributeValue;
@@ -47,12 +49,38 @@ class AttributeResolverServiceTest extends \Orchestra\Testbench\TestCase
 
     public function testAttributeResolution()
     {
-        $attribute = $this->getAttributeResolver()->getAttributeFor('name', null, new StringAttributeValue('John Smith'));
+        // Create a string attribute with a StringAttributeValue
+        $attribute = $this->getAttributeResolver()->getAttributeFor('name', new StringAttributeValue('John Smith'));
 
         $this->assertInstanceOf(StringAttribute::class, $attribute);
         $this->assertEquals($attribute->getValue(), 'John Smith');
         $this->assertEquals($attribute->getAttributeValue()->getTypedValue(), 'John Smith');
         $this->assertNotEquals($attribute->getAttributeValue()->getTypedValue(), 'Mario Rossi');
+
+        // Create a string attribute with a raw value
+        $attribute = $this->getAttributeResolver()->getAttributeFor('name', 'Mary Jane');
+
+        $this->assertInstanceOf(StringAttribute::class, $attribute);
+        $this->assertEquals($attribute->getValue(), 'Mary Jane');
+        $this->assertEquals($attribute->getAttributeValue()->getTypedValue(), 'Mary Jane');
+        $this->assertNotEquals($attribute->getAttributeValue()->getTypedValue(), 'Mario Rossi');
+
+        // Create a composite attribute with a new Attribute
+        $newAttribute = new StringAttribute('incompo', 'some stuff');
+        $attribute = $this->getAttributeResolver()->getAttributeFor('composite', $newAttribute);
+        $this->assertInstanceOf(BasicCompositeAttribute::class, $attribute);
+        $this->assertEquals($attribute->getAttribute('incompo')->getValue(), 'some stuff');
+        $this->assertNotEquals($attribute->getAttribute('incompo')->getValue(), 'other stuff');
+
+        // Create a map and add to composite attribute
+        $map = new Map();
+        $map->put('forone', new StringAttribute('forone', 'onevalue'));
+        $map->put('fortwo', new StringAttribute('fortwo', 'twovalue'));
+        $attribute = $this->getAttributeResolver()->getAttributeFor('composite', $map);
+        $this->assertInstanceOf(BasicCompositeAttribute::class, $attribute);
+        $this->assertEquals(2, count($attribute->getValue()));
+        $this->assertEquals($attribute->getAttribute('forone')->getValue(), 'onevalue');
+        $this->assertEquals($attribute->getAttribute('fortwo')->getValue(), 'twovalue');
     }
 
     public function testAccessToUnsupportedAttribute()

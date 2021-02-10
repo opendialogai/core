@@ -2,6 +2,7 @@
 
 
 use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
@@ -24,6 +25,7 @@ return [
         FormDataAttribute::class,
         ArrayDataAttribute::class,
         ConversationStateAttribute::class,
+        BasicCompositeAttribute::class,
     ],
 
     'supported_attributes' => [
@@ -42,6 +44,7 @@ return [
         'last_seen' => TimestampAttribute::class,
         'first_seen' => TimestampAttribute::class,
         'all' => StringAttribute::class,
+        'composite' => BasicCompositeAttribute::class,
 
         'qna_answer' => StringAttribute::class,
         'qna_prompt_0' => StringAttribute::class,
