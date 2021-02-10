@@ -3,29 +3,27 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\AttributeEngine\Contracts\AttributeBag;
-
 class Condition
 {
     protected string $operation;
-    protected AttributeBag $attributes;
+    protected array $operationAttributes;
     protected array $parameters;
 
-    public function __construct(string $operation, AttributeBag $attributes, array $parameters)
+    public function __construct(string $operation, array $operationAttributes, array $parameters)
     {
         $this->operation = $operation;
-        $this->$attributes = $attributes;
+        $this->operationAttributes = $operationAttributes;
         $this->parameters = $parameters;
     }
 
-    public function getOperation(): string
+    public function getEvaluationOperation(): string
     {
         return $this->operation;
     }
 
-    public function getAttributes(): AttributeBag
+    public function getOperationAttributes(): array
     {
-        return $this->attributes;
+        return $this->operationAttributes;
     }
 
     public function getParameters(): array
