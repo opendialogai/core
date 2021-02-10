@@ -34,9 +34,9 @@
             <directory suffix="Test.php">./src/ContextEngine/Tests</directory>
         </testsuite>
 
-<!--    <testsuite name="ResponseEngine">
+       <testsuite name="ResponseEngine">
             <directory suffix="Test.php">./src/ResponseEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
         <testsuite name="InterpreterEngine">
             <directory suffix="Test.php">./src/InterpreterEngine/Tests</directory>

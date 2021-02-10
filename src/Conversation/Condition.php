@@ -7,9 +7,9 @@ class Condition
 {
     protected string $operation;
     protected array $operationAttributes;
-    protected array $parameters;
+    protected ?array $parameters;
 
-    public function __construct(string $operation, array $operationAttributes, array $parameters)
+    public function __construct(string $operation, array $operationAttributes, ?array $parameters)
     {
         $this->operation = $operation;
         $this->operationAttributes = $operationAttributes;
@@ -26,7 +26,7 @@ class Condition
         return $this->operationAttributes;
     }
 
-    public function getParameters(): array
+    public function getParameters(): ?array
     {
         return $this->parameters;
     }

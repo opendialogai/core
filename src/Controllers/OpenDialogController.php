@@ -3,14 +3,9 @@
 namespace OpenDialogAi\Core\Controllers;
 
 use Ds\Set;
-use GuzzleHttp\Exception\GuzzleException;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
-use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\ContextEngine\Contexts\User\CurrentIntentNotSetException;
-use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\Exceptions\NoConversationsException;
-use OpenDialogAi\ConversationEngine\Reasoners\UtteranceReasoner;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
