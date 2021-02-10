@@ -205,8 +205,11 @@ class InterpreterService implements InterpreterServiceInterface
      * @param IntentCollection $intents
      * @return bool
      */
-    private function putInterpreterResultToCache(string $interpreterName, UtteranceAttribute $utterance, IntentCollection $intents): bool
-    {
+    private function putInterpreterResultToCache(
+        string $interpreterName,
+        UtteranceAttribute $utterance,
+        IntentCollection $intents
+    ): bool {
         $cacheKey = $this->generateCacheKey($interpreterName, $utterance);
         $cacheTime = $this->getInterpreterCacheTime($interpreterName);
 

@@ -96,7 +96,7 @@ class QnAInterpreterTest extends TestCase
         /** @var IntentCollection $intents */
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
         $this->assertCount(1, $intents);
-        
+
         $this->assertEquals(QnAQuestionMatchedIntent::QNA_QUESTION_MATCHED, $intents[0]->getODId());
         $this->assertEquals(0.5, $intents[0]->getConfidence());
 
