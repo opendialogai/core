@@ -16,7 +16,7 @@ trait HasAttributesTrait
     /**
      * @var Map $attributes - the set of attributes related to this object.
      */
-    protected $attributes;
+    protected Map $attributes;
 
     /**
      * @inheritdoc

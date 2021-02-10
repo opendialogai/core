@@ -4,6 +4,7 @@ namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
@@ -60,7 +61,7 @@ class LuisInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
 
         $this->assertCount(1, $intents);
-        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getLabel());
+        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getODId());
     }
 
     // If an exception is thrown by LUIS, return a no match
@@ -76,10 +77,12 @@ class LuisInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
 
         $this->assertCount(1, $intents);
-        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getLabel());
+        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getODId());
     }
 
-    // Use an utterance that does not support text
+    /**
+     * @group skip
+     */
     public function testInvalidUtterance()
     {
         $interpreter = new LuisInterpreter();
@@ -102,7 +105,7 @@ class LuisInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
         $this->assertCount(1, $intents);
 
-        $this->assertEquals('MATCH', $intents[0]->getLabel());
+        $this->assertEquals('MATCH', $intents[0]->getODId());
         $this->assertEquals(0.5, $intents[0]->getConfidence());
     }
 
@@ -155,7 +158,7 @@ class LuisInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('match'));
         $this->assertCount(1, $intents);
 
-        $this->assertCount(1, $intents[0]->getNonCoreAttributes());
+        $this->assertCount(1, $intents[0]->getAttributes());
 
         $matchedAttribute = $intents[0]->getAttribute('unknownEntity');
         $this->assertEquals(StringAttribute::class, get_class($matchedAttribute));
@@ -163,7 +166,7 @@ class LuisInterpreterTest extends TestCase
 
     private function createUtteranceWithText($text)
     {
-        $utterance = new WebchatTextUtterance();
+        $utterance = new UtteranceAttribute('test_attribute');
         $utterance->setText($text);
 
         return $utterance;

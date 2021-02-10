@@ -38,13 +38,13 @@
             <directory suffix="Test.php">./src/ResponseEngine/Tests</directory>
         </testsuite> -->
 
-<!--    <testsuite name="InterpreterEngine">
+        <testsuite name="InterpreterEngine">
             <directory suffix="Test.php">./src/InterpreterEngine/Tests</directory>
-        </testsuite> -->
+        </testsuite>
 
        <testsuite name="OperationEngine">
             <directory suffix="Test.php">./src/OperationEngine/Tests</directory>
-        </testsuite> 
+        </testsuite>
 
 <!--    <testsuite name="ConversationBuilder">
             <directory suffix="Test.php">./src/ConversationBuilder/Tests</directory>

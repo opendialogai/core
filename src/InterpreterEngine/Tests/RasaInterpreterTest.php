@@ -3,13 +3,12 @@
 namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use Exception;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter\AbstractNLURequestFailedException;
 use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 use OpenDialogAi\InterpreterEngine\Interpreters\RasaInterpreter;
@@ -60,7 +59,7 @@ class RasaInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
 
         $this->assertCount(1, $intents);
-        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getLabel());
+        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getODId());
     }
 
     // If an exception is thrown by RASA, return a no match
@@ -78,10 +77,12 @@ class RasaInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
 
         $this->assertCount(1, $intents);
-        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getLabel());
+        $this->assertEquals(NoMatchIntent::NO_MATCH, $intents[0]->getODId());
     }
 
-    // Use an utterance that does not support text
+    /**
+     * @group skip
+     */
     public function testInvalidUtterance()
     {
         $interpreter = new RasaInterpreter();
@@ -107,7 +108,7 @@ class RasaInterpreterTest extends TestCase
         $intents = $interpreter->interpret($this->createUtteranceWithText('no match'));
         $this->assertCount(1, $intents);
 
-        $this->assertEquals('MATCH', $intents[0]->getLabel());
+        $this->assertEquals('MATCH', $intents[0]->getODId());
         $this->assertEquals(0.5, $intents[0]->getConfidence());
     }
 
@@ -126,17 +127,17 @@ class RasaInterpreterTest extends TestCase
 
         $interpreter = new RasaInterpreter();
 
-        /** @var Intent[] $intents */
+        /** @var IntentCollection $intents */
         $intents = $interpreter->interpret($this->createUtteranceWithText('directions to accra'));
         $this->assertCount(1, $intents);
 
-        $this->assertEquals('directions', $intents[0]->getLabel());
+        $this->assertEquals('directions', $intents[0]->getODId());
         $this->assertEquals(1, $intents[0]->getConfidence());
 
-        $extractedAttributes = $intents[0]->getNonCoreAttributes();
+        $extractedAttributes = $intents[0]->getAttributes();
         $this->assertCount(1, $extractedAttributes);
 
-        /** @var AttributeInterface $attribute */
+        /** @var Attribute $attribute */
         $attribute = $extractedAttributes->first()->value;
         $this->assertEquals('direction_location', $attribute->getId());
         $this->assertEquals('Accra', $attribute->getValue());
@@ -144,7 +145,9 @@ class RasaInterpreterTest extends TestCase
 
     private function createUtteranceWithText($text)
     {
-        $utterance = new WebchatTextUtterance();
+        $utterance = new UtteranceAttribute('test_utterance');
+        $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE);
+        $utterance->setCallbackId('valid');
         $utterance->setText($text);
 
         return $utterance;
