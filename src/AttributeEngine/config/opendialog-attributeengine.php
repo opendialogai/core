@@ -10,7 +10,7 @@ use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\FormDataAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
-use OpenDialogAi\AttributeEngine\CoreAttributes\ConversationStateAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UserHistoryRecord;
 use OpenDialogAi\AttributeEngine\Attributes\ArrayDataAttribute;
 
 return [
@@ -24,7 +24,7 @@ return [
         UtteranceAttribute::class,
         FormDataAttribute::class,
         ArrayDataAttribute::class,
-        ConversationStateAttribute::class,
+        UserHistoryRecord::class,
         BasicCompositeAttribute::class,
     ],
 
@@ -73,7 +73,7 @@ return [
         // User
         'current_user' => UserAttribute::class,
         'custom_parameters' => FormDataAttribute::class,
-        'last_record' => ConversationStateAttribute::class,
+        'last_record' => UserHistoryRecord::class,
 
         // Conversation State
         'platform' => StringAttribute::class,

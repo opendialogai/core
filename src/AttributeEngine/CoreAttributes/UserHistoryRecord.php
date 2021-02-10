@@ -9,7 +9,7 @@ use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Components\ODComponentTypes;
 
-class ConversationStateAttribute extends BasicCompositeAttribute
+class UserHistoryRecord extends BasicCompositeAttribute
 {
     protected static ?string $componentId = 'attribute.core.conversation_state';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
@@ -22,6 +22,7 @@ class ConversationStateAttribute extends BasicCompositeAttribute
     public const SCENARIO_ID = 'scenario_id';
     public const CONVERSATION_ID = 'conversation_id';
     public const TURN_ID = 'turn_id';
+    public const COMPLETED = 'completed';
     public const ACTIONS_PERFORMED = 'actions_performed';
     public const CONDITIONS_EVALUATED = 'conditions_evaluated';
 
