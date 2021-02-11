@@ -1420,12 +1420,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/opendialogai/dgraph-docker.git",
-                "reference": "93acdc66d3fd4b7e0b0c57e915097f1595882b9b"
+                "reference": "30e53e670d49fdbc6e1ec4083ac69a2729595acd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/93acdc66d3fd4b7e0b0c57e915097f1595882b9b",
-                "reference": "93acdc66d3fd4b7e0b0c57e915097f1595882b9b",
+                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/30e53e670d49fdbc6e1ec4083ac69a2729595acd",
+                "reference": "30e53e670d49fdbc6e1ec4083ac69a2729595acd",
                 "shasum": ""
             },
             "type": "library",
@@ -1448,7 +1448,7 @@
                 "issues": "https://github.com/opendialogai/dgraph-docker/issues",
                 "source": "https://github.com/opendialogai/dgraph-docker/tree/feature/dgraph-v20.11.0"
             },
-            "time": "2021-02-09T14:08:26+00:00"
+            "time": "2021-02-11T09:31:39+00:00"
         },
         {
             "name": "opis/closure",
