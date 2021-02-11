@@ -42,7 +42,7 @@ jobs:
           key: v1-dependencies-{{ checksum "composer.lock" }}
 
       # Set up dgraph
-      - run: cd dgraph && echo 'DGRAPH_AUTHTOKEN=circlecidgraphauthtoken' > .env; docker-compose up -d
+      - run: cd dgraph && echo 'DGRAPH_AUTH_TOKEN=circlecidgraphauthtoken' > .env; docker-compose up -d
 
       # Set up port forwarding from dgraph server
       - run: sudo apt-get -y update; sleep 1; sudo apt-get -y install socat
