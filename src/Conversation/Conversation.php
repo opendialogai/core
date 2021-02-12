@@ -3,6 +3,9 @@ namespace OpenDialogAi\Core\Conversation;
 
 class Conversation extends ConversationObject
 {
+    public const CURRENT_CONVERSATION = 'current_conversation';
+
+
     protected SceneCollection $scenes;
     protected Scenario $scenario;
 
@@ -28,7 +31,7 @@ class Conversation extends ConversationObject
         $this->scenes = $scenes;
     }
 
-    public function getScenario(): Scenario
+    public function getScenario(): ?Scenario
     {
         return $this->scenario;
     }
@@ -41,5 +44,20 @@ class Conversation extends ConversationObject
     public function getScene(string $odId): ?Scene
     {
         return $this->scenes->getObject($odId);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInterpreter()
+    {
+        if (isset($this->interpreter)) {
+            return $this->interpreter;
+        }
+
+        if (isset($this->scenario)) {
+            return $this->scenario->getInterpreter();
+        }
+        return null;
     }
 }

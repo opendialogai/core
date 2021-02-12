@@ -6,7 +6,7 @@ class ConversationObject
     public const UNDEFINED = 'undefined';
 
     protected string $type = self::UNDEFINED;
-    protected string $od_id = self::UNDEFINED;
+    protected string $odId = self::UNDEFINED;
     protected string $uid = self::UNDEFINED;
     protected string $name = self::UNDEFINED;
     protected string $description = self::UNDEFINED;
@@ -19,6 +19,7 @@ class ConversationObject
     protected BehaviorsCollection $behaviors;
     protected bool $active;
     protected string $status;
+    protected ?string $interpreter = null;
 
     public function __construct()
     {
@@ -50,15 +51,15 @@ class ConversationObject
      */
     public function getODId(): string
     {
-        return $this->od_id;
+        return $this->odId;
     }
 
     /**
-     * @param string $od_id
+     * @param string $odId
      */
-    public function setODId(string $od_id): void
+    public function setODId(string $odId): void
     {
-        $this->od_id = $od_id;
+        $this->od_id = $odId;
     }
 
     /**
@@ -110,6 +111,10 @@ class ConversationObject
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function setInterpreter(string $interpreter){
+        $this->interpreter = $interpreter;
     }
 
     /**

@@ -13,6 +13,10 @@ class Intent extends ConversationObject
     public const APP = 'EI_APP';
     public const HUMAN_AGENT = 'EI_HUMAN_AGENT';
 
+    public const CURRENT_INTENT = 'current_intent';
+    public const INTERPRETED_INTENT = 'interpreted_intent';
+    public const CURRENT_SPEAKER = 'speaker';
+
     const VALID_SPEAKERS = [
         self::USER,
         self::APP,
@@ -23,16 +27,17 @@ class Intent extends ConversationObject
     protected ?string $speaker;
     protected ?float $confidence;
 
-    public function __construct(?Turn $turn = null, ?string $speaker = null)
+    public function __construct(?Turn $turn = null, ?string $speaker = null, ?string $interpreter = null)
     {
         parent::__construct();
         // Attributes hold entities that may be associated with this intent following interpretation
         $this->attributes = new Map();
-        isset($turn) ? $this->turn = $turn : null;
-        isset($speaker) ? $this->setSpeaker($speaker): null;
+        isset($turn) ? $this->turn = $turn : $this->turn = null;
+        isset($speaker) ? $this->setSpeaker($speaker) : $this->speaker = null;
+        isset($interpreter) ? $this->$interpreter = $interpreter : $this->interpreter = null;
     }
 
-    public function getTurn(): Turn
+    public function getTurn(): ?Turn
     {
         return $this->turn;
     }
@@ -47,6 +52,11 @@ class Intent extends ConversationObject
         $this->speaker = $speaker;
     }
 
+    public function getSpeaker(): string
+    {
+        return $this->speaker;
+    }
+
     public function getConfidence(): float
     {
         return $this->confidence;
@@ -55,6 +65,55 @@ class Intent extends ConversationObject
     public function setConfidence(float $confidence)
     {
         $this->confidence = $confidence;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getInterpreter()
+    {
+        if (isset($this->interpreter)) {
+            return $this->interpreter;
+        }
+
+        if (isset($this->turn)) {
+            return $this->turn->getInterpreter();
+        }
+        return null;
+    }
+
+    /**
+     * @return Scene|null
+     */
+    public function getScene(): ?Scene
+    {
+        if ($this->getTurn() != null) {
+            return $this->getTurn()->getScene();
+        }
+        return null;
+    }
+
+    /**
+     * @return Conversation|null
+     */
+    public function getConversation(): ?Conversation
+    {
+        if ($this->getScene() != null) {
+            return $this->getScene()->getConversation();
+        }
+        return null;
+    }
+
+    /**
+     * @return Scenario|null
+     */
+    public function getScenario(): ?Scenario
+    {
+        if ($this->getConversation() != null) {
+            return $this->getConversation()->getScenario();
+        }
+
+        return null;
     }
 
     public static function createNoMatchIntent(): Intent
