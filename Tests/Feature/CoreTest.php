@@ -17,6 +17,9 @@ class CoreTest extends TestCase
         parent::setUp();
     }
 
+    /**
+     * @group skip
+     */
     public function testEndToEndFunctionality() {
 
         // Make sure we have a ResponseEngine
