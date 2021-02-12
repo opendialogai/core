@@ -113,7 +113,8 @@ class ConversationObject
         $this->description = $description;
     }
 
-    public function setInterpreter(string $interpreter){
+    public function setInterpreter(string $interpreter)
+    {
         $this->interpreter = $interpreter;
     }
 

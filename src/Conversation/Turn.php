@@ -109,7 +109,7 @@ class Turn extends ConversationObject
      */
     public function getScenario(): ?Scenario
     {
-        if ($this->getConversation() != null){
+        if ($this->getConversation() != null) {
             return $this->getConversation()->getScenario();
         }
 
