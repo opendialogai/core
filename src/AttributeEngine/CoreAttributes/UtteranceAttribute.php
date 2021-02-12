@@ -16,6 +16,7 @@ class UtteranceAttribute extends BasicCompositeAttribute
     protected static ?string $componentId = 'attribute.core.utterance';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
+    public const UTTERANCE = 'utterance';
     public const UTTERANCE_PLATFORM = 'utterance_platforn';
     public const WEBCHAT_PLATFORM = 'webchat';
 

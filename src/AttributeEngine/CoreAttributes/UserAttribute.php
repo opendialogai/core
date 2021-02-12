@@ -28,6 +28,7 @@ class UserAttribute extends BasicCompositeAttribute
     public const TIMEZONE = 'timezone';
     public const CUSTOM = 'custom_parameters';
     public const LAST_RECORD = 'last_record';
+    public const USER_HISTORY_RECORD = 'history_record';
 
 
     public function setUserAttribute(string $type, $value)
@@ -57,6 +58,16 @@ class UserAttribute extends BasicCompositeAttribute
         // @todo - might make more sense to return null or through an exception but for now
         // going down the more permissive path
         return '';
+    }
+
+    public function setUserHistoryRecord(UserHistoryRecord $record)
+    {
+        $this->setUserAttribute(self::USER_HISTORY_RECORD, $record);
+    }
+
+    public function getUserHistoryRecord(): ?UserHistoryRecord
+    {
+        return $this->getUserAttribute(self::USER_HISTORY_RECORD);
     }
 
     public function setUserId($value)
