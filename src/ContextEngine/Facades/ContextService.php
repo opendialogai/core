@@ -4,7 +4,6 @@ namespace OpenDialogAi\ContextEngine\Facades;
 
 use Illuminate\Support\Facades\Facade;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
-use OpenDialogAi\ContextEngine\ContextManager\BaseContext;
 use OpenDialogAi\ContextEngine\Contracts\Context;
 
 /**
