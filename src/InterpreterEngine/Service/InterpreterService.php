@@ -69,7 +69,9 @@ class InterpreterService implements InterpreterServiceInterface
             Log::warning(
                 'Trying to interpret using the default interpreter, but it\'s name has not been set. Using a no match'
             );
-            return [new NoMatchIntent()];
+            $collection = new IntentCollection();
+            $collection->add(Intent::createNoMatchIntent());
+            return $collection;
         }
     }
 
