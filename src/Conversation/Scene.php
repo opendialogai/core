@@ -40,11 +40,6 @@ class Scene extends ConversationObject
         $this->turns->addObject($turn);
     }
 
-    public function getTurn(string $odId): ?Turn
-    {
-        return $this->turns->getObject($odId);
-    }
-
     /**
      * @return string|null
      */

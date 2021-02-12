@@ -29,11 +29,6 @@ class Scenario extends ConversationObject
         $this->conversations->addObject($conversation);
     }
 
-    public function getConversation(string $odId): ?Conversation
-    {
-        return $this->conversations->getObject($odId);
-    }
-
     /**
      * @return string|null
      */

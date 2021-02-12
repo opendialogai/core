@@ -17,31 +17,21 @@ class ODObjectCollection extends Collection
         if (!isset($odId) || $odId == ConversationObject::UNDEFINED) {
             throw new CannotAddObjectWithoutODidException();
         }
-        $this->put($object->getOdId(), $object);
+        $this->push($object);
     }
 
-    public function getObject($odId)
+    /**
+     * @param $odid
+     */
+    public function getObjectsWithId(string $odId): ODObjectCollection
     {
-        $object = $this->get($odId);
-        // We need this to cast object to appropriate class
-        switch (true) {
-            case ($object instanceof Scenario):
-                return $object;
-                break;
-            case ($object instanceof Conversation):
-                return $object;
-                break;
-            case ($object instanceof Scene):
-                return $object;
-                break;
-            case ($object instanceof Turn):
-                return $object;
-                break;
-            case ($object instanceof Intent):
-                return $object;
-                break;
-            default:
-                return null;
-        }
+        $filtered = $this->filter(function (ConversationObject $object) use ($odId) {
+            if ($object->getODId() == $odId) {
+                return true;
+            }
+            return false;
+        });
+
+        return $filtered;
     }
 }

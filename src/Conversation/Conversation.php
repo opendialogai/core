@@ -41,11 +41,6 @@ class Conversation extends ConversationObject
         $this->scenes->addObject($scene);
     }
 
-    public function getScene(string $odId): ?Scene
-    {
-        return $this->scenes->getObject($odId);
-    }
-
     /**
      * @return string|null
      */

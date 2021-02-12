@@ -61,19 +61,9 @@ class Turn extends ConversationObject
         $this->requestIntents->addObject($intent);
     }
 
-    public function getRequestIntent(string $odId): ?Intent
-    {
-        return $this->requestIntents->getObject($odId);
-    }
-
     public function addResponseIntent(Intent $intent)
     {
         $this->responseIntents->addObject($intent);
-    }
-
-    public function getResponseIntent(string $odId): ?Intent
-    {
-        return $this->responseIntents->getObject($odId);
     }
 
     /**
