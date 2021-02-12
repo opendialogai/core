@@ -59,7 +59,7 @@ class ConversationObject
      */
     public function setODId(string $odId): void
     {
-        $this->od_id = $odId;
+        $this->odId = $odId;
     }
 
     /**
