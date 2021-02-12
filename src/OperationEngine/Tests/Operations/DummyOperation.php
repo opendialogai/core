@@ -8,13 +8,13 @@ class DummyOperation extends BaseOperation
 {
     public static $name = 'dummy';
 
+    protected static ?string $componentName = 'Example operation';
+    protected static ?string $componentDescription = 'Just an example operation.';
+
+    protected static array $requiredParametersArgumentNames = [];
+
     public function performOperation() : bool
     {
         return true;
-    }
-
-    public static function getAllowedParameters(): array
-    {
-        return [];
     }
 }

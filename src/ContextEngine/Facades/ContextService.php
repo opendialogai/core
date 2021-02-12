@@ -3,31 +3,25 @@
 namespace OpenDialogAi\ContextEngine\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
-use OpenDialogAi\ContextEngine\ContextManager\BaseContext;
-use OpenDialogAi\ContextEngine\ContextManager\ContextInterface;
-use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 
 /**
- * @method static ContextInterface createContext(string $contextId)
- * @method static void addContext(ContextInterface $context)
+ * @method static Context createContext(string $contextId)
+ * @method static void addContext(Context $context)
  * @method static bool hasContext(string $contextId)
- * @method static AttributeInterface getAttribute(string $attributeId, string $contextId)
- * @method static mixed getAttributeValue(string $attributeId, string $contextId, array $index = [])
- * @method static ContextInterface[] getContexts()
- * @method static ContextInterface[] getCustomContexts()
- * @method static BaseContext getSessionContext()
- * @method static UserContext createUserContext(UtteranceInterface $utterance)
- * @method static UserContext getUserContext()
- * @method static BaseContext getConversationContext()
+ * @method static Attribute getAttribute(string $attributeId, string $contextId)
+ * @method static mixed getAttributeValue(string $attributeId, string $contextId)
+ * @method static Context[] getContexts()
+ * @method static Context[] getCustomContexts()
  * @method static void saveAttribute(string $attributeName, $attributeValue)
- * @method static ContextInterface getContext(string $contextId)
+ * @method static Context getContext(string $contextId)
+ * @method static Context getSessionContext()
  */
 class ContextService extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface::class;
+        return \OpenDialogAi\ContextEngine\Contracts\ContextService::class;
     }
 }

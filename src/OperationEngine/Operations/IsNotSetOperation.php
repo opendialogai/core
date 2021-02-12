@@ -2,11 +2,16 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class IsNotSetOperation extends BaseOperation
 {
-    public static $name  = 'is_not_set';
+    protected static ?string $componentId = 'is_not_set';
+
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+
+    protected static array $requiredParametersArgumentNames = [];
 
     /**
      * @inheritDoc
@@ -16,13 +21,5 @@ class IsNotSetOperation extends BaseOperation
         $attribute = reset($this->attributes);
 
         return $attribute->getValue() === null || $attribute->getValue() === '';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [];
     }
 }

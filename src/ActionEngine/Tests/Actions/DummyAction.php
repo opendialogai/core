@@ -9,11 +9,11 @@ use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 
 class DummyAction extends BaseAction
 {
-    protected $requiredAttributes = ['name'];
+    protected static $requiredAttributes = ['name'];
 
-    protected $outputsAttributes = ['nickname'];
+    protected static $outputAttributes = ['nickname'];
 
-    protected static $name = 'actions.core.dummy';
+    protected static ?string $componentId = 'actions.core.dummy';
 
     public function perform(ActionInput $actionInput): ActionResult
     {

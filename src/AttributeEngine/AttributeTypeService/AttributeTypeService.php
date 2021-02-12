@@ -3,13 +3,16 @@
 
 namespace OpenDialogAi\AttributeEngine\AttributeTypeService;
 
-
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeAlreadyRegisteredException;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeInvalidException;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
+use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\Exceptions\InvalidComponentDataException;
+use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 
 class AttributeTypeService implements AttributeTypeServiceInterface
 {
@@ -27,15 +30,14 @@ class AttributeTypeService implements AttributeTypeServiceInterface
     }
 
     /**
-     * @param string|AttributeInterface $attributeType
+     * @param string|Attribute $attributeType
      * @return bool
      */
     public function isValidAttributeType(string $attributeType): bool
     {
         return class_exists($attributeType)
-            && in_array(AttributeInterface::class, class_implements($attributeType));
+            && in_array(Attribute::class, class_implements($attributeType));
     }
-
 
     /**
      * @inheritDoc
@@ -96,7 +98,22 @@ class AttributeTypeService implements AttributeTypeServiceInterface
     {
         foreach ($attributeTypes as $attributeType) {
             try {
-                $this->registerAttributeType($attributeType);
+                // Check that the attributeType is a valid class and subsequently ensure it is a valid
+                // OpenDialog Component class by looking for the interface implementation. The string could
+                // not refer to valid class which will throw the first generic exception/
+                try {
+                    $interfaces = class_implements($attributeType);
+                } catch (\ErrorException $e) {
+                    throw new UnsupportedAttributeTypeException();
+                }
+
+                // Having ensured it is a class we now check that it is an OpenDialogCompoment class.
+                if (in_array('OpenDialogAi\Core\Components\Contracts\OpenDialogComponent', $interfaces)) {
+                    $attributeType::getComponentData();
+                    $this->registerAttributeType($attributeType);
+                } else {
+                    throw new UnsupportedAttributeTypeException();
+                }
             } catch (AttributeTypeAlreadyRegisteredException $e) {
                 Log::warning(sprintf(
                     'Not registering attribute type \'%s\', an attribute type with the ID \'%s\' is already registered.',
@@ -108,6 +125,25 @@ class AttributeTypeService implements AttributeTypeServiceInterface
                     'Not registering attribute type \'%s\', the attribute type was invalid.',
                     $attributeType
                 ));
+            } catch (MissingRequiredComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding attribute type %s to list of supported attribute types as it doesn't"
+                            . "have a %s",
+                        $attributeType,
+                        $e->data
+                    )
+                );
+            } catch (InvalidComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding attribute type %s to list of supported attribute types as its given %s"
+                            . " ('%s') is invalid",
+                        $attributeType,
+                        $e->data,
+                        $e->value
+                    )
+                );
             }
         }
     }

@@ -12,6 +12,7 @@ class UserAttributesCommandTest extends TestCase
 {
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testCachingAttributes()
     {

@@ -20,12 +20,12 @@ class MessageMarkUpGeneratorTest extends TestCase
         $generator->addButtonMessage('test button', $buttons);
 
         $markUp = $generator->getMarkUp();
-        $this->assertRegexp('/<message disable_text="true" hide_avatar="true">/', $markUp);
-        $this->assertRegexp('/<button-message>/', $markUp);
-        $this->assertRegexp('/<button>/', $markUp);
-        $this->assertRegexp('/<text>Button Text<\/text>/', $markUp);
-        $this->assertRegexp('/<value>Value<\/value>/', $markUp);
-        $this->assertRegexp('/<callback>callback<\/callback>/', $markUp);
+        $this->assertMatchesRegularExpression('/<message disable_text="true" hide_avatar="true">/', $markUp);
+        $this->assertMatchesRegularExpression('/<button-message>/', $markUp);
+        $this->assertMatchesRegularExpression('/<button>/', $markUp);
+        $this->assertMatchesRegularExpression('/<text>Button Text<\/text>/', $markUp);
+        $this->assertMatchesRegularExpression('/<value>Value<\/value>/', $markUp);
+        $this->assertMatchesRegularExpression('/<callback>callback<\/callback>/', $markUp);
     }
 
     public function testTextWithLinkMarkUpGenerator()
@@ -33,12 +33,12 @@ class MessageMarkUpGeneratorTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
         $markUp = $generator->getMarkUp();
-        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
-        $this->assertRegexp('/<text-message>/', $markUp);
-        $this->assertRegexp('/<link>/', $markUp);
-        $this->assertRegexp('/<text>This is a link<\/text>/', $markUp);
-        $this->assertRegexp('/<url>http:\/\/www.example.com<\/url>/', $markUp);
-        $this->assertRegexp('/<open-new-tab>true<\/open-new-tab>/', $markUp);
+        $this->assertMatchesRegularExpression('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertMatchesRegularExpression('/<text-message>/', $markUp);
+        $this->assertMatchesRegularExpression('/<link>/', $markUp);
+        $this->assertMatchesRegularExpression('/<text>This is a link<\/text>/', $markUp);
+        $this->assertMatchesRegularExpression('/<url>http:\/\/www.example.com<\/url>/', $markUp);
+        $this->assertMatchesRegularExpression('/<open-new-tab>true<\/open-new-tab>/', $markUp);
     }
 
     public function testMetaMarkUpGenerator()
@@ -48,9 +48,9 @@ class MessageMarkUpGeneratorTest extends TestCase
             'myName' => 'myValue'
         ]);
         $markUp = $generator->getMarkUp();
-        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
-        $this->assertRegexp('/<meta-message>/', $markUp);
-        $this->assertRegexp('/<data name="myName">myValue<\/data>/', $markUp);
+        $this->assertMatchesRegularExpression('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertMatchesRegularExpression('/<meta-message>/', $markUp);
+        $this->assertMatchesRegularExpression('/<data name="myName">myValue<\/data>/', $markUp);
     }
 
     public function testCtaMarkUpGenerator()
@@ -58,9 +58,9 @@ class MessageMarkUpGeneratorTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addCtaMessage('My CTA text');
         $markUp = $generator->getMarkUp();
-        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
-        $this->assertRegexp('/<cta-message>/', $markUp);
-        $this->assertRegexp('/My CTA text/', $markUp);
+        $this->assertMatchesRegularExpression('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertMatchesRegularExpression('/<cta-message>/', $markUp);
+        $this->assertMatchesRegularExpression('/My CTA text/', $markUp);
     }
 
     public function testAutoCompleteMarkUpGenerator()
@@ -79,11 +79,11 @@ class MessageMarkUpGeneratorTest extends TestCase
             $endpointParams
         );
         $markUp = $generator->getMarkUp();
-        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
-        $this->assertRegexp('/<autocomplete-message>/', $markUp);
-        $this->assertRegexp('/This is the title/', $markUp);
-        $this->assertRegexp('/<url>\/api\/v3\/endpoint-url<\/url>/', $markUp);
-        $this->assertRegexp('/<attribute_name>Product<\/attribute_name>/', $markUp);
+        $this->assertMatchesRegularExpression('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertMatchesRegularExpression('/<autocomplete-message>/', $markUp);
+        $this->assertMatchesRegularExpression('/This is the title/', $markUp);
+        $this->assertMatchesRegularExpression('/<url>\/api\/v3\/endpoint-url<\/url>/', $markUp);
+        $this->assertMatchesRegularExpression('/<attribute_name>Product<\/attribute_name>/', $markUp);
     }
 
     public function testDatePickerUpGenerator()
@@ -102,15 +102,15 @@ class MessageMarkUpGeneratorTest extends TestCase
         );
         $markUp = $generator->getMarkUp();
 
-        $this->assertRegexp('/<message disable_text="false" hide_avatar="false">/', $markUp);
-        $this->assertRegexp('/<date-picker-message>/', $markUp);
-        $this->assertRegexp('/<text>Message text<\/text>/', $markUp);
-        $this->assertRegexp('/<callback>callback<\/callback>/', $markUp);
-        $this->assertRegexp('/<submit_text>Submit<\/submit_text>/', $markUp);
-        $this->assertRegexp('/<month_required><\/month_required>/', $markUp);
-        $this->assertRegexp('/<year_required>1<\/year_required>/', $markUp);
-        $this->assertRegexp('/<max_date>today<\/max_date>/', $markUp);
-        $this->assertRegexp('/<min_date>20200101<\/min_date>/', $markUp);
-        $this->assertRegexp('/<attribute_name>Product<\/attribute_name>/', $markUp);
+        $this->assertMatchesRegularExpression('/<message disable_text="false" hide_avatar="false">/', $markUp);
+        $this->assertMatchesRegularExpression('/<date-picker-message>/', $markUp);
+        $this->assertMatchesRegularExpression('/<text>Message text<\/text>/', $markUp);
+        $this->assertMatchesRegularExpression('/<callback>callback<\/callback>/', $markUp);
+        $this->assertMatchesRegularExpression('/<submit_text>Submit<\/submit_text>/', $markUp);
+        $this->assertMatchesRegularExpression('/<month_required><\/month_required>/', $markUp);
+        $this->assertMatchesRegularExpression('/<year_required>1<\/year_required>/', $markUp);
+        $this->assertMatchesRegularExpression('/<max_date>today<\/max_date>/', $markUp);
+        $this->assertMatchesRegularExpression('/<min_date>20200101<\/min_date>/', $markUp);
+        $this->assertMatchesRegularExpression('/<attribute_name>Product<\/attribute_name>/', $markUp);
     }
 }

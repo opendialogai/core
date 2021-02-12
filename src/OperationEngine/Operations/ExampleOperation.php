@@ -2,11 +2,19 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class ExampleOperation extends BaseOperation
 {
-    public static $name = 'example';
+    protected static ?string $componentId = 'example';
+
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+
+    protected static array $requiredParametersArgumentNames = [
+        'start_value',
+        'end_value',
+    ];
 
     /**
      * @inheritDoc
@@ -20,18 +28,5 @@ class ExampleOperation extends BaseOperation
             return true;
         }
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'start_value',
-                'end_value',
-            ],
-        ];
     }
 }

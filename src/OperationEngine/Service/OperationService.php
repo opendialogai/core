@@ -3,12 +3,14 @@
 namespace OpenDialogAi\OperationEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\ContextService\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\ContextEngine\ParsedAttributeName;
+use OpenDialogAi\ContextEngine\ContextService\ParsedAttributeName;
+use OpenDialogAi\Core\Components\Exceptions\InvalidComponentDataException;
+use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
@@ -63,9 +65,31 @@ class OperationService implements OperationServiceInterface
     {
         /** @var OperationInterface $operation */
         foreach ($operations as $operation) {
-            $name = $operation::getName();
+            try {
+                $name = $operation::getName();
 
-            $this->availableOperations[$name] = new $operation();
+                /** @var OperationInterface $registeredOperation */
+                $registeredOperation = new $operation();
+                $registeredOperation::getComponentData();
+                $this->availableOperations[$name] = $registeredOperation;
+            } catch (MissingRequiredComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding operation %s to list of supported operations as it doesn't have a %s",
+                        $operation,
+                        $e->data
+                    )
+                );
+            } catch (InvalidComponentDataException $e) {
+                Log::warning(
+                    sprintf(
+                        "Skipping adding operation %s to list of supported operations as its given %s ('%s') is invalid",
+                        $operation,
+                        $e->data,
+                        $e->value
+                    )
+                );
+            }
         }
     }
 
@@ -93,9 +117,9 @@ class OperationService implements OperationServiceInterface
     /**
      * @param Condition $condition
      * @param ParsedAttributeName $parsedAttributeName
-     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Contracts\Attribute
      */
-    private function getAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): AttributeInterface
+    private function getAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): Attribute
     {
         try {
             if (!$parsedAttributeName->getAccessor()) {

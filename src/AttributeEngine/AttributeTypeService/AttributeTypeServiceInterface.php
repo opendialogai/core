@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\AttributeEngine\AttributeTypeService;
 
-
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeAlreadyRegisteredException;

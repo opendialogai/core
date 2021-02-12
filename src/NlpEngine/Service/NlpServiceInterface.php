@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\NlpEngine\Service;
 
-
 use OpenDialogAi\NlpEngine\Exceptions\NlpProviderNotRegisteredException;
 use OpenDialogAi\NlpEngine\Providers\NlpProviderInterface;
 

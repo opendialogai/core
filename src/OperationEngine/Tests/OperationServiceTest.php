@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\OperationEngine\Tests;
 
+use OpenDialogAi\Core\Components\ODComponentTypes;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponentData;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\Bot\Interpreters\TestInterpreterComposite;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -42,6 +44,7 @@ class OperationServiceTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationConditionWithOnlyOperation()
     {
@@ -113,6 +116,11 @@ EOT;
     {
         $mockOperation = \Mockery::mock(OperationInterface::class);
         $mockOperation->shouldReceive('getName')->andReturn($operationName);
+        $mockOperation->shouldReceive('getComponentData')->andReturn(new OpenDialogComponentData(
+            ODComponentTypes::OPERATION_COMPONENT_TYPE,
+            ODComponentTypes::APP_COMPONENT_SOURCE,
+            $operationName
+        ));
 
         return $mockOperation;
     }

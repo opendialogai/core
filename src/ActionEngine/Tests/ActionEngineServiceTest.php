@@ -52,7 +52,7 @@ class ActionEngineServiceTest extends TestCase
 
         $availableActions = $this->actionEngine->getAvailableActions();
 
-        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getName());
+        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getComponentId());
     }
 
     public function testCombination()
@@ -64,7 +64,7 @@ class ActionEngineServiceTest extends TestCase
 
         $availableActions = $this->actionEngine->getAvailableActions();
 
-        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getName());
+        $this->assertEquals('actions.core.dummy', array_shift($availableActions)::getComponentId());
     }
 
     public function testPerformActionNotBound()

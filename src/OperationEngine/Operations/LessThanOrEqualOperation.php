@@ -2,11 +2,14 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class LessThanOrEqualOperation extends BaseOperation
 {
-    public static $name  = 'lte';
+    protected static ?string $componentId = 'lte';
+
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * @inheritDoc
@@ -19,17 +22,5 @@ class LessThanOrEqualOperation extends BaseOperation
             return true;
         }
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'value',
-            ],
-        ];
     }
 }

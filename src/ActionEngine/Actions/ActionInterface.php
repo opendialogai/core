@@ -23,7 +23,7 @@ interface ActionInterface
      *
      * @return string[]
      */
-    public function getRequiredAttributes(): array;
+    public static function getRequiredAttributes(): array;
 
     /**
      * Returns an array of attribute names that the action give as input
@@ -45,7 +45,7 @@ interface ActionInterface
      *
      * @return Map
      */
-    public function getOutputAttributes(): Map;
+    public static function getOutputAttributes(): array;
 
     /**
      * Whether this action outputs the given attribute

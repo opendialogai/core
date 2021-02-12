@@ -2,45 +2,40 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\AttributeEngine\AttributeValues\IntAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
+
 /**
  * Int implementation of Attribute.
  */
-class IntAttribute extends BasicAttribute
+class IntAttribute extends BasicScalarAttribute
 {
-
-    /**
-     * @var string
-     */
-    public static $type = 'attribute.core.int';
-
+    protected static ?string $componentId = 'attribute.core.int';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
     /**
      * IntAttribute constructor.
      *
      * @param $id
      * @param $value
      */
-    public function __construct($id, $value)
+    public function __construct($id, $value = null)
     {
-        parent::__construct($id, $value);
+        if ($value instanceof IntAttributeValue) {
+            parent::__construct($id, $value);
+        } else {
+            $attributeValue = new IntAttributeValue($value);
+            parent::__construct($id, $attributeValue);
+        }
     }
 
-    /**
-     * Returns null or an intval
-     *
-     * @param array $arg
-     *
-     * @return int | null
-     */
-    public function getValue(array $arg = [])
+    public function setRawValue($rawValue)
     {
-        return $this->value === null ? $this->value : intval($this->value);
+        is_null($this->value) ?
+            $this->setAttributeValue(new IntAttributeValue($rawValue)) : $this->value->setRawValue($rawValue);
     }
 
-    /**
-     * @return string
-     */
-    public function toString(): string
+    public function toString(): ?string
     {
-        return (string) $this->getValue();
+        return $this->getAttributeValue()->toString();
     }
 }

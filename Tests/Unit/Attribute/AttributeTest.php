@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Tests\Unit\Attribute;
 
-use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -19,22 +18,10 @@ class AttributeTest extends TestCase
         $a = new BooleanAttribute('a', false);
         $this->assertEquals($a->toString(), 'false');
 
-        $a->setValue(true);
+        $a->setRawValue(true);
         $this->assertEquals($a->toString(), 'true');
 
         $b = new IntAttribute('b', 50);
         $this->assertEquals($b->toString(), '50');
-    }
-
-    public function testArrayAttribute()
-    {
-        $array = [
-            'first' => ['one', 'two'],
-            'second' => ['three', 'four']
-        ];
-
-        $attribute = new ArrayAttribute('test', $array);
-
-        $this->assertEquals('one', $attribute->getValue(['first', 0]));
     }
 }

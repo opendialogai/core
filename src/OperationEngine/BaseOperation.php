@@ -3,14 +3,31 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Traits\HasName;
 
-abstract class BaseOperation implements OperationInterface
+abstract class BaseOperation implements OperationInterface, OpenDialogComponent
 {
-    use HasName;
+    use ODComponent;
+
+    protected static string $componentType = ODComponentTypes::OPERATION_COMPONENT_TYPE;
+    protected static string $componentSource = ODComponentTypes::APP_COMPONENT_SOURCE;
 
     /**
-     * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
+     * @var array|string[]
+     */
+    protected static array $requiredAttributeArgumentNames = [
+        'attribute',
+    ];
+
+    protected static array $requiredParametersArgumentNames = [
+        'value',
+    ];
+
+    /**
+     * @var \OpenDialogAi\AttributeEngine\Attributes\Attribute[]
      */
     protected $attributes;
 
@@ -18,8 +35,6 @@ abstract class BaseOperation implements OperationInterface
      * @var array
      */
     protected $parameters;
-
-    protected static $name = 'base';
 
     public function __construct($attributes = [], $parameters = [])
     {
@@ -64,7 +79,7 @@ abstract class BaseOperation implements OperationInterface
     /**
      * @inheritdoc
      */
-    public function hasParameter($parameterName) : bool
+    public function hasParameter($parameterName): bool
     {
         return isset($this->parameters[$parameterName]);
     }
@@ -72,7 +87,7 @@ abstract class BaseOperation implements OperationInterface
     /**
      * @inheritDoc
      */
-    public function execute() : bool
+    public function execute(): bool
     {
         if (!$this->checkRequiredParameters()) {
             return false;
@@ -82,12 +97,27 @@ abstract class BaseOperation implements OperationInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    final public static function getRequiredAttributeArgumentNames(): array
+    {
+        return static::$requiredAttributeArgumentNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    final public static function getRequiredParameterArgumentNames(): array
+    {
+        return static::$requiredParametersArgumentNames;
+    }
+
+    /**
      * @return bool
      */
-    protected function checkRequiredParameters() : bool
+    protected function checkRequiredParameters(): bool
     {
-        $parameters = $this->getAllowedParameters();
-        $requiredParameters = (isset($parameters['required'])) ? $parameters['required'] : [];
+        $requiredParameters = $this->getRequiredParameterArgumentNames();
 
         foreach ($requiredParameters as $parameterName) {
             if (!$this->hasParameter($parameterName)) {
@@ -95,7 +125,7 @@ abstract class BaseOperation implements OperationInterface
                     sprintf(
                         "Missing required '%s' parameter for the '%s' operation",
                         $parameterName,
-                        self::$name
+                        self::$componentId
                     )
                 );
                 return false;
@@ -103,5 +133,10 @@ abstract class BaseOperation implements OperationInterface
         }
 
         return true;
+    }
+
+    public static function getName(): string
+    {
+        return static::$componentId;
     }
 }

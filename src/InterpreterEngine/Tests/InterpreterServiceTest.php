@@ -4,7 +4,9 @@ namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
 use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
@@ -18,17 +20,20 @@ class InterpreterServiceTest extends TestCase
 {
     public function testServiceBinding()
     {
-        $intent = (new Intent('dummy', 1))->addAttribute(new StringAttribute('name', 'test'));
+        $intent = Intent::createIntent('dummy', 1);
+        $intent->addAttribute(new StringAttribute('name', 'test'));
+        $collection = new IntentCollection();
+        $collection->add($intent);
 
         // Mock the service
-        $this->mock(InterpreterServiceInterface::class, function ($mock) use ($intent) {
+        $this->mock(InterpreterServiceInterface::class, function ($mock) use ($intent, $collection) {
             /** @noinspection PhpUndefinedMethodInspection */
-            $mock->shouldReceive('interpret')->andReturn([$intent]);
+            $mock->shouldReceive('interpret')->andReturn($collection);
         });
 
         $interpreterService = $this->getBoundInterpreterService();
 
-        $intents = $interpreterService->interpret('test', new WebchatTextUtterance());
+        $intents = $interpreterService->interpret('test', new UtteranceAttribute('test'));
 
         $this->assertCount(1, $intents);
         $this->assertContains($intent, $intents);
@@ -79,10 +84,10 @@ class InterpreterServiceTest extends TestCase
     {
         $this->registerSingleInterpreter(new DummyInterpreter());
         $service = $this->getBoundInterpreterService();
-        $intents = $service->interpret(DummyInterpreter::getName(), new WebchatTextUtterance());
+        $intents = $service->interpret(DummyInterpreter::getName(), new UtteranceAttribute('test'));
 
         $this->assertCount(1, $intents);
-        $this->assertEquals('dummy', $intents[0]->getLabel());
+        $this->assertEquals('dummy', $intents[0]->getODId());
     }
 
     /**
@@ -90,11 +95,13 @@ class InterpreterServiceTest extends TestCase
      */
     public function testInterpretNonBoundInterpreter()
     {
+        $utterance = new UtteranceAttribute('test_utterance');
+        $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE);
         $service = $this->getBoundInterpreterService();
-        $intents = $service->interpret(DummyInterpreter::getName(), new WebchatTextUtterance());
+        $intents = $service->interpret(DummyInterpreter::getName(), $utterance);
 
         $this->assertCount(1, $intents);
-        $this->assertEquals('intent.core.NoMatch', $intents[0]->getLabel());
+        $this->assertEquals('intent.core.NoMatch', $intents[0]->getODId());
     }
 
     public function testInterpreterNoNameNotRegistered()
@@ -136,20 +143,21 @@ class InterpreterServiceTest extends TestCase
         $service->setDefaultInterpreter('interpreter.core.callbackInterpreter');
         $defaultInterpreter = $service->getDefaultInterpreter();
 
-        $utterance = new WebchatChatOpenUtterance();
+        $utterance = new UtteranceAttribute('test');
+        $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::CHAT_OPEN);
         $utterance->setCallbackId('chat_open');
 
         $intents = $defaultInterpreter->interpret($utterance);
         $this->assertCount(1, $intents);
         $intent = $intents[0];
-        $this->assertEquals('intent.core.chatOpen', $intent->getId());
+        $this->assertEquals('intent.core.chatOpen', $intent->getODId());
     }
 
     public function testInterpreterResultCache()
     {
         $this->registerSingleInterpreter(new DummyInterpreter());
         $service = $this->getBoundInterpreterService();
-        $utterance = new WebchatTextUtterance();
+        $utterance = new UtteranceAttribute('test');
 
         $interpreterName = DummyInterpreter::getName();
 
@@ -162,8 +170,8 @@ class InterpreterServiceTest extends TestCase
 
         $this->assertCount(1, $intents);
         $this->assertCount(1, $intentsFromCache);
-        $this->assertEquals('dummy', $intents[0]->getLabel());
-        $this->assertEquals('dummy', $intentsFromCache[0]->getLabel());
+        $this->assertEquals('dummy', $intents[0]->getODId());
+        $this->assertEquals('dummy', $intentsFromCache[0]->getODId());
 
         $interpreterCacheTime = $service->getInterpreterCacheTime($interpreterName);
         $this->assertEquals(60, $interpreterCacheTime);

@@ -2,9 +2,8 @@
 
 namespace OpenDialogAi\InterpreterEngine;
 
-use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
 interface InterpreterInterface
@@ -21,9 +20,8 @@ interface InterpreterInterface
     /**
      * Interprets an utterance and returns all matching intents in an array
      *
-     * @param UtteranceInterface $utterance
-     * @return Intent[]
-     * @throws FieldNotSupported
+     * @param UtteranceAttribute $utterance
+     * @return IntentCollection
      */
-    public function interpret(UtteranceInterface $utterance) : array;
+    public function interpret(UtteranceAttribute $utterance) : IntentCollection;
 }

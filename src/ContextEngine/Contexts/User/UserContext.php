@@ -2,266 +2,52 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
-use Ds\Map;
-use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
-use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
-use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
-use OpenDialogAi\ConversationEngine\ConversationStore\ConversationStoreInterface;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModelCreatorException;
-use OpenDialogAi\ConversationEngine\ConversationStore\EIModels\EIModelIntent;
-use OpenDialogAi\Core\Conversation\ChatbotUser;
-use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Conversation\Model;
-use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Conversation\UserAttribute;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\ContextEngine\Contexts\BaseScopedContext;
+use OpenDialogAi\ContextEngine\Exceptions\ScopeNotSetException;
+use OpenDialogAi\ContextEngine\Exceptions\UserContextMissingIncomingUserInfo;
 
-class UserContext extends AbstractContext
+class UserContext extends BaseScopedContext
 {
-    const USER_CONTEXT = 'user';
+    public const USER_CONTEXT = 'user';
+    public const CURRENT_USER = 'current_user';
+    public const UTTERANCE_USER = 'utterance_user';
+    public const USER_ID_SCOPE = 'user_id';
 
-    /* @var ChatbotUser */
-    private $user;
+    protected UserDataClient $dataClient;
 
-    /* @var UserService */
-    private $userService;
-
-    /** @var ConversationStoreInterface */
-    private $conversationStore;
-
-    public function __construct(
-        ChatbotUser $user,
-        UserService $userService,
-        ConversationStoreInterface $conversationStore
-    ) {
+    public function __construct(UserDataClient $dataClient)
+    {
         parent::__construct(self::USER_CONTEXT);
-
-        $this->user = $user;
-        $this->userService = $userService;
-        $this->conversationStore = $conversationStore;
+        $this->dataClient = $dataClient;
     }
 
     /**
-     * Returns all the attributes currently associated with this context.
-     *
-     * @return Map
+     * @inheritdoc
      */
-    public function getAttributes(): Map
+    public function getAttribute(string $attributeName): Attribute
     {
-        return $this->userService->getUserAttributes($this->getUser());
-    }
-
-    /**
-     * @param string $attributeName
-     * @return AttributeInterface
-     * @throws AttributeDoesNotExistException
-     */
-    public function getAttribute(string $attributeName): AttributeInterface
-    {
-        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
-            /** @var UserAttribute $userAttribute */
-            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
-            return $userAttribute->getInternalAttribute();
-        } else {
-            Log::warning(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
-            throw new AttributeDoesNotExistException(
-                sprintf("Cannot return attribute with name %s - does not exist", $attributeName)
-            );
-        }
-    }
-
-    /**
-     * @param string $attributeName
-     * @return mixed
-     */
-    public function getAttributeValue(string $attributeName)
-    {
-        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
-            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
-            return $userAttribute->getInternalAttribute()->getValue();
+        if ($attributeName == self::CURRENT_USER) {
+            return $this->getUser();
         }
 
-        Log::debug(sprintf('Trying get value of a user attribute that does not exist - %s', $attributeName));
-        return null;
+        return parent::getAttribute($attributeName);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function addAttribute(AttributeInterface $attribute): UserContext
+    public function getUser(): Attribute
     {
-        $this->userService->addUserAttribute($this->getUser(), $attribute);
-        return $this;
-    }
-
-    /**
-     * Removes an attribute from the user if there is one with the given ID
-     *
-     * @param string $attributeName
-     * @return bool true if removed, false if not
-     */
-    public function removeAttribute(string $attributeName): bool
-    {
-        if ($this->userService->hasUserAttribute($this->getUser(), $attributeName)) {
-            /** @var UserAttribute $userAttribute */
-            $userAttribute = $this->userService->getUserAttributes($this->getUser())->get($attributeName);
-            $userAttribute->setValue(null);
-            return true;
+        if (!array_key_exists(self::USER_ID_SCOPE, $this->getScope())) {
+            throw new ScopeNotSetException('Cannot retrieve user from user context as user scope is not set');
         }
 
-        Log::warning(sprintf(
-            'Trying to remove non-existent attribute %s from %s',
-            $attributeName,
-            $this->getId()
-        ));
+        if (!$this->hasAttribute(self::UTTERANCE_USER)) {
+            throw new UserContextMissingIncomingUserInfo('User context does not have any incoming user information');
+        }
 
-        return false;
-    }
-
-    /**
-     * @return ChatbotUser
-     */
-    public function getUser(): ChatbotUser
-    {
-        return $this->user;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserId(): string
-    {
-        return $this->user->getId();
-    }
-
-    /**
-     * Updates the user in DGraph
-     *
-     * @return ChatbotUser
-     */
-    public function updateUser(): ChatbotUser
-    {
-        $this->user = $this->userService->updateUser($this->user);
-        return $this->user;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isUserHavingConversation(): bool
-    {
-        return $this->user->isHavingConversation();
-    }
-
-    /**
-     * @return Conversation
-     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
-     * @throws EIModelCreatorException
-     */
-    public function getCurrentConversation(): Conversation
-    {
-        return $this->userService->getCurrentConversation($this->user->getId());
-    }
-
-    /**
-     * Sets the current conversation against the user, persists the user and returns the conversation id
-     *
-     * @param Conversation $conversationForCloning Required to ensure that the new conversation is fully
-     * cloned by `UserService.updateUser`
-     * @param Conversation $conversationForConnecting Required to ensure that DGraph contains a correct `instance_of`
-     * edge between template & instance
-     * @return string
-     */
-    public function setCurrentConversation(Conversation $conversationForCloning, Conversation $conversationForConnecting): string
-    {
-        $this->user = $this->userService->setCurrentConversation(
-            $this->user,
-            $conversationForCloning,
-            $conversationForConnecting
+        $user = $this->dataClient->createOrUpdate(
+            $this->getScope()[self::USER_ID_SCOPE], $this->getAttribute(self::UTTERANCE_USER)
         );
 
-        return $this->user->getCurrentConversationUid();
-    }
-
-    /**
-     * Gets just the current intent unconnected
-     *
-     * @return EIModelIntent
-     * @throws EIModelCreatorException
-     */
-    public function getCurrentIntent(): EIModelIntent
-    {
-        $currentIntentId = $this->user->getCurrentIntentUid();
-        return $this->conversationStore->getEIModelIntentByUid($currentIntentId);
-    }
-
-    /**
-     * @param Intent $intent
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function setCurrentIntent(Intent $intent): void
-    {
-        $this->user = $this->userService->setCurrentIntent($this->user, $intent);
-    }
-
-    /**
-     * Moves the user's current conversation to a past conversation
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function moveCurrentConversationToPast(): void
-    {
-        $this->user = $this->userService->moveCurrentConversationToPast($this->user);
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasCurrentIntent(): bool
-    {
-        return $this->user->hasCurrentIntent();
-    }
-
-    /**
-     * @return Scene
-     * @throws EIModelCreatorException
-     * @throws CurrentIntentNotSetException
-     */
-    public function getCurrentScene(): Scene
-    {
-        if (!$this->user->hasCurrentIntent()) {
-            throw new CurrentIntentNotSetException("Attempted to get the current scene without having set a current intent.");
-        }
-
-        $currentIntent = $this->conversationStore->getEIModelIntentByUid($this->user->getCurrentIntentUid());
-
-        // Get the scene for the current intent
-        $sceneId = $this->userService->getSceneForIntent($currentIntent->getIntentUid());
-
-        // use the conversation that is against the user
-        $currentScene = $this->userService->getCurrentConversation($this->user->getId())->getScene($sceneId);
-
-        return $currentScene;
-    }
-
-    /**
-     * @return bool
-     */
-    public function currentSpeakerIsBot(): bool
-    {
-        if ($this->userService->getCurrentSpeaker($this->user->getCurrentIntentUid()) === Model::BOT) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function persist(): bool
-    {
-        $this->updateUser();
-        return true;
+        return $user;
     }
 }

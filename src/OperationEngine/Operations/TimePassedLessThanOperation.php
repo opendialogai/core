@@ -2,11 +2,15 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class TimePassedLessThanOperation extends BaseOperation
 {
-    public static $name = 'time_passed_less_than';
+    protected static ?string $componentId = 'time_passed_less_than';
+
+
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * @inheritDoc
@@ -25,17 +29,5 @@ class TimePassedLessThanOperation extends BaseOperation
             return true;
         }
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'value',
-            ],
-        ];
     }
 }

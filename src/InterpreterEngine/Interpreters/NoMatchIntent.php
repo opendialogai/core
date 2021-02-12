@@ -13,7 +13,5 @@ class NoMatchIntent extends Intent
 
     public function __construct()
     {
-        parent::__construct(self::NO_MATCH);
-        parent::setConfidence(1);
     }
 }

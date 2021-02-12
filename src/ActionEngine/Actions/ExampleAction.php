@@ -9,14 +9,13 @@ use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
  */
 class ExampleAction extends BaseAction
 {
-    protected static $name = 'action.core.example';
+    protected static ?string $componentId = 'action.core.example';
 
-    public function __construct()
-    {
-        $this->requiredAttributes = ['first_name', 'last_name'];
+    protected static ?string $componentName = 'Example action';
+    protected static ?string $componentDescription = 'Just an example action.';
 
-        $this->outputAttributes = ['first_name', 'last_name', 'full_name'];
-    }
+    protected static $requiredAttributes = ['first_name', 'last_name'];
+    protected static $outputAttributes = ['first_name', 'last_name', 'full_name'];
 
     /**
      * @param ActionInput $actionInput

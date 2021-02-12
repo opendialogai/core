@@ -1,274 +1,58 @@
 <?php
-
 namespace OpenDialogAi\Core\Conversation;
 
-use Ds\Map;
-use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-
-/**
- * A Conversation is a collection of Scenes.
- */
-class Conversation extends NodeWithConditions
+class Conversation extends ConversationObject
 {
-    const SAVED = 'saved';
-    const ACTIVATABLE = 'activatable';
-    const ACTIVATED = 'activated';
-    const DEACTIVATED = 'deactivated';
-    const ARCHIVED = 'archived';
+    public const CURRENT_CONVERSATION = 'current_conversation';
 
-    /** @var Map */
-    private $allScenes;
 
-    /** @var Map */
-    private $allIntents;
+    protected SceneCollection $scenes;
+    protected Scenario $scenario;
 
-    public function __construct($id, $conversationStatus, $conversationVersion)
+    public function __construct(?Scenario $scenario = null)
     {
-        parent::__construct($id);
-        $this->setGraphType(DGraphClient::CONVERSATION);
-
-        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CONVERSATION_TEMPLATE));
-        $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONVERSATION_STATUS, $conversationStatus));
-        $this->addAttribute(AttributeResolver::getAttributeFor(Model::CONVERSATION_VERSION, $conversationVersion));
+        parent::__construct();
+        isset($scenario) ? $this->scenario = $scenario : null;
+        $this->scenes = new SceneCollection();
     }
 
-    /**
-     * @param Scene $scene
-     * @return $this
-     */
-    public function addOpeningScene(Scene $scene)
+    public function hasScenes():bool
     {
-        $this->createOutgoingEdge(Model::HAS_OPENING_SCENE, $scene);
-        $this->refresh();
-        return $this;
+        return $this->scenes->isNotEmpty();
     }
 
-    /**
-     * @return bool
-     */
-    public function hasOpeningScene()
+    public function getScenes(): SceneCollection
     {
-        if ($this->hasOutgoingEdgeWithRelationship(Model::HAS_OPENING_SCENE)) {
-            return true;
-        }
-
-        return false;
+        return $this->scenes;
     }
 
-    /**
-     * @param Scene $scene
-     * @return $this
-     */
+    public function setScenes(SceneCollection $scenes)
+    {
+        $this->scenes = $scenes;
+    }
+
+    public function getScenario(): ?Scenario
+    {
+        return $this->scenario;
+    }
+
     public function addScene(Scene $scene)
     {
-        $this->createOutgoingEdge(Model::HAS_SCENE, $scene);
-        $this->refresh();
-        return $this;
+        $this->scenes->addObject($scene);
     }
 
     /**
-     * @return Map
+     * @return string|null
      */
-    public function getOpeningScenes()
+    public function getInterpreter()
     {
-        return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_OPENING_SCENE);
-    }
-
-    /**
-     * @return Map
-     */
-    public function getNonOpeningScenes()
-    {
-        return $this->getNodesConnectedByOutgoingRelationship(Model::HAS_SCENE);
-    }
-
-    /**
-     * @return Map
-     */
-    public function getAllScenes()
-    {
-        if (!isset($this->allScenes)) {
-            $openingScenes = $this->getOpeningScenes();
-            $nonOpeningScenes = $this->getNonOpeningScenes();
-
-            /* @var Map $allScenes */
-            $this->allScenes = $openingScenes->merge($nonOpeningScenes);
+        if (isset($this->interpreter)) {
+            return $this->interpreter;
         }
 
-        return $this->allScenes;
-    }
-
-    /**
-     * @param $sceneId
-     * @return Scene | bool
-     */
-    public function getScene($sceneId)
-    {
-        /* @var Map $allScenes */
-        $allScenes = $this->getAllScenes();
-
-        if ($allScenes->hasKey($sceneId)) {
-            return $allScenes->get($sceneId);
+        if (isset($this->scenario)) {
+            return $this->scenario->getInterpreter();
         }
-
-        return false;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setConversationType(string $type)
-    {
-        /* @var \OpenDialogAi\AttributeEngine\Attributes\StringAttribute $eiType */
-        $eiType = $this->getAttribute(Model::EI_TYPE);
-        $eiType->setValue($type);
-    }
-
-    /**
-     * @return string
-     */
-    public function getConversationStatus(): string
-    {
-        return $this->getAttributeValue(Model::CONVERSATION_STATUS);
-    }
-
-    /**
-     * @param string $status
-     */
-    public function setConversationStatus(string $status): void
-    {
-        $this->setAttribute(Model::CONVERSATION_STATUS, $status);
-    }
-
-    /**
-     * @return int
-     */
-    public function getConversationVersion(): int
-    {
-        return $this->getAttributeValue(Model::CONVERSATION_VERSION);
-    }
-
-    /**
-     * @param int $version
-     */
-    public function setConversationVersion(int $version): void
-    {
-        $this->setAttribute(Model::CONVERSATION_VERSION, $version);
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasUpdateOf(): bool
-    {
-        return !$this->getNodesConnectedByOutgoingRelationship(Model::UPDATE_OF)->isEmpty();
-    }
-
-    /**
-     * @return Conversation
-     */
-    public function getUpdateOf(): Conversation
-    {
-        return $this->getNodesConnectedByOutgoingRelationship(Model::UPDATE_OF)->first()->value;
-    }
-
-    /**
-     * @param Conversation $previousConversation
-     */
-    public function setUpdateOf(Conversation $previousConversation): void
-    {
-        $this->createOutgoingEdge(Model::UPDATE_OF, $previousConversation);
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasInstanceOf(): bool
-    {
-        return !$this->getNodesConnectedByOutgoingRelationship(Model::INSTANCE_OF)->isEmpty();
-    }
-
-    /**
-     * @return Conversation
-     */
-    public function getInstanceOf(): Conversation
-    {
-        return $this->getNodesConnectedByOutgoingRelationship(Model::INSTANCE_OF)->first()->value;
-    }
-
-    /**
-     * @param Conversation $previousConversation
-     */
-    public function setInstanceOf(Conversation $previousConversation): void
-    {
-        $this->createOutgoingEdge(Model::INSTANCE_OF, $previousConversation);
-    }
-
-    /**
-     * @return Map
-     */
-    public function getAllIntents(): Map
-    {
-        if (!isset($this->allIntents)) {
-            $intents = new Map();
-            $scenes = $this->getAllScenes();
-            /* @var Scene $scene */
-            foreach ($scenes as $scene) {
-                $sceneIntents = $scene->getAllIntents();
-                $intents = $intents->merge($sceneIntents);
-            }
-            $this->allIntents = $intents;
-        }
-
-        return $this->allIntents;
-    }
-
-    /**
-     * @param string $uid
-     * @return Intent
-     */
-    public function getIntentByUid(string $uid): Intent
-    {
-        $intents = $this->getAllIntents();
-
-        $intents = $intents->filter(function ($key, $value) use ($uid) {
-            /* @var Intent $value */
-            if ($value->getUid() === $uid) {
-                return true;
-            }
-        });
-
-        if (count($intents) == 1) {
-            return $intents->first()->value;
-        }
-
         return null;
-    }
-
-    public function getIntentByOrder(int $order): Intent
-    {
-        $intents = $this->getAllIntents();
-
-        $intents = $intents->filter(function ($key, $value) use ($order) {
-            /* @var Intent $value */
-            if ($value->getOrder() == $order) {
-                return true;
-            }
-        });
-
-        if (count($intents) == 1) {
-            return $intents->first()->value;
-        }
-
-        return null;
-    }
-
-    /**
-     * Clears out the local cache of scenes and intents
-     */
-    public function refresh()
-    {
-        unset($this->allScenes, $this->allIntents);
     }
 }

@@ -19,6 +19,7 @@ class UserAttributeTest extends TestCase
 {
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testUserAttributes()
     {
@@ -33,6 +34,7 @@ class UserAttributeTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testUserCustomAttributes()
     {

@@ -2,16 +2,16 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
+use OpenDialogAi\AttributeEngine\AttributeValues\FloatAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
+
 /**
  * Float implementation of Attribute.
  */
-class FloatAttribute extends BasicAttribute
+class FloatAttribute extends BasicScalarAttribute
 {
-
-    /**
-     * @var string
-     */
-    public static $type = 'attribute.core.float';
+    protected static ?string $componentId = 'attribute.core.float';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * FloatAttribute constructor.
@@ -19,28 +19,24 @@ class FloatAttribute extends BasicAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $value)
+    public function __construct($id, $value = null)
     {
-        parent::__construct($id, $value);
+        if ($value instanceof FloatAttributeValue) {
+            parent::__construct($id, $value);
+        } else {
+            $attributeValue = new FloatAttributeValue($value);
+            parent::__construct($id, $attributeValue);
+        }
     }
 
-    /**
-     * @return string
-     */
-    public function toString(): string
+    public function setRawValue($rawValue)
     {
-        return (string) $this->getValue();
+        is_null($this->value) ?
+            $this->setAttributeValue(new FloatAttributeValue($rawValue)) : $this->value->setRawValue($rawValue);
     }
 
-    /**
-     * Returns float
-     *
-     * @param array $arg
-     *
-     * @return float
-     */
-    public function getValue(array $arg = [])
+    public function toString(): ?string
     {
-        return $this->value === null ? $this->value : floatval($this->value);
+        return $this->getAttributeValue()->toString();
     }
 }

@@ -2,16 +2,16 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
-/**
- * String implementation of Attribute.
- */
-class StringAttribute extends BasicAttribute
-{
+use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
-    /**
-     * @var string
-     */
-    public static $type = 'attribute.core.string';
+/**
+ * StringAttribute implementation.
+ */
+class StringAttribute extends BasicScalarAttribute
+{
+    protected static ?string $componentId = 'attribute.core.string';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * StringAttribute constructor.
@@ -19,20 +19,24 @@ class StringAttribute extends BasicAttribute
      * @param $id
      * @param $value
      */
-    public function __construct($id, $value)
+    public function __construct($id, $value = null)
     {
-        parent::__construct($id, $value);
+        if ($value instanceof StringAttributeValue) {
+            parent::__construct($id, $value);
+        } else {
+            $attributeValue = new StringAttributeValue($value);
+            parent::__construct($id, $attributeValue);
+        }
     }
 
-    /**
-     * Returns null or an strval
-     *
-     * @param array $arg
-     *
-     * @return null | string
-     */
-    public function getValue(array $arg = [])
+    public function setRawValue($rawValue)
     {
-        return $this->value === null ? $this->value : strval($this->value);
+        is_null($this->value) ?
+            $this->setAttributeValue(new StringAttributeValue($rawValue)) : $this->value->setRawValue($rawValue);
+    }
+
+    public function toString(): ?string
+    {
+        return $this->getAttributeValue()->toString();
     }
 }

@@ -2,11 +2,18 @@
 
 namespace OpenDialogAi\OperationEngine\Operations;
 
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\OperationEngine\BaseOperation;
 
 class EquivalenceOperation extends BaseOperation
 {
-    public static $name = 'eq';
+    protected static ?string $componentId = 'eq';
+
+    protected static ?string $componentName = 'Equals';
+    protected static ?string $componentDescription
+        = 'An operation that determines if the given attribute has a value equal the given parameter.';
+
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**
      * @inheritDoc
@@ -19,17 +26,5 @@ class EquivalenceOperation extends BaseOperation
             return true;
         }
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getAllowedParameters(): array
-    {
-        return [
-            'required' => [
-                'value',
-            ],
-        ];
     }
 }

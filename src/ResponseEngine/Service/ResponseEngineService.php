@@ -3,9 +3,9 @@
 namespace OpenDialogAi\ResponseEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
-use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\ContextService\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Exceptions\NameNotSetException;
@@ -309,7 +309,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
         $replacement = ContextService::getAttribute($parsedAttribute->attributeId, $parsedAttribute->contextId);
         if ($parsedAttribute->getAccessor()) {
             $attributeValue = $replacement->getValue($parsedAttribute->getAccessor());
-            if ($attributeValue instanceof AttributeInterface) {
+            if ($attributeValue instanceof Attribute) {
                 return $attributeValue->toString();
             }
             return $attributeValue;
