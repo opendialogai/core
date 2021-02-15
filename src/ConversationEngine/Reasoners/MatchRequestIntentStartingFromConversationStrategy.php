@@ -12,7 +12,8 @@ class MatchRequestIntentStartingFromConversationStrategy
         string $currentScenarioId,
         string $currentConversationId,
         string $currentTurnId,
-        string $currentIntentId): Intent{
+        string $currentIntentId
+    ): Intent {
 
     }
 }
