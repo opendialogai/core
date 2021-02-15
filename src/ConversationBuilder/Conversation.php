@@ -32,6 +32,8 @@ use OpenDialogAi\ResponseEngine\OutgoingIntent;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use DateTimeInterface;
+
 
 /**
  * @property string status
@@ -740,5 +742,17 @@ class Conversation extends Model
         }
 
         return $conversation;
+    }
+
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return string
+     */
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }
