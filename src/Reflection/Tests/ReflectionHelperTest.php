@@ -327,7 +327,7 @@ class ReflectionHelperTest extends TestCase
         $numberOfCoreOperations = count($operationService->getAvailableOperations());
         $this->assertCount($numberOfCoreOperations, $operations);
 
-        $operationId = DummyOperation::getName();
+        $operationId = DummyOperation::getComponentId();
         $operationService->registerAvailableOperations([
             DummyOperation::class
         ]);
