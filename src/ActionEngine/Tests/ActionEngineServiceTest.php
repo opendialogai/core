@@ -9,6 +9,8 @@ use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\ActionEngine\Tests\Actions\BrokenAction;
 use OpenDialogAi\ActionEngine\Tests\Actions\DummyAction;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Tests\TestCase;
 
@@ -76,7 +78,7 @@ class ActionEngineServiceTest extends TestCase
     public function testPerformActionWithoutRequiredAction()
     {
         $this->setDummyAction();
-        ContextService::createContext('test');
+        $this->createTestContext();
 
         $inputAttributes = new Map([
             'name' => 'test',
@@ -93,7 +95,7 @@ class ActionEngineServiceTest extends TestCase
     public function testPerformActionWithRequiredAction()
     {
         $this->setDummyAction();
-        ContextService::createContext('test');
+        $this->createTestContext();
 
         ContextService::getContext('test')->addAttribute(new StringAttribute('name', 'value'));
 
@@ -136,7 +138,7 @@ class ActionEngineServiceTest extends TestCase
     public function testGetAttributesFromAction()
     {
         $this->setDummyAction();
-        ContextService::createContext('test');
+        $this->createTestContext();
         $testAttribute = new StringAttribute('name', 'John');
         ContextService::getContext('test')->addAttribute($testAttribute);
 
@@ -158,5 +160,19 @@ class ActionEngineServiceTest extends TestCase
     protected function setDummyAction(): void
     {
         $this->actionEngine->setAvailableActions([DummyAction::class]);
+    }
+
+    /**
+     * @return Context
+     */
+    public function createTestContext(): Context
+    {
+        $testContext = new class extends AbstractContext {
+            protected static ?string $componentId = 'test';
+        };
+
+        ContextService::addContext($testContext);
+
+        return $testContext;
     }
 }

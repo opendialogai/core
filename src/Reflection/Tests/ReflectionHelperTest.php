@@ -10,6 +10,7 @@ use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Tests\ExampleCustomAttributeType;
+use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelperInterface;
@@ -176,7 +177,10 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount($numberOfCoreContexts, $contexts);
 
         $contextId = 'my_custom_context';
-        $context = ContextService::createContext($contextId);
+        $context = new class extends AbstractContext {
+            protected static ?string $componentId = 'my_custom_context';
+        };
+        ContextService::addContext($context);
 
         $contexts = $reflection->getAvailableContexts();
         $this->assertCount($numberOfCoreContexts + 1, $contexts);

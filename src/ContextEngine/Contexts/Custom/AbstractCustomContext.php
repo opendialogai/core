@@ -4,6 +4,7 @@ namespace OpenDialogAi\ContextEngine\Contexts\Custom;
 
 use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
 use OpenDialogAi\ContextEngine\Contexts\BaseContext;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * An abstract implementation of a custom context.
@@ -16,22 +17,9 @@ use OpenDialogAi\ContextEngine\Contexts\BaseContext;
  * The Context Manager will loop though all registered custom contexts, instantiate them and call the
  * @see AbstractCustomContext::loadAttributes() method to make the custom context attributes available to the application
  */
-abstract class AbstractCustomContext extends BaseContext
+abstract class AbstractCustomContext extends AbstractContext
 {
-    /**
-     * The name to give the custom context.
-     *
-     * @var string
-     */
-    public static $name = '';
-
-    /**
-     * AbstractCustomContext constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct(static::$name);
-    }
+    protected static string $componentSource = ODComponentTypes::APP_COMPONENT_SOURCE;
 
     /**
      * A function to load all custom attributes from any external sources into this custom context.

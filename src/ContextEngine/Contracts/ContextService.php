@@ -7,16 +7,6 @@ use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 
 interface ContextService
 {
-
-    /**
-     * Creates a standard context under the specified contextId, enabling an application
-     * to store and retrieve information.
-     *
-     * @param string $contextId
-     * @return Context
-     */
-    public function createContext(string $contextId): Context;
-
     /**
      * Should be used to add a context that is already instantiated or has a more complex implementation.
      *
@@ -34,12 +24,12 @@ interface ContextService
     /**
      * @param Context [] $contexts
      */
-    public function loadCustomContexts(array $contexts): void;
+    public function loadContexts(array $contexts): void;
 
     /**
-     * @param Context $customContext
+     * @param Context $context
      */
-    public function loadCustomContext($customContext): void;
+    public function loadContext($context): void;
     /**
      * @param string $contextId
      * @return bool

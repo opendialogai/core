@@ -6,6 +6,7 @@ use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ContextEngine\Tests\Contexts\BadlyNamedCustomContext;
 use OpenDialogAi\ContextEngine\Tests\Contexts\DummyCustomContext;
+use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class CustomContextsTest extends TestCase
@@ -26,10 +27,10 @@ class CustomContextsTest extends TestCase
 
     public function testNoNameContext()
     {
+        $this->expectException(MissingRequiredComponentDataException::class);
         $this->addCustomContextToConfig(BadlyNamedCustomContext::class);
 
-        // No contexts loaded
-        $this->assertCount(0, ContextService::getCustomContexts());
+        ContextService::getCustomContexts();
     }
 
     /**

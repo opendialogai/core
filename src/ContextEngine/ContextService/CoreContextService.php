@@ -2,13 +2,12 @@
 
 namespace OpenDialogAi\ContextEngine\ContextService;
 
-use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 
 
@@ -73,45 +72,45 @@ class CoreContextService extends BasicContextService
     /**
      * @inheritDoc
      */
-    public function loadCustomContexts(array $contexts): void
+    public function loadContexts(array $contexts): void
     {
         foreach ($contexts as $context) {
-            $this->loadCustomContext($context);
+            $this->loadContext($context);
         }
     }
 
     /**
      * @inheritDoc
      */
-    public function loadCustomContext($customContext): void
+    public function loadContext($context): void
     {
-        if (!class_exists($customContext)) {
-            Log::warning(sprintf('Not adding custom context %s, class does not exist', $customContext));
+        if (!class_exists($context)) {
+            Log::warning(sprintf('Not adding context %s, class does not exist', $context));
             return;
         }
 
-        if (empty($customContext::$name)) {
-            Log::warning(sprintf('Not adding custom context %s, it has no name', $customContext));
+        if (empty($context::getComponentId())) {
+            Log::warning(sprintf('Not adding context %s, it has no component ID', $context));
             return;
         }
 
-        if ($this->hasContext($customContext::$name)) {
+        if ($this->hasContext($context::getComponentId())) {
             Log::warning(
                 sprintf(
-                    'Not adding custom context %s, context with that name is already registered',
-                    $customContext
+                    'Not adding context %s, context with that ID is already registered',
+                    $context
                 )
             );
             return;
         }
 
-        Log::debug(sprintf('Registering custom context %s', $customContext));
+        Log::debug(sprintf('Registering context %s', $context));
         try {
-            /** @var AbstractCustomContext $context */
-            $context = new $customContext();
+            /** @var Context $context */
+            $context = resolve($context);
             $this->addContext($context);
         } catch (\Exception $e) {
-            Log::warning(sprintf('Error while adding context %s - %s', $customContext, $e->getMessage()));
+            Log::warning(sprintf('Error while adding context %s - %s', $context, $e->getMessage()));
         }
     }
 }
