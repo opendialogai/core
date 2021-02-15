@@ -5,11 +5,13 @@ namespace OpenDialogAi\Core\Reflection\Tests;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\ActionEngine\Actions\ExampleAction;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeDeclaration;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Tests\ExampleCustomAttributeType;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelperInterface;
 use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\TestFormatter;
 use OpenDialogAi\Core\SensorEngine\Tests\Sensors\DummySensor;
@@ -128,7 +130,12 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount($numberOfCoreAttributes + 1, $attributes);
 
         $this->assertTrue($attributes->hasKey($attributeId));
-        $this->assertEquals(StringAttribute::class, $attributes->get($attributeId));
+
+        /** @var AttributeDeclaration $attributeDeclaration */
+        $attributeDeclaration = $attributes->get($attributeId);
+        $this->assertEquals($attributeId, $attributeDeclaration->getAttributeId());
+        $this->assertEquals(ODComponentTypes::APP_COMPONENT_SOURCE, $attributeDeclaration->getSource());
+        $this->assertEquals(StringAttribute::class, $attributeDeclaration->getAttributeTypeClass());
 
         $this->assertArraySubset([
             'available_attributes' => [
@@ -142,7 +149,6 @@ class ReflectionHelperTest extends TestCase
                     ],
                     'attribute_data' => [
                         "type" => "attribute.core.timestamp",
-                        "resourceReadOnly" => true,
                     ],
                 ],
                 $attributeId => [
@@ -155,20 +161,6 @@ class ReflectionHelperTest extends TestCase
                     ],
                     'attribute_data' => [
                         "type" => "attribute.core.string",
-                        "resourceReadOnly" => true,
-                    ],
-                ],
-                $attributeId => [
-                    'component_data' => [
-                        'type' => 'attribute',
-                        'source' => 'app',
-                        'id' => $attributeId,
-                        'name' => null,
-                        'description' => null,
-                    ],
-                    'attribute_data' => [
-                        "type" => "attribute.core.string",
-                        "resourceReadOnly" => true,
                     ],
                 ],
             ]

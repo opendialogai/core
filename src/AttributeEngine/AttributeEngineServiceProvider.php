@@ -7,6 +7,7 @@ use Carbon\Laravel\ServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeService;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class AttributeEngineServiceProvider extends ServiceProvider
 {
@@ -24,11 +25,17 @@ class AttributeEngineServiceProvider extends ServiceProvider
         $this->app->singleton(AttributeResolver::class, function () {
             $attributeResolver = new AttributeResolver();
 
-            $attributeResolver->registerAttributes(config('opendialog.attribute_engine.supported_attributes'));
+            $attributeResolver->registerAttributes(
+                config('opendialog.attribute_engine.supported_attributes'),
+                ODComponentTypes::CORE_COMPONENT_SOURCE
+            );
 
             // Gets custom attributes if they have been set
             if (is_array(config('opendialog.attribute_engine.custom_attributes'))) {
-                $attributeResolver->registerAttributes(config('opendialog.attribute_engine.custom_attributes'));
+                $attributeResolver->registerAttributes(
+                    config('opendialog.attribute_engine.custom_attributes'),
+                    ODComponentTypes::APP_COMPONENT_SOURCE
+                );
             }
 
             return $attributeResolver;
