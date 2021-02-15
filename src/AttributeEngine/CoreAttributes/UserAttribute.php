@@ -72,7 +72,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setUserId($value)
     {
-        $this->setUserAttribute(self::USER_ID, $value);
+        return $this->setUserAttribute(self::USER_ID, $value);
     }
 
     public function getUserId()
@@ -82,7 +82,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setIPAddress($value)
     {
-        $this->setUserAttribute(self::IP_ADDRESS, $value);
+        return $this->setUserAttribute(self::IP_ADDRESS, $value);
     }
 
     public function getIPAddress()
@@ -92,7 +92,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setCountry($value)
     {
-        $this->setUserAttribute(self::COUNTRY, $value);
+        return $this->setUserAttribute(self::COUNTRY, $value);
     }
 
     public function getCountry()
@@ -102,17 +102,18 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setBrowserLanguage($value)
     {
-        $this->setUserAttribute(self::BROWSER_LANGUAGE, $value);
+        return $this->setUserAttribute(self::BROWSER_LANGUAGE, $value);
     }
 
     public function getBrowserLanguage()
     {
         return $this->getUserAttribute(self::BROWSER_LANGUAGE);
+
     }
 
     public function setOS($value)
     {
-        $this->setUserAttribute(self::OS, $value);
+        return $this->setUserAttribute(self::OS, $value);
     }
 
     public function getOS()
@@ -122,7 +123,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setBrowser($value)
     {
-        $this->setUserAttribute(self::BROWSER, $value);
+        return $this->setUserAttribute(self::BROWSER, $value);
     }
 
     public function getBrowser()
@@ -132,7 +133,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setTimezone($value)
     {
-        $this->setUserAttribute(self::TIMEZONE, $value);
+        return $this->setUserAttribute(self::TIMEZONE, $value);
     }
 
     public function getTimezone()
@@ -142,7 +143,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setFirstName($value)
     {
-        $this->setUserAttribute(self::FIRST_NAME, $value);
+        return $this->setUserAttribute(self::FIRST_NAME, $value);
     }
 
     public function getFirstName()
@@ -152,7 +153,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setLastName($value)
     {
-        $this->setUserAttribute(self::LAST_NAME, $value);
+        return $this->setUserAttribute(self::LAST_NAME, $value);
     }
 
     public function getLastName()
@@ -162,7 +163,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setEmail($value)
     {
-        $this->setUserAttribute(self::EMAIL, $value);
+        return $this->setUserAttribute(self::EMAIL, $value);
     }
 
     public function getEmail()
@@ -172,7 +173,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setExternalId($value)
     {
-        $this->setUserAttribute(self::EXTERNAL_ID, $value);
+        return $this->setUserAttribute(self::EXTERNAL_ID, $value);
     }
 
     public function getExternalId()
@@ -182,7 +183,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setCustomParameters($value)
     {
-        $this->setUserAttribute(self::CUSTOM, $value);
+       return $this->setUserAttribute(self::CUSTOM, $value);
     }
 
     public function getCustomParameters()
