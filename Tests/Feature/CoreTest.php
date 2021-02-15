@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
+use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\Core\RequestLog;
 use OpenDialogAi\Core\ResponseLog;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -17,9 +18,6 @@ class CoreTest extends TestCase
         parent::setUp();
     }
 
-    /**
-     * @group skip
-     */
     public function testEndToEndFunctionality() {
 
         // Make sure we have a ResponseEngine
@@ -31,9 +29,9 @@ class CoreTest extends TestCase
 
         // Create a message and assign it to an intent
         // Ensure that we can create an intent.
-        OutgoingIntent::create(['name' => 'intent.core.welcomeReply']);
-        $intent = OutgoingIntent::where('name', 'intent.core.welcomeReply')->first();
-        $this->assertEquals('intent.core.welcomeReply', $intent->name);
+        OutgoingIntent::create(['name' => 'intent.core.NoMatch']);
+        $intent = OutgoingIntent::where('name', 'intent.core.NoMatch')->first();
+        $this->assertEquals('intent.core.NoMatch', $intent->name);
 
         $markUp = (new MessageMarkUpGenerator())->addTextMessage('Friendly Reply.');
         $messageTemplate = MessageTemplate::create(
@@ -53,7 +51,7 @@ class CoreTest extends TestCase
         $this->assertTrue($intent->messageTemplates->contains($messageTemplate));
 
 
-        // Ensure we have a conversation to work with
+
 
 
         // Send a message to /incoming/webchat

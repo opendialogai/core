@@ -12,6 +12,16 @@ use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
  */
 class UtteranceGenerator
 {
+
+    public static function generateUtteranceWithoutUserId()
+    {
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE);
+        $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::CHAT_OPEN)
+            ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, 'intent.core.chat_open');
+        return $utterance;
+    }
+
+
     /**
      * If no user is passed in, a random user is generated
      *
@@ -25,11 +35,11 @@ class UtteranceGenerator
             $user = self::generateUser();
         }
 
-        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE);
         $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::CHAT_OPEN)
             ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $callbackId)
             ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER, $user)
-            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $user->getId());
+            ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_USER_ID, $user->getUserId());
         return $utterance;
     }
 
