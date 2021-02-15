@@ -81,6 +81,8 @@ class AttributeTypeService implements AttributeTypeServiceInterface
     public function registerAttributeType(string $attributeType): void
     {
         if ($this->isValidAttributeType($attributeType)) {
+            //TODO: Move me!
+            $attributeType::getComponentData();
             if ($this->isAttributeTypeAvailable($attributeType::getType())) {
                 throw new AttributeTypeAlreadyRegisteredException();
             } else {
