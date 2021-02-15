@@ -5,6 +5,7 @@ namespace OpenDialogAi\ConversationEngine;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 interface ConversationEngineInterface
@@ -25,6 +26,6 @@ interface ConversationEngineInterface
      * @param UtteranceAttribute $utterance
      * @return Intent
      */
-    public function getNextIntents(UtteranceAttribute $utterance): Intent;
+    public function getNextIntents(UtteranceAttribute $utterance): IntentCollection;
 
 }

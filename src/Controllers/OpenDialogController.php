@@ -8,6 +8,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\Exceptions\NoConversationsException;
 use OpenDialogAi\ConversationLog\Service\ConversationLogService;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -58,13 +59,13 @@ class OpenDialogController
         $this->conversationLogService->logIncomingMessage($utterance);
 
         try {
-            /** @var Intent $intent */
-            $intent = $this->conversationEngine->getNextIntents($utterance);
+            /** @var IntentCollection $intents */
+            $intents = $this->conversationEngine->getNextIntents($utterance);
         } catch (NoConversationsException $e) {
             return $this->getNoConversationsMessages($utterance);
         }
 
-        $messages = $this->getMessages($utterance, $intent);
+        $messages = $this->getMessages($utterance, $intents);
 
         $this->processInternalMessages($messages);
 
@@ -113,19 +114,22 @@ class OpenDialogController
      * @param Intent $intent
      * @return OpenDialogMessages
      */
-    private function getMessages(UtteranceAttribute $utterance, $intent): OpenDialogMessages
+    private function getMessages(UtteranceAttribute $utterance, IntentCollection $intents): OpenDialogMessages
     {
         $messagesSet = new Set();
-        try {
-            $messagesSet->add($this->responseEngineService->getMessageForIntent(
-                $utterance->getPlatform(),
-                $intent->getODId()
-            ));
-        } catch (NoMatchingMessagesException $e) {
-            $messagesSet->add($this->responseEngineService->buildTextFormatterErrorMessage(
-                $utterance->getPlatform(),
-                $e->getMessage()
-            ));
+
+        foreach ($intents as $intent) {
+            try {
+                $messagesSet->add($this->responseEngineService->getMessageForIntent(
+                    $utterance->getPlatform(),
+                    $intent->getODId()
+                ));
+            } catch (NoMatchingMessagesException $e) {
+                $messagesSet->add($this->responseEngineService->buildTextFormatterErrorMessage(
+                    $utterance->getPlatform(),
+                    $e->getMessage()
+                ));
+            }
         }
 
         $messages = $messagesSet->first();

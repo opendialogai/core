@@ -4,7 +4,7 @@ namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
-use OpenDialogAi\Core\Conversation\ConversationDataClient;
+use OpenDialogAi\Core\Conversation\DataClients\ConversationDataClient;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 

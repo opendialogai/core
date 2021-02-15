@@ -183,7 +183,7 @@ class UserAttribute extends BasicCompositeAttribute
 
     public function setCustomParameters($value)
     {
-       return $this->setUserAttribute(self::CUSTOM, $value);
+        return $this->setUserAttribute(self::CUSTOM, $value);
     }
 
     public function getCustomParameters()
