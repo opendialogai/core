@@ -4,7 +4,7 @@
 namespace OpenDialogAi\AttributeEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
-use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
+use OpenDialogAi\AttributeEngine\Attributes\ArrayDataAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
@@ -15,7 +15,7 @@ use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeAlreadyRegisteredExcept
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeInvalidException;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
 
-class AttributeTypeServiceTest extends \Orchestra\Testbench\TestCase
+class   AttributeTypeServiceTest extends \Orchestra\Testbench\TestCase
 {
     protected function setUp(): void
     {
@@ -39,8 +39,8 @@ class AttributeTypeServiceTest extends \Orchestra\Testbench\TestCase
         $attributeTypeService = resolve(AttributeTypeServiceInterface::class);
         $this->assertGreaterThan(0, count($attributeTypeService->getAvailableAttributeTypes()));
 
-        //$this->assertTrue($attributeTypeService->isAttributeTypeAvailable(ArrayAttribute::$type));
-        //$this->assertEquals(ArrayAttribute::class, $attributeTypeService->getAttributeTypeClass(ArrayAttribute::$type));
+        $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(ArrayDataAttribute::getComponentId()));
+        $this->assertEquals(ArrayDataAttribute::class, $attributeTypeService->getAttributeTypeClass(ArrayDataAttribute::getComponentId()));
 
         $this->assertTrue($attributeTypeService->isAttributeTypeAvailable(BooleanAttribute::getComponentId()));
         $this->assertEquals(BooleanAttribute::class, $attributeTypeService->getAttributeTypeClass(BooleanAttribute::getComponentId()));
