@@ -5,15 +5,23 @@ namespace OpenDialogAi\ContextEngine\Contexts;
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\ContextEngine\Contracts\Context;
+use OpenDialogAi\ContextEngine\Contracts\ContextDataClient;
 
 abstract class AbstractContext implements Context
 {
+    use HasAttributesTrait;
+
     private $id;
 
-    public function __construct($id)
+    private ?ContextDataClient $dataClient;
+
+    protected $dataClientAttributes = [];
+
+    public function __construct($id, ?ContextDataClient $dataClient = null)
     {
         $this->id = $id;
         $this->attributes = new Map();
+        $this->dataClient = $dataClient;
     }
 
     /**

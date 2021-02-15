@@ -20,6 +20,9 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  */
 class AttributeResolver
 {
+    public static $validIdPattern = "/^([a-z]+_)*[a-z]+$/";
+    public static $validTypePattern = "/^attribute\.[A-Za-z]+\.[A-Za-z_]+$/";
+
     /** @var Map|AttributeDeclaration */
     private Map $supportedAttributes;
     private $attributeTypeService;
@@ -36,6 +39,30 @@ class AttributeResolver
     public function getSupportedAttributes(): Map
     {
         return $this->supportedAttributes;
+    }
+
+    /**
+     * Checks if the id of the DynamicAttribute is in the right format
+     *
+     * @param  string  $id
+     *
+     * @return bool
+     */
+    public static function isValidId(string $id): bool
+    {
+        return preg_match(AttributeResolver::$validIdPattern, $id) === 1;
+    }
+
+    /**
+     * Checks if the type of the DynamicAttribute is in the right format
+     *
+     * @param  string  $type
+     *
+     * @return bool
+     */
+    public static function isValidType(string $type): bool
+    {
+        return preg_match(AttributeResolver::$validTypePattern, $type) === 1;
     }
 
     /**
@@ -116,5 +143,22 @@ class AttributeResolver
             Log::debug(sprintf('Attribute %s is not registered, defaulting to String type', $attributeId));
             return new StringAttribute($attributeId, $value);
         }
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getValidIdPattern(): string
+    {
+        return static::$validIdPattern;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValidTypePattern(): string
+    {
+        return static::$validTypePattern;
     }
 }

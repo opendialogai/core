@@ -3,9 +3,11 @@
 namespace OpenDialogAi\Core\SensorEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
+use OpenDialogAi\Core\CoreServiceProvider;
+use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 
-abstract class WebchatSensorTestBase extends \Orchestra\Testbench\TestCase
+abstract class WebchatSensorTestBase extends TestCase
 {
     protected function setUp(): void
     {
@@ -15,6 +17,7 @@ abstract class WebchatSensorTestBase extends \Orchestra\Testbench\TestCase
     public function getPackageProviders($app)
     {
         return [
+            CoreServiceProvider::class,
             AttributeEngineServiceProvider::class,
             SensorEngineServiceProvider::class,
         ];

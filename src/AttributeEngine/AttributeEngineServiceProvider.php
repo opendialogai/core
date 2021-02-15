@@ -4,9 +4,12 @@
 namespace OpenDialogAi\AttributeEngine;
 
 use Carbon\Laravel\ServiceProvider;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeService;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
+use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
 use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class AttributeEngineServiceProvider extends ServiceProvider
@@ -38,6 +41,19 @@ class AttributeEngineServiceProvider extends ServiceProvider
                 );
             }
 
+            if ($this->hasDynamicAttributes()) {
+                $distinctDynamicAttributes = DynamicAttribute::all()->filter(function ($attr) use ($attributeResolver) {
+                    if ($attributeResolver->isAttributeSupported($attr->attribute_id)) {
+                        Log::error(sprintf("Not registering dynamic attribute %s as it would shadow"
+                            ." an existing attribute with the same name.",
+                            $attr->attribute_id));
+                        return false;
+                    }
+                    return true;
+                });
+                $attributeResolver->registerAttributes($this->formatDynamicAttributes($distinctDynamicAttributes));
+            }
+
             return $attributeResolver;
         });
 
@@ -53,5 +69,27 @@ class AttributeEngineServiceProvider extends ServiceProvider
 
             return $service;
         });
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasDynamicAttributes(): bool
+    {
+        return DynamicAttribute::count() > 0;
+    }
+
+    /**
+     * @param  Collection  $dynamicAttributes
+     *
+     * @return AttributeTypeServiceInterface[]
+     * @throws AttributeTypeNotRegisteredException
+     */
+    private function formatDynamicAttributes(Collection $dynamicAttributes): array
+    {
+        $attributeTypeService = resolve(AttributeTypeServiceInterface::class);
+        return $dynamicAttributes->mapWithKeys(fn($attr) => [
+            $attr->attribute_id => $attributeTypeService->getAttributeTypeClass($attr->attribute_type)
+        ])->all();
     }
 }

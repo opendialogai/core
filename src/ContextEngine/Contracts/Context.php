@@ -23,7 +23,7 @@ interface Context
     /**
      * Returns all the attributes currently associated with this context.
      *
-     * @return AttributeBag
+     * @return Map
      */
     public function getAttributes(): Map;
 
@@ -52,11 +52,4 @@ interface Context
      */
     public function removeAttribute(string $attributeName): bool;
 
-    /**
-     * Persist context value.
-     * In the case where a context does not need to be persisted, it can do nothing, or just create a log message.
-     *
-     * @return bool true if successful, false if not
-     */
-    public function persist(): bool;
 }

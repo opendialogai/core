@@ -15,9 +15,8 @@ use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 
 abstract class AbstractContextService implements ContextService
 {
-    /* @var Map $contexts - a container for contexts that the service is managing
-     */
-    private $contexts;
+    /* @var Map $contexts - a container for contexts that the service is managing  */
+    protected $contexts;
 
     public function __construct()
     {

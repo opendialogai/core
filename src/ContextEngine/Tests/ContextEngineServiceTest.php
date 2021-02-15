@@ -133,10 +133,6 @@ class ContextEngineServiceTest extends TestCase
         $this->assertNull($value);
     }
 
-    /**
-     * @requires DGRAPH
-     * @group skip
-     */
     public function testGetAttributeValue()
     {
         // Session Context
@@ -144,20 +140,6 @@ class ContextEngineServiceTest extends TestCase
         $this->assertEquals(
             ContextServiceFacade::getSessionContext()->getAttribute('test')->getValue(),
             ContextServiceFacade::getSessionContext()->getAttributeValue('test')
-        );
-
-        // User context
-        $utterance = UtteranceGenerator::generateTextUtterance('test');
-        ContextServiceFacade::createUserContext($utterance);
-
-        $this->assertEquals(
-            ContextServiceFacade::getUserContext()->getAttribute('first_seen')->getValue(),
-            ContextServiceFacade::getUserContext()->getAttributeValue('first_seen')
-        );
-
-        $this->assertEquals(
-            null,
-            ContextServiceFacade::getUserContext()->getAttributeValue('not_exist')
         );
     }
 }
