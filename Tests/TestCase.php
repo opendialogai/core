@@ -22,6 +22,7 @@ use OpenDialogAi\OperationEngine\OperationEngineServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 use Symfony\Component\Yaml\Yaml;
+use PHPUnit\Util\Test;
 
 /**
  * Base TestCase class for setting up all package tests
@@ -129,7 +130,7 @@ conversation:
               input_attributes:
                 - user.first_name
                 - user.last_name
-        - b: 
+        - b:
             i: hello_user
             action:
               id: action.core.example
@@ -159,7 +160,7 @@ conversation:
               output_attributes:
                 - user.first_name
                 - session.last_name
-        - b: 
+        - b:
             i: doing_dandy
             action: action.core.example
             completes: true
@@ -174,7 +175,7 @@ conversation:
                 - user.last_name
         - b:
             i: weather_answer
-        - u: 
+        - u:
             i: will_you_cope
             interpreter: interpreter.core.callbackInterpreter
             action:
@@ -182,7 +183,7 @@ conversation:
               input_attributes:
                 - user.first_name
                 - user.last_name
-        - b: 
+        - b:
             i: doing_dandy
             action:
               id: action.core.example
@@ -211,7 +212,7 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: howdy_bot
             interpreter: interpreter.core.callbackInterpreter
             action:
@@ -219,7 +220,7 @@ conversation:
               input_attributes:
                 - user.first_name
                 - user.last_name
-        - b: 
+        - b:
             i: hello_user
             action:
               id: action.core.example
@@ -228,7 +229,7 @@ conversation:
                 - user.last_name
     scene2:
       intents:
-        - u: 
+        - u:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             action:
@@ -236,14 +237,14 @@ conversation:
               input_attributes:
                 - user.first_name
                 - user.last_name
-        - b: 
+        - b:
             i: doing_dandy
             action:
               id: action.core.example
               input_attributes:
                 - user.first_name
                 - user.last_name
-            completes: true           
+            completes: true
 EOT;
     }
 
@@ -255,7 +256,7 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: top_of_the_morning_bot
             interpreter: interpreter.core.callbackInterpreter
             action:
@@ -263,7 +264,7 @@ conversation:
               input_attributes:
                 - user.first_name
                 - user.last_name
-        - b: 
+        - b:
             i: hello_user
             action:
               id: action.core.example
@@ -272,7 +273,7 @@ conversation:
                 - user.last_name
     scene2:
       intents:
-        - u: 
+        - u:
             i: how_are_you
             interpreter: interpreter.core.callbackInterpreter
             action:
@@ -280,7 +281,7 @@ conversation:
               input_attributes:
                 - user.first_name
                 - user.last_name
-        - b: 
+        - b:
             i: doing_dandy
             action:
               id: action.core.example
@@ -346,7 +347,8 @@ EOT;
      */
     private function checkRequirements()
     {
-        $annotations = $this->getAnnotations();
+
+        $annotations = Test::parseTestMethodAnnotations(static::class, $this->getName());
 
         foreach (array('class', 'method') as $depth) {
             if (empty($annotations[$depth]['requires'])) {
@@ -518,7 +520,7 @@ conversation:
         - u:
             i: opening_user_none
             interpreter: interpreter.core.callbackInterpreter
-        - b: 
+        - b:
             i: opening_bot_response
         - u:
             i: opening_user_s3
@@ -527,7 +529,7 @@ conversation:
         - u:
             i: opening_user_none2
             interpreter: interpreter.core.callbackInterpreter
-        - b: 
+        - b:
             i: opening_bot_complete
             completes: true
     scene1:
@@ -537,7 +539,7 @@ conversation:
             attributes:
               attribute1: user.user_email
       intents:
-        - b: 
+        - b:
             i: scene1_bot
             completes: true
     scene2:
@@ -549,7 +551,7 @@ conversation:
             parameters:
               value: test_user
       intents:
-        - b: 
+        - b:
             i: scene2_bot
             completes: true
     scene3:
@@ -561,7 +563,7 @@ conversation:
             parameters:
               value: test_user2
       intents:
-        - b: 
+        - b:
             i: scene3_bot
             completes: true
 EOT;
