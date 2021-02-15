@@ -39,16 +39,16 @@ class ReflectionHelperTest extends TestCase
 
         $actions = $reflection->getAvailableActions();
         $this->assertCount(1, $actions);
-        $this->assertTrue($actions->hasKey($exampleAction::getName()));
-        $this->assertEquals($exampleAction, $actions->get($exampleAction::getName()));
+        $this->assertTrue($actions->hasKey($exampleAction::getComponentId()));
+        $this->assertEquals($exampleAction, $actions->get($exampleAction::getComponentId()));
 
         $this->assertArraySubset([
             'available_actions' => [
-                $exampleAction::getName() => [
+                $exampleAction::getComponentId() => [
                     'component_data' => [
                         'type' => 'action',
                         'source' => 'app',
-                        'id' => $exampleAction::getName(),
+                        'id' => $exampleAction::getComponentId(),
                         'name' => 'Example action',
                         'description' => 'Just an example action.',
                     ],
