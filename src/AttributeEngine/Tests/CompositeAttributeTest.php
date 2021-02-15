@@ -3,27 +3,16 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
-use Doctrine\Common\Annotations\Annotation\Attribute;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
-use OpenDialogAi\AttributeEngine\Attributes\ArrayAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
-use OpenDialogAi\AttributeEngine\Attributes\BooleanAttribute;
-use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
-use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
-use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
-use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
-use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
-use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
 use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
 use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
-use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
-use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeAlreadyRegisteredException;
-use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeInvalidException;
-use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Util;
+use OpenDialogAi\Core\CoreServiceProvider;
+use OpenDialogAi\Core\Tests\TestCase;
 
-class CompositeAttributeTest extends \Orchestra\Testbench\TestCase
+class CompositeAttributeTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -43,6 +32,7 @@ class CompositeAttributeTest extends \Orchestra\Testbench\TestCase
     public function getPackageProviders($app)
     {
         return [
+            CoreServiceProvider::class,
             AttributeEngineServiceProvider::class,
         ];
     }
