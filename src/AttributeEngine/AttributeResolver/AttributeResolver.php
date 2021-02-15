@@ -19,20 +19,19 @@ use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
  */
 class AttributeResolver
 {
-    /* @var array */
-    private $supportedAttributes = [];
+    private Map $supportedAttributes;
     private $attributeTypeService;
 
     public function __construct()
     {
-        $this->supportedAttributes = $this->getSupportedAttributes();
+        $this->supportedAttributes = new Map();
         $this->attributeTypeService = resolve(AttributeTypeServiceInterface::class);
     }
 
     /**
-     * @return Attribute[]
+     * @return Attribute[]|Map
      */
-    public function getSupportedAttributes()
+    public function getSupportedAttributes(): Map
     {
         return $this->supportedAttributes;
     }
@@ -47,7 +46,7 @@ class AttributeResolver
     {
         foreach ($attributes as $name => $type) {
             if ($this->attributeTypeService->isAttributeTypeClassRegistered($type)) {
-                $this->supportedAttributes[$name] = $type;
+                $this->supportedAttributes->put($name, $type);
             } else {
                 Log::error(sprintf(
                     "Not registering attribute %s as it has an unknown type %s, please ensure all "
@@ -64,13 +63,9 @@ class AttributeResolver
      * @param string $attributeId
      * @return bool
      */
-    public function isAttributeSupported(string $attributeId)
+    public function isAttributeSupported(string $attributeId): bool
     {
-        if (isset($this->supportedAttributes[$attributeId])) {
-            return true;
-        }
-
-        return false;
+        return $this->supportedAttributes->hasKey($attributeId);
     }
 
     /**
@@ -84,7 +79,8 @@ class AttributeResolver
     {
         if ($this->isAttributeSupported($attributeId)) {
             // First instantiate the attribute so we can see what type it is and construct appropriately.
-            $attribute = new $this->supportedAttributes[$attributeId]($attributeId);
+            $attributeType = $this->supportedAttributes->get($attributeId);
+            $attribute = (new $attributeType($attributeId));
 
             // For scalar attribute we prefer setting the AttributeValue object, but if that is not
             // available we set the raw value. Scalar attributes should always be able to handle null
