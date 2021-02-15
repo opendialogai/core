@@ -4,13 +4,43 @@
 namespace OpenDialogAi\ContextEngine\Contexts\User;
 
 
+use Ds\Map;
+use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserHistoryRecord;
+use OpenDialogAi\ContextEngine\Contracts\ContextDataClient;
+use OpenDialogAi\ContextEngine\Exceptions\UnableToLoadAttributeFromPersistentStorageException;
 
-class UserDataClient
+class UserDataClient implements ContextDataClient
 {
     public function __construct()
     {
+    }
+
+    public function loadAttribute(string $attributeName): Attribute
+    {
+        Log::debug(sprintf("Cannot load attribute with name %s - from persistent storage", $attributeName));
+        throw new UnableToLoadAttributeFromPersistentStorageException(
+            sprintf("Cannot load attribute with name %s - from persistent storage", $attributeName));
+        // TODO: Implement loadAttribute() method.
+        // To load the user attribute we should retreive the "user_utterance" from the user context
+        // and extract the "user_id" - that can then be fed into the createOrUpdate function here.
+    }
+
+    public function loadAttributes(array $attributes): Map
+    {
+        // TODO: Implement loadAttributes() method.
+    }
+
+    public function persistAttribute(string $attributeName, string $context): bool
+    {
+        // TODO: Implement persistAttribute() method.
+    }
+
+    public function persistAttributes(array $attributes, string $context): bool
+    {
+        // TODO: Implement persistAttributes() method.
     }
 
     public function createOrUpdate(string $userId, UserAttribute $incomingUser): UserAttribute

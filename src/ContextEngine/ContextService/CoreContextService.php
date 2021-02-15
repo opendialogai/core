@@ -21,18 +21,15 @@ class CoreContextService extends BasicContextService
         IntentContext::INTENT_CONTEXT,
         MessageHistoryContext::MESSAGE_HISTORY_CONTEXT,
         self::SESSION_CONTEXT,
-        self::CONVERSATION_CONTEXT
+        self::CONVERSATION_CONTEXT,
+        UserContext::USER_CONTEXT
     ];
-
-    /* @var Map $activeContexts - a container for contexts that the service is managing */
-    private $activeContexts;
 
     /**
      * ContextService constructor.
      */
     public function __construct()
     {
-        $this->activeContexts = new Map();
         parent::__construct();
     }
 
@@ -68,7 +65,7 @@ class CoreContextService extends BasicContextService
      */
     public function getCustomContexts(): array
     {
-        return $this->activeContexts->filter(static function ($context) {
+        return $this->contexts->filter(static function ($context) {
             return !in_array($context, self::$coreContexts, true);
         })->toArray();
     }
@@ -112,7 +109,6 @@ class CoreContextService extends BasicContextService
         try {
             /** @var AbstractCustomContext $context */
             $context = new $customContext();
-            $context->loadAttributes();
             $this->addContext($context);
         } catch (\Exception $e) {
             Log::warning(sprintf('Error while adding context %s - %s', $customContext, $e->getMessage()));

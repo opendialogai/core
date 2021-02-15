@@ -66,31 +66,6 @@ class AttributeAccessorTest extends TestCase
         $this->assertEquals(1, $attribute->getValue()[0]);
     }
 
-    /**
-     * @group skip
-     */
-    public function testAccessingArrayAttributeString()
-    {
-        $this->addAttributeToSession(new ArrayAttribute('test', [1, 2, 3, 4]));
-
-        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test.0}');
-
-        $this->assertEquals(1, $response);
-    }
-
-    /**
-     * @group skip
-     */
-    public function testMultiDimensionArrayAttributeString()
-    {
-        $attribute = new ArrayDataAttribute('test', [1 => 'hello', 2 => 'goodbye']);
-        $this->addAttributeToSession($attribute);
-
-        $response = resolve(ResponseEngineService::class)->fillAttributes('{session.test.2}');
-
-        $this->assertEquals('goodbye', $response);
-    }
-
     private function addAttributeToSession($attribute): void
     {
         ContextService::getSessionContext()->addAttribute($attribute);
