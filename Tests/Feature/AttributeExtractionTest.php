@@ -15,8 +15,8 @@ use OpenDialogAi\Core\Attribute\IntAttribute;
 use OpenDialogAi\Core\Controllers\OpenDialogController;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
-use OpenDialogAi\InterpreterEngine\tests\Interpreters\TestAgeInterpreter;
-use OpenDialogAi\InterpreterEngine\tests\Interpreters\TestNameInterpreter;
+use OpenDialogAi\InterpreterEngine\Tests\Interpreters\TestAgeInterpreter;
+use OpenDialogAi\InterpreterEngine\Tests\Interpreters\TestNameInterpreter;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
 use OpenDialogAi\ResponseEngine\OutgoingIntent;
 
@@ -229,7 +229,7 @@ conditions:
   - condition:
       operation: is_not_set
       attributes:
-        username: user.name  
+        username: user.name
 EOT;
         MessageTemplate::create([
             'name' => 'message 2',
@@ -274,7 +274,7 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: my_name_is
             interpreter: interpreter.test.name
             action:
