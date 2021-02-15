@@ -15,8 +15,10 @@ use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\DynamicAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\CoreServiceProvider;
+use OpenDialogAi\Core\Tests\TestCase;
 
-class AttributeResolverServiceTest extends \Orchestra\Testbench\TestCase
+class AttributeResolverServiceTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -26,6 +28,7 @@ class AttributeResolverServiceTest extends \Orchestra\Testbench\TestCase
     public function getPackageProviders($app)
     {
         return [
+            CoreServiceProvider::class,
             AttributeEngineServiceProvider::class,
         ];
     }
