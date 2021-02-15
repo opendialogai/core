@@ -2,6 +2,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
+use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\Core\Conversation\Exceptions\InvalidSpeakerTypeException;
 
@@ -27,6 +28,10 @@ class Intent extends ConversationObject
     protected ?string $speaker;
     protected ?float $confidence;
 
+    // The interpreted intents is a collection interpretations of this intent that are added through an interpreter.
+    protected IntentCollection $interpretedIntents;
+    protected Intent $interpretation;
+
     public function __construct(?Turn $turn = null, ?string $speaker = null, ?string $interpreter = null)
     {
         parent::__construct();
@@ -35,6 +40,7 @@ class Intent extends ConversationObject
         isset($turn) ? $this->turn = $turn : $this->turn = null;
         isset($speaker) ? $this->setSpeaker($speaker) : $this->speaker = null;
         isset($interpreter) ? $this->$interpreter = $interpreter : $this->interpreter = null;
+        $this->interpretedIntents = new IntentCollection();
     }
 
     public function getTurn(): ?Turn
@@ -65,6 +71,41 @@ class Intent extends ConversationObject
     public function setConfidence(float $confidence)
     {
         $this->confidence = $confidence;
+    }
+
+    public function addInterpretedIntents(IntentCollection $interpretations)
+    {
+        $this->interpretedIntents->concat($interpretations);
+    }
+
+    public function getInterpretedIntents(): IntentCollection
+    {
+        return $this->interpretedIntents;
+    }
+
+    /**
+     * Goes through intepreted intents and looks for a match.
+     * @return bool
+     */
+    public function checkForMatch():bool
+    {
+        /* Intent $intent */
+        foreach ($this->interpretedIntents as $intent) {
+            if (($intent->getODId() == $this->getODId()) && ($intent->getConfidence() >= $this->getConfidence())) {
+                $$this->interpretation = $intent;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the interpreted intent that was a match.
+     * @return Intent
+     */
+    public function getInterpretation(): Intent
+    {
+        return $this->interpretation;
     }
 
     /**
