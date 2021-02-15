@@ -51,7 +51,11 @@ class AttributeEngineServiceProvider extends ServiceProvider
                     }
                     return true;
                 });
-                $attributeResolver->registerAttributes($this->formatDynamicAttributes($distinctDynamicAttributes));
+
+                $attributeResolver->registerAttributes(
+                    $this->formatDynamicAttributes($distinctDynamicAttributes),
+                    ODComponentTypes::CUSTOM_COMPONENT_SOURCE
+                );
             }
 
             return $attributeResolver;
