@@ -7,6 +7,9 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class CallbackValueParserTest extends TestCase
 {
+    /**
+     * @group skip
+     */
     public function testParseCallbackValue()
     {
         $buttonValue = "test";
@@ -26,6 +29,9 @@ class CallbackValueParserTest extends TestCase
         $this->assertEquals(CallbackValueParser::CALLBACK_VALUE, $parseButtonValue['attribute_name']);
     }
 
+    /**
+     * @group skip
+     */
     public function testCallbackValueEscaped()
     {
         $buttonValue = "name.value\.escaped";

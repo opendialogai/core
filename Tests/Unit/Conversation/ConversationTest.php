@@ -113,7 +113,7 @@ class ConversationTest extends TestCase
     }
 
     /**
-     *
+     * @group skip
      */
     public function testParticipantsExistInScene()
     {
@@ -139,6 +139,9 @@ class ConversationTest extends TestCase
         $this->assertTrue($nodes->first()->toArray()['value']->getId() == $openingScene->botIdInScene());
     }
 
+    /**
+     * @group skip
+     */
     public function testConditionsAreAssosiatedWithScene()
     {
         $cm = $this->setupConversation();
@@ -157,6 +160,9 @@ class ConversationTest extends TestCase
         $this->assertTrue($scene->getCondition(self::CONDITION1)->getId() != self::CONDITION2);
     }
 
+    /**
+     * @group skip
+     */
     public function testConversationState()
     {
         $cm = $this->setupConversation();
@@ -191,6 +197,9 @@ class ConversationTest extends TestCase
         $this->assertEquals($conversation->getId(), $updateOf->getId());
     }
 
+    /**
+     * @group skip
+     */
     public function testDeactivating()
     {
         $cm = $this->setupConversation();
@@ -223,6 +232,9 @@ class ConversationTest extends TestCase
         $this->assertEquals(Conversation::ACTIVATED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
     }
 
+    /**
+     * @group skip
+     */
     public function testArchiving()
     {
         $cm = $this->setupConversation();
@@ -251,6 +263,9 @@ class ConversationTest extends TestCase
         $this->assertEquals(Conversation::ARCHIVED, $conversation->getAttribute(Model::CONVERSATION_STATUS)->getValue());
     }
 
+    /**
+     * @group skip
+     */
     public function testConversationWithManyOpeningIntents()
     {
         $cm = $this->setupConversationWithManyOpeningIntents();

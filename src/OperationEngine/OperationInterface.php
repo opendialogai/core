@@ -2,9 +2,7 @@
 
 namespace OpenDialogAi\OperationEngine;
 
-use OpenDialogAi\Core\Components\OpenDialogComponentInterface;
-
-interface OperationInterface extends OpenDialogComponentInterface
+interface OperationInterface
 {
     /**
      * Run the operation and return the result. True means all conditions are met

@@ -3,14 +3,14 @@
 namespace OpenDialogAi\OperationEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\ContextEngine\ContextParser;
+use OpenDialogAi\ContextEngine\ContextService\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\ContextEngine\ParsedAttributeName;
-use OpenDialogAi\Core\Components\InvalidComponentDataException;
-use OpenDialogAi\Core\Components\MissingRequiredComponentDataException;
+use OpenDialogAi\ContextEngine\ContextService\ParsedAttributeName;
+use OpenDialogAi\Core\Components\Exceptions\InvalidComponentDataException;
+use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\OperationEngine\Exceptions\OperationNotRegisteredException;
 use OpenDialogAi\OperationEngine\OperationInterface;
@@ -117,9 +117,9 @@ class OperationService implements OperationServiceInterface
     /**
      * @param Condition $condition
      * @param ParsedAttributeName $parsedAttributeName
-     * @return \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface
+     * @return \OpenDialogAi\AttributeEngine\Contracts\Attribute
      */
-    private function getAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): AttributeInterface
+    private function getAttribute(Condition $condition, ParsedAttributeName $parsedAttributeName): Attribute
     {
         try {
             if (!$parsedAttributeName->getAccessor()) {

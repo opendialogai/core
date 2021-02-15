@@ -4,8 +4,8 @@ namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
-use OpenDialogAi\ContextEngine\ContextManager\ContextService;
-use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
+use OpenDialogAi\ContextEngine\ContextService\CoreContextService;
+use OpenDialogAi\ContextEngine\Contracts\ContextService;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
@@ -19,12 +19,12 @@ class ContextEngineServiceTest extends TestCase
 
     private function contextService(): ContextService
     {
-        return $this->app->make(ContextServiceInterface::class);
+        return $this->app->make(ContextService::class);
     }
 
     public function testContextServiceCreation()
     {
-        $this->assertInstanceOf(ContextServiceInterface::class, $this->contextService());
+        $this->assertInstanceOf(ContextService::class, $this->contextService());
     }
 
     public function testAddingANewContext()
@@ -70,12 +70,7 @@ class ContextEngineServiceTest extends TestCase
 
     public function testSessionContextCreated()
     {
-        $this->assertTrue($this->contextService()->hasContext(ContextService::SESSION_CONTEXT));
-    }
-
-    public function testConversationContextCreated()
-    {
-        $this->assertTrue($this->contextService()->hasContext(ContextService::CONVERSATION_CONTEXT));
+        $this->assertTrue($this->contextService()->hasContext(CoreContextService::SESSION_CONTEXT));
     }
 
     public function testContextFacade()
@@ -132,37 +127,19 @@ class ContextEngineServiceTest extends TestCase
 
     public function testGetNonExistentAttributeValue()
     {
-        ContextServiceFacade::createContext('user');
-        $value = ContextServiceFacade::getUserContext()->getAttributeValue('nonexistentvalue');
+        ContextServiceFacade::createContext(CoreContextService::SESSION_CONTEXT);
+        $value = ContextServiceFacade::getSessionContext()->getAttributeValue('nonexistentvalue');
 
         $this->assertNull($value);
     }
 
-    /**
-     * @requires DGRAPH
-     */
     public function testGetAttributeValue()
     {
         // Session Context
         ContextServiceFacade::getSessionContext()->addAttribute(new StringAttribute('test', 'test'));
-
         $this->assertEquals(
             ContextServiceFacade::getSessionContext()->getAttribute('test')->getValue(),
             ContextServiceFacade::getSessionContext()->getAttributeValue('test')
-        );
-
-        // User context
-        $utterance = UtteranceGenerator::generateTextUtterance('test');
-        ContextServiceFacade::createUserContext($utterance);
-
-        $this->assertEquals(
-            ContextServiceFacade::getUserContext()->getAttribute('first_seen')->getValue(),
-            ContextServiceFacade::getUserContext()->getAttributeValue('first_seen')
-        );
-
-        $this->assertEquals(
-            null,
-            ContextServiceFacade::getUserContext()->getAttributeValue('not_exist')
         );
     }
 }

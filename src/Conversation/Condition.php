@@ -1,75 +1,33 @@
 <?php
 
+
 namespace OpenDialogAi\Core\Conversation;
 
-use Ds\Map;
-use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
-use OpenDialogAi\Core\Graph\DGraph\DGraphClient;
-use OpenDialogAi\Core\Graph\Node\Node;
-
-/**
- * A condition is the combination of attributes, parameters and an evaluation operation.
- */
-class Condition extends Node
+class Condition
 {
-    // The evaluation operation.
-    private $evaluationOperation;
+    protected string $operation;
+    protected array $operationAttributes;
+    protected ?array $parameters;
 
-    /**
-     * Attributes and parameters are expected to be passed as arrays, which are then serialised and
-     * stored appropriately as an ArrayAttribute.
-     * @param $evaluationOperation
-     * @param $attributes
-     * @param array $parameters
-     * @param null $id
-     */
-    public function __construct($evaluationOperation, $attributes, $parameters = [], $id = null)
+    public function __construct(string $operation, array $operationAttributes, ?array $parameters)
     {
-        parent::__construct($id);
-        $this->setGraphType(DGraphClient::CONDITION);
-
-        $this->attributes = new Map();
-        $this->addAttribute(AttributeResolver::getAttributeFor(Model::EI_TYPE, Model::CONDITION));
-        $this->addAttribute(AttributeResolver::getAttributeFor(Model::OPERATION, $evaluationOperation));
-        $this->addAttribute(AttributeResolver::getAttributeFor(Model::ATTRIBUTES, $attributes));
-        $this->addAttribute(AttributeResolver::getAttributeFor(Model::PARAMETERS, $parameters));
-
-        $this->evaluationOperation = $evaluationOperation;
+        $this->operation = $operation;
+        $this->operationAttributes = $operationAttributes;
+        $this->parameters = $parameters;
     }
 
-    /**
-     * @return string
-     */
-    public function getEvaluationOperation()
+    public function getEvaluationOperation(): string
     {
-        return $this->evaluationOperation;
+        return $this->operation;
     }
 
-    /**
-     * @param string $evaluationOperation
-     */
-    public function setEvaluationOperation(string $evaluationOperation)
+    public function getOperationAttributes(): array
     {
-        $this->evaluationOperation = $evaluationOperation;
+        return $this->operationAttributes;
     }
 
-    /**
-     * @return array
-     */
-    public function getOperationAttributes()
+    public function getParameters(): ?array
     {
-        $attributes = $this->getAttribute(Model::ATTRIBUTES)->getValue();
-
-        return (array) $attributes;
-    }
-
-    /**
-     * @return array
-     */
-    public function getParameters()
-    {
-        $parameters = $this->getAttribute(Model::PARAMETERS)->getValue();
-
-        return (array) $parameters;
+        return $this->parameters;
     }
 }

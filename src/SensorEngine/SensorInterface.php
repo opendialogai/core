@@ -3,7 +3,7 @@
 namespace OpenDialogAi\SensorEngine;
 
 use Illuminate\Http\Request;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\SensorEngine\Exceptions\SensorNameNotSetException;
 
 /**
@@ -15,9 +15,9 @@ interface SensorInterface
      * Interprets a request and returns an Utterance for the platform and message type
      *
      * @param Request $request
-     * @return UtteranceInterface
+     * @return UtteranceAttribute
      */
-    public function interpret(Request $request) : UtteranceInterface;
+    public function interpret(Request $request) : UtteranceAttribute;
 
     /**
      * Gets the name of the Sensor

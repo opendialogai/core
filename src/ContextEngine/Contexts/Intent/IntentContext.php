@@ -2,10 +2,10 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\Intent;
 
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
-use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\ContextEngine\Contexts\BaseContext;
 
-class IntentContext extends AbstractContext
+class IntentContext extends BaseContext
 {
     public const INTENT_CONTEXT = '_intent';
 
@@ -16,7 +16,7 @@ class IntentContext extends AbstractContext
 
     public function refresh(): void
     {
-        /** @var AttributeInterface $attribute */
+        /** @var Attribute $attribute */
         foreach ($this->getAttributes() as $attribute) {
             $this->removeAttribute($attribute->getId());
         }

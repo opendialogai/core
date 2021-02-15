@@ -51,6 +51,7 @@ class AttributeExtractionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testOpeningSceneCreated()
     {
@@ -74,6 +75,7 @@ class AttributeExtractionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testCorrectIntentReturned()
     {
@@ -93,6 +95,7 @@ class AttributeExtractionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testAttributeStorage()
     {
@@ -124,6 +127,7 @@ class AttributeExtractionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testFullJourney()
     {
@@ -164,6 +168,7 @@ class AttributeExtractionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testUserContextPersisted()
     {
@@ -189,6 +194,7 @@ class AttributeExtractionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationSaveActionResultsAttributes()
     {
@@ -212,6 +218,7 @@ class AttributeExtractionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testMultipleMatchedMessageTemplates()
     {
@@ -229,7 +236,7 @@ conditions:
   - condition:
       operation: is_not_set
       attributes:
-        username: user.name  
+        username: user.name
 EOT;
         MessageTemplate::create([
             'name' => 'message 2',
@@ -274,7 +281,7 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: my_name_is
             interpreter: interpreter.test.name
             action:

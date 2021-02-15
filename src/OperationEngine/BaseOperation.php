@@ -3,15 +3,17 @@
 namespace OpenDialogAi\OperationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Traits\HasName;
 
-abstract class BaseOperation extends BaseOpenDialogComponent implements OperationInterface
+abstract class BaseOperation implements OperationInterface, OpenDialogComponent
 {
-    use HasName;
+    use ODComponent;
 
-    protected static string $componentType = BaseOpenDialogComponent::OPERATION_COMPONENT_TYPE;
-    protected static string $componentSource = BaseOpenDialogComponent::APP_COMPONENT_SOURCE;
+    protected static string $componentType = ODComponentTypes::OPERATION_COMPONENT_TYPE;
+    protected static string $componentSource = ODComponentTypes::APP_COMPONENT_SOURCE;
 
     /**
      * @var array|string[]
@@ -25,7 +27,7 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
     ];
 
     /**
-     * @var \OpenDialogAi\AttributeEngine\Attributes\AttributeInterface[]
+     * @var \OpenDialogAi\AttributeEngine\Attributes\Attribute[]
      */
     protected $attributes;
 
@@ -33,8 +35,6 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
      * @var array
      */
     protected $parameters;
-
-    protected static $name = 'base';
 
     public function __construct($attributes = [], $parameters = [])
     {
@@ -79,7 +79,7 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
     /**
      * @inheritdoc
      */
-    public function hasParameter($parameterName) : bool
+    public function hasParameter($parameterName): bool
     {
         return isset($this->parameters[$parameterName]);
     }
@@ -87,7 +87,7 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
     /**
      * @inheritDoc
      */
-    public function execute() : bool
+    public function execute(): bool
     {
         if (!$this->checkRequiredParameters()) {
             return false;
@@ -115,7 +115,7 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
     /**
      * @return bool
      */
-    protected function checkRequiredParameters() : bool
+    protected function checkRequiredParameters(): bool
     {
         $requiredParameters = $this->getRequiredParameterArgumentNames();
 
@@ -125,7 +125,7 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
                     sprintf(
                         "Missing required '%s' parameter for the '%s' operation",
                         $parameterName,
-                        self::$name
+                        self::$componentId
                     )
                 );
                 return false;
@@ -133,5 +133,10 @@ abstract class BaseOperation extends BaseOpenDialogComponent implements Operatio
         }
 
         return true;
+    }
+
+    public static function getName(): string
+    {
+        return static::$componentId;
     }
 }

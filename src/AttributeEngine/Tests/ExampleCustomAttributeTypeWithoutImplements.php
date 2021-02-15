@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\AttributeEngine\Tests;
 
-
 class ExampleCustomAttributeTypeWithoutImplements
 {
     /**

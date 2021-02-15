@@ -2,7 +2,8 @@
 
 namespace OpenDialogAi\ContextEngine\Contexts\Custom;
 
-use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
+use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
+use OpenDialogAi\ContextEngine\Contexts\BaseContext;
 
 /**
  * An abstract implementation of a custom context.
@@ -15,7 +16,7 @@ use OpenDialogAi\ContextEngine\ContextManager\AbstractContext;
  * The Context Manager will loop though all registered custom contexts, instantiate them and call the
  * @see AbstractCustomContext::loadAttributes() method to make the custom context attributes available to the application
  */
-abstract class AbstractCustomContext extends AbstractContext
+abstract class AbstractCustomContext extends BaseContext
 {
     /**
      * The name to give the custom context.

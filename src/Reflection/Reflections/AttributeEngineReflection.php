@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Reflection\Reflections;
 
-
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;

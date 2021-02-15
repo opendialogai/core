@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\AttributeEngine;
 
-
 use Carbon\Laravel\ServiceProvider;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;

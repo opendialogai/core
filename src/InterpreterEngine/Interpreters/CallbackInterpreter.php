@@ -3,12 +3,12 @@
 namespace OpenDialogAi\InterpreterEngine\Interpreters;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\CallbackValueParser;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 
 class CallbackInterpreter extends BaseInterpreter
@@ -40,31 +40,32 @@ class CallbackInterpreter extends BaseInterpreter
     /**
      * @inheritDoc
      */
-    public function interpret(UtteranceInterface $utterance): array
+    public function interpret(UtteranceAttribute $utterance): IntentCollection
     {
-        $intent = new NoMatchIntent();
+        $intent = Intent::createNoMatchIntent();
+
         if ($utterance->getCallbackId()) {
             $intentName = $utterance->getCallbackId();
 
             if (array_key_exists($intentName, $this->supportedCallbacks)) {
                 $intentName = $this->supportedCallbacks[$utterance->getCallbackId()];
             }
-
-            $intent = new Intent($intentName);
-            $intent->setConfidence(1);
+            $intent = Intent::createIntent($intentName, 1);
 
             $this->setValue($utterance, $intent);
             $this->setFormValues($utterance, $intent);
         }
 
-        return [$intent];
+        $collection = new IntentCollection();
+        $collection->add($intent);
+        return $collection;
     }
 
     /**
      * @param string $value
-     * @return AttributeInterface
+     * @return Attribute
      */
-    protected function getCallbackValueAttribute(string $value): ?AttributeInterface
+    protected function getCallbackValueAttribute(string $value): ?Attribute
     {
         $parsed = CallbackValueParser::parseCallbackValue($value);
 
@@ -83,44 +84,26 @@ class CallbackInterpreter extends BaseInterpreter
     }
 
     /**
-     * @param UtteranceInterface $utterance
+     * @param UtteranceAttribute $utterance
      * @param Intent $intent
      */
-    public function setValue(UtteranceInterface $utterance, Intent $intent): void
+    public function setValue(UtteranceAttribute $utterance, Intent $intent): void
     {
-        try {
-            if ($utterance->getValue() && $this->getCallbackValueAttribute($utterance->getValue())) {
-                $intent->addAttribute($this->getCallbackValueAttribute($utterance->getValue()));
-            }
-        } catch (FieldNotSupported $e) {
-            Log::debug(
-                sprintf(
-                    'Callback interpreter trying to extract value from unsupported utterance %s',
-                    get_class($utterance)
-                )
-            );
+        if ($utterance->getCallbackValue() && $this->getCallbackValueAttribute($utterance->getCallbackValue())) {
+            $intent->addAttribute($this->getCallbackValueAttribute($utterance->getCallbackValue()));
         }
     }
 
     /**
-     * @param UtteranceInterface $utterance
+     * @param UtteranceAttribute $utterance
      * @param Intent $intent
      */
-    public function setFormValues(UtteranceInterface $utterance, Intent $intent): void
+    public function setFormValues(UtteranceAttribute $utterance, Intent $intent): void
     {
-        try {
-            if ($utterance->getFormValues()) {
-                foreach ($utterance->getFormValues() as $name => $value) {
-                    $intent->addAttribute(AttributeResolver::getAttributeFor($name, $value));
-                }
+        if ($utterance->getFormValues()) {
+            foreach ($utterance->getFormValues() as $name => $value) {
+                $intent->addAttribute(AttributeResolver::getAttributeFor($name, $value));
             }
-        } catch (FieldNotSupported $e) {
-            Log::debug(
-                sprintf(
-                    'Callback interpreter trying to extract form values from unsupported utterance %s',
-                    get_class($utterance)
-                )
-            );
         }
     }
 }

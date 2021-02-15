@@ -128,6 +128,9 @@ class ParticipantTest extends TestCase
         return $cm;
     }
 
+    /**
+     * @group skip
+     */
     public function testGetAllIntentsSaidInOrderWithOneScene()
     {
         $cm = $this->setupConversationWithOneScene();
@@ -146,6 +149,9 @@ class ParticipantTest extends TestCase
         $this->assertEquals($this->intent6->getId(), $botIntents->skip(2)->value->getId());
     }
 
+    /**
+     * @group skip
+     */
     public function testGetAllIntentsSaidInOrderWithTwoScenes()
     {
         $cm = $this->setupConversationWithTwoScenes();

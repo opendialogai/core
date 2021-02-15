@@ -22,7 +22,6 @@ use OpenDialogAi\OperationEngine\Tests\Operations\DummyOperation;
 use OpenDialogAi\ResponseEngine\Service\ResponseEngineServiceInterface;
 use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
-
 class ReflectionHelperTest extends TestCase
 {
     use ArraySubsetAsserts;
@@ -504,4 +503,3 @@ class ReflectionHelperTest extends TestCase
         ], json_decode(json_encode($reflection), true));
     }
 }
-

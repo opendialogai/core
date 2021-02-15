@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 
-
 use Exception;
 use Illuminate\Support\Facades\Log;
 

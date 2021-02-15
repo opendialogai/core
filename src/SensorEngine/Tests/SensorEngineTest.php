@@ -5,12 +5,12 @@ namespace OpenDialogAi\SensorEnging\Tests;
 use OpenDialogAi\Core\SensorEngine\Tests\Sensors\DummySensor;
 use OpenDialogAi\Core\SensorEngine\Tests\Sensors\TestSensor;
 use OpenDialogAi\Core\SensorEngine\Tests\Sensors\TestSensor2;
-use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\Core\SensorEngine\Tests\WebchatSensorTestBase;
 use OpenDialogAi\SensorEngine\Exceptions\SensorNotRegisteredException;
 use OpenDialogAi\SensorEngine\Sensors\WebchatSensor;
 use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
-class SensorServiceTest extends TestCase
+class SensorServiceTest extends WebchatSensorTestBase
 {
     public function testService()
     {

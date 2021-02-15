@@ -2,17 +2,17 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
-use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBag;
-use OpenDialogAi\AttributeEngine\AttributeBag\AttributeBagInterface;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeBag;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 
 /**
  * An Action Input must be provided to all actions so that they can perform their action. It holds an
- * @see AttributeBagInterface to hold all required attributes for the action.
+ * @see AttributeBag to hold all required attributes for the action.
  */
 class ActionInput
 {
-    /** @var AttributeBagInterface */
+    /** @var BasicAttributeBag */
     public $attributeBag;
 
     /**
@@ -20,11 +20,11 @@ class ActionInput
      */
     public function __construct()
     {
-        $this->attributeBag = new AttributeBag();
+        $this->attributeBag = new BasicAttributeBag();
     }
 
     /**
-     * @return AttributeBag|AttributeBagInterface
+     * @return AttributeBag
      */
     public function getAttributeBag()
     {
@@ -45,20 +45,20 @@ class ActionInput
     /**
      * Adds the given attribute to the attribute bag
      *
-     * @param AttributeInterface $attribute
+     * @param Attribute $attribute
      * @return ActionInput
      */
-    public function addAttribute(AttributeInterface $attribute)
+    public function addAttribute(Attribute $attribute)
     {
         $this->attributeBag->addAttribute($attribute);
         return $this;
     }
 
     /**
-     * @param AttributeBagInterface $attributeBag
+     * @param AttributeBag $attributeBag
      * @return ActionInput
      */
-    public function setAttributeBag(AttributeBagInterface $attributeBag)
+    public function setAttributeBag(AttributeBag $attributeBag)
     {
         $this->attributeBag = $attributeBag;
         return $this;

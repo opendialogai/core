@@ -3,11 +3,12 @@
 namespace OpenDialogAi\AttributeEngine\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeValue;
 
 /**
- * @method static AttributeInterface getAttributeFor(string $attributeId, mixed $value)
- * @method static AttributeInterface[] getSupportedAttributes()
+ * @method static Attribute getAttributeFor(string $attributeId, $value)
+ * @method static Attribute[] getSupportedAttributes()
  * @method static void registerAttributes($attributes)
  * @method static string getValidIdPattern()
  * @method static string getValidTypePattern()

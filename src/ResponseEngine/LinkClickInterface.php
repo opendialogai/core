@@ -2,9 +2,9 @@
 
 namespace OpenDialogAi\ResponseEngine;
 
-use OpenDialogAi\Core\Utterances\Webchat\WebchatUrlClickUtterance;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 
 interface LinkClickInterface
 {
-    public function save(WebchatUrlClickUtterance $utterance): LinkClick;
+    public function save(UtteranceAttribute $utterance): LinkClick;
 }

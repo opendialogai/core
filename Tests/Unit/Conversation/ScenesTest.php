@@ -149,6 +149,9 @@ class ScenesTest extends TestCase
         return $cm;
     }
 
+    /**
+     * @group skip
+     */
     public function testAddOpeningScene()
     {
         $cm = $this->setupConversation();
@@ -166,6 +169,9 @@ class ScenesTest extends TestCase
         $this->assertTrue($openingScenes->first()->toArray()['value']->getId() == self::OPENING_SCENE);
     }
 
+    /**
+     * @group skip
+     */
     public function testGetNextPossibleBotIntents()
     {
         $cm = $this->setupConversation();
