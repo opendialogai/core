@@ -42,7 +42,8 @@ class PersistentContext extends AbstractContext
             return parent::getAttribute($attributeName);
         } elseif (($this->hasAttribute($attributeName) && $refresh) || (!$this->hasAttribute($attributeName))) {
             try {
-                $this->dataClient->loadAttribute($attributeName);
+                $attribute = $this->dataClient->loadAttribute($attributeName);
+                $this->addAttribute($attribute);
             } catch (UnableToLoadAttributeFromPersistentStorageException $e) {
                 Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
                 throw new AttributeDoesNotExistException(
