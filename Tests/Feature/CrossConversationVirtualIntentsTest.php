@@ -11,6 +11,7 @@ class CrossConversationVirtualIntentsTest extends TestCase
 {
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testUVirtualBetweenConversations()
     {
@@ -73,7 +74,7 @@ conversation:
         - u:
             i: continue_u
         - b:
-            i: end_2        
+            i: end_2
             completes: true
 EOT;
     }

@@ -4,11 +4,10 @@ namespace OpenDialogAi\ConversationLog\Service;
 
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationLog\Message;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 
@@ -17,10 +16,9 @@ class ConversationLogService
     /**
      * Log an incoming message.
      *
-     * @param UtteranceInterface $utterance
-     * @throws FieldNotSupported
+     * @param UtteranceAttribute $utterance
      */
-    public function logIncomingMessage(UtteranceInterface $utterance): void
+    public function logIncomingMessage(UtteranceAttribute $utterance): void
     {
         $message = '';
         $type = '';
@@ -29,33 +27,14 @@ class ConversationLogService
         $conversation = null;
         $scene = null;
 
-        try {
-            $message = $utterance->getText();
-        } catch (FieldNotSupported $e) {
-            Log::debug(sprintf('Could not retrieve message text. Error: %s', $e->getMessage()));
-        }
 
-        try {
-            $type = $utterance->getType();
-        } catch (\Exception $e) {
-            Log::debug(sprintf('Could not retrieve message type. Error: %s', $e->getMessage()));
-        }
+        $message = $utterance->getText();
+        $type = $utterance->getUtteranceType();
 
-        try {
-            $messageId = $utterance->getMessageId();
-        } catch (\Exception $e) {
-            Log::debug(sprintf('Could not retrieve message ID. Error: %s', $e->getMessage()));
-        }
+        //@todo determine whether we should re-introduce messageIds and timestamps
+        $messageId = '';
+        $timestamp = date("Y-m-d H:i:s.u");
 
-        $timestamp = DateTime::createFromFormat('U.u', $utterance->getTimestamp())->format('Y-m-d H:i:s.u');
-
-        try {
-            $intent = [ContextService::getAttributeValue('interpreted_intent', 'conversation')];
-            $conversation = ContextService::getAttributeValue('current_conversation', 'conversation');
-            $scene = ContextService::getAttributeValue('current_scene', 'conversation');
-        } catch (AttributeDoesNotExistException $e) {
-            //
-        }
 
         Message::create(
             $timestamp,
@@ -66,9 +45,6 @@ class ConversationLogService
             $utterance->getData(),
             $messageId,
             $this->getUser($utterance),
-            $intent,
-            $conversation,
-            $scene
         )->save();
     }
 
@@ -76,12 +52,11 @@ class ConversationLogService
      * Log outgoing message.
      *
      * @param OpenDialogMessages $messageWrapper
-     * @param UtteranceInterface $utterance
-     * @throws FieldNotSupported
+     * @param UtteranceAttribute $utterance
      */
     public function logOutgoingMessages(
         OpenDialogMessages $messageWrapper,
-        UtteranceInterface $utterance
+        UtteranceAttribute $utterance
     ): void {
         $intents = null;
         $conversation = null;
@@ -118,27 +93,22 @@ class ConversationLogService
     }
 
     /**
-     * @param UtteranceInterface $utterance
+     * @param UtteranceAttribute $utterance
      * @return String
      */
-    private function getUserId(UtteranceInterface $utterance): string
+    private function getUserId(UtteranceAttribute $utterance): string
     {
         $userId = '';
-        try {
-            $userId = $utterance->getUserId();
-        } catch (\Exception $e) {
-            Log::debug(sprintf("Could not retrieve user id. Error: %s", $e->getMessage()));
-        }
+        $userId = $utterance->getUserId();
 
         return $userId;
     }
 
     /**
-     * @param UtteranceInterface $utterance
+     * @param UtteranceAttribute $utterance
      * @return array
-     * @throws FieldNotSupported
      */
-    private function getUser(UtteranceInterface $utterance): array
+    private function getUser(UtteranceAttribute $utterance): array
     {
         $userInfo = $utterance->getUser();
         return [

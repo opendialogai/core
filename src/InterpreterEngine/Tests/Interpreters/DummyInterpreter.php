@@ -2,8 +2,9 @@
 
 namespace OpenDialogAi\InterpreterEngine\Tests\Interpreters;
 
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 
 class DummyInterpreter extends BaseInterpreter
@@ -13,8 +14,10 @@ class DummyInterpreter extends BaseInterpreter
     /**
      * @inheritdoc
      */
-    public function interpret(UtteranceInterface $utterance): array
+    public function interpret(UtteranceAttribute $utterance): IntentCollection
     {
-        return [Intent::createIntentWithConfidence('dummy', 1)];
+        $collection = new IntentCollection();
+        $collection->add(Intent::createIntent('dummy', 1));
+        return $collection;
     }
 }

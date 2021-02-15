@@ -10,16 +10,13 @@ use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 class ConversationLogFieldsTest extends TestCase
 {
     /**
-     * @requires DGRAPH
+     * @group skip
      */
     public function testMessageFields()
     {
-        $this->activateConversation($this->conversation4());
-
         $utterance = UtteranceGenerator::generateTextUtterance('hello?');
 
         resolve(OpenDialogController::class)->runConversation($utterance);
-
         $this->assertCount(2, Message::all());
 
         $this->assertEquals('intent.core.NoMatch', Message::where('author', $utterance->getUser()->getId())->first()->intents[0]);

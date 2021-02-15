@@ -17,12 +17,9 @@ class ConversationLogTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->activateConversation($this->conversation4());
     }
 
     /**
-     * @requires DGRAPH
-     *
      * Test that a Chatbot User can be created.
      *
      * @return void
@@ -46,8 +43,6 @@ class ConversationLogTest extends TestCase
     }
 
     /**
-     * @requires DGRAPH
-     *
      * Ensure that the ChatbotUser/message relationships work correctly.
      */
     public function testChatbotUserDbRelationships()
@@ -76,8 +71,6 @@ class ConversationLogTest extends TestCase
     }
 
     /**
-     * @requires DGRAPH
-     *
      * Ensure that messages can be retrieved from the webchat history endpoint.
      */
     public function testWebchatHistoryEndpoint()
@@ -107,8 +100,6 @@ class ConversationLogTest extends TestCase
     }
 
     /**
-     * @requires DGRAPH
-     *
      * Ensure that the webchat history endpoint ignore param works.
      */
     public function testWebchatHistoryEndpointIgnoreParam()
@@ -173,6 +164,7 @@ class ConversationLogTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      *
      * Test that incoming & outgoing messages are logged.
      */
@@ -226,6 +218,7 @@ class ConversationLogTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testInternalProperty()
     {
@@ -246,13 +239,6 @@ class ConversationLogTest extends TestCase
             'message_markup' => $messageMarkUp->getMarkUp(),
         ]);
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
-
-        $cm = new ConversationManager('TestConversation', ConversationNode::ACTIVATABLE, 0);
-
-        /** @var Conversation $conversationModel */
-        $conversationModel = Conversation::create(['name' => 'chat_open', 'model' => "conversation:\n id: chat_open\n scenes:\n    opening_scene:\n      intents:\n        - u:\n            i: intent.core.welcome\n        - b:\n            i: intent.core.chat_open_response\n            completes: true"]);
-
-        $conversationModel->activateConversation($conversationModel);
 
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
@@ -303,9 +289,6 @@ class ConversationLogTest extends TestCase
             ->assertJson([0 => ['data' => ['hidetime' => false]]]);
     }
 
-    /**
-     * @requires DGRAPH
-     */
     public function testChatbotUserFirstLastSeen()
     {
         ChatbotUser::create([

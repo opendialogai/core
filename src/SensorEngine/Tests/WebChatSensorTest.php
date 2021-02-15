@@ -29,6 +29,7 @@ class WebChatSensorTest extends WebchatSensorTestBase
 
         $utterance = $this->sensor->interpret(new Request($body));
 
+
         $this->assertCount(1, $utterance->getFormValues());
         $this->assertEquals(['name' => 'value'], $utterance->getFormValues());
         $this->assertEquals('callback_id', $utterance->getCallbackId());

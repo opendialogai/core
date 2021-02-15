@@ -1,0 +1,46 @@
+<?php
+
+namespace OpenDialogAi\AttributeEngine\Attributes;
+
+use OpenDialogAi\AttributeEngine\AttributeValues\SerializedArrayAttributeValue;
+use OpenDialogAi\Core\Components\ODComponentTypes;
+
+/**
+ * FormData implementation of Attribute.
+ *
+ * Stores form data as a serialized PHP array.
+ *
+ * $formData->getTypedValue() retrieves the array itself.
+ */
+class ArrayDataAttribute extends BasicScalarAttribute
+{
+    protected static ?string $componentId = 'attribute.core.arrayData';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+
+    /**
+     * ArrayAttribute constructor.
+     *
+     * @param $id
+     * @param $value
+     */
+    public function __construct($id, $rawValue = null, ?SerializedArrayAttributeValue $value = null)
+    {
+        if (!is_null($value)) {
+            parent::__construct($id, $value);
+        } else {
+            $attributeValue = new SerializedArrayAttributeValue($rawValue);
+            parent::__construct($id, $attributeValue);
+        }
+    }
+
+    public function setRawValue($rawValue)
+    {
+        is_null($this->value) ?
+            $this->setAttributeValue(new SerializedArrayAttributeValue($rawValue)) : $this->value->setRawValue($rawValue);
+    }
+
+    public function toString(): ?string
+    {
+        return $this->getAttributeValue()->toString();
+    }
+}

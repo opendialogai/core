@@ -8,16 +8,10 @@ use OpenDialogAi\Core\Tests\TestCase;
 
 class IntentTest extends TestCase
 {
-    public function testCoreAttributes()
-    {
-        $intent = Intent::createIntentWithConfidence('test', 1);
-        $attribute = new StringAttribute('test', 'test');
-        $intent->addAttribute($attribute);
 
-        $this->assertCount(1, $intent->getNonCoreAttributes());
-        $this->assertEquals($attribute, $intent->getNonCoreAttributes()->first()->value);
-    }
-
+    /**
+     * @group skip
+     */
     public function testMatches()
     {
         $intent1 = new Intent('test_intent');
@@ -34,6 +28,9 @@ class IntentTest extends TestCase
         $this->assertFalse($intent1->matches($intent2));
     }
 
+    /**
+     * @group skip
+     */
     public function testCopyAttributes()
     {
         $intent1 = new Intent('test_intent_1');

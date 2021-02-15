@@ -10,10 +10,4 @@ use OpenDialogAi\Core\Conversation\Intent;
 class NoMatchIntent extends Intent
 {
     const NO_MATCH = "intent.core.NoMatch";
-
-    public function __construct()
-    {
-        parent::__construct(self::NO_MATCH);
-        parent::setConfidence(1);
-    }
 }

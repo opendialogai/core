@@ -10,7 +10,8 @@ class QnAQuestionMatchedIntent extends Intent
 
     public function __construct()
     {
-        parent::__construct(self::QNA_QUESTION_MATCHED);
+        $this->setODId(self::QNA_QUESTION_MATCHED);
+        parent::__construct();
         parent::setConfidence(1);
     }
 }

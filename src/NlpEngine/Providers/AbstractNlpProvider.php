@@ -3,7 +3,6 @@
 
 namespace OpenDialogAi\NlpEngine\Providers;
 
-
 use OpenDialogAi\Core\NlpEngine\NlpSummary;
 use OpenDialogAi\Core\Traits\HasName;
 use OpenDialogAi\NlpEngine\Exceptions\NlpProviderMethodNotSupportedException;

@@ -28,6 +28,7 @@ class NextIntentDetectionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testComplexConversation()
     {
@@ -68,6 +69,7 @@ class NextIntentDetectionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testSaidAcrossScene()
     {
@@ -102,6 +104,7 @@ class NextIntentDetectionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConditionsOnOutgoingIntents()
     {
@@ -159,6 +162,7 @@ class NextIntentDetectionTest extends TestCase
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationWithOpeningIncomingIntentConditions()
     {
@@ -176,7 +180,7 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: intent.app.hello
             conditions:
                 - condition:
@@ -218,6 +222,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testMultiSceneConversationWithOpeningIncomingIntentConditions()
     {
@@ -235,7 +240,7 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: intent.app.hello
             conditions:
                 - condition:
@@ -286,6 +291,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationWithManyIntentsWithSameIdAndIncomingConditions()
     {
@@ -333,6 +339,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationWithRepeatingIntent()
     {
@@ -345,6 +352,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationWithRepeatingIntentCrossScene()
     {
@@ -357,6 +365,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testConversationWithIncomingConditions()
     {
@@ -422,6 +431,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testMultipleNextIntents()
     {
@@ -467,6 +477,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testSingleVirtualIntents()
     {
@@ -488,6 +499,7 @@ EOT;
 
     /**
      * @requires DGRAPH
+     * @group skip
      */
     public function testMultipleVirtualIntents()
     {
@@ -521,13 +533,13 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: hello_bot
-        - b: 
+        - b:
             i: hello_user
         - u:
             i: ask_weather
-        - u: 
+        - u:
             i: ask_chat
             scene: scene2
         - b:
@@ -541,11 +553,11 @@ conversation:
             completes: true
     scene2:
       intents:
-        - b: 
+        - b:
             i: start_chat
-        - u: 
+        - u:
             i: how_are_you
-        - b: 
+        - b:
             i: doing_dandy
             completes: true
 EOT;
@@ -559,9 +571,9 @@ conversation:
   scenes:
     opening_scene:
       intents:
-        - u: 
+        - u:
             i: hello_bot
-        - b: 
+        - b:
             i: response_with_name
             conditions:
                 - condition:
@@ -575,9 +587,9 @@ conversation:
                     operation: is_not_set
                     attributes:
                         attribute1: user.user_name
-        - u: 
+        - u:
             i: question
-        - b: 
+        - b:
             i: answer_with_name
             conditions:
                 - condition:

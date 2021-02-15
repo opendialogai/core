@@ -2,42 +2,34 @@
 
 namespace OpenDialogAi\AttributeEngine\Attributes;
 
-use OpenDialogAi\Core\Components\BaseOpenDialogComponent;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * Abstract class implementation of the AttributeInterface.
  */
-abstract class AbstractAttribute extends BaseOpenDialogComponent implements AttributeInterface
+abstract class AbstractAttribute implements Attribute, OpenDialogComponent
 {
+    use ODComponent;
+
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
 
-    protected static string $componentType = BaseOpenDialogComponent::ATTRIBUTE_TYPE_COMPONENT_TYPE;
-    protected static string $componentSource = BaseOpenDialogComponent::APP_COMPONENT_SOURCE;
+    protected static string $componentType = ODComponentTypes::ATTRIBUTE_TYPE_COMPONENT_TYPE;
 
-    /* @var string $id - a unique id for this attribute class. */
-    protected $id;
-
-    /* @var string $type - one of the valid string types. */
-    public static $type;
-
-    /* @var mixed $value - the value for this attribute. */
-    protected $value;
+    /* @var string $id - the attribute id. */
+    protected string $id;
 
     /**
      * AbstractAttribute constructor.
      * @param $id
      * @param $value
      */
-    public function __construct($id, $value)
+    public function __construct(string $id)
     {
         $this->id = $id;
-        $this->value = $value;
-    }
-
-    public static function getName(): string
-    {
-        return static::$type;
     }
 
     /**
@@ -45,25 +37,7 @@ abstract class AbstractAttribute extends BaseOpenDialogComponent implements Attr
      */
     public static function getType(): string
     {
-        return static::$type;
-    }
-
-    /**
-     * @param array $arg
-     *
-     * @return mixed
-     */
-    public function getValue(array $arg = [])
-    {
-        return $this->value;
-    }
-
-    /**
-     * @param mixed $value
-     */
-    public function setValue($value)
-    {
-        $this->value = $value;
+        return static::$componentId;
     }
 
     /**
@@ -90,11 +64,12 @@ abstract class AbstractAttribute extends BaseOpenDialogComponent implements Attr
         return clone $this;
     }
 
-    /**
-     * @return string
-     */
-    public function serialized(): ?string
+    public function jsonSerialize()
     {
-        return $this->value;
+        return [
+            'attribute_id' => $this->getId(),
+            'attribute_type_id' => $this->getType(),
+            'attributeValue' => json_encode($this->getValue())
+        ];
     }
 }

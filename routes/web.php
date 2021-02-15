@@ -10,7 +10,7 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::post(
         '/incoming/webchat',
-        'OpenDialogAi\SensorEngine\Http\Controllers\WebchatIncomingController@receive'
+        'OpenDialogAi\Core\Http\Controllers\WebchatIncomingController@receive'
     )->middleware(RequestLoggerMiddleware::class);
 
     Route::get(

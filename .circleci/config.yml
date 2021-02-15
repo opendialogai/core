@@ -23,7 +23,6 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt install -y libsqlite3-dev
       - run: sudo composer self-update
-      - setup_remote_docker
 
       # Download and cache dependencies
       - restore_cache:
@@ -34,25 +33,10 @@ jobs:
 
       - run: composer install -n --prefer-dist --no-scripts
 
-      - run: cp -r vendor/opendialogai/dgraph-docker dgraph
-
       - save_cache:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.lock" }}
-
-      # Set up dgraph
-      - run: cd dgraph && docker-compose up -d
-
-      # Set up port forwarding from dgraph server
-      - run: sudo apt-get -y update; sleep 1; sudo apt-get -y install socat
-      - run: docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec dgraph_server_1 apt-get -y update
-      - run: docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec dgraph_server_1 apt-get -y install socat
-      - run: sleep 5
-      - run:
-          name: dgraph tunnel
-          background: true
-          command: socat TCP-LISTEN:8080,reuseaddr,fork "EXEC:'docker --tlsverify -H=$DOCKER_HOST --tlscacert=$DOCKER_CERT_PATH/ca.pem --tlscert=$DOCKER_CERT_PATH/cert.pem --tlskey=$DOCKER_CERT_PATH/key.pem exec -i dgraph_server_1 socat STDIO TCP-CONNECT:localhost:8080'"
 
       - run:
           name: "Setup custom environment variables"
@@ -60,7 +44,7 @@ jobs:
             echo 'export OVERWRITE_DGRAPH_URL="http://localhost"' >> $BASH_ENV; echo 'export OVERWRITE_DGRAPH_PORT="8080"' >> $BASH_ENV
 
       # run tests!
-      - run: phpdbg -qrr ./vendor/bin/phpunit --coverage-html build/coverage-report -d memory_limit=8192M
+      - run: phpdbg -qrr ./vendor/bin/phpunit --exclude skip --no-coverage -d memory_limit=8192M
 
       - store_artifacts:
           path:  build/coverage-report
