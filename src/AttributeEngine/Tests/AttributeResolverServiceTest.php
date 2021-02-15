@@ -3,20 +3,18 @@
 namespace OpenDialogAi\AttributeEngine\Tests;
 
 use Ds\Map;
-use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
-use OpenDialogAi\AttributeEngine\AttributeValues\IntAttributeValue;
 use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+use OpenDialogAi\AttributeEngine\DynamicAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
-use OpenDialogAi\AttributeEngine\DynamicAttribute;
-use OpenDialogAi\Core\Tests\TestCase;
 
 class AttributeResolverServiceTest extends \Orchestra\Testbench\TestCase
 {
@@ -256,12 +254,14 @@ class AttributeResolverServiceTest extends \Orchestra\Testbench\TestCase
                 'nothing'
             ))
         ]);
-        Log::shouldHaveReceived('error',[sprintf(
+        Log::shouldHaveReceived('error', [sprintf(
             "Not registering attribute %s as it has an unknown type %s, please ensure all "
             . "custom attribute types are registered.",
             'test_attribute',
             'nothing'
         )]);
+    }
+
     public function testResolutionThroughCoreCompositeAttribute()
     {
         $resolver = $this->getAttributeResolver();
@@ -288,13 +288,5 @@ class AttributeResolverServiceTest extends \Orchestra\Testbench\TestCase
         /* @var StringAttribute $nameAttribute */
         $nameAttribute = $retrieved_user->getAttribute('first_name');
         $this->assertEquals('mork', $nameAttribute->toString());
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getAttributeResolver(): AttributeResolver
-    {
-        return $this->app->make(AttributeResolver::class);
     }
 }
