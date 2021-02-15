@@ -19,6 +19,7 @@ use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
  */
 class AttributeResolver
 {
+    /** @var Map|AttributeDeclaration */
     private Map $supportedAttributes;
     private $attributeTypeService;
 
@@ -29,7 +30,7 @@ class AttributeResolver
     }
 
     /**
-     * @return Attribute[]|Map
+     * @return AttributeDeclaration[]|Map
      */
     public function getSupportedAttributes(): Map
     {
@@ -46,7 +47,7 @@ class AttributeResolver
     {
         foreach ($attributes as $name => $type) {
             if ($this->attributeTypeService->isAttributeTypeClassRegistered($type)) {
-                $this->supportedAttributes->put($name, $type);
+                $this->supportedAttributes->put($name, new AttributeDeclaration($name, $type));
             } else {
                 Log::error(sprintf(
                     "Not registering attribute %s as it has an unknown type %s, please ensure all "
@@ -79,7 +80,8 @@ class AttributeResolver
     {
         if ($this->isAttributeSupported($attributeId)) {
             // First instantiate the attribute so we can see what type it is and construct appropriately.
-            $attributeType = $this->supportedAttributes->get($attributeId);
+            $attributeDeclaration = $this->supportedAttributes->get($attributeId);
+            $attributeType = $attributeDeclaration->getAttributeTypeClass();
             $attribute = (new $attributeType($attributeId));
 
             // For scalar attribute we prefer setting the AttributeValue object, but if that is not
