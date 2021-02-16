@@ -92,14 +92,22 @@ class AttributeResolver
             if ($attribute instanceof ScalarAttribute) {
                 if ($value instanceof AttributeValue) {
                     $attribute->setAttributeValue($value);
+                } elseif ($value instanceof ScalarAttribute) {
+                    $attribute->setRawValue($value->getAttributeValue()->getRawValue());
                 } else {
                     $attribute->setRawValue($value);
                 }
             }
 
             // For composite attributes we expect to either be provided with a prepopulated Ds\Map of
-            // attributes or with a single attribute that we add to the composite attribute.
+            // attributes or with a single attribute that we add to the composite attribute or with the
+            // actual CompositeAttribute itself that we return back (the latter happens when we ask the context
+            // service to save a composite attribute and the context service attempts to resolve it to determine if
+            // it is a valid attribute tye).
             if ($attribute instanceof CompositeAttribute) {
+                if (($value instanceof CompositeAttribute) && ($value->getId() == $attribute->getId())) {
+                    return $value;
+                }
                 if ($value instanceof Map) {
                     $attribute->setAttributes($value);
                 } elseif ($value instanceof Attribute) {
