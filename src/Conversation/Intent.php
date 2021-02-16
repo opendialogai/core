@@ -89,7 +89,7 @@ class Intent extends ConversationObject
      */
     public function checkForMatch():bool
     {
-        /* Intent $intent */
+        /* @var Intent $intent */
         foreach ($this->interpretedIntents as $intent) {
             if (($intent->getODId() == $this->getODId()) && ($intent->getConfidence() >= $this->getConfidence())) {
                 $this->interpretation = $intent;
