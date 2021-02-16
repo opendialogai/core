@@ -18,6 +18,8 @@ abstract class AbstractContext implements Context, OpenDialogComponent
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
     protected static string $componentType = ODComponentTypes::CONTEXT_COMPONENT_TYPE;
 
+    protected static bool $attributesAreReadOnly = false;
+
     private ?ContextDataClient $dataClient;
 
     protected $dataClientAttributes = [];
@@ -33,7 +35,7 @@ abstract class AbstractContext implements Context, OpenDialogComponent
      */
     public function getId(): string
     {
-        return $this->id;
+        return self::$componentId;
     }
 
     /**
@@ -47,5 +49,10 @@ abstract class AbstractContext implements Context, OpenDialogComponent
     public function persist(): bool
     {
         return true;
+    }
+
+    public static function attributesAreReadOnly(): bool
+    {
+        return static::$attributesAreReadOnly;
     }
 }

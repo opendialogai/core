@@ -10,7 +10,7 @@ use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Tests\ExampleCustomAttributeType;
-use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
+use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelperInterface;
@@ -177,8 +177,16 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount($numberOfCoreContexts, $contexts);
 
         $contextId = 'my_custom_context';
-        $context = new class extends AbstractContext {
+        $context = new class extends AbstractCustomContext {
             protected static ?string $componentId = 'my_custom_context';
+
+            /**
+             * @inheritDoc
+             */
+            public function loadAttributes(): void
+            {
+                //
+            }
         };
         ContextService::addContext($context);
 
@@ -207,7 +215,7 @@ class ReflectionHelperTest extends TestCase
                         'type' => 'context',
                         'source' => 'core',
                         'id' => '_intent',
-                        'name' => 'User',
+                        'name' => 'Intent',
                         'description' => 'A context managed by OpenDialog for storing data about each interpreted intent.',
                     ],
                     'context_data' => [

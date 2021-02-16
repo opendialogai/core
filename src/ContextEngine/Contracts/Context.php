@@ -4,7 +4,6 @@ namespace OpenDialogAi\ContextEngine\Contracts;
 
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
-use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 
 /**
  * A context is a semantically-related grouping of Attributes. It provides
@@ -52,4 +51,10 @@ interface Context
      */
     public function removeAttribute(string $attributeName): bool;
 
+    /**
+     * Returns whether or not attributes should be read-only or not.
+     *
+     * @return bool
+     */
+    public static function attributesAreReadOnly(): bool;
 }

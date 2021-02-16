@@ -11,6 +11,12 @@ class IntentContext extends AbstractContext
     public const INTENT_CONTEXT = '_intent';
     protected static ?string $componentId = self::INTENT_CONTEXT;
 
+    protected static ?string $componentName = 'Intent';
+    protected static ?string $componentDescription
+        = 'A context managed by OpenDialog for storing data about each interpreted intent.';
+
+    protected static bool $attributesAreReadOnly = true;
+
     public function __construct()
     {
         parent::__construct();

@@ -4,6 +4,7 @@ namespace OpenDialogAi\ContextEngine\ContextService;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
+use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
@@ -106,8 +107,11 @@ class CoreContextService extends BasicContextService
 
         Log::debug(sprintf('Registering context %s', $context));
         try {
-            /** @var Context $context */
+            /** @var AbstractContext $context */
             $context = resolve($context);
+
+            $context::getComponentData();
+
             $this->addContext($context);
         } catch (\Exception $e) {
             Log::warning(sprintf('Error while adding context %s - %s', $context, $e->getMessage()));

@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Reflection\Reflections;
 
 use Ds\Map;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Contracts\ContextService;
 
 class ContextEngineReflection implements ContextEngineReflectionInterface
@@ -32,8 +33,20 @@ class ContextEngineReflection implements ContextEngineReflectionInterface
      */
     public function jsonSerialize()
     {
+        $contexts = $this->getAvailableContexts();
+
+        $contextsWithData = array_map(function ($context) {
+            /** @var $context Context */
+            return [
+                'component_data' => (array) $context::getComponentData(),
+                'context_data' => [
+                    'attributesReadOnly' => $context::attributesAreReadOnly()
+                ]
+            ];
+        }, $contexts->toArray());
+
         return [
-            "available_contexts" => $this->getAvailableContexts()->toArray(),
+            "available_contexts" => $contextsWithData,
         ];
     }
 }

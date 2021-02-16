@@ -12,7 +12,7 @@ class UserContext extends PersistentContext
     protected static ?string $componentId = self::USER_CONTEXT;
 
     protected static ?string $componentName = 'User';
-    protected static ?string $componentDescription = 'A context for storing data about the current user.';
+    protected static ?string $componentDescription = 'A context for storing data about the user.';
 
     public const USER_CONTEXT = 'user';
     public const UTTERANCE_USER = 'utterance_user';

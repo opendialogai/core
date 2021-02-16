@@ -14,6 +14,8 @@ class MessageHistoryContext extends AbstractContext
     public const MESSAGE_HISTORY_CONTEXT = 'message_history';
     protected static ?string $componentId = self::MESSAGE_HISTORY_CONTEXT;
 
+    protected static bool $attributesAreReadOnly = true;
+
     public function __construct()
     {
         parent::__construct();
