@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc657bb0aa486b66b97a5588bd700cd7",
+    "content-hash": "010ba9ab9f2907fbb385e43b3af96f8a",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -1416,17 +1416,21 @@
         },
         {
             "name": "opendialogai/dgraph-docker",
-            "version": "dev-feature/dgraph-v20.11.0",
+            "version": "20.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opendialogai/dgraph-docker.git",
-                "reference": "30e53e670d49fdbc6e1ec4083ac69a2729595acd"
+                "reference": "2997f8eb4de250260acff21404302c82066dda84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/30e53e670d49fdbc6e1ec4083ac69a2729595acd",
-                "reference": "30e53e670d49fdbc6e1ec4083ac69a2729595acd",
+                "url": "https://api.github.com/repos/opendialogai/dgraph-docker/zipball/2997f8eb4de250260acff21404302c82066dda84",
+                "reference": "2997f8eb4de250260acff21404302c82066dda84",
                 "shasum": ""
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^6.3",
+                "phpunit/phpunit": "^8.3"
             },
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
@@ -1446,9 +1450,9 @@
             "description": "The OpenDialog DGraph Docker compose file",
             "support": {
                 "issues": "https://github.com/opendialogai/dgraph-docker/issues",
-                "source": "https://github.com/opendialogai/dgraph-docker/tree/feature/dgraph-v20.11.0"
+                "source": "https://github.com/opendialogai/dgraph-docker/tree/20.11.0"
             },
-            "time": "2021-02-11T09:31:39+00:00"
+            "time": "2021-02-16T11:29:03+00:00"
         },
         {
             "name": "opis/closure",
@@ -7717,9 +7721,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "opendialogai/dgraph-docker": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

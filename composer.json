@@ -10,7 +10,7 @@
     "guzzlehttp/guzzle": "~6.3",
     "justinrainbow/json-schema": "^5.2",
     "spatie/laravel-activitylog": "^3.8",
-    "opendialogai/dgraph-docker": "dev-feature/dgraph-v20.11.0",
+    "opendialogai/dgraph-docker": "20.11.0",
     "doctrine/dbal": "^2.11",
     "ext-json": "*"
   },
