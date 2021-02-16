@@ -84,7 +84,7 @@ class Intent extends ConversationObject
     }
 
     /**
-     * Goes through intepreted intents and looks for a match.
+     * Goes through interpreted intents and looks for a match.
      * @return bool
      */
     public function checkForMatch():bool
