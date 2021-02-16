@@ -2,20 +2,14 @@
 
 namespace OpenDialogAi\InterpreterEngine;
 
-use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
-abstract class BaseInterpreter implements InterpreterInterface
+abstract class BaseInterpreter implements InterpreterInterface, OpenDialogComponent
 {
-    protected static $name = 'base';
+    use ODComponent;
 
-    /**
-     * @inheritdoc
-     */
-    public static function getName(): string
-    {
-        if (static::$name === self::$name) {
-            throw new InterpreterNameNotSetException(sprintf("Interpreter %s has not defined a name", __CLASS__));
-        }
-        return static::$name;
-    }
+    protected static string $componentType = ODComponentTypes::INTERPRETER_COMPONENT_TYPE;
+    protected static string $componentSource = ODComponentTypes::APP_COMPONENT_SOURCE;
 }

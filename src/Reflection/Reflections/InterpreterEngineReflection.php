@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Reflection\Reflections;
 
 use Ds\Map;
+use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
 class InterpreterEngineReflection implements InterpreterEngineReflectionInterface
@@ -47,8 +48,17 @@ class InterpreterEngineReflection implements InterpreterEngineReflectionInterfac
      */
     public function jsonSerialize()
     {
+        $interpreters = $this->getAvailableInterpreters();
+
+        $interpretersWithData = array_map(function ($interpreter) {
+            /** @var $interpreter BaseInterpreter */
+            return [
+                'component_data' => (array) $interpreter::getComponentData(),
+            ];
+        }, $interpreters->toArray());
+
         return [
-            "available_interpreters" => $this->getAvailableInterpreters()->toArray(),
+            "available_interpreters" => $interpretersWithData,
             "engine_configuration" => $this->getEngineConfiguration()
         ];
     }

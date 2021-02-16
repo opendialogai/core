@@ -35,15 +35,7 @@ abstract class AbstractContext implements Context, OpenDialogComponent
      */
     public function getId(): string
     {
-        return self::$componentId;
-    }
-
-    /**
-     * @param string $id
-     */
-    public function setId(string $id): void
-    {
-        $this->id = $id;
+        return static::getComponentId();
     }
 
     public function persist(): bool

@@ -6,9 +6,9 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\QnA\QnAClient;
 use OpenDialogAi\InterpreterEngine\QnA\QnARequestFailedException;
@@ -16,7 +16,8 @@ use OpenDialogAi\InterpreterEngine\QnA\QnAResponse;
 
 class QnAInterpreter extends BaseInterpreter
 {
-    protected static $name = 'interpreter.core.qna';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+    protected static ?string $componentId = 'interpreter.core.qna';
 
     /** @var QnAClient */
     private $client;

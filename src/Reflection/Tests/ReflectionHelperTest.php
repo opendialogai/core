@@ -247,7 +247,7 @@ class ReflectionHelperTest extends TestCase
         $numberOfCoreInterpreters = count($interpreterService->getAvailableInterpreters());
         $this->assertCount($numberOfCoreInterpreters, $interpreters);
 
-        $interpreterId = DummyInterpreter::getName();
+        $interpreterId = DummyInterpreter::getComponentId();
         $interpreterService->registerAvailableInterpreters([
             DummyInterpreter::class
         ]);
@@ -260,11 +260,11 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertArraySubset([
             'available_interpreters' => [
-                'interpreter.core.callback' => [
+                'interpreter.core.callbackInterpreter' => [
                     'component_data' => [
                         'type' => 'interpreter',
                         'source' => 'core',
-                        'id' => 'interpreter.core.callback',
+                        'id' => 'interpreter.core.callbackInterpreter',
                         'name' => 'Callback',
                         'description' => 'An interpreter for directly matching intent names.',
                     ],

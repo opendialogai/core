@@ -5,11 +5,10 @@ namespace OpenDialogAi\Core\InterpreterEngine\Tests;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatChatOpenUtterance;
-use OpenDialogAi\Core\Utterances\Webchat\WebchatTextUtterance;
 use OpenDialogAi\InterpreterEngine\Exceptions\DefaultInterpreterNotDefined;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
@@ -74,31 +73,25 @@ class InterpreterServiceTest extends TestCase
 
         $interpreterService = $this->getBoundInterpreterService();
 
-        $this->assertEquals($interpreterName, $interpreterService->getInterpreter($interpreterName)::getName());
+        $this->assertEquals($interpreterName, $interpreterService->getInterpreter($interpreterName)::getComponentId());
     }
 
-    /**
-     * @throws InterpreterNameNotSetException
-     */
     public function testRealInterpreter()
     {
         $this->registerSingleInterpreter(new DummyInterpreter());
         $service = $this->getBoundInterpreterService();
-        $intents = $service->interpret(DummyInterpreter::getName(), new UtteranceAttribute('test'));
+        $intents = $service->interpret(DummyInterpreter::getComponentId(), new UtteranceAttribute('test'));
 
         $this->assertCount(1, $intents);
         $this->assertEquals('dummy', $intents[0]->getODId());
     }
 
-    /**
-     * @throws InterpreterNameNotSetException
-     */
     public function testInterpretNonBoundInterpreter()
     {
         $utterance = new UtteranceAttribute('test_utterance');
         $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE);
         $service = $this->getBoundInterpreterService();
-        $intents = $service->interpret(DummyInterpreter::getName(), $utterance);
+        $intents = $service->interpret(DummyInterpreter::getComponentId(), $utterance);
 
         $this->assertCount(1, $intents);
         $this->assertEquals('intent.core.NoMatch', $intents[0]->getODId());
@@ -106,7 +99,7 @@ class InterpreterServiceTest extends TestCase
 
     public function testInterpreterNoNameNotRegistered()
     {
-        $this->expectException(InterpreterNameNotSetException::class);
+        $this->expectException(MissingRequiredComponentDataException::class);
         $this->registerSingleInterpreter(new NoNameInterpreter());
     }
 
@@ -134,7 +127,7 @@ class InterpreterServiceTest extends TestCase
         $service->setDefaultInterpreter('interpreter.core.callbackInterpreter');
         $defaultInterpreter = $service->getDefaultInterpreter();
 
-        $this->assertEquals('interpreter.core.callbackInterpreter', $defaultInterpreter::getName());
+        $this->assertEquals('interpreter.core.callbackInterpreter', $defaultInterpreter::getComponentId());
     }
 
     public function testSupportedCallbacksForCallbackInterpreter()
@@ -159,7 +152,7 @@ class InterpreterServiceTest extends TestCase
         $service = $this->getBoundInterpreterService();
         $utterance = new UtteranceAttribute('test');
 
-        $interpreterName = DummyInterpreter::getName();
+        $interpreterName = DummyInterpreter::getComponentId();
 
         $intents = $service->interpret($interpreterName, $utterance);
 

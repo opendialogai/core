@@ -2,14 +2,12 @@
 
 namespace OpenDialogAi\Core\Tests;
 
-use Exception;
 use Mockery;
 use OpenDialogAi\ActionEngine\ActionEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\AttributeEngineServiceProvider;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\ContextEngine\ContextEngineServiceProvider;
-use OpenDialogAi\ConversationBuilder\ConversationBuilderServiceProvider;
 use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
@@ -119,7 +117,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             ]
         );
 
-        $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getName());
+        $this->app['config']->set('opendialog.interpreter_engine.default_interpreter', $defaultInterpreter::getComponentId());
     }
 
     /**
@@ -170,7 +168,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function createMockInterpreter($interpreterName)
     {
         $mockInterpreter = Mockery::mock(InterpreterInterface::class);
-        $mockInterpreter->shouldReceive('getName')->andReturn($interpreterName);
+        $mockInterpreter->shouldReceive('getComponentId')->andReturn($interpreterName);
+        $mockInterpreter->shouldReceive('getComponentData')->andReturn([]);
 
         return $mockInterpreter;
     }

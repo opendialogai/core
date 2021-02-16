@@ -7,8 +7,7 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
-use OpenDialogAi\Core\Utterances\Exceptions\FieldNotSupported;
-use OpenDialogAi\Core\Utterances\UtteranceInterface;
+use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNotRegisteredException;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
@@ -133,21 +132,17 @@ class InterpreterService implements InterpreterServiceInterface
      */
     public function registerAvailableInterpreters($interpreters): void
     {
-        /** @var InterpreterInterface $interpreter */
+        /** @var BaseInterpreter $interpreter */
         foreach ($interpreters as $interpreter) {
-            try {
-                $name = $interpreter::getName();
+            $interpreter::getComponentData();
 
-                if ($this->isValidName($name)) {
-                    $this->availableInterpreters[$name] = new $interpreter();
-                } else {
-                    Log::warning(
-                        sprintf("Not adding interpreter with name %s. Name is in wrong format", $name)
-                    );
-                }
-            } catch (InterpreterNameNotSetException $e) {
+            $id = $interpreter::getComponentId();
+
+            if ($this->isValidName($id)) {
+                $this->availableInterpreters[$id] = new $interpreter();
+            } else {
                 Log::warning(
-                    sprintf("Not adding interpreter %s. It has not defined a name", $interpreter)
+                    sprintf("Not adding interpreter with name %s. Name is in wrong format", $id)
                 );
             }
         }
