@@ -9,6 +9,7 @@ use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ConversationEngine\Exceptions\CouldNotCreateUserFromUtteranceException;
 use OpenDialogAi\ConversationEngine\Exceptions\IncomingUtteranceNotValid;
 
 /**
@@ -24,15 +25,27 @@ class UtteranceReasoner
     public static function analyseUtterance(UtteranceAttribute $utterance): Attribute
     {
         if (UtteranceReasoner::utteranceIsValid($utterance)) {
-            // Retrieve the user context, and provide it with the utterance and the utterance user
-            // and then retrieve the current user
-            /* @var UserContext $userContext */
-            $userContext = ContextService::getContext('user');
-            $userContext->addAttribute($utterance);
-            $userContext->addAttribute($utterance->getAttribute(UtteranceAttribute::UTTERANCE_USER));
+            // Save the utterance
+            ContextService::saveAttribute(
+                UserContext::USER_CONTEXT.'.'.UtteranceAttribute::UTTERANCE,
+                $utterance
+            );
 
-            /* UserAttribute $currentUser */
-            $currentUser = $userContext->getAttribute(UserAttribute::CURRENT_USER);
+            // Save the utterance user
+            ContextService::saveAttribute(
+                UserContext::USER_CONTEXT.'.'.UtteranceAttribute::UTTERANCE_USER,
+                $utterance->getAttribute(UtteranceAttribute::UTTERANCE_USER)
+            );
+
+            // Retrieve the current user
+            /* @var UserAttribute $currentUser */
+            $currentUser = ContextService::getAttribute(
+                UserAttribute::CURRENT_USER, UserContext::USER_CONTEXT
+            );
+            if ($currentUser->getUserId() == '') {
+                throw new CouldNotCreateUserFromUtteranceException("The user has not user id set - could not create a new
+                user or update an existing one using utterance information.");
+            }
             return $currentUser;
         } else {
             throw new IncomingUtteranceNotValid('Utterance provided cannot be used');
