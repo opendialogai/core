@@ -15,7 +15,7 @@ class UserGenerator
         $user->setUserId('SP-937-215')
             ->setFirstName('Jean-Luc')
             ->setLastName('Picard')
-            ->setCountry('Satrfleet');
+            ->setCountry('Starfleet');
 
         return $user;
     }
@@ -26,7 +26,7 @@ class UserGenerator
         $user->setUserId('SP-937-215')
             ->setFirstName('Jean-Luc')
             ->setLastName('Picard')
-            ->setCountry('Satrfleet');
+            ->setCountry('Starfleet');
 
         return $user;
     }

@@ -24,29 +24,12 @@ class StartingIntentSelector
 
         // We first reduce the set to just those that have passing conditions
         $conditionPassingIntents = $intents->filter(function ($intent) {
-            ConditionFilter::checkConditions($intent);
+            return ConditionFilter::checkConditions($intent);
         });
 
         // Now we can pass each intent through interpreters and interpret given the utterance
         $utterance = ContextService::getAttribute(UtteranceAttribute::UTTERANCE, UserContext::USER_CONTEXT);
-        $interpretedIntents = $conditionPassingIntents->map(function (Intent $intent) use ($utterance) {
-            // Get the interpreter defined in the current model
-            $interpreter = $intent->getInterpreter();
-            $interpretedIntents = new IntentCollection();
+        return IntentInterpreterFilter::filter($conditionPassingIntents, $utterance);
 
-            if ($interpreter) {
-                $interpretedIntents = InterpreterService::interpret($intent->getInterpreter(), $utterance);
-            } else {
-                $interpretedIntents = InterpreterService::interpretDefaultInterpreter($utterance);
-            }
-            $intent->addInterpretedIntents($interpretedIntents);
-        });
-
-        // With the interpretations in place let us do a match
-        $matchingIntents = $interpretedIntents->filter(function (Intent $intent){
-            return $intent->checkForMatch();
-        });
-
-        return $matchingIntents;
     }
 }

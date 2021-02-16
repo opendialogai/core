@@ -57,7 +57,7 @@ class UtteranceGenerator
         }
 
 
-        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE);
         $utterance->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_PLATFORM, UtteranceAttribute::WEBCHAT_PLATFORM)
             ->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_MESSAGE)
             ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_TEXT, $text)
@@ -83,7 +83,7 @@ class UtteranceGenerator
             $user = self::generateUser();
         }
 
-        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE);
         $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_BUTTON_RESPONSE)
             ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $callbackId)
             ->setUtteranceAttribute(UtteranceAttribute::UTTERANCE_DATA_VALUE, $value)
@@ -110,7 +110,7 @@ class UtteranceGenerator
             $user = self::generateUser();
         }
 
-        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $utterance = new UtteranceAttribute(UtteranceAttribute::UTTERANCE);
         $utterance->setUtteranceAttribute(UtteranceAttribute::TYPE, UtteranceAttribute::WEBCHAT_FORM_RESPONSE)
             ->setUtteranceAttribute(UtteranceAttribute::CALLBACK_ID, $callbackId)
             ->setFormValues($formValues)

@@ -51,9 +51,6 @@ class CoreTest extends TestCase
         $this->assertTrue($intent->messageTemplates->contains($messageTemplate));
 
 
-
-
-
         // Send a message to /incoming/webchat
         $response = $this->json('POST', '/incoming/webchat', [
             'notification' => 'message',
