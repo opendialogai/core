@@ -9,7 +9,7 @@ use OpenDialogAi\SensorEngine\BaseSensor;
 // Same name as test sensor
 class TestSensor2 extends BaseSensor
 {
-    public static $name = 'sensor.core.test';
+    public static ?string $componentId = 'sensor.core.test';
 
     public function interpret(Request $request): UtteranceAttribute
     {

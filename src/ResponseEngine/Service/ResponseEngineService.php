@@ -280,7 +280,7 @@ class ResponseEngineService implements ResponseEngineServiceInterface
             $this->availableFormatters[$id] = new $formatter($this);
         } else {
             Log::warning(
-                sprintf("Not adding formatter with name %s. ID is in wrong format", $id)
+                sprintf("Not adding formatter with ID %s. ID is in wrong format", $id)
             );
         }
     }

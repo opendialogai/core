@@ -4,7 +4,6 @@ namespace OpenDialogAi\SensorEngine;
 
 use Illuminate\Http\Request;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
-use OpenDialogAi\SensorEngine\Exceptions\SensorNameNotSetException;
 
 /**
  * Definition of a Sensor
@@ -18,12 +17,4 @@ interface SensorInterface
      * @return UtteranceAttribute
      */
     public function interpret(Request $request) : UtteranceAttribute;
-
-    /**
-     * Gets the name of the Sensor
-     *
-     * @return string
-     * @throws SensorNameNotSetException
-     */
-    public static function getName(): string;
 }

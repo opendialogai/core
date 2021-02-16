@@ -2,11 +2,14 @@
 
 namespace OpenDialogAi\SensorEngine;
 
-use OpenDialogAi\Core\Traits\HasName;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
-abstract class BaseSensor implements SensorInterface
+abstract class BaseSensor implements SensorInterface, OpenDialogComponent
 {
-    use HasName;
+    use ODComponent;
 
-    public static $name = 'base';
+    protected static string $componentType = ODComponentTypes::SENSOR_COMPONENT_TYPE;
+    protected static string $componentSource = ODComponentTypes::APP_COMPONENT_SOURCE;
 }

@@ -439,8 +439,8 @@ class ReflectionHelperTest extends TestCase
         $sensors = $reflection->getAvailableSensors();
         $this->assertCount($numberOfCoreSensors + 1, $sensors);
 
-        $this->assertTrue($sensors->hasKey($sensor::getName()));
-        $this->assertEquals($sensor, $sensors->get($sensor::getName()));
+        $this->assertTrue($sensors->hasKey($sensor::getComponentId()));
+        $this->assertEquals($sensor, $sensors->get($sensor::getComponentId()));
 
         $this->assertArraySubset([
             'available_sensors' => [
@@ -452,31 +452,15 @@ class ReflectionHelperTest extends TestCase
                         'name' => 'Webchat',
                         'description' => 'A sensor for receiving messages from OpenDialog Webchat.',
                     ],
-                    'sensor_data' => [
-                        'supported_utterance_types' => [
-                            'chat_open',
-                            'text',
-                            'trigger',
-                            'button_response',
-                            'url_click',
-                            'longtext_response',
-                            'form_response',
-                        ],
-                    ]
                 ],
-                $sensor::getName() => [
+                $sensor::getComponentId() => [
                     'component_data' => [
                         'type' => 'sensor',
                         'source' => 'app',
-                        'id' => $sensor::getName(),
+                        'id' => $sensor::getComponentId(),
                         'name' => 'Example sensor',
                         'description' => 'Just an example sensor.',
                     ],
-                    'sensor_data' => [
-                        'supported_utterance_types' => [
-                            'text'
-                        ]
-                    ]
                 ],
             ]
         ], json_decode(json_encode($reflection), true));
