@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ResponseEngine\Formatters;
 
-use OpenDialogAi\Core\Exceptions\NameNotSetException;
 use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
@@ -130,10 +129,4 @@ interface MessageFormatterInterface
     public function generateHandToSystemMessage(array $template): HandToSystemMessage;
 
     public function generateDatePickerMessage(array $template): DatePickerMessage;
-
-    /**
-     * @return string
-     * @throws NameNotSetException
-     */
-    public static function getName(): string;
 }

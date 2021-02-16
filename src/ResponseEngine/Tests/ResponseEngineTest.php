@@ -53,7 +53,7 @@ class ResponseEngineTest extends TestCase
     public function testWebchatFormatter()
     {
         $webchatFormatter = new WebChatMessageFormatter();
-        $this->assertEquals('formatter.core.webchat', $webchatFormatter->getName());
+        $this->assertEquals('formatter.core.webchat', $webchatFormatter::getComponentId());
     }
 
     public function testBadlyNamedSensor()

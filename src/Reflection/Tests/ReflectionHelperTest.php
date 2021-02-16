@@ -397,8 +397,8 @@ class ReflectionHelperTest extends TestCase
         $formatters = $reflection->getAvailableFormatters();
         $this->assertCount($numberOfCoreFormatters + 1, $formatters);
 
-        $this->assertTrue($formatters->hasKey($formatter::getName()));
-        $this->assertEquals($formatter, $formatters->get($formatter::getName()));
+        $this->assertTrue($formatters->hasKey($formatter::getComponentId()));
+        $this->assertEquals($formatter, $formatters->get($formatter::getComponentId()));
 
         $this->assertArraySubset([
             'available_formatters' => [
@@ -410,40 +410,15 @@ class ReflectionHelperTest extends TestCase
                         'name' => 'Webchat',
                         'description' => 'A formatter for sending messages to OpenDialog Webchat.',
                     ],
-                    'formatter_data' => [
-                        'supported_message_types' => [
-                            'attribute-message',
-                            'button-message',
-                            'hand-to-system-message',
-                            'image-message',
-                            'list-message',
-                            'text-message',
-                            'rich-message',
-                            'form-message',
-                            'fp-form-message',
-                            'fp-rich-message',
-                            'long-text-message',
-                            'empty-message',
-                            'cta-message',
-                            'meta-message',
-                            'autocomplete-message',
-                            'date-picker-message',
-                        ],
-                    ]
                 ],
-                $formatter::getName() => [
+                $formatter::getComponentId() => [
                     'component_data' => [
                         'type' => 'formatter',
                         'source' => 'app',
-                        'id' => $formatter::getName(),
+                        'id' => $formatter::getComponentId(),
                         'name' => 'Example formatter',
                         'description' => 'Just an example formatter.',
                     ],
-                    'formatter_data' => [
-                        'supported_message_types' => [
-                            'text-message'
-                        ]
-                    ]
                 ],
             ]
         ], json_decode(json_encode($reflection), true));
