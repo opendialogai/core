@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Log;
 use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
 use OpenDialogAi\Core\Components\ODComponent;
 use OpenDialogAi\Core\Components\ODComponentTypes;
-use OpenDialogAi\Core\Traits\HasName;
 
 abstract class BaseOperation implements OperationInterface, OpenDialogComponent
 {
