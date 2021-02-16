@@ -75,7 +75,7 @@ class Intent extends ConversationObject
 
     public function addInterpretedIntents(IntentCollection $interpretations)
     {
-        $this->interpretedIntents->concat($interpretations);
+        $this->interpretedIntents = $this->interpretedIntents->concat($interpretations);
     }
 
     public function getInterpretedIntents(): IntentCollection
@@ -92,7 +92,7 @@ class Intent extends ConversationObject
         /* Intent $intent */
         foreach ($this->interpretedIntents as $intent) {
             if (($intent->getODId() == $this->getODId()) && ($intent->getConfidence() >= $this->getConfidence())) {
-                $$this->interpretation = $intent;
+                $this->interpretation = $intent;
                 return true;
             }
         }
