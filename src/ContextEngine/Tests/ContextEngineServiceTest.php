@@ -142,7 +142,7 @@ class ContextEngineServiceTest extends TestCase
     private function createNewContext(): Context
     {
         $newContext = new class extends AbstractContext {
-            protected static ?string $componentId = 'new_context';
+            protected static string $componentId = 'new_context';
         };
 
         $this->contextService()->addContext($newContext);

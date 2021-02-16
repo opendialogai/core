@@ -66,7 +66,7 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     /** @var ResponseEngineService */
     private $responseEngineService;
 
-    protected static ?string $componentId = 'formatter.core.webchat';
+    protected static string $componentId = 'formatter.core.webchat';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     protected static ?string $componentName = 'Webchat';

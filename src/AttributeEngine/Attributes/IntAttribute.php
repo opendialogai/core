@@ -10,7 +10,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  */
 class IntAttribute extends BasicScalarAttribute
 {
-    protected static ?string $componentId = 'attribute.core.int';
+    protected static string $componentId = 'attribute.core.int';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
     /**
      * IntAttribute constructor.

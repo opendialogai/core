@@ -178,7 +178,7 @@ class ReflectionHelperTest extends TestCase
 
         $contextId = 'my_custom_context';
         $context = new class extends AbstractCustomContext {
-            protected static ?string $componentId = 'my_custom_context';
+            protected static string $componentId = 'my_custom_context';
 
             /**
              * @inheritDoc

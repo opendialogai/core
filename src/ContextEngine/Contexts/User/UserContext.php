@@ -9,7 +9,7 @@ use OpenDialogAi\ContextEngine\Contexts\PersistentContext;
 
 class UserContext extends PersistentContext
 {
-    protected static ?string $componentId = self::USER_CONTEXT;
+    protected static string $componentId = self::USER_CONTEXT;
 
     protected static ?string $componentName = 'User';
     protected static ?string $componentDescription = 'A context for storing data about the user.';

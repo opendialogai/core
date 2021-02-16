@@ -15,7 +15,7 @@ use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 class CallbackInterpreter extends BaseInterpreter
 {
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
-    protected static ?string $componentId = 'interpreter.core.callbackInterpreter';
+    protected static string $componentId = 'interpreter.core.callbackInterpreter';
 
     protected static ?string $componentName = 'Callback';
     protected static ?string $componentDescription = 'An interpreter for directly matching intent names.';

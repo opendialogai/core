@@ -8,7 +8,7 @@ use OpenDialogAi\SensorEngine\BaseSensor;
 
 class DummySensor extends BaseSensor
 {
-    public static ?string $componentId = 'badly_formed';
+    protected static string $componentId = 'badly_formed';
 
     protected static ?string $componentName = 'Example sensor';
     protected static ?string $componentDescription = 'Just an example sensor.';

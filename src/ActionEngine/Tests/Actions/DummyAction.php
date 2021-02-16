@@ -13,7 +13,7 @@ class DummyAction extends BaseAction
 
     protected static array $outputAttributes = ['nickname'];
 
-    protected static ?string $componentId = 'actions.core.dummy';
+    protected static string $componentId = 'actions.core.dummy';
 
     public function perform(ActionInput $actionInput): ActionResult
     {

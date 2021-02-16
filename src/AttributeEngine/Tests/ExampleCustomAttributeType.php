@@ -8,7 +8,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class ExampleCustomAttributeType extends StringAttribute
 {
-    public static ?string $componentId = 'attribute.app.custom';
+    protected static string $componentId = 'attribute.app.custom';
 
     protected static ?string $componentName = 'Example attribute type';
     protected static ?string $componentDescription = 'Just an example attribute type.';

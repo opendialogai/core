@@ -7,5 +7,5 @@ use OpenDialogAi\ContextEngine\ContextService\CoreContextService;
 
 class ConversationContext extends AbstractContext
 {
-    protected static ?string $componentId = CoreContextService::CONVERSATION_CONTEXT;
+    protected static string $componentId = CoreContextService::CONVERSATION_CONTEXT;
 }

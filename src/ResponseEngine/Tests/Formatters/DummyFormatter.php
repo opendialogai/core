@@ -21,7 +21,7 @@ use OpenDialogAi\ResponseEngine\Message\RichMessage;
 
 class DummyFormatter extends BaseMessageFormatter
 {
-    public static ?string $componentId = 'badly_formed';
+    protected static string $componentId = 'badly_formed';
 
     public function getMessages(string $markup): OpenDialogMessages
     {

@@ -14,7 +14,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  */
 class ArrayDataAttribute extends BasicScalarAttribute
 {
-    protected static ?string $componentId = 'attribute.core.arrayData';
+    protected static string $componentId = 'attribute.core.arrayData';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**

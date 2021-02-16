@@ -108,11 +108,11 @@ class CoreContextService extends BasicContextService
         Log::debug(sprintf('Registering context %s', $context));
         try {
             /** @var AbstractContext $context */
-            $context = resolve($context);
+            $contextObject = resolve($context);
 
-            $context::getComponentData();
+            $contextObject::getComponentData();
 
-            $this->addContext($context);
+            $this->addContext($contextObject);
         } catch (\Exception $e) {
             Log::warning(sprintf('Error while adding context %s - %s', $context, $e->getMessage()));
         }

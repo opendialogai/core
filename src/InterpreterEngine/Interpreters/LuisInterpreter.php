@@ -10,7 +10,7 @@ use OpenDialogAi\InterpreterEngine\Luis\LuisClient;
 class LuisInterpreter extends AbstractNLUInterpreter
 {
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
-    protected static ?string $componentId = 'interpreter.core.luis';
+    protected static string $componentId = 'interpreter.core.luis';
 
     protected static $entityConfigKey = 'opendialog.interpreter_engine.luis_entities';
 

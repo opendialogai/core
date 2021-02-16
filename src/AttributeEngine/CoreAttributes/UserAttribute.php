@@ -11,7 +11,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class UserAttribute extends BasicCompositeAttribute
 {
-    protected static ?string $componentId = 'attribute.core.user';
+    protected static string $componentId = 'attribute.core.user';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     public const CURRENT_USER = 'current_user';

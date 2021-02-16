@@ -10,7 +10,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  */
 class BooleanAttribute extends BasicScalarAttribute
 {
-    protected static ?string $componentId = 'attribute.core.boolean';
+    protected static string $componentId = 'attribute.core.boolean';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
 

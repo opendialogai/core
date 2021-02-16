@@ -938,7 +938,7 @@ class ResponseEngineTest extends TestCase
     public function createTestContext(): Context
     {
         $testContext = new class extends AbstractContext {
-            protected static ?string $componentId = 'test';
+            protected static string $componentId = 'test';
         };
 
         ContextService::addContext($testContext);

@@ -11,7 +11,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class UserHistoryRecord extends BasicCompositeAttribute
 {
-    protected static ?string $componentId = 'attribute.core.conversation_state';
+    protected static string $componentId = 'attribute.core.conversation_state';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     public const USER_HISTORY_RECORD = 'user_history_record';

@@ -12,7 +12,7 @@ use OpenDialogAi\SensorEngine\BaseSensor;
 
 class WebchatSensor extends BaseSensor
 {
-    public static ?string $componentId = 'sensor.core.webchat';
+    protected static string $componentId = 'sensor.core.webchat';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     protected static ?string $componentName = 'Webchat';
