@@ -92,8 +92,8 @@ class Intent extends ConversationObject
         /* @var Intent $intent */
         foreach ($this->interpretedIntents as $intent) {
             if (($intent->getODId() == $this->getODId()) && ($intent->getConfidence() >= $this->getConfidence())) {
-                // @todo currently this will give us the last matching intent out of a numer of intents so we
-                // may want to consider ranking within a single intent as well if we got multiple matches. 
+                // @todo currently this will give us the last matching intent out of a number of intents as the "winner"
+                // so we may want to consider ranking within a single intent as well if we got multiple matches.
                 $this->interpretation = $intent;
                 return true;
             }
