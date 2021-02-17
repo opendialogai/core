@@ -38,45 +38,45 @@ class ConversationalStateReasoner
                 // to track where our "current thinking" is. Once a reasoning cycle is done we then extract
                 // information from the conversation context to put it back into a history record.
                 ContextService::saveAttribute(
-                    self::CONVERSATION_CONTEXT.Scenario::CURRENT_SCENARIO,
+                    self::CONVERSATION_CONTEXT.'.'.Scenario::CURRENT_SCENARIO,
                     $record->getScenarioId()
                 );
                 ContextService::saveAttribute(
-                    self::CONVERSATION_CONTEXT.Conversation::CURRENT_CONVERSATION,
+                    self::CONVERSATION_CONTEXT.'.'.Conversation::CURRENT_CONVERSATION,
                     ConversationObject::UNDEFINED
                 );
             } else {
                 // If the conversation is not complete we populate the conversation context with all the
                 // relevant info
                 ContextService::saveAttribute(
-                    self::CONVERSATION_CONTEXT.Scenario::CURRENT_SCENARIO,
+                    self::CONVERSATION_CONTEXT.'.'.Scenario::CURRENT_SCENARIO,
                     $record->getScenarioId()
                 );
                 ContextService::saveAttribute(
-                    self::CONVERSATION_CONTEXT.Conversation::CURRENT_CONVERSATION,
+                    self::CONVERSATION_CONTEXT.'.'.Conversation::CURRENT_CONVERSATION,
                     $record->getConversationId()
                 );
                 ContextService::saveAttribute(
-                    self::CONVERSATION_CONTEXT.Scene::CURRENT_SCENE,
+                    self::CONVERSATION_CONTEXT.'.'.Scene::CURRENT_SCENE,
                     $record->getSceneId()
                 );
                 ContextService::saveAttribute(
-                    self::CONVERSATION_CONTEXT.Turn::CURRENT_TURN,
+                    self::CONVERSATION_CONTEXT.'.'.Turn::CURRENT_TURN,
                     $record->getTurnId()
                 );
                 ContextService::saveAttribute(
-                    self::CONVERSATION_CONTEXT.Intent::CURRENT_INTENT,
+                    self::CONVERSATION_CONTEXT.'.'.Intent::CURRENT_INTENT,
                     $record->getIntentId()
                 );
             }
         }
 
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Scenario::CURRENT_SCENARIO,
+            self::CONVERSATION_CONTEXT.'.'.Scenario::CURRENT_SCENARIO,
             ConversationObject::UNDEFINED
         );
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Conversation::CURRENT_CONVERSATION,
+            self::CONVERSATION_CONTEXT.'.'.Conversation::CURRENT_CONVERSATION,
             ConversationObject::UNDEFINED
         );
     }

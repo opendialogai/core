@@ -13,9 +13,12 @@ use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
 use OpenDialogAi\ConversationEngine\Exceptions\IncomingUtteranceNotValid;
 use OpenDialogAi\ConversationEngine\Reasoners\ScenarioSelector;
+use OpenDialogAi\ConversationEngine\Reasoners\StartingIntentSelector;
 use OpenDialogAi\ConversationEngine\Reasoners\UtteranceReasoner;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Tests\ConversationGenerator;
+use OpenDialogAi\Core\Conversation\Tests\IntentGenerator;
+use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\Core\Tests\Utils\UserGenerator;
 use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
@@ -67,6 +70,23 @@ class ConversationEngineTest extends TestCase
             ->andReturn(ConversationGenerator::generateScenariosWithEverything('test'), 1);
 
         $conditionPassingScenarios = ScenarioSelector::selectActiveScenarios();
+    }
+
+    public function testIncomingIntentSelector()
+    {
+        $intents = ConversationDataClient::shouldReceive('getAllStartingIntents')->once()
+            ->andReturn(IntentGenerator::generateIntents());
+
+        $utterance = UtteranceGenerator::generateButtonResponseUtterance('intent.core.I3');
+
+        ContextService::saveAttribute(
+          'user'.'.'.UtteranceAttribute::UTTERANCE, $utterance
+        );
+
+        $matchingIntents = StartingIntentSelector::selectStartingIntents(new TurnCollection());
+
+        $this->assertCount(1, $matchingIntents);
+        $this->assertEquals('intent.core.I3', $matchingIntents->pop()->getODId());
     }
 
 }

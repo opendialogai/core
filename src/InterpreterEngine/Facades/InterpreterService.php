@@ -1,7 +1,7 @@
 <?php
 namespace OpenDialogAi\InterpreterEngine\Facades;
 
-use Illuminate\Support\Facade;
+use Illuminate\Support\Facades\Facade;
 
 class InterpreterService extends Facade
 {

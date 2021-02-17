@@ -8,6 +8,7 @@ use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ConversationEngine\Exceptions\CouldNotCreateUserFromUtteranceException;
 use OpenDialogAi\ConversationEngine\Reasoners\ConversationalStateReasoner;
 use OpenDialogAi\ConversationEngine\Reasoners\MatchRequestIntentStartingFromConversationStrategy;
 use OpenDialogAi\ConversationEngine\Reasoners\OpeningIntentSelectorStrategy;
@@ -92,7 +93,7 @@ class ConversationEngine implements ConversationEngineInterface
             if ($responseIntents->isEmpty()) {
                 return $this->noMatchCollection();
             }
-        } catch (AttributeDoesNotExistException $e) {
+        } catch (CouldNotCreateUserFromUtteranceException $e) {
             Log::error($e->getMessage());
             return $this->noMatchCollection();
         }
@@ -111,27 +112,27 @@ class ConversationEngine implements ConversationEngineInterface
     {
         // Now that we are set with a final intent let us update the conversation context to reflect where we are
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Scenario::CURRENT_SCENARIO,
+            self::CONVERSATION_CONTEXT.'.'.Scenario::CURRENT_SCENARIO,
             $intent->getScenario()->getODId()
         );
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Conversation::CURRENT_CONVERSATION,
+            self::CONVERSATION_CONTEXT.'.'.Conversation::CURRENT_CONVERSATION,
             $intent->getConversation()->getODId()
         );
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Scene::CURRENT_SCENE,
+            self::CONVERSATION_CONTEXT.'.'.Scene::CURRENT_SCENE,
             $intent->getScene()->getODId()
         );
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Turn::CURRENT_TURN,
+            self::CONVERSATION_CONTEXT.'.'.Turn::CURRENT_TURN,
             $intent->getTurn()->getODId()
         );
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Intent::CURRENT_INTENT,
+            self::CONVERSATION_CONTEXT.'.'.Intent::CURRENT_INTENT,
             $intent->getODId()
         );
         ContextService::saveAttribute(
-            self::CONVERSATION_CONTEXT.Intent::CURRENT_SPEAKER,
+            self::CONVERSATION_CONTEXT.'.'.Intent::CURRENT_SPEAKER,
             $intent->getSpeaker()
         );
     }

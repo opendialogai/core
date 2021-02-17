@@ -89,6 +89,7 @@ return [
         UtteranceAttribute::UTTERANCE_USER => UserAttribute::class,
 
         // User
+        'utterance_user' => UserAttribute::class,
         'current_user' => UserAttribute::class,
         'custom_parameters' => FormDataAttribute::class,
         'history_record' => UserHistoryRecord::class,
