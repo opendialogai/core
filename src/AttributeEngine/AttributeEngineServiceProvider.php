@@ -10,28 +10,35 @@ use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeService;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeTypeNotRegisteredException;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class AttributeEngineServiceProvider extends ServiceProvider
 {
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/config/opendialog-attributeengine-custom.php' => config_path('opendialog/attribute_engine.php'),
+            __DIR__ . '/config/opendialog-attributeengine-custom.php' => config_path('opendialog/attribute_engine.php'),
         ], 'opendialog-config');
     }
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/config/opendialog-attributeengine.php', 'opendialog.attribute_engine');
+        $this->mergeConfigFrom(__DIR__ . '/config/opendialog-attributeengine.php', 'opendialog.attribute_engine');
 
         $this->app->singleton(AttributeResolver::class, function () {
             $attributeResolver = new AttributeResolver();
 
-            $attributeResolver->registerAttributes(config('opendialog.attribute_engine.supported_attributes'));
+            $attributeResolver->registerAttributes(
+                config('opendialog.attribute_engine.supported_attributes'),
+                ODComponentTypes::CORE_COMPONENT_SOURCE
+            );
 
             // Gets custom attributes if they have been set
             if (is_array(config('opendialog.attribute_engine.custom_attributes'))) {
-                $attributeResolver->registerAttributes(config('opendialog.attribute_engine.custom_attributes'));
+                $attributeResolver->registerAttributes(
+                    config('opendialog.attribute_engine.custom_attributes'),
+                    ODComponentTypes::APP_COMPONENT_SOURCE
+                );
             }
 
             if ($this->hasDynamicAttributes()) {
@@ -44,7 +51,11 @@ class AttributeEngineServiceProvider extends ServiceProvider
                     }
                     return true;
                 });
-                $attributeResolver->registerAttributes($this->formatDynamicAttributes($distinctDynamicAttributes));
+
+                $attributeResolver->registerAttributes(
+                    $this->formatDynamicAttributes($distinctDynamicAttributes),
+                    ODComponentTypes::CUSTOM_COMPONENT_SOURCE
+                );
             }
 
             return $attributeResolver;

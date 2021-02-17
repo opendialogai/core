@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class IsSetOperation extends BaseOperation
 {
-    protected static ?string $componentId = 'is_set';
+    protected static string $componentId = 'is_set';
 
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 

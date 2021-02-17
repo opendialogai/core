@@ -3,9 +3,12 @@
 namespace OpenDialogAi\Core\Reflection\Reflections;
 
 use Ds\Map;
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeDeclaration;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Attributes\AttributeInterface;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponentData;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class AttributeEngineReflection implements AttributeEngineReflectionInterface
 {
@@ -35,7 +38,7 @@ class AttributeEngineReflection implements AttributeEngineReflectionInterface
      */
     public function getAvailableAttributes(): Map
     {
-        return new Map($this->attributeResolver->getSupportedAttributes());
+        return $this->attributeResolver->getSupportedAttributes();
     }
 
     /**
@@ -52,6 +55,7 @@ class AttributeEngineReflection implements AttributeEngineReflectionInterface
     public function jsonSerialize()
     {
         $attributeTypes = $this->getAvailableAttributeTypes();
+        $attributes = $this->getAvailableAttributes();
 
         $attributeTypesWithData = array_map(function ($attributeType) {
             /** @var AttributeInterface $attributeType */
@@ -60,8 +64,25 @@ class AttributeEngineReflection implements AttributeEngineReflectionInterface
             ];
         }, $attributeTypes->toArray());
 
+        $attributesWithData = array_map(function ($attributeDeclaration) {
+            /** @var AttributeDeclaration $attributeDeclaration */
+
+            /** @var AttributeInterface $attributeTypeClass */
+            $attributeTypeClass = $attributeDeclaration->getAttributeTypeClass();
+            return [
+                'component_data' => (array) new OpenDialogComponentData(
+                    ODComponentTypes::ATTRIBUTE_COMPONENT_TYPE,
+                    $attributeDeclaration->getSource(),
+                    $attributeDeclaration->getAttributeId()
+                ),
+                'attribute_data' => [
+                    'type' => $attributeTypeClass::getComponentId(),
+                ]
+            ];
+        }, $attributes->toArray());
+
         return [
-            "available_attributes" => $this->getAvailableAttributes()->toArray(),
+            "available_attributes" => $attributesWithData,
             "available_attribute_types" => $attributeTypesWithData,
         ];
     }

@@ -6,7 +6,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class DummyOperation extends BaseOperation
 {
-    public static $name = 'dummy';
+    protected static string $componentId = 'dummy';
 
     protected static ?string $componentName = 'Example operation';
     protected static ?string $componentDescription = 'Just an example operation.';

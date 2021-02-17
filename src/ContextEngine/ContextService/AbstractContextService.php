@@ -26,19 +26,9 @@ abstract class AbstractContextService implements ContextService
     /**
      * @inheritDoc
      */
-    public function createContext(string $contextId): Context
-    {
-        $newContext = new BaseContext($contextId);
-        $this->addContext($newContext);
-        return $newContext;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function addContext(Context $context): void
     {
-        $this->contexts->put($context->getId(), $context);
+        $this->contexts->put($context::getComponentId(), $context);
     }
 
     /**
@@ -92,14 +82,14 @@ abstract class AbstractContextService implements ContextService
         $context = ($this->hasContext($contextId)) ? $this->getContext($contextId) : $this->getSessionContext();
 
         Log::debug(
-            sprintf('Attempting to retrieve attribute %s in context %s', $attributeId, $context->getId())
+            sprintf('Attempting to retrieve attribute %s in context %s', $attributeId, $context::getComponentId())
         );
 
         try {
             return $context->getAttribute($attributeId);
         } catch (AttributeDoesNotExistException $e) {
             Log::warning(
-                sprintf('Attribute %s does not exist in context %s', $attributeId, $context->getId())
+                sprintf('Attribute %s does not exist in context %s', $attributeId, $context::getComponentId())
             );
 
             return AttributeResolver::getAttributeFor($attributeId, '');

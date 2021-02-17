@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeResolver;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
-use OpenDialogAi\ContextEngine\ContextManager\ContextServiceInterface;
+use OpenDialogAi\ContextEngine\Contracts\ContextService;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelper;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelperInterface;
 use OpenDialogAi\Core\Reflection\Reflections\ActionEngineReflection;
@@ -48,7 +48,7 @@ class ReflectionServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ContextEngineReflectionInterface::class, function () {
-            $contextService = resolve(ContextServiceInterface::class);
+            $contextService = resolve(ContextService::class);
             return new ContextEngineReflection($contextService);
         });
 

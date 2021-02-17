@@ -14,7 +14,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  */
 class FormDataAttribute extends BasicScalarAttribute
 {
-    protected static ?string $componentId = 'attribute.core.formData';
+    protected static string $componentId = 'attribute.core.formData';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**

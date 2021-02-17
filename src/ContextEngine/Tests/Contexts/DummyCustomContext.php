@@ -10,7 +10,7 @@ use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
  */
 class DummyCustomContext extends AbstractCustomContext
 {
-    public static $name = 'dummy_context';
+    protected static string $componentId = 'dummy_context';
 
     public function loadAttributes(): void
     {

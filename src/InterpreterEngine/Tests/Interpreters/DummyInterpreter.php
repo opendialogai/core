@@ -9,7 +9,7 @@ use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 
 class DummyInterpreter extends BaseInterpreter
 {
-    protected static $name = 'interpreter.core.dummy';
+    protected static string $componentId = 'interpreter.core.dummy';
 
     /**
      * @inheritdoc

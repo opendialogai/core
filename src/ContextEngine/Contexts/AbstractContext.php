@@ -6,20 +6,26 @@ use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Contracts\ContextDataClient;
+use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
+use OpenDialogAi\Core\Components\ODComponent;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
-abstract class AbstractContext implements Context
+abstract class AbstractContext implements Context, OpenDialogComponent
 {
     use HasAttributesTrait;
+    use ODComponent;
 
-    private $id;
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+    protected static string $componentType = ODComponentTypes::CONTEXT_COMPONENT_TYPE;
+
+    protected static bool $attributesAreReadOnly = false;
 
     private ?ContextDataClient $dataClient;
 
     protected $dataClientAttributes = [];
 
-    public function __construct($id, ?ContextDataClient $dataClient = null)
+    public function __construct(?ContextDataClient $dataClient = null)
     {
-        $this->id = $id;
         $this->attributes = new Map();
         $this->dataClient = $dataClient;
     }
@@ -29,19 +35,16 @@ abstract class AbstractContext implements Context
      */
     public function getId(): string
     {
-        return $this->id;
-    }
-
-    /**
-     * @param string $id
-     */
-    public function setId(string $id): void
-    {
-        $this->id = $id;
+        return static::getComponentId();
     }
 
     public function persist(): bool
     {
         return true;
+    }
+
+    public static function attributesAreReadOnly(): bool
+    {
+        return static::$attributesAreReadOnly;
     }
 }

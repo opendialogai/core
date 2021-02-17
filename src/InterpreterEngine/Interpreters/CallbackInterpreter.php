@@ -7,13 +7,18 @@ use OpenDialogAi\AttributeEngine\CallbackValueParser;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
 
 class CallbackInterpreter extends BaseInterpreter
 {
-    protected static $name = 'interpreter.core.callbackInterpreter';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+    protected static string $componentId = 'interpreter.core.callbackInterpreter';
+
+    protected static ?string $componentName = 'Callback';
+    protected static ?string $componentDescription = 'An interpreter for directly matching intent names.';
 
     /**
      * @var array - the callbacks supported by the application.

@@ -53,7 +53,7 @@ class InterpreterEngineConfiguration implements JsonSerializable
         return [
             "default_interpreter" => $this->getDefaultInterpreter(),
             "default_cache_time" => $this->getDefaultCacheTime(),
-            "supported_callbacks" => $this->getSupportedCallbacks(),
+            "supported_callbacks" => $this->getSupportedCallbacks()->toArray(),
         ];
     }
 }

@@ -8,9 +8,9 @@ use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\ContextService\ContextParser;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\Core\Exceptions\NameNotSetException;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
+use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\MessageTemplate;
@@ -125,19 +125,10 @@ class ResponseEngineService implements ResponseEngineServiceInterface
     /**
      * @inheritDoc
      */
-    public function registerFormatter(MessageFormatterInterface $formatter, $force = false): void
+    public function registerFormatter(BaseMessageFormatter $formatter, $force = false): void
     {
-        try {
-            if ($force || !isset($this->getAvailableFormatters()[$formatter::getName()])) {
-                $this->registerSingleFormatter(get_class($formatter));
-            }
-        } catch (NameNotSetException $e) {
-            Log::warning(
-                sprintf(
-                    'Not adding formatter %s - it does not have a name',
-                    get_class($formatter)
-                )
-            );
+        if ($force || !isset($this->getAvailableFormatters()[$formatter::getComponentId()])) {
+            $this->registerSingleFormatter(get_class($formatter));
         }
     }
 
@@ -282,19 +273,14 @@ class ResponseEngineService implements ResponseEngineServiceInterface
      */
     private function registerSingleFormatter(string $formatter): void
     {
-        try {
-            $name = $formatter::getName();
+        $id = $formatter::getComponentId();
 
-            if ($this->isValidName($name)) {
-                $this->availableFormatters[$name] = new $formatter($this);
-            } else {
-                Log::warning(
-                    sprintf("Not adding formatter with name %s. Name is in wrong format", $name)
-                );
-            }
-        } catch (NameNotSetException $e) {
+        if ($this->isValidName($id)) {
+            $formatter::getComponentData();
+            $this->availableFormatters[$id] = new $formatter($this);
+        } else {
             Log::warning(
-                sprintf("Not adding formatter %s. It has not defined a name", $formatter)
+                sprintf("Not adding formatter with ID %s. ID is in wrong format", $id)
             );
         }
     }

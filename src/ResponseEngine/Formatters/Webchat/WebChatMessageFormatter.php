@@ -8,6 +8,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ContextEngine\ContextService\ContextParser;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
@@ -65,7 +66,11 @@ class WebChatMessageFormatter extends BaseMessageFormatter
     /** @var ResponseEngineService */
     private $responseEngineService;
 
-    public static $name = 'formatter.core.webchat';
+    protected static string $componentId = 'formatter.core.webchat';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+
+    protected static ?string $componentName = 'Webchat';
+    protected static ?string $componentDescription = 'A formatter for sending messages to OpenDialog Webchat.';
 
     /**
      * WebChatMessageFormatter constructor.

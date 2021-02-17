@@ -3,7 +3,7 @@
 namespace OpenDialogAi\SensorEngine\Service;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\SensorEngine\Exceptions\SensorNameNotSetException;
+use OpenDialogAi\SensorEngine\BaseSensor;
 use OpenDialogAi\SensorEngine\Exceptions\SensorNotRegisteredException;
 use OpenDialogAi\SensorEngine\SensorInterface;
 
@@ -66,21 +66,16 @@ class SensorService implements SensorServiceInterface
      */
     public function registerAvailableSensors() : void
     {
-        /** @var SensorInterface $sensor */
+        /** @var BaseSensor $sensor */
         foreach ($this->getAvailableSensorConfig() as $sensor) {
-            try {
-                $name = $sensor::getName();
+            $id = $sensor::getComponentId();
 
-                if ($this->isValidName($name)) {
-                    $this->availableSensors[$name] = new $sensor();
-                } else {
-                    Log::warning(
-                        sprintf("Not adding sensor with name %s. Name is in wrong format", $name)
-                    );
-                }
-            } catch (SensorNameNotSetException $e) {
+            if ($this->isValidName($id)) {
+                $sensor::getComponentData();
+                $this->availableSensors[$id] = new $sensor();
+            } else {
                 Log::warning(
-                    sprintf("Not adding sensor %s. It has not defined a name", get_class($sensor))
+                    sprintf("Not adding sensor with ID %s. ID is in wrong format", $id)
                 );
             }
         }
@@ -111,29 +106,24 @@ class SensorService implements SensorServiceInterface
      * Register a single sensor.
      * Will not register if a sensor of that name is already registered
      *
-     * @param SensorInterface $sensor
+     * @param BaseSensor $sensor
      * @param bool $force
      */
-    public function registerSensor(SensorInterface $sensor, $force = false): void
+    public function registerSensor(BaseSensor $sensor, $force = false): void
     {
-        try {
-            $name = $sensor::getName();
+        $id = $sensor::getComponentId();
 
-            if ($force || !isset($this->availableSensors[$name])) {
-                Log::debug(sprintf('Adding a single sensor %s %s', $name, get_class($sensor)));
-                $this->availableSensors[$name] = $sensor;
-            } else {
-                Log::warning(
-                    sprintf(
-                        'Not registering sensor with name %s - already registered as %s',
-                        $name,
-                        get_class($this->getSensor($name))
-                    )
-                );
-            }
-        } catch (SensorNameNotSetException $e) {
+        if ($force || !isset($this->availableSensors[$id])) {
+            $sensor::getComponentData();
+            Log::debug(sprintf('Adding a single sensor %s %s', $id, get_class($sensor)));
+            $this->availableSensors[$id] = $sensor;
+        } else {
             Log::warning(
-                sprintf("Not adding sensor %s. It has not defined a name", get_class($sensor))
+                sprintf(
+                    'Not registering sensor with ID %s - already registered as %s',
+                    $id,
+                    get_class($this->getSensor($id))
+                )
             );
         }
     }

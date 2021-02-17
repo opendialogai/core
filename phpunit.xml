@@ -74,6 +74,10 @@
             <directory suffix="Test.php">./src/NlpEngine/Tests</directory>
         </testsuite>
 
+        <testsuite name="ReflectionHelper">
+            <directory suffix="Test.php">./src/Reflection/Tests</directory>
+        </testsuite>
+
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

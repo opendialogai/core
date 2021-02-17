@@ -4,14 +4,20 @@ namespace OpenDialogAi\SensorEngine\Sensors;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\SensorEngine\Exceptions\UtteranceUnknownMessageType;
 use OpenDialogAi\SensorEngine\BaseSensor;
 
 class WebchatSensor extends BaseSensor
 {
-    public static $name = 'sensor.core.webchat';
+    protected static string $componentId = 'sensor.core.webchat';
+    protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
+
+    protected static ?string $componentName = 'Webchat';
+    protected static ?string $componentDescription = 'A sensor for receiving messages from OpenDialog Webchat.';
+
 
     /**
      * Interpret a request.

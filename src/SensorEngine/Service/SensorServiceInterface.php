@@ -2,6 +2,7 @@
 
 namespace OpenDialogAi\SensorEngine\Service;
 
+use OpenDialogAi\SensorEngine\BaseSensor;
 use OpenDialogAi\SensorEngine\SensorInterface;
 
 /**
@@ -41,8 +42,8 @@ interface SensorServiceInterface
     /**
      * Register a single sensor
      *
-     * @param SensorInterface $sensor
+     * @param BaseSensor $sensor
      * @param $force
      */
-    public function registerSensor(SensorInterface $sensor, $force = false): void;
+    public function registerSensor(BaseSensor $sensor, $force = false): void;
 }

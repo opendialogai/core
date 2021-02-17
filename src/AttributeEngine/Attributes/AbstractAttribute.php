@@ -14,10 +14,10 @@ abstract class AbstractAttribute implements Attribute, OpenDialogComponent
 {
     use ODComponent;
 
+    protected static string $componentType = ODComponentTypes::ATTRIBUTE_TYPE_COMPONENT_TYPE;
+
     const UNDEFINED_CONTEXT = 'undefined_context';
     const INVALID_ATTRIBUTE_NAME = 'invalid_attribute_name';
-
-    protected static string $componentType = ODComponentTypes::ATTRIBUTE_TYPE_COMPONENT_TYPE;
 
     /* @var string $id - the attribute id. */
     protected string $id;

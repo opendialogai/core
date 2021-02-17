@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Reflection\Reflections;
 
 use Ds\Map;
+use OpenDialogAi\SensorEngine\BaseSensor;
 use OpenDialogAi\SensorEngine\Service\SensorServiceInterface;
 
 class SensorEngineReflection implements SensorEngineReflectionInterface
@@ -32,8 +33,17 @@ class SensorEngineReflection implements SensorEngineReflectionInterface
      */
     public function jsonSerialize()
     {
+        $sensors = $this->getAvailableSensors();
+
+        $sensorsWithData = array_map(function ($sensor) {
+            /** @var $sensor BaseSensor */
+            return [
+                'component_data' => (array) $sensor::getComponentData(),
+            ];
+        }, $sensors->toArray());
+
         return [
-            "available_sensors" => $this->getAvailableSensors()->toArray(),
+            "available_sensors" => $sensorsWithData,
         ];
     }
 }

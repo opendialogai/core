@@ -10,7 +10,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  */
 class TimestampAttribute extends AbstractScalarAttribute
 {
-    protected static ?string $componentId = 'attribute.core.timestamp';
+    protected static string $componentId = 'attribute.core.timestamp';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     public function __construct($id, $value = null)

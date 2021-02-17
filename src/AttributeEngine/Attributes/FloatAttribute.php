@@ -10,7 +10,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
  */
 class FloatAttribute extends BasicScalarAttribute
 {
-    protected static ?string $componentId = 'attribute.core.float';
+    protected static string $componentId = 'attribute.core.float';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     /**

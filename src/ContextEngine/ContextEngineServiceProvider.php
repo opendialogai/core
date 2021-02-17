@@ -3,12 +3,9 @@
 namespace OpenDialogAi\ContextEngine;
 
 use Carbon\Laravel\ServiceProvider;
-use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserDataClient;
 use OpenDialogAi\ContextEngine\ContextService\CoreContextService;
 use OpenDialogAi\ContextEngine\Contracts\ContextService;
-use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
-use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
 
 class ContextEngineServiceProvider extends ServiceProvider
 {
@@ -26,14 +23,10 @@ class ContextEngineServiceProvider extends ServiceProvider
         $this->app->singleton(ContextService::class, function () {
             $contextService = new CoreContextService();
 
-            $contextService->createContext(CoreContextService::SESSION_CONTEXT);
-            $contextService->createContext(CoreContextService::CONVERSATION_CONTEXT);
-            $contextService->addContext(new UserContext($this->app->make(UserDataClient::class)));
-            $contextService->addContext(new IntentContext());
-            $contextService->addContext(new MessageHistoryContext());
+            $contextService->loadContexts(config('opendialog.context_engine.supported_contexts'));
 
             if (is_array(config('opendialog.context_engine.custom_contexts'))) {
-                $contextService->loadCustomContexts(config('opendialog.context_engine.custom_contexts'));
+                $contextService->loadContexts(config('opendialog.context_engine.custom_contexts'));
             }
 
             return $contextService;

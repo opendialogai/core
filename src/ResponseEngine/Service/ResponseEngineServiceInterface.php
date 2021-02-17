@@ -4,6 +4,7 @@ namespace OpenDialogAi\ResponseEngine\Service;
 
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 use OpenDialogAi\ResponseEngine\Exceptions\FormatterNotRegisteredException;
+use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\NoMatchingMessagesException;
@@ -46,10 +47,10 @@ interface ResponseEngineServiceInterface
     /**
      * Registers a single formatter if one with the same name isn't already set
      *
-     * @param MessageFormatterInterface $formatter
+     * @param BaseMessageFormatter $formatter
      * @param bool $force If true, will force setting the formatter, even if one with the same name is already registered
      */
-    public function registerFormatter(MessageFormatterInterface $formatter, $force = false): void;
+    public function registerFormatter(BaseMessageFormatter $formatter, $force = false): void;
 
     /**
      * Returns all available formatters

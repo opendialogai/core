@@ -4,7 +4,6 @@ namespace OpenDialogAi\ContextEngine\Contexts;
 
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Contracts\ContextDataClient;
@@ -17,9 +16,9 @@ class PersistentContext extends AbstractContext
 
     protected ContextDataClient $dataClient;
 
-    public function __construct($id, ContextDataClient $dataClient)
+    public function __construct(ContextDataClient $dataClient)
     {
-        parent::__construct($id);
+        parent::__construct();
         $this->dataClient = $dataClient;
     }
 

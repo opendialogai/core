@@ -2,8 +2,7 @@
 
 namespace OpenDialogAi\Core\ResponseEngine\Tests\Formatters;
 
-use OpenDialogAi\Core\Traits\HasName;
-use OpenDialogAi\ResponseEngine\Formatters\MessageFormatterInterface;
+use OpenDialogAi\ResponseEngine\Formatters\BaseMessageFormatter;
 use OpenDialogAi\ResponseEngine\Message\AutocompleteMessage;
 use OpenDialogAi\ResponseEngine\Message\ButtonMessage;
 use OpenDialogAi\ResponseEngine\Message\DatePickerMessage;
@@ -20,11 +19,9 @@ use OpenDialogAi\ResponseEngine\Message\OpenDialogMessage;
 use OpenDialogAi\ResponseEngine\Message\OpenDialogMessages;
 use OpenDialogAi\ResponseEngine\Message\RichMessage;
 
-class DummyFormatter implements MessageFormatterInterface
+class DummyFormatter extends BaseMessageFormatter
 {
-    use HasName;
-
-    public static $name = 'badly_formed';
+    protected static string $componentId = 'badly_formed';
 
     public function getMessages(string $markup): OpenDialogMessages
     {

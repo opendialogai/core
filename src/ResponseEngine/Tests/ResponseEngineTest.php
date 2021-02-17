@@ -8,6 +8,7 @@ use OpenDialogAi\AttributeEngine\Attributes\FloatAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\TimestampAttribute;
+use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
 use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\DummyFormatter;
@@ -52,7 +53,7 @@ class ResponseEngineTest extends TestCase
     public function testWebchatFormatter()
     {
         $webchatFormatter = new WebChatMessageFormatter();
-        $this->assertEquals('formatter.core.webchat', $webchatFormatter->getName());
+        $this->assertEquals('formatter.core.webchat', $webchatFormatter::getComponentId());
     }
 
     public function testBadlyNamedSensor()
@@ -109,7 +110,7 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $attributes = ['usertimestamp' => 'user.timestamp'];
+        $attributes = ['usertimestamp' => 'test.timestamp'];
 
         $conditions = new ConditionsYamlGenerator();
         $conditions->addCondition($attributes, ['value' => 10000], 'gte');
@@ -149,9 +150,9 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {test.name}!");
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -166,7 +167,7 @@ class ResponseEngineTest extends TestCase
         $messageTemplate = MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -191,7 +192,7 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("{user.phraseArray}");
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("{test.phraseArray}");
 
         $conditions = new ConditionsYamlGenerator();
 
@@ -203,7 +204,7 @@ class ResponseEngineTest extends TestCase
         ]);
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new ArrayDataAttribute('phraseArray', [
             'greeting' => 'hello',
             'subject' => 'world'
@@ -227,7 +228,7 @@ class ResponseEngineTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessage('hi there');
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -242,7 +243,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -270,7 +271,7 @@ class ResponseEngineTest extends TestCase
         $system = "my-custom-chat-system";
         $generator->addHandToSystemMessage($system, $data);
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -312,7 +313,7 @@ class ResponseEngineTest extends TestCase
             'http://www.opendialog.ai'
         );
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -327,7 +328,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -355,7 +356,7 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -370,7 +371,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -397,7 +398,7 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -412,7 +413,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -439,7 +440,7 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons);
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -454,7 +455,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -492,7 +493,7 @@ class ResponseEngineTest extends TestCase
         ];
         $generator->addButtonMessage('test button', $buttons, true);
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -507,7 +508,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -523,7 +524,7 @@ class ResponseEngineTest extends TestCase
     public function testWebChatAttributeMessage()
     {
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
 
@@ -539,9 +540,9 @@ class ResponseEngineTest extends TestCase
 
         $userContext->addAttribute(new StringAttribute('message', $generator->getMarkUp()));
         $generator2 = (new MessageMarkUpGenerator())
-            ->addAttributeMessage('user.message');
+            ->addAttributeMessage('test.message');
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -572,15 +573,15 @@ class ResponseEngineTest extends TestCase
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
         $generator = new MessageMarkUpGenerator();
-        $generator->addTextMessage('hi {user.name} there {missingattribute} welcome');
+        $generator->addTextMessage('hi {test.name} there {missingattribute} welcome');
         $generator->addImageMessage(
             'https://media1.giphy.com/media/3oKIPuvcQ6CcIy716w/source.gif',
             'http://www.opendialog.ai'
         );
 
-        $generator2 = (new MessageMarkUpGenerator())->addAttributeMessage('user.message');
+        $generator2 = (new MessageMarkUpGenerator())->addAttributeMessage('test.message');
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -594,7 +595,7 @@ class ResponseEngineTest extends TestCase
         ]);
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
         $userContext->addAttribute(new StringAttribute('message', $generator->getMarkUp()));
 
@@ -609,11 +610,11 @@ class ResponseEngineTest extends TestCase
         $conditionsValidator = new MessageConditions();
 
         // Test valid condition.
-        $conditions = "---\nconditions:\n- condition:\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq";
+        $conditions = "---\nconditions:\n- condition:\n    attributes:\n      username: test.name\n    parameters:\n      value: dummy\n    operation: eq";
         $this->assertTrue($conditionsValidator->passes(null, $conditions));
 
         // Test invalid condition.
-        $conditions = "---\nconditions:\n-\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy\n    operation: eq";
+        $conditions = "---\nconditions:\n-\n    attributes:\n      username: test.name\n    parameters:\n      value: dummy\n    operation: eq";
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
 
         // Test condition without enough attributes.
@@ -621,7 +622,7 @@ class ResponseEngineTest extends TestCase
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
 
         // Test condition without operation.
-        $conditions = "---\nconditions:\n-\n    attributes:\n      username: user.name\n    parameters:\n      value: dummy";
+        $conditions = "---\nconditions:\n-\n    attributes:\n      username: test.name\n    parameters:\n      value: dummy";
         $this->assertFalse($conditionsValidator->passes(null, $conditions));
     }
 
@@ -633,7 +634,7 @@ class ResponseEngineTest extends TestCase
         // phpcs:ignore
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = ['value' => 'dummy'];
 
         $conditions = new ConditionsYamlGenerator();
@@ -648,7 +649,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -679,7 +680,7 @@ class ResponseEngineTest extends TestCase
         $generator = new MessageMarkUpGenerator();
         $generator->addTextMessage('hi there');
 
-        $attributes = ['username' => 'user.age'];
+        $attributes = ['username' => 'test.age'];
         $parameters = ['start_value' => 5, 'end_value' => 10];
 
         $conditions = new ConditionsYamlGenerator();
@@ -694,7 +695,7 @@ class ResponseEngineTest extends TestCase
 
         // Setup a context to have something to compare against
         /* @var ContextService $contextService */
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('age', 7));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -731,11 +732,11 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {test.name}!");
 
         $conditions = new ConditionsYamlGenerator();
-        $conditions->addCondition(['username' => 'user.name'], ['value' => 'dummy'], 'eq');
-        $conditions->addCondition(['userlastseen' => 'user.last_seen'], [], 'is_set');
+        $conditions->addCondition(['username' => 'test.name'], ['value' => 'dummy'], 'eq');
+        $conditions->addCondition(['userlastseen' => 'test.last_seen'], [], 'is_set');
 
         MessageTemplate::create([
             'name' => 'Friendly Hello',
@@ -746,7 +747,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -759,9 +760,9 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {test.name}!");
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
 
         $conditions = new ConditionsYamlGenerator();
         $conditions->addCondition($attributes, [], 'is_set');
@@ -775,7 +776,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $this->createUserContext();
+        $this->createTestContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
@@ -789,7 +790,7 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
 
-        $attributes = ['userlastseen' => 'user.last_seen'];
+        $attributes = ['userlastseen' => 'test.last_seen'];
         $parameters = ['value' => 600];
 
         $conditions = new ConditionsYamlGenerator();
@@ -804,7 +805,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 700));
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
@@ -816,9 +817,9 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {test.name}!");
 
-        $attributes = ['userlastseen' => 'user.last_seen'];
+        $attributes = ['userlastseen' => 'test.last_seen'];
         $parameters = ['value' => 600];
 
         $conditions = new ConditionsYamlGenerator();
@@ -833,7 +834,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $this->createUserContext();
+        $this->createTestContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
@@ -847,7 +848,7 @@ class ResponseEngineTest extends TestCase
 
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there!");
 
-        $attributes = ['userlastseen' => 'user.last_seen'];
+        $attributes = ['userlastseen' => 'test.last_seen'];
         $parameters = ['value' => 600];
 
         $conditions = new ConditionsYamlGenerator();
@@ -862,10 +863,10 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $this->createUserContext();
+        $this->createTestContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new TimestampAttribute('last_seen', now()->timestamp - 300));
         $messageWrapper = $responseEngineService->getMessageForIntent('webchat', 'Hello');
         $this->assertEquals($messageWrapper->getMessages()[0]->getText(), 'Hi there!');
@@ -876,9 +877,9 @@ class ResponseEngineTest extends TestCase
         OutgoingIntent::create(['name' => 'Hello']);
         $intent = OutgoingIntent::where('name', 'Hello')->first();
 
-        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {user.name}!");
+        $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessage("Hi there {test.name}!");
 
-        $attributes = ['userlastseen' => 'user.last_seen'];
+        $attributes = ['userlastseen' => 'test.last_seen'];
         $parameters = ['value' => 600];
 
         $conditions = new ConditionsYamlGenerator();
@@ -893,7 +894,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $this->createUserContext();
+        $this->createTestContext();
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
         $this->expectException(NoMatchingMessagesException::class);
@@ -908,7 +909,7 @@ class ResponseEngineTest extends TestCase
         // phpcs:ignore
         $messageMarkUp = (new MessageMarkUpGenerator())->addTextMessageWithLink('This is an example', 'This is a link', 'http://www.example.com');
 
-        $attributes = ['username' => 'user.name'];
+        $attributes = ['username' => 'test.name'];
         $parameters = [];
 
         $conditions = new ConditionsYamlGenerator();
@@ -923,7 +924,7 @@ class ResponseEngineTest extends TestCase
         MessageTemplate::where('name', 'Friendly Hello')->first();
 
         // Setup a context to have something to compare against
-        $userContext = $this->createUserContext();
+        $userContext = $this->createTestContext();
         $userContext->addAttribute(new StringAttribute('name', 'dummy'));
 
         $responseEngineService = $this->app->make(ResponseEngineServiceInterface::class);
@@ -934,9 +935,14 @@ class ResponseEngineTest extends TestCase
     /**
      * @return Context
      */
-    public function createUserContext(): Context
+    public function createTestContext(): Context
     {
-        $userContext = ContextService::createContext('user');
-        return $userContext;
+        $testContext = new class extends AbstractContext {
+            protected static string $componentId = 'test';
+        };
+
+        ContextService::addContext($testContext);
+
+        return $testContext;
     }
 }

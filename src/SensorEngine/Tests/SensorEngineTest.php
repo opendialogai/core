@@ -29,7 +29,7 @@ class SensorServiceTest extends WebchatSensorTestBase
     public function testWebchatSensor()
     {
         $webchatSensor = new WebchatSensor();
-        $this->assertEquals('sensor.core.webchat', $webchatSensor->getName());
+        $this->assertEquals('sensor.core.webchat', $webchatSensor::getComponentId());
     }
 
     public function testBadlyNamedFormatter()
@@ -54,7 +54,7 @@ class SensorServiceTest extends WebchatSensorTestBase
         $sensorService->registerSensor($testSensor);
 
         $this->assertCount(2, $sensorService->getAvailableSensors());
-        $this->assertEquals($testSensor, $sensorService->getSensor(TestSensor::getName()));
+        $this->assertEquals($testSensor, $sensorService->getSensor(TestSensor::getComponentId()));
     }
 
     public function testRegisteringSingleSensorAlreadyRegistered()
@@ -72,7 +72,7 @@ class SensorServiceTest extends WebchatSensorTestBase
         $sensorService->registerSensor($testSensor);
 
         $this->assertCount(1, $sensorService->getAvailableSensors());
-        $this->assertEquals(TestSensor::class, get_class($sensorService->getSensor(TestSensor::getName())));
+        $this->assertEquals(TestSensor::class, get_class($sensorService->getSensor(TestSensor::getComponentId())));
     }
 
     public function testForcingSingleSensorAlreadyRegistered()
@@ -89,6 +89,6 @@ class SensorServiceTest extends WebchatSensorTestBase
         $sensorService->registerSensor(new TestSensor2(), true);
 
         $this->assertCount(1, $sensorService->getAvailableSensors());
-        $this->assertEquals(TestSensor2::class, get_class($sensorService->getSensor(TestSensor::getName())));
+        $this->assertEquals(TestSensor2::class, get_class($sensorService->getSensor(TestSensor::getComponentId())));
     }
 }

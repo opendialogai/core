@@ -4,11 +4,13 @@ namespace OpenDialogAi\ContextEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
+use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
 use OpenDialogAi\ContextEngine\ContextService\CoreContextService;
+use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Contracts\ContextService;
 use OpenDialogAi\ContextEngine\Facades\ContextService as ContextServiceFacade;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\Core\Tests\Utils\UtteranceGenerator;
 
 class ContextEngineServiceTest extends TestCase
 {
@@ -29,14 +31,14 @@ class ContextEngineServiceTest extends TestCase
 
     public function testAddingANewContext()
     {
-        $this->contextService()->createContext('new_context');
+        $this->createNewContext();
         $this->assertTrue($this->contextService()->hasContext('new_context'));
     }
 
     public function testAddingAnAttributeToAContext()
     {
         // Create a context and add an attribute to it.
-        $newContext = $this->contextService()->createContext('new_context');
+        $newContext = $this->createNewContext();;
         $newContext->addAttribute(new StringAttribute('new_context.test', 'value'));
 
         // Retrieve the context and retrieve the attribute.
@@ -55,7 +57,7 @@ class ContextEngineServiceTest extends TestCase
         );
 
         // Create a context and add an attribute to it.
-        $newContext = $this->contextService()->createContext('new_context');
+        $newContext = $this->createNewContext();;
         $newContext->addAttribute(new StringAttribute('test', 'value'));
 
         $attribute = $this->contextService()->getAttribute('test', 'new_context');
@@ -71,12 +73,6 @@ class ContextEngineServiceTest extends TestCase
     public function testSessionContextCreated()
     {
         $this->assertTrue($this->contextService()->hasContext(CoreContextService::SESSION_CONTEXT));
-    }
-
-    public function testContextFacade()
-    {
-        ContextServiceFacade::createContext('test');
-        $this->assertTrue(ContextServiceFacade::hasContext('test'));
     }
 
     public function testSavingUnsupportedAttributeNoContext()
@@ -112,22 +108,22 @@ class ContextEngineServiceTest extends TestCase
 
     public function testSavingSupportedAttributeKnownContext()
     {
-        $attributeName = 'test_context.test_attribute';
+        $attributeName = 'new_context.test_attribute';
         $attributeValue = 1;
 
         $this->setCustomAttributes(['test_attribute' => IntAttribute::class]);
 
-        ContextServiceFacade::createContext('test_context');
+        $this->createNewContext();
         ContextServiceFacade::saveAttribute($attributeName, $attributeValue);
 
-        $attribute = $this->contextService()->getAttribute('test_attribute', 'test_context');
+        $attribute = $this->contextService()->getAttribute('test_attribute', 'new_context');
         $this->assertInstanceOf(IntAttribute::class, $attribute);
         $this->assertSame(1, $attribute->getValue());
     }
 
     public function testGetNonExistentAttributeValue()
     {
-        ContextServiceFacade::createContext(CoreContextService::SESSION_CONTEXT);
+        $this->contextService()->addContext(new SessionContext());
         $value = ContextServiceFacade::getSessionContext()->getAttributeValue('nonexistentvalue');
 
         $this->assertNull($value);
@@ -141,5 +137,16 @@ class ContextEngineServiceTest extends TestCase
             ContextServiceFacade::getSessionContext()->getAttribute('test')->getValue(),
             ContextServiceFacade::getSessionContext()->getAttributeValue('test')
         );
+    }
+
+    private function createNewContext(): Context
+    {
+        $newContext = new class extends AbstractContext {
+            protected static string $componentId = 'new_context';
+        };
+
+        $this->contextService()->addContext($newContext);
+
+        return $newContext;
     }
 }

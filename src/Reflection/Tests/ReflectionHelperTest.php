@@ -5,11 +5,14 @@ namespace OpenDialogAi\Core\Reflection\Tests;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use OpenDialogAi\ActionEngine\Actions\ExampleAction;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\AttributeEngine\AttributeResolver\AttributeDeclaration;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\AttributeEngine\AttributeTypeService\AttributeTypeServiceInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\AttributeEngine\Tests\ExampleCustomAttributeType;
+use OpenDialogAi\ContextEngine\Contexts\Custom\AbstractCustomContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 use OpenDialogAi\Core\Reflection\Helper\ReflectionHelperInterface;
 use OpenDialogAi\Core\ResponseEngine\Tests\Formatters\TestFormatter;
 use OpenDialogAi\Core\SensorEngine\Tests\Sensors\DummySensor;
@@ -39,16 +42,16 @@ class ReflectionHelperTest extends TestCase
 
         $actions = $reflection->getAvailableActions();
         $this->assertCount(1, $actions);
-        $this->assertTrue($actions->hasKey($exampleAction::getName()));
-        $this->assertEquals($exampleAction, $actions->get($exampleAction::getName()));
+        $this->assertTrue($actions->hasKey($exampleAction::getComponentId()));
+        $this->assertEquals($exampleAction, $actions->get($exampleAction::getComponentId()));
 
         $this->assertArraySubset([
             'available_actions' => [
-                $exampleAction::getName() => [
+                $exampleAction::getComponentId() => [
                     'component_data' => [
                         'type' => 'action',
                         'source' => 'app',
-                        'id' => $exampleAction::getName(),
+                        'id' => $exampleAction::getComponentId(),
                         'name' => 'Example action',
                         'description' => 'Just an example action.',
                     ],
@@ -128,7 +131,12 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount($numberOfCoreAttributes + 1, $attributes);
 
         $this->assertTrue($attributes->hasKey($attributeId));
-        $this->assertEquals(StringAttribute::class, $attributes->get($attributeId));
+
+        /** @var AttributeDeclaration $attributeDeclaration */
+        $attributeDeclaration = $attributes->get($attributeId);
+        $this->assertEquals($attributeId, $attributeDeclaration->getAttributeId());
+        $this->assertEquals(ODComponentTypes::APP_COMPONENT_SOURCE, $attributeDeclaration->getSource());
+        $this->assertEquals(StringAttribute::class, $attributeDeclaration->getAttributeTypeClass());
 
         $this->assertArraySubset([
             'available_attributes' => [
@@ -142,7 +150,6 @@ class ReflectionHelperTest extends TestCase
                     ],
                     'attribute_data' => [
                         "type" => "attribute.core.timestamp",
-                        "resourceReadOnly" => true,
                     ],
                 ],
                 $attributeId => [
@@ -155,20 +162,6 @@ class ReflectionHelperTest extends TestCase
                     ],
                     'attribute_data' => [
                         "type" => "attribute.core.string",
-                        "resourceReadOnly" => true,
-                    ],
-                ],
-                $attributeId => [
-                    'component_data' => [
-                        'type' => 'attribute',
-                        'source' => 'app',
-                        'id' => $attributeId,
-                        'name' => null,
-                        'description' => null,
-                    ],
-                    'attribute_data' => [
-                        "type" => "attribute.core.string",
-                        "resourceReadOnly" => true,
                     ],
                 ],
             ]
@@ -184,7 +177,18 @@ class ReflectionHelperTest extends TestCase
         $this->assertCount($numberOfCoreContexts, $contexts);
 
         $contextId = 'my_custom_context';
-        $context = ContextService::createContext($contextId);
+        $context = new class extends AbstractCustomContext {
+            protected static string $componentId = 'my_custom_context';
+
+            /**
+             * @inheritDoc
+             */
+            public function loadAttributes(): void
+            {
+                //
+            }
+        };
+        ContextService::addContext($context);
 
         $contexts = $reflection->getAvailableContexts();
         $this->assertCount($numberOfCoreContexts + 1, $contexts);
@@ -211,7 +215,7 @@ class ReflectionHelperTest extends TestCase
                         'type' => 'context',
                         'source' => 'core',
                         'id' => '_intent',
-                        'name' => 'User',
+                        'name' => 'Intent',
                         'description' => 'A context managed by OpenDialog for storing data about each interpreted intent.',
                     ],
                     'context_data' => [
@@ -243,7 +247,7 @@ class ReflectionHelperTest extends TestCase
         $numberOfCoreInterpreters = count($interpreterService->getAvailableInterpreters());
         $this->assertCount($numberOfCoreInterpreters, $interpreters);
 
-        $interpreterId = DummyInterpreter::getName();
+        $interpreterId = DummyInterpreter::getComponentId();
         $interpreterService->registerAvailableInterpreters([
             DummyInterpreter::class
         ]);
@@ -256,11 +260,11 @@ class ReflectionHelperTest extends TestCase
 
         $this->assertArraySubset([
             'available_interpreters' => [
-                'interpreter.core.callback' => [
+                'interpreter.core.callbackInterpreter' => [
                     'component_data' => [
                         'type' => 'interpreter',
                         'source' => 'core',
-                        'id' => 'interpreter.core.callback',
+                        'id' => 'interpreter.core.callbackInterpreter',
                         'name' => 'Callback',
                         'description' => 'An interpreter for directly matching intent names.',
                     ],
@@ -327,7 +331,7 @@ class ReflectionHelperTest extends TestCase
         $numberOfCoreOperations = count($operationService->getAvailableOperations());
         $this->assertCount($numberOfCoreOperations, $operations);
 
-        $operationId = DummyOperation::getName();
+        $operationId = DummyOperation::getComponentId();
         $operationService->registerAvailableOperations([
             DummyOperation::class
         ]);
@@ -393,8 +397,8 @@ class ReflectionHelperTest extends TestCase
         $formatters = $reflection->getAvailableFormatters();
         $this->assertCount($numberOfCoreFormatters + 1, $formatters);
 
-        $this->assertTrue($formatters->hasKey($formatter::getName()));
-        $this->assertEquals($formatter, $formatters->get($formatter::getName()));
+        $this->assertTrue($formatters->hasKey($formatter::getComponentId()));
+        $this->assertEquals($formatter, $formatters->get($formatter::getComponentId()));
 
         $this->assertArraySubset([
             'available_formatters' => [
@@ -406,40 +410,15 @@ class ReflectionHelperTest extends TestCase
                         'name' => 'Webchat',
                         'description' => 'A formatter for sending messages to OpenDialog Webchat.',
                     ],
-                    'formatter_data' => [
-                        'supported_message_types' => [
-                            'attribute-message',
-                            'button-message',
-                            'hand-to-system-message',
-                            'image-message',
-                            'list-message',
-                            'text-message',
-                            'rich-message',
-                            'form-message',
-                            'fp-form-message',
-                            'fp-rich-message',
-                            'long-text-message',
-                            'empty-message',
-                            'cta-message',
-                            'meta-message',
-                            'autocomplete-message',
-                            'date-picker-message',
-                        ],
-                    ]
                 ],
-                $formatter::getName() => [
+                $formatter::getComponentId() => [
                     'component_data' => [
                         'type' => 'formatter',
                         'source' => 'app',
-                        'id' => $formatter::getName(),
+                        'id' => $formatter::getComponentId(),
                         'name' => 'Example formatter',
                         'description' => 'Just an example formatter.',
                     ],
-                    'formatter_data' => [
-                        'supported_message_types' => [
-                            'text-message'
-                        ]
-                    ]
                 ],
             ]
         ], json_decode(json_encode($reflection), true));
@@ -460,8 +439,8 @@ class ReflectionHelperTest extends TestCase
         $sensors = $reflection->getAvailableSensors();
         $this->assertCount($numberOfCoreSensors + 1, $sensors);
 
-        $this->assertTrue($sensors->hasKey($sensor::getName()));
-        $this->assertEquals($sensor, $sensors->get($sensor::getName()));
+        $this->assertTrue($sensors->hasKey($sensor::getComponentId()));
+        $this->assertEquals($sensor, $sensors->get($sensor::getComponentId()));
 
         $this->assertArraySubset([
             'available_sensors' => [
@@ -473,31 +452,15 @@ class ReflectionHelperTest extends TestCase
                         'name' => 'Webchat',
                         'description' => 'A sensor for receiving messages from OpenDialog Webchat.',
                     ],
-                    'sensor_data' => [
-                        'supported_utterance_types' => [
-                            'chat_open',
-                            'text',
-                            'trigger',
-                            'button_response',
-                            'url_click',
-                            'longtext_response',
-                            'form_response',
-                        ],
-                    ]
                 ],
-                $sensor::getName() => [
+                $sensor::getComponentId() => [
                     'component_data' => [
                         'type' => 'sensor',
                         'source' => 'app',
-                        'id' => $sensor::getName(),
+                        'id' => $sensor::getComponentId(),
                         'name' => 'Example sensor',
                         'description' => 'Just an example sensor.',
                     ],
-                    'sensor_data' => [
-                        'supported_utterance_types' => [
-                            'text'
-                        ]
-                    ]
                 ],
             ]
         ], json_decode(json_encode($reflection), true));

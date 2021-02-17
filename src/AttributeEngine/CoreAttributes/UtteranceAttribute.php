@@ -3,8 +3,6 @@
 namespace OpenDialogAi\AttributeEngine\CoreAttributes;
 
 use OpenDialogAi\AttributeEngine\Attributes\BasicCompositeAttribute;
-use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
-use OpenDialogAi\AttributeEngine\AttributeValues\StringAttributeValue;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
 use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
@@ -13,7 +11,7 @@ use OpenDialogAi\Core\Components\ODComponentTypes;
 
 class UtteranceAttribute extends BasicCompositeAttribute
 {
-    protected static ?string $componentId = 'attribute.core.utterance';
+    protected static string $componentId = 'attribute.core.utterance';
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 
     public const UTTERANCE = 'utterance';

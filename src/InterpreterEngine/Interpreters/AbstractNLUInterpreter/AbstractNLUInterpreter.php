@@ -5,14 +5,13 @@ namespace OpenDialogAi\InterpreterEngine\Interpreters\AbstractNLUInterpreter;
 use Ds\Map;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
-use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
-use OpenDialogAi\InterpreterEngine\Interpreters\NoMatchIntent;
 
 abstract class AbstractNLUInterpreter extends BaseInterpreter
 {
@@ -30,7 +29,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
             $clientResponse = $this->client->query($utterance->getText());
             $intent = $this->createOdIntent($clientResponse);
         } catch (AbstractNLURequestFailedException $e) {
-            Log::warning(sprintf("%s failed with message: %s", static::$name, $e->getMessage()));
+            Log::warning(sprintf("%s failed with message: %s", static::getComponentId(), $e->getMessage()));
             $intent = new Intent();
             $intent->setODId('intent.core.NoMatch');
         }
@@ -55,7 +54,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
             Log::debug(
                 sprintf(
                     'Creating intent from %s with name %s and %.2f confidence.',
-                    static::$name,
+                    static::getComponentId(),
                     $topIntent->getLabel(),
                     $topIntent->getConfidence()
                 )
@@ -118,7 +117,7 @@ abstract class AbstractNLUInterpreter extends BaseInterpreter
     {
         if (static::$entityConfigKey == "") {
             throw new AbstractNLURequestFailedException(
-                sprintf("Entity config key was not set for %s.", static::$name)
+                sprintf("Entity config key was not set for %s.", static::getComponentId())
             );
         }
 

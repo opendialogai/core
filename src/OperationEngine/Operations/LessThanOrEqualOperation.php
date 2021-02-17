@@ -7,7 +7,7 @@ use OpenDialogAi\OperationEngine\BaseOperation;
 
 class LessThanOrEqualOperation extends BaseOperation
 {
-    protected static ?string $componentId = 'lte';
+    protected static string $componentId = 'lte';
 
     protected static string $componentSource = ODComponentTypes::CORE_COMPONENT_SOURCE;
 

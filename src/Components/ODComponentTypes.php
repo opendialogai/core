@@ -25,7 +25,7 @@ class ODComponentTypes
         self::SENSOR_COMPONENT_TYPE,
     ];
 
-    /* Component Types */
+    /* Component Sources */
     const CORE_COMPONENT_SOURCE = 'core';
     const APP_COMPONENT_SOURCE = 'app';
     const CUSTOM_COMPONENT_SOURCE = 'custom';

@@ -58,9 +58,9 @@ class InterpreterEngineServiceProvider extends ServiceProvider
             }
 
             // Check that there is a callback interpreter and setup the supported callbacks
-            if ($interpreterService->isInterpreterAvailable(CallbackInterpreter::getName())) {
+            if ($interpreterService->isInterpreterAvailable(CallbackInterpreter::getComponentId())) {
                 /* @var CallbackInterpreter $interpreter */
-                $interpreter = $interpreterService->getInterpreter(CallbackInterpreter::getName());
+                $interpreter = $interpreterService->getInterpreter(CallbackInterpreter::getComponentId());
                 $interpreter->setSupportedCallbacks(config('opendialog.interpreter_engine.supported_callbacks'));
             }
             return $interpreterService;

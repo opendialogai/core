@@ -12,6 +12,7 @@ use OpenDialogAi\AttributeEngine\Contracts\AttributeValue;
 use OpenDialogAi\AttributeEngine\Contracts\CompositeAttribute;
 use OpenDialogAi\AttributeEngine\Contracts\ScalarAttribute;
 use OpenDialogAi\AttributeEngine\Exceptions\UnsupportedAttributeTypeException;
+use OpenDialogAi\Core\Components\ODComponentTypes;
 
 /**
  * The AttributeResolver maps from an attribute identifier to the attribute type for that Attribute.
@@ -22,20 +23,20 @@ class AttributeResolver
     public static $validIdPattern = "/^([a-z]+_)*[a-z]+$/";
     public static $validTypePattern = "/^attribute\.[A-Za-z]+\.[A-Za-z_]+$/";
 
-    /* @var array */
-    private $supportedAttributes = [];
+    /** @var Map|AttributeDeclaration */
+    private Map $supportedAttributes;
     private $attributeTypeService;
 
     public function __construct()
     {
-        $this->supportedAttributes = $this->getSupportedAttributes();
+        $this->supportedAttributes = new Map();
         $this->attributeTypeService = resolve(AttributeTypeServiceInterface::class);
     }
 
     /**
-     * @return Attribute[]
+     * @return AttributeDeclaration[]|Map
      */
-    public function getSupportedAttributes()
+    public function getSupportedAttributes(): Map
     {
         return $this->supportedAttributes;
     }
@@ -68,19 +69,23 @@ class AttributeResolver
      * Registers an array of attributes. The original set of attributes is preserved so this can be run multiple times
      *
      * @param $attributes string[]|Attribute[] Array of attribute class names
+     * @param $source string
      * @throws UnsupportedAttributeTypeException
      */
-    public function registerAttributes(array $attributes): void
+    public function registerAttributes(array $attributes, string $source = ODComponentTypes::APP_COMPONENT_SOURCE): void
     {
-        foreach ($attributes as $name => $type) {
-            if ($this->attributeTypeService->isAttributeTypeClassRegistered($type)) {
-                $this->supportedAttributes[$name] = $type;
+        foreach ($attributes as $name => $attributeTypeClass) {
+            if ($this->attributeTypeService->isAttributeTypeClassRegistered($attributeTypeClass)) {
+                $this->supportedAttributes->put(
+                    $name,
+                    new AttributeDeclaration($name, $attributeTypeClass, $source)
+                );
             } else {
                 Log::error(sprintf(
                     "Not registering attribute %s as it has an unknown type %s, please ensure all "
                         . "custom attribute types are registered.",
                     $name,
-                    $type
+                    $attributeTypeClass
                 ));
                 throw new UnsupportedAttributeTypeException();
             }
@@ -91,13 +96,9 @@ class AttributeResolver
      * @param string $attributeId
      * @return bool
      */
-    public function isAttributeSupported(string $attributeId)
+    public function isAttributeSupported(string $attributeId): bool
     {
-        if (isset($this->supportedAttributes[$attributeId])) {
-            return true;
-        }
-
-        return false;
+        return $this->supportedAttributes->hasKey($attributeId);
     }
 
     /**
@@ -111,7 +112,9 @@ class AttributeResolver
     {
         if ($this->isAttributeSupported($attributeId)) {
             // First instantiate the attribute so we can see what type it is and construct appropriately.
-            $attribute = new $this->supportedAttributes[$attributeId]($attributeId);
+            $attributeDeclaration = $this->supportedAttributes->get($attributeId);
+            $attributeType = $attributeDeclaration->getAttributeTypeClass();
+            $attribute = (new $attributeType($attributeId));
 
             // For scalar attribute we prefer setting the AttributeValue object, but if that is not
             // available we set the raw value. Scalar attributes should always be able to handle null

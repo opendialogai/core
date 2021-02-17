@@ -19,7 +19,7 @@ class RegisteringFormattersTest extends TestCase
         $responseEngineService->registerFormatter($testFormatter);
 
         $this->assertCount(2, $responseEngineService->getAvailableFormatters());
-        $this->assertEquals($testFormatter, $responseEngineService->getFormatter(TestFormatter::getName()));
+        $this->assertEquals($testFormatter, $responseEngineService->getFormatter(TestFormatter::getComponentId()));
     }
 
     public function testRegisteringSingleSensorAlreadyRegistered()
@@ -38,7 +38,7 @@ class RegisteringFormattersTest extends TestCase
         $responseEngineService->registerFormatter($testSensor);
 
         $this->assertCount(1, $responseEngineService->getAvailableFormatters());
-        $this->assertEquals(TestFormatter::class, get_class($responseEngineService->getFormatter(TestFormatter::getName())));
+        $this->assertEquals(TestFormatter::class, get_class($responseEngineService->getFormatter(TestFormatter::getComponentId())));
     }
 
     public function testForcingSingleSensorAlreadyRegistered()
@@ -56,6 +56,6 @@ class RegisteringFormattersTest extends TestCase
         $responseEngineService->registerFormatter(new TestFormatter2(), true);
 
         $this->assertCount(1, $responseEngineService->getAvailableFormatters());
-        $this->assertEquals(TestFormatter2::class, get_class($responseEngineService->getFormatter(TestFormatter::getName())));
+        $this->assertEquals(TestFormatter2::class, get_class($responseEngineService->getFormatter(TestFormatter::getComponentId())));
     }
 }
