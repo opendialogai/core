@@ -60,7 +60,6 @@
         "OpenDialogAi\\AttributeEngine\\AttributeEngineServiceProvider",
         "OpenDialogAi\\ContextEngine\\ContextEngineServiceProvider",
         "OpenDialogAi\\ActionEngine\\ActionEngineServiceProvider",
-        "OpenDialogAi\\AttributeEngine\\AttributeEngineServiceProvider",
         "OpenDialogAi\\SensorEngine\\SensorEngineServiceProvider",
         "OpenDialogAi\\NlpEngine\\NlpEngineServiceProvider"
       ],
