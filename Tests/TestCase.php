@@ -22,6 +22,7 @@ use OpenDialogAi\OperationEngine\OperationEngineServiceProvider;
 use OpenDialogAi\ResponseEngine\ResponseEngineServiceProvider;
 use OpenDialogAi\SensorEngine\SensorEngineServiceProvider;
 use Symfony\Component\Yaml\Yaml;
+use PHPUnit\Util\Test;
 
 /**
  * Base TestCase class for setting up all package tests
@@ -350,7 +351,8 @@ EOT;
      */
     private function checkRequirements()
     {
-        $annotations = $this->getAnnotations();
+
+        $annotations = Test::parseTestMethodAnnotations(static::class, $this->getName());
 
         foreach (array('class', 'method') as $depth) {
             if (empty($annotations[$depth]['requires'])) {
