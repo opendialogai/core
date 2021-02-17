@@ -7,6 +7,12 @@ use OpenDialogAi\ConversationBuilder\Conversation;
 
 class ReadStatuses extends Command
 {
+    const SAVED = 'saved';
+    const ACTIVATABLE = 'activatable';
+    const ACTIVATED = 'activated';
+    const DEACTIVATED = 'deactivated';
+    const ARCHIVED = 'archived';
+
     /**
      * The name and signature of the console command.
      *
@@ -22,16 +28,16 @@ class ReadStatuses extends Command
     protected $description = 'Reads old status names from a CSV file and updates the database.';
 
     private $statusMapUp = [
-        'imported' => \OpenDialogAi\Core\Conversation\Conversation::SAVED,
-        'invalid' => \OpenDialogAi\Core\Conversation\Conversation::SAVED,
-        'validated' => \OpenDialogAi\Core\Conversation\Conversation::ACTIVATABLE,
-        'published' => \OpenDialogAi\Core\Conversation\Conversation::ACTIVATED
+        'imported' => self::SAVED,
+        'invalid' => self::SAVED,
+        'validated' => self::ACTIVATABLE,
+        'published' => self::ACTIVATED
     ];
 
     private $statusMapDown = [
-        \OpenDialogAi\Core\Conversation\Conversation::SAVED => 'imported',
-        \OpenDialogAi\Core\Conversation\Conversation::ACTIVATABLE => 'validated',
-        \OpenDialogAi\Core\Conversation\Conversation::ACTIVATED => 'published'
+        self::SAVED => 'imported',
+        self::ACTIVATABLE => 'validated',
+        self::ACTIVATED => 'published'
     ];
 
     /**
