@@ -22,14 +22,15 @@ class StartingIntentSelector
         // These are all the possible intents that could start a conversation
         $intents = ConversationDataClient::getAllStartingIntents($turns);
 
+        // Now we can pass each intent through interpreters and interpret given the utterance
+        $utterance = ContextService::getAttribute(UtteranceAttribute::UTTERANCE, UserContext::USER_CONTEXT);
+        $matchingIntents = IntentInterpreterFilter::filter($conditionPassingIntents, $utterance);
+
         // We first reduce the set to just those that have passing conditions
-        $conditionPassingIntents = $intents->filter(function ($intent) {
+        $conditionPassingIntents = $matchingIntents->filter(function ($intent) {
             return ConditionFilter::checkConditions($intent);
         });
 
-        // Now we can pass each intent through interpreters and interpret given the utterance
-        $utterance = ContextService::getAttribute(UtteranceAttribute::UTTERANCE, UserContext::USER_CONTEXT);
-        return IntentInterpreterFilter::filter($conditionPassingIntents, $utterance);
-
+        return $conditionPassingIntents;
     }
 }
