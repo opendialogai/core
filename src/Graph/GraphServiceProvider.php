@@ -25,11 +25,14 @@ class GraphServiceProvider extends ServiceProvider
                 $schema .= config('opendialog.graph.custom_schema');
             }
 
-            return new DGraphClient(
-                config('opendialog.core.DGRAPH_URL'),
-                config('opendialog.core.DGRAPH_PORT'),
-                $schema
-            );
+            if ($dgraphAuthToken = config('opendialog.core.DGRAPH_AUTH_TOKEN')) {
+                return new DGraphClient(config('opendialog.core.DGRAPH_URL'), config('opendialog.core.DGRAPH_PORT'),
+                    $dgraphAuthToken, $schema);
+            } else {
+                throw new MissingDGraphAuthTokenException("Missing value for opendialog.core. DGRAPH_AUTH_TOKEN.".
+                    " You MUST specify a value for DGRAPH_AUTH_TOKEN!");
+            }
+
         });
     }
 }

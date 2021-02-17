@@ -185,13 +185,9 @@ class DGraphTest extends TestCase
             'id' => 'node1',
             'edge_with_facets' => [[
                 'id' => 'node2',
+                'edge_with_facets|count' => 2,
+                'edge_with_facets|assignee' => 'user1'
             ]],
-            'edge_with_facets|count' => [
-                2,
-            ],
-            'edge_with_facets|assignee' => [
-                'user1',
-            ],
         ]], $response->getData());
     }
 }

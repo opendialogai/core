@@ -52,6 +52,10 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
         }
 
+        if($overwriteDgraphAuthToken = getenv("OVERWRITE_DGRAPH_AUTH_TOKEN")) {
+            $this->app['config']->set('opendialog.core.DGRAPH_AUTH_TOKEN', $overwriteDgraphAuthToken);
+        }
+
         $this->checkRequirements();
 
         if (!defined('LARAVEL_START')) {

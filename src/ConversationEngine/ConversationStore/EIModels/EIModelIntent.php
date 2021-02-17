@@ -177,7 +177,7 @@ class EIModelIntent extends EIModelWithConditions
         if (isset($intentResponse[Model::FOLLOWED_BY])) {
             $intent->setFollowedBy($intentResponse[Model::FOLLOWED_BY][Model::UID]);
             $intent->setFollowedByCreatedAt(
-                $intentResponse[ModelFacets::facet(Model::FOLLOWED_BY, ModelFacets::CREATED_AT)]
+                $intentResponse[Model::FOLLOWED_BY][ModelFacets::facet(Model::FOLLOWED_BY, ModelFacets::CREATED_AT)]
             );
         }
 

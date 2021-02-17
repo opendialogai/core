@@ -37,14 +37,19 @@ class DGraphClient
 
     /**
      * DGraphClient constructor.
-     * @param string $dgraphUrl
-     * @param string $dGraphPort
-     * @param string $schema
+     *
+     * @param  string  $dgraphUrl
+     * @param  string  $dGraphPort
+     * @param  string  $dgraphAuthToken
+     * @param  string  $schema
      */
-    public function __construct(string $dgraphUrl, string $dGraphPort, string $schema)
+    public function __construct(string $dgraphUrl, string $dGraphPort, string $dgraphAuthToken, string $schema)
     {
         $client = new Client([
-            'base_uri' => $dgraphUrl . ":" . $dGraphPort
+            'base_uri' => $dgraphUrl . ":" . $dGraphPort,
+            'headers' => [
+                'X-Dgraph-AuthToken' => $dgraphAuthToken,
+            ]
         ]);
 
         $this->client = $client;
@@ -98,7 +103,7 @@ class DGraphClient
             [
                 'body' => $prepared,
                 'headers' => [
-                    'Content-Type' => 'application/graphql+-'
+                    'Content-Type' => 'application/dql'
                 ]
             ]
         );
@@ -149,11 +154,9 @@ class DGraphClient
     {
         $this->logMessage(sprintf("DGraph alter: %s", $alter));
 
-        $response = $this->client->request(
-            'POST',
-            self::ALTER,
-            ['body' => $alter]
-        );
+        $response = $this->client->request('POST', self::ALTER, [
+            'body' => $alter,
+        ]);
 
         $response = json_decode($response->getBody(), true);
 
