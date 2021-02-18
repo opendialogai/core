@@ -2,7 +2,6 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
-use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\Core\Conversation\Exceptions\InvalidSpeakerTypeException;
 
@@ -31,6 +30,8 @@ class Intent extends ConversationObject
     // The interpreted intents is a collection interpretations of this intent that are added through an interpreter.
     protected IntentCollection $interpretedIntents;
     protected Intent $interpretation;
+
+    protected ActionsCollection $actions;
 
     public function __construct(?Turn $turn = null, ?string $speaker = null, ?string $interpreter = null)
     {
@@ -172,5 +173,23 @@ class Intent extends ConversationObject
         $intent->setODId($odId);
         $intent->setConfidence($confidence);
         return $intent;
+    }
+
+    /**
+     * @return ActionsCollection
+     */
+    public function getActions(): ActionsCollection
+    {
+        return $this->actions;
+    }
+
+    /**
+     * @param ActionsCollection $actions
+     * @return Intent
+     */
+    public function setActions(ActionsCollection $actions): Intent
+    {
+        $this->actions = $actions;
+        return $this;
     }
 }

@@ -14,14 +14,14 @@ class Action
     /**
      * Action constructor.
      * @param string $odId
-     * @param Collection $inputAttributes
-     * @param Collection $outputAttributes
+     * @param Collection|null $inputAttributes
+     * @param Collection|null $outputAttributes
      */
-    public function __construct(string $odId, Collection $inputAttributes, Collection $outputAttributes)
+    public function __construct(string $odId, ?Collection $inputAttributes = null, ?Collection $outputAttributes = null)
     {
         $this->odId = $odId;
-        $this->inputAttributes = $inputAttributes;
-        $this->outputAttributes = $outputAttributes;
+        $this->inputAttributes = $inputAttributes ?? collect();
+        $this->outputAttributes = $outputAttributes ?? collect();
     }
 
     /**
