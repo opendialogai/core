@@ -26,13 +26,6 @@ interface ActionInterface
     public static function getRequiredAttributes(): array;
 
     /**
-     * Returns an array of attribute names that the action give as input
-     *
-     * @return Map
-     */
-    public function getInputAttributes(): Map;
-
-    /**
      * Checks whether the action requires the specified attribute
      *
      * @param $attributeName string The name of the attribute to check
