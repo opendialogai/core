@@ -34,8 +34,10 @@ class ActionPerformerTest extends TestCase
 
         ContextService::saveAttribute(SessionContext::getComponentId().'.first_name', 'my_name');
 
-        $action = new Action('action.test.first_name_uppercase', null, collect([
-            'session.first_name'
+        $action = new Action('action.test.first_name_uppercase', collect([
+            'first_name' => 'session'
+        ]), collect([
+            'first_name' => 'session'
         ]));
 
         ActionPerformer::performAction($action);
@@ -90,15 +92,15 @@ class ActionPerformerTest extends TestCase
         ContextService::saveAttribute(SessionContext::getComponentId().'.age', $initialNumber);
 
         $plusFiveAction = new Action('action.test.plus_five', collect([
-            'session.age'
+            'age' => 'session'
         ]), collect([
-            'session.age'
+            'age' => 'session'
         ]));
 
         $timesThreeAction = new Action('action.test.times_three', collect([
-            'session.age'
+            'age' => 'session'
         ]), collect([
-            'session.age'
+            'age' => 'session'
         ]));
 
         ActionPerformer::performActions(new ActionsCollection([
@@ -120,8 +122,10 @@ class ActionPerformerTest extends TestCase
 
         ContextService::saveAttribute(SessionContext::getComponentId().'.first_name', 'my_name');
 
-        $action = new Action('action.test.first_name_uppercase', null, collect([
-            'session.first_name'
+        $action = new Action('action.test.first_name_uppercase', collect([
+            'first_name' => 'session'
+        ]), collect([
+            'first_name' => 'session'
         ]));
 
         $intent = new Intent();
