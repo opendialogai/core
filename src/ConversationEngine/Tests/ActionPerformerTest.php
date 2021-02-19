@@ -28,23 +28,26 @@ class ActionPerformerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testActionPerformerWithAction()
+    public function testActionPerformerWithActionAndCompositeAttributes()
     {
         $this->registerUppercaseFirstNameAction();
 
-        ContextService::saveAttribute(SessionContext::getComponentId().'.first_name', 'my_name');
+        ContextService::saveAttribute(
+            SessionContext::getComponentId().'.composite',
+            AttributeResolver::getAttributeFor('first_name', 'my_name')
+        );
 
         $action = new Action('action.test.first_name_uppercase', collect([
-            'first_name' => 'session'
+            'composite.first_name' => 'session'
         ]), collect([
-            'first_name' => 'session'
+            'composite.first_name' => 'session'
         ]));
 
         ActionPerformer::performAction($action);
 
         $this->assertEquals(
             'MY_NAME',
-            ContextService::getAttributeValue('first_name', SessionContext::getComponentId())
+            ContextService::getAttributeValue('composite.first_name', SessionContext::getComponentId())
         );
     }
 

@@ -42,6 +42,7 @@ class Intent extends ConversationObject
         isset($speaker) ? $this->setSpeaker($speaker) : $this->speaker = null;
         isset($interpreter) ? $this->$interpreter = $interpreter : $this->interpreter = null;
         $this->interpretedIntents = new IntentCollection();
+        $this->actions = new ActionsCollection();
     }
 
     public function getTurn(): ?Turn
