@@ -17,9 +17,21 @@ use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Conversation\Action;
 use OpenDialogAi\Core\Conversation\ActionsCollection;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 
 class ActionPerformer
 {
+    /**
+     * Performs all actions associated with the given intents
+     *
+     * @param IntentCollection $intents
+     */
+    public static function performActionsForIntents(IntentCollection $intents): void
+    {
+        foreach ($intents as $intent) {
+            self::performActionsForIntent($intent);
+        }
+    }
     /**
      * Performs all actions associated with the given intent
      *

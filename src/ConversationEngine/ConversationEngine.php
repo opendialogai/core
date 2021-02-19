@@ -3,12 +3,12 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
-use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\Exceptions\CouldNotCreateUserFromUtteranceException;
+use OpenDialogAi\ConversationEngine\Reasoners\ActionPerformer;
 use OpenDialogAi\ConversationEngine\Reasoners\ConversationalStateReasoner;
 use OpenDialogAi\ConversationEngine\Reasoners\MatchRequestIntentStartingFromConversationStrategy;
 use OpenDialogAi\ConversationEngine\Reasoners\OpeningIntentSelectorStrategy;
@@ -85,6 +85,8 @@ class ConversationEngine implements ConversationEngineInterface
                 $this->updateState($requestIntent);
             }
 
+            ActionPerformer::performActionsForIntent($requestIntent);
+
             // With a requestIntent in place we now go to select a responseIntent (or intents)
             $responseIntent = ResponseIntentSelector::getResponseIntentForRequestIntent($requestIntent);
             isset($responseIntent) ? $responseIntents->addObject($responseIntent) : null;
@@ -93,6 +95,8 @@ class ConversationEngine implements ConversationEngineInterface
             if ($responseIntents->isEmpty()) {
                 return $this->noMatchCollection();
             }
+
+            ActionPerformer::performActionsForIntents($responseIntents);
         } catch (CouldNotCreateUserFromUtteranceException $e) {
             Log::error($e->getMessage());
             return $this->noMatchCollection();
