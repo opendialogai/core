@@ -3,12 +3,15 @@
 namespace OpenDialogAi\ConversationEngine\Tests;
 
 
+use Mockery;
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Actions\BaseAction;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
+use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
+use OpenDialogAi\ContextEngine\Contexts\User\UserDataClient;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\Reasoners\ActionPerformer;
 use OpenDialogAi\Core\Conversation\Action;
@@ -119,16 +122,23 @@ class ActionPerformerTest extends TestCase
     }
 
 
-    public function testActionPerformerWithIntent()
+    public function testActionPerformerWithIntentAndPersistentContext()
     {
+        $mockedUserContext = Mockery::mock(UserContext::class."[persist]", [new UserDataClient()]);
+        $mockedUserContext
+            ->shouldReceive('persist')->once()
+            ->andReturnTrue();
+
+        $this->app->singleton(UserContext::class, fn() => $mockedUserContext);
+
         $this->registerUppercaseFirstNameAction();
 
-        ContextService::saveAttribute(SessionContext::getComponentId().'.first_name', 'my_name');
+        ContextService::saveAttribute(UserContext::getComponentId().'.first_name', 'my_name');
 
         $action = new Action('action.test.first_name_uppercase', collect([
-            'first_name' => 'session'
+            'first_name' => UserContext::getComponentId()
         ]), collect([
-            'first_name' => 'session'
+            'first_name' => UserContext::getComponentId()
         ]));
 
         $intent = new Intent();
@@ -140,7 +150,7 @@ class ActionPerformerTest extends TestCase
 
         $this->assertEquals(
             'MY_NAME',
-            ContextService::getAttributeValue('first_name', SessionContext::getComponentId())
+            ContextService::getAttributeValue('first_name', UserContext::getComponentId())
         );
     }
 

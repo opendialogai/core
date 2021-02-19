@@ -10,8 +10,6 @@ use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
-use OpenDialogAi\ContextEngine\Contexts\PersistentContext;
-use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Conversation\Action;
@@ -124,17 +122,15 @@ class ActionPerformer
      */
     private static function persistUpdatedContexts(Collection $contextAttributeMap): void
     {
-        $updatedContexts = $contextAttributeMap->values()->unique();
-        foreach ($updatedContexts as $updatedContext) {
-            /** @var Context $updatedContext */
-            if ($updatedContext instanceof PersistentContext) {
-                $persistenceSuccessful = $updatedContext->persist();
+        $updatedContextIds = $contextAttributeMap->values()->unique();
+        foreach ($updatedContextIds as $updatedContextId) {
+            $updatedContext = ContextService::getContext($updatedContextId);
+            $persistenceSuccessful = $updatedContext->persist();
 
-                if (!$persistenceSuccessful) {
-                    Log::warning(sprintf(
-                        "Attempted to persist context '%s' but was unsuccessful.", $updatedContext->getId()
-                    ));
-                }
+            if (!$persistenceSuccessful) {
+                Log::warning(sprintf(
+                    "Attempted to persist context '%s' but was unsuccessful.", $updatedContextId->getId()
+                ));
             }
         }
     }
