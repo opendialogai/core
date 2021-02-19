@@ -31,26 +31,47 @@ class ActionPerformerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testActionPerformerWithActionAndCompositeAttributes()
+    public function testActionPerformerWithAction()
     {
         $this->registerUppercaseFirstNameAction();
 
-        ContextService::saveAttribute(
-            SessionContext::getComponentId().'.composite',
-            AttributeResolver::getAttributeFor('first_name', 'my_name')
-        );
+        ContextService::saveAttribute(SessionContext::getComponentId().'.first_name', 'my_name');
 
         $action = new Action('action.test.first_name_uppercase', collect([
-            'composite.first_name' => 'session'
+            'first_name' => 'session'
         ]), collect([
-            'composite.first_name' => 'session'
+            'first_name' => 'session'
         ]));
 
         ActionPerformer::performAction($action);
 
         $this->assertEquals(
             'MY_NAME',
-            ContextService::getAttributeValue('composite.first_name', SessionContext::getComponentId())
+            ContextService::getAttributeValue('first_name', SessionContext::getComponentId())
+        );
+    }
+
+    /**
+     * This test is currently skipped pending further work on composite attributes
+     * @group skip
+     */
+    public function testActionPerformerWithActionAndCompositeAttributes()
+    {
+        $this->registerUppercaseFirstNameAction();
+
+        ContextService::saveAttribute(SessionContext::getComponentId().'.composite[first_name]', 'my_name');
+
+        $action = new Action('action.test.first_name_uppercase', collect([
+            'composite[first_name]' => 'session'
+        ]), collect([
+            'composite[first_name]' => 'session'
+        ]));
+
+        ActionPerformer::performAction($action);
+
+        $this->assertEquals(
+            'MY_NAME',
+            ContextService::getAttributeValue('composite[first_name]', SessionContext::getComponentId())
         );
     }
 
