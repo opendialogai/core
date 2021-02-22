@@ -7,8 +7,8 @@ namespace OpenDialogAi\ConversationEngine\Reasoners;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Facades\ActionService;
-use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeBag;
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
@@ -75,10 +75,10 @@ class ActionPerformer
 
     /**
      * @param Collection $parsedInputAttributes
-     * @param BasicAttributeBag $resultAttributes
+     * @param AttributeBag $resultAttributes
      * @return Collection
      */
-    private static function createContextMap(Collection $parsedInputAttributes, BasicAttributeBag $resultAttributes): Collection
+    private static function createContextMap(Collection $parsedInputAttributes, AttributeBag $resultAttributes): Collection
     {
         return collect($resultAttributes->getAttributes()->toArray())
             ->mapWithKeys(function (Attribute $attribute) use ($parsedInputAttributes) {
@@ -92,9 +92,9 @@ class ActionPerformer
 
     /**
      * @param Collection $contextAttributeMap
-     * @param BasicAttributeBag $resultAttributes
+     * @param AttributeBag $resultAttributes
      */
-    private static function saveAttributesToContexts(Collection $contextAttributeMap, BasicAttributeBag $resultAttributes): void
+    private static function saveAttributesToContexts(Collection $contextAttributeMap, AttributeBag $resultAttributes): void
     {
         foreach ($contextAttributeMap as $attributeId => $contextId) {
             $attribute = $resultAttributes->getAttribute($attributeId);
