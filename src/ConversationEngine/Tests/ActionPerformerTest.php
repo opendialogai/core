@@ -7,7 +7,7 @@ use Mockery;
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
 use OpenDialogAi\ActionEngine\Actions\BaseAction;
-use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ActionEngine\Facades\ActionService;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
@@ -77,7 +77,7 @@ class ActionPerformerTest extends TestCase
 
     public function testActionPerformerWithMultipleDependentActions()
     {
-        resolve(ActionEngineInterface::class)->registerAction(new class extends BaseAction {
+        ActionService::registerAction(new class extends BaseAction {
             protected static string $componentId = 'action.test.plus_five';
 
             protected static array $inputAttributes = ['age'];
@@ -96,7 +96,7 @@ class ActionPerformerTest extends TestCase
             }
         });
 
-        resolve(ActionEngineInterface::class)->registerAction(new class extends BaseAction {
+        ActionService::registerAction(new class extends BaseAction {
             protected static string $componentId = 'action.test.times_three';
 
             protected static array $inputAttributes = ['age'];
@@ -177,7 +177,7 @@ class ActionPerformerTest extends TestCase
 
     private function registerUppercaseFirstNameAction(): void
     {
-        resolve(ActionEngineInterface::class)->registerAction(new class extends BaseAction {
+        ActionService::registerAction(new class extends BaseAction {
             protected static string $componentId = 'action.test.first_name_uppercase';
 
             protected static array $inputAttributes = ['first_name'];

@@ -6,7 +6,7 @@ namespace OpenDialogAi\ConversationEngine\Reasoners;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\ActionEngine\Facades\ActionService;
 use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
@@ -61,10 +61,7 @@ class ActionPerformer
     {
         $inputAttributes = $action->getInputAttributes();
 
-        $actionResult = resolve(ActionEngineInterface::class)->performAction(
-            $action->getOdId(),
-            $inputAttributes
-        );
+        $actionResult = ActionService::performAction($action->getOdId(), $inputAttributes);
 
         // Store desired result attributes in desired contents (use session otherwise)
         $resultAttributes = $actionResult->getResultAttributes();
