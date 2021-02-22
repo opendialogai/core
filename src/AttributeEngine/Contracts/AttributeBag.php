@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\AttributeEngine\Contracts;
 
+use Ds\Map;
+
 /**
  * An attribute bag holds a set of attributes that can be set or retrieved
  */
@@ -29,6 +31,13 @@ interface AttributeBag
      * @return mixed
      */
     public function getAttributeValue(string $attributeName);
+
+    /**
+     * Gets all attributes in the bag
+     *
+     * @return Map
+     */
+    public function getAttributes(): Map;
 
     /**
      * Checks whether the attribute with given name exists
