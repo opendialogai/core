@@ -14,12 +14,12 @@ class SceneSelector
 {
     public static function selectStartingScenes($conversations): SceneCollection
     {
+        /** @var SceneCollection $scenes */
         $scenes = ConversationDataClient::getAllStartingScenes($conversations);
 
-        $conditionPassingScenes = $scenes->filter(function ($scene) {
-            ConditionFilter::checkConditions($scene);
-        });
+        /** @var SceneCollection $scenesWithPassingConditions */
+        $scenesWithPassingConditions = ConditionFilter::filterObjects($scenes);
 
-        return $conditionPassingScenes;
+        return $scenesWithPassingConditions;
     }
 }

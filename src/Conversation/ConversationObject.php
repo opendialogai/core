@@ -141,6 +141,15 @@ class ConversationObject
     }
 
     /**
+     * @param ConditionCollection $conditions
+     * @return void
+     */
+    public function setConditions(ConditionCollection $conditions): void
+    {
+        $this->conditions = $conditions;
+    }
+
+    /**
      * Indicates whether an object is associates with behaviors.
      * @return bool
      */

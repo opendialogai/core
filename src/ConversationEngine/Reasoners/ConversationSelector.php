@@ -15,13 +15,13 @@ class ConversationSelector
 {
     public static function selectStartingConversations(ScenarioCollection $scenarios): ConversationCollection
     {
+        /** @var ConversationCollection $conversations */
         $conversations = ConversationDataClient::getAllStartingConversations($scenarios);
 
-        $conditionPassingConversations = $conversations->filter(function ($conversation) {
-            ConditionFilter::checkConditions($conversation);
-        });
+        /** @var ConversationCollection $conversationsWithPassingConditions */
+        $conversationsWithPassingConditions = ConditionFilter::filterObjects($conversations);
 
-        return $conditionPassingConversations;
+        return $conversationsWithPassingConditions;
     }
 
 }

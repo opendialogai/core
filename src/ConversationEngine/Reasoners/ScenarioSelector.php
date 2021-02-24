@@ -4,7 +4,6 @@
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
-use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 
 /**
@@ -15,12 +14,13 @@ class ScenarioSelector
 {
     public static function selectActiveScenarios(): ScenarioCollection
     {
+        /** @var ScenarioCollection $scenarios */
         $scenarios = ConversationDataClient::getAllActiveScenarios();
 
-        $conditionPassingScenarios = $scenarios->filter(function ($scenario) {
-            return ConditionFilter::checkConditions($scenario);
-        });
-        return $conditionPassingScenarios;
+        /** @var ScenarioCollection $scenariosWithPassingConditions */
+        $scenariosWithPassingConditions = ConditionFilter::filterObjects($scenarios);
+
+        return $scenariosWithPassingConditions;
     }
 
 }
