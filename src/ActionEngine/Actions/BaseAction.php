@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ActionEngine\Actions;
 
-use Ds\Map;
 use OpenDialogAi\Core\Components\Contracts\OpenDialogComponent;
 use OpenDialogAi\Core\Components\ODComponent;
 use OpenDialogAi\Core\Components\ODComponentTypes;
@@ -20,17 +19,6 @@ abstract class BaseAction implements ActionInterface, OpenDialogComponent
     /** @var array|string[] */
     protected static array $outputAttributes = [];
 
-    /** @var Map */
-    private $inputAttributes = [];
-
-    /**
-     * @inheritdoc
-     */
-    public function setInputAttributes($inputAttributes)
-    {
-        $this->inputAttributes = $inputAttributes;
-    }
-
     /**
      * @inheritdoc
      */
@@ -44,15 +32,7 @@ abstract class BaseAction implements ActionInterface, OpenDialogComponent
      */
     public function requiresAttribute($attributeName): bool
     {
-        return in_array($attributeName, $this->requiredAttributes);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getInputAttributes(): Map
-    {
-        return $this->inputAttributes;
+        return in_array($attributeName, static::$requiredAttributes);
     }
 
     /**
@@ -68,6 +48,6 @@ abstract class BaseAction implements ActionInterface, OpenDialogComponent
      */
     public function outputsAttribute($attributeName): bool
     {
-        return $this->outputAttributes->hasKey($attributeName);
+        return in_array($attributeName, static::$outputAttributes);
     }
 }

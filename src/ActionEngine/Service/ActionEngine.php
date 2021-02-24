@@ -2,11 +2,12 @@
 
 namespace OpenDialogAi\ActionEngine\Service;
 
-use Ds\Map;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Actions\ActionInput;
 use OpenDialogAi\ActionEngine\Actions\ActionInterface;
 use OpenDialogAi\ActionEngine\Actions\ActionResult;
+use OpenDialogAi\ActionEngine\Actions\BaseAction;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Components\Exceptions\InvalidComponentDataException;
@@ -15,7 +16,7 @@ use OpenDialogAi\Core\Exceptions\NameNotSetException;
 
 class ActionEngine implements ActionEngineInterface
 {
-    /** @var Action[] */
+    /** @var ActionInterface[] */
     private $availableActions = [];
 
     /**
@@ -88,13 +89,11 @@ class ActionEngine implements ActionEngineInterface
      * Will not run the action if the input attributes do not match the required attributes.
      * @inheritdoc
      */
-    public function performAction(string $actionName, Map $inputAttributes): ActionResult
+    public function performAction(string $actionName, Collection $inputAttributes): ActionResult
     {
         if ($this->actionIsAvailable($actionName)) {
+            /** @var ActionInterface $action */
             $action = $this->availableActions[$actionName];
-            $action->setInputAttributes($inputAttributes);
-
-            $inputAttributes = $action->getInputAttributes();
 
             $actionInput = $this->getActionInput($inputAttributes);
 
@@ -134,12 +133,13 @@ class ActionEngine implements ActionEngineInterface
     /**
      * Loops through all input attributes, tries to get each attribute from the given context and adds to the action input.
      * If the specified attribute does not exist, it is not added to the action input
-     * @param Map $inputAttributes
+     * @param Collection $inputAttributes
      * @return ActionInput
      */
-    private function getActionInput(Map $inputAttributes): ActionInput
+    private function getActionInput(Collection $inputAttributes): ActionInput
     {
         $actionInput = new ActionInput();
+
         foreach ($inputAttributes as $attributeId => $contextId) {
             try {
                 $attribute = ContextService::getAttribute($attributeId, $contextId);
@@ -155,6 +155,7 @@ class ActionEngine implements ActionEngineInterface
                 );
             }
         }
+
         return $actionInput;
     }
 
