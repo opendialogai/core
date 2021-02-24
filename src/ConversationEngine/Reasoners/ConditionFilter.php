@@ -18,7 +18,9 @@ class ConditionFilter
      */
     public static function filterObjects(ODObjectCollection $objects): ODObjectCollection
     {
-        return $objects;
+        return $objects->filter(function (ConversationObject $object) {
+            return self::checkConditionsForObject($object);
+        });
     }
 
     /**
@@ -29,20 +31,7 @@ class ConditionFilter
      */
     public static function checkConditionsForObject(ConversationObject $object): bool
     {
-        $conditions = $object->getConditions();
-        // Check each condition in turn to see if it passes
-        $passingConditions = $conditions->filter(function ($condition) {
-            if (OperationService::checkCondition($condition)) {
-                return true;
-            }
-            return false;
-        });
-        //If all the conditions passed we return true
-        if (count($passingConditions) == count ($conditions)) {
-            return true;
-        }
-
-        return false;
+        return self::checkConditions($object->getConditions());
     }
 
     /**
@@ -53,7 +42,20 @@ class ConditionFilter
      */
     public static function checkConditions(ConditionCollection $conditions): bool
     {
-        return false;
+        $allConditionsPassed = true;
+
+        $conditions->each(function (Condition $condition) use (&$allConditionsPassed) {
+            $conditionPassed = self::checkCondition($condition);
+
+            if (!$conditionPassed) {
+                $allConditionsPassed = false;
+            }
+
+            // Will break when this returns false
+            return $conditionPassed;
+        });
+
+        return $allConditionsPassed;
     }
 
     /**
@@ -64,6 +66,6 @@ class ConditionFilter
      */
     public static function checkCondition(Condition $condition): bool
     {
-        return false;
+        return OperationService::checkCondition($condition);
     }
 }

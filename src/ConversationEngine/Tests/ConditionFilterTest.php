@@ -4,6 +4,8 @@
 namespace OpenDialogAi\ConversationEngine\Tests;
 
 
+use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
@@ -45,22 +47,24 @@ class ConditionFilterTest extends TestCase
 
     public function testObjectsWithConditions()
     {
+        ContextService::saveAttribute(SessionContext::getComponentId().".first_name", 'test');
+
         $expectedScene1 = new Scene();
         $expectedScene1->setODId('test_scene1');
         $expectedScene1->setConditions(new ConditionCollection([
-            new Condition('eq', ['session.first_name'], ['test'])
+            new Condition('eq', ['attribute' => 'session.first_name'], ['value' => 'test'])
         ]));
 
         $notExpectedScene = new Scene();
         $notExpectedScene->setODId('test_scene2');
         $notExpectedScene->setConditions(new ConditionCollection([
-            new Condition('eq', ['session.first_name'], ['unknown'])
+            new Condition('eq', ['attribute' => 'session.first_name'], ['value' => 'unknown'])
         ]));
 
         $expectedScene2 = new Scene();
         $expectedScene2->setODId('test_scene3');
         $expectedScene2->setConditions(new ConditionCollection([
-            new Condition('eq', ['session.first_name'], ['test'])
+            new Condition('eq', ['attribute' => 'session.first_name'], ['value' => 'test'])
         ]));
 
         $sceneCollection = new SceneCollection([
