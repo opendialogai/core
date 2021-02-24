@@ -4,8 +4,8 @@ namespace OpenDialogAi\ConversationEngine\Tests;
 
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ConversationEngine\Reasoners\IntentSelector;
 use OpenDialogAi\ConversationEngine\Reasoners\ScenarioSelector;
-use OpenDialogAi\ConversationEngine\Reasoners\StartingIntentSelector;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Tests\ConversationGenerator;
 use OpenDialogAi\Core\Conversation\Tests\IntentGenerator;
@@ -35,7 +35,7 @@ class SelectorTest extends TestCase
             'user'.'.'.UtteranceAttribute::UTTERANCE, $utterance
         );
 
-        $matchingIntents = StartingIntentSelector::selectStartingIntents(new TurnCollection());
+        $matchingIntents = IntentSelector::selectStartingIntents(new TurnCollection());
 
         $this->assertCount(1, $matchingIntents);
         $this->assertEquals('intent.core.I3', $matchingIntents->pop()->getODId());
