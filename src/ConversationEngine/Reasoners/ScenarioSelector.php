@@ -12,7 +12,11 @@ use OpenDialogAi\Core\Conversation\ScenarioCollection;
  */
 class ScenarioSelector
 {
-    public static function selectActiveScenarios(): ScenarioCollection
+    /**
+     * @param bool $shallow
+     * @return ScenarioCollection
+     */
+    public static function selectScenarios(bool $shallow = true): ScenarioCollection
     {
         /** @var ScenarioCollection $scenarios */
         $scenarios = ConversationDataClient::getAllActiveScenarios();

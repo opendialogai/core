@@ -25,7 +25,7 @@ class OpeningIntentSelectorStrategy
         if ($current_scenario_id == Scenario::UNDEFINED) {
             // Select valid scenarios based on whether they have passing conditions
             /* @var ScenarioCollection $scenarios */
-            $scenarios = ScenarioSelector::selectActiveScenarios();
+            $scenarios = ScenarioSelector::selectScenarios(true);
         } else {
             $scenario = ConversationDataClient::getShallowScenario($current_scenario_id);
             $scenarios->addObject($scenario);

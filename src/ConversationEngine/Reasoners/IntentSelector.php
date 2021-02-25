@@ -15,7 +15,12 @@ use OpenDialogAi\Core\Conversation\IntentCollection;
  */
 class IntentSelector
 {
-    public static function selectStartingIntents($turns): IntentCollection
+    /**
+     * @param $turns
+     * @param bool $shallow
+     * @return IntentCollection
+     */
+    public static function selectStartingIntents($turns, bool $shallow = true): IntentCollection
     {
         // These are all the possible intents that could start a conversation
         /** @var IntentCollection $intents */
