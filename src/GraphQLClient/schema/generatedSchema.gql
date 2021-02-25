@@ -1,0 +1,1580 @@
+#######################
+# Input Schema
+#######################
+
+type Scenario {
+    id: ID!
+    od_id: String! @search(by: [hash])
+    name: String! @search(by: [hash])
+    description: String
+    conversations(filter: ConversationFilter, order: ConversationOrder, first: Int, offset: Int): [Conversation] @hasInverse(field: "scenario")
+    active: Boolean!
+    status: EditStatus!
+    conditions(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    behaviors: [String]
+    default_interpreter: String
+    conversationsAggregate(filter: ConversationFilter): ConversationAggregateResult
+    conditionsAggregate(filter: ConditionFilter): ConditionAggregateResult
+}
+
+type Conversation {
+    id: ID!
+    od_id: String! @search(by: [hash])
+    name: String! @search(by: [hash])
+    description: String
+    active: Boolean!
+    status: EditStatus!
+    conditions(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    behaviors: [String]
+    scenario(filter: ScenarioFilter): Scenario @hasInverse(field: "conversations")
+    scenes(filter: SceneFilter, order: SceneOrder, first: Int, offset: Int): [Scene] @hasInverse(field: "conversation")
+    default_interpreter: String
+    conditionsAggregate(filter: ConditionFilter): ConditionAggregateResult
+    scenesAggregate(filter: SceneFilter): SceneAggregateResult
+}
+
+type Scene {
+    id: ID!
+    od_id: String! @search(by: [hash])
+    name: String! @search(by: [hash])
+    description: String
+    active: Boolean!
+    status: EditStatus!
+    conditions(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    behaviors: [String]
+    default_interpreter: String
+    turns(filter: TurnFilter, order: TurnOrder, first: Int, offset: Int): [Turn] @hasInverse(field: "scene")
+    conversation(filter: ConversationFilter): Conversation @hasInverse(field: "scenes")
+    conditionsAggregate(filter: ConditionFilter): ConditionAggregateResult
+    turnsAggregate(filter: TurnFilter): TurnAggregateResult
+}
+
+type Turn {
+    id: ID!
+    od_id: String! @search(by: [hash])
+    name: String! @search(by: [hash])
+    description: String
+    active: Boolean
+    status: EditStatus!
+    conditions(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    behaviors: [String]
+    default_interpreter: String
+    intents(filter: IntentFilter, order: IntentOrder, first: Int, offset: Int): [Intent] @hasInverse(field: "turn")
+    scene(filter: SceneFilter): Scene @hasInverse(field: "turns")
+    valid_origins(filter: TurnFilter, order: TurnOrder, first: Int, offset: Int): [Turn]
+    conditionsAggregate(filter: ConditionFilter): ConditionAggregateResult
+    intentsAggregate(filter: IntentFilter): IntentAggregateResult
+    valid_originsAggregate(filter: TurnFilter): TurnAggregateResult
+}
+
+type Intent {
+    id: ID!
+    od_id: String! @search(by: [hash])
+    name: String @search(by: [hash])
+    intepreter: String
+    confidence: Float
+    expected_attributes(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    conditions(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    actions(filter: ActionFilter, order: ActionOrder, first: Int, offset: Int): [Action]
+    turn(filter: TurnFilter): Turn @hasInverse(field: "intents")
+    speaker: ParticipantType!
+    listener: ParticipantType!
+    scene_transition: String
+    completes: Boolean
+    u_virtual: String
+    expected_attributesAggregate(filter: AttributeFilter): AttributeAggregateResult
+    conditionsAggregate(filter: ConditionFilter): ConditionAggregateResult
+    actionsAggregate(filter: ActionFilter): ActionAggregateResult
+}
+
+type Attribute {
+    id: ID!
+    name: String
+    type: String
+    value: String
+}
+
+type CompositeAttribute {
+    id: ID!
+    name: String
+    type: String
+    value(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    valueAggregate(filter: AttributeFilter): AttributeAggregateResult
+}
+
+type Condition {
+    id: ID!
+    operation: String
+    attributes(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    attributesAggregate(filter: AttributeFilter): AttributeAggregateResult
+}
+
+type Action {
+    id: ID!
+    name: String
+    input_attributes(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    output_attributes(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    input_attributesAggregate(filter: AttributeFilter): AttributeAggregateResult
+    output_attributesAggregate(filter: AttributeFilter): AttributeAggregateResult
+}
+
+type User {
+    id: ID!
+    user_id: String! @id
+    attributes(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    records(filter: UserHistoryRecordFilter, order: UserHistoryRecordOrder, first: Int, offset: Int): [UserHistoryRecord] @hasInverse(field: "user")
+    attributesAggregate(filter: AttributeFilter): AttributeAggregateResult
+    recordsAggregate(filter: UserHistoryRecordFilter): UserHistoryRecordAggregateResult
+}
+
+type UserHistoryRecord {
+    id: ID!
+    user(filter: UserFilter): User @hasInverse(field: "records")
+    timestamp: DateTime
+    platform: String
+    workspace: String
+    utterance: String
+    speaker: ParticipantType
+    intent_id: String
+    scenario_id: String
+    conversation_id: String
+    turn_id: String
+    completed: Boolean
+    actions_performed: [String]
+    conditions_evaluated: [String]
+    u_virtual: String
+}
+
+enum ParticipantType {
+    EI_USER
+    EI_APP
+    EI_HUMAN_AGENT
+}
+
+enum SceneType {
+    EI_OPEN
+}
+
+enum EditStatus {
+    DRAFT
+    PREVIEW
+    LIVE
+}
+
+#######################
+# Extended Definitions
+#######################
+
+"""
+The Int64 scalar type represents a signed 64‐bit numeric non‐fractional value.
+Int64 can represent values in range [-(2^63),(2^63 - 1)].
+"""
+scalar Int64
+
+"""
+The DateTime scalar type represents date and time as a string in RFC3339 format.
+For example: "1985-04-12T23:20:50.52Z" represents 20 minutes and 50.52 seconds after the 23rd hour of April 12th, 1985 in UTC.
+"""
+scalar DateTime
+
+input IntRange{
+    min: Int!
+    max: Int!
+}
+
+input FloatRange{
+    min: Float!
+    max: Float!
+}
+
+input Int64Range{
+    min: Int64!
+    max: Int64!
+}
+
+input DateTimeRange{
+    min: DateTime!
+    max: DateTime!
+}
+
+input StringRange{
+    min: String!
+    max: String!
+}
+
+enum DgraphIndex {
+    int
+    int64
+    float
+    bool
+    hash
+    exact
+    term
+    fulltext
+    trigram
+    regexp
+    year
+    month
+    day
+    hour
+    geo
+}
+
+input AuthRule {
+    and: [AuthRule]
+    or: [AuthRule]
+    not: AuthRule
+    rule: String
+}
+
+enum HTTPMethod {
+    GET
+    POST
+    PUT
+    PATCH
+    DELETE
+}
+
+enum Mode {
+    BATCH
+    SINGLE
+}
+
+input CustomHTTP {
+    url: String!
+    method: HTTPMethod!
+    body: String
+    graphql: String
+    mode: Mode
+    forwardHeaders: [String!]
+    secretHeaders: [String!]
+    introspectionHeaders: [String!]
+    skipIntrospection: Boolean
+}
+
+type Point {
+    longitude: Float!
+    latitude: Float!
+}
+
+input PointRef {
+    longitude: Float!
+    latitude: Float!
+}
+
+input NearFilter {
+    distance: Float!
+    coordinate: PointRef!
+}
+
+input PointGeoFilter {
+    near: NearFilter
+    within: WithinFilter
+}
+
+type PointList {
+    points: [Point!]!
+}
+
+input PointListRef {
+    points: [PointRef!]!
+}
+
+type Polygon {
+    coordinates: [PointList!]!
+}
+
+input PolygonRef {
+    coordinates: [PointListRef!]!
+}
+
+type MultiPolygon {
+    polygons: [Polygon!]!
+}
+
+input MultiPolygonRef {
+    polygons: [PolygonRef!]!
+}
+
+input WithinFilter {
+    polygon: PolygonRef!
+}
+
+input ContainsFilter {
+    point: PointRef
+    polygon: PolygonRef
+}
+
+input IntersectsFilter {
+    polygon: PolygonRef
+    multiPolygon: MultiPolygonRef
+}
+
+input PolygonGeoFilter {
+    near: NearFilter
+    within: WithinFilter
+    contains: ContainsFilter
+    intersects: IntersectsFilter
+}
+
+input GenerateQueryParams {
+    get: Boolean
+    query: Boolean
+    password: Boolean
+    aggregate: Boolean
+}
+
+input GenerateMutationParams {
+    add: Boolean
+    update: Boolean
+    delete: Boolean
+}
+
+directive @hasInverse(field: String!) on FIELD_DEFINITION
+directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
+directive @dgraph(type: String, pred: String) on OBJECT | INTERFACE | FIELD_DEFINITION
+directive @id on FIELD_DEFINITION
+directive @withSubscription on OBJECT | INTERFACE
+directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
+directive @auth(
+    password: AuthRule
+    query: AuthRule,
+    add: AuthRule,
+    update: AuthRule,
+    delete: AuthRule) on OBJECT | INTERFACE
+directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
+directive @remote on OBJECT | INTERFACE | UNION | INPUT_OBJECT | ENUM
+directive @cascade(fields: [String]) on FIELD
+directive @lambda on FIELD_DEFINITION
+directive @cacheControl(maxAge: Int!) on QUERY
+directive @generate(
+    query: GenerateQueryParams,
+    mutation: GenerateMutationParams,
+    subscription: Boolean) on OBJECT | INTERFACE
+
+input IntFilter {
+    eq: Int
+    le: Int
+    lt: Int
+    ge: Int
+    gt: Int
+    between: IntRange
+}
+
+input Int64Filter {
+    eq: Int64
+    le: Int64
+    lt: Int64
+    ge: Int64
+    gt: Int64
+    between: Int64Range
+}
+
+input FloatFilter {
+    eq: Float
+    le: Float
+    lt: Float
+    ge: Float
+    gt: Float
+    between: FloatRange
+}
+
+input DateTimeFilter {
+    eq: DateTime
+    le: DateTime
+    lt: DateTime
+    ge: DateTime
+    gt: DateTime
+    between: DateTimeRange
+}
+
+input StringTermFilter {
+    allofterms: String
+    anyofterms: String
+}
+
+input StringRegExpFilter {
+    regexp: String
+}
+
+input StringFullTextFilter {
+    alloftext: String
+    anyoftext: String
+}
+
+input StringExactFilter {
+    eq: String
+    in: [String]
+    le: String
+    lt: String
+    ge: String
+    gt: String
+    between: StringRange
+}
+
+input StringHashFilter {
+    eq: String
+    in: [String]
+}
+
+#######################
+# Generated Types
+#######################
+
+type ActionAggregateResult {
+    count: Int
+    nameMin: String
+    nameMax: String
+}
+
+type AddActionPayload {
+    action(filter: ActionFilter, order: ActionOrder, first: Int, offset: Int): [Action]
+    numUids: Int
+}
+
+type AddAttributePayload {
+    attribute(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    numUids: Int
+}
+
+type AddCompositeAttributePayload {
+    compositeAttribute(filter: CompositeAttributeFilter, order: CompositeAttributeOrder, first: Int, offset: Int): [CompositeAttribute]
+    numUids: Int
+}
+
+type AddConditionPayload {
+    condition(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    numUids: Int
+}
+
+type AddConversationPayload {
+    conversation(filter: ConversationFilter, order: ConversationOrder, first: Int, offset: Int): [Conversation]
+    numUids: Int
+}
+
+type AddIntentPayload {
+    intent(filter: IntentFilter, order: IntentOrder, first: Int, offset: Int): [Intent]
+    numUids: Int
+}
+
+type AddScenarioPayload {
+    scenario(filter: ScenarioFilter, order: ScenarioOrder, first: Int, offset: Int): [Scenario]
+    numUids: Int
+}
+
+type AddScenePayload {
+    scene(filter: SceneFilter, order: SceneOrder, first: Int, offset: Int): [Scene]
+    numUids: Int
+}
+
+type AddTurnPayload {
+    turn(filter: TurnFilter, order: TurnOrder, first: Int, offset: Int): [Turn]
+    numUids: Int
+}
+
+type AddUserHistoryRecordPayload {
+    userHistoryRecord(filter: UserHistoryRecordFilter, order: UserHistoryRecordOrder, first: Int, offset: Int): [UserHistoryRecord]
+    numUids: Int
+}
+
+type AddUserPayload {
+    user(filter: UserFilter, order: UserOrder, first: Int, offset: Int): [User]
+    numUids: Int
+}
+
+type AttributeAggregateResult {
+    count: Int
+    nameMin: String
+    nameMax: String
+    typeMin: String
+    typeMax: String
+    valueMin: String
+    valueMax: String
+}
+
+type CompositeAttributeAggregateResult {
+    count: Int
+    nameMin: String
+    nameMax: String
+    typeMin: String
+    typeMax: String
+}
+
+type ConditionAggregateResult {
+    count: Int
+    operationMin: String
+    operationMax: String
+}
+
+type ConversationAggregateResult {
+    count: Int
+    od_idMin: String
+    od_idMax: String
+    nameMin: String
+    nameMax: String
+    descriptionMin: String
+    descriptionMax: String
+    default_interpreterMin: String
+    default_interpreterMax: String
+}
+
+type DeleteActionPayload {
+    action(filter: ActionFilter, order: ActionOrder, first: Int, offset: Int): [Action]
+    msg: String
+    numUids: Int
+}
+
+type DeleteAttributePayload {
+    attribute(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    msg: String
+    numUids: Int
+}
+
+type DeleteCompositeAttributePayload {
+    compositeAttribute(filter: CompositeAttributeFilter, order: CompositeAttributeOrder, first: Int, offset: Int): [CompositeAttribute]
+    msg: String
+    numUids: Int
+}
+
+type DeleteConditionPayload {
+    condition(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    msg: String
+    numUids: Int
+}
+
+type DeleteConversationPayload {
+    conversation(filter: ConversationFilter, order: ConversationOrder, first: Int, offset: Int): [Conversation]
+    msg: String
+    numUids: Int
+}
+
+type DeleteIntentPayload {
+    intent(filter: IntentFilter, order: IntentOrder, first: Int, offset: Int): [Intent]
+    msg: String
+    numUids: Int
+}
+
+type DeleteScenarioPayload {
+    scenario(filter: ScenarioFilter, order: ScenarioOrder, first: Int, offset: Int): [Scenario]
+    msg: String
+    numUids: Int
+}
+
+type DeleteScenePayload {
+    scene(filter: SceneFilter, order: SceneOrder, first: Int, offset: Int): [Scene]
+    msg: String
+    numUids: Int
+}
+
+type DeleteTurnPayload {
+    turn(filter: TurnFilter, order: TurnOrder, first: Int, offset: Int): [Turn]
+    msg: String
+    numUids: Int
+}
+
+type DeleteUserHistoryRecordPayload {
+    userHistoryRecord(filter: UserHistoryRecordFilter, order: UserHistoryRecordOrder, first: Int, offset: Int): [UserHistoryRecord]
+    msg: String
+    numUids: Int
+}
+
+type DeleteUserPayload {
+    user(filter: UserFilter, order: UserOrder, first: Int, offset: Int): [User]
+    msg: String
+    numUids: Int
+}
+
+type IntentAggregateResult {
+    count: Int
+    od_idMin: String
+    od_idMax: String
+    nameMin: String
+    nameMax: String
+    intepreterMin: String
+    intepreterMax: String
+    confidenceMin: Float
+    confidenceMax: Float
+    confidenceSum: Float
+    confidenceAvg: Float
+    scene_transitionMin: String
+    scene_transitionMax: String
+    u_virtualMin: String
+    u_virtualMax: String
+}
+
+type ScenarioAggregateResult {
+    count: Int
+    od_idMin: String
+    od_idMax: String
+    nameMin: String
+    nameMax: String
+    descriptionMin: String
+    descriptionMax: String
+    default_interpreterMin: String
+    default_interpreterMax: String
+}
+
+type SceneAggregateResult {
+    count: Int
+    od_idMin: String
+    od_idMax: String
+    nameMin: String
+    nameMax: String
+    descriptionMin: String
+    descriptionMax: String
+    default_interpreterMin: String
+    default_interpreterMax: String
+}
+
+type TurnAggregateResult {
+    count: Int
+    od_idMin: String
+    od_idMax: String
+    nameMin: String
+    nameMax: String
+    descriptionMin: String
+    descriptionMax: String
+    default_interpreterMin: String
+    default_interpreterMax: String
+}
+
+type UpdateActionPayload {
+    action(filter: ActionFilter, order: ActionOrder, first: Int, offset: Int): [Action]
+    numUids: Int
+}
+
+type UpdateAttributePayload {
+    attribute(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    numUids: Int
+}
+
+type UpdateCompositeAttributePayload {
+    compositeAttribute(filter: CompositeAttributeFilter, order: CompositeAttributeOrder, first: Int, offset: Int): [CompositeAttribute]
+    numUids: Int
+}
+
+type UpdateConditionPayload {
+    condition(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    numUids: Int
+}
+
+type UpdateConversationPayload {
+    conversation(filter: ConversationFilter, order: ConversationOrder, first: Int, offset: Int): [Conversation]
+    numUids: Int
+}
+
+type UpdateIntentPayload {
+    intent(filter: IntentFilter, order: IntentOrder, first: Int, offset: Int): [Intent]
+    numUids: Int
+}
+
+type UpdateScenarioPayload {
+    scenario(filter: ScenarioFilter, order: ScenarioOrder, first: Int, offset: Int): [Scenario]
+    numUids: Int
+}
+
+type UpdateScenePayload {
+    scene(filter: SceneFilter, order: SceneOrder, first: Int, offset: Int): [Scene]
+    numUids: Int
+}
+
+type UpdateTurnPayload {
+    turn(filter: TurnFilter, order: TurnOrder, first: Int, offset: Int): [Turn]
+    numUids: Int
+}
+
+type UpdateUserHistoryRecordPayload {
+    userHistoryRecord(filter: UserHistoryRecordFilter, order: UserHistoryRecordOrder, first: Int, offset: Int): [UserHistoryRecord]
+    numUids: Int
+}
+
+type UpdateUserPayload {
+    user(filter: UserFilter, order: UserOrder, first: Int, offset: Int): [User]
+    numUids: Int
+}
+
+type UserAggregateResult {
+    count: Int
+    user_idMin: String
+    user_idMax: String
+}
+
+type UserHistoryRecordAggregateResult {
+    count: Int
+    timestampMin: DateTime
+    timestampMax: DateTime
+    platformMin: String
+    platformMax: String
+    workspaceMin: String
+    workspaceMax: String
+    utteranceMin: String
+    utteranceMax: String
+    intent_idMin: String
+    intent_idMax: String
+    scenario_idMin: String
+    scenario_idMax: String
+    conversation_idMin: String
+    conversation_idMax: String
+    turn_idMin: String
+    turn_idMax: String
+    u_virtualMin: String
+    u_virtualMax: String
+}
+
+#######################
+# Generated Enums
+#######################
+
+enum ActionHasFilter {
+    name
+    input_attributes
+    output_attributes
+}
+
+enum ActionOrderable {
+    name
+}
+
+enum AttributeHasFilter {
+    name
+    type
+    value
+}
+
+enum AttributeOrderable {
+    name
+    type
+    value
+}
+
+enum CompositeAttributeHasFilter {
+    name
+    type
+    value
+}
+
+enum CompositeAttributeOrderable {
+    name
+    type
+}
+
+enum ConditionHasFilter {
+    operation
+    attributes
+}
+
+enum ConditionOrderable {
+    operation
+}
+
+enum ConversationHasFilter {
+    od_id
+    name
+    description
+    active
+    status
+    conditions
+    behaviors
+    scenario
+    scenes
+    default_interpreter
+}
+
+enum ConversationOrderable {
+    od_id
+    name
+    description
+    default_interpreter
+}
+
+enum IntentHasFilter {
+    od_id
+    name
+    intepreter
+    confidence
+    expected_attributes
+    conditions
+    actions
+    turn
+    speaker
+    listener
+    scene_transition
+    completes
+    u_virtual
+}
+
+enum IntentOrderable {
+    od_id
+    name
+    intepreter
+    confidence
+    scene_transition
+    u_virtual
+}
+
+enum ScenarioHasFilter {
+    od_id
+    name
+    description
+    conversations
+    active
+    status
+    conditions
+    behaviors
+    default_interpreter
+}
+
+enum ScenarioOrderable {
+    od_id
+    name
+    description
+    default_interpreter
+}
+
+enum SceneHasFilter {
+    od_id
+    name
+    description
+    active
+    status
+    conditions
+    behaviors
+    default_interpreter
+    turns
+    conversation
+}
+
+enum SceneOrderable {
+    od_id
+    name
+    description
+    default_interpreter
+}
+
+enum TurnHasFilter {
+    od_id
+    name
+    description
+    active
+    status
+    conditions
+    behaviors
+    default_interpreter
+    intents
+    scene
+    valid_origins
+}
+
+enum TurnOrderable {
+    od_id
+    name
+    description
+    default_interpreter
+}
+
+enum UserHasFilter {
+    user_id
+    attributes
+    records
+}
+
+enum UserHistoryRecordHasFilter {
+    user
+    timestamp
+    platform
+    workspace
+    utterance
+    speaker
+    intent_id
+    scenario_id
+    conversation_id
+    turn_id
+    completed
+    actions_performed
+    conditions_evaluated
+    u_virtual
+}
+
+enum UserHistoryRecordOrderable {
+    timestamp
+    platform
+    workspace
+    utterance
+    intent_id
+    scenario_id
+    conversation_id
+    turn_id
+    u_virtual
+}
+
+enum UserOrderable {
+    user_id
+}
+
+#######################
+# Generated Inputs
+#######################
+
+input ActionFilter {
+    id: [ID!]
+    has: ActionHasFilter
+    and: [ActionFilter]
+    or: [ActionFilter]
+    not: ActionFilter
+}
+
+input ActionOrder {
+    asc: ActionOrderable
+    desc: ActionOrderable
+    then: ActionOrder
+}
+
+input ActionPatch {
+    name: String
+    input_attributes: [AttributeRef]
+    output_attributes: [AttributeRef]
+}
+
+input ActionRef {
+    id: ID
+    name: String
+    input_attributes: [AttributeRef]
+    output_attributes: [AttributeRef]
+}
+
+input AddActionInput {
+    name: String
+    input_attributes: [AttributeRef]
+    output_attributes: [AttributeRef]
+}
+
+input AddAttributeInput {
+    name: String
+    type: String
+    value: String
+}
+
+input AddCompositeAttributeInput {
+    name: String
+    type: String
+    value: [AttributeRef]
+}
+
+input AddConditionInput {
+    operation: String
+    attributes: [AttributeRef]
+}
+
+input AddConversationInput {
+    od_id: String!
+    name: String!
+    description: String
+    active: Boolean!
+    status: EditStatus!
+    conditions: [ConditionRef]
+    behaviors: [String]
+    scenario: ScenarioRef
+    scenes: [SceneRef]
+    default_interpreter: String
+}
+
+input AddIntentInput {
+    od_id: String!
+    name: String
+    intepreter: String
+    confidence: Float
+    expected_attributes: [AttributeRef]
+    conditions: [ConditionRef]
+    actions: [ActionRef]
+    turn: TurnRef
+    speaker: ParticipantType!
+    listener: ParticipantType!
+    scene_transition: String
+    completes: Boolean
+    u_virtual: String
+}
+
+input AddScenarioInput {
+    od_id: String!
+    name: String!
+    description: String
+    conversations: [ConversationRef]
+    active: Boolean!
+    status: EditStatus!
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+}
+
+input AddSceneInput {
+    od_id: String!
+    name: String!
+    description: String
+    active: Boolean!
+    status: EditStatus!
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+    turns: [TurnRef]
+    conversation: ConversationRef
+}
+
+input AddTurnInput {
+    od_id: String!
+    name: String!
+    description: String
+    active: Boolean
+    status: EditStatus!
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+    intents: [IntentRef]
+    scene: SceneRef
+    valid_origins: [TurnRef]
+}
+
+input AddUserHistoryRecordInput {
+    user: UserRef
+    timestamp: DateTime
+    platform: String
+    workspace: String
+    utterance: String
+    speaker: ParticipantType
+    intent_id: String
+    scenario_id: String
+    conversation_id: String
+    turn_id: String
+    completed: Boolean
+    actions_performed: [String]
+    conditions_evaluated: [String]
+    u_virtual: String
+}
+
+input AddUserInput {
+    user_id: String!
+    attributes: [AttributeRef]
+    records: [UserHistoryRecordRef]
+}
+
+input AttributeFilter {
+    id: [ID!]
+    has: AttributeHasFilter
+    and: [AttributeFilter]
+    or: [AttributeFilter]
+    not: AttributeFilter
+}
+
+input AttributeOrder {
+    asc: AttributeOrderable
+    desc: AttributeOrderable
+    then: AttributeOrder
+}
+
+input AttributePatch {
+    name: String
+    type: String
+    value: String
+}
+
+input AttributeRef {
+    id: ID
+    name: String
+    type: String
+    value: String
+}
+
+input CompositeAttributeFilter {
+    id: [ID!]
+    has: CompositeAttributeHasFilter
+    and: [CompositeAttributeFilter]
+    or: [CompositeAttributeFilter]
+    not: CompositeAttributeFilter
+}
+
+input CompositeAttributeOrder {
+    asc: CompositeAttributeOrderable
+    desc: CompositeAttributeOrderable
+    then: CompositeAttributeOrder
+}
+
+input CompositeAttributePatch {
+    name: String
+    type: String
+    value: [AttributeRef]
+}
+
+input CompositeAttributeRef {
+    id: ID
+    name: String
+    type: String
+    value: [AttributeRef]
+}
+
+input ConditionFilter {
+    id: [ID!]
+    has: ConditionHasFilter
+    and: [ConditionFilter]
+    or: [ConditionFilter]
+    not: ConditionFilter
+}
+
+input ConditionOrder {
+    asc: ConditionOrderable
+    desc: ConditionOrderable
+    then: ConditionOrder
+}
+
+input ConditionPatch {
+    operation: String
+    attributes: [AttributeRef]
+}
+
+input ConditionRef {
+    id: ID
+    operation: String
+    attributes: [AttributeRef]
+}
+
+input ConversationFilter {
+    id: [ID!]
+    od_id: StringHashFilter
+    name: StringHashFilter
+    has: ConversationHasFilter
+    and: [ConversationFilter]
+    or: [ConversationFilter]
+    not: ConversationFilter
+}
+
+input ConversationOrder {
+    asc: ConversationOrderable
+    desc: ConversationOrderable
+    then: ConversationOrder
+}
+
+input ConversationPatch {
+    od_id: String
+    name: String
+    description: String
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    scenario: ScenarioRef
+    scenes: [SceneRef]
+    default_interpreter: String
+}
+
+input ConversationRef {
+    id: ID
+    od_id: String
+    name: String
+    description: String
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    scenario: ScenarioRef
+    scenes: [SceneRef]
+    default_interpreter: String
+}
+
+input IntentFilter {
+    id: [ID!]
+    od_id: StringHashFilter
+    name: StringHashFilter
+    has: IntentHasFilter
+    and: [IntentFilter]
+    or: [IntentFilter]
+    not: IntentFilter
+}
+
+input IntentOrder {
+    asc: IntentOrderable
+    desc: IntentOrderable
+    then: IntentOrder
+}
+
+input IntentPatch {
+    od_id: String
+    name: String
+    intepreter: String
+    confidence: Float
+    expected_attributes: [AttributeRef]
+    conditions: [ConditionRef]
+    actions: [ActionRef]
+    turn: TurnRef
+    speaker: ParticipantType
+    listener: ParticipantType
+    scene_transition: String
+    completes: Boolean
+    u_virtual: String
+}
+
+input IntentRef {
+    id: ID
+    od_id: String
+    name: String
+    intepreter: String
+    confidence: Float
+    expected_attributes: [AttributeRef]
+    conditions: [ConditionRef]
+    actions: [ActionRef]
+    turn: TurnRef
+    speaker: ParticipantType
+    listener: ParticipantType
+    scene_transition: String
+    completes: Boolean
+    u_virtual: String
+}
+
+input ScenarioFilter {
+    id: [ID!]
+    od_id: StringHashFilter
+    name: StringHashFilter
+    has: ScenarioHasFilter
+    and: [ScenarioFilter]
+    or: [ScenarioFilter]
+    not: ScenarioFilter
+}
+
+input ScenarioOrder {
+    asc: ScenarioOrderable
+    desc: ScenarioOrderable
+    then: ScenarioOrder
+}
+
+input ScenarioPatch {
+    od_id: String
+    name: String
+    description: String
+    conversations: [ConversationRef]
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+}
+
+input ScenarioRef {
+    id: ID
+    od_id: String
+    name: String
+    description: String
+    conversations: [ConversationRef]
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+}
+
+input SceneFilter {
+    id: [ID!]
+    od_id: StringHashFilter
+    name: StringHashFilter
+    has: SceneHasFilter
+    and: [SceneFilter]
+    or: [SceneFilter]
+    not: SceneFilter
+}
+
+input SceneOrder {
+    asc: SceneOrderable
+    desc: SceneOrderable
+    then: SceneOrder
+}
+
+input ScenePatch {
+    od_id: String
+    name: String
+    description: String
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+    turns: [TurnRef]
+    conversation: ConversationRef
+}
+
+input SceneRef {
+    id: ID
+    od_id: String
+    name: String
+    description: String
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+    turns: [TurnRef]
+    conversation: ConversationRef
+}
+
+input TurnFilter {
+    id: [ID!]
+    od_id: StringHashFilter
+    name: StringHashFilter
+    has: TurnHasFilter
+    and: [TurnFilter]
+    or: [TurnFilter]
+    not: TurnFilter
+}
+
+input TurnOrder {
+    asc: TurnOrderable
+    desc: TurnOrderable
+    then: TurnOrder
+}
+
+input TurnPatch {
+    od_id: String
+    name: String
+    description: String
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+    intents: [IntentRef]
+    scene: SceneRef
+    valid_origins: [TurnRef]
+}
+
+input TurnRef {
+    id: ID
+    od_id: String
+    name: String
+    description: String
+    active: Boolean
+    status: EditStatus
+    conditions: [ConditionRef]
+    behaviors: [String]
+    default_interpreter: String
+    intents: [IntentRef]
+    scene: SceneRef
+    valid_origins: [TurnRef]
+}
+
+input UpdateActionInput {
+    filter: ActionFilter!
+    set: ActionPatch
+    remove: ActionPatch
+}
+
+input UpdateAttributeInput {
+    filter: AttributeFilter!
+    set: AttributePatch
+    remove: AttributePatch
+}
+
+input UpdateCompositeAttributeInput {
+    filter: CompositeAttributeFilter!
+    set: CompositeAttributePatch
+    remove: CompositeAttributePatch
+}
+
+input UpdateConditionInput {
+    filter: ConditionFilter!
+    set: ConditionPatch
+    remove: ConditionPatch
+}
+
+input UpdateConversationInput {
+    filter: ConversationFilter!
+    set: ConversationPatch
+    remove: ConversationPatch
+}
+
+input UpdateIntentInput {
+    filter: IntentFilter!
+    set: IntentPatch
+    remove: IntentPatch
+}
+
+input UpdateScenarioInput {
+    filter: ScenarioFilter!
+    set: ScenarioPatch
+    remove: ScenarioPatch
+}
+
+input UpdateSceneInput {
+    filter: SceneFilter!
+    set: ScenePatch
+    remove: ScenePatch
+}
+
+input UpdateTurnInput {
+    filter: TurnFilter!
+    set: TurnPatch
+    remove: TurnPatch
+}
+
+input UpdateUserHistoryRecordInput {
+    filter: UserHistoryRecordFilter!
+    set: UserHistoryRecordPatch
+    remove: UserHistoryRecordPatch
+}
+
+input UpdateUserInput {
+    filter: UserFilter!
+    set: UserPatch
+    remove: UserPatch
+}
+
+input UserFilter {
+    id: [ID!]
+    user_id: StringHashFilter
+    has: UserHasFilter
+    and: [UserFilter]
+    or: [UserFilter]
+    not: UserFilter
+}
+
+input UserHistoryRecordFilter {
+    id: [ID!]
+    has: UserHistoryRecordHasFilter
+    and: [UserHistoryRecordFilter]
+    or: [UserHistoryRecordFilter]
+    not: UserHistoryRecordFilter
+}
+
+input UserHistoryRecordOrder {
+    asc: UserHistoryRecordOrderable
+    desc: UserHistoryRecordOrderable
+    then: UserHistoryRecordOrder
+}
+
+input UserHistoryRecordPatch {
+    user: UserRef
+    timestamp: DateTime
+    platform: String
+    workspace: String
+    utterance: String
+    speaker: ParticipantType
+    intent_id: String
+    scenario_id: String
+    conversation_id: String
+    turn_id: String
+    completed: Boolean
+    actions_performed: [String]
+    conditions_evaluated: [String]
+    u_virtual: String
+}
+
+input UserHistoryRecordRef {
+    id: ID
+    user: UserRef
+    timestamp: DateTime
+    platform: String
+    workspace: String
+    utterance: String
+    speaker: ParticipantType
+    intent_id: String
+    scenario_id: String
+    conversation_id: String
+    turn_id: String
+    completed: Boolean
+    actions_performed: [String]
+    conditions_evaluated: [String]
+    u_virtual: String
+}
+
+input UserOrder {
+    asc: UserOrderable
+    desc: UserOrderable
+    then: UserOrder
+}
+
+input UserPatch {
+    attributes: [AttributeRef]
+    records: [UserHistoryRecordRef]
+}
+
+input UserRef {
+    id: ID
+    user_id: String
+    attributes: [AttributeRef]
+    records: [UserHistoryRecordRef]
+}
+
+#######################
+# Generated Query
+#######################
+
+type Query {
+    getScenario(id: ID!): Scenario
+    queryScenario(filter: ScenarioFilter, order: ScenarioOrder, first: Int, offset: Int): [Scenario]
+    aggregateScenario(filter: ScenarioFilter): ScenarioAggregateResult
+    getConversation(id: ID!): Conversation
+    queryConversation(filter: ConversationFilter, order: ConversationOrder, first: Int, offset: Int): [Conversation]
+    aggregateConversation(filter: ConversationFilter): ConversationAggregateResult
+    getScene(id: ID!): Scene
+    queryScene(filter: SceneFilter, order: SceneOrder, first: Int, offset: Int): [Scene]
+    aggregateScene(filter: SceneFilter): SceneAggregateResult
+    getTurn(id: ID!): Turn
+    queryTurn(filter: TurnFilter, order: TurnOrder, first: Int, offset: Int): [Turn]
+    aggregateTurn(filter: TurnFilter): TurnAggregateResult
+    getIntent(id: ID!): Intent
+    queryIntent(filter: IntentFilter, order: IntentOrder, first: Int, offset: Int): [Intent]
+    aggregateIntent(filter: IntentFilter): IntentAggregateResult
+    getAttribute(id: ID!): Attribute
+    queryAttribute(filter: AttributeFilter, order: AttributeOrder, first: Int, offset: Int): [Attribute]
+    aggregateAttribute(filter: AttributeFilter): AttributeAggregateResult
+    getCompositeAttribute(id: ID!): CompositeAttribute
+    queryCompositeAttribute(filter: CompositeAttributeFilter, order: CompositeAttributeOrder, first: Int, offset: Int): [CompositeAttribute]
+    aggregateCompositeAttribute(filter: CompositeAttributeFilter): CompositeAttributeAggregateResult
+    getCondition(id: ID!): Condition
+    queryCondition(filter: ConditionFilter, order: ConditionOrder, first: Int, offset: Int): [Condition]
+    aggregateCondition(filter: ConditionFilter): ConditionAggregateResult
+    getAction(id: ID!): Action
+    queryAction(filter: ActionFilter, order: ActionOrder, first: Int, offset: Int): [Action]
+    aggregateAction(filter: ActionFilter): ActionAggregateResult
+    getUser(id: ID, user_id: String): User
+    queryUser(filter: UserFilter, order: UserOrder, first: Int, offset: Int): [User]
+    aggregateUser(filter: UserFilter): UserAggregateResult
+    getUserHistoryRecord(id: ID!): UserHistoryRecord
+    queryUserHistoryRecord(filter: UserHistoryRecordFilter, order: UserHistoryRecordOrder, first: Int, offset: Int): [UserHistoryRecord]
+    aggregateUserHistoryRecord(filter: UserHistoryRecordFilter): UserHistoryRecordAggregateResult
+}
+
+#######################
+# Generated Mutations
+#######################
+
+type Mutation {
+    addScenario(input: [AddScenarioInput!]!): AddScenarioPayload
+    updateScenario(input: UpdateScenarioInput!): UpdateScenarioPayload
+    deleteScenario(filter: ScenarioFilter!): DeleteScenarioPayload
+    addConversation(input: [AddConversationInput!]!): AddConversationPayload
+    updateConversation(input: UpdateConversationInput!): UpdateConversationPayload
+    deleteConversation(filter: ConversationFilter!): DeleteConversationPayload
+    addScene(input: [AddSceneInput!]!): AddScenePayload
+    updateScene(input: UpdateSceneInput!): UpdateScenePayload
+    deleteScene(filter: SceneFilter!): DeleteScenePayload
+    addTurn(input: [AddTurnInput!]!): AddTurnPayload
+    updateTurn(input: UpdateTurnInput!): UpdateTurnPayload
+    deleteTurn(filter: TurnFilter!): DeleteTurnPayload
+    addIntent(input: [AddIntentInput!]!): AddIntentPayload
+    updateIntent(input: UpdateIntentInput!): UpdateIntentPayload
+    deleteIntent(filter: IntentFilter!): DeleteIntentPayload
+    addAttribute(input: [AddAttributeInput!]!): AddAttributePayload
+    updateAttribute(input: UpdateAttributeInput!): UpdateAttributePayload
+    deleteAttribute(filter: AttributeFilter!): DeleteAttributePayload
+    addCompositeAttribute(input: [AddCompositeAttributeInput!]!): AddCompositeAttributePayload
+    updateCompositeAttribute(input: UpdateCompositeAttributeInput!): UpdateCompositeAttributePayload
+    deleteCompositeAttribute(filter: CompositeAttributeFilter!): DeleteCompositeAttributePayload
+    addCondition(input: [AddConditionInput!]!): AddConditionPayload
+    updateCondition(input: UpdateConditionInput!): UpdateConditionPayload
+    deleteCondition(filter: ConditionFilter!): DeleteConditionPayload
+    addAction(input: [AddActionInput!]!): AddActionPayload
+    updateAction(input: UpdateActionInput!): UpdateActionPayload
+    deleteAction(filter: ActionFilter!): DeleteActionPayload
+    addUser(input: [AddUserInput!]!): AddUserPayload
+    updateUser(input: UpdateUserInput!): UpdateUserPayload
+    deleteUser(filter: UserFilter!): DeleteUserPayload
+    addUserHistoryRecord(input: [AddUserHistoryRecordInput!]!): AddUserHistoryRecordPayload
+    updateUserHistoryRecord(input: UpdateUserHistoryRecordInput!): UpdateUserHistoryRecordPayload
+    deleteUserHistoryRecord(filter: UserHistoryRecordFilter!): DeleteUserHistoryRecordPayload
+}
+
