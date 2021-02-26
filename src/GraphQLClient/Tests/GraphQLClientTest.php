@@ -4,17 +4,13 @@ namespace OpenDialogAi\GraphQLClient\Tests;
 
 use GuzzleHttp\Exception\TransferException;
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\GraphQLClient\GraphQLClient;
-use OpenDialogAi\GraphQLClient\GraphQLClientQueryErrorException;
+use OpenDialogAi\GraphQLClient\DGraphGraphQLClient;
+use OpenDialogAi\GraphQLClient\Exceptions\GraphQLClientErrorResponseException;
 use OpenDialogAi\GraphQLClient\GraphQLClientServiceProvider;
+use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 
 class GraphQLClientTest extends TestCase
 {
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
 
     public function getPackageProviders($app)
     {
@@ -23,12 +19,17 @@ class GraphQLClientTest extends TestCase
         ];
     }
 
-    public function setConfigValue($configName, $config)
+    public function testCreateGraphQLClient()
     {
-        $this->app['config']->set($configName, $config);
+        $client = resolve(GraphQLClientInterface::class);
+        $this->assertInstanceOf(DGraphGraphQLClient::class, $client);
+        $responseJson = $client->query($this->schemaQuery());
+        $this->assertArrayHasKey('data', $responseJson);
+        $this->assertArrayNotHasKey('errors', $responseJson);
     }
 
-    public function schemaQuery() {
+    public function schemaQuery()
+    {
         return <<<'GQL'
         {
           __schema {
@@ -40,34 +41,32 @@ class GraphQLClientTest extends TestCase
 GQL;
     }
 
-
-    public function testCreateGraphQLClient() {
-
-        $client = resolve(GraphQLClient::class);
-        $this->assertInstanceOf(GraphQLClient::class, $client);
-        $responseJson = $client->query(GraphQLClient::QUERY_ENDPOINT, $this->schemaQuery());
-        $this->assertArrayHasKey('data', $responseJson);
-        $this->assertArrayNotHasKey('errors', $responseJson);
-    }
-
-    public function testIncorrectURL() {
+    public function testIncorrectURL()
+    {
         $this->setConfigValue('opendialog.core.DGRAPH_URL', 'dgraph-server.invalid');
-        $client = resolve(GraphQLClient::class);
+        $client = resolve(GraphQLClientInterface::class);
         $this->expectException(TransferException::class);
-        $client->query(GraphQLClient::QUERY_ENDPOINT, $this->schemaQuery());
+        $client->query($this->schemaQuery());
     }
 
-    public function testIncorrectPort() {
+    public function setConfigValue($configName, $config)
+    {
+        $this->app['config']->set($configName, $config);
+    }
+
+    public function testIncorrectPort()
+    {
         $this->setConfigValue('opendialog.core.DGRAPH_PORT', '47');
-        $client = resolve(GraphQLClient::class);
+        $client = resolve(GraphQLClientInterface::class);
         $this->expectException(TransferException::class);
-        $client->query(GraphQLClient::QUERY_ENDPOINT, $this->schemaQuery());
+        $client->query($this->schemaQuery());
 
     }
 
-    public function testIncorrectAuthToken() {
+    public function testIncorrectAuthToken()
+    {
         $this->setConfigValue('opendialog.core.DGRAPH_AUTH_TOKEN', 'invalidauthtoken');
-        $client = resolve(GraphQLClient::class);
+        $client = resolve(GraphQLClientInterface::class);
 
         $testSchema = <<<'GQL'
         type Test {
@@ -76,10 +75,15 @@ GQL;
         }
 GQL;
 
-        $this->expectException(GraphQLClientQueryErrorException::class);
-        $response = $client->updateSchema($testSchema);
+        $this->expectException(GraphQLClientErrorResponseException::class);
+        $response = $client->setSchema($testSchema);
         $this->assertArrayHasKey("errors", $response);
         $this->assertArrayNotHasKey("data", $response);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
     }
 
 }

@@ -3,22 +3,14 @@
 
 namespace OpenDialogAi\GraphQLClient\Tests;
 
-
 use OpenDialogAi\Core\Tests\TestCase;
-use OpenDialogAi\GraphQLClient\GraphQLClient;
-use OpenDialogAi\GraphQLClient\GraphQLClientQueryErrorException;
+use OpenDialogAi\GraphQLClient\Exceptions\GraphQLClientErrorResponseException;
+use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 use OpenDialogAi\GraphQLClient\GraphQLClientServiceProvider;
 
 class GraphQLClientQueryTest extends TestCase
 {
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->client = resolve(GraphQLClient::class);
-        $this->client->dropAll();
-        $this->client->updateSchema(file_get_contents(__DIR__ . '/../schema/schema.gql'));
-    }
     public function getPackageProviders($app)
     {
         return [
@@ -26,23 +18,16 @@ class GraphQLClientQueryTest extends TestCase
         ];
     }
 
-    public function testDropAll()
-    {
-        $response = $this->client->dropAll();
-        $this->assertArrayHasKey('data', $response);
-        $this->assertEquals(["code" => "Success", "message" => "Done"], $response['data']);
-    }
-
     public function testInvalidQueryFormat()
     {
         $query = <<<'GQL'
         query {
-            queryScenario {
+            A {
                 id
         }
 GQL;
-        $this->expectException(GraphQLClientQueryErrorException::class);
-        $this->client->query(GraphQLClient::QUERY_ENDPOINT, $query, []);
+        $this->expectException(GraphQLClientErrorResponseException::class);
+        $this->client->query($query, []);
     }
 
     public function testInvalidQueryField()
@@ -54,14 +39,13 @@ GQL;
             }
         }
 GQL;
-        $this->expectException(GraphQLClientQueryErrorException::class);
-        $this->client->query(GraphQLClient::QUERY_ENDPOINT, $query, []);
+        $this->expectException(GraphQLClientErrorResponseException::class);
+        $this->client->query($query, []);
 
     }
 
     public function testGetSchema()
     {
-        $client = resolve(GraphQLClient::class);
         $query = <<<'GQL'
         {
           __schema {
@@ -72,9 +56,9 @@ GQL;
         }
 GQL;
 
-        $response = $this->client->query(GraphQLClient::QUERY_ENDPOINT, $query);
-
-        return $response;
+        $response = $this->client->query($query);
+        $this->assertArrayHasKey("data", $response);
+        $this->assertIsArray($response['data']['__schema']['types']);
     }
 
     public function testSetSchema()
@@ -86,10 +70,7 @@ GQL;
             name: String!
         }
 GQL;
-
-        $client = resolve(GraphQLClient::class);
-
-        $response = $this->client->updateSchema($schema);
+        $response = $this->client->setSchema($schema);
 
         $this->assertArrayNotHasKey("errors", $response);
         $this->assertArrayHasKey("data", $response);
@@ -99,11 +80,10 @@ GQL;
 
     public function testMutationAndQuery()
     {
-
         $mutation = <<<'GQL'
         mutation {
-            addScenario(input: {od_id: "test_scenario", active: false, status: DRAFT, name: "Test Scenario" }) {
-                scenario {
+            addA(input: {name: "Test A"}) {
+                a {
                     id
                 }
             }
@@ -111,27 +91,50 @@ GQL;
 GQL;
 
 
-        $response = $this->client->query(GraphQLClient::QUERY_ENDPOINT, $mutation, []);
+        $response = $this->client->query($mutation, []);
         $this->assertArrayHasKey('data', $response);
         $this->assertArrayNotHasKey('errors', $response);
-        $this->assertIsString($response['data']['addScenario']['scenario'][0]["id"]);
-        $newScenarioId = $response['data']['addScenario']['scenario'][0]['id'];
+        $this->assertIsString($response['data']['addA']['a'][0]["id"]);
+        $newId = $response['data']['addA']['a'][0]['id'];
 
         $query = <<<'GQL'
         query {
-          queryScenario {
+          queryA {
             id
           }
         }
         GQL;
 
-        $response = $this->client->query(GraphQLClient::QUERY_ENDPOINT, $query, []);
+        $response = $this->client->query($query, []);
         $this->assertArrayHasKey('data', $response);
         $this->assertArrayNotHasKey('errors', $response);
-        $this->assertIsArray($response['data']['queryScenario']);
-        $this->assertEquals(1, count($response['data']['queryScenario']));
-        $this->assertEquals($newScenarioId, $response['data']['queryScenario'][0]['id']);
+        $this->assertIsArray($response['data']['queryA']);
+        $this->assertEquals(1, count($response['data']['queryA']));
+        $this->assertEquals($newId, $response['data']['queryA'][0]['id']);
         return $response;
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->client = resolve(GraphQLClientInterface::class);
+        $this->client->dropAll();
+        $testSchema = <<<'GQL'
+            type A {
+                id: ID!
+                name: String!
+                bs: [B] @hasInverse(field:"a")
+            }
+
+            type B {
+                id: ID!
+                name: String!
+                a: A
+            }
+        GQL;
+
+
+        $this->client->setSchema($testSchema);
     }
 
 }

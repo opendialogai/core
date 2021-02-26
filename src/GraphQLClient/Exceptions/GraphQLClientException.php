@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenDialogAi\GraphQLClient;
+namespace OpenDialogAi\GraphQLClient\Exceptions;
 
 use Exception;
 

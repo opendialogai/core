@@ -4,14 +4,15 @@ namespace OpenDialogAi\GraphQLClient;
 
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
+use OpenDialogAi\GraphQLClient\Exceptions\GraphQLClientException;
+use OpenDialogAi\GraphQLClient\Exceptions\GraphQLClientErrorResponseException;
 
 
-class GraphQLClient
+class DGraphGraphQLClient implements GraphQLClientInterface
 {
     const QUERY_ENDPOINT = "/graphql";
     const ADMIN_ENDPOINT = "/admin";
     const ALTER_ENDPOINT = "/alter";
-
 
     protected Client $httpClient;
 
@@ -22,19 +23,27 @@ class GraphQLClient
         ]);
     }
 
-    public function dropAll(): array
-    {
-        $response = $this->_jsonRequest("/alter", ["drop_all" => true]);
-
+    public function dropData() {
+        $response = $this->_jsonRequest(self::ALTER_ENDPOINT, ["drop_op" => "DATA"]);
         $json = self::__decodeJsonResponse($response);
 
         if (isset($json['errors'])) {
-            throw new GraphQLClientQueryErrorException("GraphQL response body contains errors.", $json['errors']);
+            throw new GraphQLClientErrorResponseException("GraphQL response body contains errors.", $json['errors']);
         }
-        return $json;
+
     }
 
-    public function updateSchema(string $schema): array
+    public function dropAll()
+    {
+        $response = $this->_jsonRequest(self::ALTER_ENDPOINT, ["drop_all" => true]);
+        $json = self::__decodeJsonResponse($response);
+
+        if (isset($json['errors'])) {
+            throw new GraphQLClientErrorResponseException("GraphQL response body contains errors.", $json['errors']);
+        }
+    }
+
+    public function setSchema(string $schema)
     {
         $updateSchema = <<<'GQL'
     mutation updateSchema($schema: String!) {
@@ -46,7 +55,7 @@ class GraphQLClient
         }
     }
 GQL;
-        return $this->query("/admin", $updateSchema, ["schema" => $schema]);
+        return $this->_query(self::ADMIN_ENDPOINT, $updateSchema, ["schema" => $schema]);
     }
 
 
@@ -81,15 +90,19 @@ GQL;
         }
     }
 
-    public function query(string $endpoint, string $query, array $variables = []): array
+    private function _query(string $endpoint, string $query, array $variables = []): array
     {
         $response = $this->_jsonRequest($endpoint, self::createRequestJson($query, $variables));
         $json = self::__decodeJsonResponse($response);
 
         if (isset($json['errors'])) {
-            throw new GraphQLClientQueryErrorException("GraphQL response body contains errors.", $json['errors']);
+            throw new GraphQLClientErrorResponseException("GraphQL response body contains errors.", $json['errors']);
         }
         return $json;
+    }
+
+    public function query(string $query, array $variables = []): array {
+        return $this->_query(self::QUERY_ENDPOINT, $query, $variables);
     }
 
 }

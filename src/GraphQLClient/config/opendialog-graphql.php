@@ -1,6 +1,8 @@
-####
-## This schema is provided to DGraph, and DGraph with automatically generate an updated schema.
-####
+<?php
+
+
+return [
+    "schema" => <<<'GQL'
 type Scenario  {
     id: ID!
     od_id: String! @search(by:[hash])
@@ -141,4 +143,6 @@ enum EditStatus {
     PREVIEW
     LIVE
 }
+GQL
 
+];
