@@ -38,13 +38,8 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.lock" }}
 
-      - run:
-          name: "Setup custom environment variables"
-          command: |
-            echo 'export OVERWRITE_DGRAPH_URL="http://localhost"' >> $BASH_ENV; echo 'export OVERWRITE_DGRAPH_PORT="8080"' >> $BASH_ENV
-
       # run tests!
-      - run: phpdbg -qrr ./vendor/bin/phpunit --exclude skip --no-coverage -d memory_limit=8192M
+      - run: phpdbg -qrr ./vendor/bin/phpunit --exclude skip --no-coverage --configuration phpunit-ci.xml -d memory_limit=8192M
 
       - store_artifacts:
           path:  build/coverage-report
