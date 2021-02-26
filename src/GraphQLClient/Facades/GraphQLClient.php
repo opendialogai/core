@@ -3,16 +3,19 @@
 namespace OpenDialogAi\GraphQLClient\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use OpenDialogAi\GraphQLClient\DGraphGraphQLClient;
 
 /**
- * @method static updateSchema(string $schema)
- * @method static query(string $endpoint, string $query, string $variables)
+ * @method static setSchema(string $schema)
+ * @method static dropData()
+ * @method static dropAll()
+ * @method static query(string $query, string $variables)
  */
 class GraphQLClient extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \OpenDialogAi\GraphQLClient\GraphQLClient::class;
+        return DGraphGraphQLClient::class;
     }
 }
 
