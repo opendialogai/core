@@ -6,6 +6,7 @@ use OpenDialogAi\AttributeEngine\Attributes\StringAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
 /**
  * Will always return an intent with label 'my_name_is' and confidence 1 and 2 attributes:
@@ -25,5 +26,10 @@ class TestNameInterpreter extends BaseInterpreter
         $intent->addAttribute(new StringAttribute('first_name', 'first_name'));
         $intent->addAttribute(new StringAttribute('last_name', 'last_name'));
         return [$intent];
+    }
+
+    public static function getName(): string
+    {
+        // TODO: Implement getName() method.
     }
 }

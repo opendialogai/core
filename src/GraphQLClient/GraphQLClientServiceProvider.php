@@ -18,15 +18,12 @@ class GraphQLClientServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/config/opendialog-graphql.php', 'opendialog.graphql');
         $this->app->singleton(GraphQLClientInterface::class, function () {
-            if ($dgraphAuthToken = config('opendialog.core.DGRAPH_AUTH_TOKEN')) {
-                return new DGraphGraphQLClient(config('opendialog.core.DGRAPH_URL'), config('opendialog.core.DGRAPH_PORT'),
-                    [
-                        'X-Dgraph-AuthToken' => $dgraphAuthToken
-                    ]);
-            } else {
-                throw new MissingDGraphAuthTokenException("Missing value for opendialog.core. DGRAPH_AUTH_TOKEN.".
-                    " You MUST specify a value for DGRAPH_AUTH_TOKEN!");
-            }
+
+        return new DGraphGraphQLClient(config('opendialog.graphql.DGRAPH_URL'), config('opendialog.graphql.DGRAPH_PORT'),
+            [
+                'X-Dgraph-AuthToken' => config('opendialog.graphql.DGRAPH_AUTH_TOKEN')
+            ]);
+
         });
     }
 }

@@ -6,6 +6,7 @@ use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
 class DummyInterpreter extends BaseInterpreter
 {
@@ -19,5 +20,10 @@ class DummyInterpreter extends BaseInterpreter
         $collection = new IntentCollection();
         $collection->add(Intent::createIntent('dummy', 1));
         return $collection;
+    }
+
+    public static function getName(): string
+    {
+        // TODO: Implement getName() method.
     }
 }

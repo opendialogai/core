@@ -43,7 +43,7 @@ class GraphQLClientTest extends TestCase
 
     public function testIncorrectURL()
     {
-        $this->setConfigValue('opendialog.core.DGRAPH_URL', 'dgraph-server.invalid');
+        $this->setConfigValue('opendialog.graphql.DGRAPH_URL', 'dgraph-server.invalid');
         $client = resolve(GraphQLClientInterface::class);
         $this->expectException(TransferException::class);
         $client->query($this->schemaQuery());
@@ -56,7 +56,7 @@ class GraphQLClientTest extends TestCase
 
     public function testIncorrectPort()
     {
-        $this->setConfigValue('opendialog.core.DGRAPH_PORT', '47');
+        $this->setConfigValue('opendialog.graphql.DGRAPH_PORT', '47');
         $client = resolve(GraphQLClientInterface::class);
         $this->expectException(TransferException::class);
         $client->query($this->schemaQuery());
@@ -65,7 +65,7 @@ class GraphQLClientTest extends TestCase
 
     public function testIncorrectAuthToken()
     {
-        $this->setConfigValue('opendialog.core.DGRAPH_AUTH_TOKEN', 'invalidauthtoken');
+        $this->setConfigValue('opendialog.graphql.DGRAPH_AUTH_TOKEN', 'invalidauthtoken');
         $client = resolve(GraphQLClientInterface::class);
 
         $testSchema = <<<'GQL'

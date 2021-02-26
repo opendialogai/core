@@ -4,8 +4,10 @@ namespace OpenDialogAi\InterpreterEngine\Tests\Interpreters;
 
 use OpenDialogAi\AttributeEngine\Attributes\IntAttribute;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Utterances\UtteranceInterface;
 use OpenDialogAi\InterpreterEngine\BaseInterpreter;
+use OpenDialogAi\InterpreterEngine\Exceptions\InterpreterNameNotSetException;
 
 /**
  * Will always return an intent with label 'my_age_is' and confidence 1 and 1 attribute:
@@ -18,11 +20,16 @@ class TestAgeInterpreter extends BaseInterpreter
     /**
      * @inheritdoc
      */
-    public function interpret(UtteranceInterface $utterance): array
+    public function interpret(UtteranceInterface $utterance): IntentCollection
     {
         $intent = Intent::createIntentWithConfidence('my_age_is', 1);
         $intent->addAttribute(new IntAttribute('age', 21));
         $intent->addAttribute(new IntAttribute('dob_year', 1994));
-        return [$intent];
+        return new IntentCollection([$intent]);
+    }
+
+    public static function getName(): string
+    {
+        // TODO: Implement getName() method.
     }
 }
