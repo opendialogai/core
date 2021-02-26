@@ -44,7 +44,7 @@ class OpeningIntentSelectorStrategy
 
         // Select valid intents out of the valid turns. Valid intents will match the interpretation and have passing
         // conditions.
-        $intents = IntentSelector::selectStartingIntents($turns);
+        $intents = IntentSelector::selectRequestIntents($turns);
 
         // Finally out of all the matching intents select the one with the highest confidence.
         /* @var Intent $intent */

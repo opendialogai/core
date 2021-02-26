@@ -4,6 +4,7 @@
 namespace OpenDialogAi\Core\Conversation\Tests;
 
 
+use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scenario;
@@ -50,59 +51,84 @@ class ConversationGenerator
         return $scenarios;
     }
 
-    public static function createScenario($odId)
+    public static function createScenario($odId, ?ConditionCollection $conditions = null): Scenario
     {
         $scenario = new Scenario();
         $scenario->setODId($odId);
         $scenario->setName($odId);
         $scenario->setDescription("This is a scenario called ". $odId);
+
+        if (!is_null($conditions)) {
+            $scenario->setConditions($conditions);
+        }
+
         return $scenario;
     }
 
-    public static function createConversation($odId): Conversation
+    public static function createConversation($odId, ?ConditionCollection $conditions = null): Conversation
     {
         $conversation = new Conversation();
         $conversation->setODId($odId);
         $conversation->setName($odId);
         $conversation->setDescription("This is a conversation for " . $odId);
 
+        if (!is_null($conditions)) {
+            $conversation->setConditions($conditions);
+        }
+
         return $conversation;
     }
 
-    public static function createScene($odId): Scene
+    public static function createScene($odId, ?ConditionCollection $conditions = null): Scene
     {
         $scene = new Scene();
         $scene->setODId($odId);
         $scene->setName($odId);
         $scene->setDescription("This is a scene for " . $odId);
 
+        if (!is_null($conditions)) {
+            $scene->setConditions($conditions);
+        }
+
         return $scene;
     }
 
-    public static function createTurn($odId): Turn
+    public static function createTurn($odId, ?ConditionCollection $conditions = null): Turn
     {
         $turn = new Turn();
         $turn->setODId($odId);
         $turn->setName($odId);
         $turn->setDescription("This is a turn for test purposes");
 
+        if (!is_null($conditions)) {
+            $turn->setConditions($conditions);
+        }
+
         return $turn;
     }
 
-    public static function createUserIntent($odId): Intent
+    public static function createUserIntent($odId, ?ConditionCollection $conditions = null): Intent
     {
         $intent = new Intent();
         $intent->setODId($odId);
         $intent->setSpeaker(Intent::USER);
 
+        if (!is_null($conditions)) {
+            $intent->setConditions($conditions);
+        }
+
         return $intent;
     }
 
-    public static function createAppIntent($odId): Intent
+    public static function createAppIntent($odId, ?ConditionCollection $conditions = null): Intent
     {
         $intent = new Intent();
         $intent->setODId($odId);
         $intent->setSpeaker(Intent::APP);
+
+        if (!is_null($conditions)) {
+            $intent->setConditions($conditions);
+        }
 
         return $intent;
     }

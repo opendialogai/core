@@ -3,16 +3,23 @@
 
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
+use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 
 /**
- * The SceneSelector should evaluate conditions against scenes to select
- * which scenes can validly be considered for a user
+ * This selector provides methods that select various types of scenes and filters them by evaluating their conditions
  */
 class SceneSelector
 {
-    public static function selectStartingScenes($conversations): SceneCollection
+    /**
+     * Retrieves all scenes that have the starting behaviour, within the given conversations
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     */
+    public static function selectStartingScenes(ConversationCollection $conversations, bool $shallow = true): SceneCollection
     {
         /** @var SceneCollection $scenes */
         $scenes = ConversationDataClient::getAllStartingScenes($conversations);
@@ -21,5 +28,29 @@ class SceneSelector
         $scenesWithPassingConditions = ConditionFilter::filterObjects($scenes);
 
         return $scenesWithPassingConditions;
+    }
+
+    /**
+     * Retrieves all scenes that have the open behaviour, within the given conversations
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     */
+    public static function selectOpenScenes(ConversationCollection $conversations, bool $shallow = true): SceneCollection
+    {
+        return new SceneCollection();
+    }
+
+    /**
+     * Retrieves all scenes within the given conversations
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     */
+    public static function selectScenes(ConversationCollection $conversations, bool $shallow = true): SceneCollection
+    {
+        return new SceneCollection();
     }
 }
