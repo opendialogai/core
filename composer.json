@@ -30,6 +30,7 @@
   "autoload": {
     "psr-4": {
       "OpenDialogAi\\Core\\": "src/",
+      "OpenDialogAi\\GraphQLClient\\": "src/GraphQLClient",
       "OpenDialogAi\\ActionEngine\\": "src/ActionEngine",
       "OpenDialogAi\\AttributeEngine\\": "src/AttributeEngine",
       "OpenDialogAi\\ContextEngine\\": "src/ContextEngine",
@@ -50,6 +51,7 @@
     "laravel": {
       "providers": [
         "OpenDialogAi\\Core\\CoreServiceProvider",
+        "OpenDialogAi\\GraphQLClient\\GraphQLClientServiceProvider",
         "OpenDialogAi\\Core\\Reflection\\ReflectionServiceProvider",
         "OpenDialogAi\\ConversationBuilder\\ConversationBuilderServiceProvider",
         "OpenDialogAi\\ConversationEngine\\ConversationEngineServiceProvider",
