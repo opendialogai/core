@@ -5,10 +5,10 @@ namespace OpenDialogAi\ConversationEngine\Tests;
 
 
 use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
-use OpenDialogAi\ConversationEngine\Reasoners\IncomingIntentMatcher;
+use OpenDialogAi\ConversationEngine\Reasoners\OutgoingIntentMatcher;
 use OpenDialogAi\Core\Tests\TestCase;
 
-class IncomingIntentMatcherTest extends TestCase
+class OutgoingIntentMatcherTest extends TestCase
 {
     public function testNoMatchingIntents()
     {
@@ -17,16 +17,16 @@ class IncomingIntentMatcherTest extends TestCase
         // Set conversational state
 
         $this->expectException(NoMatchingIntentsException::class);
-        IncomingIntentMatcher::matchIncomingIntent();
+        OutgoingIntentMatcher::matchOutgoingIntent();
     }
 
-    public function testBasicAsRequestMatch()
+    public function testBasicAsResponseMatch()
     {
         // Mock selectors
 
         // Set conversational state
 
-        $incomingIntent = IncomingIntentMatcher::matchIncomingIntent();
+        $outgoingIntent = OutgoingIntentMatcher::matchOutgoingIntent();
 
         // Assert is expected intent
     }

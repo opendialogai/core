@@ -82,17 +82,17 @@ class ConversationEngine implements ConversationEngineInterface
 
         ActionPerformer::performActionsForIntent($incomingIntent);
 
-        $outgoingIntent = null;
         try {
             $outgoingIntent = OutgoingIntentMatcher::matchOutgoingIntent();
+            $outgoingIntents->addObject($outgoingIntent);
         } catch (NoMatchingIntentsException $e) {
             Log::debug('No outgoing intent matched');
         }
 
-        if (!is_null($outgoingIntent)) {
+        if ($outgoingIntents->isNotEmpty()) {
+            $outgoingIntent = $outgoingIntents->last();
             $this->updateState($outgoingIntent);
             ActionPerformer::performActionsForIntent($outgoingIntent);
-            $outgoingIntents->addObject($outgoingIntent);
         }
 
         return $outgoingIntents;
