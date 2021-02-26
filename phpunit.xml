@@ -66,9 +66,10 @@
             <directory suffix="Test.php">./src/SensorEngine/Tests</directory>
         </testsuite>
 
-<!--    <testsuite name="ConversationEngine">
+        <testsuite name="ConversationEngine">
             <directory suffix="Test.php">./src/ConversationEngine/Tests</directory>
-        </testsuite> -->
+            <exclude>./src/ConversationEngine/Tests/ConversationEngineTest.php</exclude>
+        </testsuite>
 
         <testsuite name="NlpEngine">
             <directory suffix="Test.php">./src/NlpEngine/Tests</directory>

@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\ActionEngine\Tests;
 
-use Ds\Map;
 use OpenDialogAi\ActionEngine\Exceptions\ActionNotAvailableException;
 use OpenDialogAi\ActionEngine\Service\ActionEngine;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
@@ -71,7 +70,7 @@ class ActionEngineServiceTest extends TestCase
 
     public function testPerformActionNotBound()
     {
-        $result = $this->actionEngine->performAction('actions.core.dummy', new Map());
+        $result = $this->actionEngine->performAction('actions.core.dummy', collect());
         $this->assertFalse($result->isSuccessful());
     }
 
@@ -80,7 +79,7 @@ class ActionEngineServiceTest extends TestCase
         $this->setDummyAction();
         $this->createTestContext();
 
-        $inputAttributes = new Map([
+        $inputAttributes = collect([
             'name' => 'test',
         ]);
 
@@ -99,7 +98,7 @@ class ActionEngineServiceTest extends TestCase
 
         ContextService::getContext('test')->addAttribute(new StringAttribute('name', 'value'));
 
-        $inputAttributes = new Map([
+        $inputAttributes = collect([
             'name' => 'test',
         ]);
 
@@ -114,10 +113,10 @@ class ActionEngineServiceTest extends TestCase
     public function testPerformActionWithRequiredAttributes()
     {
         try {
-            $result = $this->actionEngine->performAction('action.core.example', new Map());
+            $result = $this->actionEngine->performAction('action.core.example', collect());
             $this->assertFalse($result->isSuccessful());
 
-            $inputAttributes = new Map([
+            $inputAttributes = collect([
                 'first_name' => 'session',
                 'last_name' => 'session',
             ]);
@@ -142,7 +141,7 @@ class ActionEngineServiceTest extends TestCase
         $testAttribute = new StringAttribute('name', 'John');
         ContextService::getContext('test')->addAttribute($testAttribute);
 
-        $inputAttributes = new Map([
+        $inputAttributes = collect([
             'name' => 'test',
         ]);
 
