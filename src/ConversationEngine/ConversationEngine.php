@@ -4,10 +4,12 @@ namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
+use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\Exceptions\CouldNotCreateUserFromUtteranceException;
+use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\ConversationEngine\Reasoners\ActionPerformer;
 use OpenDialogAi\ConversationEngine\Reasoners\ConversationalStateReasoner;
 use OpenDialogAi\ConversationEngine\Reasoners\MatchRequestIntentStartingFromConversationStrategy;
@@ -68,6 +70,7 @@ class ConversationEngine implements ConversationEngineInterface
         $responseIntents = new IntentCollection();
 
         try {
+            /** @var UserAttribute $currentUser */
             $currentUser = $this->getCurrentUser($utterance);
 
             // The ConversationStateReasoner updates the Conversation Context to reflect the current state of the user.
@@ -92,25 +95,34 @@ class ConversationEngine implements ConversationEngineInterface
             $responseIntent = ResponseIntentSelector::getResponseIntentForRequestIntent($requestIntent);
             isset($responseIntent) ? $responseIntents->addObject($responseIntent) : null;
 
-            // If we got here and the response intents are still empty place a NoMatch intent
+            // If we got here and the response intents its a no-match
             if ($responseIntents->isEmpty()) {
-                return $this->noMatchCollection();
+                throw new NoMatchingIntentsException();
             }
-
-            ActionPerformer::performActionsForIntents($responseIntents);
-        } catch (CouldNotCreateUserFromUtteranceException $e) {
-            Log::error($e->getMessage());
-            return $this->noMatchCollection();
+        } catch (NoMatchingIntentsException $e) {
+            $responseIntents = $this->createNoMatchIntentCollection();
         }
+
+        ActionPerformer::performActionsForIntents($responseIntents);
+
         return $responseIntents;
     }
 
 
-    protected function getCurrentUser(UtteranceAttribute $utterance): UserAttribute
+    /**
+     * @param UtteranceAttribute $utterance
+     * @return Attribute
+     * @throws NoMatchingIntentsException
+     */
+    protected function getCurrentUser(UtteranceAttribute $utterance): Attribute
     {
-        // The UtteranceReasoner uses the incoming utterance and returns an appropriate User attribute.
-        /* @var UserAttribute $currentUser */
-        $currentUser = UtteranceReasoner::analyseUtterance($utterance);
+        try {
+            // The UtteranceReasoner uses the incoming utterance and returns an appropriate User attribute.
+            return UtteranceReasoner::analyseUtterance($utterance);
+        } catch (CouldNotCreateUserFromUtteranceException $e) {
+            Log::error($e->getMessage());
+            throw new NoMatchingIntentsException();
+        }
     }
 
     protected function updateState(Intent $intent)
@@ -142,11 +154,9 @@ class ConversationEngine implements ConversationEngineInterface
         );
     }
 
-    protected function noMatchCollection()
+    protected function createNoMatchIntentCollection(): IntentCollection
     {
-        $responseIntents = new IntentCollection();
-        $responseIntents->addObject(Intent::createNoMatchIntent());
-        return $responseIntents;
+        return new IntentCollection([Intent::createNoMatchIntent()]);
     }
 
 
