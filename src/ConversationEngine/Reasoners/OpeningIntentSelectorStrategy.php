@@ -3,8 +3,8 @@
 
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
+use OpenDialogAi\ContextEngine\Contexts\BaseContexts\ConversationContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\ConversationEngine\ConversationEngine;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scenario;
@@ -18,8 +18,10 @@ class OpeningIntentSelectorStrategy
 {
     public static function selectOpeningIntent(): Intent
     {
-        $current_scenario_id = ContextService::getAttribute(Scenario::CURRENT_SCENARIO,
-                ConversationEngine::CONVERSATION_CONTEXT);
+        $current_scenario_id = ContextService::getAttribute(
+            Scenario::CURRENT_SCENARIO,
+            ConversationContext::getComponentId()
+        );
         $scenarios = new ScenarioCollection();
 
         if ($current_scenario_id == Scenario::UNDEFINED) {
