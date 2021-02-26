@@ -95,7 +95,7 @@
         <env name="API_LOG_TO_DB" value="true"/>
         <env name="DGRAPH_URL" value="localhost"/>
         <env name="DGRAPH_PORT" value="8080"/>
-        <env name="DGRAPH_AUTH_TOKEN" value="dgraphtesttokenci"/>
+        <env name="DGRAPH_AUTH_TOKEN" value="dgraphtestservertokenci"/>
     </php>
     <logging>
         <log type="coverage-text" target="build/coverage.txt"/>

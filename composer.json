@@ -25,7 +25,8 @@
     "barryvdh/laravel-ide-helper": "^2.7",
     "matthewbdaly/artisan-standalone": "^0.0.8",
     "dms/phpunit-arraysubset-asserts": "^0.2.1",
-    "friendsofphp/php-cs-fixer": "^2.15"
+    "friendsofphp/php-cs-fixer": "^2.15",
+    "opendialogai/dgraph-docker": "^20.11.0"
   },
   "autoload": {
     "psr-4": {
