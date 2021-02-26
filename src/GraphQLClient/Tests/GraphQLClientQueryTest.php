@@ -21,11 +21,11 @@ class GraphQLClientQueryTest extends TestCase
     public function testInvalidQueryFormat()
     {
         $query = <<<'GQL'
-        query {
-            A {
-                id
-        }
-GQL;
+            query {
+                A {
+                    id
+            }
+        GQL;
         $this->expectException(GraphQLClientErrorResponseException::class);
         $this->client->query($query, []);
     }
@@ -33,12 +33,12 @@ GQL;
     public function testInvalidQueryField()
     {
         $query = <<<'GQL'
-        query {
-            invalidField {
-                id
+            query {
+                invalidField {
+                    id
+                }
             }
-        }
-GQL;
+        GQL;
         $this->expectException(GraphQLClientErrorResponseException::class);
         $this->client->query($query, []);
 
@@ -47,14 +47,14 @@ GQL;
     public function testGetSchema()
     {
         $query = <<<'GQL'
-        {
-          __schema {
-            types {
-              name
+            {
+              __schema {
+                types {
+                  name
+                }
+              }
             }
-          }
-        }
-GQL;
+        GQL;
 
         $response = $this->client->query($query);
         $this->assertArrayHasKey("data", $response);
@@ -65,11 +65,11 @@ GQL;
     {
 
         $schema = <<<'GQL'
-        type Test {
-            id: ID!
-            name: String!
-        }
-GQL;
+            type Test {
+                id: ID!
+                name: String!
+            }
+        GQL;
         $response = $this->client->setSchema($schema);
 
         $this->assertArrayNotHasKey("errors", $response);
@@ -81,14 +81,14 @@ GQL;
     public function testMutationAndQuery()
     {
         $mutation = <<<'GQL'
-        mutation {
-            addA(input: {name: "Test A"}) {
-                a {
-                    id
+            mutation {
+                addA(input: {name: "Test A"}) {
+                    a {
+                        id
+                    }
                 }
             }
-        }
-GQL;
+        GQL;
 
 
         $response = $this->client->query($mutation, []);
@@ -98,11 +98,11 @@ GQL;
         $newId = $response['data']['addA']['a'][0]['id'];
 
         $query = <<<'GQL'
-        query {
-          queryA {
-            id
-          }
-        }
+            query {
+              queryA {
+                id
+              }
+            }
         GQL;
 
         $response = $this->client->query($query, []);
