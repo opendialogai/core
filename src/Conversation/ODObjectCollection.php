@@ -11,27 +11,29 @@ use OpenDialogAi\Core\Conversation\Exceptions\CannotAddObjectWithoutODidExceptio
  */
 class ODObjectCollection extends Collection
 {
-    public function addObject(ConversationObject $object)
+    /**
+     * @param ConversationObject $object
+     * @throws CannotAddObjectWithoutODidException
+     */
+    public function addObject(ConversationObject $object): void
     {
         $odId = $object->getODId();
+
         if (!isset($odId) || $odId == ConversationObject::UNDEFINED) {
             throw new CannotAddObjectWithoutODidException();
         }
+
         $this->push($object);
     }
 
     /**
-     * @param $odid
+     * @param string $odId
+     * @return ODObjectCollection
      */
     public function getObjectsWithId(string $odId): ODObjectCollection
     {
-        $filtered = $this->filter(function (ConversationObject $object) use ($odId) {
-            if ($object->getODId() == $odId) {
-                return true;
-            }
-            return false;
+        return $this->filter(function (ConversationObject $object) use ($odId) {
+            return $object->getODId() == $odId;
         });
-
-        return $filtered;
     }
 }
