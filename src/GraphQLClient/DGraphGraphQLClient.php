@@ -46,15 +46,15 @@ class DGraphGraphQLClient implements GraphQLClientInterface
     public function setSchema(string $schema)
     {
         $updateSchema = <<<'GQL'
-    mutation updateSchema($schema: String!) {
-        updateGQLSchema(input: { set: { schema: $schema } }) {
-            gqlSchema {
-              schema
-              generatedSchema
+            mutation updateSchema($schema: String!) {
+                updateGQLSchema(input: { set: { schema: $schema } }) {
+                    gqlSchema {
+                      schema
+                      generatedSchema
+                    }
+                }
             }
-        }
-    }
-GQL;
+        GQL;
         return $this->_query(self::ADMIN_ENDPOINT, $updateSchema, ["schema" => $schema]);
     }
 

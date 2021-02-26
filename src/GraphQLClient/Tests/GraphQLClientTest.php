@@ -6,8 +6,8 @@ use GuzzleHttp\Exception\TransferException;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\GraphQLClient\DGraphGraphQLClient;
 use OpenDialogAi\GraphQLClient\Exceptions\GraphQLClientErrorResponseException;
-use OpenDialogAi\GraphQLClient\GraphQLClientServiceProvider;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
+use OpenDialogAi\GraphQLClient\GraphQLClientServiceProvider;
 
 class GraphQLClientTest extends TestCase
 {
@@ -28,17 +28,17 @@ class GraphQLClientTest extends TestCase
         $this->assertArrayNotHasKey('errors', $responseJson);
     }
 
-    public function schemaQuery()
+    public function schemaQuery(): string
     {
         return <<<'GQL'
-        {
-          __schema {
-            types {
-              name
+            {
+              __schema {
+                types {
+                  name
+                }
+              }
             }
-          }
-        }
-GQL;
+        GQL;
     }
 
     public function testIncorrectURL()
@@ -69,11 +69,11 @@ GQL;
         $client = resolve(GraphQLClientInterface::class);
 
         $testSchema = <<<'GQL'
-        type Test {
-            id: ID!
-            test: String!
-        }
-GQL;
+            type Test {
+                id: ID!
+                test: String!
+            }
+        GQL;
 
         $this->expectException(GraphQLClientErrorResponseException::class);
         $response = $client->setSchema($testSchema);

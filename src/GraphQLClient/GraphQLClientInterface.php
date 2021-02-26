@@ -32,5 +32,5 @@ interface GraphQLClientInterface
      *
      * @return array
      */
-    public function query(string $query, array $variables): array;
+    public function query(string $query, array $variables = []): array;
 }
