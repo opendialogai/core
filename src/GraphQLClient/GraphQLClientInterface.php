@@ -25,7 +25,7 @@ interface GraphQLClientInterface
     public function setSchema(string $schema);
 
     /**
-     * Make a graphQL query
+     * Make a GraphQL query
      *
      * @param  string       $query
      * @param  array        $variables

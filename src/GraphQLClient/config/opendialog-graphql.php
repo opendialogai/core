@@ -2,10 +2,13 @@
 
 
 return [
-    'DGRAPH_URL' => env('DGRAPH_URL', function() { throw new Exception("Missing env var DGRAPH_URL");}),
-    'DGRAPH_PORT' => env('DGRAPH_PORT', function() { throw new Exception("Missing env var DGRAPH_PORT");}),
-    'DGRAPH_AUTH_TOKEN' => env('DGRAPH_AUTH_TOKEN', function() { throw new Exception("Missing env var DGRAPH_AUTH_TOKEN");}),
-    "schema" => <<<'GQL'
+    'DGRAPH_URL' => env('DGRAPH_URL', function () {
+        throw new Exception("Missing env var DGRAPH_URL");
+    }), 'DGRAPH_PORT' => env('DGRAPH_PORT', function () {
+        throw new Exception("Missing env var DGRAPH_PORT");
+    }), 'DGRAPH_AUTH_TOKEN' => env('DGRAPH_AUTH_TOKEN', function () {
+        throw new Exception("Missing env var DGRAPH_AUTH_TOKEN");
+    }), "schema" => <<<'GQL'
 type Scenario  {
     id: ID!
     od_id: String! @search(by:[hash])
