@@ -3,6 +3,8 @@
 
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
+use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
+use OpenDialogAi\ConversationEngine\Util\SelectorUtil;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -18,13 +20,15 @@ class ConversationSelector
      * @param ScenarioCollection $scenarios
      * @param bool $shallow
      * @return ConversationCollection
+     * @throws EmptyCollectionException
      */
     public static function selectStartingConversations(
         ScenarioCollection $scenarios,
         bool $shallow = true
     ): ConversationCollection {
-        /** @var ConversationCollection $conversations */
-        $conversations = ConversationDataClient::getAllStartingConversations($scenarios);
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($scenarios);
+
+        $conversations = ConversationDataClient::getAllStartingConversations($scenarios, $shallow);
 
         /** @var ConversationCollection $conversationsWithPassingConditions */
         $conversationsWithPassingConditions = ConditionFilter::filterObjects($conversations);
@@ -38,12 +42,20 @@ class ConversationSelector
      * @param ScenarioCollection $scenarios
      * @param bool $shallow
      * @return ConversationCollection
+     * @throws EmptyCollectionException
      */
     public static function selectOpenConversations(
         ScenarioCollection $scenarios,
         bool $shallow = true
     ): ConversationCollection {
-        return new ConversationCollection();
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($scenarios);
+
+        $conversations = ConversationDataClient::getAllOpenConversations($scenarios, $shallow);
+
+        /** @var ConversationCollection $conversationsWithPassingConditions */
+        $conversationsWithPassingConditions = ConditionFilter::filterObjects($conversations);
+
+        return $conversationsWithPassingConditions;
     }
 
     /**
@@ -52,9 +64,17 @@ class ConversationSelector
      * @param ScenarioCollection $scenarios
      * @param bool $shallow
      * @return ConversationCollection
+     * @throws EmptyCollectionException
      */
     public static function selectConversations(ScenarioCollection $scenarios, bool $shallow = true): ConversationCollection
     {
-        return new ConversationCollection();
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($scenarios);
+
+        $conversations = ConversationDataClient::getAllConversations($scenarios, $shallow);
+
+        /** @var ConversationCollection $conversationsWithPassingConditions */
+        $conversationsWithPassingConditions = ConditionFilter::filterObjects($conversations);
+
+        return $conversationsWithPassingConditions;
     }
 }

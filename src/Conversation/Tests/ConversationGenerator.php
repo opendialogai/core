@@ -112,6 +112,7 @@ class ConversationGenerator
         $intent = new Intent();
         $intent->setODId($odId);
         $intent->setSpeaker(Intent::USER);
+        $intent->setConfidence(1);
 
         if (!is_null($conditions)) {
             $intent->setConditions($conditions);
@@ -125,6 +126,7 @@ class ConversationGenerator
         $intent = new Intent();
         $intent->setODId($odId);
         $intent->setSpeaker(Intent::APP);
+        $intent->setConfidence(1);
 
         if (!is_null($conditions)) {
             $intent->setConditions($conditions);

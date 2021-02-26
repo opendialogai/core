@@ -3,6 +3,8 @@
 
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
+use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
+use OpenDialogAi\ConversationEngine\Util\SelectorUtil;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\TurnCollection;
@@ -18,11 +20,13 @@ class TurnSelector
      * @param SceneCollection $scenes
      * @param bool $shallow
      * @return TurnCollection
+     * @throws EmptyCollectionException
      */
     public static function selectStartingTurns(SceneCollection $scenes, bool $shallow = true): TurnCollection
     {
-        /** @var TurnCollection $turns */
-        $turns = ConversationDataClient::getAllStartingTurns($scenes);
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($scenes);
+
+        $turns = ConversationDataClient::getAllStartingTurns($scenes, $shallow);
 
         /** @var TurnCollection $turnsWithPassingConditions */
         $turnsWithPassingConditions = ConditionFilter::filterObjects($turns);
@@ -37,10 +41,18 @@ class TurnSelector
      * @param SceneCollection $scenes
      * @param bool $shallow
      * @return TurnCollection
+     * @throws EmptyCollectionException
      */
     public static function selectOpenTurns(SceneCollection $scenes, bool $shallow = true): TurnCollection
     {
-        return new TurnCollection();
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($scenes);
+
+        $turns = ConversationDataClient::getAllOpenTurns($scenes, $shallow);
+
+        /** @var TurnCollection $turnsWithPassingConditions */
+        $turnsWithPassingConditions = ConditionFilter::filterObjects($turns);
+
+        return $turnsWithPassingConditions;
     }
 
     /**
@@ -50,9 +62,17 @@ class TurnSelector
      * @param SceneCollection $scenes
      * @param bool $shallow
      * @return TurnCollection
+     * @throws EmptyCollectionException
      */
     public static function selectTurns(SceneCollection $scenes, bool $shallow = true): TurnCollection
     {
-        return new TurnCollection();
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($scenes);
+
+        $turns = ConversationDataClient::getAllTurns($scenes, $shallow);
+
+        /** @var TurnCollection $turnsWithPassingConditions */
+        $turnsWithPassingConditions = ConditionFilter::filterObjects($turns);
+
+        return $turnsWithPassingConditions;
     }
 }

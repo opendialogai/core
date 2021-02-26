@@ -24,6 +24,7 @@ use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\Tests\ConversationGenerator;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\Core\Tests\TestCase;
+use OpenDialogAi\InterpreterEngine\Facades\InterpreterService;
 
 
 class SelectorTest extends TestCase
@@ -61,10 +62,13 @@ class SelectorTest extends TestCase
         IntentSelector::selectRequestIntents(new TurnCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testIntentSelectorSelectRequestIntents()
     {
-        $intent1 = ConversationGenerator::createAppIntent('intent_1', $this->passingConditions);
-        $intent2 = ConversationGenerator::createAppIntent('intent_2', $this->failingConditions);
+        $intent1 = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
+        $intent2 = ConversationGenerator::createAppIntent('intent_2', $this->passingConditions);
         $intent3 = ConversationGenerator::createAppIntent('intent_3', $this->passingConditions);
 
         $intents = new IntentCollection([$intent1, $intent2, $intent3]);
@@ -76,12 +80,19 @@ class SelectorTest extends TestCase
             ->once()
             ->andReturn($intents);
 
+        InterpreterService::shouldReceive('interpretDefaultInterpreter')
+            ->times(3)
+            ->andReturn(
+                new IntentCollection([$intent1]),
+                new IntentCollection([]),
+                new IntentCollection([$intent3])
+            );
+
         /** @var Scenario[]|ScenarioCollection $selectedIntents */
         $selectedIntents = IntentSelector::selectRequestIntents(new TurnCollection([$turn]));
 
-        // There were three objects, but one was filtered out by conditions
-        $this->assertCount(2, $selectedIntents);
-        $this->assertContains($intent1, $selectedIntents);
+        // There were three objects, but one was filtered by interpretation, the other by conditions
+        $this->assertCount(1, $selectedIntents);
         $this->assertContains($intent3, $selectedIntents);
     }
 
@@ -91,10 +102,13 @@ class SelectorTest extends TestCase
         IntentSelector::selectResponseIntents(new TurnCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testIntentSelectorSelectResponseIntents()
     {
-        $intent1 = ConversationGenerator::createAppIntent('intent_1', $this->passingConditions);
-        $intent2 = ConversationGenerator::createAppIntent('intent_2', $this->failingConditions);
+        $intent1 = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
+        $intent2 = ConversationGenerator::createAppIntent('intent_2', $this->passingConditions);
         $intent3 = ConversationGenerator::createAppIntent('intent_3', $this->passingConditions);
 
         $intents = new IntentCollection([$intent1, $intent2, $intent3]);
@@ -106,12 +120,19 @@ class SelectorTest extends TestCase
             ->once()
             ->andReturn($intents);
 
+        InterpreterService::shouldReceive('interpretDefaultInterpreter')
+            ->times(3)
+            ->andReturn(
+                new IntentCollection([$intent1]),
+                new IntentCollection([]),
+                new IntentCollection([$intent3])
+            );
+
         /** @var Scenario[]|ScenarioCollection $selectedIntents */
         $selectedIntents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]));
 
-        // There were three objects, but one was filtered out by conditions
-        $this->assertCount(2, $selectedIntents);
-        $this->assertContains($intent1, $selectedIntents);
+        // There were three objects, but one was filtered by interpretation, the other by conditions
+        $this->assertCount(1, $selectedIntents);
         $this->assertContains($intent3, $selectedIntents);
     }
 
@@ -121,13 +142,16 @@ class SelectorTest extends TestCase
         IntentSelector::selectRequestIntentsById(new TurnCollection(), 'intent_3');
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testIntentSelectorSelectRequestIntentsById()
     {
         $intent1Passing = ConversationGenerator::createAppIntent('intent_1', $this->passingConditions);
         $intent1Failing = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
-        $intent2 = ConversationGenerator::createAppIntent('intent_2', $this->passingConditions);
+        $intent1PassingWrongInterpreted = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
 
-        $intents = new IntentCollection([$intent1Passing, $intent1Failing, $intent2]);
+        $intents = new IntentCollection([$intent1Passing, $intent1Failing, $intent1PassingWrongInterpreted]);
 
         $turn = ConversationGenerator::createTurn('turn_1');
         $turn->setRequestIntents($intents);
@@ -136,10 +160,18 @@ class SelectorTest extends TestCase
             ->once()
             ->andReturn($intents);
 
+        InterpreterService::shouldReceive('interpretDefaultInterpreter')
+            ->times(3)
+            ->andReturn(
+                new IntentCollection([$intent1Passing]),
+                new IntentCollection([$intent1Failing]),
+                new IntentCollection([])
+            );
+
         /** @var Scenario[]|ScenarioCollection $selectedIntents */
         $selectedIntents = IntentSelector::selectRequestIntentsById(new TurnCollection([$turn]), 'intent_1');
 
-        // There were three objects, two had the desired ID, but one was filtered out by conditions
+        // There were three objects with the desired ID, but one wasn't interpreted and the other was filtered out by conditions
         $this->assertCount(1, $selectedIntents);
         $this->assertContains($intent1Passing, $selectedIntents);
     }
@@ -150,13 +182,16 @@ class SelectorTest extends TestCase
         IntentSelector::selectResponseIntentsById(new TurnCollection(), 'intent_1');
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testIntentSelectorSelectResponseIntentsById()
     {
         $intent1Passing = ConversationGenerator::createUserIntent('intent_1', $this->passingConditions);
         $intent1Failing = ConversationGenerator::createUserIntent('intent_1', $this->failingConditions);
-        $intent2 = ConversationGenerator::createUserIntent('intent_2', $this->passingConditions);
+        $intent1PassingWrongInterpreted = ConversationGenerator::createUserIntent('intent_1', $this->failingConditions);
 
-        $intents = new IntentCollection([$intent1Passing, $intent1Failing, $intent2]);
+        $intents = new IntentCollection([$intent1Passing, $intent1Failing, $intent1PassingWrongInterpreted]);
 
         $turn = ConversationGenerator::createTurn('turn_1');
         $turn->setResponseIntents($intents);
@@ -165,10 +200,18 @@ class SelectorTest extends TestCase
             ->once()
             ->andReturn($intents);
 
+        InterpreterService::shouldReceive('interpretDefaultInterpreter')
+            ->times(3)
+            ->andReturn(
+                new IntentCollection([$intent1Passing]),
+                new IntentCollection([$intent1Failing]),
+                new IntentCollection([])
+            );
+
         /** @var Scenario[]|ScenarioCollection $selectedIntents */
         $selectedIntents = IntentSelector::selectResponseIntentsById(new TurnCollection([$turn]), 'intent_1');
 
-        // There were three objects, two had the desired ID, but one was filtered out by conditions
+        // There were three objects with the desired ID, but one wasn't interpreted and the other was filtered out by conditions
         $this->assertCount(1, $selectedIntents);
         $this->assertContains($intent1Passing, $selectedIntents);
     }
@@ -179,6 +222,9 @@ class SelectorTest extends TestCase
         TurnSelector::selectStartingTurns(new SceneCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testTurnSelectorSelectStartingTurns()
     {
         $behaviors = new BehaviorsCollection(new Behavior(Behavior::STARTING_BEHAVIOR));
@@ -216,6 +262,9 @@ class SelectorTest extends TestCase
         TurnSelector::selectOpenTurns(new SceneCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testTurnSelectorSelectOpenTurns()
     {
         $behaviors = new BehaviorsCollection(new Behavior(Behavior::OPEN_BEHAVIOR));
@@ -254,8 +303,12 @@ class SelectorTest extends TestCase
         TurnSelector::selectTurns(new SceneCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testTurnSelectorSelectTurns()
     {
+
         $turn1 = ConversationGenerator::createTurn('turn_1', $this->passingConditions);
         $turn2 = ConversationGenerator::createTurn('turn_2', $this->failingConditions);
         $turn3 = ConversationGenerator::createTurn('turn_3', $this->passingConditions);
@@ -284,6 +337,9 @@ class SelectorTest extends TestCase
         SceneSelector::selectStartingScenes(new ConversationCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testSceneSelectorSelectStartingScenes()
     {
         $behaviors = new BehaviorsCollection(new Behavior(Behavior::STARTING_BEHAVIOR));
@@ -321,6 +377,9 @@ class SelectorTest extends TestCase
         SceneSelector::selectOpenScenes(new ConversationCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testSceneSelectorSelectOpenScenes()
     {
         $behaviors = new BehaviorsCollection(new Behavior(Behavior::OPEN_BEHAVIOR));
@@ -358,6 +417,9 @@ class SelectorTest extends TestCase
         SceneSelector::selectScenes(new ConversationCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testSceneSelectorSelectScenes()
     {
         $scene1 = ConversationGenerator::createScene('scene_1', $this->passingConditions);
@@ -388,6 +450,9 @@ class SelectorTest extends TestCase
         ConversationSelector::selectStartingConversations(new ScenarioCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testConversationSelectorSelectStartingConversations()
     {
         $behaviors = new BehaviorsCollection(new Behavior(Behavior::STARTING_BEHAVIOR));
@@ -401,10 +466,10 @@ class SelectorTest extends TestCase
         $conversation3 = ConversationGenerator::createConversation('conversation_3', $this->passingConditions);
         $conversation3->setBehaviors($behaviors);
 
-        $conversations = new SceneCollection([$conversation1, $conversation2, $conversation3]);
+        $conversations = new ConversationCollection([$conversation1, $conversation2, $conversation3]);
 
-        $scenario = ConversationGenerator::createConversation('scenario_1');
-        $scenario->setScenes($conversations);
+        $scenario = ConversationGenerator::createScenario('scenario_1');
+        $scenario->setConversations($conversations);
 
         ConversationDataClient::shouldReceive('getAllStartingConversations')
             ->once()
@@ -425,6 +490,9 @@ class SelectorTest extends TestCase
         ConversationSelector::selectOpenConversations(new ScenarioCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testConversationSelectorSelectOpenConversations()
     {
         $behaviors = new BehaviorsCollection(new Behavior(Behavior::OPEN_BEHAVIOR));
@@ -438,10 +506,10 @@ class SelectorTest extends TestCase
         $conversation3 = ConversationGenerator::createConversation('conversation_3', $this->passingConditions);
         $conversation3->setBehaviors($behaviors);
 
-        $conversations = new SceneCollection([$conversation1, $conversation2, $conversation3]);
+        $conversations = new ConversationCollection([$conversation1, $conversation2, $conversation3]);
 
-        $scenario = ConversationGenerator::createConversation('scenario_1');
-        $scenario->setScenes($conversations);
+        $scenario = ConversationGenerator::createScenario('scenario_1');
+        $scenario->setConversations($conversations);
 
         ConversationDataClient::shouldReceive('getAllOpenConversations')
             ->once()
@@ -462,16 +530,19 @@ class SelectorTest extends TestCase
         ConversationSelector::selectConversations(new ScenarioCollection());
     }
 
+    /**
+     * @throws EmptyCollectionException
+     */
     public function testConversationSelectorSelectConversations()
     {
         $conversation1 = ConversationGenerator::createConversation('conversation_1', $this->passingConditions);
         $conversation2 = ConversationGenerator::createConversation('conversation_2', $this->failingConditions);
         $conversation3 = ConversationGenerator::createConversation('conversation_3', $this->passingConditions);
 
-        $conversations = new SceneCollection([$conversation1, $conversation2, $conversation3]);
+        $conversations = new ConversationCollection([$conversation1, $conversation2, $conversation3]);
 
-        $scenario = ConversationGenerator::createConversation('scenario_1');
-        $scenario->setScenes($conversations);
+        $scenario = ConversationGenerator::createScenario('scenario_1');
+        $scenario->setConversations($conversations);
 
         ConversationDataClient::shouldReceive('getAllConversations')
             ->once()
