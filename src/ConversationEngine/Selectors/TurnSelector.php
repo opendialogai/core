@@ -8,6 +8,7 @@ use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\ConversationEngine\Util\SelectorUtil;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\SceneCollection;
+use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 
 /**
@@ -75,5 +76,18 @@ class TurnSelector
         $turnsWithPassingConditions = ConditionFilter::filterObjects($turns);
 
         return $turnsWithPassingConditions;
+    }
+
+    /**
+     * Retrieves a specific turn
+     *
+     * @param SceneCollection $scenes
+     * @param string $turnId
+     * @param bool $shallow
+     * @return Turn
+     */
+    public static function selectTurnById(SceneCollection $scenes, string $turnId, bool $shallow = true): Turn
+    {
+        return ConversationDataClient::getTurnById($scenes, $turnId, $shallow);
     }
 }
