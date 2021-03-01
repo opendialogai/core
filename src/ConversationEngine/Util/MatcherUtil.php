@@ -4,7 +4,6 @@
 namespace OpenDialogAi\ConversationEngine\Util;
 
 
-use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\ConversationContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -15,28 +14,43 @@ use OpenDialogAi\Core\Conversation\Turn;
 
 class MatcherUtil
 {
-    public static function currentScenarioId(): Attribute
+    public static function currentScenarioId()
     {
-        return ContextService::getAttribute(Scenario::CURRENT_SCENARIO, ConversationContext::getComponentId());
+        return ContextService::getAttribute(
+            Scenario::CURRENT_SCENARIO,
+            ConversationContext::getComponentId()
+        )->getValue();
     }
 
-    public static function currentConversationId(): Attribute
+    public static function currentConversationId()
     {
-        return ContextService::getAttribute(Conversation::CURRENT_CONVERSATION, ConversationContext::getComponentId());
+        return ContextService::getAttribute(
+            Conversation::CURRENT_CONVERSATION,
+            ConversationContext::getComponentId()
+        )->getValue();
     }
 
-    public static function currentSceneId(): Attribute
+    public static function currentSceneId()
     {
-        return ContextService::getAttribute(Scene::CURRENT_SCENE, ConversationContext::getComponentId());
+        return ContextService::getAttribute(
+            Scene::CURRENT_SCENE,
+            ConversationContext::getComponentId()
+        )->getValue();
     }
 
-    public static function currentTurnId(): Attribute
+    public static function currentTurnId()
     {
-        return ContextService::getAttribute(Turn::CURRENT_TURN, ConversationContext::getComponentId());
+        return ContextService::getAttribute(
+            Turn::CURRENT_TURN,
+            ConversationContext::getComponentId()
+        )->getValue();
     }
 
-    public static function currentIntentId(): Attribute
+    public static function currentIntentId()
     {
-        return ContextService::getAttribute(Intent::CURRENT_INTENT, ConversationContext::getComponentId());
+        return ContextService::getAttribute(
+            Intent::CURRENT_INTENT,
+            ConversationContext::getComponentId()
+        )->getValue();
     }
 }
