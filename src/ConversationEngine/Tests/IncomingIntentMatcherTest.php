@@ -29,38 +29,9 @@ class IncomingIntentMatcherTest extends TestCase
 {
     public function testNoMatchingIntents()
     {
-        // Mock selectors
-        $scenario = new Scenario();
-        $scenario->setODId('test_scenario1');
-
-        ScenarioSelector::shouldReceive('selectScenarios')
-            ->once()
-            ->andReturn(new ScenarioCollection([$scenario]));
-
-        $conversation = new Conversation();
-        $conversation->setODId('test_conversation1');
-        ConversationSelector::shouldReceive('selectStartingConversations')
-            ->once()
-            ->andReturn(new ConversationCollection([$conversation]));
-
-        $scene = new Scene();
-        $scene->setODId('test_scene1');
-        SceneSelector::shouldReceive('selectStartingScenes')
-            ->once()
-            ->andReturn(new SceneCollection([$scene]));
-
-        $turn = new Turn();
-        $turn->setODId('test_turn1');
-        TurnSelector::shouldReceive('selectStartingTurns')
-            ->once()
-            ->andReturn(new TurnCollection([$turn]));
-
-        // Mock that none of the intents matched
-        $intent = new Intent();
-        $intent->setODId('test_intent1');
-        IntentSelector::shouldReceive('selectRequestIntents')
-            ->once()
-            ->andReturn(new IntentCollection());
+        // Mock selectors, no request intents will be selected
+        $intents = new IntentCollection();
+        $this->mockSelectors($intents);
 
         // Set conversational state
         $this->updateStateToUndefined();
@@ -71,13 +42,16 @@ class IncomingIntentMatcherTest extends TestCase
 
     public function testBasicAsRequestMatch()
     {
-        // Mock selectors
+        // Mock selectors, a request intent will be selected
+        $intent = new Intent();
+        $intent->setODId('test_intent1');
+        $intents = new IntentCollection([$intent]);
+        $this->mockSelectors($intents);
 
         // Set conversational state
+        $this->updateStateToUndefined();
 
-        $incomingIntent = IncomingIntentMatcher::matchIncomingIntent();
-
-        // Assert is expected intent
+        $this->assertSame($intent, IncomingIntentMatcher::matchIncomingIntent());
     }
 
     private function updateStateToUndefined()
@@ -108,5 +82,40 @@ class IncomingIntentMatcherTest extends TestCase
             $conversationContextId .'.'.Intent::CURRENT_SPEAKER,
             Intent::UNDEFINED
         );
+    }
+
+    /**
+     * @param IntentCollection $intents
+     */
+    private function mockSelectors(IntentCollection $intents): void
+    {
+        $scenario = new Scenario();
+        $scenario->setODId('test_scenario1');
+
+        ScenarioSelector::shouldReceive('selectScenarios')
+            ->once()
+            ->andReturn(new ScenarioCollection([$scenario]));
+
+        $conversation = new Conversation();
+        $conversation->setODId('test_conversation1');
+        ConversationSelector::shouldReceive('selectStartingConversations')
+            ->once()
+            ->andReturn(new ConversationCollection([$conversation]));
+
+        $scene = new Scene();
+        $scene->setODId('test_scene1');
+        SceneSelector::shouldReceive('selectStartingScenes')
+            ->once()
+            ->andReturn(new SceneCollection([$scene]));
+
+        $turn = new Turn();
+        $turn->setODId('test_turn1');
+        TurnSelector::shouldReceive('selectStartingTurns')
+            ->once()
+            ->andReturn(new TurnCollection([$turn]));
+
+        IntentSelector::shouldReceive('selectRequestIntents')
+            ->once()
+            ->andReturn($intents);
     }
 }
