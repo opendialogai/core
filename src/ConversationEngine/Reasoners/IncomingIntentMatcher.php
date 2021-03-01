@@ -8,7 +8,6 @@ use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Conversation\Scenario;
 
 class IncomingIntentMatcher
 {
@@ -18,14 +17,11 @@ class IncomingIntentMatcher
      */
     public static function matchIncomingIntent(): Intent
     {
-        // If there is no defined scenario or there is no defined conversation we need to select an opening intent
-        if (MatcherUtil::currentScenarioId() == Scenario::UNDEFINED
-            || MatcherUtil::currentConversationId() == Conversation::UNDEFINED) {
+        if (MatcherUtil::currentConversationId() == Conversation::UNDEFINED) {
+            // If there is no defined conversation we need to select an opening intent
             return OpeningIntentSelectorStrategy::selectOpeningIntent();
-        }
-
-        // Instead if we do have a conversation then we need to match to a request intent from within the conversation
-        if (MatcherUtil::currentConversationId() != Conversation::UNDEFINED) {
+        } else {
+            // Instead if we do have a conversation then we need to match to a request intent from within the conversation
             return MatchRequestIntentStartingFromConversationStrategy::matchRequestIntent(
                 MatcherUtil::currentScenarioId(),
                 MatcherUtil::currentConversationId(),
@@ -33,7 +29,5 @@ class IncomingIntentMatcher
                 MatcherUtil::currentIntentId()
             );
         }
-
-        throw new NoMatchingIntentsException();
     }
 }
