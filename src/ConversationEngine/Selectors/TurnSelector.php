@@ -1,9 +1,10 @@
 <?php
 
 
-namespace OpenDialogAi\ConversationEngine\Reasoners;
+namespace OpenDialogAi\ConversationEngine\Selectors;
 
 use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
+use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\ConversationEngine\Util\SelectorUtil;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\SceneCollection;

@@ -1,8 +1,9 @@
 <?php
 
 
-namespace OpenDialogAi\ConversationEngine\Reasoners;
+namespace OpenDialogAi\ConversationEngine\Selectors;
 
+use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 
