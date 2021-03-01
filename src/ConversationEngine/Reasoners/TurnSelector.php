@@ -14,12 +14,12 @@ class TurnSelector
 {
     public static function selectStartingTurns($scenes): TurnCollection
     {
+        /** @var TurnCollection $turns */
         $turns = ConversationDataClient::getAllStartingTurns($scenes);
 
-        $conditionPassingTurns = $turns->filter(function ($turn) {
-            ConditionFilter::checkConditions($turn);
-        });
+        /** @var TurnCollection $turnsWithPassingConditions */
+        $turnsWithPassingConditions = ConditionFilter::filterObjects($turns);
 
-        return $conditionPassingTurns;
+        return $turnsWithPassingConditions;
     }
 }
