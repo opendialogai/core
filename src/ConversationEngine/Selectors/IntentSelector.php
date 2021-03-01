@@ -23,34 +23,42 @@ class IntentSelector
      * Retrieves all request intents within the given turns
      *
      * @param TurnCollection $turns
+     * @param bool $isIncoming
      * @param bool $shallow
      * @return IntentCollection
      * @throws EmptyCollectionException
      */
-    public static function selectRequestIntents(TurnCollection $turns, bool $shallow = true): IntentCollection
-    {
+    public static function selectRequestIntents(
+        TurnCollection $turns,
+        bool $isIncoming = true,
+        bool $shallow = true
+    ): IntentCollection {
         SelectorUtil::throwIfConversationObjectCollectionIsEmpty($turns);
 
         $intents = ConversationDataClient::getAllRequestIntents($turns, $shallow);
 
-        return self::interpretAndFilterIntents($intents);
+        return self::interpretAndFilterIntents($intents, $isIncoming);
     }
 
     /**
      * Retrieves all response intents within the given turns
      *
      * @param TurnCollection $turns
+     * @param bool $isIncoming
      * @param bool $shallow
      * @return IntentCollection
      * @throws EmptyCollectionException
      */
-    public static function selectResponseIntents(TurnCollection $turns, bool $shallow = true): IntentCollection
-    {
+    public static function selectResponseIntents(
+        TurnCollection $turns,
+        bool $isIncoming = true,
+        bool $shallow = true
+    ): IntentCollection {
         SelectorUtil::throwIfConversationObjectCollectionIsEmpty($turns);
 
         $intents = ConversationDataClient::getAllResponseIntents($turns, $shallow);
 
-        return self::interpretAndFilterIntents($intents);
+        return self::interpretAndFilterIntents($intents, $isIncoming);
     }
 
     /**
@@ -58,6 +66,7 @@ class IntentSelector
      *
      * @param TurnCollection $turns
      * @param string $intentId
+     * @param bool $isIncoming
      * @param bool $shallow
      * @return IntentCollection
      * @throws EmptyCollectionException
@@ -65,13 +74,14 @@ class IntentSelector
     public static function selectRequestIntentsById(
         TurnCollection $turns,
         string $intentId,
+        bool $isIncoming = true,
         bool $shallow = true
     ): IntentCollection {
         SelectorUtil::throwIfConversationObjectCollectionIsEmpty($turns);
 
         $intents = ConversationDataClient::getAllRequestIntentsById($turns, $intentId, $shallow);
 
-        return self::interpretAndFilterIntents($intents);
+        return self::interpretAndFilterIntents($intents, $isIncoming);
     }
 
     /**
@@ -79,6 +89,7 @@ class IntentSelector
      *
      * @param TurnCollection $turns
      * @param string $intentId
+     * @param bool $isIncoming
      * @param bool $shallow
      * @return IntentCollection
      * @throws EmptyCollectionException
@@ -86,26 +97,30 @@ class IntentSelector
     public static function selectResponseIntentsById(
         TurnCollection $turns,
         string $intentId,
+        bool $isIncoming = true,
         bool $shallow = true
     ): IntentCollection {
         SelectorUtil::throwIfConversationObjectCollectionIsEmpty($turns);
 
         $intents = ConversationDataClient::getAllResponseIntentsById($turns, $intentId, $shallow);
 
-        return self::interpretAndFilterIntents($intents);
+        return self::interpretAndFilterIntents($intents, $isIncoming);
     }
 
     /**
      * @param IntentCollection $intents
+     * @param bool $shouldInterpret
      * @return IntentCollection
      */
-    private static function interpretAndFilterIntents(IntentCollection $intents): IntentCollection
+    private static function interpretAndFilterIntents(IntentCollection $intents, bool $shouldInterpret): IntentCollection
     {
-        $utterance = ContextService::getAttribute(UtteranceAttribute::UTTERANCE, UserContext::USER_CONTEXT);
-        $matchingIntents = IntentInterpreterFilter::filter($intents, $utterance);
+        if ($shouldInterpret) {
+            $utterance = ContextService::getAttribute(UtteranceAttribute::UTTERANCE, UserContext::USER_CONTEXT);
+            $intents = IntentInterpreterFilter::filter($intents, $utterance);
+        }
 
         /** @var IntentCollection $intentsWithPassingConditions */
-        $intentsWithPassingConditions = ConditionFilter::filterObjects($matchingIntents);
+        $intentsWithPassingConditions = ConditionFilter::filterObjects($intents);
 
         return $intentsWithPassingConditions;
     }

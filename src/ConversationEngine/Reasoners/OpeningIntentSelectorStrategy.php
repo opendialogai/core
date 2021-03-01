@@ -3,14 +3,15 @@
 
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
+use Illuminate\Support\Facades\Log;
 use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
+use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\ConversationSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\IntentSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\ScenarioSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
 use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
-use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -21,16 +22,19 @@ use OpenDialogAi\Core\Conversation\ScenarioCollection;
  */
 class OpeningIntentSelectorStrategy
 {
+    /**
+     * @return Intent
+     * @throws NoMatchingIntentsException
+     */
     public static function selectOpeningIntent(): Intent
     {
         $currentScenarioId = MatcherUtil::currentScenarioId();
         $scenarios = new ScenarioCollection();
 
         if ($currentScenarioId == Scenario::UNDEFINED) {
-            // Select valid scenarios based on whether they have passing conditions
             $scenarios = ScenarioSelector::selectScenarios(true);
         } else {
-            $scenario = ConversationDataClient::getShallowScenario($currentScenarioId);
+            $scenario = ScenarioSelector::selectScenarioById($currentScenarioId, true);
             $scenarios->addObject($scenario);
         }
 
@@ -53,7 +57,8 @@ class OpeningIntentSelectorStrategy
             // Finally out of all the matching intents select the one with the highest confidence.
             return IntentRanker::getTopRankingIntent($intents);
         } catch (EmptyCollectionException $e) {
-            return Intent::createNoMatchIntent();
+            Log::debug('No opening intent selected');
+            throw new NoMatchingIntentsException();
         }
     }
 

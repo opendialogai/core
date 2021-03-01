@@ -8,11 +8,13 @@ use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 
 /**
- * @method static IntentCollection selectRequestIntents(TurnCollection $turns, bool $shallow = true)
- * @method static IntentCollection selectResponseIntents(TurnCollection $turns, bool $shallow = true)
- * @method static IntentCollection selectRequestIntentsById(TurnCollection $turns, string $intentId, bool $shallow = true)
- * @method static IntentCollection selectResponseIntentsById(TurnCollection $turns, string $intentId, bool $shallow = true)
+ phpcs:disable
+ * @method static IntentCollection selectRequestIntents(TurnCollection $turns, bool $isIncoming = true, bool $shallow = true)
+ * @method static IntentCollection selectResponseIntents(TurnCollection $turns, bool $isIncoming = true, bool $shallow = true)
+ * @method static IntentCollection selectRequestIntentsById(TurnCollection $turns, string $intentId, bool $isIncoming = true, bool $shallow = true)
+ * @method static IntentCollection selectResponseIntentsById(TurnCollection $turns, string $intentId, bool $isIncoming = true, bool $shallow = true)
  * @throws EmptyCollectionException
+ phpcs:enable
  */
 class IntentSelector extends Facade
 {

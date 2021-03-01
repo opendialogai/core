@@ -14,15 +14,11 @@ use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
 use OpenDialogAi\ConversationEngine\Reasoners\OutgoingIntentMatcher;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
-use OpenDialogAi\Core\Conversation\ScenarioCollection;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\Turn;
-use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\Core\Tests\TestCase;
 
 class OutgoingIntentMatcherTest extends TestCase
@@ -92,27 +88,27 @@ class OutgoingIntentMatcherTest extends TestCase
         $scenario = new Scenario();
         $scenario->setODId('test_scenario1');
 
-        ScenarioSelector::shouldReceive('selectScenario')
+        ScenarioSelector::shouldReceive('selectScenarioById')
             ->once()
-            ->andReturn(new ScenarioCollection([$scenario]));
+            ->andReturn($scenario);
 
         $conversation = new Conversation();
         $conversation->setODId('test_conversation1');
-        ConversationSelector::shouldReceive('selectConversation')
+        ConversationSelector::shouldReceive('selectConversationById')
             ->once()
-            ->andReturn(new ConversationCollection([$conversation]));
+            ->andReturn($conversation);
 
         $scene = new Scene();
         $scene->setODId('test_scene1');
-        SceneSelector::shouldReceive('selectScene')
+        SceneSelector::shouldReceive('selectSceneById')
             ->once()
-            ->andReturn(new SceneCollection([$scene]));
+            ->andReturn($scene);
 
         $turn = new Turn();
         $turn->setODId('test_turn1');
-        TurnSelector::shouldReceive('selectTurn')
+        TurnSelector::shouldReceive('selectTurnById')
             ->once()
-            ->andReturn(new TurnCollection([$turn]));
+            ->andReturn($turn);
 
         IntentSelector::shouldReceive('selectResponseIntents')
             ->once()
