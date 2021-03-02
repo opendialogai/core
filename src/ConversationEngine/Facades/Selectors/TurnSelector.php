@@ -12,6 +12,7 @@ use OpenDialogAi\Core\Conversation\TurnCollection;
  * @method static TurnCollection selectStartingTurns(SceneCollection $scenes, bool $shallow = true)
  * @method static TurnCollection selectOpenTurns(SceneCollection $scenes, bool $shallow = true)
  * @method static TurnCollection selectTurns(SceneCollection $scenes, bool $shallow = true)
+ * @method static TurnCollection selectTurnsByValidOrigin(SceneCollection $scenes, string $validOrigin, bool $shallow = true)
  * @method static Turn selectTurnById(SceneCollection $scenes, string $turnId, bool $shallow = true)
  * @throws EmptyCollectionException
  */

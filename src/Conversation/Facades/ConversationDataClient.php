@@ -26,6 +26,7 @@ use OpenDialogAi\Core\Conversation\TurnCollection;
  * @method static TurnCollection getAllStartingTurns(SceneCollection $scenes, bool $shallow)
  * @method static TurnCollection getAllOpenTurns(SceneCollection $scenes, bool $shallow)
  * @method static TurnCollection getAllTurns(SceneCollection $scenes, bool $shallow)
+ * @method static TurnCollection getAllTurnsByValidOrigin(SceneCollection $scenes, string $validOrigin, bool $shallow)
  * @method static Turn getTurnById(SceneCollection $scenes, string $turnId, bool $shallow)
  * @method static IntentCollection getAllRequestIntents(TurnCollection $turns, bool $shallow)
  * @method static IntentCollection getAllResponseIntents(TurnCollection $turns, bool $shallow)

@@ -79,6 +79,30 @@ class TurnSelector
     }
 
     /**
+     * Retrieves all turns within the given scenes by matching valid origin
+     *
+     * @param SceneCollection $scenes
+     * @param string $validOrigin
+     * @param bool $shallow
+     * @return TurnCollection
+     * @throws EmptyCollectionException
+     */
+    public static function selectTurnsByValidOrigin(
+        SceneCollection $scenes,
+        string $validOrigin,
+        bool $shallow = true
+    ): TurnCollection {
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($scenes);
+
+        $turns = ConversationDataClient::getAllTurnsByValidOrigin($scenes, $validOrigin, $shallow);
+
+        /** @var TurnCollection $turnsWithPassingConditions */
+        $turnsWithPassingConditions = ConditionFilter::filterObjects($turns);
+
+        return $turnsWithPassingConditions;
+    }
+
+    /**
      * Retrieves a specific turn
      *
      * @param SceneCollection $scenes

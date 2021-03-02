@@ -13,12 +13,16 @@ class Turn extends ConversationObject
 
     protected Scene $scene;
 
+    /** @var string[]|array */
+    protected array $validOrigins;
+
     public function __construct(?Scene $scene = null)
     {
         parent::__construct();
         $this->requestIntents = new IntentCollection();
         $this->responseIntents = new IntentCollection();
         isset($scene) ? $this->scene = $scene :null ;
+        $this->validOrigins = [];
     }
 
     public function hasRequestIntents(): bool
@@ -49,6 +53,30 @@ class Turn extends ConversationObject
     public function setResponseIntents(IntentCollection $intents)
     {
         $this->intents = $intents;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasValidOrigins(): bool
+    {
+        return count($this->validOrigins) > 0;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function getValidOrigins(): array
+    {
+        return $this->validOrigins;
+    }
+
+    /**
+     * @param array|string[] $validOrigins
+     */
+    public function setValidOrigins(array $validOrigins): void
+    {
+        $this->validOrigins = $validOrigins;
     }
 
     public function getScene(): ?Scene

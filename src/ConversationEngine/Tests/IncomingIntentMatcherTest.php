@@ -65,10 +65,21 @@ class IncomingIntentMatcherTest extends TestCase
         $this->assertSame($intent, IncomingIntentMatcher::matchIncomingIntent());
     }
 
-    public function testOngoingAsRequestMatch()
+    public function testOngoingAsRequestMatchWithOpenTurns()
     {
         // Mock selectors, a request intent will be selected
-        $desiredIntent = $this->mockSelectorsForOngoing(self::TEST_INTENT_2);
+        $desiredIntent = $this->mockSelectorsForOngoingOpenTurns(self::TEST_INTENT_2);
+
+        // Set conversational state
+        $this->updateStateToOngoing();
+
+        $this->assertSame($desiredIntent, IncomingIntentMatcher::matchIncomingIntent());
+    }
+
+    public function testOngoingAsRequestMatchWithValidOrigin()
+    {
+        // Mock selectors, a request intent will be selected
+        $desiredIntent = $this->mockSelectorsForOngoingValidOrigins(self::TEST_INTENT_2);
 
         // Set conversational state
         $this->updateStateToOngoing();
@@ -175,38 +186,21 @@ class IncomingIntentMatcherTest extends TestCase
      * @param string $desiredIntentId
      * @return Intent
      */
-    private function mockSelectorsForOngoing(string $desiredIntentId): Intent
+    private function mockSelectorsForOngoingOpenTurns(string $desiredIntentId): Intent
     {
-        $scenario = new Scenario();
-        $scenario->setODId(self::TEST_SCENARIO_1);
-
-        ScenarioSelector::shouldReceive('selectScenarioById')
-            ->once()
-            ->andReturn($scenario);
-
-        $conversation = new Conversation($scenario);
-        $conversation->setODId(self::TEST_CONVERSATION_1);
-        ConversationSelector::shouldReceive('selectConversationById')
-            ->once()
-            ->andReturn($conversation);
-
-        $scene = new Scene($conversation);
-        $scene->setODId(self::TEST_SCENE_1);
-        SceneSelector::shouldReceive('selectSceneById')
-            ->once()
-            ->andReturn($scene);
+        $scene = $this->mockSelectorsForOngoing();
 
         $turn = new Turn($scene);
         $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
         $turn->setODId(self::TEST_TURN_2);
 
-        // This turn is unreachable as it's not open
-        $unreachableTurn = new Turn($scene);
-        $unreachableTurn->setODId('test_unreachable_turn');
-
-        TurnSelector::shouldReceive('selectTurns')
+        TurnSelector::shouldReceive('selectOpenTurns')
             ->once()
-            ->andReturn(new TurnCollection([$unreachableTurn, $turn]));
+            ->andReturn(new TurnCollection([$turn]));
+
+        TurnSelector::shouldReceive('selectTurnsByValidOrigin')
+            ->once()
+            ->andReturn(new TurnCollection());
 
         $intents = new IntentCollection();
 
@@ -231,5 +225,83 @@ class IncomingIntentMatcherTest extends TestCase
             ->andReturn($intents);
 
         return $desiredIntent;
+    }
+
+    /**
+     * @param string $desiredIntentId
+     * @return Intent
+     */
+    private function mockSelectorsForOngoingValidOrigins(string $desiredIntentId): Intent
+    {
+        $scene = $this->mockSelectorsForOngoing();
+
+        $turn = new Turn($scene);
+        $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
+        $turn->setODId(self::TEST_TURN_2);
+        $turn->setValidOrigins([self::TEST_INTENT_1_RESPONSE]);
+
+        TurnSelector::shouldReceive('selectOpenTurns')
+            ->once()
+            ->andReturn(new TurnCollection([$turn]));
+
+        TurnSelector::shouldReceive('selectTurnsByValidOrigin')
+            ->once()
+            ->andReturn(new TurnCollection([$turn]));
+
+        $intents = new IntentCollection();
+
+        $undesiredIntent = new Intent($turn, Intent::USER);
+        $undesiredIntent->setODId('test_undesired_intent');
+        $undesiredIntent->setConfidence(0.5);
+        $undesiredIntentInterpreted = clone $undesiredIntent;
+        $undesiredIntent->addInterpretedIntents(new IntentCollection([$undesiredIntentInterpreted]));
+        $undesiredIntent->checkForMatch();
+        $intents->addObject($undesiredIntent);
+
+        $desiredIntent = new Intent($turn, Intent::USER);
+        $desiredIntent->setODId($desiredIntentId);
+        $desiredIntent->setConfidence(0.75);
+        $desiredIntentInterpreted = clone $desiredIntent;
+        $desiredIntent->addInterpretedIntents(new IntentCollection([$desiredIntentInterpreted]));
+        $desiredIntent->checkForMatch();
+        $intents->addObject($desiredIntent);
+
+        IntentSelector::shouldReceive('selectRequestIntents')
+            ->once()
+            ->withArgs(function ($turns) {
+                // We only have one turn, but it is both an open turn and one with a matching valid origin
+                // so we should check it's not duplicated
+                return $turns instanceof TurnCollection && count($turns) === 1;
+            })
+            ->andReturn($intents);
+
+        return $desiredIntent;
+    }
+
+    /**
+     * @return Scene
+     */
+    private function mockSelectorsForOngoing(): Scene
+    {
+        $scenario = new Scenario();
+        $scenario->setODId(self::TEST_SCENARIO_1);
+
+        ScenarioSelector::shouldReceive('selectScenarioById')
+            ->once()
+            ->andReturn($scenario);
+
+        $conversation = new Conversation($scenario);
+        $conversation->setODId(self::TEST_CONVERSATION_1);
+        ConversationSelector::shouldReceive('selectConversationById')
+            ->once()
+            ->andReturn($conversation);
+
+        $scene = new Scene($conversation);
+        $scene->setODId(self::TEST_SCENE_1);
+        SceneSelector::shouldReceive('selectSceneById')
+            ->once()
+            ->andReturn($scene);
+
+        return $scene;
     }
 }
