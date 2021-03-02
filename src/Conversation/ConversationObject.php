@@ -164,11 +164,19 @@ class ConversationObject
 
     /**
      * Retrieves all behavior directives as an array.
-     * @return array
+     * @return BehaviorsCollection
      */
     public function getBehaviors(): BehaviorsCollection
     {
         return $this->behaviors;
+    }
+
+    /**
+     * @param BehaviorsCollection $behaviors
+     */
+    public function setBehaviors(BehaviorsCollection $behaviors): void
+    {
+        $this->behaviors = $behaviors;
     }
 
     /**

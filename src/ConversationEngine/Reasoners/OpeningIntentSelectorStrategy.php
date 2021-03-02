@@ -26,7 +26,7 @@ class OpeningIntentSelectorStrategy
         if ($current_scenario_id == Scenario::UNDEFINED) {
             // Select valid scenarios based on whether they have passing conditions
             /* @var ScenarioCollection $scenarios */
-            $scenarios = ScenarioSelector::selectActiveScenarios();
+            $scenarios = ScenarioSelector::selectScenarios(true);
         } else {
             $scenario = ConversationDataClient::getShallowScenario($current_scenario_id);
             $scenarios->addObject($scenario);
@@ -45,7 +45,7 @@ class OpeningIntentSelectorStrategy
 
         // Select valid intents out of the valid turns. Valid intents will match the interpretation and have passing
         // conditions.
-        $intents = StartingIntentSelector::selectStartingIntents($turns);
+        $intents = IntentSelector::selectRequestIntents($turns);
 
         try {
             // Finally out of all the matching intents select the one with the highest confidence.

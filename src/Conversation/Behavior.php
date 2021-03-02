@@ -4,6 +4,10 @@ namespace OpenDialogAi\Core\Conversation;
 
 class Behavior
 {
+    public const OPEN_BEHAVIOR = 'open';
+    public const STARTING_BEHAVIOR = 'starting';
+    public const COMPLETING_BEHAVIOR = 'completing';
+
     protected string $behaviour;
 
     public function __construct(string $behavior)
