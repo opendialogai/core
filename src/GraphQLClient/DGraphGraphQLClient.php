@@ -120,11 +120,11 @@ class DGraphGraphQLClient implements GraphQLClientInterface
                 }
             }
         GQL;
-        return $this->_query(self::ADMIN_ENDPOINT, $updateSchema, ["schema" => $schema]);
+        return $this->request(self::ADMIN_ENDPOINT, $updateSchema, ["schema" => $schema]);
     }
 
     /**
-     * Make a GraphQL Query
+     * Make a GraphQL Query to a specified endpoint
      *
      * @param  string  $endpoint
      * @param  string  $query
@@ -135,7 +135,7 @@ class DGraphGraphQLClient implements GraphQLClientInterface
      * @throws GraphQLClientException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function _query(string $endpoint, string $query, array $variables = []): array
+    public function request(string $endpoint, string $query, array $variables = []): array
     {
         $response = $this->_jsonRequest($endpoint, self::createGraphQLRequestJson($query, $variables));
         $json = self::__decodeJsonResponse($response);
@@ -178,7 +178,7 @@ class DGraphGraphQLClient implements GraphQLClientInterface
      */
     public function query(string $query, array $variables = []): array
     {
-        return $this->_query(self::QUERY_ENDPOINT, $query, $variables);
+        return $this->request(self::QUERY_ENDPOINT, $query, $variables);
     }
 
 }
