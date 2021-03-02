@@ -56,11 +56,9 @@ class MatcherUtil
 
     public static function currentIntentIsRequest(): bool
     {
-        /*
-            todo: use self::currentTurnId() & self::currentIntentId() to get current IDs, then pull their objects from
-                the data client & check if current intent is part of the current turns request or response
-        */
-
-        return false;
+        return ContextService::getAttribute(
+            Intent::INTENT_IS_REQUEST,
+            ConversationContext::getComponentId()
+        )->getValue();
     }
 }

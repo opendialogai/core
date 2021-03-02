@@ -87,6 +87,7 @@ class CoreTest extends TestCase
             ->andReturn($turn);
 
         $noMatchResponseIntent = new Intent($turn, Intent::APP);
+        $noMatchResponseIntent->setIsRequestIntent(false);
         $noMatchResponseIntent->setODId('intent.core.NoMatchResponse');
         $noMatchResponseIntent->setConfidence(1);
 

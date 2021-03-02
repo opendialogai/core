@@ -16,6 +16,7 @@ class Intent extends ConversationObject
     public const CURRENT_INTENT = 'current_intent';
     public const INTERPRETED_INTENT = 'interpreted_intent';
     public const CURRENT_SPEAKER = 'speaker';
+    public const INTENT_IS_REQUEST = 'intent_is_request';
 
     const VALID_SPEAKERS = [
         self::USER,
@@ -24,6 +25,7 @@ class Intent extends ConversationObject
     ];
 
     protected ?Turn $turn;
+    protected bool $isRequestIntent;
     protected ?string $speaker;
     protected ?float $confidence;
 
@@ -48,6 +50,22 @@ class Intent extends ConversationObject
     public function getTurn(): ?Turn
     {
         return $this->turn;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRequestIntent(): bool
+    {
+        return $this->isRequestIntent;
+    }
+
+    /**
+     * @param bool $isRequestIntent
+     */
+    public function setIsRequestIntent(bool $isRequestIntent): void
+    {
+        $this->isRequestIntent = $isRequestIntent;
     }
 
     public function setSpeaker(string $speaker)
@@ -165,6 +183,7 @@ class Intent extends ConversationObject
     {
         $intent = new self();
         $intent->setODId('intent.core.NoMatch');
+        $intent->setIsRequestIntent(true);
         return $intent;
     }
 

@@ -140,6 +140,10 @@ class ConversationEngine implements ConversationEngineInterface
             $intent->getODId()
         );
         ContextService::saveAttribute(
+            $conversationContextId .'.'.Intent::INTENT_IS_REQUEST,
+            $intent->isRequestIntent()
+        );
+        ContextService::saveAttribute(
             $conversationContextId .'.'.Intent::CURRENT_SPEAKER,
             $intent->getSpeaker()
         );
