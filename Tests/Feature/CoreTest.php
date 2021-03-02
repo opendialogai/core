@@ -2,7 +2,17 @@
 
 namespace OpenDialogAi\Core\Tests\Feature;
 
-use OpenDialogAi\ConversationEngine\ConversationEngineInterface;
+use OpenDialogAi\ConversationEngine\Facades\Selectors\ConversationSelector;
+use OpenDialogAi\ConversationEngine\Facades\Selectors\IntentSelector;
+use OpenDialogAi\ConversationEngine\Facades\Selectors\ScenarioSelector;
+use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
+use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
+use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\IntentCollection;
+use OpenDialogAi\Core\Conversation\Scenario;
+use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\RequestLog;
 use OpenDialogAi\Core\ResponseLog;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -29,9 +39,9 @@ class CoreTest extends TestCase
 
         // Create a message and assign it to an intent
         // Ensure that we can create an intent.
-        OutgoingIntent::create(['name' => 'intent.core.NoMatch']);
-        $intent = OutgoingIntent::where('name', 'intent.core.NoMatch')->first();
-        $this->assertEquals('intent.core.NoMatch', $intent->name);
+        OutgoingIntent::create(['name' => 'intent.core.NoMatchResponse']);
+        $intent = OutgoingIntent::where('name', 'intent.core.NoMatchResponse')->first();
+        $this->assertEquals('intent.core.NoMatchResponse', $intent->name);
 
         $markUp = (new MessageMarkUpGenerator())->addTextMessage('Friendly Reply.');
         $messageTemplate = MessageTemplate::create(
@@ -50,6 +60,39 @@ class CoreTest extends TestCase
         // Ensure we can get a OutgoingIntent's MessageTemplates.
         $this->assertTrue($intent->messageTemplates->contains($messageTemplate));
 
+        // Mock selectors
+        $scenario = new Scenario();
+        $scenario->setODId('test_scenario1');
+
+        ScenarioSelector::shouldReceive('selectScenarioById')
+            ->once()
+            ->andReturn($scenario);
+
+        $conversation = new Conversation($scenario);
+        $conversation->setODId('no_match_conversation');
+        ConversationSelector::shouldReceive('selectConversationById')
+            ->once()
+            ->andReturn($conversation);
+
+        $scene = new Scene($conversation);
+        $scene->setODId('starting_scene');
+        SceneSelector::shouldReceive('selectSceneById')
+            ->once()
+            ->andReturn($scene);
+
+        $turn = new Turn($scene);
+        $turn->setODId('starting_turn');
+        TurnSelector::shouldReceive('selectTurnById')
+            ->once()
+            ->andReturn($turn);
+
+        $noMatchResponseIntent = new Intent($turn, Intent::APP);
+        $noMatchResponseIntent->setODId('intent.core.NoMatchResponse');
+        $noMatchResponseIntent->setConfidence(1);
+
+        IntentSelector::shouldReceive('selectResponseIntents')
+            ->once()
+            ->andReturn(new IntentCollection([$noMatchResponseIntent]));
 
         // Send a message to /incoming/webchat
         $response = $this->json('POST', '/incoming/webchat', [
