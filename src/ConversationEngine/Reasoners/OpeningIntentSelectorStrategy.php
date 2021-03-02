@@ -3,17 +3,13 @@
 
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
-use OpenDialogAi\ContextEngine\Exceptions\ScopeNotSetException;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
-use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Intent;
-use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
-use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Conversation\Turn;
 
 /**
  * The OpeningIntentSelector drills down from Scenarios to Intents to find an appropriate opening
@@ -51,11 +47,12 @@ class OpeningIntentSelectorStrategy
         // conditions.
         $intents = StartingIntentSelector::selectStartingIntents($turns);
 
-        // Finally out of all the matching intents select the one with the highest confidence.
-        /* @var Intent $intent */
-        $intent = IntentRanker::getTopRankingIntent($intents);
-
-        return $intent;
+        try {
+            // Finally out of all the matching intents select the one with the highest confidence.
+            return IntentRanker::getTopRankingIntent($intents);
+        } catch (EmptyCollectionException $e) {
+            return Intent::createNoMatchIntent();
+        }
     }
 
 }
