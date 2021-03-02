@@ -67,9 +67,9 @@ class SelectorTest extends TestCase
      */
     public function testIntentSelectorSelectRequestIntents()
     {
-        $intent1 = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
-        $intent2 = ConversationGenerator::createAppIntent('intent_2', $this->passingConditions);
-        $intent3 = ConversationGenerator::createAppIntent('intent_3', $this->passingConditions);
+        $intent1 = ConversationGenerator::createUserIntent('intent_1', $this->failingConditions);
+        $intent2 = ConversationGenerator::createUserIntent('intent_2', $this->passingConditions);
+        $intent3 = ConversationGenerator::createUserIntent('intent_3', $this->passingConditions);
 
         $intents = new IntentCollection([$intent1, $intent2, $intent3]);
 
@@ -107,9 +107,9 @@ class SelectorTest extends TestCase
      */
     public function testIntentSelectorSelectResponseIntents()
     {
-        $intent1 = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
-        $intent2 = ConversationGenerator::createAppIntent('intent_2', $this->passingConditions);
-        $intent3 = ConversationGenerator::createAppIntent('intent_3', $this->passingConditions);
+        $intent1 = ConversationGenerator::createUserIntent('intent_1', $this->failingConditions);
+        $intent2 = ConversationGenerator::createUserIntent('intent_2', $this->passingConditions);
+        $intent3 = ConversationGenerator::createUserIntent('intent_3', $this->passingConditions);
 
         $intents = new IntentCollection([$intent1, $intent2, $intent3]);
 
@@ -147,9 +147,9 @@ class SelectorTest extends TestCase
      */
     public function testIntentSelectorSelectRequestIntentsById()
     {
-        $intent1Passing = ConversationGenerator::createAppIntent('intent_1', $this->passingConditions);
-        $intent1Failing = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
-        $intent1PassingWrongInterpreted = ConversationGenerator::createAppIntent('intent_1', $this->failingConditions);
+        $intent1Passing = ConversationGenerator::createUserIntent('intent_1', $this->passingConditions);
+        $intent1Failing = ConversationGenerator::createUserIntent('intent_1', $this->failingConditions);
+        $intent1PassingWrongInterpreted = ConversationGenerator::createUserIntent('intent_1', $this->failingConditions);
 
         $intents = new IntentCollection([$intent1Passing, $intent1Failing, $intent1PassingWrongInterpreted]);
 
