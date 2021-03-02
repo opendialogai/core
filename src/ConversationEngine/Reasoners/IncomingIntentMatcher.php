@@ -14,9 +14,11 @@ use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
 use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
 use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
+use OpenDialogAi\Core\Conversation\SceneCollection;
 
 class IncomingIntentMatcher
 {
@@ -41,7 +43,31 @@ class IncomingIntentMatcher
 
     private static function asRequestIntent(): Intent
     {
-        return new Intent();
+        $scenario = ScenarioSelector::selectScenarioById(MatcherUtil::currentScenarioId(), true);
+
+        try {
+            $conversation = ConversationSelector::selectConversationById(
+                new ScenarioCollection([$scenario]),
+                MatcherUtil::currentConversationId()
+            );
+
+            $scene = SceneSelector::selectSceneById(
+                new ConversationCollection([$conversation]),
+                MatcherUtil::currentSceneId()
+            );
+
+            $turns = TurnSelector::selectTurns(
+                new SceneCollection([$scene]),
+                MatcherUtil::currentTurnId()
+            );
+
+            $intents = IntentSelector::selectRequestIntents($turns);
+
+            return IntentRanker::getTopRankingIntent($intents);
+        } catch (EmptyCollectionException $e) {
+            Log::debug('No incoming intent selected');
+            throw new NoMatchingIntentsException();
+        }
     }
 
     private static function asResponseIntent(): Intent
@@ -84,7 +110,7 @@ class IncomingIntentMatcher
             // Finally out of all the matching intents select the one with the highest confidence.
             return IntentRanker::getTopRankingIntent($intents);
         } catch (EmptyCollectionException $e) {
-            Log::debug('No opening intent selected');
+            Log::debug('No opening incoming intent selected');
             throw new NoMatchingIntentsException();
         }
     }
