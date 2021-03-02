@@ -120,7 +120,7 @@ class IntentSelector
         }
 
         /** @var IntentCollection $intentsWithPassingConditions */
-        $intentsWithPassingConditions = ConditionFilter::filterObjects($intents);
+        $intentsWithPassingConditions = ConditionFilter::filterObjects($intents, $shouldInterpret);
 
         return $intentsWithPassingConditions;
     }

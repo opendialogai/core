@@ -4,7 +4,7 @@ namespace OpenDialogAi\ContextEngine\Contexts\Intent;
 
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
-use OpenDialogAi\ContextEngine\Contexts\BaseContext;
+use OpenDialogAi\Core\Conversation\Intent;
 
 class IntentContext extends AbstractContext
 {
@@ -20,6 +20,14 @@ class IntentContext extends AbstractContext
     public function __construct()
     {
         parent::__construct();
+    }
+
+    public function populate(Intent $intent): void
+    {
+        /** @var Attribute $attribute */
+        foreach ($intent->getAttributes() as $attribute) {
+            $this->addAttribute($attribute->copy());
+        }
     }
 
     public function refresh(): void

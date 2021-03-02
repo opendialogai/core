@@ -4,9 +4,12 @@
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
 
+use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationObject;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\ODObjectCollection;
 use OpenDialogAi\OperationEngine\Facade\OperationService;
 
@@ -14,12 +17,27 @@ class ConditionFilter
 {
     /**
      * @param ODObjectCollection $objects
+     * @param bool $populateIntentContext
      * @return ODObjectCollection
      */
-    public static function filterObjects(ODObjectCollection $objects): ODObjectCollection
+    public static function filterObjects(ODObjectCollection $objects, bool $populateIntentContext = false): ODObjectCollection
     {
-        return $objects->filter(function (ConversationObject $object) {
-            return self::checkConditionsForObject($object);
+        /** @var IntentContext|null $intentContext */
+        $intentContext = $populateIntentContext ? ContextService::getContext(IntentContext::getComponentId()) : null;
+
+        return $objects->filter(function (ConversationObject $object) use ($intentContext) {
+            if (!is_null($intentContext)) {
+                /** @var Intent $object */
+                $intentContext->populate($object->getInterpretation());
+            }
+
+            $conditionResult = self::checkConditionsForObject($object);
+
+            if (!is_null($intentContext)) {
+                $intentContext->refresh();
+            }
+
+            return $conditionResult;
         });
     }
 
