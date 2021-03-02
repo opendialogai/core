@@ -23,21 +23,27 @@ use OpenDialogAi\Core\Conversation\SceneCollection;
 class IncomingIntentMatcher
 {
     /**
+     * Returns a single matching incoming intent, determined by the utterance and conversation context. Depending on
+     * whether the user is in an ongoing conversation, and whether the user is in a turn request or turn response, will
+     * determine how the matching is performed.
+     *
      * @return Intent
      * @throws NoMatchingIntentsException
      */
     public static function matchIncomingIntent(): Intent
     {
-        if (!MatcherUtil::currentIntentIsRequest()) {
-            // if "current" (at this point the current data is actually the previous data) intent isn't a request it
-            // means we previously dealt with a response (or this is a non-ongoing conversation)
-            if (MatcherUtil::currentConversationId() == Conversation::UNDEFINED) {
-                return self::asStartingRequestIntent();
+        if (MatcherUtil::currentConversationId() == Conversation::UNDEFINED) {
+            // Its a non-ongoing conversation
+            return self::asStartingRequestIntent();
+        } else {
+            // Its an ongoing conversation
+            if (MatcherUtil::currentIntentIsRequest()) {
+                // if "current" intent (at this point the current data is actually the previous data) is a request it
+                // means we previously dealt with a request
+                return self::asResponseIntent();
             } else {
                 return self::asRequestIntent();
             }
-        } else {
-            return self::asResponseIntent();
         }
     }
 
