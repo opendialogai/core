@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
@@ -23,44 +22,9 @@ use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\Turn;
-use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
-use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConversationEngine implements ConversationEngineInterface
 {
-    /* @var InterpreterServiceInterface */
-    private $interpreterService;
-
-    /* @var OperationServiceInterface */
-    private $operationService;
-
-    /* @var ActionEngineInterface */
-    private $actionEngine;
-
-    /**
-     * @param InterpreterServiceInterface $interpreterService
-     */
-    public function setInterpreterService(InterpreterServiceInterface $interpreterService): void
-    {
-        $this->interpreterService = $interpreterService;
-    }
-
-    /**
-     * @param OperationServiceInterface $operationService
-     */
-    public function setOperationService(OperationServiceInterface $operationService): void
-    {
-        $this->operationService = $operationService;
-    }
-
-    /**
-     * @param ActionEngineInterface $actionEngine
-     */
-    public function setActionEngine(ActionEngineInterface $actionEngine): void
-    {
-        $this->actionEngine = $actionEngine;
-    }
-
     public function getNextIntents(UtteranceAttribute $utterance): IntentCollection
     {
         // We start by setting the request intent to a no match and the possible response intents
