@@ -51,7 +51,7 @@ class IncomingIntentMatcherTest extends TestCase
         IncomingIntentMatcher::matchIncomingIntent();
     }
 
-    public function testBasicAsRequestMatch()
+    public function testNonOngoingAsRequestMatch()
     {
         // Mock selectors, a request intent will be selected
         $intent = new Intent();

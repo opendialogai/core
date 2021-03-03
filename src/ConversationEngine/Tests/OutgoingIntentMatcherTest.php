@@ -16,10 +16,12 @@ use OpenDialogAi\ConversationEngine\Reasoners\OutgoingIntentMatcher;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\Core\Tests\TestCase;
@@ -47,7 +49,7 @@ class OutgoingIntentMatcherTest extends TestCase
         OutgoingIntentMatcher::matchOutgoingIntent();
     }
 
-    public function testBasicAsResponseMatch()
+    public function testOngoingAsResponseMatch()
     {
         // Mock selectors, a response intent will be selected
         $intent = new Intent();
@@ -81,6 +83,20 @@ class OutgoingIntentMatcherTest extends TestCase
         $this->updateStateToOngoingForRequests();
 
         $this->assertSame($desiredIntent, OutgoingIntentMatcher::matchOutgoingIntent());
+    }
+
+    public function testNonOngoingAsRequestMatch()
+    {
+        // Mock selectors, a request intent will be selected
+        $intent = new Intent();
+        $intent->setODId(self::TEST_INTENT_1_INPUT);
+        $intents = new IntentCollection([$intent]);
+        $this->mockSelectorsForOutgoingStartingRequest($intents);
+
+        // Set conversational state
+        $this->updateStateToUndefined();
+
+        $this->assertSame($intent, OutgoingIntentMatcher::matchOutgoingIntent());
     }
 
     private function updateStateToOngoingForResponses()
@@ -148,6 +164,40 @@ class OutgoingIntentMatcherTest extends TestCase
         ContextService::saveAttribute(
             $conversationContextId .'.'.Intent::CURRENT_SPEAKER,
             Intent::USER
+        );
+    }
+
+    private function updateStateToUndefined()
+    {
+        $conversationContextId = ConversationContext::getComponentId();
+
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Scenario::CURRENT_SCENARIO,
+            self::TEST_SCENARIO_1
+        );
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Conversation::CURRENT_CONVERSATION,
+            Conversation::UNDEFINED
+        );
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Scene::CURRENT_SCENE,
+            Scene::UNDEFINED
+        );
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Turn::CURRENT_TURN,
+            Turn::UNDEFINED
+        );
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Intent::CURRENT_INTENT,
+            Intent::UNDEFINED
+        );
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Intent::INTENT_IS_REQUEST,
+            false
+        );
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Intent::CURRENT_SPEAKER,
+            Intent::UNDEFINED
         );
     }
 
@@ -290,5 +340,40 @@ class OutgoingIntentMatcherTest extends TestCase
             ->andReturn($intents);
 
         return $desiredIntent;
+    }
+
+    /**
+     * @param IntentCollection $intents
+     */
+    private function mockSelectorsForOutgoingStartingRequest(IntentCollection $intents): void
+    {
+        $scenario = new Scenario();
+        $scenario->setODId(self::TEST_SCENARIO_1);
+
+        ScenarioSelector::shouldReceive('selectScenarioById')
+            ->once()
+            ->andReturn($scenario);
+
+        $conversation = new Conversation();
+        $conversation->setODId(self::TEST_CONVERSATION_1);
+        ConversationSelector::shouldReceive('selectStartingConversations')
+            ->once()
+            ->andReturn(new ConversationCollection([$conversation]));
+
+        $scene = new Scene();
+        $scene->setODId(self::TEST_SCENE_1);
+        SceneSelector::shouldReceive('selectStartingScenes')
+            ->once()
+            ->andReturn(new SceneCollection([$scene]));
+
+        $turn = new Turn();
+        $turn->setODId(self::TEST_TURN_1);
+        TurnSelector::shouldReceive('selectStartingTurns')
+            ->once()
+            ->andReturn(new TurnCollection([$turn]));
+
+        IntentSelector::shouldReceive('selectResponseIntents')
+            ->once()
+            ->andReturn($intents);
     }
 }
