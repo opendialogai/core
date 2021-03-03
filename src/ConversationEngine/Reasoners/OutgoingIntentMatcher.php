@@ -18,6 +18,7 @@ use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 use OpenDialogAi\Core\Conversation\SceneCollection;
+use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 
 class OutgoingIntentMatcher
@@ -65,7 +66,32 @@ class OutgoingIntentMatcher
      */
     private static function asRequestIntent(): Intent
     {
-        return new Intent();
+        $scenario = ScenarioSelector::selectScenarioById(MatcherUtil::currentScenarioId(), true);
+
+        $conversation = ConversationSelector::selectConversationById(
+            new ScenarioCollection([$scenario]),
+            MatcherUtil::currentConversationId()
+        );
+
+        $scene = SceneSelector::selectSceneById(
+            new ConversationCollection([$conversation]),
+            MatcherUtil::currentSceneId()
+        );
+
+        $openTurns = TurnSelector::selectOpenTurns(new SceneCollection([$scene]));
+        $turnsWithMatchingValidOrigin = TurnSelector::selectTurnsByValidOrigin(
+            new SceneCollection([$scene]),
+            MatcherUtil::currentIntentId()
+        );
+
+        $turns = $openTurns->concat($turnsWithMatchingValidOrigin);
+        $turns = $turns->unique(function (Turn $turn) {
+            return $turn->getODId();
+        });
+
+        $intents = IntentSelector::selectResponseIntents($turns, false);
+
+        return $intents->first();
     }
 
     /**
