@@ -13,6 +13,7 @@ use OpenDialogAi\ConversationEngine\Facades\Selectors\ScenarioSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
 use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -22,42 +23,84 @@ use OpenDialogAi\Core\Conversation\TurnCollection;
 class OutgoingIntentMatcher
 {
     /**
+     * Returns a single matching outgoing intent, determined by the conversation context. Depending on whether the user
+     * is in an ongoing conversation, and whether the user is in a turn request or turn response, will determine how
+     * the matching is performed.
+     *
      * @return Intent
      * @throws NoMatchingIntentsException
      */
     public static function matchOutgoingIntent(): Intent
     {
-        $scenario = ScenarioSelector::selectScenarioById(MatcherUtil::currentScenarioId(), true);
-
         try {
-            $conversation = ConversationSelector::selectConversationById(
-                new ScenarioCollection([$scenario]),
-                MatcherUtil::currentConversationId(),
-                true
-            );
-
-            $scene = SceneSelector::selectSceneById(
-                new ConversationCollection([$conversation]),
-                MatcherUtil::currentSceneId(),
-                true
-            );
-
-            $turn = TurnSelector::selectTurnById(
-                new SceneCollection([$scene]),
-                MatcherUtil::currentTurnId(),
-                true
-            );
-
-            $intents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]), false);
-
-            if ($intents->isEmpty()) {
-                throw new NoMatchingIntentsException();
+            if (MatcherUtil::currentConversationId() == Conversation::UNDEFINED) {
+                // Its a non-ongoing conversation
+                return self::asStartingRequestIntent();
+            } else {
+                // Its an ongoing conversation
+                if (MatcherUtil::currentIntentIsRequest()) {
+                    // if "current" intent (at this point the current data is actually the previous data) is a request it
+                    // means we previously dealt with a request
+                    return self::asResponseIntent();
+                } else {
+                    return self::asRequestIntent();
+                }
             }
-
-            return $intents->first();
         } catch (EmptyCollectionException $e) {
-            Log::debug('No opening intent selected');
+            Log::debug('No outgoing intent selected');
             throw new NoMatchingIntentsException();
         }
+    }
+
+    /**
+     * @return Intent
+     */
+    private static function asStartingRequestIntent(): Intent
+    {
+        return new Intent();
+    }
+
+    /**
+     * @return Intent
+     */
+    private static function asRequestIntent(): Intent
+    {
+        return new Intent();
+    }
+
+    /**
+     * @return Intent
+     * @throws NoMatchingIntentsException
+     * @throws EmptyCollectionException
+     */
+    private static function asResponseIntent(): Intent
+    {
+        $scenario = ScenarioSelector::selectScenarioById(MatcherUtil::currentScenarioId(), true);
+
+        $conversation = ConversationSelector::selectConversationById(
+            new ScenarioCollection([$scenario]),
+            MatcherUtil::currentConversationId(),
+            true
+        );
+
+        $scene = SceneSelector::selectSceneById(
+            new ConversationCollection([$conversation]),
+            MatcherUtil::currentSceneId(),
+            true
+        );
+
+        $turn = TurnSelector::selectTurnById(
+            new SceneCollection([$scene]),
+            MatcherUtil::currentTurnId(),
+            true
+        );
+
+        $intents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]), false);
+
+        if ($intents->isEmpty()) {
+            throw new NoMatchingIntentsException();
+        }
+
+        return $intents->first();
     }
 }
