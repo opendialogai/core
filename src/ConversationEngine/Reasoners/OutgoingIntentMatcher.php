@@ -16,6 +16,7 @@ use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
+use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\Turn;
@@ -58,7 +59,36 @@ class OutgoingIntentMatcher
      */
     private static function asStartingRequestIntent(): Intent
     {
-        return new Intent();
+        $currentScenarioId = MatcherUtil::currentScenarioId();
+        $scenarios = new ScenarioCollection();
+
+        if ($currentScenarioId == Scenario::UNDEFINED) {
+            $scenarios = ScenarioSelector::selectScenarios(true);
+        } else {
+            $scenario = ScenarioSelector::selectScenarioById($currentScenarioId, true);
+            $scenarios->addObject($scenario);
+        }
+
+        // Select valid conversations out of those scenarios - valid conversations will have the "starting" behavior
+        // and their conditions will pass.
+        $conversations = ConversationSelector::selectStartingConversations($scenarios);
+
+        // Select valid scenes out of the opening conversations - valid scenes will have the "starting" behavior
+        // and their conditions will pass
+        $scenes = SceneSelector::selectStartingScenes($conversations);
+
+        // Select valid turns out of the opening conversations - valid turns will have the "starting"
+        $turns = TurnSelector::selectStartingTurns($scenes);
+
+        // Select valid intents out of the valid turns. Valid intents will have passing conditions.
+        $intents = IntentSelector::selectResponseIntents($turns, true);
+
+        if ($intents->isEmpty()) {
+            throw new NoMatchingIntentsException();
+        }
+
+        // Finally out of all the matching intents select one
+        return $intents->first();
     }
 
     /**
@@ -90,6 +120,10 @@ class OutgoingIntentMatcher
         });
 
         $intents = IntentSelector::selectResponseIntents($turns, false);
+
+        if ($intents->isEmpty()) {
+            throw new NoMatchingIntentsException();
+        }
 
         return $intents->first();
     }
