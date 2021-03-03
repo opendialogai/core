@@ -36,6 +36,9 @@ class OutgoingIntentMatcherTest extends TestCase
     const TEST_TURN_2 = 'test_turn2';
     const TEST_INTENT_2_OUTPUT = 'test_intent2_output';
 
+    /**
+     * Tests that if there are no returned intents that a NoMatchIntentsException is thrown
+     */
     public function testNoMatchingIntents()
     {
         // Mock selectors, no response intents will be selected
@@ -49,6 +52,10 @@ class OutgoingIntentMatcherTest extends TestCase
         OutgoingIntentMatcher::matchOutgoingIntent();
     }
 
+    /**
+     * Tests that an outgoing intent is matched if there was just an incoming request intent matched, which means we are
+     * looking to match an outgoing intent as the current turn's response intent
+     */
     public function testOngoingAsResponseMatch()
     {
         // Mock selectors, a response intent will be selected
@@ -63,6 +70,10 @@ class OutgoingIntentMatcherTest extends TestCase
         $this->assertSame($intent, OutgoingIntentMatcher::matchOutgoingIntent());
     }
 
+    /**
+     * Tests that an outgoing intent is matched via open turns if there was just an incoming response intent matched,
+     * which means we are looking to match an outgoing intent as a new turn's request intent
+     */
     public function testOngoingAsRequestMatchWithOpenTurns()
     {
         // Mock selectors, a request intent will be selected
@@ -74,6 +85,10 @@ class OutgoingIntentMatcherTest extends TestCase
         $this->assertSame($desiredIntent, OutgoingIntentMatcher::matchOutgoingIntent());
     }
 
+    /**
+     * Tests that an outgoing intent is matched via valid origins if there was just an incoming response intent matched,
+     * which means we are looking to match an outgoing intent as a new turn's request intent
+     */
     public function testOngoingAsRequestMatchWithValidOrigin()
     {
         // Mock selectors, a request intent will be selected
@@ -85,6 +100,10 @@ class OutgoingIntentMatcherTest extends TestCase
         $this->assertSame($desiredIntent, OutgoingIntentMatcher::matchOutgoingIntent());
     }
 
+    /**
+     * Tests that an outgoing intent is matched if there is not an ongoing conversation, which would happen if an
+     * incoming intent has the completing behaviour
+     */
     public function testNonOngoingAsRequestMatch()
     {
         // Mock selectors, a request intent will be selected

@@ -38,6 +38,9 @@ class IncomingIntentMatcherTest extends TestCase
     const TEST_TURN_2 = 'test_turn2';
     const TEST_INTENT_2_INPUT = 'test_intent2_input';
 
+    /**
+     * Tests that if there are no returned intents that a NoMatchIntentsException is thrown
+     */
     public function testNoMatchingIntents()
     {
         // Mock selectors, no request intents will be selected
@@ -51,6 +54,10 @@ class IncomingIntentMatcherTest extends TestCase
         IncomingIntentMatcher::matchIncomingIntent();
     }
 
+    /**
+     * Tests that an incoming intent is matched if there is not an ongoing conversation which would happen if an
+     * outgoing intent has the completing behaviour, or if the user is completely new
+     */
     public function testNonOngoingAsRequestMatch()
     {
         // Mock selectors, a request intent will be selected
@@ -65,6 +72,10 @@ class IncomingIntentMatcherTest extends TestCase
         $this->assertSame($intent, IncomingIntentMatcher::matchIncomingIntent());
     }
 
+    /**
+     * Tests that an incoming intent is matched via open turns if there was just an outgoing response intent matched,
+     * which means we are looking to match an incoming intent as a new turn's request intent
+     */
     public function testOngoingAsRequestMatchWithOpenTurns()
     {
         // Mock selectors, a request intent will be selected
@@ -76,6 +87,10 @@ class IncomingIntentMatcherTest extends TestCase
         $this->assertSame($desiredIntent, IncomingIntentMatcher::matchIncomingIntent());
     }
 
+    /**
+     * Tests that an incoming intent is matched via valid origins if there was just an outgoing rsponse intent matched,
+     * which means we are looking to match an incoming intent as a new turn's request intente
+     */
     public function testOngoingAsRequestMatchWithValidOrigin()
     {
         // Mock selectors, a request intent will be selected
@@ -87,6 +102,10 @@ class IncomingIntentMatcherTest extends TestCase
         $this->assertSame($desiredIntent, IncomingIntentMatcher::matchIncomingIntent());
     }
 
+    /**
+     * Tests that an incoming intent is matched if there was just an outgoing request intent matched, which means we are
+     * looking to match an incoming intent as the current turn's response intent
+     */
     public function testOngoingAsResponseMatch()
     {
         // Mock selectors, a request intent will be selected
