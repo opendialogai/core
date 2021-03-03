@@ -61,4 +61,12 @@ class MatcherUtil
             ConversationContext::getComponentId()
         )->getValue();
     }
+
+    public static function currentSpeaker(): string
+    {
+        return ContextService::getAttribute(
+            Intent::CURRENT_SPEAKER,
+            ConversationContext::getComponentId()
+        )->getValue();
+    }
 }

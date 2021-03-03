@@ -16,6 +16,7 @@ use OpenDialogAi\ConversationEngine\Reasoners\ConversationalStateReasoner;
 use OpenDialogAi\ConversationEngine\Reasoners\IncomingIntentMatcher;
 use OpenDialogAi\ConversationEngine\Reasoners\OutgoingIntentMatcher;
 use OpenDialogAi\ConversationEngine\Reasoners\UtteranceReasoner;
+use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
@@ -75,11 +76,11 @@ class ConversationEngine implements ConversationEngineInterface
             ConversationalStateReasoner::determineConversationalStateForUser($currentUser);
 
             $incomingIntent = IncomingIntentMatcher::matchIncomingIntent();
-            $this->updateState($incomingIntent);
         } catch (NoMatchingIntentsException $e) {
             Log::debug('No incoming intent matched, generating no-match intent');
         }
 
+        self::updateState($incomingIntent);
         ActionPerformer::performActionsForIntent($incomingIntent);
 
         try {
@@ -91,7 +92,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         if ($outgoingIntents->isNotEmpty()) {
             $outgoingIntent = $outgoingIntents->last();
-            $this->updateState($outgoingIntent);
+            self::updateState($outgoingIntent);
             ActionPerformer::performActionsForIntent($outgoingIntent);
         }
 
@@ -115,9 +116,21 @@ class ConversationEngine implements ConversationEngineInterface
         }
     }
 
-    protected function updateState(Intent $intent)
+    public static function updateState(Intent $intent)
     {
         $conversationContextId = ConversationContext::getComponentId();
+
+        $conversationId = $intent->getConversation()->getODId();
+        $sceneId = $intent->getScene()->getODId();
+        $turnId = $intent->getTurn()->getODId();
+        $intentId = $intent->getODId();
+
+        if ($intent->getBehaviors()->hasBehavior(Behavior::COMPLETING_BEHAVIOR)) {
+            $conversationId = Conversation::UNDEFINED;
+            $sceneId = Scene::UNDEFINED;
+            $turnId = Turn::UNDEFINED;
+            $intentId = Intent::UNDEFINED;
+        }
 
         ContextService::saveAttribute(
             $conversationContextId .'.'.Scenario::CURRENT_SCENARIO,
@@ -125,19 +138,19 @@ class ConversationEngine implements ConversationEngineInterface
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Conversation::CURRENT_CONVERSATION,
-            $intent->getConversation()->getODId()
+            $conversationId
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Scene::CURRENT_SCENE,
-            $intent->getScene()->getODId()
+            $sceneId
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Turn::CURRENT_TURN,
-            $intent->getTurn()->getODId()
+            $turnId
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Intent::CURRENT_INTENT,
-            $intent->getODId()
+            $intentId
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Intent::INTENT_IS_REQUEST,
