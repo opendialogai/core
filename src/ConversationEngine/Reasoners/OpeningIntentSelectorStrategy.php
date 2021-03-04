@@ -5,6 +5,7 @@ namespace OpenDialogAi\ConversationEngine\Reasoners;
 
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\ConversationEngine;
+use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scenario;
@@ -46,11 +47,12 @@ class OpeningIntentSelectorStrategy
         // conditions.
         $intents = IntentSelector::selectRequestIntents($turns);
 
-        // Finally out of all the matching intents select the one with the highest confidence.
-        /* @var Intent $intent */
-        $intent = IntentRanker::getTopRankingIntent($intents);
-
-        return $intent;
+        try {
+            // Finally out of all the matching intents select the one with the highest confidence.
+            return IntentRanker::getTopRankingIntent($intents);
+        } catch (EmptyCollectionException $e) {
+            return Intent::createNoMatchIntent();
+        }
     }
 
 }
