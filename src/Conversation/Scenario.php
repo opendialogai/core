@@ -24,6 +24,11 @@ class Scenario extends ConversationObject
         return $this->conversations;
     }
 
+    public function setConversations(ConversationCollection $conversations)
+    {
+        $this->conversations = $conversations;
+    }
+
     public function addConversation(Conversation $conversation)
     {
         $this->conversations->addObject($conversation);

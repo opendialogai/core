@@ -7,8 +7,8 @@ use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\ContextService\ContextParser;
-use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ContextEngine\ContextService\ParsedAttributeName;
+use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\Core\Components\Exceptions\InvalidComponentDataException;
 use OpenDialogAi\Core\Components\Exceptions\MissingRequiredComponentDataException;
 use OpenDialogAi\Core\Conversation\Condition;
@@ -96,7 +96,7 @@ class OperationService implements OperationServiceInterface
     /**
      * @inheritDoc
      */
-    public function checkCondition(Condition $condition)
+    public function checkCondition(Condition $condition): bool
     {
         $attributes = [];
 

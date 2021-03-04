@@ -2,15 +2,18 @@
 namespace OpenDialogAi\InterpreterEngine\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
+use OpenDialogAi\Core\Conversation\IntentCollection;
+use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 
+/**
+ * @method static IntentCollection interpret(string $interpreterName, UtteranceAttribute $utterance)
+ * @method static IntentCollection interpretDefaultInterpreter(UtteranceAttribute $utterance)
+ */
 class InterpreterService extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        /**
-         * @method static function interpret(string $interpreterName, UtteranceAttribute $utterance): IntentCollection
-         * @method static function interpretDefaultInterpreter(UtteranceAttribute $utterance): IntentCollection
-         */
-        return \OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface::class;
+        return InterpreterServiceInterface::class;
     }
 }

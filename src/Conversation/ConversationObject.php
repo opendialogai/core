@@ -141,6 +141,15 @@ class ConversationObject
     }
 
     /**
+     * @param ConditionCollection $conditions
+     * @return void
+     */
+    public function setConditions(ConditionCollection $conditions): void
+    {
+        $this->conditions = $conditions;
+    }
+
+    /**
      * Indicates whether an object is associates with behaviors.
      * @return bool
      */
@@ -155,11 +164,19 @@ class ConversationObject
 
     /**
      * Retrieves all behavior directives as an array.
-     * @return array
+     * @return BehaviorsCollection
      */
     public function getBehaviors(): BehaviorsCollection
     {
         return $this->behaviors;
+    }
+
+    /**
+     * @param BehaviorsCollection $behaviors
+     */
+    public function setBehaviors(BehaviorsCollection $behaviors): void
+    {
+        $this->behaviors = $behaviors;
     }
 
     /**
