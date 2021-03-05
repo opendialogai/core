@@ -12,6 +12,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Reflection\ReflectionServiceProvider;
+use OpenDialogAi\GraphQLClient\GraphQLClientServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\NlpEngine\NlpEngineServiceProvider;
@@ -58,6 +59,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
     {
         return [
             CoreServiceProvider::class,
+            GraphQLClientServiceProvider::class,
             ActionEngineServiceProvider::class,
 //            ConversationBuilderServiceProvider::class,
             ConversationEngineServiceProvider::class,
