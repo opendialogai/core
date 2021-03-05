@@ -12,7 +12,9 @@
     "justinrainbow/json-schema": "^5.2",
     "spatie/laravel-activitylog": "^3.8",
     "doctrine/dbal": "^2.11",
-    "ext-json": "*"
+    "ext-json": "*",
+    "symfony/serializer": "^5.2",
+    "symfony/property-access": "^5.2"
   },
   "config": {
     "preferred-install": "source"
