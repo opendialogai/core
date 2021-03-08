@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use DateTime;
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\Core\Conversation\Exceptions\InvalidSpeakerTypeException;
@@ -47,11 +46,6 @@ class Intent extends ConversationObject
     protected IntentCollection $interpretedIntents;
     protected Intent $interpretation;
 
-    public static function localFields() {
-        return array_merge(parent::localFields(), [self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::TRANSITION,
-            self::LISTENS_FOR, self::VIRTUAL_INTENTS, self::EXPECTED_ATTRIBUTES, self::ACTIONS]);
-    }
-
     public function __construct(?Turn $turn = null, ?string $speaker = null, ?string $interpreter = null)
     {
         parent::__construct();
@@ -62,6 +56,14 @@ class Intent extends ConversationObject
         $this->interpreter = $interpreter;
         $this->interpretedIntents = new IntentCollection();
         $this->actions = new ActionsCollection();
+    }
+
+    public static function localFields()
+    {
+        return array_merge(parent::localFields(), [
+            self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::TRANSITION, self::LISTENS_FOR, self::VIRTUAL_INTENTS,
+            self::EXPECTED_ATTRIBUTES, self::ACTIONS
+        ]);
     }
 
     public static function createNoMatchIntent(): Intent
@@ -195,7 +197,8 @@ class Intent extends ConversationObject
         return $this->turn;
     }
 
-    public function setTurn(Turn $turn): void {
+    public function setTurn(Turn $turn): void
+    {
         $this->turn = $turn;
     }
 
@@ -228,35 +231,43 @@ class Intent extends ConversationObject
         $this->sampleUtterance = $sampleUtterance;
     }
 
-    public function getTransition(): ?Transition {
+    public function getTransition(): ?Transition
+    {
         return $this->transition;
     }
 
-    public function setTransition(?Transition $transition): void {
+    public function setTransition(?Transition $transition): void
+    {
         $this->transition = $transition;
     }
 
-    public function getExpectedAttributes(): array {
+    public function getExpectedAttributes(): array
+    {
         return $this->expectedAttributes;
     }
 
-    public function setExpectedAttributes(array $expectedAttributes): void {
+    public function setExpectedAttributes(array $expectedAttributes): void
+    {
         $this->expectedAttributes = $expectedAttributes;
     }
 
-    public function getListensFor(): array {
+    public function getListensFor(): array
+    {
         return $this->listensFor;
     }
 
-    public function setListensFor(array $listensFor): void {
+    public function setListensFor(array $listensFor): void
+    {
         $this->listensFor = $listensFor;
     }
 
-    public function getVirtualIntents(): VirtualIntentCollection {
+    public function getVirtualIntents(): VirtualIntentCollection
+    {
         return $this->virtualIntents;
     }
 
-    public function setVirtualIntents(VirtualIntentCollection $virtualIntents): void {
+    public function setVirtualIntents(VirtualIntentCollection $virtualIntents): void
+    {
         $this->virtualIntents = $virtualIntents;
     }
 }

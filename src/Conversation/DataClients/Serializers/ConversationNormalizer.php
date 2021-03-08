@@ -5,23 +5,15 @@ namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\ConversationCollection;
-use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\SceneCollection;
-use Symfony\Component\Serializer\Exception\BadMethodCallException;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Exception\ExtraAttributesException;
-use Symfony\Component\Serializer\Exception\InvalidArgumentException;
-use Symfony\Component\Serializer\Exception\LogicException;
-use Symfony\Component\Serializer\Exception\RuntimeException;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class ConversationNormalizer extends ConversationObjectNormalizer
 {
     public function normalize($object, string $format = null, array $context = [])
     {
-        $context[AbstractNormalizer::CALLBACKS][Conversation::SCENARIO] = [ConversationObjectNormalizer::class, 'normalizeUidOnly'];
+        $context[AbstractNormalizer::CALLBACKS][Conversation::SCENARIO] =
+            [ConversationObjectNormalizer::class, 'normalizeUidOnly'];
         return parent::normalize($object, $format, $context);
     }
 
@@ -53,7 +45,7 @@ class ConversationNormalizer extends ConversationObjectNormalizer
         $conversation->setInterpreter($data['interpreter']);
         $conversation->setCreatedAt($createdAt);
         $conversation->setUpdatedAt($updatedAt);
-        foreach($scenes as $scene) {
+        foreach ($scenes as $scene) {
             $conversation->addScene($scene);
             $scene->setConversation($conversation);
         }

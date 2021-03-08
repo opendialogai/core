@@ -16,7 +16,7 @@ class ConditionCollectionNormalizer extends CollectionNormalizer
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
         $collection = new ConditionCollection();
-        foreach($data as $datum) {
+        foreach ($data as $datum) {
             $collection->add($this->serializer->denormalize($datum, Condition::class));
         }
         return $collection;

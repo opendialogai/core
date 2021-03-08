@@ -4,14 +4,12 @@ namespace OpenDialogAi\Core\Conversation;
 
 class Behavior
 {
-    protected string $behavior;
-
     const BEHAVIOR = 'behavior';
     const FIELDS = [self::BEHAVIOR];
-
     const STARTING = "STARTING";
     const OPEN = "OPEN";
     const COMPLETING = "COMPLETING";
+    protected string $behavior;
 
     public function __construct(string $behavior)
     {

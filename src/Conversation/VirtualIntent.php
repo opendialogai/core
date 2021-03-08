@@ -15,11 +15,13 @@ class VirtualIntent
         $this->intentId = $intentId;
     }
 
-    public function getSpeaker() {
+    public function getSpeaker()
+    {
         return $this->speaker;
     }
 
-    public function getIntentId() {
+    public function getIntentId()
+    {
         return $this->intentId;
     }
 

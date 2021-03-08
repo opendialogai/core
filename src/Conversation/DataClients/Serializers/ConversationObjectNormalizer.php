@@ -2,8 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
-use OpenDialogAi\Core\Conversation\Transition;
-use OpenDialogAi\Core\Conversation\VirtualIntent;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
@@ -12,11 +10,13 @@ use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-abstract class ConversationObjectNormalizer implements ContextAwareNormalizerInterface, SerializerAwareInterface, ContextAwareDenormalizerInterface
+abstract class ConversationObjectNormalizer
+    implements ContextAwareNormalizerInterface, SerializerAwareInterface, ContextAwareDenormalizerInterface
 {
     protected SerializerInterface $serializer;
 
-    public static function normalizeUidOnly($obj) {
+    public static function normalizeUidOnly($obj)
+    {
         return $obj ? $obj->getUid() : null;
     }
 
@@ -25,8 +25,7 @@ abstract class ConversationObjectNormalizer implements ContextAwareNormalizerInt
         $dateCallback = fn($obj) => $obj->format(\DateTime::ISO8601);
         $defaultContext = [
             AbstractNormalizer::CALLBACKS => [
-                'createdAt' => $dateCallback,
-                'updatedAt' => $dateCallback,
+                'createdAt' => $dateCallback, 'updatedAt' => $dateCallback,
             ]
         ];
 

@@ -28,25 +28,18 @@ class ConversationObject
     protected DateTime $createdAt;
     protected DateTime $updatedAt;
 
-
-    public static function localFields() {
-        return [
-            self::UID,
-            self::OD_ID,
-            self::NAME,
-            self::DESCRIPTION,
-            self::INTERPRETER,
-            self::CREATED_AT,
-            self::UPDATED_AT,
-            self::CONDITIONS => Condition::FIELDS,
-            self::BEHAVIORS => Behavior::FIELDS
-        ];
-    }
-
     public function __construct()
     {
         $this->conditions = new ConditionCollection();
         $this->behaviors = new BehaviorsCollection();
+    }
+
+    public static function localFields()
+    {
+        return [
+            self::UID, self::OD_ID, self::NAME, self::DESCRIPTION, self::INTERPRETER, self::CREATED_AT, self::UPDATED_AT,
+            self::CONDITIONS => Condition::FIELDS, self::BEHAVIORS => Behavior::FIELDS
+        ];
     }
 
     /**
@@ -155,7 +148,8 @@ class ConversationObject
      *
      * @param  ConditionCollection  $conditions
      */
-    public function setConditions(ConditionCollection $conditions): void {
+    public function setConditions(ConditionCollection $conditions): void
+    {
         $this->conditions = $conditions;
     }
 
@@ -238,28 +232,32 @@ class ConversationObject
     /**
      * @return DateTime
      */
-    public function getUpdatedAt() {
+    public function getUpdatedAt()
+    {
         return $this->updatedAt;
     }
 
     /**
      * @param  DateTime  $value
      */
-    public function setUpdatedAt(DateTime $value) {
+    public function setUpdatedAt(DateTime $value)
+    {
         $this->updatedAt = $value;
     }
 
     /**
      * @return DateTime
      */
-    public function getCreatedAt() {
+    public function getCreatedAt()
+    {
         return $this->createdAt;
     }
 
     /**
      * @param  DateTime  $value
      */
-    public function setCreatedAt(DateTime $value) {
+    public function setCreatedAt(DateTime $value)
+    {
         $this->createdAt = $value;
     }
 }

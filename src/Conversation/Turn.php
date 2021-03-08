@@ -1,7 +1,7 @@
 <?php
+
 namespace OpenDialogAi\Core\Conversation;
 
-use DateTime;
 use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 
 class Turn extends ConversationObject
@@ -23,18 +23,17 @@ class Turn extends ConversationObject
 
     protected array $validOrigins;
 
-
-    public static function localFields() {
-        return array_merge(parent::localFields(), self::VALID_ORIGINS);
-    }
-
-
     public function __construct(?Scene $scene = null)
     {
         parent::__construct();
         $this->requestIntents = new IntentCollection();
         $this->responseIntents = new IntentCollection();
         $this->scene = $scene;
+    }
+
+    public static function localFields()
+    {
+        return array_merge(parent::localFields(), self::VALID_ORIGINS);
     }
 
     public function hasRequestIntents(): bool
@@ -52,14 +51,14 @@ class Turn extends ConversationObject
         return $this->requestIntents;
     }
 
-    public function getResponseIntents(): IntentCollection
-    {
-        return $this->responseIntents;
-    }
-
     public function setRequestIntents(IntentCollection $intents)
     {
         $this->intents = $intents;
+    }
+
+    public function getResponseIntents(): IntentCollection
+    {
+        return $this->responseIntents;
     }
 
     public function setResponseIntents(IntentCollection $intents)
@@ -67,18 +66,9 @@ class Turn extends ConversationObject
         $this->intents = $intents;
     }
 
-    public function getScene(): ?Scene
-    {
-        return $this->scene;
-    }
-
-    public function setScene(Scene $scene): void {
-        $this->scene = $scene;
-    }
-
     public function addRequestIntent(Intent $intent)
     {
-        if($this->requestIntents === null) {
+        if ($this->requestIntents === null) {
             throw new InsufficientHydrationException("Field 'requestIntents' on Turn has not been hydrated.");
         }
         $this->requestIntents->addObject($intent);
@@ -86,7 +76,7 @@ class Turn extends ConversationObject
 
     public function addResponseIntent(Intent $intent)
     {
-        if($this->responseIntents === null) {
+        if ($this->responseIntents === null) {
             throw new InsufficientHydrationException("Field 'responseIntents' on Turn has not been hydrated.");
         }
         $this->responseIntents->addObject($intent);
@@ -109,18 +99,6 @@ class Turn extends ConversationObject
     }
 
     /**
-     * @return Conversation|null
-     */
-    public function getConversation(): ?Conversation
-    {
-        if ($this->getScene() != null) {
-            return $this->getScene()->getConversation();
-        }
-
-        return null;
-    }
-
-    /**
      * @return Scenario|null
      */
     public function getScenario(): ?Scenario
@@ -132,15 +110,40 @@ class Turn extends ConversationObject
         return null;
     }
 
-    public function hasValidOrigins(): bool {
+    /**
+     * @return Conversation|null
+     */
+    public function getConversation(): ?Conversation
+    {
+        if ($this->getScene() != null) {
+            return $this->getScene()->getConversation();
+        }
+
+        return null;
+    }
+
+    public function getScene(): ?Scene
+    {
+        return $this->scene;
+    }
+
+    public function setScene(Scene $scene): void
+    {
+        $this->scene = $scene;
+    }
+
+    public function hasValidOrigins(): bool
+    {
         return !empty($this->validOrigins);
     }
 
-    public function getValidOrigins(): array {
+    public function getValidOrigins(): array
+    {
         return $this->validOrigins;
     }
 
-    public function setValidOrigins(array $validOrigins): void {
+    public function setValidOrigins(array $validOrigins): void
+    {
         $this->validOrigins = $validOrigins;
     }
 }

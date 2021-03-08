@@ -10,21 +10,25 @@ class Transition
     protected ?string $scene;
     protected ?string $turn;
 
-    public function __construct(?string $conversation, ?string $scene, ?string $turn) {
+    public function __construct(?string $conversation, ?string $scene, ?string $turn)
+    {
         $this->conversation = $conversation;
         $this->scene = $scene;
         $this->turn = $turn;
     }
 
-    public function getConversation(): ?string {
+    public function getConversation(): ?string
+    {
         return $this->conversation;
     }
 
-    public function getScene(): ?string {
+    public function getScene(): ?string
+    {
         return $this->scene;
     }
 
-    public function getTurn(): ?string {
+    public function getTurn(): ?string
+    {
         return $this->turn;
     }
 }

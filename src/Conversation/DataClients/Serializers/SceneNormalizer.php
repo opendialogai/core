@@ -4,18 +4,8 @@ namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
-use OpenDialogAi\Core\Conversation\ConversationCollection;
-use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\TurnCollection;
-use Symfony\Component\Serializer\Exception\BadMethodCallException;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Exception\ExtraAttributesException;
-use Symfony\Component\Serializer\Exception\InvalidArgumentException;
-use Symfony\Component\Serializer\Exception\LogicException;
-use Symfony\Component\Serializer\Exception\RuntimeException;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class SceneNormalizer extends ConversationObjectNormalizer
@@ -54,7 +44,7 @@ class SceneNormalizer extends ConversationObjectNormalizer
         $scene->setInterpreter($data['interpreter']);
         $scene->setCreatedAt($createdAt);
         $scene->setUpdatedAt($updatedAt);
-        foreach($turns as $turn) {
+        foreach ($turns as $turn) {
             $scene->addTurn($turn);
             $turn->setScene($scene);
         }

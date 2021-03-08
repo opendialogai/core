@@ -12,16 +12,16 @@ class TurnCollectionNormalizer extends CollectionNormalizer
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
         $collection = new TurnCollection();
-        foreach($data as $datum) {
+        foreach ($data as $datum) {
             $collection->add($this->serializer->denormalize($datum, Turn::class));
         }
         return $collection;
     }
 
 
-     public function supportsDenormalization($data, string $type, string $format = null, array $context = [])
-     {
-             return $type === TurnCollection::class;
-     }
- }
+    public function supportsDenormalization($data, string $type, string $format = null, array $context = [])
+    {
+        return $type === TurnCollection::class;
+    }
+}
 

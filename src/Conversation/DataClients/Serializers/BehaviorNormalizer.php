@@ -4,16 +4,8 @@
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
 use OpenDialogAi\Core\Conversation\Behavior;
-use Symfony\Component\Serializer\Exception\BadMethodCallException;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Exception\ExtraAttributesException;
-use Symfony\Component\Serializer\Exception\InvalidArgumentException;
-use Symfony\Component\Serializer\Exception\LogicException;
-use Symfony\Component\Serializer\Exception\RuntimeException;
-use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class BehaviorNormalizer implements ContextAwareNormalizerInterface, DenormalizerInterface

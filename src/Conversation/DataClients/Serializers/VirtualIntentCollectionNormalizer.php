@@ -12,7 +12,6 @@ class VirtualIntentCollectionNormalizer extends CollectionNormalizer
     protected SerializerInterface $serializer;
 
 
-
     public function supportsDenormalization($data, string $type, string $format = null, array $context = [])
     {
         return $type === VirtualIntentCollection::class;
@@ -21,7 +20,7 @@ class VirtualIntentCollectionNormalizer extends CollectionNormalizer
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
         $collection = new VirtualIntentCollection();
-        foreach($data as $datum) {
+        foreach ($data as $datum) {
             $collection->add($this->serializer->denormalize($datum, VirtualIntent::class));
         }
         return $collection;

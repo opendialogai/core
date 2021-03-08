@@ -18,7 +18,7 @@ class BehaviorsCollectionNormalizer extends CollectionNormalizer
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
         $collection = new BehaviorsCollection();
-        foreach($data as $datum) {
+        foreach ($data as $datum) {
             $collection->add($this->serializer->denormalize($datum, Behavior::class));
         }
         return $collection;

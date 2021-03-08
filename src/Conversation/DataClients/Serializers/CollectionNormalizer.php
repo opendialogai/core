@@ -4,15 +4,13 @@
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
 use Illuminate\Support\Collection;
-use OpenDialogAi\Core\Conversation\Behavior;
-use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-abstract class CollectionNormalizer implements ContextAwareNormalizerInterface, ContextAwareDenormalizerInterface,
-SerializerAwareInterface
+abstract class CollectionNormalizer
+    implements ContextAwareNormalizerInterface, ContextAwareDenormalizerInterface, SerializerAwareInterface
 {
     protected SerializerInterface $serializer;
 

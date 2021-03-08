@@ -7,7 +7,6 @@ use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Turn;
-use OpenDialogAi\Core\Conversation\TurnCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class TurnNormalizer extends ConversationObjectNormalizer
@@ -50,11 +49,11 @@ class TurnNormalizer extends ConversationObjectNormalizer
         $turn->setUpdatedAt($updatedAt);
         $turn->setValidOrigins($data['valid_origins']);
 
-        foreach($requestIntents as $requestIntent) {
+        foreach ($requestIntents as $requestIntent) {
             $turn->addRequestIntent($requestIntent);
             $requestIntent->setTurn($turn);
         }
-        foreach($responseIntents as $responseIntent) {
+        foreach ($responseIntents as $responseIntent) {
             $turn->addRequestIntent($responseIntent);
             $responseIntent->setTurn($turn);
         }

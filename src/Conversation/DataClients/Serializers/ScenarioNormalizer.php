@@ -6,7 +6,6 @@ use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
-use OpenDialogAi\Core\Conversation\SceneCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class ScenarioNormalizer extends ConversationObjectNormalizer
@@ -47,7 +46,7 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
         $scenario->setUpdatedAt($updatedAt);
         $scenario->setActive($data['active']);
         $scenario->setStatus($data['status']);
-        foreach($conversations as $conversation) {
+        foreach ($conversations as $conversation) {
             $scenario->addConversation($conversation);
             $conversation->setScenario($scenario);
         }

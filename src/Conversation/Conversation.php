@@ -1,8 +1,8 @@
 <?php
+
 namespace OpenDialogAi\Core\Conversation;
 
 use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
-use \DateTime;
 
 class Conversation extends ConversationObject
 {
@@ -14,11 +14,6 @@ class Conversation extends ConversationObject
     protected SceneCollection $scenes;
     protected ?Scenario $scenario;
 
-
-    public static function localFields() {
-        return parent::localFields();
-    }
-
     public function __construct(?Scenario $scenario = null)
     {
         parent::__construct();
@@ -26,7 +21,12 @@ class Conversation extends ConversationObject
         $this->scenes = new SceneCollection();
     }
 
-    public function hasScenes():bool
+    public static function localFields()
+    {
+        return parent::localFields();
+    }
+
+    public function hasScenes(): bool
     {
         return $this->scenes->isNotEmpty();
     }
@@ -46,13 +46,14 @@ class Conversation extends ConversationObject
         return $this->scenario;
     }
 
-    public function setScenario(Scenario $scenario): void {
+    public function setScenario(Scenario $scenario): void
+    {
         $this->scenario = $scenario;
     }
 
     public function addScene(Scene $scene)
     {
-        if($this->scenes === null) {
+        if ($this->scenes === null) {
             throw new InsufficientHydrationException("Field 'scenes' on Conversation has not been hydrated.");
         }
         $this->scenes->addObject($scene);

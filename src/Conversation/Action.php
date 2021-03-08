@@ -13,9 +13,10 @@ class Action
 
     /**
      * Action constructor.
-     * @param string $odId
-     * @param Collection|null $inputAttributes
-     * @param Collection|null $outputAttributes
+     *
+     * @param  string           $odId
+     * @param  Collection|null  $inputAttributes
+     * @param  Collection|null  $outputAttributes
      */
     public function __construct(string $odId, ?Collection $inputAttributes = null, ?Collection $outputAttributes = null)
     {

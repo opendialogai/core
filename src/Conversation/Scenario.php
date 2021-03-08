@@ -1,34 +1,35 @@
 <?php
-namespace OpenDialogAi\Core\Conversation;
 
-use DateTime;
+namespace OpenDialogAi\Core\Conversation;
 
 class Scenario extends ConversationObject
 {
     public const CURRENT_SCENARIO = 'current_scenario';
     public const TYPE = 'scenario';
     public const CONVERSATIONS = 'conversations';
-
-    protected bool $active;
-    protected string $status;
-    protected ConversationCollection $conversations;
-
     public const ACTIVE = 'active';
     public const STATUS = 'status';
-
     public const DRAFT_STATUS = "DRAFT";
     public const PREVIEW_STATUS = "PREVIEW";
     public const LIVE_STATUS = "LIVE";
-
-    public static function localFields() {
-        return array_merge(parent::localFields(), [self::ACTIVE, self::STATUS]);
-    }
-
+    protected bool $active;
+    protected string $status;
+    protected ConversationCollection $conversations;
 
     public function __construct()
     {
         parent::__construct();
         $this->conversations = new ConversationCollection();
+    }
+
+    public static function allFields()
+    {
+        return array_merge(self::localFields(), [self::CONVERSATIONS]);
+    }
+
+    public static function localFields()
+    {
+        return array_merge(parent::localFields(), [self::ACTIVE, self::STATUS]);
     }
 
     public function hasConversations(): bool
@@ -59,7 +60,8 @@ class Scenario extends ConversationObject
         return null;
     }
 
-    public function setActive(bool $active) {
+    public function setActive(bool $active)
+    {
         $this->active = $active;
     }
 }

@@ -12,15 +12,15 @@ class ScenarioCollectionNormalizer extends CollectionNormalizer
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
         $collection = new ScenarioCollection();
-        foreach($data as $datum) {
+        foreach ($data as $datum) {
             $collection->add($this->serializer->denormalize($datum, Scenario::class));
         }
         return $collection;
     }
 
-     public function supportsDenormalization($data, string $type, string $format = null, array $context = [])
-     {
-             return $type === ScenarioCollection::class;
-     }
- }
+    public function supportsDenormalization($data, string $type, string $format = null, array $context = [])
+    {
+        return $type === ScenarioCollection::class;
+    }
+}
 

@@ -7,7 +7,6 @@ use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Transition;
-use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\VirtualIntentCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -17,7 +16,7 @@ class IntentNormalizer extends ConversationObjectNormalizer
     {
         $context[AbstractNormalizer::CALLBACKS][Intent::TURN] = [ConversationObjectNormalizer::class, 'normalizeUidOnly'];
 
-        $data =  parent::normalize($object, $format, $context);
+        $data = parent::normalize($object, $format, $context);
         unset($data['interpreted_intents']);
         unset($data['attributes']);
         return $data;
