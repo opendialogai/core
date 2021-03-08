@@ -76,7 +76,6 @@ type Intent implements ConversationObject {
     conditions: [Condition!]
     behaviors: [String!]
     interpreter: String
-    intentId: String!
     listens: [String!]
     confidence: Float!
     expected_attributes: [String!]
@@ -84,7 +83,7 @@ type Intent implements ConversationObject {
     turn: TurnIntent!
     speaker: ParticipantType!
     transition: Transition
-    virtual: [VirtualIntentReference!]
+    virtual: [VirtualIntent!]
     sample_utterance: String!
 }
 
@@ -101,7 +100,7 @@ type NamedAttributeReference {
     attribute_ref: String
 }
 
-type VirtualIntentReference {
+type VirtualIntent {
     speaker: ParticipantType!
     intentId: String!
 }
@@ -199,35 +198,10 @@ enum EditStatus {
 }
 
 
-type TurnTransition {
-    turn: String!
+type Transition {
+    conversation: String
+    scene: String
+    turn: String
 }
-
-type SceneTransition {
-    scene: String!
-}
-
-type SceneTurnTransition {
-    scene: String!
-    turn: String!
-}
-
-type ConversationTransition {
-    conversation: String!
-}
-
-type ConversationSceneTransition {
-    conversation: String!
-    scene: String!
-}
-
-type ConversationSceneTurnTransition {
-    conversation: String!
-    scene: String!
-    turn: String!
-}
-
-union Transition = TurnTransition | SceneTransition | SceneTurnTransition | ConversationTransition | ConversationSceneTransition | ConversationSceneTurnTransition
-
 
 
