@@ -6,6 +6,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionNormalizer;
+use OpenDialogAi\Core\Conversation\DataClients\Serializers\IntentCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\SceneNormalizer;
 
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\TurnNormalizer;
@@ -46,7 +47,7 @@ class TurnSerializationTest extends SerializationTestCase
 
     public function testDenormalizeStandaloneTurn() {
         $normalizers = [new TurnNormalizer(), new ConditionCollectionNormalizer(), new ConditionNormalizer(), new
-        BehaviorsCollectionNormalizer(), new BehaviorNormalizer()];
+        BehaviorsCollectionNormalizer(), new BehaviorNormalizer(), new IntentCollectionNormalizer()];
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 

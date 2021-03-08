@@ -42,13 +42,20 @@ class ConversationNormalizer extends ConversationObjectNormalizer
         $createdAt = new \DateTime($data['created_at']);
         $updatedAt = new \DateTime($data['updated_at']);
         $scenes = $this->serializer->denormalize($data['scenes'], SceneCollection::class);
-        $conversation = new Conversation($data['uid'], $data['od_id'], $data['name'], $data['description'], $conditions,
-        $behaviors,
-            $data['interpreter'], $createdAt, $updatedAt);
+
+        $conversation = new Conversation();
+        $conversation->setUid($data['uid']);
+        $conversation->setOdId($data['od_id']);
+        $conversation->setName($data['name']);
+        $conversation->setDescription($data['description']);
+        $conversation->setConditions($conditions);
+        $conversation->setBehaviors($behaviors);
+        $conversation->setInterpreter($data['interpreter']);
+        $conversation->setCreatedAt($createdAt);
+        $conversation->setUpdatedAt($updatedAt);
         foreach($scenes as $scene) {
             $conversation->addScene($scene);
             $scene->setConversation($conversation);
-
         }
         return $conversation;
     }

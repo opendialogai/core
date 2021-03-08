@@ -17,7 +17,10 @@ class IntentNormalizer extends ConversationObjectNormalizer
     {
         $context[AbstractNormalizer::CALLBACKS][Intent::TURN] = [ConversationObjectNormalizer::class, 'normalizeUidOnly'];
 
-        return parent::normalize($object, $format, $context);
+        $data =  parent::normalize($object, $format, $context);
+        unset($data['interpreted_intents']);
+        unset($data['attributes']);
+        return $data;
     }
 
     public function supportsNormalization($data, string $format = null, array $context = []): bool
@@ -39,9 +42,25 @@ class IntentNormalizer extends ConversationObjectNormalizer
         $transition = $this->serializer->denormalize($data['transition'], Transition::class);
         $virtualIntents = $this->serializer->denormalize($data['virtual_intents'], VirtualIntentCollection::class);
         $actions = new ActionsCollection(); /* TODO: Implement this */
-        return new Intent($data['uid'], $data['od_id'], $data['name'], $data['description'], $conditions, $behaviors,
-            $data['interpreter'], $createdAt, $updatedAt, $data['speaker'], $data['confidence'], $data['sample_utterance'],
-            $transition, $data['listens_for'], $virtualIntents, $data['expected_attributes'], $actions);
+        $intent = new Intent();
+        $intent->setUid($data['uid']);
+        $intent->setOdId($data['od_id']);
+        $intent->setName($data['name']);
+        $intent->setDescription($data['description']);
+        $intent->setConditions($conditions);
+        $intent->setBehaviors($behaviors);
+        $intent->setInterpreter($data['interpreter']);
+        $intent->setCreatedAt($createdAt);
+        $intent->setUpdatedAt($updatedAt);
+        $intent->setSpeaker($data['speaker']);
+        $intent->setConfidence($data['confidence']);
+        $intent->setSampleUtterance($data['sample_utterance']);
+        $intent->setTransition($transition);
+        $intent->setListensFor($data['listens_for']);
+        $intent->setVirtualIntents($virtualIntents);
+        $intent->setExpectedAttributes($data['expected_attributes']);
+        $intent->setActions($actions);
+        return $intent;
 
     }
 }

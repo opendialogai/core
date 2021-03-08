@@ -4,6 +4,8 @@ namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
+use OpenDialogAi\Core\Conversation\ConversationCollection;
+use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\TurnCollection;
@@ -41,12 +43,22 @@ class SceneNormalizer extends ConversationObjectNormalizer
         $createdAt = new \DateTime($data['created_at']);
         $updatedAt = new \DateTime($data['updated_at']);
         $turns = $this->serializer->denormalize($data['turns'], TurnCollection::class);
-        $scene =  new Scene($data['uid'], $data['od_id'], $data['name'], $data['description'], $conditions, $behaviors,
-            $data['interpreter'], $createdAt, $updatedAt);
+
+        $scene = new Scene();
+        $scene->setUid($data['uid']);
+        $scene->setOdId($data['od_id']);
+        $scene->setName($data['name']);
+        $scene->setDescription($data['description']);
+        $scene->setConditions($conditions);
+        $scene->setBehaviors($behaviors);
+        $scene->setInterpreter($data['interpreter']);
+        $scene->setCreatedAt($createdAt);
+        $scene->setUpdatedAt($updatedAt);
         foreach($turns as $turn) {
             $scene->addTurn($turn);
             $turn->setScene($scene);
         }
         return $scene;
+
     }
 }

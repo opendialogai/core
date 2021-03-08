@@ -19,13 +19,11 @@ class Scene extends ConversationObject
         return parent::localFields();
     }
 
-    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
-        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt)
+    public function __construct(?Conversation $conversation = null)
     {
-        parent::__construct($uid, $odId, $name, $description, $conditions, $behaviors, $interpreter, $createdAt, $updatedAt);
+        parent::__construct();
         $this->turns = new TurnCollection();
-        $this->conversation = null;
-
+        $this->conversation = $conversation;
     }
 
     public function hasTurns(): bool

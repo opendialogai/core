@@ -365,29 +365,6 @@ class ScenarioSerializationTest extends SerializationTestCase
         $this->assertEquals($expected, $data);
     }
 
-    public function testSerializeScenarioLocalFieldsNoUID() {
-        $scenario = $this->getStandaloneScenario();
-        $normalizers = [new ScenarioNormalizer(), new BehaviorsCollectionNormalizer(), new BehaviorNormalizer()];
-        $encoders = [new JsonEncoder()];
-        $serializer = new Serializer($normalizers, $encoders);
-
-        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => Scenario::localFields()]);
-        $expected = [
-            'type' => Scenario::TYPE,
-            'od_id' => $scenario->getOdId(),
-            'name' => $scenario->getName(),
-            'description' => $scenario->getDescription(),
-            'interpreter' => $scenario->getInterpreter(),
-            'conditions' => [],
-            'behaviors' => ["STARTING"],
-            'active' => false,
-            'status' => Scenario::DRAFT_STATUS,
-            'created_at' => $scenario->getCreatedAt()->format(\DateTime::ISO8601),
-            'updated_at' => $scenario->getUpdatedAt()->format(\DateTime::ISO8601),
-        ];
-        $this->assertEquals($expected, $data);
-    }
-
     public function testSerializeScenarioNameOnly() {
         $scenario = $this->getStandaloneScenario();
         $normalizers = [new ScenarioNormalizer(), new BehaviorsCollectionNormalizer(), new BehaviorNormalizer()];
@@ -396,6 +373,7 @@ class ScenarioSerializationTest extends SerializationTestCase
 
         $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => [ConversationObject::NAME]]);
         $expected = [
+            'type' => Scenario::TYPE,
             'name' => $scenario->getName(),
         ];
         $this->assertEquals($expected, $data);

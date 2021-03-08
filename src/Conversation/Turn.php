@@ -28,16 +28,13 @@ class Turn extends ConversationObject
         return array_merge(parent::localFields(), self::VALID_ORIGINS);
     }
 
-    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
-        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt, array $validOrigins)
+
+    public function __construct(?Scene $scene = null)
     {
-        parent::__construct($uid, $odId, $name, $description, $conditions, $behaviors, $interpreter, $createdAt, $updatedAt);
-        $this->validOrigins = $validOrigins;
-        $this->turns = new TurnCollection();
+        parent::__construct();
         $this->requestIntents = new IntentCollection();
         $this->responseIntents = new IntentCollection();
-        $this->scene = null;
-
+        $this->scene = $scene;
     }
 
     public function hasRequestIntents(): bool

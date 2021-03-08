@@ -9,6 +9,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConversationNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\SceneNormalizer;
 
+use OpenDialogAi\Core\Conversation\DataClients\Serializers\TurnCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\Scene;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
@@ -44,7 +45,7 @@ class SceneSerializationTest extends SerializationTestCase
 
     public function testDenormalizeStandaloneScene() {
         $normalizers = [new SceneNormalizer(), new ConditionCollectionNormalizer(), new ConditionNormalizer(), new
-        BehaviorsCollectionNormalizer(), new BehaviorNormalizer()];
+        BehaviorsCollectionNormalizer(), new BehaviorNormalizer(), new TurnCollectionNormalizer()];
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 

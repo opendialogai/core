@@ -43,18 +43,10 @@ class ConversationObject
         ];
     }
 
-    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
-        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime  $updatedAt)
+    public function __construct()
     {
-        $this->uid = $uid;
-        $this->odId = $odId;
-        $this->name = $name;
-        $this->description = $description;
-        $this->conditions = $conditions;
-        $this->behaviors = $behaviors;
-        $this->interpreter = $interpreter;
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
+        $this->conditions = new ConditionCollection();
+        $this->behaviors = new BehaviorsCollection();
     }
 
     /**
@@ -156,6 +148,15 @@ class ConversationObject
     public function getConditions(): ConditionCollection
     {
         return $this->conditions;
+    }
+
+    /**
+     * Sets the conditions
+     *
+     * @param  ConditionCollection  $conditions
+     */
+    public function setConditions(ConditionCollection $conditions): void {
+        $this->conditions = $conditions;
     }
 
     /**

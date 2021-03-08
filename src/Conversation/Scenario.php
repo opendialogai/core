@@ -24,13 +24,10 @@ class Scenario extends ConversationObject
         return array_merge(parent::localFields(), [self::ACTIVE, self::STATUS]);
     }
 
-    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
-        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt, bool $active, string
-        $status)
+
+    public function __construct()
     {
-        parent::__construct($uid, $odId, $name, $description, $conditions, $behaviors, $interpreter, $createdAt, $updatedAt);
-        $this->active = $active;
-        $this->status = $status;
+        parent::__construct();
         $this->conversations = new ConversationCollection();
     }
 
@@ -60,5 +57,9 @@ class Scenario extends ConversationObject
         }
 
         return null;
+    }
+
+    public function setActive(bool $active) {
+        $this->active = $active;
     }
 }

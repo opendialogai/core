@@ -6,6 +6,7 @@ use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
+use OpenDialogAi\Core\Conversation\SceneCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class ScenarioNormalizer extends ConversationObjectNormalizer
@@ -32,14 +33,24 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
         $behaviors = $this->serializer->denormalize($data['behaviors'], BehaviorsCollection::class);
         $createdAt = new \DateTime($data['created_at']);
         $updatedAt = new \DateTime($data['updated_at']);
-        $scenario = new Scenario($data['uid'], $data['od_id'], $data['name'], $data['description'], $conditions, $behaviors,
-            $data['interpreter'], $createdAt, $updatedAt, $data['active'], $data['status']);
         $conversations = $this->serializer->denormalize($data['conversations'], ConversationCollection::class);
+
+        $scenario = new Scenario();
+        $scenario->setUid($data['uid']);
+        $scenario->setOdId($data['od_id']);
+        $scenario->setName($data['name']);
+        $scenario->setDescription($data['description']);
+        $scenario->setConditions($conditions);
+        $scenario->setBehaviors($behaviors);
+        $scenario->setInterpreter($data['interpreter']);
+        $scenario->setCreatedAt($createdAt);
+        $scenario->setUpdatedAt($updatedAt);
+        $scenario->setActive($data['active']);
+        $scenario->setStatus($data['status']);
         foreach($conversations as $conversation) {
             $scenario->addConversation($conversation);
             $conversation->setScenario($scenario);
         }
-
         return $scenario;
 
     }

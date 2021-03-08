@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use DateTime;
+use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\Core\Conversation\Exceptions\InvalidSpeakerTypeException;
 
@@ -33,7 +34,7 @@ class Intent extends ConversationObject
     ];
 
     protected ?Turn $turn;
-    protected string $speaker;
+    protected ?string $speaker;
     protected float $confidence;
     protected string $sampleUtterance;
     protected ?Transition $transition;
@@ -51,21 +52,16 @@ class Intent extends ConversationObject
             self::LISTENS_FOR, self::VIRTUAL_INTENTS, self::EXPECTED_ATTRIBUTES, self::ACTIONS]);
     }
 
-    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
-        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt, string $speaker, float
-        $confidence, string $sampleUtterance, ?Transition $transition, array $listensFor, VirtualIntentCollection $virtualIntents, array
-        $expectedAttributes, ActionsCollection $actions)
+    public function __construct(?Turn $turn = null, ?string $speaker = null, ?string $interpreter = null)
     {
-        parent::__construct($uid, $odId, $name, $description, $conditions, $behaviors, $interpreter, $createdAt, $updatedAt);
+        parent::__construct();
+        // Attributes hold entities that may be associated with this intent following interpretation
+        $this->attributes = new Map();
+        $this->turn = $turn;
         $this->speaker = $speaker;
-        $this->confidence = $confidence;
-        $this->sampleUtterance = $sampleUtterance;
-        $this->transition = $transition;
-        $this->listensFor = $listensFor;
-        $this->virtualIntents = $virtualIntents;
-        $this->expectedAttributes = $expectedAttributes;
-        $this->actions = $actions;
-        $this->turn = null;
+        $this->interpreter = $interpreter;
+        $this->interpretedIntents = new IntentCollection();
+        $this->actions = new ActionsCollection();
     }
 
     public static function createNoMatchIntent(): Intent
