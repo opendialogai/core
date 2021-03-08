@@ -12,7 +12,6 @@ class Turn extends ConversationObject
     public const REQUEST_INTENTS = 'requestIntents';
     public const RESPONSE_INTENTS = 'responseIntents';
     public const VALID_ORIGINS = 'validOrigins';
-    public const LOCAL_FIELDS = ConversationObject::LOCAL_FIELDS + [self::VALID_ORIGINS];
 
     protected ?Scene $scene;
 
@@ -23,6 +22,11 @@ class Turn extends ConversationObject
     protected IntentCollection $responseIntents;
 
     protected array $validOrigins;
+
+
+    public static function localFields() {
+        return array_merge(parent::localFields(), self::VALID_ORIGINS);
+    }
 
     public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
         BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt, array $validOrigins)

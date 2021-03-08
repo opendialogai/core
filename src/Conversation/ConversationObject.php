@@ -18,19 +18,6 @@ class ConversationObject
     public const CONDITIONS = 'conditions';
     public const BEHAVIORS = 'behaviors';
 
-    public const LOCAL_FIELDS = [
-        self::UID,
-        self::OD_ID,
-        self::NAME,
-        self::DESCRIPTION,
-        self::INTERPRETER,
-        self::CREATED_AT,
-        self::UPDATED_AT,
-        self::CONDITIONS => Condition::FIELDS,
-        self::BEHAVIORS => Behavior::FIELDS
-    ];
-
-
     protected string $odId;
     protected string $uid;
     protected string $name;
@@ -40,6 +27,21 @@ class ConversationObject
     protected ?string $interpreter = null;
     protected DateTime $createdAt;
     protected DateTime $updatedAt;
+
+
+    public static function localFields() {
+        return [
+            self::UID,
+            self::OD_ID,
+            self::NAME,
+            self::DESCRIPTION,
+            self::INTERPRETER,
+            self::CREATED_AT,
+            self::UPDATED_AT,
+            self::CONDITIONS => Condition::FIELDS,
+            self::BEHAVIORS => Behavior::FIELDS
+        ];
+    }
 
     public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
         BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime  $updatedAt)

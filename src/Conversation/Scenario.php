@@ -20,6 +20,9 @@ class Scenario extends ConversationObject
     public const PREVIEW_STATUS = "PREVIEW";
     public const LIVE_STATUS = "LIVE";
 
+    public static function localFields() {
+        return array_merge(parent::localFields(), [self::ACTIVE, self::STATUS]);
+    }
 
     public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
         BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt, bool $active, string

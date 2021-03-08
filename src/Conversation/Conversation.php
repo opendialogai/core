@@ -15,6 +15,10 @@ class Conversation extends ConversationObject
     protected ?Scenario $scenario;
 
 
+    public static function localFields() {
+        return parent::localFields();
+    }
+
     public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
         BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt)
     {

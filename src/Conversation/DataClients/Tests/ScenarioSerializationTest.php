@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Conversation\DataClients\Tests;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\ConversationObject;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionCollectionNormalizer;
@@ -27,6 +28,7 @@ use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\Turn;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class ScenarioSerializationTest extends SerializationTestCase
@@ -336,6 +338,67 @@ class ScenarioSerializationTest extends SerializationTestCase
         ];
         $denormalized = $serializer->denormalize($data, Scenario::class);
         $this->assertEquals($scenario, $denormalized);
+    }
+
+
+    public function testSerializeScenarioLocalFields() {
+        $scenario = $this->getStandaloneScenario();
+        $normalizers = [new ScenarioNormalizer(), new BehaviorsCollectionNormalizer(), new BehaviorNormalizer()];
+        $encoders = [new JsonEncoder()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => Scenario::localFields()]);
+        $expected = [
+            'type' => Scenario::TYPE,
+            'uid' => $scenario->getUid(),
+            'od_id' => $scenario->getOdId(),
+            'name' => $scenario->getName(),
+            'description' => $scenario->getDescription(),
+            'interpreter' => $scenario->getInterpreter(),
+            'conditions' => [],
+            'behaviors' => ["STARTING"],
+            'active' => false,
+            'status' => Scenario::DRAFT_STATUS,
+            'created_at' => $scenario->getCreatedAt()->format(\DateTime::ISO8601),
+            'updated_at' => $scenario->getUpdatedAt()->format(\DateTime::ISO8601),
+        ];
+        $this->assertEquals($expected, $data);
+    }
+
+    public function testSerializeScenarioLocalFieldsNoUID() {
+        $scenario = $this->getStandaloneScenario();
+        $normalizers = [new ScenarioNormalizer(), new BehaviorsCollectionNormalizer(), new BehaviorNormalizer()];
+        $encoders = [new JsonEncoder()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => Scenario::localFields()]);
+        $expected = [
+            'type' => Scenario::TYPE,
+            'od_id' => $scenario->getOdId(),
+            'name' => $scenario->getName(),
+            'description' => $scenario->getDescription(),
+            'interpreter' => $scenario->getInterpreter(),
+            'conditions' => [],
+            'behaviors' => ["STARTING"],
+            'active' => false,
+            'status' => Scenario::DRAFT_STATUS,
+            'created_at' => $scenario->getCreatedAt()->format(\DateTime::ISO8601),
+            'updated_at' => $scenario->getUpdatedAt()->format(\DateTime::ISO8601),
+        ];
+        $this->assertEquals($expected, $data);
+    }
+
+    public function testSerializeScenarioNameOnly() {
+        $scenario = $this->getStandaloneScenario();
+        $normalizers = [new ScenarioNormalizer(), new BehaviorsCollectionNormalizer(), new BehaviorNormalizer()];
+        $encoders = [new JsonEncoder()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => [ConversationObject::NAME]]);
+        $expected = [
+            'name' => $scenario->getName(),
+        ];
+        $this->assertEquals($expected, $data);
     }
 
 }

@@ -15,6 +15,10 @@ class Scene extends ConversationObject
     protected ?Conversation $conversation;
 
 
+    public static function localFields() {
+        return parent::localFields();
+    }
+
     public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
         BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt)
     {

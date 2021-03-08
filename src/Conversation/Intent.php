@@ -13,23 +13,17 @@ class Intent extends ConversationObject
     public const USER = 'USER';
     public const APP = 'APP';
 
-
     public const CURRENT_INTENT = 'current_intent';
     public const TYPE = 'intent';
     public const INTERPRETED_INTENT = 'interpreted_intent';
     public const CURRENT_SPEAKER = 'speaker';
-
-    public const LOCAL_FIELDS = ConversationObject::LOCAL_FIELDS + [
-        self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::TRANSITION, self::LISTENS, self::VIRTUAL_INTENTS,
-        self::EXPECTED_ATTRIBUTES, self::ACTIONS
-    ];
 
     public const TURN = 'turn';
     public const SPEAKER = 'speaker';
     public const CONFIDENCE = 'confidence';
     public const SAMPLE_UTTERANCE = 'sampleUtterance';
     public const TRANSITION = 'transition';
-    public const LISTENS = 'listens';
+    public const LISTENS_FOR = 'listensFor';
     public const VIRTUAL_INTENTS = 'virtualIntents';
     public const EXPECTED_ATTRIBUTES = 'expectedAttributes';
     public const ACTIONS = 'actions';
@@ -51,6 +45,11 @@ class Intent extends ConversationObject
     // The interpreted intents is a collection interpretations of this intent that are added through an interpreter.
     protected IntentCollection $interpretedIntents;
     protected Intent $interpretation;
+
+    public static function localFields() {
+        return array_merge(parent::localFields(), [self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::TRANSITION,
+            self::LISTENS_FOR, self::VIRTUAL_INTENTS, self::EXPECTED_ATTRIBUTES, self::ACTIONS]);
+    }
 
     public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
         BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt, string $speaker, float
