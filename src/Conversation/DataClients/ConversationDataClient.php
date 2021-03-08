@@ -10,46 +10,38 @@ use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\TurnCollection;
+use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 
 /**
  * Draft Conversation Client
  */
 class ConversationDataClient
 {
-    protected string $url;
-    protected string $port;
-    protected string $api;
 
-    public function __construct($url, $port, $api)
+    protected GraphQLClientInterface $client;
+
+    public function __construct(GraphQLClientInterface $client)
     {
-        $this->url = $url;
-        $this->port = $port;
-        $this->api = $api;
+        $this->client = $client;
     }
 
     public function exampleGQLQuery()
     {
-        return $array =  [
-            "query" => "
-query Scenarios {
-  queryScenario {
-   name
-   conversations {
-     name
-   }
- }
-}",
-        ];
+        return <<<'GQL'
+            query Scenarios {
+              queryScenario {
+               name
+               conversations {
+                 name
+               }
+             }
+        GQL;
 
     }
 
     public function query()
     {
-        $response = Http::baseUrl($this->url)
-            ->post('graphql',
-                $this->exampleGQLQuery());
-
-        return($response->json());
+        return $this->client->query($this->exampleGQLQuery());
     }
 
     /**
