@@ -9,6 +9,12 @@ class Condition
     protected array $operationAttributes;
     protected ?array $parameters;
 
+    //TODO: change me when conditions are updated.
+    public const OPERATION = 'operation';
+    public const OPERATION_ATTRIBUTES = 'operationAttributes';
+    public const PARAMETERS = 'parameters';
+    const FIELDS = [self::OPERATION, self::OPERATION_ATTRIBUTES, self::PARAMETERS];
+
     public function __construct(string $operation, array $operationAttributes, ?array $parameters)
     {
         $this->operation = $operation;

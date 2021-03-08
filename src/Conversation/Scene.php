@@ -1,18 +1,27 @@
 <?php
 namespace OpenDialogAi\Core\Conversation;
 
+use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
+use \DateTime;
+
 class Scene extends ConversationObject
 {
     public const CURRENT_SCENE = 'current_scene';
+    public const TYPE = 'scene';
+    public const CONVERSATION = 'conversation';
+    public const TURNS = 'turns';
 
     protected TurnCollection $turns;
-    protected Conversation $conversation;
+    protected ?Conversation $conversation;
 
-    public function __construct(?Conversation $conversation = null)
+
+    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
+        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt)
     {
-        parent::__construct();
+        parent::__construct($uid, $odId, $name, $description, $conditions, $behaviors, $interpreter, $createdAt, $updatedAt);
         $this->turns = new TurnCollection();
-        isset($conversation) ? $this->conversation = $conversation : null;
+        $this->conversation = null;
+
     }
 
     public function hasTurns(): bool
@@ -35,8 +44,15 @@ class Scene extends ConversationObject
         return $this->conversation;
     }
 
+    public function setConversation(Conversation $conversation): void {
+        $this->conversation = $conversation;
+    }
+
     public function addTurn(Turn $turn)
     {
+        if($this->turns === null) {
+            throw new InsufficientHydrationException("Field 'turns' on Scene has not been hydrated.");
+        }
         $this->turns->addObject($turn);
     }
 
@@ -58,7 +74,7 @@ class Scene extends ConversationObject
     public function getScenario(): ?Scenario
     {
         if ($this->getConversation() != null) {
-            $this->getConversation()->getScenario();
+            return $this->getConversation()->getScenario();
         }
 
         return null;

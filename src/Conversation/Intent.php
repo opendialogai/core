@@ -1,7 +1,8 @@
 <?php
+
 namespace OpenDialogAi\Core\Conversation;
 
-use Ds\Map;
+use DateTime;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
 use OpenDialogAi\Core\Conversation\Exceptions\InvalidSpeakerTypeException;
 
@@ -9,70 +10,91 @@ class Intent extends ConversationObject
 {
     use HasAttributesTrait;
 
-    public const USER = 'EI_USER';
-    public const APP = 'EI_APP';
-    public const HUMAN_AGENT = 'EI_HUMAN_AGENT';
+    public const USER = 'USER';
+    public const APP = 'APP';
+
 
     public const CURRENT_INTENT = 'current_intent';
+    public const TYPE = 'intent';
     public const INTERPRETED_INTENT = 'interpreted_intent';
     public const CURRENT_SPEAKER = 'speaker';
 
+    public const LOCAL_FIELDS = ConversationObject::LOCAL_FIELDS + [
+        self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::TRANSITION, self::LISTENS, self::VIRTUAL_INTENTS,
+        self::EXPECTED_ATTRIBUTES, self::ACTIONS
+    ];
+
+    public const TURN = 'turn';
+    public const SPEAKER = 'speaker';
+    public const CONFIDENCE = 'confidence';
+    public const SAMPLE_UTTERANCE = 'sampleUtterance';
+    public const TRANSITION = 'transition';
+    public const LISTENS = 'listens';
+    public const VIRTUAL_INTENTS = 'virtualIntents';
+    public const EXPECTED_ATTRIBUTES = 'expectedAttributes';
+    public const ACTIONS = 'actions';
+
     const VALID_SPEAKERS = [
-        self::USER,
-        self::APP,
-        self::HUMAN_AGENT
+        self::USER, self::APP,
     ];
 
     protected ?Turn $turn;
-    protected ?string $speaker;
-    protected ?float $confidence;
+    protected string $speaker;
+    protected float $confidence;
+    protected string $sampleUtterance;
+    protected ?Transition $transition;
+    protected array $listensFor;
+    protected VirtualIntentCollection $virtualIntents;
+    protected array $expectedAttributes;
+    protected ActionsCollection $actions;
 
     // The interpreted intents is a collection interpretations of this intent that are added through an interpreter.
     protected IntentCollection $interpretedIntents;
     protected Intent $interpretation;
 
-    protected ActionsCollection $actions;
-
-    public function __construct(?Turn $turn = null, ?string $speaker = null, ?string $interpreter = null)
+    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
+        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime $updatedAt, string $speaker, float
+        $confidence, string $sampleUtterance, ?Transition $transition, array $listensFor, VirtualIntentCollection $virtualIntents, array
+        $expectedAttributes, ActionsCollection $actions)
     {
-        parent::__construct();
-        // Attributes hold entities that may be associated with this intent following interpretation
-        $this->attributes = new Map();
-        isset($turn) ? $this->turn = $turn : $this->turn = null;
-        isset($speaker) ? $this->setSpeaker($speaker) : $this->speaker = null;
-        isset($interpreter) ? $this->$interpreter = $interpreter : $this->interpreter = null;
-        $this->interpretedIntents = new IntentCollection();
-        $this->actions = new ActionsCollection();
+        parent::__construct($uid, $odId, $name, $description, $conditions, $behaviors, $interpreter, $createdAt, $updatedAt);
+        $this->speaker = $speaker;
+        $this->confidence = $confidence;
+        $this->sampleUtterance = $sampleUtterance;
+        $this->transition = $transition;
+        $this->listensFor = $listensFor;
+        $this->virtualIntents = $virtualIntents;
+        $this->expectedAttributes = $expectedAttributes;
+        $this->actions = $actions;
+        $this->turn = null;
     }
 
-    public function getTurn(): ?Turn
+    public static function createNoMatchIntent(): Intent
     {
-        return $this->turn;
+        $intent = new self();
+        $intent->setODId('intent.core.NoMatch');
+        return $intent;
+    }
+
+    public static function createIntent($odId, $confidence): Intent
+    {
+        $intent = new self();
+        $intent->setODId($odId);
+        $intent->setConfidence($confidence);
+        return $intent;
+    }
+
+    public function getSpeaker(): ?string
+    {
+        return $this->speaker;
     }
 
     public function setSpeaker(string $speaker)
     {
         if (!in_array($speaker, self::VALID_SPEAKERS)) {
-            throw new InvalidSpeakerTypeException(
-                sprintf('Speaker type %s is not found in valid speaker types.', $speaker)
-            );
+            throw new InvalidSpeakerTypeException(sprintf('Speaker type %s is not found in valid speaker types.', $speaker));
         }
         $this->speaker = $speaker;
-    }
-
-    public function getSpeaker(): string
-    {
-        return $this->speaker;
-    }
-
-    public function getConfidence(): float
-    {
-        return $this->confidence;
-    }
-
-    public function setConfidence(float $confidence)
-    {
-        $this->confidence = $confidence;
     }
 
     public function addInterpretedIntents(IntentCollection $interpretations)
@@ -87,9 +109,10 @@ class Intent extends ConversationObject
 
     /**
      * Goes through interpreted intents and looks for a match.
+     *
      * @return bool
      */
-    public function checkForMatch():bool
+    public function checkForMatch(): bool
     {
         /* @var Intent $intent */
         foreach ($this->interpretedIntents as $intent) {
@@ -103,8 +126,19 @@ class Intent extends ConversationObject
         return false;
     }
 
+    public function getConfidence(): ?float
+    {
+        return $this->confidence;
+    }
+
+    public function setConfidence(float $confidence)
+    {
+        $this->confidence = $confidence;
+    }
+
     /**
      * Returns the interpreted intent that was a match.
+     *
      * @return Intent
      */
     public function getInterpretation(): Intent
@@ -128,13 +162,14 @@ class Intent extends ConversationObject
     }
 
     /**
-     * @return Scene|null
+     * @return Scenario|null
      */
-    public function getScene(): ?Scene
+    public function getScenario(): ?Scenario
     {
-        if ($this->getTurn() != null) {
-            return $this->getTurn()->getScene();
+        if ($this->getConversation() != null) {
+            return $this->getConversation()->getScenario();
         }
+
         return null;
     }
 
@@ -150,30 +185,23 @@ class Intent extends ConversationObject
     }
 
     /**
-     * @return Scenario|null
+     * @return Scene|null
      */
-    public function getScenario(): ?Scenario
+    public function getScene(): ?Scene
     {
-        if ($this->getConversation() != null) {
-            return $this->getConversation()->getScenario();
+        if ($this->getTurn() != null) {
+            return $this->getTurn()->getScene();
         }
-
         return null;
     }
 
-    public static function createNoMatchIntent(): Intent
+    public function getTurn(): ?Turn
     {
-        $intent = new self();
-        $intent->setODId('intent.core.NoMatch');
-        return $intent;
+        return $this->turn;
     }
 
-    public static function createIntent($odId, $confidence): Intent
-    {
-        $intent = new self();
-        $intent->setODId($odId);
-        $intent->setConfidence($confidence);
-        return $intent;
+    public function setTurn(Turn $turn): void {
+        $this->turn = $turn;
     }
 
     /**
@@ -185,12 +213,55 @@ class Intent extends ConversationObject
     }
 
     /**
-     * @param ActionsCollection $actions
+     * @param  ActionsCollection  $actions
+     *
      * @return Intent
      */
     public function setActions(ActionsCollection $actions): Intent
     {
         $this->actions = $actions;
         return $this;
+    }
+
+    public function getSampleUtterance(): ?string
+    {
+        return $this->sampleUtterance;
+    }
+
+    public function setSampleUtterance(string $sampleUtterance)
+    {
+        $this->sampleUtterance = $sampleUtterance;
+    }
+
+    public function getTransition(): ?Transition {
+        return $this->transition;
+    }
+
+    public function setTransition(?Transition $transition): void {
+        $this->transition = $transition;
+    }
+
+    public function getExpectedAttributes(): array {
+        return $this->expectedAttributes;
+    }
+
+    public function setExpectedAttributes(array $expectedAttributes): void {
+        $this->expectedAttributes = $expectedAttributes;
+    }
+
+    public function getListensFor(): array {
+        return $this->listensFor;
+    }
+
+    public function setListensFor(array $listensFor): void {
+        $this->listensFor = $listensFor;
+    }
+
+    public function getVirtualIntents(): VirtualIntentCollection {
+        return $this->virtualIntents;
+    }
+
+    public function setVirtualIntents(VirtualIntentCollection $virtualIntents): void {
+        $this->virtualIntents = $virtualIntents;
     }
 }

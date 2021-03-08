@@ -1,78 +1,90 @@
 <?php
+
 namespace OpenDialogAi\Core\Conversation;
+
+use DateTime;
 
 class ConversationObject
 {
     public const UNDEFINED = 'undefined';
 
-    protected string $type = self::UNDEFINED;
-    protected string $odId = self::UNDEFINED;
-    protected string $uid = self::UNDEFINED;
-    protected string $name = self::UNDEFINED;
-    protected string $description = self::UNDEFINED;
+    public const UID = 'uid';
+    public const OD_ID = 'odId';
+    public const NAME = 'name';
+    public const DESCRIPTION = 'description';
+    public const INTERPRETER = 'interpreter';
+    public const CREATED_AT = 'createdAt';
+    public const UPDATED_AT = 'updatedAt';
+    public const CONDITIONS = 'conditions';
+    public const BEHAVIORS = 'behaviors';
 
-    public const DRAFT_STATUS = "DRAFT";
-    public const PREVIEW_STATUS = "PREVIEW";
-    public const LIVE_STATUS = "LIVE";
+    public const LOCAL_FIELDS = [
+        self::UID,
+        self::OD_ID,
+        self::NAME,
+        self::DESCRIPTION,
+        self::INTERPRETER,
+        self::CREATED_AT,
+        self::UPDATED_AT,
+        self::CONDITIONS => Condition::FIELDS,
+        self::BEHAVIORS => Behavior::FIELDS
+    ];
 
+
+    protected string $odId;
+    protected string $uid;
+    protected string $name;
+    protected ?string $description = null;
     protected ConditionCollection $conditions;
     protected BehaviorsCollection $behaviors;
-    protected bool $active;
-    protected string $status;
     protected ?string $interpreter = null;
+    protected DateTime $createdAt;
+    protected DateTime $updatedAt;
 
-    public function __construct()
+    public function __construct(string $uid, string $odId, string $name, ?string $description, ConditionCollection $conditions,
+        BehaviorsCollection  $behaviors, ?string $interpreter, DateTime $createdAt, DateTime  $updatedAt)
     {
-        $this->conditions = new ConditionCollection();
-        $this->behaviors = new BehaviorsCollection();
-    }
-
-    /**
-     * The type of conversation object we are dealing with (one of Scenario, Conversation, Scene, etc)
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType(string $type): void
-    {
-        // @todo Check that it is one of the permitted types.
-        $this->type = $type;
+        $this->uid = $uid;
+        $this->odId = $odId;
+        $this->name = $name;
+        $this->description = $description;
+        $this->conditions = $conditions;
+        $this->behaviors = $behaviors;
+        $this->interpreter = $interpreter;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
     }
 
     /**
      * The id of the object. Not all objects have an id. An id would be something like 'action.core.Transform'
+     *
      * @return string
      */
-    public function getODId(): string
+    public function getOdId(): string
     {
         return $this->odId;
     }
 
     /**
-     * @param string $odId
+     * @param  string  $odId
      */
-    public function setODId(string $odId): void
+    public function setOdId(string $odId): void
     {
         $this->odId = $odId;
     }
 
     /**
      * The uid of an object is the unique id with which it is stored in persistence storage.
+     *
      * @return string
      */
-    public function getUid(): string
+    public function getUid(): ?string
     {
         return $this->uid;
     }
 
     /**
-     * @param string $uid
+     * @param  string  $uid
      */
     public function setUid(string $uid): void
     {
@@ -81,15 +93,16 @@ class ConversationObject
 
     /**
      * The human-friendly name of the object.
+     *
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
-     * @param string $name
+     * @param  string  $name
      */
     public function setName(string $name): void
     {
@@ -98,6 +111,7 @@ class ConversationObject
 
     /**
      * The human-friendly description of an object.
+     *
      * @return string
      */
     public function getDescription(): string
@@ -106,7 +120,7 @@ class ConversationObject
     }
 
     /**
-     * @param string $description
+     * @param  string  $description
      */
     public function setDescription(string $description): void
     {
@@ -120,6 +134,7 @@ class ConversationObject
 
     /**
      * Indicates whether an object has conditions - not all objects do.
+     *
      * @return bool
      */
     public function hasConditions(): bool
@@ -133,6 +148,7 @@ class ConversationObject
 
     /**
      * Retrieves a collection of objects
+     *
      * @return ConditionCollection
      */
     public function getConditions(): ConditionCollection
@@ -142,6 +158,7 @@ class ConversationObject
 
     /**
      * Indicates whether an object is associates with behaviors.
+     *
      * @return bool
      */
     public function hasBehaviors(): bool
@@ -155,11 +172,22 @@ class ConversationObject
 
     /**
      * Retrieves all behavior directives as an array.
+     *
      * @return array
      */
     public function getBehaviors(): BehaviorsCollection
     {
         return $this->behaviors;
+    }
+
+    /**
+     * Replaces all behaviors with a new set of behaviors
+     *
+     * @param  BehaviorsCollection  $behaviors
+     */
+    public function setBehaviors(BehaviorsCollection $behaviors)
+    {
+        $this->behaviors = $behaviors;
     }
 
     /**
@@ -189,6 +217,14 @@ class ConversationObject
     }
 
     /**
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    /**
      * @param $value
      */
     public function setStatus($value)
@@ -197,10 +233,30 @@ class ConversationObject
     }
 
     /**
-     * @return string
+     * @return DateTime
      */
-    public function getStatus(): string
-    {
-        return $this->status;
+    public function getUpdatedAt() {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @param  DateTime  $value
+     */
+    public function setUpdatedAt(DateTime $value) {
+        $this->updatedAt = $value;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getCreatedAt() {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param  DateTime  $value
+     */
+    public function setCreatedAt(DateTime $value) {
+        $this->createdAt = $value;
     }
 }
