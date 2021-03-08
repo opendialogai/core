@@ -5,6 +5,7 @@ namespace OpenDialogAi\ConversationEngine;
 use Illuminate\Support\ServiceProvider;
 use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\Core\Conversation\DataClients\ConversationDataClient;
+use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
 use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
@@ -22,11 +23,7 @@ class ConversationEngineServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ConversationDataClient::class, function () {
-            return new ConversationDataClient(
-                config('opendialog.core.DGRAPH_URL'),
-                config('opendialog.core.DGRAPH_PORT'),
-                config('opendialog.core.DGRAPH_API_KEY'),
-            );
+            return new ConversationDataClient(resolve(GraphQLClientInterface::class));
         });
     }
 }
