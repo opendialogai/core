@@ -144,9 +144,8 @@ class ConversationObject
     }
 
     /**
-     * Sets the conditions
-     *
-     * @param  ConditionCollection  $conditions
+     * @param ConditionCollection $conditions
+     * @return void
      */
     public function setConditions(ConditionCollection $conditions): void
     {
@@ -169,8 +168,7 @@ class ConversationObject
 
     /**
      * Retrieves all behavior directives as an array.
-     *
-     * @return array
+     * @return BehaviorsCollection
      */
     public function getBehaviors(): BehaviorsCollection
     {

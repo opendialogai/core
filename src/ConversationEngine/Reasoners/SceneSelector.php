@@ -3,23 +3,74 @@
 
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
+use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
+use OpenDialogAi\ConversationEngine\Util\SelectorUtil;
+use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 
 /**
- * The SceneSelector should evaluate conditions against scenes to select
- * which scenes can validly be considered for a user
+ * This selector provides methods that select various types of scenes and filters them by evaluating their conditions
  */
 class SceneSelector
 {
-    public static function selectStartingScenes($conversations): SceneCollection
+    /**
+     * Retrieves all scenes that have the starting behaviour, within the given conversations
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     * @throws EmptyCollectionException
+     */
+    public static function selectStartingScenes(ConversationCollection $conversations, bool $shallow = true): SceneCollection
     {
-        $scenes = ConversationDataClient::getAllStartingScenes($conversations);
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($conversations);
 
-        $conditionPassingScenes = $scenes->filter(function ($scene) {
-            ConditionFilter::checkConditions($scene);
-        });
+        $scenes = ConversationDataClient::getAllStartingScenes($conversations, $shallow);
 
-        return $conditionPassingScenes;
+        /** @var SceneCollection $scenesWithPassingConditions */
+        $scenesWithPassingConditions = ConditionFilter::filterObjects($scenes);
+
+        return $scenesWithPassingConditions;
+    }
+
+    /**
+     * Retrieves all scenes that have the open behaviour, within the given conversations
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     * @throws EmptyCollectionException
+     */
+    public static function selectOpenScenes(ConversationCollection $conversations, bool $shallow = true): SceneCollection
+    {
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($conversations);
+
+        $scenes = ConversationDataClient::getAllOpenScenes($conversations, $shallow);
+
+        /** @var SceneCollection $scenesWithPassingConditions */
+        $scenesWithPassingConditions = ConditionFilter::filterObjects($scenes);
+
+        return $scenesWithPassingConditions;
+    }
+
+    /**
+     * Retrieves all scenes within the given conversations
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     * @throws EmptyCollectionException
+     */
+    public static function selectScenes(ConversationCollection $conversations, bool $shallow = true): SceneCollection
+    {
+        SelectorUtil::throwIfConversationObjectCollectionIsEmpty($conversations);
+
+        $scenes = ConversationDataClient::getAllScenes($conversations, $shallow);
+
+        /** @var SceneCollection $scenesWithPassingConditions */
+        $scenesWithPassingConditions = ConditionFilter::filterObjects($scenes);
+
+        return $scenesWithPassingConditions;
     }
 }

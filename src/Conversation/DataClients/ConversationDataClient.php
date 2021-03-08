@@ -6,105 +6,209 @@ namespace OpenDialogAi\Core\Conversation\DataClients;
 use Illuminate\Support\Facades\Http;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\IntentCollection;
-use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\TurnCollection;
+use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 
 /**
  * Draft Conversation Client
  */
 class ConversationDataClient
 {
-    protected string $url;
-    protected string $port;
-    protected string $api;
 
-    public function __construct($url, $port, $api)
+    protected GraphQLClientInterface $client;
+
+    public function __construct(GraphQLClientInterface $client)
     {
-        $this->url = $url;
-        $this->port = $port;
-        $this->api = $api;
+        $this->client = $client;
     }
 
     public function exampleGQLQuery()
     {
-        return $array =  [
-            "query" => "
-query Scenarios {
-  queryScenario {
-   name
-   conversations {
-     name
-   }
- }
-}",
-        ];
+        return <<<'GQL'
+            query Scenarios {
+              queryScenario {
+               name
+               conversations {
+                 name
+               }
+             }
+        GQL;
 
     }
 
     public function query()
     {
-        $response = Http::baseUrl($this->url)
-            ->post('graphql',
-                $this->exampleGQLQuery());
-
-        return($response->json());
+        return $this->client->query($this->exampleGQLQuery());
     }
 
     /**
      * Retrieve all scenarios where active is set to true and their status is live
-     * @todo handle returning scenarios that are in preview mode (or do we use an OD condition for that)
+     * @param bool $shallow
      * @return ScenarioCollection
+     * @todo handle returning scenarios that are in preview mode (or do we use an OD condition for that)
      */
-    public function getAllActiveScenarios(): ScenarioCollection
+    public function getAllActiveScenarios(bool $shallow): ScenarioCollection
     {
         return new ScenarioCollection();
     }
 
     /**
-     * Retrieve all conversations from within the scenario collection that have a behavior as "starting".
+     * Retrieve all conversations that belong to the given scenarios that have a behavior as "starting". from the graph
+     *
+     * @param ScenarioCollection $scenarios
+     * @param bool $shallow
      * @return ConversationCollection
      */
-    public function getAllStartingConversations(ScenarioCollection $scenarios): ConversationCollection
+    public function getAllStartingConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
     {
         return new ConversationCollection();
     }
 
     /**
-     * Retrieve all scenes from within the conversation collection that have a behavior as "starting"
+     * Retrieve all conversations that belong to the given scenarios that have a behavior as "open". from the graph
+     *
+     * @param ScenarioCollection $scenarios
+     * @param bool $shallow
+     * @return ConversationCollection
+     */
+    public function getAllOpenConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
+    {
+        return new ConversationCollection();
+    }
+
+    /**
+     * Retrieve all conversations that belong to the given scenarios. from the graph
+     *
+     * @param ScenarioCollection $scenarios
+     * @param bool $shallow
+     * @return ConversationCollection
+     */
+    public function getAllConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
+    {
+        return new ConversationCollection();
+    }
+
+    /**
+     * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
+     *
      * @param ConversationCollection $conversations
+     * @param bool $shallow
      * @return SceneCollection
      */
-    public function getAllStartingScenes(ConversationCollection $conversations): SceneCollection
+    public function getAllStartingScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
     {
         return new SceneCollection();
     }
 
     /**
+     * Retrieve all scenes that belong to the given conversations that have a behavior as "open" from the graph
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     */
+    public function getAllOpenScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
+    {
+        return new SceneCollection();
+    }
+
+    /**
+     * Retrieve all scenes that belong to the given conversations from the graph
+     *
+     * @param ConversationCollection $conversations
+     * @param bool $shallow
+     * @return SceneCollection
+     */
+    public function getAllScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
+    {
+        return new SceneCollection();
+    }
+
+    /**
+     * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
+     *
      * @param SceneCollection $scenes
+     * @param bool $shallow
      * @return TurnCollection
      */
-    public function getAllStartingTurns(SceneCollection $scenes): TurnCollection
+    public function getAllStartingTurns(SceneCollection $scenes, bool $shallow): TurnCollection
     {
         return new TurnCollection();
     }
 
     /**
-     * @param TurnCollection $turns
+     * Retrieve all scenes that belong to the given conversations that have a behavior as "open" from the graph
+     *
+     * @param SceneCollection $scenes
+     * @param bool $shallow
      * @return TurnCollection
      */
-    public function getAllStartingIntents(TurnCollection $turns): IntentCollection
+    public function getAllOpenTurns(SceneCollection $scenes, bool $shallow): TurnCollection
+    {
+        return new TurnCollection();
+    }
+
+    /**
+     * Retrieve all scenes that belong to the given conversations from the graph
+     *
+     * @param SceneCollection $scenes
+     * @param bool $shallow
+     * @return TurnCollection
+     */
+    public function getAllTurns(SceneCollection $scenes, bool $shallow): TurnCollection
+    {
+        return new TurnCollection();
+    }
+
+    /**
+     * Retrieve all request intents that belong to the given turns from the graph
+     *
+     * @param TurnCollection $turns
+     * @param bool $shallow
+     * @return IntentCollection
+     */
+    public function getAllRequestIntents(TurnCollection $turns, bool $shallow): IntentCollection
     {
         return new IntentCollection();
     }
 
     /**
-     * @param $scenario_id
-     * @return Scenario
+     * Retrieve all response intents that belong to the given turns from the graph
+     *
+     * @param TurnCollection $turns
+     * @param bool $shallow
+     * @return IntentCollection
      */
-    public function getShallowScenario($scenario_id): Scenario
+    public function getAllResponseIntents(TurnCollection $turns, bool $shallow): IntentCollection
     {
-        return new Scenario();
+        return new IntentCollection();
+    }
+
+    /**
+     * Retrieve all request intents with the given ID that belong to the given turns from the graph
+     *
+     * @param TurnCollection $turns
+     * @param string $intentId
+     * @param bool $shallow
+     * @return IntentCollection
+     */
+    public function getAllRequestIntentsById(TurnCollection $turns, string $intentId, bool $shallow): IntentCollection
+    {
+        return new IntentCollection();
+    }
+
+    /**
+     * Retrieve all response intents with the given ID that belong to the given turns from the graph
+     *
+     * @param TurnCollection $turns
+     * @param string $intentId
+     * @param bool $shallow
+     * @return IntentCollection
+     */
+    public function getAllResponseIntentsById(TurnCollection $turns, string $intentId, bool $shallow): IntentCollection
+    {
+        return new IntentCollection();
     }
 }

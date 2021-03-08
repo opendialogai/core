@@ -37,7 +37,7 @@ interface OperationServiceInterface
 
     /**
      * @param Condition $condition
-     * @return mixed
+     * @return bool
      */
-    public function checkCondition(Condition $condition);
+    public function checkCondition(Condition $condition): bool;
 }
