@@ -37,15 +37,15 @@ class OutgoingIntentMatcher
         try {
             if (ConversationContextUtil::currentConversationId() == Conversation::UNDEFINED) {
                 // It's a non-ongoing conversation
-                return self::asStartingRequestIntent();
+                return self::matchNextIntentAsStartingRequestIntent();
             } else {
                 // It's an ongoing conversation
                 if (ConversationContextUtil::currentIntentIsRequest()) {
                     // if "current" intent (at this point the current data is actually the previous data) is a request it
                     // means we previously dealt with a request
-                    return self::asResponseIntent();
+                    return self::matchNextIntentAsResponseIntent();
                 } else {
-                    return self::asRequestIntent();
+                    return self::matchNextIntentAsRequestIntent();
                 }
             }
         } catch (EmptyCollectionException $e) {
@@ -57,7 +57,7 @@ class OutgoingIntentMatcher
     /**
      * @return Intent
      */
-    private static function asStartingRequestIntent(): Intent
+    private static function matchNextIntentAsStartingRequestIntent(): Intent
     {
         $currentScenarioId = ConversationContextUtil::currentScenarioId();
         $scenarios = new ScenarioCollection();
@@ -94,7 +94,7 @@ class OutgoingIntentMatcher
     /**
      * @return Intent
      */
-    private static function asRequestIntent(): Intent
+    private static function matchNextIntentAsRequestIntent(): Intent
     {
         $scenario = ScenarioSelector::selectScenarioById(ConversationContextUtil::currentScenarioId(), true);
 
@@ -133,7 +133,7 @@ class OutgoingIntentMatcher
      * @throws NoMatchingIntentsException
      * @throws EmptyCollectionException
      */
-    private static function asResponseIntent(): Intent
+    private static function matchNextIntentAsResponseIntent(): Intent
     {
         $scenario = ScenarioSelector::selectScenarioById(ConversationContextUtil::currentScenarioId(), true);
 

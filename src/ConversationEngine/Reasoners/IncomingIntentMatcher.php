@@ -37,15 +37,15 @@ class IncomingIntentMatcher
         try {
             if (ConversationContextUtil::currentConversationId() == Conversation::UNDEFINED) {
                 // It's a non-ongoing conversation
-                return self::asStartingRequestIntent();
+                return self::matchNextIntentAsStartingRequestIntent();
             } else {
                 // It's an ongoing conversation
                 if (ConversationContextUtil::currentIntentIsRequest()) {
                     // if "current" intent (at this point the current data is actually the previous data) is a request it
                     // means we previously dealt with a request
-                    return self::asResponseIntent();
+                    return self::matchNextIntentAsResponseIntent();
                 } else {
-                    return self::asRequestIntent();
+                    return self::matchNextIntentAsRequestIntent();
                 }
             }
         } catch (EmptyCollectionException $e) {
@@ -58,7 +58,7 @@ class IncomingIntentMatcher
      * @return Intent
      * @throws EmptyCollectionException
      */
-    private static function asRequestIntent(): Intent
+    private static function matchNextIntentAsRequestIntent(): Intent
     {
         $scenario = ScenarioSelector::selectScenarioById(ConversationContextUtil::currentScenarioId(), true);
 
@@ -92,7 +92,7 @@ class IncomingIntentMatcher
      * @return Intent
      * @throws EmptyCollectionException
      */
-    private static function asResponseIntent(): Intent
+    private static function matchNextIntentAsResponseIntent(): Intent
     {
         $scenario = ScenarioSelector::selectScenarioById(ConversationContextUtil::currentScenarioId(), true);
 
@@ -120,7 +120,7 @@ class IncomingIntentMatcher
      * @return Intent
      * @throws EmptyCollectionException
      */
-    protected static function asStartingRequestIntent(): Intent
+    protected static function matchNextIntentAsStartingRequestIntent(): Intent
     {
         $currentScenarioId = ConversationContextUtil::currentScenarioId();
         $scenarios = new ScenarioCollection();
