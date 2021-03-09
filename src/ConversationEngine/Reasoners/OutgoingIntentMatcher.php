@@ -63,9 +63,9 @@ class OutgoingIntentMatcher
         $scenarios = new ScenarioCollection();
 
         if ($currentScenarioId == Scenario::UNDEFINED) {
-            $scenarios = ScenarioSelector::selectScenarios(true);
+            $scenarios = ScenarioSelector::selectScenarios();
         } else {
-            $scenario = ScenarioSelector::selectScenarioById($currentScenarioId, true);
+            $scenario = ScenarioSelector::selectScenarioById($currentScenarioId);
             $scenarios->addObject($scenario);
         }
 
@@ -81,7 +81,7 @@ class OutgoingIntentMatcher
         $turns = TurnSelector::selectStartingTurns($scenes);
 
         // Select valid intents out of the valid turns. Valid intents will have passing conditions.
-        $intents = IntentSelector::selectResponseIntents($turns, true);
+        $intents = IntentSelector::selectResponseIntents($turns, true, false);
 
         if ($intents->isEmpty()) {
             throw new NoMatchingIntentsException();
@@ -119,7 +119,7 @@ class OutgoingIntentMatcher
             return $turn->getODId();
         });
 
-        $intents = IntentSelector::selectResponseIntents($turns, false);
+        $intents = IntentSelector::selectRequestIntents($turns, false, false);
 
         if ($intents->isEmpty()) {
             throw new NoMatchingIntentsException();
@@ -155,7 +155,7 @@ class OutgoingIntentMatcher
             true
         );
 
-        $intents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]), false);
+        $intents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]), false, false);
 
         if ($intents->isEmpty()) {
             throw new NoMatchingIntentsException();

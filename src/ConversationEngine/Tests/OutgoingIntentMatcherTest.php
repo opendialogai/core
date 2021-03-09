@@ -311,7 +311,7 @@ class OutgoingIntentMatcherTest extends TestCase
         $undesiredIntent->setODId('test_undesired_intent');
         $intents->addObject($undesiredIntent);
 
-        IntentSelector::shouldReceive('selectResponseIntents')
+        IntentSelector::shouldReceive('selectRequestIntents')
             ->once()
             ->andReturn($intents);
 
@@ -349,7 +349,7 @@ class OutgoingIntentMatcherTest extends TestCase
         $undesiredIntent->setODId('test_undesired_intent');
         $intents->addObject($undesiredIntent);
 
-        IntentSelector::shouldReceive('selectResponseIntents')
+        IntentSelector::shouldReceive('selectRequestIntents')
             ->once()
             ->withArgs(function ($turns) {
                 // We only have one turn, but it is both an open turn and one with a matching valid origin

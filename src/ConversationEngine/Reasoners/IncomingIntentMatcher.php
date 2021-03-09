@@ -83,7 +83,7 @@ class IncomingIntentMatcher
             return $turn->getODId();
         });
 
-        $intents = IntentSelector::selectRequestIntents($turns);
+        $intents = IntentSelector::selectRequestIntents($turns, true, false);
 
         return IntentRanker::getTopRankingIntent($intents);
     }
@@ -111,7 +111,7 @@ class IncomingIntentMatcher
             ConversationContextUtil::currentTurnId()
         );
 
-        $intents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]));
+        $intents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]), true, false);
 
         return IntentRanker::getTopRankingIntent($intents);
     }
@@ -145,7 +145,7 @@ class IncomingIntentMatcher
 
         // Select valid intents out of the valid turns. Valid intents will match the interpretation and have passing
         // conditions.
-        $intents = IntentSelector::selectRequestIntents($turns);
+        $intents = IntentSelector::selectRequestIntents($turns, true, false);
 
         // Finally out of all the matching intents select the one with the highest confidence.
         return IntentRanker::getTopRankingIntent($intents);
