@@ -105,13 +105,12 @@ class TurnSelector
     /**
      * Retrieves a specific turn
      *
-     * @param SceneCollection $scenes
      * @param string $turnId
      * @param bool $shallow
      * @return Turn
      */
-    public static function selectTurnById(SceneCollection $scenes, string $turnId, bool $shallow = true): Turn
+    public static function selectTurnById(string $turnId, bool $shallow = true): Turn
     {
-        return ConversationDataClient::getTurnById($scenes, $turnId, $shallow);
+        return ConversationDataClient::getTurnById($turnId, $shallow);
     }
 }

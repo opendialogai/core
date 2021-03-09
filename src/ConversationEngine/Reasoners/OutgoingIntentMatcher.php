@@ -14,7 +14,6 @@ use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
 use OpenDialogAi\ConversationEngine\Util\ConversationContextUtil;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -35,7 +34,7 @@ class OutgoingIntentMatcher
     public static function matchOutgoingIntent(): Intent
     {
         try {
-            if (ConversationContextUtil::currentConversationId() == Conversation::UNDEFINED) {
+            if (ConversationContextUtil::currentConversationUid() == Conversation::UNDEFINED) {
                 // It's a non-ongoing conversation
                 return self::matchNextIntentAsStartingRequestIntent();
             } else {
@@ -59,7 +58,7 @@ class OutgoingIntentMatcher
      */
     private static function matchNextIntentAsStartingRequestIntent(): Intent
     {
-        $currentScenarioId = ConversationContextUtil::currentScenarioId();
+        $currentScenarioId = ConversationContextUtil::currentScenarioUid();
         $scenarios = new ScenarioCollection();
 
         if ($currentScenarioId == Scenario::UNDEFINED) {
@@ -96,17 +95,7 @@ class OutgoingIntentMatcher
      */
     private static function matchNextIntentAsRequestIntent(): Intent
     {
-        $scenario = ScenarioSelector::selectScenarioById(ConversationContextUtil::currentScenarioId(), true);
-
-        $conversation = ConversationSelector::selectConversationById(
-            new ScenarioCollection([$scenario]),
-            ConversationContextUtil::currentConversationId()
-        );
-
-        $scene = SceneSelector::selectSceneById(
-            new ConversationCollection([$conversation]),
-            ConversationContextUtil::currentSceneId()
-        );
+        $scene = SceneSelector::selectSceneById(ConversationContextUtil::currentSceneUid());
 
         $openTurns = TurnSelector::selectOpenTurns(new SceneCollection([$scene]));
         $turnsWithMatchingValidOrigin = TurnSelector::selectTurnsByValidOrigin(
@@ -135,25 +124,7 @@ class OutgoingIntentMatcher
      */
     private static function matchNextIntentAsResponseIntent(): Intent
     {
-        $scenario = ScenarioSelector::selectScenarioById(ConversationContextUtil::currentScenarioId(), true);
-
-        $conversation = ConversationSelector::selectConversationById(
-            new ScenarioCollection([$scenario]),
-            ConversationContextUtil::currentConversationId(),
-            true
-        );
-
-        $scene = SceneSelector::selectSceneById(
-            new ConversationCollection([$conversation]),
-            ConversationContextUtil::currentSceneId(),
-            true
-        );
-
-        $turn = TurnSelector::selectTurnById(
-            new SceneCollection([$scene]),
-            ConversationContextUtil::currentTurnId(),
-            true
-        );
+        $turn = TurnSelector::selectTurnById(ConversationContextUtil::currentTurnUid());
 
         $intents = IntentSelector::selectResponseIntents(new TurnCollection([$turn]), false, false);
 

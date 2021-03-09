@@ -260,7 +260,7 @@ class IncomingIntentMatcherTest extends TestCase
      */
     private function mockSelectorsForIncomingOngoingOpenTurnRequest(string $desiredIntentId): Intent
     {
-        $scene = $this->mockSelectorsForOngoing();
+        $scene = $this->createScene();
 
         $turn = new Turn($scene);
         $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
@@ -305,7 +305,7 @@ class IncomingIntentMatcherTest extends TestCase
      */
     private function mockSelectorsForIncomingOngoingResponse(string $desiredIntentId): Intent
     {
-        $scene = $this->mockSelectorsForOngoing();
+        $scene = $this->createScene();
 
         $turn = new Turn($scene);
         $turn->setODId(self::TEST_TURN_1);
@@ -345,7 +345,7 @@ class IncomingIntentMatcherTest extends TestCase
      */
     private function mockSelectorsForIncomingOngoingValidOriginRequest(string $desiredIntentId): Intent
     {
-        $scene = $this->mockSelectorsForOngoing();
+        $scene = $this->createScene();
 
         $turn = new Turn($scene);
         $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
@@ -393,26 +393,16 @@ class IncomingIntentMatcherTest extends TestCase
     /**
      * @return Scene
      */
-    private function mockSelectorsForOngoing(): Scene
+    private function createScene(): Scene
     {
         $scenario = new Scenario();
         $scenario->setODId(self::TEST_SCENARIO_1);
 
-        ScenarioSelector::shouldReceive('selectScenarioById')
-            ->once()
-            ->andReturn($scenario);
-
         $conversation = new Conversation($scenario);
         $conversation->setODId(self::TEST_CONVERSATION_1);
-        ConversationSelector::shouldReceive('selectConversationById')
-            ->once()
-            ->andReturn($conversation);
 
         $scene = new Scene($conversation);
         $scene->setODId(self::TEST_SCENE_1);
-        SceneSelector::shouldReceive('selectSceneById')
-            ->once()
-            ->andReturn($scene);
 
         return $scene;
     }

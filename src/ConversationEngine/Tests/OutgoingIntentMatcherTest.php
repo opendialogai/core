@@ -225,26 +225,9 @@ class OutgoingIntentMatcherTest extends TestCase
      */
     private function mockSelectorsForOutgoingResponse(IntentCollection $intents): void
     {
-        $scenario = new Scenario();
-        $scenario->setODId('test_scenario1');
+        $scene = $this->createScene();
 
-        ScenarioSelector::shouldReceive('selectScenarioById')
-            ->once()
-            ->andReturn($scenario);
-
-        $conversation = new Conversation();
-        $conversation->setODId('test_conversation1');
-        ConversationSelector::shouldReceive('selectConversationById')
-            ->once()
-            ->andReturn($conversation);
-
-        $scene = new Scene();
-        $scene->setODId('test_scene1');
-        SceneSelector::shouldReceive('selectSceneById')
-            ->once()
-            ->andReturn($scene);
-
-        $turn = new Turn();
+        $turn = new Turn($scene);
         $turn->setODId('test_turn1');
         TurnSelector::shouldReceive('selectTurnById')
             ->once()
@@ -258,26 +241,16 @@ class OutgoingIntentMatcherTest extends TestCase
     /**
      * @return Scene
      */
-    private function mockSelectorsForOngoing(): Scene
+    private function createScene(): Scene
     {
         $scenario = new Scenario();
         $scenario->setODId(self::TEST_SCENARIO_1);
 
-        ScenarioSelector::shouldReceive('selectScenarioById')
-            ->once()
-            ->andReturn($scenario);
-
         $conversation = new Conversation($scenario);
         $conversation->setODId(self::TEST_CONVERSATION_1);
-        ConversationSelector::shouldReceive('selectConversationById')
-            ->once()
-            ->andReturn($conversation);
 
         $scene = new Scene($conversation);
         $scene->setODId(self::TEST_SCENE_1);
-        SceneSelector::shouldReceive('selectSceneById')
-            ->once()
-            ->andReturn($scene);
 
         return $scene;
     }
@@ -288,7 +261,7 @@ class OutgoingIntentMatcherTest extends TestCase
      */
     private function mockSelectorsForOutgoingOngoingOpenTurnRequest(string $desiredIntentId): Intent
     {
-        $scene = $this->mockSelectorsForOngoing();
+        $scene = $this->createScene();
 
         $turn = new Turn($scene);
         $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
@@ -324,7 +297,7 @@ class OutgoingIntentMatcherTest extends TestCase
      */
     private function mockSelectorsForOutgoingOngoingValidOriginRequest(string $desiredIntentId): Intent
     {
-        $scene = $this->mockSelectorsForOngoing();
+        $scene = $this->createScene();
 
         $turn = new Turn($scene);
         $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
