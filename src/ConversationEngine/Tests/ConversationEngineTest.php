@@ -12,7 +12,7 @@ use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
 use OpenDialogAi\ConversationEngine\Reasoners\IncomingIntentMatcher;
 use OpenDialogAi\ConversationEngine\Reasoners\OutgoingIntentMatcher;
-use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
+use OpenDialogAi\ConversationEngine\Util\ConversationContextUtil;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\Conversation;
@@ -69,13 +69,13 @@ class ConversationEngineTest extends TestCase
         ConversationEngine::updateState($incomingIntent);
 
         // The state should reflect the current intent, which is necessary for outgoing intent matching
-        $this->assertEquals(self::TEST_SCENARIO_1, MatcherUtil::currentScenarioId());
-        $this->assertEquals(self::TEST_CONVERSATION_1, MatcherUtil::currentConversationId());
-        $this->assertEquals(self::TEST_SCENE_1, MatcherUtil::currentSceneId());
-        $this->assertEquals(self::TEST_TURN_2, MatcherUtil::currentTurnId());
-        $this->assertEquals($expectedIncomingIntentId, MatcherUtil::currentIntentId());
-        $this->assertEquals(true, MatcherUtil::currentIntentIsRequest());
-        $this->assertEquals(Intent::USER, MatcherUtil::currentSpeaker());
+        $this->assertEquals(self::TEST_SCENARIO_1, ConversationContextUtil::currentScenarioId());
+        $this->assertEquals(self::TEST_CONVERSATION_1, ConversationContextUtil::currentConversationId());
+        $this->assertEquals(self::TEST_SCENE_1, ConversationContextUtil::currentSceneId());
+        $this->assertEquals(self::TEST_TURN_2, ConversationContextUtil::currentTurnId());
+        $this->assertEquals($expectedIncomingIntentId, ConversationContextUtil::currentIntentId());
+        $this->assertEquals(true, ConversationContextUtil::currentIntentIsRequest());
+        $this->assertEquals(Intent::USER, ConversationContextUtil::currentSpeaker());
 
         /* Matching the outgoing intent */
 
@@ -87,13 +87,13 @@ class ConversationEngineTest extends TestCase
         ConversationEngine::updateState($outgoingIntent);
 
         // The state is left in tact as the intent was not completing
-        $this->assertEquals(self::TEST_SCENARIO_1, MatcherUtil::currentScenarioId());
-        $this->assertEquals(self::TEST_CONVERSATION_1, MatcherUtil::currentConversationId());
-        $this->assertEquals(self::TEST_SCENE_1, MatcherUtil::currentSceneId());
-        $this->assertEquals(self::TEST_TURN_2, MatcherUtil::currentTurnId());
-        $this->assertEquals($expectedOutgoingIntentId, MatcherUtil::currentIntentId());
-        $this->assertEquals(false, MatcherUtil::currentIntentIsRequest());
-        $this->assertEquals(Intent::APP, MatcherUtil::currentSpeaker());
+        $this->assertEquals(self::TEST_SCENARIO_1, ConversationContextUtil::currentScenarioId());
+        $this->assertEquals(self::TEST_CONVERSATION_1, ConversationContextUtil::currentConversationId());
+        $this->assertEquals(self::TEST_SCENE_1, ConversationContextUtil::currentSceneId());
+        $this->assertEquals(self::TEST_TURN_2, ConversationContextUtil::currentTurnId());
+        $this->assertEquals($expectedOutgoingIntentId, ConversationContextUtil::currentIntentId());
+        $this->assertEquals(false, ConversationContextUtil::currentIntentIsRequest());
+        $this->assertEquals(Intent::APP, ConversationContextUtil::currentSpeaker());
     }
 
     /**
@@ -115,13 +115,13 @@ class ConversationEngineTest extends TestCase
         ConversationEngine::updateState($incomingIntent);
 
         // The state should reflect the current intent, which is necessary for outgoing intent matching
-        $this->assertEquals(self::TEST_SCENARIO_1, MatcherUtil::currentScenarioId());
-        $this->assertEquals(self::TEST_CONVERSATION_1, MatcherUtil::currentConversationId());
-        $this->assertEquals(self::TEST_SCENE_1, MatcherUtil::currentSceneId());
-        $this->assertEquals(self::TEST_TURN_2, MatcherUtil::currentTurnId());
-        $this->assertEquals($expectedIncomingIntentId, MatcherUtil::currentIntentId());
-        $this->assertEquals(true, MatcherUtil::currentIntentIsRequest());
-        $this->assertEquals(Intent::USER, MatcherUtil::currentSpeaker());
+        $this->assertEquals(self::TEST_SCENARIO_1, ConversationContextUtil::currentScenarioId());
+        $this->assertEquals(self::TEST_CONVERSATION_1, ConversationContextUtil::currentConversationId());
+        $this->assertEquals(self::TEST_SCENE_1, ConversationContextUtil::currentSceneId());
+        $this->assertEquals(self::TEST_TURN_2, ConversationContextUtil::currentTurnId());
+        $this->assertEquals($expectedIncomingIntentId, ConversationContextUtil::currentIntentId());
+        $this->assertEquals(true, ConversationContextUtil::currentIntentIsRequest());
+        $this->assertEquals(Intent::USER, ConversationContextUtil::currentSpeaker());
 
         /* Matching the outgoing intent */
 
@@ -133,13 +133,13 @@ class ConversationEngineTest extends TestCase
         ConversationEngine::updateState($outgoingIntent);
 
         // The state is left in tact as the intent was not completing
-        $this->assertEquals(self::TEST_SCENARIO_1, MatcherUtil::currentScenarioId());
-        $this->assertEquals(self::TEST_CONVERSATION_1, MatcherUtil::currentConversationId());
-        $this->assertEquals(self::TEST_SCENE_1, MatcherUtil::currentSceneId());
-        $this->assertEquals(self::TEST_TURN_2, MatcherUtil::currentTurnId());
-        $this->assertEquals($expectedOutgoingIntentId, MatcherUtil::currentIntentId());
-        $this->assertEquals(false, MatcherUtil::currentIntentIsRequest());
-        $this->assertEquals(Intent::APP, MatcherUtil::currentSpeaker());
+        $this->assertEquals(self::TEST_SCENARIO_1, ConversationContextUtil::currentScenarioId());
+        $this->assertEquals(self::TEST_CONVERSATION_1, ConversationContextUtil::currentConversationId());
+        $this->assertEquals(self::TEST_SCENE_1, ConversationContextUtil::currentSceneId());
+        $this->assertEquals(self::TEST_TURN_2, ConversationContextUtil::currentTurnId());
+        $this->assertEquals($expectedOutgoingIntentId, ConversationContextUtil::currentIntentId());
+        $this->assertEquals(false, ConversationContextUtil::currentIntentIsRequest());
+        $this->assertEquals(Intent::APP, ConversationContextUtil::currentSpeaker());
     }
 
     private function updateStateToUndefined()
@@ -424,13 +424,13 @@ class ConversationEngineTest extends TestCase
         ConversationEngine::updateState($incomingIntent);
 
         // The state should reflect the current intent, which is necessary for outgoing intent matching
-        $this->assertEquals(self::TEST_SCENARIO_1, MatcherUtil::currentScenarioId());
-        $this->assertEquals(self::TEST_CONVERSATION_1, MatcherUtil::currentConversationId());
-        $this->assertEquals(self::TEST_SCENE_1, MatcherUtil::currentSceneId());
-        $this->assertEquals(self::TEST_TURN_1, MatcherUtil::currentTurnId());
-        $this->assertEquals($expectedIncomingIntentId, MatcherUtil::currentIntentId());
-        $this->assertEquals(true, MatcherUtil::currentIntentIsRequest());
-        $this->assertEquals(Intent::USER, MatcherUtil::currentSpeaker());
+        $this->assertEquals(self::TEST_SCENARIO_1, ConversationContextUtil::currentScenarioId());
+        $this->assertEquals(self::TEST_CONVERSATION_1, ConversationContextUtil::currentConversationId());
+        $this->assertEquals(self::TEST_SCENE_1, ConversationContextUtil::currentSceneId());
+        $this->assertEquals(self::TEST_TURN_1, ConversationContextUtil::currentTurnId());
+        $this->assertEquals($expectedIncomingIntentId, ConversationContextUtil::currentIntentId());
+        $this->assertEquals(true, ConversationContextUtil::currentIntentIsRequest());
+        $this->assertEquals(Intent::USER, ConversationContextUtil::currentSpeaker());
 
         /* Matching the outgoing intent */
 
@@ -442,13 +442,13 @@ class ConversationEngineTest extends TestCase
         ConversationEngine::updateState($outgoingIntent);
 
         // Most of the state should be undefined as the current intent was completing
-        $this->assertEquals(self::TEST_SCENARIO_1, MatcherUtil::currentScenarioId());
-        $this->assertEquals(Conversation::UNDEFINED, MatcherUtil::currentConversationId());
-        $this->assertEquals(Scene::UNDEFINED, MatcherUtil::currentSceneId());
-        $this->assertEquals(Turn::UNDEFINED, MatcherUtil::currentTurnId());
-        $this->assertEquals(Intent::UNDEFINED, MatcherUtil::currentIntentId());
-        $this->assertEquals(false, MatcherUtil::currentIntentIsRequest());
-        $this->assertEquals(Intent::APP, MatcherUtil::currentSpeaker());
+        $this->assertEquals(self::TEST_SCENARIO_1, ConversationContextUtil::currentScenarioId());
+        $this->assertEquals(Conversation::UNDEFINED, ConversationContextUtil::currentConversationId());
+        $this->assertEquals(Scene::UNDEFINED, ConversationContextUtil::currentSceneId());
+        $this->assertEquals(Turn::UNDEFINED, ConversationContextUtil::currentTurnId());
+        $this->assertEquals(Intent::UNDEFINED, ConversationContextUtil::currentIntentId());
+        $this->assertEquals(false, ConversationContextUtil::currentIntentIsRequest());
+        $this->assertEquals(Intent::APP, ConversationContextUtil::currentSpeaker());
     }
 
     /**

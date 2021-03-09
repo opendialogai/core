@@ -32,6 +32,8 @@ class ConversationEngine implements ConversationEngineInterface
         $incomingIntent = Intent::createNoMatchIntent();
         $outgoingIntents = new IntentCollection();
 
+        $currentUser = null;
+
         try {
             /** @var UserAttribute $currentUser */
             $currentUser = $this->getCurrentUser($utterance);
@@ -58,6 +60,10 @@ class ConversationEngine implements ConversationEngineInterface
             $outgoingIntent = $outgoingIntents->last();
             self::updateState($outgoingIntent);
             ActionPerformer::performActionsForIntent($outgoingIntent);
+
+            if (!is_null($currentUser)) {
+                ConversationalStateReasoner::setConversationalStateForUser($currentUser);
+            }
         }
 
         return $outgoingIntents;

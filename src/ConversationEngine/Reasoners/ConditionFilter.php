@@ -16,6 +16,10 @@ use OpenDialogAi\OperationEngine\Facade\OperationService;
 class ConditionFilter
 {
     /**
+     * Filters the given object collection by their conditions. $populateIntentContext should only be used when the
+     * given collection is a collection of Intent objects, and will pull attributes from the interpreted intent and
+     * populate the _intent context with them (which will be refreshed for each object).
+     *
      * @param ODObjectCollection $objects
      * @param bool $populateIntentContext
      * @return ODObjectCollection
