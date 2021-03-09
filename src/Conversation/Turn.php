@@ -82,20 +82,22 @@ class Turn extends ConversationObject
         $this->responseIntents->addObject($intent);
     }
 
+
     /**
-     * @return string|null
+     * Gets the current interpreter by checking the conversations interpreter, or searching for a default up the tree
+     * A null value indicates 'not hydrated'
+     * An '' value indicates 'none'
+     * Any other value indicates an interpreter (E.g interpreter.core.callback)
      */
-    public function getInterpreter()
+    public function getInterpreter(): string
     {
-        if (isset($this->interpreter)) {
-            return $this->interpreter;
+        if($this->interpreter === null) {
+            throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
         }
-
-        if (isset($this->scene)) {
-            return $this->scene->getInterpreter();
+        if($this->interpreter === '') {
+            return $this->getScene()->getInterpreter();
         }
-
-        return null;
+        return $this->interpreter;
     }
 
     /**

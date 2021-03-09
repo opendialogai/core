@@ -50,18 +50,20 @@ class Scene extends ConversationObject
     }
 
     /**
-     * @return string|null
+     * Gets the current interpreter by checking the scene's interpreter, or searching for a default up the tree
+     * A null value indicates 'not hydrated'
+     * An '' value indicates 'none'
+     * Any other value indicates an interpreter (E.g interpreter.core.callback)
      */
-    public function getInterpreter()
+    public function getInterpreter(): string
     {
-        if (isset($this->interpreter)) {
-            return $this->interpreter;
+        if($this->interpreter === null) {
+            throw new InsufficientHydrationException("Interpreter on Scene has not been hydrated.");
         }
-
-        if (isset($this->conversation)) {
-            return $this->conversation->getInterpreter();
+        if($this->interpreter === '') {
+            return $this->getConversation()->getInterpreter();
         }
-        return null;
+        return $this->interpreter;
     }
 
     public function getScenario(): ?Scenario

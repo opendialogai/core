@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use DateTime;
+use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 
 class ConversationObject
 {
@@ -18,15 +19,15 @@ class ConversationObject
     public const CONDITIONS = 'conditions';
     public const BEHAVIORS = 'behaviors';
 
-    protected string $odId;
-    protected string $uid;
-    protected string $name;
+    protected ?string $odId = null;
+    protected ?string $uid = null;
+    protected ?string $name = null;
     protected ?string $description = null;
-    protected ConditionCollection $conditions;
-    protected BehaviorsCollection $behaviors;
+    protected ?ConditionCollection $conditions = null;
+    protected ?BehaviorsCollection $behaviors = null;
     protected ?string $interpreter = null;
-    protected DateTime $createdAt;
-    protected DateTime $updatedAt;
+    protected ?DateTime $createdAt = null;
+    protected ?DateTime $updatedAt = null;
 
     public function __construct()
     {
@@ -43,12 +44,18 @@ class ConversationObject
     }
 
     /**
-     * The id of the object. Not all objects have an id. An id would be something like 'action.core.Transform'
+     * The id of the object.
+     * A null value indicates 'not hydrated'
+     * A '' value indicates 'none'
+     * Any other value should be an object id E.g 'welcome_conversation'
      *
      * @return string
      */
     public function getOdId(): string
     {
+        if($this->odId === null) {
+            throw new InsufficientHydrationException("Cannot getOdId(). Value is not set!");
+        }
         return $this->odId;
     }
 
@@ -62,11 +69,16 @@ class ConversationObject
 
     /**
      * The uid of an object is the unique id with which it is stored in persistence storage.
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a uid (E.g 0x0001)
      *
      * @return string
      */
     public function getUid(): ?string
     {
+        if($this->uid === null) {
+            throw new InsufficientHydrationException("Cannot getUid(). Value is not set!");
+        }
         return $this->uid;
     }
 
@@ -80,11 +92,16 @@ class ConversationObject
 
     /**
      * The human-friendly name of the object.
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a set name.
      *
      * @return string
      */
-    public function getName(): ?string
+    public function getName(): string
     {
+        if($this->name === null) {
+            throw new InsufficientHydrationException("Cannot getName(). Value is not set!");
+        }
         return $this->name;
     }
 
@@ -99,10 +116,17 @@ class ConversationObject
     /**
      * The human-friendly description of an object.
      *
+     * A null value indicates 'not hydrated'
+     * A '' value indicates empty
+     * Any other value indicates a set description.
+     *
      * @return string
      */
     public function getDescription(): string
     {
+        if($this->description === null) {
+            throw new InsufficientHydrationException("Cannot getDescription(). Value is not set!");
+        }
         return $this->description;
     }
 
@@ -114,7 +138,21 @@ class ConversationObject
         $this->description = $description;
     }
 
-    public function setInterpreter(string $interpreter)
+    /**
+     * The interpreter specified by this object.
+     * A null value indicates 'not hydrated'
+     * A '' value indicates 'none'
+     * Any other value is considered interpreter id (E.g `interpreter.core.callback`)
+     * @return string
+     */
+    public function getInterpreter(): string {
+        if($this->interpreter === null) {
+            throw new InsufficientHydrationException("Cannot getName(). Value is not set!");
+        }
+        return $this->interpreter;
+    }
+
+    public function setInterpreter(string $interpreter): void
     {
         $this->interpreter = $interpreter;
     }
@@ -126,6 +164,9 @@ class ConversationObject
      */
     public function hasConditions(): bool
     {
+        if($this->conditions === null) {
+            throw new InsufficientHydrationException("Cannot call hasConditions(). Value is not set!");
+        }
         if ($this->conditions->isEmpty()) {
             return false;
         }
@@ -135,11 +176,16 @@ class ConversationObject
 
     /**
      * Retrieves a collection of objects
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a collection of conditions.
      *
      * @return ConditionCollection
      */
-    public function getConditions(): ConditionCollection
+    public function getConditions(): ?ConditionCollection
     {
+        if($this->conditions === null) {
+            throw new InsufficientHydrationException("Cannot getConditions(). Value is not set!");
+        }
         return $this->conditions;
     }
 
@@ -159,6 +205,9 @@ class ConversationObject
      */
     public function hasBehaviors(): bool
     {
+        if($this->behaviors === null) {
+            throw new InsufficientHydrationException("Cannot hasBehaviors(). Value is not set!");
+        }
         if ($this->behaviors->isEmpty()) {
             return false;
         }
@@ -172,6 +221,9 @@ class ConversationObject
      */
     public function getBehaviors(): BehaviorsCollection
     {
+        if($this->behaviors === null) {
+            throw new InsufficientHydrationException("Cannot getBehaviors(). Value is not set!");
+        }
         return $this->behaviors;
     }
 
@@ -186,52 +238,13 @@ class ConversationObject
     }
 
     /**
-     * @return bool
-     */
-    public function isActive(): bool
-    {
-        return $this->active;
-    }
-
-    /**
-     * @return bool
-     */
-    public function activate(): bool
-    {
-        $this->active = true;
-        return $this->active;
-    }
-
-    /**
-     * @return bool
-     */
-    public function deactivate(): bool
-    {
-        $this->active = false;
-        return $this->active;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param $value
-     */
-    public function setStatus($value)
-    {
-        $this->status = $value;
-    }
-
-    /**
      * @return DateTime
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt() : DateTime
     {
+        if($this->updatedAt === null) {
+            throw new InsufficientHydrationException("Cannot getUpdatedAt(). Value is not set!");
+        }
         return $this->updatedAt;
     }
 
@@ -246,8 +259,11 @@ class ConversationObject
     /**
      * @return DateTime
      */
-    public function getCreatedAt()
+    public function getCreatedAt(): DateTime
     {
+        if($this->createdAt === null) {
+            throw new InsufficientHydrationException("Cannot getCreatedAt(). Value is not set!");
+        }
         return $this->createdAt;
     }
 

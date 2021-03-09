@@ -1,57 +1,68 @@
 interface ConversationObject {
-    uid: ID!
+    id: ID!
     od_id: String!
     name: String!
     description: String
+    interpreter: String
     conditions: [Condition!]
     behaviors: [String!]
+    created_at: String!
+    updated_at: String!
 }
 
 type Scenario implements ConversationObject  {
-    uid: ID!
+    id: ID!
     od_id: String! @search(by:[hash])
     name: String! @search(by:[hash])
     description: String
+    interpreter: String
     conditions: [Condition!]
     behaviors: [String!]
-    default_interpreter: String
+    created_at: String!
+    updated_at: String!
     conversations: [Conversation!] @hasInverse(field:"scenario")
     active: Boolean!
     status: EditStatus!
 }
 
 type Conversation implements ConversationObject  {
-    uid: ID!
+    id: ID!
     od_id: String! @search(by:[hash])
     name: String! @search(by:[hash])
     description: String
     conditions: [Condition!]
     behaviors: [String!]
-    default_interpreter: String
+    interpreter: String
+    created_at: String!
+    updated_at: String!
     scenes: [Scene!] @hasInverse(field:"conversation")
     scenario: Scenario!
 }
 
 type Scene implements ConversationObject {
-    uid: ID!
+    id: ID!
     od_id: String! @search(by:[hash])
     name: String! @search(by:[hash])
     description: String
     conditions: [Condition!]
     behaviors: [String!]
-    default_interpreter: String
+    interpreter: String
+    created_at: String!
+    updated_at: String!
     turns: [Turn!] @hasInverse(field:"scene")
     conversation: Conversation!
 }
 
 type Turn implements ConversationObject {
-    uid: ID!
+    id: ID!
     od_id: String! @search(by:[hash])
     name: String! @search(by:[hash])
     description: String
     conditions: [Condition!]
     behaviors: [String!]
-    default_interpreter: String
+    interpreter: String
+    created_at: String!
+    updated_at: String!
     intents: [TurnIntent!] @hasInverse(field:"turn")
     scene: Scene!
     valid_origins: [Turn!]
@@ -69,13 +80,15 @@ enum ExchangeOrder {
 }
 
 type Intent implements ConversationObject {
-    uid: ID!
+    id: ID!
     od_id: String! @search(by:[hash])
     name: String! @search(by:[hash])
     description: String
     conditions: [Condition!]
     behaviors: [String!]
     interpreter: String
+    created_at: String!
+    updated_at: String!
     listens: [String!]
     confidence: Float!
     expected_attributes: [String!]
@@ -88,7 +101,7 @@ type Intent implements ConversationObject {
 }
 
 type ActionClosure {
-    uid: ID!
+    id: ID!
     name: String!
     actionId: String!
     attribute_inputs: [NamedAttributeReference!]
@@ -106,21 +119,21 @@ type VirtualIntent {
 }
 
 type Attribute  {
-    uid: ID!
+    id: ID!
     name: String
     type: String
     value: String
 }
 
 type CompositeAttribute  {
-    uid: ID!
+    id: ID!
     name: String
     type: String
     value: [Attribute]
 }
 
 type Condition  {
-    uid: ID!
+    id: ID!
     name: String!
     operation: String
     parameters: [ConditionParameter!]!
@@ -155,21 +168,21 @@ type BooleanValueParameter {
 union ConditionParameter = AttributeReferenceParameter | IntValueParameter | FloatValueParameter | StringValueParameter | BooleanValueParameter
 
 type Action  {
-    uid: ID!
+    id: ID!
     name: String
     input_attributes: [Attribute]
     output_attributes: [Attribute]
 }
 
 type User  {
-    uid: ID!
+    id: ID!
     user_id: String! @id
     attributes: [Attribute]
     records: [UserHistoryRecord] @hasInverse(field:user)
 }
 
 type UserHistoryRecord  {
-    uid: ID!
+    id: ID!
     user: User
     timestamp: DateTime
     platform: String

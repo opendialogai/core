@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
+use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
+
 class Scenario extends ConversationObject
 {
     public const CURRENT_SCENARIO = 'current_scenario';
@@ -12,9 +14,10 @@ class Scenario extends ConversationObject
     public const DRAFT_STATUS = "DRAFT";
     public const PREVIEW_STATUS = "PREVIEW";
     public const LIVE_STATUS = "LIVE";
-    protected bool $active;
-    protected string $status;
-    protected ConversationCollection $conversations;
+
+    protected ?bool $active;
+    protected ?string $status;
+    protected ?ConversationCollection $conversations;
 
     public function __construct()
     {
@@ -49,24 +52,66 @@ class Scenario extends ConversationObject
 
     public function addConversation(Conversation $conversation)
     {
-        $this->conversations->addObject($conversation);
+        $this->getConversations()->addObject($conversation);
         $conversation->setScenario($this);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getInterpreter()
-    {
-        if (isset($this->interpreter)) {
-            return $this->interpreter;
-        }
-
-        return null;
     }
 
     public function setActive(bool $active)
     {
         $this->active = $active;
+    }
+
+    /**
+     * Gets the status of the Scenario
+     * A null value indicates 'not hydrated'
+     * Any other values indicate a status (E.g 'DRAFT')
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        if($this->status === null) {
+            throw new InsufficientHydrationException("Cannot getStatus(). Value is not set!");
+        }
+        return $this->status;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setStatus($value)
+    {
+        $this->status = $value;
+    }
+
+    /**
+     * Checks if the scenario is active
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a set value for 'active'
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        if($this->active === null) {
+            throw new InsufficientHydrationException("Cannot isActive(). Value is not set!");
+        }
+        return $this->active;
+    }
+
+    /**
+     * @return bool
+     */
+    public function activate(): bool
+    {
+        $this->active = true;
+        return $this->active;
+    }
+
+    /**
+     * @return bool
+     */
+    public function deactivate(): bool
+    {
+        $this->active = false;
+        return $this->active;
     }
 }

@@ -44,7 +44,7 @@ class ScenarioSerializationTest extends SerializationTestCase
         $data = $serializer->normalize($scenario, 'json', []);
         $expected = [
             'type' => Scenario::TYPE,
-            'uid' => $scenario->getUid(),
+            'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
             'description' => $scenario->getDescription(),
@@ -92,7 +92,7 @@ class ScenarioSerializationTest extends SerializationTestCase
         $data = $serializer->normalize($scenario, 'json', []);
         $expected = [
             'type' => Scenario::TYPE,
-            'uid' => $scenario->getUid(),
+            'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
             'description' => $scenario->getDescription(),
@@ -180,7 +180,7 @@ class ScenarioSerializationTest extends SerializationTestCase
         $scenario = $this->getStandaloneScenario();
         $data = [
             'type' => Scenario::TYPE,
-            'uid' => $scenario->getUid(),
+            'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
             'description' => $scenario->getDescription(),
@@ -206,7 +206,7 @@ class ScenarioSerializationTest extends SerializationTestCase
 
         $scenario = $this->getStandaloneScenario();
         $data = [
-            'uid' => $scenario->getUid(),
+            'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
             'description' => $scenario->getDescription(),
@@ -260,7 +260,7 @@ class ScenarioSerializationTest extends SerializationTestCase
 
         $data = [
             'type' => Scenario::TYPE,
-            'uid' => $scenario->getUid(),
+            'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
             'description' => $scenario->getDescription(),
@@ -350,7 +350,7 @@ class ScenarioSerializationTest extends SerializationTestCase
         $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => Scenario::localFields()]);
         $expected = [
             'type' => Scenario::TYPE,
-            'uid' => $scenario->getUid(),
+            'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
             'description' => $scenario->getDescription(),
