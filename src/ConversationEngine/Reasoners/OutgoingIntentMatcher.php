@@ -36,10 +36,10 @@ class OutgoingIntentMatcher
     {
         try {
             if (ConversationContextUtil::currentConversationId() == Conversation::UNDEFINED) {
-                // Its a non-ongoing conversation
+                // It's a non-ongoing conversation
                 return self::asStartingRequestIntent();
             } else {
-                // Its an ongoing conversation
+                // It's an ongoing conversation
                 if (ConversationContextUtil::currentIntentIsRequest()) {
                     // if "current" intent (at this point the current data is actually the previous data) is a request it
                     // means we previously dealt with a request
