@@ -109,12 +109,11 @@ class ConversationDataClient
     /**
      * Retrieves a specific conversation
      *
-     * @param ScenarioCollection $scenarios
      * @param string $conversationId
      * @param bool $shallow
      * @return Conversation
      */
-    public function getConversationById(ScenarioCollection $scenarios, string $conversationId, bool $shallow): Conversation
+    public function getConversationById(string $conversationId, bool $shallow): Conversation
     {
         return new Conversation();
     }
@@ -158,12 +157,11 @@ class ConversationDataClient
     /**
      * Retrieves a specific scene
      *
-     * @param ConversationCollection $conversations
      * @param string $sceneId
      * @param bool $shallow
      * @return Scene
      */
-    public function getSceneById(ConversationCollection $conversations, string $sceneId, bool $shallow): Scene
+    public function getSceneById(string $sceneId, bool $shallow): Scene
     {
         return new Scene();
     }
@@ -207,12 +205,11 @@ class ConversationDataClient
     /**
      * Retrieves a specific turn
      *
-     * @param SceneCollection $scenes
      * @param string $turnId
      * @param bool $shallow
      * @return Turn
      */
-    public function getTurnById(SceneCollection $scenes, string $turnId, bool $shallow): Turn
+    public function getTurnById(string $turnId, bool $shallow): Turn
     {
         return new Turn();
     }

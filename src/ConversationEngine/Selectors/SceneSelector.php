@@ -79,13 +79,12 @@ class SceneSelector
     /**
      * Retrieves a specific scene
      *
-     * @param ConversationCollection $conversations
      * @param string $sceneId
      * @param bool $shallow
      * @return Scene
      */
-    public static function selectSceneById(ConversationCollection $conversations, string $sceneId, bool $shallow = true): Scene
+    public static function selectSceneById(string $sceneId, bool $shallow = true): Scene
     {
-        return ConversationDataClient::getSceneById($conversations, $sceneId, $shallow);
+        return ConversationDataClient::getSceneById($sceneId, $shallow);
     }
 }

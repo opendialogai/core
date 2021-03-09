@@ -3,7 +3,6 @@
 namespace OpenDialogAi\ConversationEngine;
 
 use Illuminate\Support\Facades\Log;
-use OpenDialogAi\ActionEngine\Service\ActionEngineInterface;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UtteranceAttribute;
@@ -16,50 +15,16 @@ use OpenDialogAi\ConversationEngine\Reasoners\ConversationalStateReasoner;
 use OpenDialogAi\ConversationEngine\Reasoners\IncomingIntentMatcher;
 use OpenDialogAi\ConversationEngine\Reasoners\OutgoingIntentMatcher;
 use OpenDialogAi\ConversationEngine\Reasoners\UtteranceReasoner;
+use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\Turn;
-use OpenDialogAi\InterpreterEngine\Service\InterpreterServiceInterface;
-use OpenDialogAi\OperationEngine\Service\OperationServiceInterface;
 
 class ConversationEngine implements ConversationEngineInterface
 {
-    /* @var InterpreterServiceInterface */
-    private $interpreterService;
-
-    /* @var OperationServiceInterface */
-    private $operationService;
-
-    /* @var ActionEngineInterface */
-    private $actionEngine;
-
-    /**
-     * @param InterpreterServiceInterface $interpreterService
-     */
-    public function setInterpreterService(InterpreterServiceInterface $interpreterService): void
-    {
-        $this->interpreterService = $interpreterService;
-    }
-
-    /**
-     * @param OperationServiceInterface $operationService
-     */
-    public function setOperationService(OperationServiceInterface $operationService): void
-    {
-        $this->operationService = $operationService;
-    }
-
-    /**
-     * @param ActionEngineInterface $actionEngine
-     */
-    public function setActionEngine(ActionEngineInterface $actionEngine): void
-    {
-        $this->actionEngine = $actionEngine;
-    }
-
     public function getNextIntents(UtteranceAttribute $utterance): IntentCollection
     {
         // We start by setting the request intent to a no match and the possible response intents
@@ -77,11 +42,11 @@ class ConversationEngine implements ConversationEngineInterface
             ConversationalStateReasoner::determineConversationalStateForUser($currentUser);
 
             $incomingIntent = IncomingIntentMatcher::matchIncomingIntent();
-            $this->updateState($incomingIntent);
         } catch (NoMatchingIntentsException $e) {
             Log::debug('No incoming intent matched, generating no-match intent');
         }
 
+        self::updateState($incomingIntent);
         ActionPerformer::performActionsForIntent($incomingIntent);
 
         try {
@@ -93,7 +58,7 @@ class ConversationEngine implements ConversationEngineInterface
 
         if ($outgoingIntents->isNotEmpty()) {
             $outgoingIntent = $outgoingIntents->last();
-            $this->updateState($outgoingIntent);
+            self::updateState($outgoingIntent);
             ActionPerformer::performActionsForIntent($outgoingIntent);
 
             if (!is_null($currentUser)) {
@@ -121,9 +86,21 @@ class ConversationEngine implements ConversationEngineInterface
         }
     }
 
-    protected function updateState(Intent $intent)
+    public static function updateState(Intent $intent)
     {
         $conversationContextId = ConversationContext::getComponentId();
+
+        $conversationId = $intent->getConversation()->getODId();
+        $sceneId = $intent->getScene()->getODId();
+        $turnId = $intent->getTurn()->getODId();
+        $intentId = $intent->getODId();
+
+        if ($intent->getBehaviors()->hasBehavior(Behavior::COMPLETING_BEHAVIOR)) {
+            $conversationId = Conversation::UNDEFINED;
+            $sceneId = Scene::UNDEFINED;
+            $turnId = Turn::UNDEFINED;
+            $intentId = Intent::UNDEFINED;
+        }
 
         ContextService::saveAttribute(
             $conversationContextId .'.'.Scenario::CURRENT_SCENARIO,
@@ -131,19 +108,23 @@ class ConversationEngine implements ConversationEngineInterface
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Conversation::CURRENT_CONVERSATION,
-            $intent->getConversation()->getODId()
+            $conversationId
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Scene::CURRENT_SCENE,
-            $intent->getScene()->getODId()
+            $sceneId
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Turn::CURRENT_TURN,
-            $intent->getTurn()->getODId()
+            $turnId
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Intent::CURRENT_INTENT,
-            $intent->getODId()
+            $intentId
+        );
+        ContextService::saveAttribute(
+            $conversationContextId .'.'.Intent::INTENT_IS_REQUEST,
+            $intent->isRequestIntent()
         );
         ContextService::saveAttribute(
             $conversationContextId .'.'.Intent::CURRENT_SPEAKER,

@@ -9,4 +9,10 @@ use Illuminate\Support\Collection;
  */
 class BehaviorsCollection extends Collection
 {
+    public function hasBehavior(string $behaviorId): bool
+    {
+        return $this->filter(function (Behavior $behavior) use ($behaviorId) {
+            return $behavior->getBehavior() == $behaviorId;
+        })->isNotEmpty();
+    }
 }

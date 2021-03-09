@@ -14,7 +14,7 @@ use OpenDialogAi\Core\Conversation\Turn;
 
 class ConversationContextUtil
 {
-    public static function currentScenarioId()
+    public static function currentScenarioUid()
     {
         return ContextService::getAttribute(
             Scenario::CURRENT_SCENARIO,
@@ -22,7 +22,7 @@ class ConversationContextUtil
         )->getValue();
     }
 
-    public static function currentConversationId()
+    public static function currentConversationUid()
     {
         return ContextService::getAttribute(
             Conversation::CURRENT_CONVERSATION,
@@ -30,7 +30,7 @@ class ConversationContextUtil
         )->getValue();
     }
 
-    public static function currentSceneId()
+    public static function currentSceneUid()
     {
         return ContextService::getAttribute(
             Scene::CURRENT_SCENE,
@@ -38,7 +38,7 @@ class ConversationContextUtil
         )->getValue();
     }
 
-    public static function currentTurnId()
+    public static function currentTurnUid()
     {
         return ContextService::getAttribute(
             Turn::CURRENT_TURN,
@@ -50,6 +50,22 @@ class ConversationContextUtil
     {
         return ContextService::getAttribute(
             Intent::CURRENT_INTENT,
+            ConversationContext::getComponentId()
+        )->getValue();
+    }
+
+    public static function currentIntentIsRequest(): bool
+    {
+        return ContextService::getAttribute(
+            Intent::INTENT_IS_REQUEST,
+            ConversationContext::getComponentId()
+        )->getValue();
+    }
+
+    public static function currentSpeaker(): string
+    {
+        return ContextService::getAttribute(
+            Intent::CURRENT_SPEAKER,
             ConversationContext::getComponentId()
         )->getValue();
     }

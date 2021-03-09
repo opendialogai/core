@@ -88,22 +88,22 @@ class ConversationalStateReasoner
 
         $record->setUserHistoryRecordAttribute(
             UserHistoryRecord::SCENARIO_ID,
-            ConversationContextUtil::currentScenarioId()
+            ConversationContextUtil::currentScenarioUid()
         );
 
         $record->setUserHistoryRecordAttribute(
             UserHistoryRecord::CONVERSATION_ID,
-            ConversationContextUtil::currentConversationId()
+            ConversationContextUtil::currentConversationUid()
         );
 
         $record->setUserHistoryRecordAttribute(
             UserHistoryRecord::SCENE_ID,
-            ConversationContextUtil::currentSceneId()
+            ConversationContextUtil::currentSceneUid()
         );
 
         $record->setUserHistoryRecordAttribute(
             UserHistoryRecord::TURN_ID,
-            ConversationContextUtil::currentTurnId()
+            ConversationContextUtil::currentTurnUid()
         );
 
         $record->setUserHistoryRecordAttribute(

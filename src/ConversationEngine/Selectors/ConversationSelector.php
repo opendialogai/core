@@ -83,16 +83,14 @@ class ConversationSelector
     /**
      * Retrieves a specific conversation
      *
-     * @param ScenarioCollection $scenarios
      * @param string $conversationId
      * @param bool $shallow
      * @return Conversation
      */
     public static function selectConversationById(
-        ScenarioCollection $scenarios,
         string $conversationId,
         bool $shallow = true
     ): Conversation {
-        return ConversationDataClient::getConversationById($scenarios, $conversationId, $shallow);
+        return ConversationDataClient::getConversationById($conversationId, $shallow);
     }
 }
