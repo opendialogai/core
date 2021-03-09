@@ -44,6 +44,28 @@ class Conversation extends ConversationObject
         $this->scenes = $scenes;
     }
 
+    public function addScene(Scene $scene)
+    {
+        $this->getScenes()->addObject($scene);
+    }
+
+    /**
+     * Gets the current interpreter by checking the conversations interpreter, or searching for a default up the tree
+     * A null value indicates 'not hydrated'
+     * An '' value indicates 'none'
+     * Any other value indicates an interpreter (E.g interpreter.core.callback)
+     */
+    public function getInterpreter(): string
+    {
+        if ($this->interpreter === null) {
+            throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
+        }
+        if ($this->interpreter === '') {
+            return $this->getScenario()->getInterpreter();
+        }
+        return $this->interpreter;
+    }
+
     public function getScenario(): Scenario
     {
         if ($this->scenario === null) {
@@ -55,28 +77,5 @@ class Conversation extends ConversationObject
     public function setScenario(Scenario $scenario): void
     {
         $this->scenario = $scenario;
-    }
-
-    public function addScene(Scene $scene)
-    {
-        $this->getScenes()->addObject($scene);
-    }
-
-
-    /**
-     * Gets the current interpreter by checking the conversations interpreter, or searching for a default up the tree
-     * A null value indicates 'not hydrated'
-     * An '' value indicates 'none'
-     * Any other value indicates an interpreter (E.g interpreter.core.callback)
-     */
-    public function getInterpreter(): string
-    {
-        if($this->interpreter === null) {
-            throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
-        }
-        if($this->interpreter === '') {
-            return $this->getScenario()->getInterpreter();
-        }
-        return $this->interpreter;
     }
 }

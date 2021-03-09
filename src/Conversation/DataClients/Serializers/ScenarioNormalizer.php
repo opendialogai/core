@@ -29,62 +29,61 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
     ];
 
 
-
     public function normalize($object, string $format = null, array $context = [])
     {
         $tree = $context[AbstractNormalizer::ATTRIBUTES] ?? self::FULL_EXPANSION;
 
         $data = [];
-        if(in_array(Scenario::UID, $tree)) {
+        if (in_array(Scenario::UID, $tree)) {
             $data['id'] = $object->getUid();
         }
-        if(in_array(Scenario::OD_ID, $tree)) {
+        if (in_array(Scenario::OD_ID, $tree)) {
             $data['od_id'] = $object->getOdId();
         }
-        if(in_array(Scenario::NAME, $tree)) {
+        if (in_array(Scenario::NAME, $tree)) {
             $data['name'] = $object->getName();
         }
 
-        if(in_array(Scenario::DESCRIPTION, $tree)) {
+        if (in_array(Scenario::DESCRIPTION, $tree)) {
             $data['description'] = $object->getDescription();
         }
 
-        if(in_array(Scenario::INTERPRETER, $tree)) {
+        if (in_array(Scenario::INTERPRETER, $tree)) {
             $data['interpreter'] = $object->getInterpreter();
         }
 
-        if(in_array(Scenario::STATUS, $tree)) {
+        if (in_array(Scenario::STATUS, $tree)) {
             $data['status'] = $object->getStatus();
         }
 
-        if(in_array(Scenario::ACTIVE, $tree)) {
+        if (in_array(Scenario::ACTIVE, $tree)) {
             $data['active'] = $object->isActive();
         }
 
-        if(in_array(Scenario::CREATED_AT, $tree)) {
+        if (in_array(Scenario::CREATED_AT, $tree)) {
             $data['created_at'] = $object->getCreatedAt()->format(\DateTime::ISO8601);
         }
-        if(in_array(Scenario::UPDATED_AT, $tree)) {
+        if (in_array(Scenario::UPDATED_AT, $tree)) {
             $data['updated_at'] = $object->getUpdatedAt()->format(\DateTime::ISO8601);
         }
 
-        if(in_array(Scenario::CONDITIONS, array_keys($tree), true)) {
-          $data['conditions'] = $this->serializer->normalize($object->getConditions(), $format, $this->createChildContext($context,
-              Scenario::CONDITIONS));
+        if (in_array(Scenario::CONDITIONS, array_keys($tree), true)) {
+            $data['conditions'] = $this->serializer->normalize($object->getConditions(), $format,
+                $this->createChildContext($context, Scenario::CONDITIONS));
         }
 
-        if(in_array(Scenario::BEHAVIORS, array_keys($tree), true)) {
-            $data['behaviors'] = $this->serializer->normalize($object->getBehaviors(), $format, $this->createChildContext($context,
-                Scenario::BEHAVIORS));
+        if (in_array(Scenario::BEHAVIORS, array_keys($tree), true)) {
+            $data['behaviors'] = $this->serializer->normalize($object->getBehaviors(), $format,
+                $this->createChildContext($context, Scenario::BEHAVIORS));
         }
 
-        if(in_array(Scenario::CONVERSATIONS, $tree, true)) {
-            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format, $this->createChildContext
-            ($context, Scenario::CONVERSATIONS));
+        if (in_array(Scenario::CONVERSATIONS, $tree, true)) {
+            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format,
+                $this->createChildContext($context, Scenario::CONVERSATIONS));
         }
-        if(in_array(Scenario::CONVERSATIONS, array_keys($tree), true)) {
-            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format, $this->createChildContext
-            ($context, Scenario::CONVERSATIONS));
+        if (in_array(Scenario::CONVERSATIONS, array_keys($tree), true)) {
+            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format,
+                $this->createChildContext($context, Scenario::CONVERSATIONS));
         }
 
         return $data;
@@ -111,48 +110,48 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
             $scenario->setOdId($data['od_id']);
         }
 
-        if(isset($data['name'])) {
+        if (isset($data['name'])) {
             $scenario->setName($data['name']);
         }
 
-        if(isset($data['description'])) {
+        if (isset($data['description'])) {
             $scenario->setDescription($data['description']);
         }
 
-        if(isset($data['conditions'])) {
+        if (isset($data['conditions'])) {
             //TODO: Reinclude conditions
-//            $conditions = $this->serializer->denormalize($data['conditions'], ConditionCollection::class);
-//            $scenario->setConditions($conditions);
+            //            $conditions = $this->serializer->denormalize($data['conditions'], ConditionCollection::class);
+            //            $scenario->setConditions($conditions);
         }
 
-        if(isset($data['behaviors'])) {
+        if (isset($data['behaviors'])) {
             $behaviors = $this->serializer->denormalize($data['behaviors'], BehaviorsCollection::class);
             $scenario->setBehaviors($behaviors);
         }
 
-        if(isset($data['interpreter'])) {
+        if (isset($data['interpreter'])) {
             $scenario->setInterpreter($data['interpreter']);
         }
 
-        if(isset($data['created_at'])) {
+        if (isset($data['created_at'])) {
             $createdAt = new \DateTime($data['created_at']);
             $scenario->setCreatedAt($createdAt);
         }
 
-        if(isset($data['updated_at'])) {
+        if (isset($data['updated_at'])) {
             $updatedAt = new \DateTime($data['updated_at']);
             $scenario->setUpdatedAt($updatedAt);
         }
 
-        if(isset($data['active'])) {
+        if (isset($data['active'])) {
             $scenario->setActive($data['active']);
         }
 
-        if(isset($data['status'])) {
+        if (isset($data['status'])) {
             $scenario->setStatus($data['status']);
         }
 
-        if(isset($data['conversations'])) {
+        if (isset($data['conversations'])) {
             $conversations = $this->serializer->denormalize($data['conversations'], ConversationCollection::class);
             foreach ($conversations as $conversation) {
                 $scenario->addConversation($conversation);

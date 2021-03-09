@@ -45,6 +45,12 @@ class Scenario extends ConversationObject
         return $this->conversations->isNotEmpty();
     }
 
+    public function addConversation(Conversation $conversation)
+    {
+        $this->getConversations()->addObject($conversation);
+        $conversation->setScenario($this);
+    }
+
     public function getConversations(): ConversationCollection
     {
         return $this->conversations;
@@ -53,12 +59,6 @@ class Scenario extends ConversationObject
     public function setConversations(ConversationCollection $conversations)
     {
         $this->conversations = $conversations;
-    }
-
-    public function addConversation(Conversation $conversation)
-    {
-        $this->getConversations()->addObject($conversation);
-        $conversation->setScenario($this);
     }
 
     public function setActive(bool $active)
@@ -70,11 +70,12 @@ class Scenario extends ConversationObject
      * Gets the status of the Scenario
      * A null value indicates 'not hydrated'
      * Any other values indicate a status (E.g 'DRAFT')
+     *
      * @return string
      */
     public function getStatus(): string
     {
-        if($this->status === null) {
+        if ($this->status === null) {
             throw new InsufficientHydrationException("Cannot getStatus(). Value is not set!");
         }
         return $this->status;
@@ -92,11 +93,12 @@ class Scenario extends ConversationObject
      * Checks if the scenario is active
      * A null value indicates 'not hydrated'
      * Any other value indicates a set value for 'active'
+     *
      * @return bool
      */
     public function isActive(): bool
     {
-        if($this->active === null) {
+        if ($this->active === null) {
             throw new InsufficientHydrationException("Cannot isActive(). Value is not set!");
         }
         return $this->active;

@@ -57,22 +57,13 @@ class Scene extends ConversationObject
      */
     public function getInterpreter(): string
     {
-        if($this->interpreter === null) {
+        if ($this->interpreter === null) {
             throw new InsufficientHydrationException("Interpreter on Scene has not been hydrated.");
         }
-        if($this->interpreter === '') {
+        if ($this->interpreter === '') {
             return $this->getConversation()->getInterpreter();
         }
         return $this->interpreter;
-    }
-
-    public function getScenario(): ?Scenario
-    {
-        if ($this->getConversation() != null) {
-            return $this->getConversation()->getScenario();
-        }
-
-        return null;
     }
 
     public function getConversation(): ?Conversation
@@ -83,5 +74,14 @@ class Scene extends ConversationObject
     public function setConversation(Conversation $conversation): void
     {
         $this->conversation = $conversation;
+    }
+
+    public function getScenario(): ?Scenario
+    {
+        if ($this->getConversation() != null) {
+            return $this->getConversation()->getScenario();
+        }
+
+        return null;
     }
 }

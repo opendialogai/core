@@ -30,9 +30,11 @@ abstract class ConversationObjectNormalizer
      *
      * @return array
      */
-    public static function filterSerializationTree(array $tree, array $allowed): array {
-        return array_filter($tree, fn($value, $key) => (is_numeric($key) && in_array($value, $allowed)) || in_array($key,
-                $allowed) , ARRAY_FILTER_USE_BOTH);
+    public static function filterSerializationTree(array $tree, array $allowed): array
+    {
+        return array_filter($tree,
+            fn($value, $key) => (is_numeric($key) && in_array($value, $allowed)) || in_array($key, $allowed),
+            ARRAY_FILTER_USE_BOTH);
     }
 
     /**

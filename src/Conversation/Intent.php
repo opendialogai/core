@@ -152,13 +152,23 @@ class Intent extends ConversationObject
      */
     public function getInterpreter(): string
     {
-        if($this->interpreter === null) {
+        if ($this->interpreter === null) {
             throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
         }
-        if($this->interpreter === '') {
+        if ($this->interpreter === '') {
             return $this->getTurn()->getInterpreter();
         }
         return $this->interpreter;
+    }
+
+    public function getTurn(): ?Turn
+    {
+        return $this->turn;
+    }
+
+    public function setTurn(Turn $turn): void
+    {
+        $this->turn = $turn;
     }
 
     /**
@@ -193,16 +203,6 @@ class Intent extends ConversationObject
             return $this->getTurn()->getScene();
         }
         return null;
-    }
-
-    public function getTurn(): ?Turn
-    {
-        return $this->turn;
-    }
-
-    public function setTurn(Turn $turn): void
-    {
-        $this->turn = $turn;
     }
 
     /**

@@ -33,6 +33,11 @@ class ConversationDataClient
         $this->client = $client;
     }
 
+    public function query()
+    {
+        return $this->client->query($this->exampleGQLQuery());
+    }
+
     public function exampleGQLQuery()
     {
         return <<<'GQL'
@@ -47,13 +52,8 @@ class ConversationDataClient
 
     }
 
-    public function query()
+    public function getAllScenarios(bool $shallow): ScenarioCollection
     {
-        return $this->client->query($this->exampleGQLQuery());
-    }
-
-
-    public function getAllScenarios(bool $shallow): ScenarioCollection {
         $getAllScenariosQuery = <<<'GQL'
             query getAllScenarios {
                 queryScenario {
@@ -72,13 +72,18 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getAllScenariosQuery);
-        $serializer = new Serializer([ new ScenarioCollectionNormalizer(), new ScenarioNormalizer(), new
-        BehaviorsCollectionNormalizer(), new BehaviorNormalizer()], [new
-        JsonEncoder()]);
+        $serializer = new Serializer([
+            new ScenarioCollectionNormalizer(), new ScenarioNormalizer(), new
+            BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
+        ], [
+            new
+            JsonEncoder()
+        ]);
         return $serializer->denormalize($response['data']['queryScenario'], ScenarioCollection::class);
     }
 
-    public function getScenarioByUid(string $scenarioUid, bool $shallow): Scenario {
+    public function getScenarioByUid(string $scenarioUid, bool $shallow): Scenario
+    {
 
         $getScenarioQuery = <<<'GQL'
             query getScenario($id : ID!) {
@@ -98,13 +103,18 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getScenarioQuery, ['id' => $scenarioUid]);
-        $serializer = new Serializer([new ScenarioNormalizer(), new
-        BehaviorsCollectionNormalizer(), new BehaviorNormalizer()], [new
-        JsonEncoder()]);
+        $serializer = new Serializer([
+            new ScenarioNormalizer(), new
+            BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
+        ], [
+            new
+            JsonEncoder()
+        ]);
         return $serializer->denormalize($response['data']['getScenario'], Scenario::class);
     }
 
-    public function addScenario(Scenario $scenario): Scenario {
+    public function addScenario(Scenario $scenario): Scenario
+    {
         $addScenarioQuery = <<<'GQL'
             mutation addScenarioQuery($scenario: AddScenarioInput!) {
               addScenario(input: [$scenario]) {
@@ -124,28 +134,26 @@ class ConversationDataClient
             }
         GQL;
 
-        $serializer = new Serializer([new ScenarioNormalizer(), new
-        BehaviorsCollectionNormalizer(), new BehaviorNormalizer()], []);
+        $serializer = new Serializer([
+            new ScenarioNormalizer(), new
+            BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
+        ], []);
         //TODO: Update to allow entering a full scenario graph
-        $scenarioData = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => [
-          Scenario::OD_ID
-        , Scenario::NAME
-        , Scenario::DESCRIPTION
-        , Scenario::INTERPRETER
-        , Scenario::ACTIVE
-        , Scenario::STATUS
-        , Scenario::CREATED_AT
-        , Scenario::UPDATED_AT
-            // TODO: Reintroduce conditions
-//        , Scenario::CONDITIONS
-        , Scenario::BEHAVIORS => Behavior::FIELDS
-        ]
+        $scenarioData = $serializer->normalize($scenario, 'json', [
+            AbstractNormalizer::ATTRIBUTES => [
+                Scenario::OD_ID, Scenario::NAME, Scenario::DESCRIPTION, Scenario::INTERPRETER, Scenario::ACTIVE, Scenario::STATUS,
+                Scenario::CREATED_AT, Scenario::UPDATED_AT
+                // TODO: Reintroduce conditions
+                //        , Scenario::CONDITIONS
+                , Scenario::BEHAVIORS => Behavior::FIELDS
+            ]
         ]);
         $response = $this->client->query($addScenarioQuery, ['scenario' => $scenarioData]);
         return $serializer->denormalize($response['data']['addScenario']['scenario'][0], Scenario::class);
     }
 
-    public function deleteScenarioByUid(string $scenarioUid): bool {
+    public function deleteScenarioByUid(string $scenarioUid): bool
+    {
         $deleteScenarioQuery = <<<'GQL'
             mutation deleteScenarioQuery($id: ID!) {
                 deleteScenario(filter: {id: [$id]}) {
@@ -161,7 +169,8 @@ class ConversationDataClient
     }
 
 
-    public function updateScenario(Scenario $scenario): Scenario {
+    public function updateScenario(Scenario $scenario): Scenario
+    {
         $updateScenarioQuery = <<<'GQL'
             mutation updateScenarioQuery($id: ID!, $set: ScenarioPatch!) {
                 updateScenario(input: {filter: {id: [$id]}, set: $set}) {
@@ -181,21 +190,16 @@ class ConversationDataClient
             }
         GQL;
 
-        $serializer = new Serializer([new ScenarioNormalizer(), new
-        BehaviorsCollectionNormalizer(), new BehaviorNormalizer()], []);
+        $serializer = new Serializer([
+            new ScenarioNormalizer(), new
+            BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
+        ], []);
         //TODO: Update to allow entering a full scenario graph
 
         $serializationTree = ScenarioNormalizer::filterSerializationTree([
-            Scenario::OD_ID,
-            Scenario::NAME,
-            Scenario::DESCRIPTION,
-            Scenario::INTERPRETER,
-            Scenario::BEHAVIORS => Behavior::FIELDS,
-            Scenario::CONDITIONS => Condition::FIELDS,
-            Scenario::CREATED_AT,
-            Scenario::UPDATED_AT,
-            Scenario::ACTIVE,
-            Scenario::STATUS
+            Scenario::OD_ID, Scenario::NAME, Scenario::DESCRIPTION, Scenario::INTERPRETER,
+            Scenario::BEHAVIORS => Behavior::FIELDS, Scenario::CONDITIONS => Condition::FIELDS, Scenario::CREATED_AT,
+            Scenario::UPDATED_AT, Scenario::ACTIVE, Scenario::STATUS
         ], $scenario->hydratedFields());
         $scenarioData = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
         $response = $this->client->query($updateScenarioQuery, ['id' => $scenario->getUid(), 'set' => $scenarioData]);
@@ -205,7 +209,9 @@ class ConversationDataClient
 
     /**
      * Retrieve all scenarios where active is set to true and their status is live
-     * @param bool $shallow
+     *
+     * @param  bool  $shallow
+     *
      * @return ScenarioCollection
      * @todo handle returning scenarios that are in preview mode (or do we use an OD condition for that)
      */
@@ -215,12 +221,12 @@ class ConversationDataClient
     }
 
 
-
     /**
      * Retrieve all conversations that belong to the given scenarios that have a behavior as "starting". from the graph
      *
-     * @param ScenarioCollection $scenarios
-     * @param bool $shallow
+     * @param  ScenarioCollection  $scenarios
+     * @param  bool                $shallow
+     *
      * @return ConversationCollection
      */
     public function getAllStartingConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
@@ -231,8 +237,9 @@ class ConversationDataClient
     /**
      * Retrieve all conversations that belong to the given scenarios that have a behavior as "open". from the graph
      *
-     * @param ScenarioCollection $scenarios
-     * @param bool $shallow
+     * @param  ScenarioCollection  $scenarios
+     * @param  bool                $shallow
+     *
      * @return ConversationCollection
      */
     public function getAllOpenConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
@@ -243,8 +250,9 @@ class ConversationDataClient
     /**
      * Retrieve all conversations that belong to the given scenarios. from the graph
      *
-     * @param ScenarioCollection $scenarios
-     * @param bool $shallow
+     * @param  ScenarioCollection  $scenarios
+     * @param  bool                $shallow
+     *
      * @return ConversationCollection
      */
     public function getAllConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
@@ -255,8 +263,9 @@ class ConversationDataClient
     /**
      * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
      *
-     * @param ConversationCollection $conversations
-     * @param bool $shallow
+     * @param  ConversationCollection  $conversations
+     * @param  bool                    $shallow
+     *
      * @return SceneCollection
      */
     public function getAllStartingScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
@@ -267,8 +276,9 @@ class ConversationDataClient
     /**
      * Retrieve all scenes that belong to the given conversations that have a behavior as "open" from the graph
      *
-     * @param ConversationCollection $conversations
-     * @param bool $shallow
+     * @param  ConversationCollection  $conversations
+     * @param  bool                    $shallow
+     *
      * @return SceneCollection
      */
     public function getAllOpenScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
@@ -279,8 +289,9 @@ class ConversationDataClient
     /**
      * Retrieve all scenes that belong to the given conversations from the graph
      *
-     * @param ConversationCollection $conversations
-     * @param bool $shallow
+     * @param  ConversationCollection  $conversations
+     * @param  bool                    $shallow
+     *
      * @return SceneCollection
      */
     public function getAllScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
@@ -291,8 +302,9 @@ class ConversationDataClient
     /**
      * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
      *
-     * @param SceneCollection $scenes
-     * @param bool $shallow
+     * @param  SceneCollection  $scenes
+     * @param  bool             $shallow
+     *
      * @return TurnCollection
      */
     public function getAllStartingTurns(SceneCollection $scenes, bool $shallow): TurnCollection
@@ -303,8 +315,9 @@ class ConversationDataClient
     /**
      * Retrieve all scenes that belong to the given conversations that have a behavior as "open" from the graph
      *
-     * @param SceneCollection $scenes
-     * @param bool $shallow
+     * @param  SceneCollection  $scenes
+     * @param  bool             $shallow
+     *
      * @return TurnCollection
      */
     public function getAllOpenTurns(SceneCollection $scenes, bool $shallow): TurnCollection
@@ -315,8 +328,9 @@ class ConversationDataClient
     /**
      * Retrieve all scenes that belong to the given conversations from the graph
      *
-     * @param SceneCollection $scenes
-     * @param bool $shallow
+     * @param  SceneCollection  $scenes
+     * @param  bool             $shallow
+     *
      * @return TurnCollection
      */
     public function getAllTurns(SceneCollection $scenes, bool $shallow): TurnCollection
@@ -327,8 +341,9 @@ class ConversationDataClient
     /**
      * Retrieve all request intents that belong to the given turns from the graph
      *
-     * @param TurnCollection $turns
-     * @param bool $shallow
+     * @param  TurnCollection  $turns
+     * @param  bool            $shallow
+     *
      * @return IntentCollection
      */
     public function getAllRequestIntents(TurnCollection $turns, bool $shallow): IntentCollection
@@ -339,8 +354,9 @@ class ConversationDataClient
     /**
      * Retrieve all response intents that belong to the given turns from the graph
      *
-     * @param TurnCollection $turns
-     * @param bool $shallow
+     * @param  TurnCollection  $turns
+     * @param  bool            $shallow
+     *
      * @return IntentCollection
      */
     public function getAllResponseIntents(TurnCollection $turns, bool $shallow): IntentCollection
@@ -351,9 +367,10 @@ class ConversationDataClient
     /**
      * Retrieve all request intents with the given ID that belong to the given turns from the graph
      *
-     * @param TurnCollection $turns
-     * @param string $intentId
-     * @param bool $shallow
+     * @param  TurnCollection  $turns
+     * @param  string          $intentId
+     * @param  bool            $shallow
+     *
      * @return IntentCollection
      */
     public function getAllRequestIntentsById(TurnCollection $turns, string $intentId, bool $shallow): IntentCollection
@@ -364,9 +381,10 @@ class ConversationDataClient
     /**
      * Retrieve all response intents with the given ID that belong to the given turns from the graph
      *
-     * @param TurnCollection $turns
-     * @param string $intentId
-     * @param bool $shallow
+     * @param  TurnCollection  $turns
+     * @param  string          $intentId
+     * @param  bool            $shallow
+     *
      * @return IntentCollection
      */
     public function getAllResponseIntentsById(TurnCollection $turns, string $intentId, bool $shallow): IntentCollection

@@ -1,4 +1,5 @@
 <?php
+
 namespace OpenDialogAi\Core\Conversation\Facades;
 
 use Illuminate\Support\Facades\Facade;

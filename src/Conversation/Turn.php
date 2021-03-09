@@ -91,13 +91,23 @@ class Turn extends ConversationObject
      */
     public function getInterpreter(): string
     {
-        if($this->interpreter === null) {
+        if ($this->interpreter === null) {
             throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
         }
-        if($this->interpreter === '') {
+        if ($this->interpreter === '') {
             return $this->getScene()->getInterpreter();
         }
         return $this->interpreter;
+    }
+
+    public function getScene(): ?Scene
+    {
+        return $this->scene;
+    }
+
+    public function setScene(Scene $scene): void
+    {
+        $this->scene = $scene;
     }
 
     /**
@@ -122,16 +132,6 @@ class Turn extends ConversationObject
         }
 
         return null;
-    }
-
-    public function getScene(): ?Scene
-    {
-        return $this->scene;
-    }
-
-    public function setScene(Scene $scene): void
-    {
-        $this->scene = $scene;
     }
 
     public function hasValidOrigins(): bool
