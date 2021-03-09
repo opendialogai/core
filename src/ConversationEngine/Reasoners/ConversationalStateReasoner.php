@@ -4,9 +4,10 @@
 namespace OpenDialogAi\ConversationEngine\Reasoners;
 
 
-use App\User;
 use OpenDialogAi\AttributeEngine\CoreAttributes\UserAttribute;
+use OpenDialogAi\AttributeEngine\CoreAttributes\UserHistoryRecord;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
+use OpenDialogAi\ConversationEngine\Util\ConversationContextUtil;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationObject;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -27,7 +28,7 @@ class ConversationalStateReasoner
      * an existing user or no conversation record if it is a new user.
      * @param UserAttribute $user
      */
-    public static function determineConversationalStateForUser(UserAttribute $user)
+    public static function determineConversationalStateForUser(UserAttribute $user): void
     {
         if ($user->hasAttribute(UserAttribute::USER_HISTORY_RECORD)) {
             $record = $user->getUserHistoryRecord();
@@ -79,5 +80,37 @@ class ConversationalStateReasoner
             self::CONVERSATION_CONTEXT.'.'.Conversation::CURRENT_CONVERSATION,
             ConversationObject::UNDEFINED
         );
+    }
+
+    public static function setConversationalStateForUser(UserAttribute $user): void
+    {
+        $record = new UserHistoryRecord(UserHistoryRecord::USER_HISTORY_RECORD);
+
+        $record->setUserHistoryRecordAttribute(
+            UserHistoryRecord::SCENARIO_ID,
+            ConversationContextUtil::currentScenarioId()
+        );
+
+        $record->setUserHistoryRecordAttribute(
+            UserHistoryRecord::CONVERSATION_ID,
+            ConversationContextUtil::currentConversationId()
+        );
+
+        $record->setUserHistoryRecordAttribute(
+            UserHistoryRecord::SCENE_ID,
+            ConversationContextUtil::currentSceneId()
+        );
+
+        $record->setUserHistoryRecordAttribute(
+            UserHistoryRecord::TURN_ID,
+            ConversationContextUtil::currentTurnId()
+        );
+
+        $record->setUserHistoryRecordAttribute(
+            UserHistoryRecord::INTENT_ID,
+            ConversationContextUtil::currentIntentId()
+        );
+
+        $user->setUserHistoryRecord($record);
     }
 }
