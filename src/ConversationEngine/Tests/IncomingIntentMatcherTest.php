@@ -6,7 +6,6 @@ namespace OpenDialogAi\ConversationEngine\Tests;
 
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\ConversationContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
-use OpenDialogAi\ConversationEngine\Exceptions\NoMatchingIntentsException;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\ConversationSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\IntentSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\ScenarioSelector;
@@ -37,22 +36,6 @@ class IncomingIntentMatcherTest extends TestCase
     const TEST_INTENT_1_OUTPUT = 'test_intent1_output';
     const TEST_TURN_2 = 'test_turn2';
     const TEST_INTENT_2_INPUT = 'test_intent2_input';
-
-    /**
-     * Tests that if there are no returned intents that a NoMatchIntentsException is thrown
-     */
-    public function testNoMatchingIntents()
-    {
-        // Mock selectors, no request intents will be selected
-        $intents = new IntentCollection();
-        $this->mockSelectorsForIncomingStartingRequest($intents);
-
-        // Set conversational state
-        $this->updateStateToUndefined();
-
-        $this->expectException(NoMatchingIntentsException::class);
-        IncomingIntentMatcher::matchIncomingIntent();
-    }
 
     /**
      * Tests that an incoming intent is matched if there is not an ongoing conversation which would happen if an
@@ -115,6 +98,68 @@ class IncomingIntentMatcherTest extends TestCase
         $this->updateStateToOngoingForResponses();
 
         $this->assertSame($desiredIntent, IncomingIntentMatcher::matchIncomingIntent());
+    }
+
+    public function testNoMatchNoOngoingConversation()
+    {
+        // Mock selectors, no intents should match
+        $noMatchIntent = new Intent();
+        $noMatchIntent->setODId('intent.core.NoMatch');
+        $this->mockSelectorsForIncomingStartingNoMatchRequest(new IntentCollection([$noMatchIntent]));
+
+        // Set conversational state
+        $this->updateStateToUndefined();
+
+        // Assert no match intent
+        $this->assertSame($noMatchIntent, IncomingIntentMatcher::matchIncomingIntent());
+    }
+
+    public function testTurnNoMatchOngoingAsRequest()
+    {
+        // Mock selectors, no intents should match
+        $turnNoMatchIntent = $this->mockSelectorsForIncomingOngoingTurnNoMatchRequest();
+
+        // Set conversational state
+        $this->updateStateToOngoingForRequests();
+
+        // Assert no match intent
+        $this->assertSame($turnNoMatchIntent, IncomingIntentMatcher::matchIncomingIntent());
+    }
+
+    public function testSceneNoMatchOngoingAsRequest()
+    {
+        // Mock selectors, no intents should match
+        $sceneNoMatchIntent = $this->mockSelectorsForIncomingOngoingSceneNoMatchRequest();
+
+        // Set conversational state
+        $this->updateStateToOngoingForRequests();
+
+        // Assert no match intent
+        $this->assertSame($sceneNoMatchIntent, IncomingIntentMatcher::matchIncomingIntent());
+    }
+
+    public function testConversationNoMatchOngoingAsRequest()
+    {
+        // Mock selectors, no intents should match
+        $conversationNoMatchIntent = $this->mockSelectorsForIncomingOngoingConversationNoMatchRequest();
+
+        // Set conversational state
+        $this->updateStateToOngoingForRequests();
+
+        // Assert no match intent
+        $this->assertSame($conversationNoMatchIntent, IncomingIntentMatcher::matchIncomingIntent());
+    }
+
+    public function testGlobalNoMatchOngoingAsRequest()
+    {
+        // Mock selectors, no intents should match
+        $globalNoMatchIntent = $this->mockSelectorsForIncomingOngoingGlobalNoMatchRequest();
+
+        // Set conversational state
+        $this->updateStateToOngoingForRequests();
+
+        // Assert no match intent
+        $this->assertSame($globalNoMatchIntent, IncomingIntentMatcher::matchIncomingIntent());
     }
 
     private function updateStateToUndefined()
@@ -255,6 +300,56 @@ class IncomingIntentMatcherTest extends TestCase
     }
 
     /**
+     * @param IntentCollection $noMatchIntents
+     */
+    private function mockSelectorsForIncomingStartingNoMatchRequest(IntentCollection $noMatchIntents): void
+    {
+        $scenario = new Scenario();
+        $scenario->setODId(self::TEST_SCENARIO_1);
+
+        ScenarioSelector::shouldReceive('selectScenarios')
+            ->twice()
+            ->andReturn(
+                new ScenarioCollection([$scenario]),
+                new ScenarioCollection([$scenario])
+            );
+
+        $conversation = new Conversation();
+        $conversation->setODId(self::TEST_CONVERSATION_1);
+        ConversationSelector::shouldReceive('selectStartingConversations')
+            ->twice()
+            ->andReturn(
+                new ConversationCollection([$conversation]),
+                new ConversationCollection([$conversation])
+            );
+
+        $scene = new Scene();
+        $scene->setODId(self::TEST_SCENE_1);
+        SceneSelector::shouldReceive('selectStartingScenes')
+            ->twice()
+            ->andReturn(
+                new SceneCollection([$scene]),
+                new SceneCollection([$scene])
+            );
+
+        $turn = new Turn();
+        $turn->setODId(self::TEST_TURN_1);
+        TurnSelector::shouldReceive('selectStartingTurns')
+            ->twice()
+            ->andReturn(
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn])
+            );
+
+        IntentSelector::shouldReceive('selectRequestIntents')
+            ->twice()
+            ->andReturn(
+                new IntentCollection(),
+                $noMatchIntents
+            );
+    }
+
+    /**
      * @param string $desiredIntentId
      * @return Intent
      */
@@ -297,6 +392,233 @@ class IncomingIntentMatcherTest extends TestCase
             ->andReturn($intents);
 
         return $desiredIntent;
+    }
+
+    /**
+     * @return Intent
+     */
+    private function mockSelectorsForIncomingOngoingTurnNoMatchRequest(): Intent
+    {
+        $scene = $this->createScene();
+
+        $turn = new Turn($scene);
+        $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
+        $turn->setODId(self::TEST_TURN_2);
+
+        TurnSelector::shouldReceive('selectOpenTurns')
+            ->twice()
+            ->andReturn(
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn])
+            );
+
+        TurnSelector::shouldReceive('selectTurnsByValidOrigin')
+            ->once()
+            ->andReturn(new TurnCollection());
+
+        $intents = new IntentCollection();
+
+        $noMatchIntent = new Intent($turn, Intent::USER);
+        $noMatchIntent->setODId('intent.core.TurnNoMatch');
+        $noMatchIntent->setConfidence(1);
+        $desiredIntentInterpreted = clone $noMatchIntent;
+        $noMatchIntent->addInterpretedIntents(new IntentCollection([$desiredIntentInterpreted]));
+        $noMatchIntent->checkForMatch();
+        $intents->addObject($noMatchIntent);
+
+        IntentSelector::shouldReceive('selectRequestIntents')
+            ->twice()
+            ->andReturn(
+                new IntentCollection(),
+                $intents
+            );
+
+        return $noMatchIntent;
+    }
+
+    /**
+     * @return Intent
+     */
+    private function mockSelectorsForIncomingOngoingSceneNoMatchRequest(): Intent
+    {
+        $scene = $this->createScene();
+
+        $turn = new Turn($scene);
+        $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
+        $turn->setODId(self::TEST_TURN_2);
+
+        TurnSelector::shouldReceive('selectOpenTurns')
+            ->times(3)
+            ->andReturn(
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn])
+            );
+
+        TurnSelector::shouldReceive('selectTurnsByValidOrigin')
+            ->once()
+            ->andReturn(new TurnCollection());
+
+        $intents = new IntentCollection();
+
+        $noMatchIntent = new Intent($turn, Intent::USER);
+        $noMatchIntent->setODId('intent.core.SceneNoMatch');
+        $noMatchIntent->setConfidence(1);
+        $desiredIntentInterpreted = clone $noMatchIntent;
+        $noMatchIntent->addInterpretedIntents(new IntentCollection([$desiredIntentInterpreted]));
+        $noMatchIntent->checkForMatch();
+        $intents->addObject($noMatchIntent);
+
+        IntentSelector::shouldReceive('selectRequestIntents')
+            ->times(3)
+            ->andReturn(
+                new IntentCollection(),
+                new IntentCollection(),
+                $intents
+            );
+
+        return $noMatchIntent;
+    }
+
+    /**
+     * @return Intent
+     */
+    private function mockSelectorsForIncomingOngoingConversationNoMatchRequest(): Intent
+    {
+        $scene = $this->createScene();
+
+        $turn = new Turn($scene);
+        $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
+        $turn->setODId(self::TEST_TURN_2);
+
+        TurnSelector::shouldReceive('selectOpenTurns')
+            ->times(3)
+            ->andReturn(
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn])
+            );
+
+        TurnSelector::shouldReceive('selectTurnsByValidOrigin')
+            ->once()
+            ->andReturn(new TurnCollection());
+
+        $intents = new IntentCollection();
+
+        $noMatchIntent = new Intent($turn, Intent::USER);
+        $noMatchIntent->setODId('intent.core.ConversationNoMatch');
+        $noMatchIntent->setConfidence(1);
+        $desiredIntentInterpreted = clone $noMatchIntent;
+        $noMatchIntent->addInterpretedIntents(new IntentCollection([$desiredIntentInterpreted]));
+        $noMatchIntent->checkForMatch();
+        $intents->addObject($noMatchIntent);
+
+        IntentSelector::shouldReceive('selectRequestIntents')
+            ->times(4)
+            ->andReturn(
+                new IntentCollection(),
+                new IntentCollection(),
+                new IntentCollection(),
+                new IntentCollection($intents)
+            );
+
+        $scenario = new Scenario();
+        $scenario->setODId(self::TEST_SCENARIO_1);
+
+        ScenarioSelector::shouldReceive('selectScenarios')
+            ->once()
+            ->andReturn(new ScenarioCollection([$scenario]));
+
+        $conversation = new Conversation();
+        $conversation->setODId(self::TEST_CONVERSATION_1);
+        ConversationSelector::shouldReceive('selectStartingConversations')
+            ->once()
+            ->andReturn(new ConversationCollection([$conversation]));
+
+        $scene = new Scene();
+        $scene->setODId(self::TEST_SCENE_1);
+        SceneSelector::shouldReceive('selectStartingScenes')
+            ->once()
+            ->andReturn(new SceneCollection([$scene]));
+
+        $turn = new Turn();
+        $turn->setODId(self::TEST_TURN_1);
+        TurnSelector::shouldReceive('selectStartingTurns')
+            ->once()
+            ->andReturn(new TurnCollection([$turn]));
+
+        return $noMatchIntent;
+    }
+
+    /**
+     * @return Intent
+     */
+    private function mockSelectorsForIncomingOngoingGlobalNoMatchRequest(): Intent
+    {
+        $scene = $this->createScene();
+
+        $turn = new Turn($scene);
+        $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
+        $turn->setODId(self::TEST_TURN_2);
+
+        TurnSelector::shouldReceive('selectOpenTurns')
+            ->times(3)
+            ->andReturn(
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn])
+            );
+
+        TurnSelector::shouldReceive('selectTurnsByValidOrigin')
+            ->once()
+            ->andReturn(new TurnCollection());
+
+        $intents = new IntentCollection();
+
+        $noMatchIntent = new Intent($turn, Intent::USER);
+        $noMatchIntent->setODId('intent.core.NoMatch');
+        $noMatchIntent->setConfidence(1);
+        $desiredIntentInterpreted = clone $noMatchIntent;
+        $noMatchIntent->addInterpretedIntents(new IntentCollection([$desiredIntentInterpreted]));
+        $noMatchIntent->checkForMatch();
+        $intents->addObject($noMatchIntent);
+
+        IntentSelector::shouldReceive('selectRequestIntents')
+            ->times(4)
+            ->andReturn(
+                new IntentCollection(),
+                new IntentCollection(),
+                new IntentCollection(),
+                new IntentCollection(),
+                new IntentCollection($intents)
+            );
+
+        $scenario = new Scenario();
+        $scenario->setODId(self::TEST_SCENARIO_1);
+
+        ScenarioSelector::shouldReceive('selectScenarios')
+            ->twice()
+            ->andReturn(new ScenarioCollection([$scenario]));
+
+        $conversation = new Conversation();
+        $conversation->setODId(self::TEST_CONVERSATION_1);
+        ConversationSelector::shouldReceive('selectStartingConversations')
+            ->twice()
+            ->andReturn(new ConversationCollection([$conversation]));
+
+        $scene = new Scene();
+        $scene->setODId(self::TEST_SCENE_1);
+        SceneSelector::shouldReceive('selectStartingScenes')
+            ->twice()
+            ->andReturn(new SceneCollection([$scene]));
+
+        $turn = new Turn();
+        $turn->setODId(self::TEST_TURN_1);
+        TurnSelector::shouldReceive('selectStartingTurns')
+            ->twice()
+            ->andReturn(new TurnCollection([$turn]));
+
+        return $noMatchIntent;
     }
 
     /**
