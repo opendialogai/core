@@ -41,9 +41,10 @@ class ScenarioSerializationTest extends SerializationTestCase
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $data = $serializer->normalize($scenario, 'json', []);
+        $serializationTree = ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::FULL_EXPANSION,
+            Scenario::localFields());
+        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree ]);
         $expected = [
-            'type' => Scenario::TYPE,
             'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
@@ -55,12 +56,19 @@ class ScenarioSerializationTest extends SerializationTestCase
             'status' => Scenario::DRAFT_STATUS,
             'created_at' => $scenario->getCreatedAt()->format(\DateTime::ISO8601),
             'updated_at' => $scenario->getUpdatedAt()->format(\DateTime::ISO8601),
-            'conversations' => []
         ];
         $this->assertEquals($expected, $data);
     }
 
 
+    /**
+     * @group skip
+     *
+     * Remove from skip group when other conversation objects match Scenario's use of context['attributes']
+     *
+     * @throws \OpenDialogAi\Core\Graph\Node\NodeDoesNotExistException
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     public function testNormalizeFullScenarioGraph() {
         $scenario = $this->getStandaloneScenario();
         $conversation = $this->getStandaloneConversation();
@@ -91,7 +99,6 @@ class ScenarioSerializationTest extends SerializationTestCase
 
         $data = $serializer->normalize($scenario, 'json', []);
         $expected = [
-            'type' => Scenario::TYPE,
             'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
@@ -179,7 +186,6 @@ class ScenarioSerializationTest extends SerializationTestCase
 
         $scenario = $this->getStandaloneScenario();
         $data = [
-            'type' => Scenario::TYPE,
             'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
@@ -259,7 +265,6 @@ class ScenarioSerializationTest extends SerializationTestCase
         $serializer = new Serializer($normalizers, $encoders);
 
         $data = [
-            'type' => Scenario::TYPE,
             'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
@@ -347,9 +352,10 @@ class ScenarioSerializationTest extends SerializationTestCase
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => Scenario::localFields()]);
+        $serializationTree = ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::FULL_EXPANSION,
+            Scenario::localFields());
+        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
         $expected = [
-            'type' => Scenario::TYPE,
             'id' => $scenario->getUid(),
             'od_id' => $scenario->getOdId(),
             'name' => $scenario->getName(),
@@ -371,9 +377,8 @@ class ScenarioSerializationTest extends SerializationTestCase
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => [ConversationObject::NAME]]);
+        $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => [Scenario::NAME]]);
         $expected = [
-            'type' => Scenario::TYPE,
             'name' => $scenario->getName(),
         ];
         $this->assertEquals($expected, $data);
