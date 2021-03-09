@@ -11,7 +11,7 @@ use OpenDialogAi\ConversationEngine\Facades\Selectors\IntentSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\ScenarioSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
-use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
+use OpenDialogAi\ConversationEngine\Util\ConversationContextUtil;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -28,7 +28,7 @@ class OpeningIntentSelectorStrategy
      */
     public static function selectOpeningIntent(): Intent
     {
-        $currentScenarioId = MatcherUtil::currentScenarioId();
+        $currentScenarioId = ConversationContextUtil::currentScenarioId();
         $scenarios = new ScenarioCollection();
 
         if ($currentScenarioId == Scenario::UNDEFINED) {

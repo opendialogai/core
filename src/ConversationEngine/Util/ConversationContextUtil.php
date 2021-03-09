@@ -12,7 +12,7 @@ use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\Turn;
 
-class MatcherUtil
+class ConversationContextUtil
 {
     public static function currentScenarioId()
     {

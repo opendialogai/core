@@ -12,7 +12,7 @@ use OpenDialogAi\ConversationEngine\Facades\Selectors\IntentSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\ScenarioSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\SceneSelector;
 use OpenDialogAi\ConversationEngine\Facades\Selectors\TurnSelector;
-use OpenDialogAi\ConversationEngine\Util\MatcherUtil;
+use OpenDialogAi\ConversationEngine\Util\ConversationContextUtil;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -27,24 +27,24 @@ class OutgoingIntentMatcher
      */
     public static function matchOutgoingIntent(): Intent
     {
-        $scenario = ScenarioSelector::selectScenarioById(MatcherUtil::currentScenarioId(), true);
+        $scenario = ScenarioSelector::selectScenarioById(ConversationContextUtil::currentScenarioId(), true);
 
         try {
             $conversation = ConversationSelector::selectConversationById(
                 new ScenarioCollection([$scenario]),
-                MatcherUtil::currentConversationId(),
+                ConversationContextUtil::currentConversationId(),
                 true
             );
 
             $scene = SceneSelector::selectSceneById(
                 new ConversationCollection([$conversation]),
-                MatcherUtil::currentSceneId(),
+                ConversationContextUtil::currentSceneId(),
                 true
             );
 
             $turn = TurnSelector::selectTurnById(
                 new SceneCollection([$scene]),
-                MatcherUtil::currentTurnId(),
+                ConversationContextUtil::currentTurnId(),
                 true
             );
 
