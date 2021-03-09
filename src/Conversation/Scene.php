@@ -17,13 +17,12 @@ class Scene extends ConversationObject
     public function __construct(?Conversation $conversation = null)
     {
         parent::__construct();
-        $this->turns = new TurnCollection();
         $this->conversation = $conversation;
     }
 
     public static function localFields()
     {
-        return parent::localFields();
+        return parent::allFields();
     }
 
     public function hasTurns(): bool

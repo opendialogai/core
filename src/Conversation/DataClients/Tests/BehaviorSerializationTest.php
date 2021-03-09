@@ -11,7 +11,8 @@ use Symfony\Component\Serializer\Serializer;
 
 class BehaviorSerializationTest extends TestCase
 {
-    public function testNormalizeBehavior() {
+    public function testNormalizeBehavior()
+    {
 
         $serializer = new Serializer([new BehaviorNormalizer()], [new JsonEncoder()]);
 
@@ -20,7 +21,8 @@ class BehaviorSerializationTest extends TestCase
         $this->assertEquals(Behavior::STARTING, $data);
     }
 
-    public function testDenormalizeBehavior() {
+    public function testDenormalizeBehavior()
+    {
         $serializer = new Serializer([new BehaviorNormalizer()], [new JsonEncoder()]);
 
         $behavior = new Behavior(Behavior::STARTING);

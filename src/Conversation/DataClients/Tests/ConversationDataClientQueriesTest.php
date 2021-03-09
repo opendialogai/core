@@ -17,11 +17,6 @@ use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 class ConversationDataClientQueriesTest extends TestCase
 {
     protected ConversationDataClient $client;
-    public function resetGraphQL() {
-        $client = resolve(GraphQLClientInterface::class);
-        $client->dropAll();
-        $client->setSchema(config('opendialog.graphql.schema'));
-    }
 
     public function setUp(): void
     {
@@ -30,7 +25,31 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->client = resolve(ConversationDataClient::class);
     }
 
-    public function getStandaloneScenario() {
+    public function resetGraphQL()
+    {
+        $client = resolve(GraphQLClientInterface::class);
+        $client->dropAll();
+        $client->setSchema(config('opendialog.graphql.schema'));
+    }
+
+    public function testGetAllScenarios()
+    {
+        $testScenario = $this->getStandaloneScenario();
+        $this->client->addScenario($testScenario);
+
+        $scenarios = $this->client->getAllScenarios(false);
+        $this->assertEquals(1, $scenarios->count());
+        $scenario = $scenarios[0];
+        $this->assertNotNull($scenario->getUid());
+        $this->assertEquals($testScenario->getOdId(), $scenario->getOdId());
+        $this->assertEquals($testScenario->getName(), $scenario->getName());
+        $this->assertEquals($testScenario->isActive(), $scenario->isActive());
+        $this->assertEquals($testScenario->getStatus(), $scenario->getStatus());
+
+    }
+
+    public function getStandaloneScenario()
+    {
         $scenario = new Scenario();
         $scenario->setOdId("test_scenario");
         $scenario->setName("Test Scenario");
@@ -46,22 +65,8 @@ class ConversationDataClientQueriesTest extends TestCase
         return $scenario;
     }
 
-    public function testGetAllScenarios() {
-        $testScenario = $this->getStandaloneScenario();
-        $this->client->addScenario($testScenario);
-
-        $scenarios = $this->client->getAllScenarios(false);
-        $this->assertEquals(1,$scenarios->count());
-        $scenario = $scenarios[0];
-        $this->assertNotNull($scenario->getUid());
-        $this->assertEquals($testScenario->getOdId(), $scenario->getOdId());
-        $this->assertEquals($testScenario->getName(), $scenario->getName());
-        $this->assertEquals($testScenario->isActive(), $scenario->isActive());
-        $this->assertEquals($testScenario->getStatus(), $scenario->getStatus());
-
-    }
-
-    public function testGetScenario() {
+    public function testGetScenario()
+    {
         $testScenario = $this->client->addScenario($this->getStandaloneScenario());
 
         $scenario = $this->client->getScenarioByUid($testScenario->getUid(), false);
@@ -74,7 +79,8 @@ class ConversationDataClientQueriesTest extends TestCase
     }
 
 
-    public function testAddScenario() {
+    public function testAddScenario()
+    {
         $testScenario = $this->getStandaloneScenario();
         $scenario = $this->client->addScenario($this->getStandaloneScenario());
         $this->assertIsString($scenario->getUid());
@@ -92,14 +98,16 @@ class ConversationDataClientQueriesTest extends TestCase
 
     }
 
-    public function testDeleteScenario() {
+    public function testDeleteScenario()
+    {
         $scenario = $this->client->addScenario($this->getStandaloneScenario());
 
-        $success =  $this->client->deleteScenarioByUid($scenario->getUid());
+        $success = $this->client->deleteScenarioByUid($scenario->getUid());
         $this->assertEquals(true, $success);
     }
 
-    public function testUpdateScenario() {
+    public function testUpdateScenario()
+    {
         $testScenario = $this->client->addScenario($this->getStandaloneScenario());
 
         $changes = new Scenario();

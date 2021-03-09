@@ -18,12 +18,11 @@ class Conversation extends ConversationObject
     {
         parent::__construct();
         $this->scenario = $scenario;
-        $this->scenes = new SceneCollection();
     }
 
     public static function localFields()
     {
-        return parent::localFields();
+        return parent::allFields();
     }
 
     public function hasScenes(): bool

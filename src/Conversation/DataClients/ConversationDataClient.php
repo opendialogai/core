@@ -63,6 +63,9 @@ class ConversationDataClient
                     description
                     interpreter
                     behaviors
+                    conditions {
+                        id
+                    }
                     active
                     status
                     created_at
@@ -94,6 +97,9 @@ class ConversationDataClient
                     description
                     interpreter
                     behaviors
+                    conditions {
+                        id
+                    }
                     active
                     status
                     created_at
@@ -125,6 +131,9 @@ class ConversationDataClient
                     description
                     interpreter
                     behaviors
+                    conditions {
+                        id
+                    }
                     active
                     status
                     created_at
@@ -181,6 +190,9 @@ class ConversationDataClient
                         description
                         interpreter
                         behaviors
+                        conditions {
+                            id
+                        }
                         active
                         status
                         created_at

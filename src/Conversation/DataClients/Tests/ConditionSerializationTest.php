@@ -15,7 +15,8 @@ class ConditionSerializationTest extends TestCase
     /**
      * @group skip
      */
-    public function testNormalizeCondition() {
+    public function testNormalizeCondition()
+    {
 
         /* TODO: Update when conditions can be serialized */
         $condition = new Condition('gte', ['user.age'], [25]);
@@ -27,7 +28,8 @@ class ConditionSerializationTest extends TestCase
     /**
      * @group skip
      */
-    public function testDenormalize() {
+    public function testDenormalize()
+    {
         /* TODO: Update when conditions can be serialized */
         $condition = new Condition('gte', ['user.age'], [25]);
         $serializer = new Serializer([new ConditionNormalizer()], [new JsonEncoder()]);

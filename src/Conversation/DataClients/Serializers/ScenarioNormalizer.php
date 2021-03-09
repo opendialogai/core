@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\Condition;
+use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -13,18 +14,9 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
 {
 
     const FULL_EXPANSION = [
-        Scenario::UID,
-        Scenario::OD_ID,
-        Scenario::NAME,
-        Scenario::DESCRIPTION,
-        Scenario::BEHAVIORS => Behavior::FIELDS,
-        Scenario::CONDITIONS => Condition::FIELDS,
-        Scenario::INTERPRETER,
-        Scenario::UPDATED_AT,
-        Scenario::CREATED_AT,
-        Scenario::ACTIVE,
-        Scenario::STATUS,
-        // TODO: Reintroduce
+        Scenario::UID, Scenario::OD_ID, Scenario::NAME, Scenario::DESCRIPTION, Scenario::BEHAVIORS => Behavior::FIELDS,
+        Scenario::CONDITIONS => Condition::FIELDS, Scenario::INTERPRETER, Scenario::UPDATED_AT, Scenario::CREATED_AT,
+        Scenario::ACTIVE, Scenario::STATUS, // TODO: Reintroduce
         // Scenario::CONVERSATIONS => Conversation::FULL_EXPANSION
     ];
 
@@ -122,6 +114,8 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
             //TODO: Reinclude conditions
             //            $conditions = $this->serializer->denormalize($data['conditions'], ConditionCollection::class);
             //            $scenario->setConditions($conditions);
+            // Use empty collection for now so we can still fully normalize/denormalize
+            $scenario->setConditions(new ConditionCollection());
         }
 
         if (isset($data['behaviors'])) {

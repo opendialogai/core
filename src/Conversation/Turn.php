@@ -26,14 +26,12 @@ class Turn extends ConversationObject
     public function __construct(?Scene $scene = null)
     {
         parent::__construct();
-        $this->requestIntents = new IntentCollection();
-        $this->responseIntents = new IntentCollection();
         $this->scene = $scene;
     }
 
     public static function localFields()
     {
-        return array_merge(parent::localFields(), self::VALID_ORIGINS);
+        return [...parent::allFields(), self::VALID_ORIGINS];
     }
 
     public function hasRequestIntents(): bool

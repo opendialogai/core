@@ -55,16 +55,14 @@ class Intent extends ConversationObject
         $this->turn = $turn;
         $this->speaker = $speaker;
         $this->interpreter = $interpreter;
-        $this->interpretedIntents = new IntentCollection();
-        $this->actions = new ActionsCollection();
     }
 
     public static function localFields()
     {
-        return array_merge(parent::localFields(), [
+        return [...parent::allFields(),
             self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::TRANSITION, self::LISTENS_FOR, self::VIRTUAL_INTENTS,
             self::EXPECTED_ATTRIBUTES, self::ACTIONS
-        ]);
+        ];
     }
 
     public static function createNoMatchIntent(): Intent

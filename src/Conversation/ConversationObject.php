@@ -31,8 +31,6 @@ class ConversationObject
 
     public function __construct()
     {
-        $this->conditions = new ConditionCollection();
-        $this->behaviors = new BehaviorsCollection();
     }
 
     /**
