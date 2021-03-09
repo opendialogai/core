@@ -15,9 +15,9 @@ class Scenario extends ConversationObject
     public const PREVIEW_STATUS = "PREVIEW";
     public const LIVE_STATUS = "LIVE";
 
-    protected ?bool $active;
-    protected ?string $status;
-    protected ?ConversationCollection $conversations;
+    protected ?bool $active = null;
+    protected ?string $status = null;
+    protected ?ConversationCollection $conversations = null;
 
     public function __construct()
     {
@@ -27,12 +27,17 @@ class Scenario extends ConversationObject
 
     public static function allFields()
     {
-        return array_merge(self::localFields(), [self::CONVERSATIONS]);
+        return [...self::localFields(), ...self::foreignFields()];
     }
 
     public static function localFields()
     {
-        return array_merge(parent::localFields(), [self::ACTIVE, self::STATUS]);
+        return [...parent::allFields(), self::ACTIVE, self::STATUS];
+    }
+
+    public static function foreignFields()
+    {
+        return [self::CONVERSATIONS];
     }
 
     public function hasConversations(): bool

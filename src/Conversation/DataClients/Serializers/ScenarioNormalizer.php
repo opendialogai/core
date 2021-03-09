@@ -11,20 +11,28 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class ScenarioNormalizer extends ConversationObjectNormalizer
 {
-    const FULL_TREE = [Scenario::UID, Scenario::OD_ID, Scenario::NAME, Scenario::DESCRIPTION, Scenario::BEHAVIORS =>
-        Behavior::FIELDS,
-        Scenario::CONDITIONS => Condition::FIELDS, Scenario::INTERPRETER, Scenario::UPDATED_AT, Scenario::CREATED_AT,
+
+    const FULL_EXPANSION = [
+        Scenario::UID,
+        Scenario::OD_ID,
+        Scenario::NAME,
+        Scenario::DESCRIPTION,
+        Scenario::BEHAVIORS => Behavior::FIELDS,
+        Scenario::CONDITIONS => Condition::FIELDS,
+        Scenario::INTERPRETER,
+        Scenario::UPDATED_AT,
+        Scenario::CREATED_AT,
         Scenario::ACTIVE,
         Scenario::STATUS,
-        Scenario::CONVERSATIONS];
+        // TODO: Reintroduce
+        // Scenario::CONVERSATIONS => Conversation::FULL_EXPANSION
+    ];
+
+
 
     public function normalize($object, string $format = null, array $context = [])
     {
-
-        $descendContextAttributeTree = fn($context, $via) => $context + [AbstractNormalizer::ATTRIBUTES =>
-                $context[AbstractNormalizer::ATTRIBUTES][$via] ?? []];
-        $clearContextAttributeTree = fn($context) => array_diff($context, [AbstractNormalizer::ATTRIBUTES]);
-        $tree = $context[AbstractNormalizer::ATTRIBUTES] ?? self::FULL_TREE;
+        $tree = $context[AbstractNormalizer::ATTRIBUTES] ?? self::FULL_EXPANSION;
 
         $data = [];
         if(in_array(Scenario::UID, $tree)) {
@@ -61,21 +69,21 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
         }
 
         if(in_array(Scenario::CONDITIONS, array_keys($tree), true)) {
-          $data['conditions'] = $this->serializer->normalize($object->getConditions(), $format, $descendContextAttributeTree($context,
+          $data['conditions'] = $this->serializer->normalize($object->getConditions(), $format, $this->createChildContext($context,
               Scenario::CONDITIONS));
         }
 
         if(in_array(Scenario::BEHAVIORS, array_keys($tree), true)) {
-            $data['behaviors'] = $this->serializer->normalize($object->getBehaviors(), $format, $descendContextAttributeTree($context,
+            $data['behaviors'] = $this->serializer->normalize($object->getBehaviors(), $format, $this->createChildContext($context,
                 Scenario::BEHAVIORS));
         }
 
         if(in_array(Scenario::CONVERSATIONS, $tree, true)) {
-            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format, $clearContextAttributeTree
-            ($context));
+            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format, $this->createChildContext
+            ($context, Scenario::CONVERSATIONS));
         }
         if(in_array(Scenario::CONVERSATIONS, array_keys($tree), true)) {
-            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format, $descendContextAttributeTree
+            $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format, $this->createChildContext
             ($context, Scenario::CONVERSATIONS));
         }
 

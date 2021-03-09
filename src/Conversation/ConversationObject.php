@@ -35,11 +35,11 @@ class ConversationObject
         $this->behaviors = new BehaviorsCollection();
     }
 
-    public static function localFields()
+    public static function allFields()
     {
         return [
-            self::UID, self::OD_ID, self::NAME, self::DESCRIPTION, self::INTERPRETER, self::CREATED_AT, self::UPDATED_AT,
-            self::CONDITIONS => Condition::FIELDS, self::BEHAVIORS => Behavior::FIELDS
+            self::UID, self::OD_ID, self::NAME, self::DESCRIPTION, self::CONDITIONS, self::BEHAVIORS, self::INTERPRETER,
+            self::CREATED_AT, self::UPDATED_AT,
         ];
     }
 
@@ -273,5 +273,13 @@ class ConversationObject
     public function setCreatedAt(DateTime $value)
     {
         $this->createdAt = $value;
+    }
+
+    /**
+     * Returns array containing the names of all hydrated (non-null) fields.
+     * @return array
+     */
+    public function hydratedFields(): array {
+        return array_filter(static::allFields(), fn($field) => $this->$field !== null);
     }
 }
