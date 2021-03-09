@@ -68,7 +68,6 @@
 
         <testsuite name="ConversationEngine">
             <directory suffix="Test.php">./src/ConversationEngine/Tests</directory>
-            <exclude>./src/ConversationEngine/Tests/ConversationEngineTest.php</exclude>
         </testsuite>
 
         <testsuite name="NlpEngine">

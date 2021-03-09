@@ -1,9 +1,11 @@
 <?php
 
 
-namespace OpenDialogAi\ConversationEngine\Reasoners;
+namespace OpenDialogAi\ConversationEngine\Selectors;
 
+use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
+use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 
 /**
@@ -28,4 +30,15 @@ class ScenarioSelector
         return $scenariosWithPassingConditions;
     }
 
+    /**
+     * Retrieves a specific scenario
+     *
+     * @param string $scenarioId
+     * @param bool $shallow
+     * @return Scenario
+     */
+    public static function selectScenarioById(string $scenarioId, bool $shallow = true): Scenario
+    {
+        return ConversationDataClient::getScenarioById($scenarioId, $shallow);
+    }
 }

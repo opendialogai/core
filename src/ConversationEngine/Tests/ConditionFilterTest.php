@@ -4,11 +4,13 @@
 namespace OpenDialogAi\ConversationEngine\Tests;
 
 
+use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\BaseContexts\SessionContext;
 use OpenDialogAi\ContextEngine\Facades\ContextService;
 use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
@@ -73,8 +75,56 @@ class ConditionFilterTest extends TestCase
             $expectedScene2,
         ]);
 
-        $this->assertCount(2, ConditionFilter::filterObjects($sceneCollection));
-        $this->assertContains($expectedScene1, ConditionFilter::filterObjects($sceneCollection));
-        $this->assertContains($expectedScene2, ConditionFilter::filterObjects($sceneCollection));
+        $filteredObjects = ConditionFilter::filterObjects($sceneCollection);
+        $this->assertCount(2, $filteredObjects);
+        $this->assertContains($expectedScene1, $filteredObjects);
+        $this->assertContains($expectedScene2, $filteredObjects);
+    }
+
+    public function testIntentsWithIntentContextConditions()
+    {
+        $expectedIntent1 = new Intent();
+        $expectedIntent1->setODId('test_intent1');
+        $expectedIntent1->setConditions(new ConditionCollection([
+            new Condition('eq', ['attribute' => '_intent.first_name'], ['value' => 'test'])
+        ]));
+        $expectedIntent1->setConfidence(1);
+        $expectedIntent1Interpreted = clone $expectedIntent1;
+        $expectedIntent1Interpreted->addAttribute(AttributeResolver::getAttributeFor('first_name', 'test'));
+        $expectedIntent1->addInterpretedIntents(new IntentCollection([$expectedIntent1Interpreted]));
+        $expectedIntent1->checkForMatch();
+
+        $notExpectedIntent = new Intent();
+        $notExpectedIntent->setODId('test_intent2');
+        $notExpectedIntent->setConditions(new ConditionCollection([
+            new Condition('eq', ['attribute' => '_intent.first_name'], ['value' => 'unknown'])
+        ]));
+        $notExpectedIntent->setConfidence(1);
+        $notExpectedIntentInterpreted = clone $notExpectedIntent;
+        $notExpectedIntentInterpreted->addAttribute(AttributeResolver::getAttributeFor('first_name', 'test'));
+        $notExpectedIntent->addInterpretedIntents(new IntentCollection([$notExpectedIntentInterpreted]));
+        $notExpectedIntent->checkForMatch();
+
+        $expectedIntent2 = new Intent();
+        $expectedIntent2->setODId('test_intent3');
+        $expectedIntent2->setConditions(new ConditionCollection([
+            new Condition('eq', ['attribute' => '_intent.first_name'], ['value' => 'test'])
+        ]));
+        $expectedIntent2->setConfidence(1);
+        $expectedIntent2Interpreted = clone $expectedIntent2;
+        $expectedIntent2Interpreted->addAttribute(AttributeResolver::getAttributeFor('first_name', 'test'));
+        $expectedIntent2->addInterpretedIntents(new IntentCollection([$expectedIntent2Interpreted]));
+        $expectedIntent2->checkForMatch();
+
+        $intentCollection = new IntentCollection([
+            $expectedIntent1,
+            $notExpectedIntent,
+            $expectedIntent2,
+        ]);
+
+        $filteredIntents = ConditionFilter::filterObjects($intentCollection, true);
+        $this->assertCount(2, $filteredIntents);
+        $this->assertContains($expectedIntent1, $filteredIntents);
+        $this->assertContains($expectedIntent2, $filteredIntents);
     }
 }

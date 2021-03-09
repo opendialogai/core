@@ -1,10 +1,12 @@
 <?php
 
 
-namespace OpenDialogAi\ConversationEngine\Reasoners;
+namespace OpenDialogAi\ConversationEngine\Selectors;
 
 use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
+use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\ConversationEngine\Util\SelectorUtil;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -76,5 +78,21 @@ class ConversationSelector
         $conversationsWithPassingConditions = ConditionFilter::filterObjects($conversations);
 
         return $conversationsWithPassingConditions;
+    }
+
+    /**
+     * Retrieves a specific conversation
+     *
+     * @param ScenarioCollection $scenarios
+     * @param string $conversationId
+     * @param bool $shallow
+     * @return Conversation
+     */
+    public static function selectConversationById(
+        ScenarioCollection $scenarios,
+        string $conversationId,
+        bool $shallow = true
+    ): Conversation {
+        return ConversationDataClient::getConversationById($scenarios, $conversationId, $shallow);
     }
 }

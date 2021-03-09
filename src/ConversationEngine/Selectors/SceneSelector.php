@@ -1,12 +1,14 @@
 <?php
 
 
-namespace OpenDialogAi\ConversationEngine\Reasoners;
+namespace OpenDialogAi\ConversationEngine\Selectors;
 
 use OpenDialogAi\ConversationEngine\Exceptions\EmptyCollectionException;
+use OpenDialogAi\ConversationEngine\Reasoners\ConditionFilter;
 use OpenDialogAi\ConversationEngine\Util\SelectorUtil;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\Facades\ConversationDataClient;
+use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 
 /**
@@ -72,5 +74,18 @@ class SceneSelector
         $scenesWithPassingConditions = ConditionFilter::filterObjects($scenes);
 
         return $scenesWithPassingConditions;
+    }
+
+    /**
+     * Retrieves a specific scene
+     *
+     * @param ConversationCollection $conversations
+     * @param string $sceneId
+     * @param bool $shallow
+     * @return Scene
+     */
+    public static function selectSceneById(ConversationCollection $conversations, string $sceneId, bool $shallow = true): Scene
+    {
+        return ConversationDataClient::getSceneById($conversations, $sceneId, $shallow);
     }
 }

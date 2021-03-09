@@ -4,10 +4,14 @@
 namespace OpenDialogAi\Core\Conversation\DataClients;
 
 use Illuminate\Support\Facades\Http;
+use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\IntentCollection;
+use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
+use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
+use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 
@@ -55,6 +59,18 @@ class ConversationDataClient
     }
 
     /**
+     * Retrieves a specific scenario
+     *
+     * @param string $scenarioId
+     * @param bool $shallow
+     * @return Scenario
+     */
+    public function getScenario(string $scenarioId, bool $shallow): Scenario
+    {
+        return new Scenario();
+    }
+
+    /**
      * Retrieve all conversations that belong to the given scenarios that have a behavior as "starting". from the graph
      *
      * @param ScenarioCollection $scenarios
@@ -88,6 +104,19 @@ class ConversationDataClient
     public function getAllConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
     {
         return new ConversationCollection();
+    }
+
+    /**
+     * Retrieves a specific conversation
+     *
+     * @param ScenarioCollection $scenarios
+     * @param string $conversationId
+     * @param bool $shallow
+     * @return Conversation
+     */
+    public function getConversationById(ScenarioCollection $scenarios, string $conversationId, bool $shallow): Conversation
+    {
+        return new Conversation();
     }
 
     /**
@@ -127,6 +156,19 @@ class ConversationDataClient
     }
 
     /**
+     * Retrieves a specific scene
+     *
+     * @param ConversationCollection $conversations
+     * @param string $sceneId
+     * @param bool $shallow
+     * @return Scene
+     */
+    public function getSceneById(ConversationCollection $conversations, string $sceneId, bool $shallow): Scene
+    {
+        return new Scene();
+    }
+
+    /**
      * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
      *
      * @param SceneCollection $scenes
@@ -160,6 +202,19 @@ class ConversationDataClient
     public function getAllTurns(SceneCollection $scenes, bool $shallow): TurnCollection
     {
         return new TurnCollection();
+    }
+
+    /**
+     * Retrieves a specific turn
+     *
+     * @param SceneCollection $scenes
+     * @param string $turnId
+     * @param bool $shallow
+     * @return Turn
+     */
+    public function getTurnById(SceneCollection $scenes, string $turnId, bool $shallow): Turn
+    {
+        return new Turn();
     }
 
     /**
