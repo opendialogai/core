@@ -85,7 +85,7 @@ class ConversationDataClient
         return $serializer->denormalize($response['data']['queryScenario'], ScenarioCollection::class);
     }
 
-    public function getScenarioByUid(string $scenarioUid, bool $shallow): Scenario
+    public function getScenarioByUid(string $scenarioUid, bool $shallow): ?Scenario
     {
 
         $getScenarioQuery = <<<'GQL'
@@ -178,7 +178,7 @@ class ConversationDataClient
     }
 
 
-    public function updateScenario(Scenario $scenario): Scenario
+    public function updateScenario(Scenario $scenario): ?Scenario
     {
         $updateScenarioQuery = <<<'GQL'
             mutation updateScenarioQuery($id: ID!, $set: ScenarioPatch!) {
