@@ -2,7 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 
 class Conversation extends ConversationObject
 {
@@ -27,14 +26,11 @@ class Conversation extends ConversationObject
 
     public function hasScenes(): bool
     {
-        return $this->getScenes()->isNotEmpty();
+        return $this->scenes !== null && $this->scenes->isNotEmpty();
     }
 
-    public function getScenes(): SceneCollection
+    public function getScenes(): ?SceneCollection
     {
-        if ($this->scenes === null) {
-            throw new InsufficientHydrationException("Field 'scenes' on Conversation has not been hydrated.");
-        }
         return $this->scenes;
     }
 
@@ -45,6 +41,9 @@ class Conversation extends ConversationObject
 
     public function addScene(Scene $scene)
     {
+        if($this->scenes === null) {
+            $this->scenes = new SceneCollection();
+        }
         $this->getScenes()->addObject($scene);
     }
 
@@ -54,22 +53,19 @@ class Conversation extends ConversationObject
      * An '' value indicates 'none'
      * Any other value indicates an interpreter (E.g interpreter.core.callback)
      */
-    public function getInterpreter(): string
+    public function getInterpreter(): ?string
     {
-        if ($this->interpreter === null) {
-            throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
+        if($this->interpreter === null) {
+            return null;
         }
-        if ($this->interpreter === '') {
-            return $this->getScenario()->getInterpreter();
+        if($this->interpreter === '' && $this->scenario !== null) {
+            return $this->scenario->getInterpreter();
         }
         return $this->interpreter;
     }
 
-    public function getScenario(): Scenario
+    public function getScenario(): ?Scenario
     {
-        if ($this->scenario === null) {
-            throw new InsufficientHydrationException("Field 'scenario' on Conversation has not been hydrated.");
-        }
         return $this->scenario;
     }
 

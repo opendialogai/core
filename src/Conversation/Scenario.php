@@ -2,8 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
-
 class Scenario extends ConversationObject
 {
     public const CURRENT_SCENARIO = 'current_scenario';
@@ -42,16 +40,19 @@ class Scenario extends ConversationObject
 
     public function hasConversations(): bool
     {
-        return $this->conversations->isNotEmpty();
+        return $this->conversations !== null && $this->conversations->isNotEmpty();
     }
 
     public function addConversation(Conversation $conversation)
     {
-        $this->getConversations()->addObject($conversation);
+        if($this->conversations === null) {
+            $this->conversations = new ConversationCollection();
+        }
+        $this->conversations->addObject($conversation);
         $conversation->setScenario($this);
     }
 
-    public function getConversations(): ConversationCollection
+    public function getConversations(): ?ConversationCollection
     {
         return $this->conversations;
     }
@@ -73,11 +74,8 @@ class Scenario extends ConversationObject
      *
      * @return string
      */
-    public function getStatus(): string
+    public function getStatus(): ?string
     {
-        if ($this->status === null) {
-            throw new InsufficientHydrationException("Cannot getStatus(). Value is not set!");
-        }
         return $this->status;
     }
 
@@ -96,11 +94,8 @@ class Scenario extends ConversationObject
      *
      * @return bool
      */
-    public function isActive(): bool
+    public function isActive(): ?bool
     {
-        if ($this->active === null) {
-            throw new InsufficientHydrationException("Cannot isActive(). Value is not set!");
-        }
         return $this->active;
     }
 

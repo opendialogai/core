@@ -3,7 +3,6 @@
 namespace OpenDialogAi\Core\Conversation;
 
 use DateTime;
-use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 
 class ConversationObject
 {
@@ -41,11 +40,8 @@ class ConversationObject
      *
      * @return string
      */
-    public function getOdId(): string
+    public function getOdId(): ?string
     {
-        if ($this->odId === null) {
-            throw new InsufficientHydrationException("Cannot getOdId(). Value is not set!");
-        }
         return $this->odId;
     }
 
@@ -66,9 +62,6 @@ class ConversationObject
      */
     public function getUid(): ?string
     {
-        if ($this->uid === null) {
-            throw new InsufficientHydrationException("Cannot getUid(). Value is not set!");
-        }
         return $this->uid;
     }
 
@@ -87,11 +80,8 @@ class ConversationObject
      *
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
-        if ($this->name === null) {
-            throw new InsufficientHydrationException("Cannot getName(). Value is not set!");
-        }
         return $this->name;
     }
 
@@ -112,11 +102,8 @@ class ConversationObject
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
-        if ($this->description === null) {
-            throw new InsufficientHydrationException("Cannot getDescription(). Value is not set!");
-        }
         return $this->description;
     }
 
@@ -136,11 +123,8 @@ class ConversationObject
      *
      * @return string
      */
-    public function getInterpreter(): string
+    public function getInterpreter(): ?string
     {
-        if ($this->interpreter === null) {
-            throw new InsufficientHydrationException("Cannot getName(). Value is not set!");
-        }
         return $this->interpreter;
     }
 
@@ -156,10 +140,7 @@ class ConversationObject
      */
     public function hasConditions(): bool
     {
-        if ($this->conditions === null) {
-            throw new InsufficientHydrationException("Cannot call hasConditions(). Value is not set!");
-        }
-        if ($this->conditions->isEmpty()) {
+        if ($this->conditions === null || $this->conditions->isEmpty()) {
             return false;
         }
 
@@ -175,9 +156,6 @@ class ConversationObject
      */
     public function getConditions(): ?ConditionCollection
     {
-        if ($this->conditions === null) {
-            throw new InsufficientHydrationException("Cannot getConditions(). Value is not set!");
-        }
         return $this->conditions;
     }
 
@@ -198,10 +176,7 @@ class ConversationObject
      */
     public function hasBehaviors(): bool
     {
-        if ($this->behaviors === null) {
-            throw new InsufficientHydrationException("Cannot hasBehaviors(). Value is not set!");
-        }
-        if ($this->behaviors->isEmpty()) {
+        if ($this->behaviors === null || $this->behaviors->isEmpty()) {
             return false;
         }
 
@@ -213,11 +188,8 @@ class ConversationObject
      *
      * @return BehaviorsCollection
      */
-    public function getBehaviors(): BehaviorsCollection
+    public function getBehaviors(): ?BehaviorsCollection
     {
-        if ($this->behaviors === null) {
-            throw new InsufficientHydrationException("Cannot getBehaviors(). Value is not set!");
-        }
         return $this->behaviors;
     }
 
@@ -234,11 +206,8 @@ class ConversationObject
     /**
      * @return DateTime
      */
-    public function getUpdatedAt(): DateTime
+    public function getUpdatedAt(): ?DateTime
     {
-        if ($this->updatedAt === null) {
-            throw new InsufficientHydrationException("Cannot getUpdatedAt(). Value is not set!");
-        }
         return $this->updatedAt;
     }
 
@@ -253,11 +222,8 @@ class ConversationObject
     /**
      * @return DateTime
      */
-    public function getCreatedAt(): DateTime
+    public function getCreatedAt(): ?DateTime
     {
-        if ($this->createdAt === null) {
-            throw new InsufficientHydrationException("Cannot getCreatedAt(). Value is not set!");
-        }
         return $this->createdAt;
     }
 

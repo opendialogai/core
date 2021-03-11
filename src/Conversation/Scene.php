@@ -2,8 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
-
 class Scene extends ConversationObject
 {
     public const CURRENT_SCENE = 'current_scene';
@@ -42,8 +40,8 @@ class Scene extends ConversationObject
 
     public function addTurn(Turn $turn)
     {
-        if ($this->turns === null) {
-            throw new InsufficientHydrationException("Field 'turns' on Scene has not been hydrated.");
+        if($this->turns === null) {
+            $this->turns = new TurnCollection();
         }
         $this->turns->addObject($turn);
     }
@@ -54,13 +52,13 @@ class Scene extends ConversationObject
      * An '' value indicates 'none'
      * Any other value indicates an interpreter (E.g interpreter.core.callback)
      */
-    public function getInterpreter(): string
+    public function getInterpreter(): ?string
     {
-        if ($this->interpreter === null) {
-            throw new InsufficientHydrationException("Interpreter on Scene has not been hydrated.");
+        if($this->interpreter === null) {
+            return null;
         }
-        if ($this->interpreter === '') {
-            return $this->getConversation()->getInterpreter();
+        if($this->interpreter === '' && $this->conversation !== null) {
+            return $this->conversation->getInterpreter();
         }
         return $this->interpreter;
     }
@@ -80,7 +78,6 @@ class Scene extends ConversationObject
         if ($this->getConversation() != null) {
             return $this->getConversation()->getScenario();
         }
-
         return null;
     }
 }

@@ -2,8 +2,6 @@
 
 namespace OpenDialogAi\Core\Conversation;
 
-use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
-
 class Turn extends ConversationObject
 {
     public const CURRENT_TURN = 'current_turn';
@@ -66,16 +64,16 @@ class Turn extends ConversationObject
 
     public function addRequestIntent(Intent $intent)
     {
-        if ($this->requestIntents === null) {
-            throw new InsufficientHydrationException("Field 'requestIntents' on Turn has not been hydrated.");
+        if($this->requestIntents === null) {
+            $this->requestIntents = new IntentCollection();
         }
         $this->requestIntents->addObject($intent);
     }
 
     public function addResponseIntent(Intent $intent)
     {
-        if ($this->responseIntents === null) {
-            throw new InsufficientHydrationException("Field 'responseIntents' on Turn has not been hydrated.");
+        if($this->responseIntents === null) {
+            $this->responseIntents = new IntentCollection();
         }
         $this->responseIntents->addObject($intent);
     }
@@ -87,13 +85,13 @@ class Turn extends ConversationObject
      * An '' value indicates 'none'
      * Any other value indicates an interpreter (E.g interpreter.core.callback)
      */
-    public function getInterpreter(): string
+    public function getInterpreter(): ?string
     {
-        if ($this->interpreter === null) {
-            throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
+        if($this->interpreter === null) {
+            return null;
         }
-        if ($this->interpreter === '') {
-            return $this->getScene()->getInterpreter();
+        if($this->interpreter === '' && $this->scene !== null) {
+            return $this->scene->getInterpreter();
         }
         return $this->interpreter;
     }
@@ -137,7 +135,7 @@ class Turn extends ConversationObject
         return !empty($this->validOrigins);
     }
 
-    public function getValidOrigins(): array
+    public function getValidOrigins(): ?array
     {
         return $this->validOrigins;
     }

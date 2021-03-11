@@ -4,7 +4,6 @@ namespace OpenDialogAi\Core\Conversation;
 
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\AttributeBag\HasAttributesTrait;
-use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 use OpenDialogAi\Core\Conversation\Exceptions\InvalidSpeakerTypeException;
 
 class Intent extends ConversationObject
@@ -148,13 +147,13 @@ class Intent extends ConversationObject
      * An '' value indicates 'none'
      * Any other value indicates an interpreter (E.g interpreter.core.callback)
      */
-    public function getInterpreter(): string
+    public function getInterpreter(): ?string
     {
-        if ($this->interpreter === null) {
-            throw new InsufficientHydrationException("Interpreter on Conversation has not been hydrated.");
+        if($this->interpreter === null) {
+            return null;
         }
-        if ($this->interpreter === '') {
-            return $this->getTurn()->getInterpreter();
+        if($this->interpreter === '' && $this->turn !== null) {
+            return $this->turn->getInterpreter();
         }
         return $this->interpreter;
     }
