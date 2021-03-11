@@ -10,6 +10,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ScenarioCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ScenarioNormalizer;
+use OpenDialogAi\Core\Conversation\Exceptions\ConversationObjectNotFoundException;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -48,6 +49,7 @@ class ConversationDataClient
                  name
                }
              }
+            }
         GQL;
 
     }
@@ -87,7 +89,6 @@ class ConversationDataClient
 
     public function getScenarioByUid(string $scenarioUid, bool $shallow): Scenario
     {
-
         $getScenarioQuery = <<<'GQL'
             query getScenario($id : ID!) {
                 getScenario(id: $id) {
@@ -109,6 +110,11 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getScenarioQuery, ['id' => $scenarioUid]);
+        if($response['data']['getScenario'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Scenario with uid %s could not be found',
+                $scenarioUid));
+        }
+
         $serializer = new Serializer([
             new ScenarioNormalizer(), new
             BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
@@ -116,7 +122,7 @@ class ConversationDataClient
             new
             JsonEncoder()
         ]);
-        return $serializer->denormalize($response['data']['getScenario'], Scenario::class);
+        return  $serializer->denormalize($response['data']['getScenario'], Scenario::class);
     }
 
     public function addScenario(Scenario $scenario): Scenario

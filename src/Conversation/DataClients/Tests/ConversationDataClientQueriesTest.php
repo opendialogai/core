@@ -10,6 +10,7 @@ use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\DataClients\ConversationDataClient;
+use OpenDialogAi\Core\Conversation\Exceptions\ConversationObjectNotFoundException;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
@@ -75,14 +76,17 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals($testScenario->getName(), $scenario->getName());
         $this->assertEquals($testScenario->isActive(), $scenario->isActive());
         $this->assertEquals($testScenario->getStatus(), $scenario->getStatus());
-
     }
 
+    public function testGetScenarioNonExistantUid() {
+        $this->expectException(ConversationObjectNotFoundException::class);
+        $this->client->getScenarioByUid("0x0001", false);
+    }
 
     public function testAddScenario()
     {
         $testScenario = $this->getStandaloneScenario();
-        $scenario = $this->client->addScenario($this->getStandaloneScenario());
+        $scenario = $this->client->addScenario($testScenario);
         $this->assertIsString($scenario->getUid());
         $this->assertEquals($testScenario->getOdId(), $scenario->getOdId());
         $this->assertEquals($testScenario->getName(), $scenario->getName());

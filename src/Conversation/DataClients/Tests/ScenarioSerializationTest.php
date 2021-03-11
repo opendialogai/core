@@ -40,7 +40,7 @@ class ScenarioSerializationTest extends SerializationTestCase
         $serializer = new Serializer($normalizers, $encoders);
 
         $serializationTree =
-            ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::FULL_EXPANSION, Scenario::localFields());
+            ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::fullExpansion(), Scenario::localFields());
         $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
         $expected = [
             'id' => $scenario->getUid(), 'od_id' => $scenario->getOdId(), 'name' => $scenario->getName(),
@@ -290,7 +290,7 @@ class ScenarioSerializationTest extends SerializationTestCase
         $serializer = new Serializer($normalizers, $encoders);
 
         $serializationTree =
-            ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::FULL_EXPANSION, Scenario::localFields());
+            ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::fullExpansion(), Scenario::localFields());
         $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
         $expected = [
             'id' => $scenario->getUid(), 'od_id' => $scenario->getOdId(), 'name' => $scenario->getName(),
