@@ -3,6 +3,7 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients;
 
+use Carbon\Carbon;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
@@ -87,7 +88,7 @@ class ConversationDataClient
         return $serializer->denormalize($response['data']['queryScenario'], ScenarioCollection::class);
     }
 
-    public function getScenarioByUid(string $scenarioUid, bool $shallow): Scenario
+    public function getScenarioByUid(string $scenarioUid, bool $shallow): ?Scenario
     {
         $getScenarioQuery = <<<'GQL'
             query getScenario($id : ID!) {
@@ -149,6 +150,9 @@ class ConversationDataClient
             }
         GQL;
 
+        $scenario->setCreatedAt(Carbon::now());
+        $scenario->setUpdatedAt(Carbon::now());
+
         $serializer = new Serializer([
             new ScenarioNormalizer(), new
             BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
@@ -163,6 +167,7 @@ class ConversationDataClient
                 , Scenario::BEHAVIORS => Behavior::FIELDS
             ]
         ]);
+
         $response = $this->client->query($addScenarioQuery, ['scenario' => $scenarioData]);
         return $serializer->denormalize($response['data']['addScenario']['scenario'][0], Scenario::class);
     }
@@ -184,7 +189,7 @@ class ConversationDataClient
     }
 
 
-    public function updateScenario(Scenario $scenario): Scenario
+    public function updateScenario(Scenario $scenario): ?Scenario
     {
         $updateScenarioQuery = <<<'GQL'
             mutation updateScenarioQuery($id: ID!, $set: ScenarioPatch!) {
@@ -207,6 +212,8 @@ class ConversationDataClient
                 }
             }
         GQL;
+
+        $scenario->setUpdatedAt(Carbon::now());
 
         $serializer = new Serializer([
             new ScenarioNormalizer(), new
