@@ -139,7 +139,7 @@ class ConversationObject
     public function getInterpreter(): string
     {
         if ($this->interpreter === null) {
-            throw new InsufficientHydrationException("Cannot getName(). Value is not set!");
+            throw new InsufficientHydrationException("Cannot getInterpreter(). Value is not set!");
         }
         return $this->interpreter;
     }

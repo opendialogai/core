@@ -3,6 +3,7 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients;
 
+use Carbon\Carbon;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
@@ -143,6 +144,9 @@ class ConversationDataClient
             }
         GQL;
 
+        $scenario->setCreatedAt(Carbon::now());
+        $scenario->setUpdatedAt(Carbon::now());
+
         $serializer = new Serializer([
             new ScenarioNormalizer(), new
             BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
@@ -157,6 +161,7 @@ class ConversationDataClient
                 , Scenario::BEHAVIORS => Behavior::FIELDS
             ]
         ]);
+
         $response = $this->client->query($addScenarioQuery, ['scenario' => $scenarioData]);
         return $serializer->denormalize($response['data']['addScenario']['scenario'][0], Scenario::class);
     }
@@ -201,6 +206,8 @@ class ConversationDataClient
                 }
             }
         GQL;
+
+        $scenario->setUpdatedAt(Carbon::now());
 
         $serializer = new Serializer([
             new ScenarioNormalizer(), new
