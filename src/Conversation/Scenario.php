@@ -20,7 +20,6 @@ class Scenario extends ConversationObject
     public function __construct()
     {
         parent::__construct();
-        $this->conversations = new ConversationCollection();
     }
 
     public static function allFields()

@@ -11,6 +11,7 @@ use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\DataClients\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Exceptions\ConversationObjectNotFoundException;
+use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
@@ -99,7 +100,15 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals($testScenario->isActive(), $scenario->isActive());
         $this->assertEquals($testScenario->getStatus(), $scenario->getStatus());
         $this->assertEquals($testScenario->getConversations(), $scenario->getConversations());
+    }
 
+    public function testAddScenarioMissingFields() {
+        $scenario = new Scenario();
+        $scenario->setOdId("test_scenario");
+        $scenario->setName("Test Scenario");
+        // Active and status are also required.
+        $this->expectException(InsufficientHydrationException::class);
+        $addedScenario = $this->client->addScenario($scenario);
     }
 
     public function testDeleteScenario()
@@ -108,6 +117,11 @@ class ConversationDataClientQueriesTest extends TestCase
 
         $success = $this->client->deleteScenarioByUid($scenario->getUid());
         $this->assertEquals(true, $success);
+    }
+
+    public function testDeleteScenarioNonExistantUid() {
+        $this->expectException(ConversationObjectNotFoundException::class);
+        $this->client->deleteScenarioByUid("0x0001");
     }
 
     public function testUpdateScenario()
@@ -133,7 +147,32 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals($changes->isActive(), $updatedScenario->isActive());
         $this->assertEquals($testScenario->getStatus(), $updatedScenario->getStatus());
         $this->assertEquals($testScenario->getConversations(), $updatedScenario->getConversations());
+    }
 
+    public function testUpdateScenarioNoChanges() {
+        $testScenario = $this->client->addScenario($this->getStandaloneScenario());
+
+        $changes = new Scenario();
+        $changes->setUid($testScenario->getUid());
+        $updatedScenario = $this->client->updateScenario($changes);
+        $this->assertEquals($testScenario->getUid(), $updatedScenario->getUid());
+        $this->assertEquals($testScenario->getOdId(), $updatedScenario->getOdId());
+        $this->assertEquals($testScenario->getName(), $updatedScenario->getName());
+        $this->assertEquals($testScenario->getDescription(), $updatedScenario->getDescription());
+        $this->assertEquals($testScenario->getBehaviors(), $updatedScenario->getBehaviors());
+        $this->assertEquals($testScenario->getConditions(), $updatedScenario->getConditions());
+        $this->assertEquals($testScenario->getInterpreter(), $updatedScenario->getInterpreter());
+        $this->assertEquals($testScenario->getCreatedAt(), $updatedScenario->getCreatedAt());
+        $this->assertEquals($testScenario->isActive(), $updatedScenario->isActive());
+        $this->assertEquals($testScenario->getStatus(), $updatedScenario->getStatus());
+        $this->assertEquals($testScenario->getConversations(), $updatedScenario->getConversations());
+    }
+
+    public function testUpdateScenarioNoUID() {
+        $changes = new Scenario();
+        $changes->setName("New name");
+        $this->expectException(InsufficientHydrationException::class);
+        $this->client->updateScenario($changes);
     }
 
 }

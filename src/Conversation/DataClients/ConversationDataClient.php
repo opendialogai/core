@@ -4,6 +4,7 @@
 namespace OpenDialogAi\Core\Conversation\DataClients;
 
 use Carbon\Carbon;
+use Mockery\Exception;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
@@ -12,6 +13,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNo
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ScenarioCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ScenarioNormalizer;
 use OpenDialogAi\Core\Conversation\Exceptions\ConversationObjectNotFoundException;
+use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -153,6 +155,13 @@ class ConversationDataClient
         $scenario->setCreatedAt(Carbon::now());
         $scenario->setUpdatedAt(Carbon::now());
 
+        $missing = array_filter([Scenario::OD_ID, Scenario::NAME, Scenario::ACTIVE, Scenario::STATUS], fn($required) =>
+        !in_array($required, $scenario->hydratedFields()));
+
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scenario supplied to ConversationDataClient::addScenario(), but are required!", implode(",", $missing)));
+        }
+
         $serializer = new Serializer([
             new ScenarioNormalizer(), new
             BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
@@ -185,6 +194,11 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($deleteScenarioQuery, ['id' => $scenarioUid]);
+        // Is this neccesary? We could just not care.
+        if(empty($response['data']['deleteScenario']['scenario'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Scenario with uid %s could not be found',
+                $scenarioUid));
+        }
         return true;
     }
 
@@ -213,6 +227,13 @@ class ConversationDataClient
             }
         GQL;
 
+        $missing = array_filter([Scenario::UID], fn($required) =>
+        !in_array($required, $scenario->hydratedFields()));
+
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scenario supplied to ConversationDataClient::updateScenario(), but are required!", implode(",", $missing)));
+        }
+
         $scenario->setUpdatedAt(Carbon::now());
 
         $serializer = new Serializer([
@@ -221,11 +242,11 @@ class ConversationDataClient
         ], []);
         //TODO: Update to allow entering a full scenario graph
 
-        $serializationTree = ScenarioNormalizer::filterSerializationTree([
-            Scenario::OD_ID, Scenario::NAME, Scenario::DESCRIPTION, Scenario::INTERPRETER,
-            Scenario::BEHAVIORS => Behavior::FIELDS, Scenario::CONDITIONS => Condition::FIELDS, Scenario::CREATED_AT,
-            Scenario::UPDATED_AT, Scenario::ACTIVE, Scenario::STATUS
-        ], $scenario->hydratedFields());
+        // Remove UID from patch fields. We can't change the UID
+        $patchFields = array_diff($scenario->hydratedFields(), [Scenario::UID]);
+
+        $serializationTree = ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::fullExpansion(),
+            $patchFields);
         $scenarioData = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
         $response = $this->client->query($updateScenarioQuery, ['id' => $scenario->getUid(), 'set' => $scenarioData]);
         return $serializer->denormalize($response['data']['updateScenario']['scenario'][0], Scenario::class);
