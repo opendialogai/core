@@ -57,6 +57,45 @@ class ConversationDataClient
 
     }
 
+    /**
+     * Retrieve all scenarios where active is set to true and their status is live
+     *
+     * @param  bool  $shallow
+     *
+     * @return ScenarioCollection
+     * @todo handle returning scenarios that are in preview mode (or do we use an OD condition for that)
+     */
+    public function getAllActiveScenarios(bool $shallow): ScenarioCollection {
+        $getAllActiveScenariosQuery = <<<'GQL'
+            query getAllActiveScenarios {
+                queryScenario(filter:  {active: true, status:{ eq: LIVE }}) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    active
+                    status
+                    created_at
+                    updated_at
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($getAllActiveScenariosQuery);
+        $serializer = new Serializer([
+            new ScenarioCollectionNormalizer(), new ScenarioNormalizer(), new
+            BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
+        ], [
+            new
+            JsonEncoder()
+        ]);
+        return $serializer->denormalize($response['data']['queryScenario'], ScenarioCollection::class);
+    }
     public function getAllScenarios(bool $shallow): ScenarioCollection
     {
         $getAllScenariosQuery = <<<'GQL'
@@ -253,18 +292,18 @@ class ConversationDataClient
 
     }
 
-    /**
-     * Retrieve all scenarios where active is set to true and their status is live
-     *
-     * @param  bool  $shallow
-     *
-     * @return ScenarioCollection
-     * @todo handle returning scenarios that are in preview mode (or do we use an OD condition for that)
-     */
-    public function getAllActiveScenarios(bool $shallow): ScenarioCollection
-    {
-        return new ScenarioCollection();
-    }
+//    /**
+//     * Retrieve all scenarios where active is set to true and their status is live
+//     *
+//     * @param  bool  $shallow
+//     *
+//     * @return ScenarioCollection
+//     * @todo handle returning scenarios that are in preview mode (or do we use an OD condition for that)
+//     */
+//    public function getAllActiveScenarios(bool $shallow): ScenarioCollection
+//    {
+//        return new ScenarioCollection();
+//    }
 
 
     /**

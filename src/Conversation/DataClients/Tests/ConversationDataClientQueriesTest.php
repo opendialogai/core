@@ -34,6 +34,38 @@ class ConversationDataClientQueriesTest extends TestCase
         $client->setSchema(config('opendialog.graphql.schema'));
     }
 
+    public function testGetAllActiveScenarios() {
+        $activeDraftScenario = new Scenario();
+        $activeDraftScenario->setOdId("active_draft_scenario");
+        $activeDraftScenario->setName("Active (Draft) Scenario");
+        $activeDraftScenario->setStatus("DRAFT");
+        $activeDraftScenario->setActive(true);
+
+
+        $activeLiveScenario = new Scenario();
+        $activeLiveScenario->setOdId("active_Live_scenario");
+        $activeLiveScenario->setName("Active (Live) Scenario");
+        $activeLiveScenario->setStatus("LIVE");
+        $activeLiveScenario->setActive(true);
+
+        $inactiveScenario = new Scenario();
+        $inactiveScenario->setOdId("inactive_scenario");
+        $inactiveScenario->setName("inactive Scenario");
+        $inactiveScenario->setStatus("DRAFT");
+        $inactiveScenario->setActive(false);
+
+        $this->client->addScenario($activeDraftScenario);
+        $this->client->addScenario($activeLiveScenario);
+        $this->client->addScenario($inactiveScenario);
+
+        $scenarios = $this->client->getAllActiveScenarios(false);
+        $this->assertEquals(1,$scenarios->count());
+        $this->assertEquals($activeLiveScenario->getOdId(), $scenarios[0]->getOdId());
+        $this->assertEquals("LIVE", $scenarios[0]->getStatus());
+        $this->assertEquals(true, $scenarios[0]->isActive());
+
+    }
+
     public function testGetAllScenarios()
     {
         $testScenario = $this->getStandaloneScenario();
