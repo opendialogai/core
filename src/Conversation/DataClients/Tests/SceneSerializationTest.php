@@ -2,6 +2,9 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Tests;
 
+use App\Bot\Interpreters\AbstractDialogflowInterpreter;
+use OpenDialogAi\Core\Conversation\Behavior;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionCollectionNormalizer;
@@ -11,6 +14,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\TurnCollectionNormali
 use OpenDialogAi\Core\Conversation\Scene;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class SceneSerializationTest extends SerializationTestCase
@@ -23,12 +27,13 @@ class SceneSerializationTest extends SerializationTestCase
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $data = $serializer->normalize($scene, 'json', []);
+        $data = $serializer->normalize($scene, 'json', [AbstractNormalizer::ATTRIBUTES => array_merge(Scene::localFields(),
+            [Scene::CONDITIONS => Condition::FIELDS, Scene::BEHAVIORS => Behavior::FIELDS])]);
         $expected = [
-            'type' => Scene::TYPE, 'uid' => $scene->getUid(), 'od_id' => $scene->getOdId(), 'name' => $scene->getName(),
+            'id' => $scene->getUid(), 'od_id' => $scene->getOdId(), 'name' => $scene->getName(),
             'description' => $scene->getDescription(), 'interpreter' => $scene->getInterpreter(), 'conditions' => [],
             'behaviors' => [], 'created_at' => $scene->getCreatedAt()->format(\DateTime::ISO8601),
-            'updated_at' => $scene->getUpdatedAt()->format(\DateTime::ISO8601), 'conversation' => null
+            'updated_at' => $scene->getUpdatedAt()->format(\DateTime::ISO8601)
         ];
         $this->assertEquals($expected, $data);
     }
@@ -44,35 +49,14 @@ class SceneSerializationTest extends SerializationTestCase
 
         $scene = $this->getStandaloneScene();
         $data = [
-            'type' => Scene::TYPE, 'uid' => $scene->getUid(), 'od_id' => $scene->getOdId(), 'name' => $scene->getName(),
+            'id' => $scene->getUid(), 'od_id' => $scene->getOdId(), 'name' => $scene->getName(),
             'description' => $scene->getDescription(), 'interpreter' => $scene->getInterpreter(), 'conditions' => [],
             'behaviors' => [], 'created_at' => $scene->getCreatedAt()->format(\DateTime::ISO8601),
-            'updated_at' => $scene->getUpdatedAt()->format(\DateTime::ISO8601), 'turns' => [], 'conversation' => null
+            'updated_at' => $scene->getUpdatedAt()->format(\DateTime::ISO8601)
         ];
 
         $denormalized = $serializer->denormalize($data, Scene::class);
         $this->assertEquals($denormalized, $scene);
-    }
-
-    public function testDenormalizeNoType()
-    {
-        $normalizers = [
-            new SceneNormalizer(), new ConditionCollectionNormalizer(), new ConditionNormalizer(), new
-            BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
-        ];
-        $encoders = [new JsonEncoder()];
-        $serializer = new Serializer($normalizers, $encoders);
-
-        $scene = $this->getStandaloneScene();
-        $data = [
-            'uid' => $scene->getUid(), 'od_id' => $scene->getOdId(), 'name' => $scene->getName(),
-            'description' => $scene->getDescription(), 'interpreter' => $scene->getInterpreter(), 'conditions' => [],
-            'behaviors' => [], 'created_at' => $scene->getCreatedAt()->format(\DateTime::ISO8601),
-            'updated_at' => $scene->getUpdatedAt()->format(\DateTime::ISO8601), 'turns' => [], 'conversation' => null
-        ];
-
-        $this->expectException(NotNormalizableValueException::class);
-        $denormalized = $serializer->denormalize($data, Scene::class);
     }
 
 }

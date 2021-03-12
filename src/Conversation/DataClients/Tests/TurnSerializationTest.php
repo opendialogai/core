@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Tests;
 
+use OpenDialogAi\Core\Conversation\Behavior;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionCollectionNormalizer;
@@ -11,6 +13,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\TurnNormalizer;
 use OpenDialogAi\Core\Conversation\Turn;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class TurnSerializationTest extends SerializationTestCase
@@ -23,13 +26,13 @@ class TurnSerializationTest extends SerializationTestCase
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $data = $serializer->normalize($turn, 'json', []);
+        $data = $serializer->normalize($turn, 'json', [AbstractNormalizer::ATTRIBUTES => array_merge(Turn::localFields(),
+            [Turn::CONDITIONS => Condition::FIELDS, Turn::BEHAVIORS => Behavior::FIELDS])]);
         $expected = [
-            'type' => Turn::TYPE, 'uid' => $turn->getUid(), 'od_id' => $turn->getOdId(), 'name' => $turn->getName(),
+            'id' => $turn->getUid(), 'od_id' => $turn->getOdId(), 'name' => $turn->getName(),
             'description' => $turn->getDescription(), 'interpreter' => $turn->getInterpreter(), 'conditions' => [],
             'behaviors' => [], 'created_at' => $turn->getCreatedAt()->format(\DateTime::ISO8601),
             'updated_at' => $turn->getUpdatedAt()->format(\DateTime::ISO8601),
-            'valid_origins' => $turn->getValidOrigins(), 'scene' => null
         ];
         $this->assertEquals($expected, $data);
     }
@@ -45,7 +48,7 @@ class TurnSerializationTest extends SerializationTestCase
 
         $turn = $this->getStandaloneTurn();
         $data = [
-            'type' => Turn::TYPE, 'uid' => $turn->getUid(), 'od_id' => $turn->getOdId(), 'name' => $turn->getName(),
+            'id' => $turn->getUid(), 'od_id' => $turn->getOdId(), 'name' => $turn->getName(),
             'description' => $turn->getDescription(), 'interpreter' => $turn->getInterpreter(), 'conditions' => [],
             'behaviors' => [], 'created_at' => $turn->getCreatedAt()->format(\DateTime::ISO8601),
             'updated_at' => $turn->getUpdatedAt()->format(\DateTime::ISO8601), 'valid_origins' => $turn->getValidOrigins(),
@@ -67,7 +70,7 @@ class TurnSerializationTest extends SerializationTestCase
 
         $turn = $this->getStandaloneTurn();
         $data = [
-            'uid' => $turn->getUid(), 'od_id' => $turn->getOdId(), 'name' => $turn->getName(),
+            'id' => $turn->getUid(), 'od_id' => $turn->getOdId(), 'name' => $turn->getName(),
             'description' => $turn->getDescription(), 'interpreter' => $turn->getInterpreter(), 'conditions' => [],
             'behaviors' => [], 'created_at' => $turn->getCreatedAt()->format(\DateTime::ISO8601),
             'updated_at' => $turn->getUpdatedAt()->format(\DateTime::ISO8601), 'valid_origins' => $turn->getValidOrigins(),

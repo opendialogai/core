@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Tests;
 
+use OpenDialogAi\Core\Conversation\Behavior;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionCollectionNormalizer;
@@ -14,6 +16,7 @@ use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Turn;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class IntentSerializationTest extends SerializationTestCase
@@ -25,7 +28,8 @@ class IntentSerializationTest extends SerializationTestCase
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $data = $serializer->normalize($intent, 'json', []);
+        $data = $serializer->normalize($intent, 'json', [AbstractNormalizer::ATTRIBUTES =>array_merge(Intent::localFields(),
+            [Intent::CONDITIONS => Condition::FIELDS, Intent::BEHAVIORS => Behavior::FIELDS])]);
         $expected = [
             'type' => Intent::TYPE, 'uid' => $intent->getUid(), 'od_id' => $intent->getOdId(), 'name' => $intent->getName(),
             'description' => $intent->getDescription(), 'interpreter' => $intent->getInterpreter(), 'conditions' => [],

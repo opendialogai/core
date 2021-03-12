@@ -7,6 +7,7 @@ use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionNormalizer;
 use OpenDialogAi\Core\Tests\TestCase;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class ConditionSerializationTest extends TestCase
@@ -21,7 +22,7 @@ class ConditionSerializationTest extends TestCase
         /* TODO: Update when conditions can be serialized */
         $condition = new Condition('gte', ['user.age'], [25]);
         $serializer = new Serializer([new ConditionNormalizer()], [new JsonEncoder()]);
-        $data = $serializer->normalize($condition, 'json', []);
+        $data = $serializer->normalize($condition, 'json', [AbstractNormalizer::ATTRIBUTES => []]);
         $this->assertEquals(null, $data);
     }
 

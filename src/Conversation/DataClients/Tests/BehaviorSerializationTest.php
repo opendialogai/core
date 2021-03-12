@@ -3,21 +3,22 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Tests;
 
+use Doctrine\DBAL\Schema\AbstractAsset;
 use OpenDialogAi\Core\Conversation\Behavior;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Tests\TestCase;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class BehaviorSerializationTest extends TestCase
 {
     public function testNormalizeBehavior()
     {
-
         $serializer = new Serializer([new BehaviorNormalizer()], [new JsonEncoder()]);
 
         $behavior = new Behavior(Behavior::STARTING);
-        $data = $serializer->normalize($behavior, 'json', []);
+        $data = $serializer->normalize($behavior, 'json', [AbstractNormalizer::ATTRIBUTES => Behavior::FIELDS]);
         $this->assertEquals(Behavior::STARTING, $data);
     }
 

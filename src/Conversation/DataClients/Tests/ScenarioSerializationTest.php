@@ -163,7 +163,7 @@ class ScenarioSerializationTest extends SerializationTestCase
             'description' => $scenario->getDescription(), 'interpreter' => $scenario->getInterpreter(), 'conditions' => [],
             'behaviors' => [Behavior::STARTING], 'active' => false, 'status' => Scenario::DRAFT_STATUS,
             'created_at' => $scenario->getCreatedAt()->format(\DateTime::ISO8601),
-            'updated_at' => $scenario->getUpdatedAt()->format(\DateTime::ISO8601), 'conversations' => []
+            'updated_at' => $scenario->getUpdatedAt()->format(\DateTime::ISO8601)
         ];
 
         $denormalized = $serializer->denormalize($data, Scenario::class);

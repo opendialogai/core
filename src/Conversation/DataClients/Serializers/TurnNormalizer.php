@@ -25,7 +25,7 @@ class TurnNormalizer extends ConversationObjectNormalizer
 
     public function supportsDenormalization($data, string $type, string $format = null, array $context = [])
     {
-        return isset($data['type']) && $data['type'] === Turn::TYPE;
+        return $type === Turn::class;
     }
 
     public function denormalize($data, string $type, string $format = null, array $context = [])

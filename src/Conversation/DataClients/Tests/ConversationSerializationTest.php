@@ -2,6 +2,8 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Tests;
 
+use OpenDialogAi\Core\Conversation\Behavior;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
@@ -11,6 +13,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConversationNormalize
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\SceneCollectionNormalizer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 class ConversationSerializationTest extends SerializationTestCase
@@ -22,10 +25,11 @@ class ConversationSerializationTest extends SerializationTestCase
         $encoders = [new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $data = $serializer->normalize($conversation, 'json', []);
+        $data = $serializer->normalize($conversation, 'json', [AbstractNormalizer::ATTRIBUTES => array_merge
+    (Conversation::localFields(),
+            [Conversation::CONDITIONS => Condition::FIELDS, Conversation::BEHAVIORS => Behavior::FIELDS])]);
         $expected = [
-            'type' => Conversation::TYPE,
-            'uid' => $conversation->getUid(),
+            'id' => $conversation->getUid(),
             'od_id' => $conversation->getOdId(),
             'name' => $conversation->getName(),
             'description' => $conversation->getDescription(),
@@ -34,8 +38,6 @@ class ConversationSerializationTest extends SerializationTestCase
             'behaviors' => [],
             'created_at' => $conversation->getCreatedAt()->format(\DateTime::ISO8601),
             'updated_at' => $conversation->getUpdatedAt()->format(\DateTime::ISO8601),
-            'scenes' => null,
-            'scenario' => null
         ];
         $this->assertEquals($expected, $data);
     }
@@ -51,40 +53,19 @@ class ConversationSerializationTest extends SerializationTestCase
 
         $conversation = $this->getStandaloneConversation();
         $data = [
-            'type' => Conversation::TYPE,
-            'uid' => $conversation->getUid(),
+            'id' => $conversation->getUid(),
             'od_id' => $conversation->getOdId(),
             'name' => $conversation->getName(),
             'description' => $conversation->getDescription(),
             'interpreter' => $conversation->getInterpreter(),
-            'conditions' => [], 'behaviors' => [],
+            'conditions' => [],
+            'behaviors' => [],
             'created_at' => $conversation->getCreatedAt()->format(\DateTime::ISO8601),
-            'updated_at' => $conversation->getUpdatedAt()->format(\DateTime::ISO8601), 'scenes' => [], 'scenario' => null
+            'updated_at' => $conversation->getUpdatedAt()->format(\DateTime::ISO8601),
         ];
 
         $denormalized = $serializer->denormalize($data, Conversation::class);
-        $this->assertEquals($denormalized, $conversation);
-    }
-
-    public function testDenormalizeMissingType()
-    {
-        $normalizers = [
-            new ConversationNormalizer(), new ConditionCollectionNormalizer(), new ConditionNormalizer(), new
-            BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
-        ];
-        $encoders = [new JsonEncoder()];
-        $serializer = new Serializer($normalizers, $encoders);
-
-        $conversation = $this->getStandaloneConversation();
-        $data = [
-            'uid' => $conversation->getUid(), 'od_id' => $conversation->getOdId(), 'name' => $conversation->getName(),
-            'description' => $conversation->getDescription(), 'interpreter' => $conversation->getInterpreter(),
-            'conditions' => [], 'behaviors' => [], 'created_at' => $conversation->getCreatedAt()->format(\DateTime::ISO8601),
-            'updated_at' => $conversation->getUpdatedAt()->format(\DateTime::ISO8601), 'scenes' => [], 'scenario' => null
-        ];
-
-        $this->expectException(NotNormalizableValueException::class);
-        $denormalized = $serializer->denormalize($data, Conversation::class);
+        $this->assertEquals($conversation, $denormalized);
     }
 
 }
