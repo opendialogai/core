@@ -424,9 +424,9 @@ class ConversationDataClient
 
         $response = $this->client->query($getAllConversationsByScenarioQuery, ['scenarioUid' => $scenario->getUid()]);
         $serializer = new Serializer([
-            new ConversationCollectionNormalizer(), new ConversationNormalizer(), new
+            new ScenarioNormalizer(), new ConversationCollectionNormalizer(), new ConversationNormalizer(), new
             BehaviorsCollectionNormalizer(), new BehaviorNormalizer()
-        ], null);
+        ], []);
         return $serializer->denormalize($response['data']['queryConversation'], ConversationCollection::class);
     }
 
