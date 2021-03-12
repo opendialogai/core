@@ -100,7 +100,7 @@ class IncomingIntentMatcherTest extends TestCase
         $this->assertSame($desiredIntent, IncomingIntentMatcher::matchIncomingIntent());
     }
 
-    public function testNoMatchNoOngoingConversation()
+    public function testGlobalNoMatchNoOngoingConversation()
     {
         // Mock selectors, no intents should match
         $noMatchIntent = new Intent();
