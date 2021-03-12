@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
 use OpenDialogAi\Core\Conversation\ConversationCollection;
+use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
 use OpenDialogAi\Core\Conversation\Scenario;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -28,11 +29,11 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
 
         if (in_array(Scenario::CONVERSATIONS, $tree, true)) {
             $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format,
-                $this->createChildContext($context, Scenario::CONVERSATIONS));
+                SerializationTreeHelper::createChildContext($context, Scenario::CONVERSATIONS));
         }
         if (in_array(Scenario::CONVERSATIONS, array_keys($tree), true)) {
             $data['conversations'] = $this->serializer->normalize($object->getConversations(), $format,
-                $this->createChildContext($context, Scenario::CONVERSATIONS));
+                SerializationTreeHelper::createChildContext($context, Scenario::CONVERSATIONS));
         }
 
         return $data;
