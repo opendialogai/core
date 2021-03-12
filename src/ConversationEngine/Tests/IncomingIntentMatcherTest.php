@@ -413,8 +413,11 @@ class IncomingIntentMatcherTest extends TestCase
             );
 
         TurnSelector::shouldReceive('selectTurnsByValidOrigin')
-            ->once()
-            ->andReturn(new TurnCollection());
+            ->twice()
+            ->andReturn(
+                new TurnCollection(),
+                new TurnCollection(),
+            );
 
         $intents = new IntentCollection();
 
@@ -456,8 +459,12 @@ class IncomingIntentMatcherTest extends TestCase
             );
 
         TurnSelector::shouldReceive('selectTurnsByValidOrigin')
-            ->once()
-            ->andReturn(new TurnCollection());
+            ->times(3)
+            ->andReturn(
+                new TurnCollection(),
+                new TurnCollection(),
+                new TurnCollection()
+            );
 
         $intents = new IntentCollection();
 
@@ -487,6 +494,14 @@ class IncomingIntentMatcherTest extends TestCase
     {
         $scene = $this->createScene();
 
+        SceneSelector::shouldReceive('selectSceneById')
+            ->times(3)
+            ->andReturn(
+                $scene,
+                $scene,
+                $scene
+            );
+
         $turn = new Turn($scene);
         $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
         $turn->setODId(self::TEST_TURN_2);
@@ -500,8 +515,12 @@ class IncomingIntentMatcherTest extends TestCase
             );
 
         TurnSelector::shouldReceive('selectTurnsByValidOrigin')
-            ->once()
-            ->andReturn(new TurnCollection());
+            ->times(3)
+            ->andReturn(
+                new TurnCollection(),
+                new TurnCollection(),
+                new TurnCollection()
+            );
 
         $intents = new IntentCollection();
 
@@ -525,9 +544,9 @@ class IncomingIntentMatcherTest extends TestCase
         $scenario = new Scenario();
         $scenario->setODId(self::TEST_SCENARIO_1);
 
-        ScenarioSelector::shouldReceive('selectScenarios')
+        ScenarioSelector::shouldReceive('selectScenarioById')
             ->once()
-            ->andReturn(new ScenarioCollection([$scenario]));
+            ->andReturn($scenario);
 
         $conversation = new Conversation();
         $conversation->setODId(self::TEST_CONVERSATION_1);
@@ -547,6 +566,7 @@ class IncomingIntentMatcherTest extends TestCase
             ->once()
             ->andReturn(new TurnCollection([$turn]));
 
+
         return $noMatchIntent;
     }
 
@@ -556,6 +576,14 @@ class IncomingIntentMatcherTest extends TestCase
     private function mockSelectorsForIncomingOngoingGlobalNoMatchRequest(): Intent
     {
         $scene = $this->createScene();
+
+        SceneSelector::shouldReceive('selectSceneById')
+            ->times(3)
+            ->andReturn(
+                $scene,
+                $scene,
+                $scene
+            );
 
         $turn = new Turn($scene);
         $turn->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN_BEHAVIOR)]));
@@ -570,8 +598,12 @@ class IncomingIntentMatcherTest extends TestCase
             );
 
         TurnSelector::shouldReceive('selectTurnsByValidOrigin')
-            ->once()
-            ->andReturn(new TurnCollection());
+            ->times(3)
+            ->andReturn(
+                new TurnCollection(),
+                new TurnCollection(),
+                new TurnCollection()
+            );
 
         $intents = new IntentCollection();
 
@@ -584,7 +616,7 @@ class IncomingIntentMatcherTest extends TestCase
         $intents->addObject($noMatchIntent);
 
         IntentSelector::shouldReceive('selectRequestIntents')
-            ->times(4)
+            ->times(5)
             ->andReturn(
                 new IntentCollection(),
                 new IntentCollection(),
@@ -596,27 +628,39 @@ class IncomingIntentMatcherTest extends TestCase
         $scenario = new Scenario();
         $scenario->setODId(self::TEST_SCENARIO_1);
 
-        ScenarioSelector::shouldReceive('selectScenarios')
+        ScenarioSelector::shouldReceive('selectScenarioById')
             ->twice()
-            ->andReturn(new ScenarioCollection([$scenario]));
+            ->andReturn(
+                $scenario,
+                $scenario
+            );
 
         $conversation = new Conversation();
         $conversation->setODId(self::TEST_CONVERSATION_1);
         ConversationSelector::shouldReceive('selectStartingConversations')
             ->twice()
-            ->andReturn(new ConversationCollection([$conversation]));
+            ->andReturn(
+                new ConversationCollection([$conversation]),
+                new ConversationCollection([$conversation])
+            );
 
         $scene = new Scene();
         $scene->setODId(self::TEST_SCENE_1);
         SceneSelector::shouldReceive('selectStartingScenes')
             ->twice()
-            ->andReturn(new SceneCollection([$scene]));
+            ->andReturn(
+                new SceneCollection([$scene]),
+                new SceneCollection([$scene]),
+            );
 
         $turn = new Turn();
         $turn->setODId(self::TEST_TURN_1);
         TurnSelector::shouldReceive('selectStartingTurns')
             ->twice()
-            ->andReturn(new TurnCollection([$turn]));
+            ->andReturn(
+                new TurnCollection([$turn]),
+                new TurnCollection([$turn]),
+            );
 
         return $noMatchIntent;
     }

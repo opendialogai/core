@@ -27,9 +27,8 @@ class ConversationEngine implements ConversationEngineInterface
 {
     public function getNextIntents(UtteranceAttribute $utterance): IntentCollection
     {
-        // We start by setting the request intent to a no match and the possible response intents
-        // to an empty collection. If all else fails this will be the default behavior.
-        $incomingIntent = Intent::createNoMatchIntent();
+        // We start by setting the possible response intents to an empty collection. If all else fails this will be the
+        // default behavior.
         $outgoingIntents = new IntentCollection();
 
         $currentUser = null;
@@ -43,7 +42,8 @@ class ConversationEngine implements ConversationEngineInterface
 
             $incomingIntent = IncomingIntentMatcher::matchIncomingIntent();
         } catch (NoMatchingIntentsException $e) {
-            Log::debug('No incoming intent matched, generating no-match intent');
+            Log::debug('No incoming intent matched.');
+            return new IntentCollection();
         }
 
         self::updateState($incomingIntent);
