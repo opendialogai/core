@@ -118,6 +118,7 @@ class ConversationDataClient
                     updated_at
                     conversations {
                         id
+                        od_id
                     }
                 }
             }
@@ -148,6 +149,7 @@ class ConversationDataClient
                     updated_at
                     conversations {
                         id
+                        od_id
                     }
                 }
             }
@@ -178,6 +180,7 @@ class ConversationDataClient
                     updated_at
                     conversations {
                         id
+                        od_id
                     }
                 }
             }
