@@ -21,8 +21,8 @@ type Scenario implements ConversationObject  {
     created_at: String!
     updated_at: String!
     conversations: [Conversation!] @hasInverse(field:"scenario")
-    active: Boolean!
-    status: EditStatus!
+    active: Boolean! @search
+    status: EditStatus! @search
 }
 
 type Conversation implements ConversationObject  {
