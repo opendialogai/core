@@ -242,14 +242,36 @@ class ConversationObject
      */
     public function hydratedFields(): array
     {
+        $allFields = static::allFields();
         return array_filter(static::allFields(), fn($field) => $this->$field !== null);
+    }
+
+    public function hydratedLazyTree(): array {
+        $result = [];
+        foreach(static::fieldsTree() as $key => $value) {
+            if(is_numeric($key) && $this->$value !== null) {
+                $result[$key] = $value;
+            } else {
+                if($this->$key !== null) {
+                    $result[$key] = fn() => $this->$key->hydratedLazytree();
+                }
+            }
+        }
+    }
+
+    public static function localFields() {
+        return [
+            self::UID, self::OD_ID, self::NAME, self::DESCRIPTION, self::INTERPRETER,
+            self::CREATED_AT, self::UPDATED_AT
+        ];
+    }
+
+    public static function foreignFields() {
+        return [self::CONDITIONS, self::BEHAVIORS];
     }
 
     public static function allFields()
     {
-        return [
-            self::UID, self::OD_ID, self::NAME, self::DESCRIPTION, self::CONDITIONS, self::BEHAVIORS, self::INTERPRETER,
-            self::CREATED_AT, self::UPDATED_AT,
-        ];
+        return [...self::localFields(), ...self::foreignFields()];
     }
 }

@@ -19,9 +19,19 @@ class Conversation extends ConversationObject
         $this->scenario = $scenario;
     }
 
+    public static function allFields()
+    {
+        return [...self::localFields(), ...self::foreignFields()];
+    }
+
     public static function localFields()
     {
         return parent::allFields();
+    }
+
+    public static function foreignFields()
+    {
+        return [self::SCENARIO, self::SCENES];
     }
 
     public function hasScenes(): bool

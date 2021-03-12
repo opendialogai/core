@@ -3,6 +3,7 @@
 namespace OpenDialogAi\Core\Conversation\DataClients\Tests;
 
 use OpenDialogAi\Core\Conversation\Behavior;
+use OpenDialogAi\Core\Conversation\Condition;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\BehaviorsCollectionNormalizer;
@@ -40,7 +41,9 @@ class ScenarioSerializationTest extends SerializationTestCase
         $serializer = new Serializer($normalizers, $encoders);
 
         $serializationTree =
-            ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::fullExpansion(), Scenario::localFields());
+            array_merge(Scenario::localFields(), [Scenario::CONDITIONS => Condition::FIELDS,
+                Scenario::BEHAVIORS => Behavior::FIELDS]
+            );
         $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
         $expected = [
             'id' => $scenario->getUid(), 'od_id' => $scenario->getOdId(), 'name' => $scenario->getName(),
@@ -290,7 +293,10 @@ class ScenarioSerializationTest extends SerializationTestCase
         $serializer = new Serializer($normalizers, $encoders);
 
         $serializationTree =
-            ScenarioNormalizer::filterSerializationTree(ScenarioNormalizer::fullExpansion(), Scenario::localFields());
+        array_merge(Scenario::localFields(),[
+            Scenario::CONDITIONS => Condition::FIELDS,
+            Scenario::BEHAVIORS => Behavior::FIELDS
+        ]);
         $data = $serializer->normalize($scenario, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
         $expected = [
             'id' => $scenario->getUid(), 'od_id' => $scenario->getOdId(), 'name' => $scenario->getName(),
