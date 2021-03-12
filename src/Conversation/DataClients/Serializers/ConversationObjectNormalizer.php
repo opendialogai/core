@@ -2,9 +2,11 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
+use http\Exception\RuntimeException;
 use OpenDialogAi\Core\Conversation\BehaviorsCollection;
 use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationObject;
+use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
 use OpenDialogAi\Core\Conversation\Scenario;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
@@ -15,67 +17,15 @@ use Symfony\Component\Serializer\SerializerInterface;
 abstract class ConversationObjectNormalizer
     implements ContextAwareNormalizerInterface, SerializerAwareInterface, ContextAwareDenormalizerInterface
 {
-
-    public static function fullExpansion() {
-        return [
-            ConversationObject::UID,
-            ConversationObject::OD_ID,
-            ConversationObject::NAME,
-            ConversationObject::DESCRIPTION,
-            ConversationObject::BEHAVIORS => BehaviorNormalizer::FULL_EXPANSION,
-            ConversationObject::CONDITIONS => ConditionNormalizer::FULL_EXPANSION,
-            ConversationObject::INTERPRETER,
-            ConversationObject::CREATED_AT,
-            ConversationObject::UPDATED_AT
-        ];
-    }
     protected SerializerInterface $serializer;
 
-    public static function normalizeUidOnly($obj)
-    {
-        return $obj ? $obj->getUid() : null;
-    }
-
-
-    /**
-     * Takes a serialization tree array and filters the top-level
-     * based on a an array of allow field names
-     *
-     * @param  array  $tree
-     * @param  array  $allowed
-     *
-     * @return array
-     */
-    public static function filterSerializationTree(array $tree, array $allowed): array
-    {
-        return array_filter($tree,
-            fn($value, $key) => (is_numeric($key) && in_array($value, $allowed, true)) || in_array($key, $allowed, true),
-            ARRAY_FILTER_USE_BOTH);
-    }
-
-    /**
-     * Creates a 'child' context from a serilization context
-     * by descending the serialization tree through the provided attribute.
-     *
-     * @param  array   $parentContext
-     * @param  string  $attribute
-     *
-     * @return array
-     */
-    public static function createChildContext(array $parentContext, string $attribute): array
-    {
-        if (isset($parentContext[AbstractNormalizer::ATTRIBUTES][$attribute])) {
-            $parentContext[AbstractNormalizer::ATTRIBUTES] = $parentContext[AbstractNormalizer::ATTRIBUTES][$attribute];
-        } else {
-            unset($parentContext[AbstractNormalizer::ATTRIBUTES]);
-        }
-
-        return $parentContext;
-    }
 
     public function normalize($object, string $format = null, array $context = [])
     {
-        $tree = $context[AbstractNormalizer::ATTRIBUTES] ?? self::fullExpansion();
+        if(!isset($context[AbstractNormalizer::ATTRIBUTES])) {
+            throw new \RuntimeException('The $context["attributes"] value MUST be set when normalizing a conversation object!');
+        }
+        $tree = $context[AbstractNormalizer::ATTRIBUTES];
 
         $data = [];
         if (in_array(Scenario::UID, $tree)) {
@@ -105,12 +55,12 @@ abstract class ConversationObjectNormalizer
 
         if (in_array(Scenario::CONDITIONS, array_keys($tree), true)) {
             $data['conditions'] = $this->serializer->normalize($object->getConditions(), $format,
-                $this->createChildContext($context, Scenario::CONDITIONS));
+                SerializationTreeHelper::createChildContext($context, Scenario::CONDITIONS));
         }
 
         if (in_array(Scenario::BEHAVIORS, array_keys($tree), true)) {
             $data['behaviors'] = $this->serializer->normalize($object->getBehaviors(), $format,
-                $this->createChildContext($context, Scenario::BEHAVIORS));
+                SerializationTreeHelper::createChildContext($context, Scenario::BEHAVIORS));
         }
 
 

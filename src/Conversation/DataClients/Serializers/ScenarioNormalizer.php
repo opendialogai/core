@@ -2,26 +2,19 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
-use OpenDialogAi\Core\Conversation\Behavior;
-use OpenDialogAi\Core\Conversation\BehaviorsCollection;
-use OpenDialogAi\Core\Conversation\Condition;
-use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
-use OpenDialogAi\Core\Conversation\ConversationObject;
 use OpenDialogAi\Core\Conversation\Scenario;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class ScenarioNormalizer extends ConversationObjectNormalizer
 {
 
-    public static function fullExpansion()  {
-        return array_merge(parent::fullExpansion(), [Scenario::ACTIVE, Scenario::STATUS, Scenario::CONVERSATIONS =>
-            ConversationNormalizer::FULL_EXPANSION]);
-    }
-
     public function normalize($object, string $format = null, array $context = [])
     {
-        $tree = $context[AbstractNormalizer::ATTRIBUTES] ?? self::fullExpansion();
+        if(!isset($context[AbstractNormalizer::ATTRIBUTES])) {
+            throw new \RuntimeException('The $context["attributes"] value MUST be set when normalizing a conversation object!');
+        }
+        $tree = $context[AbstractNormalizer::ATTRIBUTES];
 
         $data = parent::normalize($object, $format, $context);
 
