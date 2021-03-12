@@ -556,7 +556,7 @@ class ConversationDataClient
         return true;
     }
 
-    public function getScenarioWithFocusedConversation(string $conversationUid): Scenario {
+    public function getScenarioWithFocusedConversation(string $conversationUid): Conversation {
         $getFocusedConversationQuery = <<<'GQL'
             query getFocusedConversationQuery($id : ID!) {
                 getConversation(id: $id) {
@@ -593,10 +593,8 @@ class ConversationDataClient
                 $conversationUid));
         }
         $serializer = new Serializer(self::getNormalizers(), []);
-        $conversation = $serializer->denormalize($response['data']['getConversation'], Conversation::class);
 
-        $scenario = $conversation->getScenario();
-        return $scenario;
+        return $serializer->denormalize($response['data']['getConversation'], Conversation::class);
     }
 
 
