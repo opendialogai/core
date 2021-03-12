@@ -14,6 +14,9 @@ use OpenDialogAi\Core\Conversation\DataClients\ConversationDataClient;
 use OpenDialogAi\Core\Conversation\Exceptions\ConversationObjectNotFoundException;
 use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
 use OpenDialogAi\Core\Conversation\Scenario;
+use OpenDialogAi\Core\Conversation\Scene;
+use OpenDialogAi\Core\Conversation\SceneCollection;
+use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 
@@ -33,6 +36,38 @@ class ConversationDataClientQueriesTest extends TestCase
         $client = resolve(GraphQLClientInterface::class);
         $client->dropAll();
         $client->setSchema(config('opendialog.graphql.schema'));
+    }
+
+    public function getStandaloneScenario()
+    {
+        $scenario = new Scenario();
+        $scenario->setOdId("test_scenario");
+        $scenario->setName("Test Scenario");
+        $scenario->setDescription("A test scenario");
+        $scenario->setInterpreter("interpreter.core.example");
+        $scenario->setStatus(Scenario::DRAFT_STATUS);
+        $scenario->setActive(true);
+        $scenario->setBehaviors(new BehaviorsCollection([new Behavior("STARTING")]));
+        $scenario->setConditions(new ConditionCollection());
+        $scenario->setCreatedAt(new DateTime('2021-03-01T01:00:00.0000Z'));
+        $scenario->setUpdatedAt(new DateTime('2021-03-01T02:00:00.0000Z'));
+        $scenario->setConversations(new ConversationCollection());
+        return $scenario;
+    }
+
+    public function getStandaloneConversation()
+    {
+        $conversation = new Conversation();
+        $conversation->setOdId("test_conversation");
+        $conversation->setName("Test Conversation");
+        $conversation->setDescription("A test conversation");
+        $conversation->setInterpreter("interpreter.core.example");
+        $conversation->setBehaviors(new BehaviorsCollection([new Behavior("STARTING")]));
+        $conversation->setConditions(new ConditionCollection());
+        $conversation->setCreatedAt(new DateTime('2021-03-01T01:00:00.0000Z'));
+        $conversation->setUpdatedAt(new DateTime('2021-03-01T02:00:00.0000Z'));
+        $conversation->setScenes(new SceneCollection());
+        return $conversation;
     }
 
     public function testGetAllActiveScenarios() {
@@ -64,6 +99,7 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals($activeLiveScenario->getOdId(), $scenarios[0]->getOdId());
         $this->assertEquals("LIVE", $scenarios[0]->getStatus());
         $this->assertEquals(true, $scenarios[0]->isActive());
+        $this->assertEquals(new ConversationCollection(), $scenarios[0]->getConversations());
 
     }
 
@@ -80,25 +116,12 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals($testScenario->getName(), $scenario->getName());
         $this->assertEquals($testScenario->isActive(), $scenario->isActive());
         $this->assertEquals($testScenario->getStatus(), $scenario->getStatus());
+        $this->assertEquals(new ConversationCollection(), $scenario->getConversations());
+
 
     }
 
-    public function getStandaloneScenario()
-    {
-        $scenario = new Scenario();
-        $scenario->setOdId("test_scenario");
-        $scenario->setName("Test Scenario");
-        $scenario->setDescription("A test scenario");
-        $scenario->setInterpreter("interpreter.core.example");
-        $scenario->setStatus(Scenario::DRAFT_STATUS);
-        $scenario->setActive(true);
-        $scenario->setBehaviors(new BehaviorsCollection([new Behavior("STARTING")]));
-        $scenario->setConditions(new ConditionCollection());
-        $scenario->setCreatedAt(new DateTime('2021-03-01T01:00:00.0000Z'));
-        $scenario->setUpdatedAt(new DateTime('2021-03-01T02:00:00.0000Z'));
-        $scenario->setConversations(new ConversationCollection());
-        return $scenario;
-    }
+
 
     public function testGetScenario()
     {
@@ -110,6 +133,8 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals($testScenario->getName(), $scenario->getName());
         $this->assertEquals($testScenario->isActive(), $scenario->isActive());
         $this->assertEquals($testScenario->getStatus(), $scenario->getStatus());
+        $this->assertEquals(new ConversationCollection(), $scenario->getConversations());
+
     }
 
     public function testGetScenarioNonExistantUid() {
@@ -121,6 +146,7 @@ class ConversationDataClientQueriesTest extends TestCase
     {
         $testScenario = $this->getStandaloneScenario();
         $scenario = $this->client->addScenario($testScenario);
+
         $this->assertIsString($scenario->getUid());
         $this->assertEquals($testScenario->getOdId(), $scenario->getOdId());
         $this->assertEquals($testScenario->getName(), $scenario->getName());
@@ -128,11 +154,9 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals($testScenario->getBehaviors(), $scenario->getBehaviors());
         $this->assertEquals($testScenario->getConditions(), $scenario->getConditions());
         $this->assertEquals($testScenario->getInterpreter(), $scenario->getInterpreter());
-//        $this->assertEquals($testScenario->getCreatedAt(), $scenario->getCreatedAt());
-//        $this->assertEquals($testScenario->getUpdatedAt(), $scenario->getUpdatedAt());
         $this->assertEquals($testScenario->isActive(), $scenario->isActive());
         $this->assertEquals($testScenario->getStatus(), $scenario->getStatus());
-        $this->assertEquals($testScenario->getConversations(), $scenario->getConversations());
+        $this->assertEquals(new ConversationCollection(), $scenario->getConversations());
     }
 
     public function testAddScenarioMissingFields() {
@@ -147,8 +171,9 @@ class ConversationDataClientQueriesTest extends TestCase
     public function testDeleteScenario()
     {
         $scenario = $this->client->addScenario($this->getStandaloneScenario());
-
         $success = $this->client->deleteScenarioByUid($scenario->getUid());
+        //Todo: Check for deletion cascade.
+
         $this->assertEquals(true, $success);
     }
 
@@ -224,6 +249,8 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertEquals(new ConditionCollection(), $conversation->getConditions());
         $this->assertEquals(new BehaviorsCollection(), $conversation->getBehaviors());
         $this->assertEquals($testConversation->getInterpreter(), $conversation->getInterpreter());
+        $this->assertEquals(new SceneCollection(), $conversation->getScenes());
+
     }
 
     public function testGetConversationsByScenario() {
@@ -253,14 +280,17 @@ class ConversationDataClientQueriesTest extends TestCase
         $conversationB->setName("Conversation B");
         $conversationB->setScenario($scenarioB);
 
-        $this->client->addConversation($conversationA);
-        $this->client->addConversation($conversationB);
+        $conversationA = $this->client->addConversation($conversationA);
+        $conversationB = $this->client->addConversation($conversationB);
 
-        $conversationsA = $this->client->getAllConversationsByScenario($scenarioA, false);
-        $this->assertEquals(1, $conversationsA->count());
+        $conversationsInScenarioA = $this->client->getAllConversationsByScenario($scenarioA, false);
+        $this->assertEquals(1, $conversationsInScenarioA->count());
+        $this->assertEquals($conversationA->getUid(), $conversationsInScenarioA[0]->getUid());
 
-        $conversationsB = $this->client->getAllConversationsByScenario($scenarioB, false);
-        $this->assertEquals(1, $conversationsB->count());
+        $conversationsInScenarioB = $this->client->getAllConversationsByScenario($scenarioB, false);
+        $this->assertEquals(1, $conversationsInScenarioB->count());
+        $this->assertEquals($conversationB->getUid(), $conversationsInScenarioB[0]->getUid());
+
     }
 
     public function testGetConversationByUid() {
@@ -277,6 +307,8 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->assertNotNull($conversation->getUid());
         $this->assertEquals($testConversation->getOdId(), $conversation->getOdId());
         $this->assertEquals($testConversation->getName(), $conversation->getName());
+        $this->assertEquals(new SceneCollection(), $conversation->getScenes());
+
 
     }
 
@@ -284,5 +316,118 @@ class ConversationDataClientQueriesTest extends TestCase
         $this->expectException(ConversationObjectNotFoundException::class);
         $this->client->getConversationByUid("0x0001", false);
     }
+
+    public function testUpdateConversation() {
+        $testScenario = $this->client->addScenario($this->getStandaloneScenario());
+        $testConversation = new Conversation();
+        $testConversation->setOdId("test_conversation");
+        $testConversation->setName("Test conversation");
+        $testConversation->setScenario($testScenario);
+        $testConversation = $this->client->addConversation($testConversation);
+
+
+        $changes = new Conversation();
+        $changes->setUid($testConversation->getUid());
+        $changes->setName("Updated name");
+        $changes->setOdId("updated_id");
+
+        $updatedConversation = $this->client->updateConversation($changes);
+        $this->assertEquals($testConversation->getUid(), $updatedConversation->getUid());
+        $this->assertEquals($changes->getOdId(), $updatedConversation->getOdId());
+        $this->assertEquals($changes->getName(), $updatedConversation->getName());
+        $this->assertEquals($testConversation->getDescription(), $updatedConversation->getDescription());
+        $this->assertEquals($testConversation->getBehaviors(), $updatedConversation->getBehaviors());
+        $this->assertEquals($testConversation->getConditions(), $updatedConversation->getConditions());
+        $this->assertEquals($testConversation->getInterpreter(), $updatedConversation->getInterpreter());
+        $this->assertEquals($testConversation->getCreatedAt(), $updatedConversation->getCreatedAt());
+        $this->assertEquals(new SceneCollection(), $updatedConversation->getScenes());
+
+    }
+
+    public function testDeleteConversation() {
+        $scenario = $this->client->addScenario($this->getStandaloneScenario());
+        $conversation = new Conversation();
+        $conversation->setOdId("test_conversation");
+        $conversation->setName("Test conversation");
+        $conversation->setScenario($scenario);
+        $conversation = $this->client->addConversation($conversation);
+
+        $success = $this->client->deleteConversationByUid($conversation->getUid());
+        //Todo: Check for deletion cascade.
+        $this->assertEquals(true, $success);
+    }
+
+    public function testGetScenarioWithFocusedConversation() {
+        $testScenario = $this->client->addScenario($this->getStandaloneScenario());
+        $conversation = new Conversation();
+        $conversation->setOdId("test_conversation");
+        $conversation->setName("Test Conversation");
+        $conversation->setScenario($testScenario);
+        $conversation = $this->client->addConversation($conversation);
+
+        $sceneA = new Scene();
+        $sceneA->setOdId("scene_a");
+        $sceneA->setName("Scene A");
+        $sceneA->setConversation($conversation);
+        $sceneA = $this->client->addScene($sceneA);
+
+        $sceneB = new Scene();
+        $sceneB->setOdId("scene_b");
+        $sceneB->setName("Scene B");
+        $sceneB->setConversation($conversation);
+        $sceneB = $this->client->addScene($sceneB);
+
+        $scenarioTree = $this->client->getScenarioWithFocusedConversation($conversation->getUid());
+        $this->assertEquals($testScenario->getUid(), $scenarioTree->getUid());
+        $this->assertEquals($testScenario->getOdId(), $scenarioTree->getOdId());
+        $this->assertNotNull($scenarioTree->getConversations());
+        $this->assertEquals(1, $scenarioTree->getConversations()->count());
+
+        $conversationTree = $scenarioTree->getConversations()->first();
+        $this->assertEquals($conversation->getUid(), $conversationTree->getUid());
+        $this->assertEquals($conversation->getOdId(), $conversationTree->getOdId());
+        $this->assertEquals($conversation->getName(), $conversationTree->getName());
+        $this->assertNotNull($conversationTree->getScenes());
+        $this->assertEquals(2, $conversationTree->getScenes()->count());
+
+        $sceneATree = $conversationTree->getScenes()[0];
+        $this->assertEquals($sceneA->getUid(), $sceneATree->getUid());
+        $this->assertEquals($sceneA->getOdId(), $sceneATree->getOdId());
+        $this->assertEquals($sceneA->getName(), $sceneATree->getName());
+
+        $sceneBTree = $conversationTree->getScenes()[1];
+        $this->assertEquals($sceneB->getUid(), $sceneBTree->getUid());
+        $this->assertEquals($sceneB->getOdId(), $sceneBTree->getOdId());
+        $this->assertEquals($sceneB->getName(), $sceneBTree->getName());
+
+    }
+
+    public function testAddScene() {
+        $scenario = $this->client->addScenario($this->getStandaloneScenario());
+        $conversation = $this->getStandaloneConversation();
+        $conversation->setScenario($scenario);
+        $conversation = $this->client->addConversation($conversation);
+
+        $testScene = new Scene();
+        $testScene->setOdId("test_scene");
+        $testScene->setName("Test Scene");
+        $testScene->setConversation($conversation);
+
+        $scene = $this->client->addScene($testScene);
+
+        $this->assertIsString($scene->getUid());
+        $this->assertEquals($testScene->getOdId(), $scene->getOdId());
+        $this->assertEquals($testScene->getName(), $scene->getName());
+        $this->assertEquals($testScene->getConversation()->getUid(), $scene->getConversation()->getUid());
+        $this->assertEquals(new ConditionCollection(), $scene->getConditions());
+        $this->assertEquals(new BehaviorsCollection(), $scene->getBehaviors());
+        $this->assertEquals($testScene->getInterpreter(), $scene->getInterpreter());
+        $this->assertEquals(new TurnCollection(), $scene->getTurns());
+
+    }
+
+
+
+
 
 }

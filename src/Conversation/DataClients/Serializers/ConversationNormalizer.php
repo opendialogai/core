@@ -8,6 +8,7 @@ use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
 use OpenDialogAi\Core\Conversation\Scenario;
+use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -51,12 +52,21 @@ class ConversationNormalizer extends ConversationObjectNormalizer
         if (isset($data['scenario'])) {
             // Possibility of a circular reference here.
             $scenario = $this->serializer->denormalize($data['scenario'], Scenario::class);
-            $conversation->setScenario($scenario);
+            // If we didn't hydrate the $scenario->conversations, we must manually add the link.
+            if($scenario->getConversations() === null) {
+                $scenario->addConversation($conversation);
+                $conversation->setScenario($scenario);
+            } else {
+                // We have already loaded the conversations.
+            }
+
         }
 
         if(isset($data['scenes'])) {
             $scenes = $this->serializer->denormalize($data['scenes'], SceneCollection::class);
+            $conversation->setScenes(new SceneCollection());
             foreach ($scenes as $scene) {
+                // Possible circular reference?
                 $conversation->addScene($scene);
                 $scene->setConversation($conversation);
             }

@@ -242,7 +242,6 @@ class ConversationObject
      */
     public function hydratedFields(): array
     {
-        $allFields = static::allFields();
         return array_filter(static::allFields(), fn($field) => $this->$field !== null);
     }
 

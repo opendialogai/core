@@ -63,6 +63,7 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
 
         if (isset($data['conversations'])) {
             $conversations = $this->serializer->denormalize($data['conversations'], ConversationCollection::class);
+            $scenario->setConversations(new ConversationCollection());
             foreach ($conversations as $conversation) {
                 $scenario->addConversation($conversation);
                 $conversation->setScenario($scenario);

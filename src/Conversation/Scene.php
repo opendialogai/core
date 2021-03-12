@@ -9,8 +9,8 @@ class Scene extends ConversationObject
     public const CONVERSATION = 'conversation';
     public const TURNS = 'turns';
 
-    protected TurnCollection $turns;
-    protected ?Conversation $conversation;
+    protected ?TurnCollection $turns = null;
+    protected ?Conversation $conversation = null;
 
     public function __construct(?Conversation $conversation = null)
     {
@@ -18,9 +18,19 @@ class Scene extends ConversationObject
         $this->conversation = $conversation;
     }
 
+    public static function allFields()
+    {
+        return [...self::localFields(), ...self::foreignFields()];
+    }
+
     public static function localFields()
     {
         return parent::allFields();
+    }
+
+    public static function foreignFields()
+    {
+        return [self::CONVERSATION, self::TURNS];
     }
 
     public function hasTurns(): bool
