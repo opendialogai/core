@@ -656,7 +656,39 @@ class ConversationDataClient
      */
     public function getAllOpenConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
     {
-        return new ConversationCollection();
+        $getAllOpenConversations = <<<'GQL'
+            query getAllOpenConversations($scenarioUids: [ID!]!) {
+                queryConversation(filter: { behaviors: {eq: "OPEN" }}) @cascade(fields: ["scenario"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scenario(filter: {id: $scenarioUids}) {
+                        id
+                    }
+                    scenes {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $scenarioUids = $scenarios->map(fn($scenario) => $scenario->getUid());
+
+        if($scenarioUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenarios passed to %s must have a UID!", __METHOD__ ));
+        }
+
+        $response = $this->client->query($getAllOpenConversations, ['scenarioUids' => $scenarioUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryConversation'], ConversationCollection::class);
     }
 
     /**

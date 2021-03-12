@@ -361,7 +361,7 @@ class ConversationDataClientQueriesTest extends TestCase
     public function testGetStartingConversationsInScenarios() {
         /**
          * Scenario A -> [Conversation A (STARTING)]
-         * Scenario B -> [Conversation B (STARTING), Conversation D (COMPLETING,STARTING)]
+         * Scenario B -> [Conversation B (COMPLETING), Conversation D (COMPLETING,STARTING)]
          * Scenario C -> []
          */
         $scenarioA = new Scenario();
@@ -407,6 +407,64 @@ class ConversationDataClientQueriesTest extends TestCase
         $conversationD = $this->client->addConversation($conversationD);
 
         $startingConversations = $this->client->getAllStartingConversations(new ScenarioCollection([$scenarioA, $scenarioB,
+            $scenarioC]), false);
+        $this->assertEquals(2, $startingConversations->count());
+        $this->assertEquals($conversationA->getUid(), $startingConversations[0]->getUid());
+        $this->assertEquals($scenarioA->getUid(), $startingConversations[0]->getScenario()->getUid());
+        $this->assertEquals($conversationD->getUid(), $startingConversations[1]->getUid());
+        $this->assertEquals($scenarioB->getUid(), $startingConversations[1]->getScenario()->getUid());
+
+    }
+
+    public function testGetOpenConversationsInScenarios() {
+        /**
+         * Scenario A -> [Conversation A (OPEN)]
+         * Scenario B -> [Conversation B (STARTING), Conversation D (COMPLETING,OPEN)]
+         * Scenario C -> []
+         */
+        $scenarioA = new Scenario();
+        $scenarioA->setOdId("scenario_a");
+        $scenarioA->setName("Scenario A");
+        $scenarioA->setStatus(Scenario::LIVE_STATUS);
+        $scenarioA->setActive(true);
+        $scenarioA = $this->client->addScenario($scenarioA);
+
+        $scenarioB = new Scenario();
+        $scenarioB->setOdId("scenario_b");
+        $scenarioB->setName("Scenario B");
+        $scenarioB->setStatus(Scenario::LIVE_STATUS);
+        $scenarioB->setActive(true);
+        $scenarioB = $this->client->addScenario($scenarioB);
+
+        $scenarioC = new Scenario();
+        $scenarioC->setOdId("scenario_c");
+        $scenarioC->setName("Scenario C");
+        $scenarioC->setStatus(Scenario::LIVE_STATUS);
+        $scenarioC->setActive(true);
+        $scenarioC = $this->client->addScenario($scenarioC);
+
+        $conversationA = new Conversation();
+        $conversationA->setOdId("conversation_a");
+        $conversationA->setName("Conversation A");
+        $conversationA->setScenario($scenarioA);
+        $conversationA->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::OPEN)]));
+        $conversationA = $this->client->addConversation($conversationA);
+
+        $conversationB = new Conversation();
+        $conversationB->setOdId("conversation_b");
+        $conversationB->setName("Conversation B");
+        $conversationB->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::STARTING)]));
+        $conversationB->setScenario($scenarioB);
+        $conversationB = $this->client->addConversation($conversationB);
+
+        $conversationD = new Conversation();
+        $conversationD->setOdId("conversation_d");
+        $conversationD->setName("Conversation D");
+        $conversationD->setBehaviors(new BehaviorsCollection([new Behavior(Behavior::COMPLETING), new Behavior(Behavior::OPEN)]));
+        $conversationD->setScenario($scenarioB);
+        $conversationD = $this->client->addConversation($conversationD);
+
+        $startingConversations = $this->client->getAllOpenConversations(new ScenarioCollection([$scenarioA, $scenarioB,
             $scenarioC]), false);
         $this->assertEquals(2, $startingConversations->count());
         $this->assertEquals($conversationA->getUid(), $startingConversations[0]->getUid());
