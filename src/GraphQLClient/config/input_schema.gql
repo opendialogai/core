@@ -1,19 +1,19 @@
 interface ConversationObject {
     id: ID!
-    od_id: String!
-    name: String!
+    od_id: String! @search(by:[hash])
+    name: String!  @search(by:[hash])
     description: String
     interpreter: String
     conditions: [Condition!]
-    behaviors: [String!]
+    behaviors: [String!] @search(by:[hash])
     created_at: String!
     updated_at: String!
 }
 
 type Scenario implements ConversationObject  {
     id: ID!
-    od_id: String! @search(by:[hash])
-    name: String! @search(by:[hash])
+    od_id: String!
+    name: String!
     description: String
     interpreter: String
     conditions: [Condition!]
@@ -27,8 +27,8 @@ type Scenario implements ConversationObject  {
 
 type Conversation implements ConversationObject  {
     id: ID!
-    od_id: String! @search(by:[hash])
-    name: String! @search(by:[hash])
+    od_id: String!
+    name: String!
     description: String
     conditions: [Condition!]
     behaviors: [String!]
@@ -41,8 +41,8 @@ type Conversation implements ConversationObject  {
 
 type Scene implements ConversationObject {
     id: ID!
-    od_id: String! @search(by:[hash])
-    name: String! @search(by:[hash])
+    od_id: String!
+    name: String!
     description: String
     conditions: [Condition!]
     behaviors: [String!]
@@ -55,8 +55,8 @@ type Scene implements ConversationObject {
 
 type Turn implements ConversationObject {
     id: ID!
-    od_id: String! @search(by:[hash])
-    name: String! @search(by:[hash])
+    od_id: String!
+    name: String!
     description: String
     conditions: [Condition!]
     behaviors: [String!]
@@ -81,8 +81,8 @@ enum ExchangeOrder {
 
 type Intent implements ConversationObject {
     id: ID!
-    od_id: String! @search(by:[hash])
-    name: String! @search(by:[hash])
+    od_id: String!
+    name: String!
     description: String
     conditions: [Condition!]
     behaviors: [String!]

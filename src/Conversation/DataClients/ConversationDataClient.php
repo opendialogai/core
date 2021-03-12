@@ -382,13 +382,13 @@ class ConversationDataClient
         !in_array($required, $conversation->hydratedFields()));
 
         if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scenario supplied to ConversationDataClient::addScenario(), but are required!", implode(",", $missing)));
+            throw new InsufficientHydrationException(sprintf("The fields (%s) are missing from the conversation supplied to ConversationDataClient::addConversation(), but are required!", implode(",", $missing)));
         }
 
         $missing = array_filter([Scenario::UID], fn($required) => !in_array($required, $conversation->getScenario()
             ->hydratedFields()));
         if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scenario attached to the conversation supplied to ConversationDataClient::addConversation(), but are required!", implode(",", $missing)));
+            throw new InsufficientHydrationException(sprintf("The fields (%s) are missing from the scenario attached to the conversation supplied to ConversationDataClient::addConversation(), but are required!", implode(",", $missing)));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
@@ -599,6 +599,80 @@ class ConversationDataClient
         return $scenario;
     }
 
+
+
+    /**
+     * Retrieve all conversations that belong to the given scenarios that have a behavior as "starting". from the graph
+     *
+     * @param  ScenarioCollection  $scenarios
+     * @param  bool                $shallow
+     *
+     * @return ConversationCollection
+     */
+    public function getAllStartingConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
+    {
+        $getAllStartingConversations = <<<'GQL'
+            query getAllStartingConversations($scenarioUids: [ID!]!) {
+                queryConversation(filter: { behaviors: {eq: "STARTING" }}) @cascade(fields: ["scenario"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scenario(filter: {id: $scenarioUids}) {
+                        id
+                    }
+                    scenes {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $scenarioUids = $scenarios->map(fn($scenario) => $scenario->getUid());
+
+        if($scenarioUids->contains(null)) {
+            throw new InsufficientHydrationException("All scenarios passed to ConversationDataClient::getAllStartingConversations must have a UID!");
+        }
+
+        $response = $this->client->query($getAllStartingConversations, ['scenarioUids' => $scenarioUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryConversation'], ConversationCollection::class);
+    }
+
+    /**
+     * Retrieve all conversations that belong to the given scenarios that have a behavior as "open". from the graph
+     *
+     * @param  ScenarioCollection  $scenarios
+     * @param  bool                $shallow
+     *
+     * @return ConversationCollection
+     */
+    public function getAllOpenConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
+    {
+        return new ConversationCollection();
+    }
+
+    /**
+     * Retrieve all conversations that belong to the given scenarios. from the graph
+     *
+     * @param  ScenarioCollection  $scenarios
+     * @param  bool                $shallow
+     *
+     * @return ConversationCollection
+     */
+    public function getAllConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
+    {
+        return new ConversationCollection();
+    }
+
+
     /**
      * Adds a new Scene.
      * The supplied Scene must reference an existing Conversation (i.e one with a UID)
@@ -678,45 +752,6 @@ class ConversationDataClient
 
         $response = $this->client->query($addSceneMutation, ['scene' => $sceneData]);
         return $serializer->denormalize($response['data']['addScene']['scene'][0], Scene::class);
-    }
-
-    /**
-     * Retrieve all conversations that belong to the given scenarios that have a behavior as "starting". from the graph
-     *
-     * @param  ScenarioCollection  $scenarios
-     * @param  bool                $shallow
-     *
-     * @return ConversationCollection
-     */
-    public function getAllStartingConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
-    {
-        return new ConversationCollection();
-    }
-
-    /**
-     * Retrieve all conversations that belong to the given scenarios that have a behavior as "open". from the graph
-     *
-     * @param  ScenarioCollection  $scenarios
-     * @param  bool                $shallow
-     *
-     * @return ConversationCollection
-     */
-    public function getAllOpenConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
-    {
-        return new ConversationCollection();
-    }
-
-    /**
-     * Retrieve all conversations that belong to the given scenarios. from the graph
-     *
-     * @param  ScenarioCollection  $scenarios
-     * @param  bool                $shallow
-     *
-     * @return ConversationCollection
-     */
-    public function getAllConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
-    {
-        return new ConversationCollection();
     }
 
     /**
