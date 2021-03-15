@@ -1,0 +1,220 @@
+interface ConversationObject {
+    id: ID!
+    od_id: String! @search(by:[hash])
+    name: String!  @search(by:[hash])
+    description: String
+    interpreter: String
+    conditions: [Condition!]
+    behaviors: [String!] @search(by:[hash])
+    created_at: String!
+    updated_at: String!
+}
+
+type Scenario implements ConversationObject  {
+    id: ID!
+    od_id: String!
+    name: String!
+    description: String
+    interpreter: String
+    conditions: [Condition!]
+    behaviors: [String!]
+    created_at: String!
+    updated_at: String!
+    conversations: [Conversation!] @hasInverse(field:"scenario")
+    active: Boolean! @search
+    status: EditStatus! @search
+}
+
+type Conversation implements ConversationObject  {
+    id: ID!
+    od_id: String!
+    name: String!
+    description: String
+    conditions: [Condition!]
+    behaviors: [String!]
+    interpreter: String
+    created_at: String!
+    updated_at: String!
+    scenes: [Scene!] @hasInverse(field:"conversation")
+    scenario: Scenario!
+}
+
+type Scene implements ConversationObject {
+    id: ID!
+    od_id: String!
+    name: String!
+    description: String
+    conditions: [Condition!]
+    behaviors: [String!]
+    interpreter: String
+    created_at: String!
+    updated_at: String!
+    turns: [Turn!] @hasInverse(field:"scene")
+    conversation: Conversation!
+}
+
+type Turn implements ConversationObject {
+    id: ID!
+    od_id: String!
+    name: String!
+    description: String
+    conditions: [Condition!]
+    behaviors: [String!]
+    interpreter: String
+    created_at: String!
+    updated_at: String!
+    intents: [TurnIntent!] @hasInverse(field:"turn")
+    scene: Scene!
+    valid_origins: [Turn!]
+}
+
+type TurnIntent {
+    turn: Turn!
+    order: ExchangeOrder!
+    intent: Intent! @hasInverse(field: "turn")
+}
+
+enum ExchangeOrder {
+    REQUEST
+    RESPONSE
+}
+
+type Intent implements ConversationObject {
+    id: ID!
+    od_id: String!
+    name: String!
+    description: String
+    conditions: [Condition!]
+    behaviors: [String!]
+    interpreter: String
+    created_at: String!
+    updated_at: String!
+    listens: [String!]
+    confidence: Float!
+    expected_attributes: [String!]
+    actions: [ActionClosure!]
+    turn: TurnIntent!
+    speaker: ParticipantType!
+    transition: Transition
+    virtual: [VirtualIntent!]
+    sample_utterance: String!
+}
+
+type ActionClosure {
+    id: ID!
+    name: String!
+    actionId: String!
+    attribute_inputs: [NamedAttributeReference!]
+    attribute_outputs: [NamedAttributeReference!]
+}
+
+type NamedAttributeReference {
+    name: String!
+    attribute_ref: String
+}
+
+type VirtualIntent {
+    speaker: ParticipantType!
+    intentId: String!
+}
+
+type Attribute  {
+    id: ID!
+    name: String
+    type: String
+    value: String
+}
+
+type CompositeAttribute  {
+    id: ID!
+    name: String
+    type: String
+    value: [Attribute]
+}
+
+type Condition  {
+    id: ID!
+    name: String!
+    operation: String
+    parameters: [ConditionParameter!]!
+}
+
+
+type AttributeReferenceParameter {
+    id: String!
+    value: String!
+}
+
+type IntValueParameter {
+    id: String!
+    value: Int!
+}
+
+type FloatValueParameter {
+    id: String!
+    value: Float!
+}
+
+type StringValueParameter {
+    id: String!
+    value: String!
+}
+
+type BooleanValueParameter {
+    id: String!
+    value: Boolean!
+}
+
+union ConditionParameter = AttributeReferenceParameter | IntValueParameter | FloatValueParameter | StringValueParameter | BooleanValueParameter
+
+type Action  {
+    id: ID!
+    name: String
+    input_attributes: [Attribute]
+    output_attributes: [Attribute]
+}
+
+type User  {
+    id: ID!
+    user_id: String! @id
+    attributes: [Attribute]
+    records: [UserHistoryRecord] @hasInverse(field:user)
+}
+
+type UserHistoryRecord  {
+    id: ID!
+    user: User
+    timestamp: DateTime
+    platform: String
+    workspace: String
+    utterance: String
+    speaker: ParticipantType
+    intent_id: String
+    scenario_id: String
+    conversation_id: String
+    turn_id: String
+    completed: Boolean
+    actions_performed: [String]
+    conditions_evaluated: [String]
+    u_virtual: String
+}
+
+enum ParticipantType {
+    USER
+    APP
+}
+
+enum EditStatus {
+    DRAFT
+    PREVIEW
+    LIVE
+}
+
+
+type Transition {
+    conversation: String
+    scene: String
+    turn: String
+}
+
+

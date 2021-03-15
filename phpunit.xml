@@ -78,6 +78,10 @@
             <directory suffix="Test.php">./src/Reflection/Tests</directory>
         </testsuite>
 
+        <testsuite name="GraphQLClient">
+            <directory suffix="Test.php">./src/GraphQLClient/Tests</directory>
+        </testsuite>
+
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
@@ -88,12 +92,10 @@
         <env name="PACKAGE_NAME" value="TestDialog"/>
         <env name="APP_KEY" value="AckfSECXIvnK5r28GVIWUAxmbBSjTsmF"/>
         <env name="API_LOG_TO_DB" value="true"/>
-        <env name="DGRAPH_URL" value="http://10.0.2.2"/>
-        <env name="DGRAPH_PORT" value="8080"/>
-        <env name="DGRAPH_API_KEY" value=""/>
-        <env name="OVERWRITE_DGRAPH_URL" value=""/>
-        <env name="OVERWRITE_DGRAPH_PORT" value="8080"/>
-        <env name="DGRAPH_API_KEY" value=""/>
+        <env name="DGRAPH_INSTANCE_TYPE" value="DGRAPH"/>
+        <env name="DGRAPH_BASE_URL" value="dgraph-server-test"/>
+        <env name="DGRAPH_PORT" value="8082"/>
+        <env name="DGRAPH_AUTH_TOKEN" value="dgraphtestservertoken"/>
     </php>
     <logging>
         <log type="coverage-text" target="build/coverage.txt"/>

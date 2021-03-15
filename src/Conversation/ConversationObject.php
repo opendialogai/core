@@ -1,78 +1,72 @@
 <?php
+
 namespace OpenDialogAi\Core\Conversation;
+
+use DateTime;
 
 class ConversationObject
 {
     public const UNDEFINED = 'undefined';
 
-    protected string $type = self::UNDEFINED;
-    protected string $odId = self::UNDEFINED;
-    protected string $uid = self::UNDEFINED;
-    protected string $name = self::UNDEFINED;
-    protected string $description = self::UNDEFINED;
+    public const UID = 'uid';
+    public const OD_ID = 'odId';
+    public const NAME = 'name';
+    public const DESCRIPTION = 'description';
+    public const INTERPRETER = 'interpreter';
+    public const CREATED_AT = 'createdAt';
+    public const UPDATED_AT = 'updatedAt';
+    public const CONDITIONS = 'conditions';
+    public const BEHAVIORS = 'behaviors';
 
-    public const DRAFT_STATUS = "DRAFT";
-    public const PREVIEW_STATUS = "PREVIEW";
-    public const LIVE_STATUS = "LIVE";
-
-    protected ConditionCollection $conditions;
-    protected BehaviorsCollection $behaviors;
-    protected bool $active;
-    protected string $status;
+    protected ?string $odId = null;
+    protected ?string $uid = null;
+    protected ?string $name = null;
+    protected ?string $description = null;
+    protected ?ConditionCollection $conditions = null;
+    protected ?BehaviorsCollection $behaviors = null;
     protected ?string $interpreter = null;
+    protected ?DateTime $createdAt = null;
+    protected ?DateTime $updatedAt = null;
 
     public function __construct()
     {
-        $this->conditions = new ConditionCollection();
-        $this->behaviors = new BehaviorsCollection();
     }
 
     /**
-     * The type of conversation object we are dealing with (one of Scenario, Conversation, Scene, etc)
+     * The id of the object.
+     * A null value indicates 'not hydrated'
+     * A '' value indicates 'none'
+     * Any other value should be an object id E.g 'welcome_conversation'
+     *
      * @return string
      */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType(string $type): void
-    {
-        // @todo Check that it is one of the permitted types.
-        $this->type = $type;
-    }
-
-    /**
-     * The id of the object. Not all objects have an id. An id would be something like 'action.core.Transform'
-     * @return string
-     */
-    public function getODId(): string
+    public function getOdId(): ?string
     {
         return $this->odId;
     }
 
     /**
-     * @param string $odId
+     * @param  string  $odId
      */
-    public function setODId(string $odId): void
+    public function setOdId(string $odId): void
     {
         $this->odId = $odId;
     }
 
     /**
      * The uid of an object is the unique id with which it is stored in persistence storage.
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a uid (E.g 0x0001)
+     *
      * @return string
      */
-    public function getUid(): string
+    public function getUid(): ?string
     {
         return $this->uid;
     }
 
     /**
-     * @param string $uid
+     * @param  string  $uid
      */
     public function setUid(string $uid): void
     {
@@ -81,15 +75,18 @@ class ConversationObject
 
     /**
      * The human-friendly name of the object.
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a set name.
+     *
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
-     * @param string $name
+     * @param  string  $name
      */
     public function setName(string $name): void
     {
@@ -98,33 +95,52 @@ class ConversationObject
 
     /**
      * The human-friendly description of an object.
+     *
+     * A null value indicates 'not hydrated'
+     * A '' value indicates empty
+     * Any other value indicates a set description.
+     *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
     /**
-     * @param string $description
+     * @param  string  $description
      */
     public function setDescription(string $description): void
     {
         $this->description = $description;
     }
 
-    public function setInterpreter(string $interpreter)
+    /**
+     * The interpreter specified by this object.
+     * A null value indicates 'not hydrated'
+     * A '' value indicates 'none'
+     * Any other value is considered interpreter id (E.g `interpreter.core.callback`)
+     *
+     * @return string
+     */
+    public function getInterpreter(): ?string
+    {
+        return $this->interpreter;
+    }
+
+    public function setInterpreter(string $interpreter): void
     {
         $this->interpreter = $interpreter;
     }
 
     /**
      * Indicates whether an object has conditions - not all objects do.
+     *
      * @return bool
      */
     public function hasConditions(): bool
     {
-        if ($this->conditions->isEmpty()) {
+        if ($this->conditions === null || $this->conditions->isEmpty()) {
             return false;
         }
 
@@ -133,15 +149,19 @@ class ConversationObject
 
     /**
      * Retrieves a collection of objects
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a collection of conditions.
+     *
      * @return ConditionCollection
      */
-    public function getConditions(): ConditionCollection
+    public function getConditions(): ?ConditionCollection
     {
         return $this->conditions;
     }
 
     /**
-     * @param ConditionCollection $conditions
+     * @param  ConditionCollection  $conditions
+     *
      * @return void
      */
     public function setConditions(ConditionCollection $conditions): void
@@ -151,11 +171,12 @@ class ConversationObject
 
     /**
      * Indicates whether an object is associates with behaviors.
+     *
      * @return bool
      */
     public function hasBehaviors(): bool
     {
-        if ($this->behaviors->isEmpty()) {
+        if ($this->behaviors === null || $this->behaviors->isEmpty()) {
             return false;
         }
 
@@ -164,60 +185,92 @@ class ConversationObject
 
     /**
      * Retrieves all behavior directives as an array.
+     *
      * @return BehaviorsCollection
      */
-    public function getBehaviors(): BehaviorsCollection
+    public function getBehaviors(): ?BehaviorsCollection
     {
         return $this->behaviors;
     }
 
     /**
-     * @param BehaviorsCollection $behaviors
+     * Replaces all behaviors with a new set of behaviors
+     *
+     * @param  BehaviorsCollection  $behaviors
      */
-    public function setBehaviors(BehaviorsCollection $behaviors): void
+    public function setBehaviors(BehaviorsCollection $behaviors)
     {
         $this->behaviors = $behaviors;
     }
 
     /**
-     * @return bool
+     * @return DateTime
      */
-    public function isActive(): bool
+    public function getUpdatedAt(): ?DateTime
     {
-        return $this->active;
+        return $this->updatedAt;
     }
 
     /**
-     * @return bool
+     * @param  DateTime  $value
      */
-    public function activate(): bool
+    public function setUpdatedAt(DateTime $value)
     {
-        $this->active = true;
-        return $this->active;
+        $this->updatedAt = $value;
     }
 
     /**
-     * @return bool
+     * @return DateTime
      */
-    public function deactivate(): bool
+    public function getCreatedAt(): ?DateTime
     {
-        $this->active = false;
-        return $this->active;
+        return $this->createdAt;
     }
 
     /**
-     * @param $value
+     * @param  DateTime  $value
      */
-    public function setStatus($value)
+    public function setCreatedAt(DateTime $value)
     {
-        $this->status = $value;
+        $this->createdAt = $value;
     }
 
     /**
-     * @return string
+     * Returns array containing the names of all hydrated (non-null) fields.
+     *
+     * @return array
      */
-    public function getStatus(): string
+    public function hydratedFields(): array
     {
-        return $this->status;
+        return array_filter(static::allFields(), fn($field) => $this->$field !== null);
+    }
+
+    public function hydratedLazyTree(): array {
+        $result = [];
+        foreach(static::fieldsTree() as $key => $value) {
+            if(is_numeric($key) && $this->$value !== null) {
+                $result[$key] = $value;
+            } else {
+                if($this->$key !== null) {
+                    $result[$key] = fn() => $this->$key->hydratedLazytree();
+                }
+            }
+        }
+    }
+
+    public static function localFields() {
+        return [
+            self::UID, self::OD_ID, self::NAME, self::DESCRIPTION, self::INTERPRETER,
+            self::CREATED_AT, self::UPDATED_AT
+        ];
+    }
+
+    public static function foreignFields() {
+        return [self::CONDITIONS, self::BEHAVIORS];
+    }
+
+    public static function allFields()
+    {
+        return [...self::localFields(), ...self::foreignFields()];
     }
 }

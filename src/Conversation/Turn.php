@@ -1,9 +1,17 @@
 <?php
+
 namespace OpenDialogAi\Core\Conversation;
 
 class Turn extends ConversationObject
 {
     public const CURRENT_TURN = 'current_turn';
+    public const TYPE = 'turn';
+    public const SCENE = 'scene';
+    public const REQUEST_INTENTS = 'requestIntents';
+    public const RESPONSE_INTENTS = 'responseIntents';
+    public const VALID_ORIGINS = 'validOrigins';
+
+    protected ?Scene $scene;
 
     // The set of possible intents that could open a turn
     protected IntentCollection $requestIntents;
@@ -11,18 +19,18 @@ class Turn extends ConversationObject
     // The set of possible intents that could provide a response
     protected IntentCollection $responseIntents;
 
-    protected Scene $scene;
-
     /** @var string[]|array */
     protected array $validOrigins;
 
     public function __construct(?Scene $scene = null)
     {
         parent::__construct();
-        $this->requestIntents = new IntentCollection();
-        $this->responseIntents = new IntentCollection();
-        isset($scene) ? $this->scene = $scene :null ;
-        $this->validOrigins = [];
+        $this->scene = $scene;
+    }
+
+    public static function localFields()
+    {
+        return [...parent::allFields(), self::VALID_ORIGINS];
     }
 
     public function hasRequestIntents(): bool
@@ -40,14 +48,14 @@ class Turn extends ConversationObject
         return $this->requestIntents;
     }
 
-    public function getResponseIntents(): IntentCollection
-    {
-        return $this->responseIntents;
-    }
-
     public function setRequestIntents(IntentCollection $intents)
     {
         $this->intents = $intents;
+    }
+
+    public function getResponseIntents(): IntentCollection
+    {
+        return $this->responseIntents;
     }
 
     public function setResponseIntents(IntentCollection $intents)
@@ -86,25 +94,55 @@ class Turn extends ConversationObject
 
     public function addRequestIntent(Intent $intent)
     {
+        if($this->requestIntents === null) {
+            $this->requestIntents = new IntentCollection();
+        }
         $this->requestIntents->addObject($intent);
     }
 
     public function addResponseIntent(Intent $intent)
     {
+        if($this->responseIntents === null) {
+            $this->responseIntents = new IntentCollection();
+        }
         $this->responseIntents->addObject($intent);
     }
 
-    /**
-     * @return string|null
-     */
-    public function getInterpreter()
-    {
-        if (isset($this->interpreter)) {
-            return $this->interpreter;
-        }
 
-        if (isset($this->scene)) {
+    /**
+     * Gets the current interpreter by checking the conversations interpreter, or searching for a default up the tree
+     * A null value indicates 'not hydrated'
+     * An '' value indicates 'none'
+     * Any other value indicates an interpreter (E.g interpreter.core.callback)
+     */
+    public function getInterpreter(): ?string
+    {
+        if($this->interpreter === null) {
+            return null;
+        }
+        if($this->interpreter === '' && $this->scene !== null) {
             return $this->scene->getInterpreter();
+        }
+        return $this->interpreter;
+    }
+
+    public function getScene(): ?Scene
+    {
+        return $this->scene;
+    }
+
+    public function setScene(Scene $scene): void
+    {
+        $this->scene = $scene;
+    }
+
+    /**
+     * @return Scenario|null
+     */
+    public function getScenario(): ?Scenario
+    {
+        if ($this->getConversation() != null) {
+            return $this->getConversation()->getScenario();
         }
 
         return null;
@@ -122,15 +160,18 @@ class Turn extends ConversationObject
         return null;
     }
 
-    /**
-     * @return Scenario|null
-     */
-    public function getScenario(): ?Scenario
+    public function hasValidOrigins(): bool
     {
-        if ($this->getConversation() != null) {
-            return $this->getConversation()->getScenario();
-        }
+        return !empty($this->validOrigins);
+    }
 
-        return null;
+    public function getValidOrigins(): ?array
+    {
+        return $this->validOrigins;
+    }
+
+    public function setValidOrigins(array $validOrigins): void
+    {
+        $this->validOrigins = $validOrigins;
     }
 }

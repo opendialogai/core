@@ -12,6 +12,7 @@ use OpenDialogAi\ConversationEngine\ConversationEngineServiceProvider;
 use OpenDialogAi\ConversationLog\ConversationLogServiceProvider;
 use OpenDialogAi\Core\CoreServiceProvider;
 use OpenDialogAi\Core\Reflection\ReflectionServiceProvider;
+use OpenDialogAi\GraphQLClient\GraphQLClientServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterEngineServiceProvider;
 use OpenDialogAi\InterpreterEngine\InterpreterInterface;
 use OpenDialogAi\NlpEngine\NlpEngineServiceProvider;
@@ -33,19 +34,6 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        if ($overwriteDgraphUrl = getenv("OVERWRITE_DGRAPH_URL")) {
-            $this->app['config']->set('opendialog.core.DGRAPH_URL', $overwriteDgraphUrl);
-        }
-
-        if ($overwriteDgraphPort = getenv("OVERWRITE_DGRAPH_PORT")) {
-            $this->app['config']->set('opendialog.core.DGRAPH_PORT', $overwriteDgraphPort);
-        }
-
-        if ($overwriteDgraphAPIKey = getenv("OVERWRITE_DGRAPH_PORT")) {
-            $this->app['config']->set('opendialog.core.DGRAPH_API_KEY', $overwriteDgraphAPIKey);
-        }
-
 
         if (!defined('LARAVEL_START')) {
             define('LARAVEL_START', microtime(true));
@@ -72,6 +60,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return [
             CoreServiceProvider::class,
             ActionEngineServiceProvider::class,
+            GraphQLClientServiceProvider::class,
 //            ConversationBuilderServiceProvider::class,
             ConversationEngineServiceProvider::class,
             ConversationLogServiceProvider::class,

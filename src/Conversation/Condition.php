@@ -5,6 +5,12 @@ namespace OpenDialogAi\Core\Conversation;
 
 class Condition
 {
+    public const OPERATION = 'operation';
+    public const OPERATION_ATTRIBUTES = 'operationAttributes';
+    public const PARAMETERS = 'parameters';
+
+    //TODO: change me when conditions are updated.
+    const FIELDS = [self::OPERATION, self::OPERATION_ATTRIBUTES, self::PARAMETERS];
     protected string $operation;
     protected array $operationAttributes;
     protected ?array $parameters;

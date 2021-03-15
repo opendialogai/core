@@ -1,25 +1,57 @@
 <?php
-namespace OpenDialogAi\Core\Conversation;
 
+namespace OpenDialogAi\Core\Conversation;
 
 class Scenario extends ConversationObject
 {
     public const CURRENT_SCENARIO = 'current_scenario';
+    public const TYPE = 'scenario';
+    public const CONVERSATIONS = 'conversations';
+    public const ACTIVE = 'active';
+    public const STATUS = 'status';
+    public const DRAFT_STATUS = "DRAFT";
+    public const PREVIEW_STATUS = "PREVIEW";
+    public const LIVE_STATUS = "LIVE";
 
-    protected ConversationCollection $conversations;
+    protected ?bool $active = null;
+    protected ?string $status = null;
+    protected ?ConversationCollection $conversations = null;
 
     public function __construct()
     {
         parent::__construct();
-        $this->conversations = new ConversationCollection();
+    }
+
+    public static function allFields()
+    {
+        return [...self::localFields(), ...self::foreignFields()];
+    }
+
+    public static function localFields()
+    {
+        return [...parent::localFields(), self::ACTIVE, self::STATUS];
+    }
+
+    public static function foreignFields()
+    {
+        return [self::CONVERSATIONS, self::BEHAVIORS, self::CONDITIONS];
     }
 
     public function hasConversations(): bool
     {
-        return $this->conversations->isNotEmpty();
+        return $this->conversations !== null && $this->conversations->isNotEmpty();
     }
 
-    public function getConversations(): ConversationCollection
+    public function addConversation(Conversation $conversation)
+    {
+        if($this->conversations === null) {
+            $this->conversations = new ConversationCollection();
+        }
+        $this->conversations->addObject($conversation);
+        $conversation->setScenario($this);
+    }
+
+    public function getConversations(): ?ConversationCollection
     {
         return $this->conversations;
     }
@@ -29,20 +61,58 @@ class Scenario extends ConversationObject
         $this->conversations = $conversations;
     }
 
-    public function addConversation(Conversation $conversation)
+    public function setActive(bool $active)
     {
-        $this->conversations->addObject($conversation);
+        $this->active = $active;
     }
 
     /**
-     * @return string|null
+     * Gets the status of the Scenario
+     * A null value indicates 'not hydrated'
+     * Any other values indicate a status (E.g 'DRAFT')
+     *
+     * @return string
      */
-    public function getInterpreter()
+    public function getStatus(): ?string
     {
-        if (isset($this->interpreter)) {
-            return $this->interpreter;
-        }
+        return $this->status;
+    }
 
-        return null;
+    /**
+     * @param $value
+     */
+    public function setStatus($value)
+    {
+        $this->status = $value;
+    }
+
+    /**
+     * Checks if the scenario is active
+     * A null value indicates 'not hydrated'
+     * Any other value indicates a set value for 'active'
+     *
+     * @return bool
+     */
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * @return bool
+     */
+    public function activate(): bool
+    {
+        $this->active = true;
+        return $this->active;
+    }
+
+    /**
+     * @return bool
+     */
+    public function deactivate(): bool
+    {
+        $this->active = false;
+        return $this->active;
     }
 }
