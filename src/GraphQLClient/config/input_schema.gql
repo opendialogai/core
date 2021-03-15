@@ -1,5 +1,4 @@
 interface ConversationObject {
-    id: ID!
     od_id: String! @search(by:[hash])
     name: String!  @search(by:[hash])
     description: String
@@ -63,20 +62,10 @@ type Turn implements ConversationObject {
     interpreter: String
     created_at: String!
     updated_at: String!
-    intents: [TurnIntent!] @hasInverse(field:"turn")
+    request_intents: [Intent!]
+    response_intents: [Intent!]
     scene: Scene!
     valid_origins: [Turn!]
-}
-
-type TurnIntent {
-    turn: Turn!
-    order: ExchangeOrder!
-    intent: Intent! @hasInverse(field: "turn")
-}
-
-enum ExchangeOrder {
-    REQUEST
-    RESPONSE
 }
 
 type Intent implements ConversationObject {
@@ -93,7 +82,7 @@ type Intent implements ConversationObject {
     confidence: Float!
     expected_attributes: [String!]
     actions: [ActionClosure!]
-    turn: TurnIntent!
+    turn: Turn!
     speaker: ParticipantType!
     transition: Transition
     virtual: [VirtualIntent!]
