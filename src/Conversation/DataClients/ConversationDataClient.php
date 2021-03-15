@@ -580,14 +580,14 @@ class ConversationDataClient
     }
 
     /**
-     * Get a scenario with data focused around a conversation suitable for the conversation builder.
+     * Get a conversation with additional data for parent scenario and child scenes.
      *
      * @param  string  $conversationUid
      *
-     * @return Scenario
+     * @return Conversation
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getScenarioWithFocusedConversation(string $conversationUid): Scenario {
+    public function getScenarioWithFocusedConversation(string $conversationUid): Conversation {
         $getFocusedConversationQuery = <<<'GQL'
             query getFocusedConversationQuery($id : ID!) {
                 getConversation(id: $id) {
@@ -624,10 +624,8 @@ class ConversationDataClient
                 $conversationUid));
         }
         $serializer = new Serializer(self::getNormalizers(), []);
-        $conversation = $serializer->denormalize($response['data']['getConversation'], Conversation::class);
 
-        $scenario = $conversation->getScenario();
-        return $scenario;
+        return $serializer->denormalize($response['data']['getConversation'], Conversation::class);
     }
 
     /**
