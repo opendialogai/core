@@ -15,7 +15,6 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionCollectionNo
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConversationCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConversationNormalizer;
-use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConversationObjectNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\IntentCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\IntentNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ScenarioCollectionNormalizer;
@@ -31,6 +30,7 @@ use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
+use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -452,6 +452,14 @@ class ConversationDataClient
         return $serializer->denormalize($response['data']['queryConversation'], ConversationCollection::class);
     }
 
+    /**
+     * Get Conversation with the provided uid
+     * @param  string  $conversationUid
+     * @param  bool    $shallow
+     *
+     * @return Conversation
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     public function getConversationByUid(string $conversationUid, bool $shallow): Conversation {
         $getConversationQuery = <<<'GQL'
             query getConversation($id : ID!) {
@@ -487,6 +495,14 @@ class ConversationDataClient
         return  $serializer->denormalize($response['data']['getConversation'], Conversation::class);
     }
 
+    /**
+     * Update a conversatioon
+     *
+     * @param  Conversation  $conversation
+     *
+     * @return Conversation
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     public function updateConversation(Conversation $conversation): Conversation
     {
         $updateConversationQuery = <<<'GQL'
@@ -535,6 +551,13 @@ class ConversationDataClient
 
     }
 
+    /**
+     * Delete a coonversation by uid
+     *
+     * @param  string  $conversationUid
+     *
+     * @return bool
+     */
     public function deleteConversationByUid(string $conversationUid): bool
     {
         $deleteConversationQuery = <<<'GQL'
@@ -556,6 +579,14 @@ class ConversationDataClient
         return true;
     }
 
+    /**
+     * Get a scenario with data focused around a conversation suitable for the conversation builder.
+     *
+     * @param  string  $conversationUid
+     *
+     * @return Scenario
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     public function getScenarioWithFocusedConversation(string $conversationUid): Scenario {
         $getFocusedConversationQuery = <<<'GQL'
             query getFocusedConversationQuery($id : ID!) {
@@ -598,8 +629,6 @@ class ConversationDataClient
         $scenario = $conversation->getScenario();
         return $scenario;
     }
-
-
 
     /**
      * Retrieve all conversations that belong to the given scenarios that have a behavior as "starting". from the graph
@@ -701,7 +730,39 @@ class ConversationDataClient
      */
     public function getAllConversations(ScenarioCollection $scenarios, bool $shallow): ConversationCollection
     {
-        return new ConversationCollection();
+        $getAllConversationsInScenarios = <<<'GQL'
+            query getAllConversationsInScenarios($scenarioUids: [ID!]!) {
+                queryConversation @cascade(fields: ["scenario"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scenario(filter: {id: $scenarioUids}) {
+                        id
+                    }
+                    scenes {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $scenarioUids = $scenarios->map(fn($scenario) => $scenario->getUid());
+
+        if($scenarioUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenarios passed to %s must have a UID!", __METHOD__ ));
+        }
+
+        $response = $this->client->query($getAllConversationsInScenarios, ['scenarioUids' => $scenarioUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryConversation'], ConversationCollection::class);
     }
 
 
@@ -756,14 +817,14 @@ class ConversationDataClient
         !in_array($required, $scene->hydratedFields()));
 
         if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scene supplied to ConversationDataClient::addScene(), but are required!", implode(",", $missing)));
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
         }
 
         // Required fields on Conversation
         $missing = array_filter([Conversation::UID], fn($required) => !in_array($required, $scene->getConversation()
             ->hydratedFields()));
         if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scenario attached to the conversation supplied to ConversationDataClient::addConversation(), but are required!", implode(",", $missing)));
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the conversation attached to the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
@@ -786,6 +847,231 @@ class ConversationDataClient
         return $serializer->denormalize($response['data']['addScene']['scene'][0], Scene::class);
     }
 
+    /***
+     * Retrive all conversations that belong to the given scenario
+     */
+    public function getAllScenesByConversation(Conversation $conversation, bool $shallow): SceneCollection {
+        $getAllScenesByConversationQuery = <<<'GQL'
+            query getAllScenesByConversation($conversationUid: ID!) {
+                queryScene @cascade(fields: ["conversation"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    conversation(filter: {id: [$conversationUid]}) {
+                        id
+                    }
+                    turns {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $missing = array_filter([Conversation::UID], fn($required) =>
+        !in_array($required, $conversation->hydratedFields()));
+
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the conversation supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        $response = $this->client->query($getAllScenesByConversationQuery, ['conversationUid' => $conversation->getUid()]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryScene'], SceneCollection::class);
+    }
+
+    /**
+     * Get Conversation with the provided uid
+     *
+     * @param  string  $sceneUid
+     * @param  bool    $shallow
+     *
+     * @return Scene
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getSceneByUid(string $sceneUid, bool $shallow): Scene {
+        $getSceneQuery = <<<'GQL'
+            query getScene($id : ID!) {
+                getScene(id: $id) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    conversation {
+                        id
+                    }
+                    turns {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($getSceneQuery, ['id' => $sceneUid]);
+        if($response['data']['getScene'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found',
+                $sceneUid));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return  $serializer->denormalize($response['data']['getScene'], Scene::class);
+    }
+
+    /**
+     * Update a conversatioon
+     *
+     * @param  Scene  $scene
+     *
+     * @return Scene
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function updateScene(Scene $scene): Scene
+    {
+        $updateSceneMutation = <<<'GQL'
+            mutation updateScene($id: ID!, $set: ScenePatch!) {
+                updateScene(input: {filter: {id: [$id]}, set: $set}) {
+                    scene {
+                        id
+                        od_id
+                        name
+                        description
+                        interpreter
+                        behaviors
+                        conditions {
+                            id
+                        }
+                        created_at
+                        updated_at
+                        conversation {
+                          id
+                        }
+                        turns {
+                          id
+                        }
+                    }
+                }
+            }
+        GQL;
+        $scene->setUpdatedAt(Carbon::now());
+
+        $missing = array_diff([Scene::UID], $scene->hydratedFields());
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        // Remove UID from patch fields. We can't change the UID
+        $patchFields = array_diff($scene->hydratedFields(), [Conversation::UID]);
+        $tree = array_merge(Scene::localFields(),
+            [Scene::BEHAVIORS => Behavior::FIELDS, Scene::CONDITIONS => Condition::FIELDS]);
+
+        $serializationTree = SerializationTreeHelper::filterSerializationTree($tree, $patchFields);
+        $data = $serializer->normalize($scene, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
+        $response = $this->client->query($updateSceneMutation, ['id' => $scene->getUid(), 'set' => $data]);
+        return $serializer->denormalize($response['data']['updateScene']['scene'][0], Scene::class);
+
+    }
+
+    /**
+     * Delete a coonversation by uid
+     *
+     * @param  string  $sceneUid
+     *
+     * @return bool
+     */
+    public function deleteSceneByUid(string $sceneUid): bool
+    {
+        $deleteSceneQuery = <<<'GQL'
+            mutation deleteScene($id: ID!) {
+                deleteScene(filter: {id: [$id]}) {
+                    scene {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($deleteSceneQuery, ['id' => $sceneUid]);
+        // Is this neccesary? We could just not care.
+        if(empty($response['data']['deleteScene']['scene'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found',
+                $sceneUid));
+        }
+        return true;
+    }
+
+    /**
+     * Get a scenario with data focused around a scene suitable for the conversation builder.
+     *
+     * @param  string  $sceneUid
+     *
+     * @return Scenario
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getScenarioWithFocusedScene(string $sceneUid): Scenario {
+        $getFocusedSceneQuery = <<<'GQL'
+            query getFocusedScene($id : ID!) {
+                getScene(id: $id) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    conversation {
+                        id
+                        od_id
+                        name
+                        description
+                        scenario {
+                          id
+                          od_id
+                          name
+                          description
+                        }
+                    }
+                    turns {
+                        id
+                        od_id
+                        name
+                        description
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($getFocusedSceneQuery, ['id' => $sceneUid]);
+        if($response['data']['getScene'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found',
+                $sceneUid));
+        }
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $scene = $serializer->denormalize($response['data']['getScene'], Scene::class);
+
+        return $scene->getScenario();
+    }
+
+
     /**
      * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
      *
@@ -796,11 +1082,44 @@ class ConversationDataClient
      */
     public function getAllStartingScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
     {
-        return new SceneCollection();
+        $getAllStartingScenes = <<<'GQL'
+            query getAllStartingScenes($conversationUids: [ID!]!) {
+                queryScene(filter: { behaviors: {eq: "STARTING" }}) @cascade(fields: ["conversation"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    conversation(filter: {id: $conversationUids}) {
+                        id
+                    }
+                    turns {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $conversationUids = $conversations->map(fn($scenario) => $scenario->getUid());
+
+        if($conversationUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All conversations passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllStartingScenes, ['conversationUids' => $conversationUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryScene'], SceneCollection::class);
     }
 
+
     /**
-     * Retrieve all scenes that belong to the given conversations that have a behavior as "open" from the graph
+     * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
      *
      * @param  ConversationCollection  $conversations
      * @param  bool                    $shallow
@@ -809,11 +1128,43 @@ class ConversationDataClient
      */
     public function getAllOpenScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
     {
-        return new SceneCollection();
+        $getAllOpenScenes = <<<'GQL'
+            query getAllOpenScenes($conversationUids: [ID!]!) {
+                queryScene(filter: { behaviors: {eq: "OPEN" }}) @cascade(fields: ["conversation"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    conversation(filter: {id: $conversationUids}) {
+                        id
+                    }
+                    turns {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $conversationUids = $conversations->map(fn($scenario) => $scenario->getUid());
+
+        if($conversationUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All conversations passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllOpenScenes, ['conversationUids' => $conversationUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryScene'], SceneCollection::class);
     }
 
     /**
-     * Retrieve all scenes that belong to the given conversations from the graph
+     * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
      *
      * @param  ConversationCollection  $conversations
      * @param  bool                    $shallow
@@ -822,8 +1173,132 @@ class ConversationDataClient
      */
     public function getAllScenes(ConversationCollection $conversations, bool $shallow): SceneCollection
     {
-        return new SceneCollection();
+        $getAllScenes = <<<'GQL'
+            query getAllScenes($conversationUids: [ID!]!) {
+                queryScene @cascade(fields: ["conversation"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    conversation(filter: {id: $conversationUids}) {
+                        id
+                    }
+                    turns {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $conversationUids = $conversations->map(fn($scenario) => $scenario->getUid());
+
+        if($conversationUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All conversations passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllScenes, ['conversationUids' => $conversationUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryScene'], SceneCollection::class);
     }
+
+    /**
+     * Adds a new Scene.
+     * The supplied Scene must reference an existing Conversation (i.e one with a UID)
+     *
+     * @param  Conversation  $conversation
+     *
+     * @return Conversation
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function addTurn(Turn $turn): Turn {
+        $addTurnMutation = <<<'GQL'
+            mutation addTurn($turn: AddTurnInput!) {
+              addTurn(input: [$turn]) {
+                turn {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    valid_origins {
+                        id
+                        od_id
+                    }
+                    scene {
+                        id
+                    }
+
+                    request_intents {
+                        id
+                    }
+
+                    response_intents {
+                        id
+                    }
+                }
+              }
+            }
+        GQL;
+
+        $turn->setCreatedAt(Carbon::now());
+        $turn->setUpdatedAt(Carbon::now());
+
+        // Required fields on Turn
+        $missing = array_filter([
+            Turn::OD_ID,
+            Turn::NAME,
+            Turn::CREATED_AT,
+            Turn::UPDATED_AT,
+            Turn::SCENE
+        ], fn
+        ($required) =>
+        !in_array($required, $turn->hydratedFields()));
+
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        // Required fields on Scene
+        $missing = array_filter([Scene::UID], fn($required) => !in_array($required, $turn->getConversation()
+            ->hydratedFields()));
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scene attached to the turn supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        //TODO: Update to allow entering a full scene graph
+        $data = $serializer->normalize($turn, 'json', [
+            AbstractNormalizer::ATTRIBUTES => [
+                Turn::OD_ID,
+                Turn::NAME,
+                Turn::DESCRIPTION,
+                Turn::INTERPRETER,
+                Turn::CREATED_AT,
+                Turn::UPDATED_AT,
+                Turn::BEHAVIORS => Behavior::FIELDS,
+                Turn::CONDITIONS => Condition::FIELDS,
+                Turn::VALID_ORIGINS => [Turn::UID],
+                Turn::SCENE => [Scene::UID]
+            ]
+        ]);
+
+        $response = $this->client->query($addTurnMutation, ['turn' => $data]);
+        return $serializer->denormalize($response['data']['addTurn']['turn'][0], Turn::class);
+    }
+
 
     /**
      * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
