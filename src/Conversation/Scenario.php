@@ -22,11 +22,6 @@ class Scenario extends ConversationObject
         parent::__construct();
     }
 
-    public static function allFields()
-    {
-        return [...self::localFields(), ...self::foreignFields()];
-    }
-
     public static function localFields()
     {
         return [...parent::localFields(), self::ACTIVE, self::STATUS];
@@ -34,7 +29,7 @@ class Scenario extends ConversationObject
 
     public static function foreignFields()
     {
-        return [self::CONVERSATIONS, self::BEHAVIORS, self::CONDITIONS];
+        return [...parent::foreignFields(),self::CONVERSATIONS];
     }
 
     public function hasConversations(): bool

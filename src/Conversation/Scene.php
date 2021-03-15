@@ -18,27 +18,17 @@ class Scene extends ConversationObject
         $this->conversation = $conversation;
     }
 
-    public static function allFields()
-    {
-        return [...self::localFields(), ...self::foreignFields()];
-    }
-
-    public static function localFields()
-    {
-        return parent::allFields();
-    }
-
     public static function foreignFields()
     {
-        return [self::CONVERSATION, self::TURNS];
+        return [...parent::foreignFields(), self::CONVERSATION, self::TURNS];
     }
 
     public function hasTurns(): bool
     {
-        return $this->turns->isNotEmpty();
+        return $this->turns !== null && $this->turns->isNotEmpty();
     }
 
-    public function getTurns(): TurnCollection
+    public function getTurns(): ?TurnCollection
     {
         return $this->turns;
     }

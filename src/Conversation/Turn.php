@@ -10,16 +10,18 @@ class Turn extends ConversationObject
     public const REQUEST_INTENTS = 'requestIntents';
     public const RESPONSE_INTENTS = 'responseIntents';
     public const VALID_ORIGINS = 'validOrigins';
+    public const ORDER_REQUEST = "REQUEST";
+    public const ORDER_RESPONSE = "RESPONSE";
 
-    protected ?Scene $scene;
+    protected ?Scene $scene = null;
 
     // The set of possible intents that could open a turn
-    protected IntentCollection $requestIntents;
+    protected ?IntentCollection $requestIntents = null;
 
     // The set of possible intents that could provide a response
-    protected IntentCollection $responseIntents;
+    protected ?IntentCollection $responseIntents = null;
 
-    protected array $validOrigins;
+    protected ?TurnCollection $validOrigins = null;
 
     public function __construct(?Scene $scene = null)
     {
@@ -27,39 +29,39 @@ class Turn extends ConversationObject
         $this->scene = $scene;
     }
 
-    public static function localFields()
+    public static function foreignFields()
     {
-        return [...parent::allFields(), self::VALID_ORIGINS];
+        return [...parent::foreignFields(), self::SCENE, self::VALID_ORIGINS, self::REQUEST_INTENTS, self::RESPONSE_INTENTS];
     }
 
     public function hasRequestIntents(): bool
     {
-        return $this->requestIntents->isNotEmpty();
+        return $this->requestIntents !== null && $this->requestIntents->isNotEmpty();
     }
 
     public function hasResponseIntents(): bool
     {
-        return $this->responseIntents->isNotEmpty();
+        return $this->responseIntents !== null && $this->responseIntents->isNotEmpty();
     }
 
-    public function getRequestIntents(): IntentCollection
+    public function getRequestIntents(): ?IntentCollection
     {
         return $this->requestIntents;
     }
 
     public function setRequestIntents(IntentCollection $intents)
     {
-        $this->intents = $intents;
+        $this->requestIntents = $intents;
     }
 
-    public function getResponseIntents(): IntentCollection
+    public function getResponseIntents(): ?IntentCollection
     {
         return $this->responseIntents;
     }
 
     public function setResponseIntents(IntentCollection $intents)
     {
-        $this->intents = $intents;
+        $this->responseIntents = $intents;
     }
 
     public function addRequestIntent(Intent $intent)
@@ -135,12 +137,12 @@ class Turn extends ConversationObject
         return !empty($this->validOrigins);
     }
 
-    public function getValidOrigins(): ?array
+    public function getValidOrigins(): ?TurnCollection
     {
         return $this->validOrigins;
     }
 
-    public function setValidOrigins(array $validOrigins): void
+    public function setValidOrigins(TurnCollection $validOrigins): void
     {
         $this->validOrigins = $validOrigins;
     }

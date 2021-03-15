@@ -271,6 +271,6 @@ class ConversationObject
 
     public static function allFields()
     {
-        return [...self::localFields(), ...self::foreignFields()];
+        return [...static::localFields(), ...static::foreignFields()];
     }
 }
