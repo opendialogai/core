@@ -63,30 +63,6 @@ class Turn extends ConversationObject
         $this->intents = $intents;
     }
 
-    /**
-     * @return bool
-     */
-    public function hasValidOrigins(): bool
-    {
-        return count($this->validOrigins) > 0;
-    }
-
-    /**
-     * @return array|string[]
-     */
-    public function getValidOrigins(): array
-    {
-        return $this->validOrigins;
-    }
-
-    /**
-     * @param array|string[] $validOrigins
-     */
-    public function setValidOrigins(array $validOrigins): void
-    {
-        $this->validOrigins = $validOrigins;
-    }
-
     public function getScene(): ?Scene
     {
         return $this->scene;
@@ -124,11 +100,6 @@ class Turn extends ConversationObject
             return $this->scene->getInterpreter();
         }
         return $this->interpreter;
-    }
-
-    public function getScene(): ?Scene
-    {
-        return $this->scene;
     }
 
     public function setScene(Scene $scene): void
