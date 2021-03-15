@@ -72,14 +72,14 @@ class AttributeSerializationTest extends TestCase
             'type' => 'attribute.core.composite',
             'value' => json_encode([
                 'composite_value' => [
-                    [
+                    'my_example_sub_attribute1' => [
                         'id' => 'my_example_sub_attribute1',
                         'type' => 'attribute.core.string',
                         'value' => [
                             'scalar_value' => 'Hello'
                         ]
                     ],
-                    [
+                    'my_example_sub_attribute2' => [
                         'id' => 'my_example_sub_attribute2',
                         'type' => 'attribute.core.string',
                         'value' => [
@@ -100,14 +100,14 @@ class AttributeSerializationTest extends TestCase
             'type' => 'attribute.core.composite',
             'value' => json_encode([
                 'composite_value' => [
-                    [
+                    'my_example_sub_attribute1' => [
                         'id' => 'my_example_sub_attribute1',
                         'type' => 'attribute.core.string',
                         'value' => [
                             'scalar_value' => 'Hello'
                         ]
                     ],
-                    [
+                    'my_example_sub_attribute2' => [
                         'id' => 'my_example_sub_attribute2',
                         'type' => 'attribute.core.string',
                         'value' => [
