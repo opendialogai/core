@@ -43,7 +43,7 @@ class IncomingIntentMatcher
     public static function matchIncomingIntent(): Intent
     {
         if (ConversationContextUtil::currentConversationUid() == Conversation::UNDEFINED) {
-            // It's a non-ongoing conversation
+            // It's not an ongoing conversation
             try {
                 return self::matchNextIntentAsStartingRequestIntent();
             } catch (EmptyCollectionException $e) {
