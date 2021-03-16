@@ -1281,9 +1281,9 @@ class ConversationDataClient
                 Turn::INTERPRETER,
                 Turn::CREATED_AT,
                 Turn::UPDATED_AT,
+                Turn::VALID_ORIGINS,
                 Turn::BEHAVIORS => Behavior::FIELDS,
                 Turn::CONDITIONS => Condition::FIELDS,
-                Turn::VALID_ORIGINS => [Turn::UID],
                 Turn::SCENE => [Scene::UID]
             ]
         ]);
@@ -1424,7 +1424,6 @@ class ConversationDataClient
                         request_intents {
                             id
                         }
-
                         response_intents {
                             id
                         }

@@ -22,13 +22,13 @@ class TurnNormalizer extends ConversationObjectNormalizer
         $tree = $context[AbstractNormalizer::ATTRIBUTES];
         $data = parent::normalize($object, $format, $context);
 
+        if (in_array(Turn::VALID_ORIGINS, $tree, true)) {
+            $data['valid_origins'] = $object->getValidOrigins();
+        }
+
         if (in_array(Turn::SCENE, array_keys($tree), true)) {
             $data['scene'] = $this->serializer->normalize($object->getScene(), $format,
                 SerializationTreeHelper::createChildContext($context, Turn::SCENE));
-        }
-
-        if (in_array(Turn::VALID_ORIGINS, array_keys($tree), true)) {
-            $data['valid_origins'] = $object->getValidOrigins();
         }
 
         if (in_array(Turn::REQUEST_INTENTS, array_keys($tree), true)) {

@@ -121,10 +121,6 @@ class TurnQueriesTest extends ConversationDataClientQueriesTest
         $this->client->getTurnByUid("0x0001", false);
     }
 
-    public function testUpdateTurnValidOrigins() {
-        //TODO
-    }
-
     public function testUpdateTurn() {
         $scenario = $this->client->addScenario($this->getStandaloneScenario());
         $conversation = $this->getStandaloneConversation();
@@ -144,6 +140,7 @@ class TurnQueriesTest extends ConversationDataClientQueriesTest
         $changes->setUid($testTurn->getUid());
         $changes->setName("Updated name");
         $changes->setOdId("updated_id");
+        $changes->setValidOrigins(['origin_a', 'origin_b']);
 
         $updatedTurn = $this->client->updateTurn($changes);
         $this->assertEquals($testTurn->getUid(), $updatedTurn->getUid());
@@ -154,7 +151,7 @@ class TurnQueriesTest extends ConversationDataClientQueriesTest
         $this->assertEquals($testTurn->getConditions(), $updatedTurn->getConditions());
         $this->assertEquals($testTurn->getInterpreter(), $updatedTurn->getInterpreter());
         $this->assertEquals($testTurn->getCreatedAt(), $updatedTurn->getCreatedAt());
-        $this->assertEquals([], $updatedTurn->getValidOrigins());
+        $this->assertEquals($changes->getValidOrigins(), $updatedTurn->getValidOrigins());
         $this->assertEquals(new IntentCollection(), $updatedTurn->getRequestIntents());
         $this->assertEquals(new IntentCollection(), $updatedTurn->getResponseIntents());
     }

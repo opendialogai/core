@@ -28,10 +28,13 @@ class Turn extends ConversationObject
         parent::__construct();
         $this->scene = $scene;
     }
+    public static function localFields() {
+        return [...parent::localFields(), self::VALID_ORIGINS];
+    }
 
     public static function foreignFields()
     {
-        return [...parent::foreignFields(), self::SCENE, self::VALID_ORIGINS, self::REQUEST_INTENTS, self::RESPONSE_INTENTS];
+        return [...parent::foreignFields(), self::SCENE, self::REQUEST_INTENTS, self::RESPONSE_INTENTS];
     }
 
     public function hasRequestIntents(): bool
