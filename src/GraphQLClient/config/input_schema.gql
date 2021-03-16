@@ -78,14 +78,14 @@ type Intent implements ConversationObject {
     interpreter: String
     created_at: String!
     updated_at: String!
-    listens: [String!]
+    listens_for: [String!]
     confidence: Float!
     expected_attributes: [String!]
     actions: [ActionClosure!]
     turn: Turn!
     speaker: ParticipantType!
     transition: Transition
-    virtual: [VirtualIntent!]
+    virtual_intents: [VirtualIntent!]
     sample_utterance: String!
 }
 
