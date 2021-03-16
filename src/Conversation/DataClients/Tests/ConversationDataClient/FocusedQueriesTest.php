@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Conversation\DataClients\Tests\ConversationDataClien
 
 
 use OpenDialogAi\Core\Conversation\Conversation;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\Turn;
 
@@ -31,7 +32,9 @@ class FocusedQueriesTest extends ConversationDataClientQueriesTest
         $sceneB->setConversation($conversation);
         $sceneB = $this->client->addScene($sceneB);
 
-        $scenarioTree = $this->client->getScenarioWithFocusedConversation($conversation->getUid());
+        $conversationTree = $this->client->getScenarioWithFocusedConversation($conversation->getUid());
+
+        $scenarioTree = $conversationTree->getScenario();
         $this->assertEquals($testScenario->getUid(), $scenarioTree->getUid());
         $this->assertEquals($testScenario->getOdId(), $scenarioTree->getOdId());
         $this->assertNotNull($scenarioTree->getConversations());
@@ -73,7 +76,6 @@ class FocusedQueriesTest extends ConversationDataClientQueriesTest
         $testScene->setConversation($testConversation);
         $testScene = $this->client->addScene($testScene);
 
-
         $turnA = new Turn();
         $turnA->setOdId("turn_a");
         $turnA->setName("Turn A");
@@ -86,7 +88,9 @@ class FocusedQueriesTest extends ConversationDataClientQueriesTest
         $turnB->setScene($testScene);
         $turnB = $this->client->addTurn($turnB);
 
-        $scenarioTree = $this->client->getScenarioWithFocusedScene($testScene->getUid());
+        $sceneTree = $this->client->getScenarioWithFocusedScene($testScene->getUid());
+        $scenarioTree = $sceneTree->getScenario();
+
         $this->assertEquals($testScenario->getUid(), $scenarioTree->getUid());
         $this->assertEquals($testScenario->getOdId(), $scenarioTree->getOdId());
         $this->assertNotNull($scenarioTree->getConversations());
@@ -121,6 +125,108 @@ class FocusedQueriesTest extends ConversationDataClientQueriesTest
         $this->assertEquals($turnB->getOdId(), $turnBTree->getOdId());
         $this->assertEquals($turnB->getName(), $turnBTree->getName());
         $this->assertEquals($sceneTree, $turnBTree->getScene());
+
+    }
+
+    public function testGetScenarioWithFocusedTurnAndDependantTurns() {
+        //TODO
+    }
+
+    public function testGetScenarioWithFocusedTurn() {
+        $testScenario = $this->client->addScenario($this->getStandaloneScenario());
+        $testConversation = $this->getStandaloneConversation();
+        $testConversation->setScenario($testScenario);
+        $testConversation = $this->client->addConversation($testConversation);
+        $testScene = $this->getStandaloneScene();
+        $testScene->setConversation($testConversation);
+        $testScene = $this->client->addScene($testScene);
+
+        $testTurn = new Turn();
+        $testTurn->setOdId("test_turn");
+        $testTurn->setName("Test Turn");
+        $testTurn->setScene($testScene);
+        $testTurn = $this->client->addTurn($testTurn);
+
+        $intentA = new Intent();
+        $intentA->setOdId("intent_a");
+        $intentA->setName("Intent A");
+        $intentA->setSpeaker(Intent::USER);
+        $intentA->setConfidence(1.0);
+        $intentA->setSampleUtterance("Intent A sample utterance");
+        $intentA->setTurn($testTurn);
+        $intentA = $this->client->addRequestIntent($intentA);
+
+        $intentB = new Intent();
+        $intentB->setOdId("intent_b");
+        $intentB->setName("Intent B");
+        $intentB->setSpeaker(Intent::USER);
+        $intentB->setConfidence(1.0);
+        $intentB->setSampleUtterance("Intent B sample utterance");
+        $intentB->setTurn($testTurn);
+        $intentB = $this->client->addResponseIntent($intentB);
+
+        $intentC = new Intent();
+        $intentC->setOdId("intent_c");
+        $intentC->setName("Intent C");
+        $intentC->setSpeaker(Intent::USER);
+        $intentC->setConfidence(1.0);
+        $intentC->setSampleUtterance("Intent C sample utterance");
+        $intentC->setTurn($testTurn);
+        $intentC = $this->client->addResponseIntent($intentC);
+
+        $focusedTurn = $this->client->getScenarioWithFocusedTurn($testTurn->getUid());
+
+        $scenarioTree = $focusedTurn->getScenario();
+
+        $this->assertEquals($testScenario->getUid(), $scenarioTree->getUid());
+        $this->assertEquals($testScenario->getOdId(), $scenarioTree->getOdId());
+        $this->assertNotNull($scenarioTree->getConversations());
+        $this->assertEquals(1, $scenarioTree->getConversations()->count());
+
+        $conversationTree = $scenarioTree->getConversations()->first();
+        $this->assertEquals($testConversation->getUid(), $conversationTree->getUid());
+        $this->assertEquals($testConversation->getOdId(), $conversationTree->getOdId());
+        $this->assertEquals($testConversation->getName(), $conversationTree->getName());
+        $this->assertNotNull($conversationTree->getScenes());
+        $this->assertEquals(1, $conversationTree->getScenes()->count());
+        $this->assertEquals($scenarioTree, $conversationTree->getScenario());
+
+        $sceneTree = $conversationTree->getScenes()->first();
+        $this->assertEquals($testScene->getUid(), $sceneTree->getUid());
+        $this->assertEquals($testScene->getOdId(), $sceneTree->getOdId());
+        $this->assertEquals($testScene->getName(), $sceneTree->getName());
+        $this->assertNotNull($sceneTree->getTurns());
+        $this->assertEquals(1, $sceneTree->getTurns()->count());
+        $this->assertEquals($conversationTree, $sceneTree->getConversation());
+
+        $turnTree = $sceneTree->getTurns()->first();
+        $this->assertEquals($testTurn->getUid(), $turnTree->getUid());
+        $this->assertEquals($testTurn->getOdId(), $turnTree->getOdId());
+        $this->assertEquals($testTurn->getName(), $turnTree->getName());
+        $this->assertEquals(1, $turnTree->getRequestIntents()->count());
+
+        $intentATree = $turnTree->getRequestIntents()->first();
+        $this->assertEquals($intentA->getUid(), $intentATree->getUid());
+        $this->assertEquals($intentA->getOdId(), $intentATree->getOdId());
+        $this->assertEquals($intentA->getName(), $intentATree->getName());
+        $this->assertEquals($turnTree, $intentATree->getTurn());
+
+        $intentBTree = $turnTree->getResponseIntents()[0];
+        $this->assertEquals($intentB->getUid(), $intentBTree->getUid());
+        $this->assertEquals($intentB->getOdId(), $intentBTree->getOdId());
+        $this->assertEquals($intentB->getName(), $intentBTree->getName());
+        $this->assertEquals($turnTree, $intentBTree->getTurn());
+
+        $intentCTree = $turnTree->getResponseIntents()[1];
+        $this->assertEquals($intentC->getUid(), $intentCTree->getUid());
+        $this->assertEquals($intentC->getOdId(), $intentCTree->getOdId());
+        $this->assertEquals($intentC->getName(), $intentCTree->getName());
+        $this->assertEquals($turnTree, $intentCTree->getTurn());
+
+    }
+
+
+    public function testGetScenarioWithFocusedIntent() {
 
     }
 }

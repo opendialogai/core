@@ -1491,6 +1491,7 @@ class ConversationDataClient
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function getScenarioWithFocusedTurn(string $turnUid): Turn {
+        //Todo: Also return the turns that are dependant on this turn (ie. have focused turn in their valid origins)
         $getFocusedTurnQuery = <<<'GQL'
             query getFocusedTurn($id : ID!) {
                 getTurn(id: $id) {
@@ -1518,6 +1519,25 @@ class ConversationDataClient
                         od_id
                         name
                         description
+                    }
+
+                    scene {
+                        id
+                        od_id
+                        name
+                        description
+                        conversation {
+                            id
+                            od_id
+                            name
+                            description
+                            scenario {
+                                id
+                                od_id
+                                name
+                                description
+                            }
+                        }
                     }
                 }
             }
