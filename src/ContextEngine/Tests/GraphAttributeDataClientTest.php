@@ -113,7 +113,7 @@ class GraphAttributeDataClientTest extends TestCase
                 ->once()
                 ->andReturn([
                     'data' => [
-                        'getUser' => []
+                        'getUser' => null
                     ]
                 ]);
         });
@@ -192,7 +192,7 @@ class GraphAttributeDataClientTest extends TestCase
                 ->once()
                 ->andReturn([
                     'data' => [
-                        'getUser' => []
+                        'getUser' => null
                     ]
                 ]);
         });

@@ -15,8 +15,8 @@ abstract class AbstractCompositeAttribute extends AbstractAttribute implements C
 
     /**
      * AbstractCompositeAttribute constructor.
-     * @param $id
-     * @param $value
+     * @param string $id
+     * @param Map|null $attributes
      */
     public function __construct(string $id, Map $attributes = null)
     {

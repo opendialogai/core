@@ -118,18 +118,18 @@ type VirtualIntent {
     intentId: String!
 }
 
-type Attribute  {
+type Context {
     id: ID!
-    name: String
-    type: String
-    value: String
+    name: String!
+    user: User!
+    attributes: [Attribute]
 }
 
-type CompositeAttribute  {
+type Attribute  {
     id: ID!
-    name: String
-    type: String
-    value: [Attribute]
+    name: String!
+    type: String!
+    value: String!
 }
 
 type Condition  {
@@ -179,6 +179,7 @@ type User  {
     user_id: String! @id
     attributes: [Attribute]
     records: [UserHistoryRecord] @hasInverse(field:user)
+    contexts: [Context] @hasInverse(field:user)
 }
 
 type UserHistoryRecord  {

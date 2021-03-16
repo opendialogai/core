@@ -4,7 +4,6 @@
 namespace OpenDialogAi\ContextEngine\Contracts;
 
 
-use Ds\Map;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 use OpenDialogAi\AttributeEngine\Contracts\AttributeBag;
 use OpenDialogAi\ContextEngine\Exceptions\CouldNotLoadAttributeException;
@@ -27,15 +26,16 @@ interface ContextDataClient
     public function loadAttributes(string $contextId, string $userId): AttributeBag;
 
     /**
-     * Retrieves a desired persisted attribute for the given context-user pair.
+     * Retrieves a desired persisted attribute for the given context-user pair, if the attribute hasn't been persisted
+     * before, returns null.
      *
      * @param string $contextId
      * @param string $userId
      * @param string $attributeId
-     * @return Attribute
+     * @return Attribute|null
      * @throws CouldNotLoadAttributeException
      */
-    public function loadAttribute(string $contextId, string $userId, string $attributeId): Attribute;
+    public function loadAttribute(string $contextId, string $userId, string $attributeId): ?Attribute;
 
     /**
      * Persists the given attributes to the context-user pair.
