@@ -1002,8 +1002,7 @@ class ConversationDataClient
      * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getScenarioWithFocusedScene(string $sceneUid): Scene
-    {
+    public function getScenarioWithFocusedScene(string $sceneUid): Scene {
         $getFocusedSceneQuery = <<<'GQL'
             query getFocusedScene($id : ID!) {
                 getScene(id: $id) {
