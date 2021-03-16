@@ -2189,7 +2189,62 @@ class ConversationDataClient
      */
     public function getAllRequestIntents(TurnCollection $turns, bool $shallow): IntentCollection
     {
-        return new IntentCollection();
+        $getAllRequestIntentsQuery = <<<'GQL'
+            query getAllRequestIntents($turnUids: [ID!]!) {
+                queryTurn(filter: {id: $turnUids}) {
+                    request_intents {
+                        id
+                        od_id
+                        name
+                        description
+                        interpreter
+                        behaviors
+                        conditions {
+                            id
+                        }
+                        created_at
+                        updated_at
+                        speaker
+                        sample_utterance
+                        listens_for
+                        confidence
+                        expected_attributes
+
+                        transition {
+                            conversation
+                            scene
+                            turn
+                        }
+
+                        virtual_intents {
+                            speaker
+                            intentId
+                        }
+
+                        actions {
+                            id
+                        }
+
+                        turn {
+                            id
+                        }
+                    }
+                }
+            }
+        GQL;
+
+        $turnUids = $turns->map(fn($turn) => $turn->getUid());
+
+        if($turnUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllRequestIntentsQuery, ['turnUids' => $turnUids,]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $intentsData = array_merge(...array_map(fn($turn) => $turn['request_intents'], $response['data']['queryTurn']));
+
+        return $serializer->denormalize($intentsData, IntentCollection::class);
+
     }
 
     /**
@@ -2202,8 +2257,64 @@ class ConversationDataClient
      */
     public function getAllResponseIntents(TurnCollection $turns, bool $shallow): IntentCollection
     {
-        return new IntentCollection();
+        $getAllResponseIntentsQuery = <<<'GQL'
+            query getAllResponseIntents($turnUids: [ID!]!) {
+                queryTurn(filter: {id: $turnUids}) {
+                    response_intents {
+                        id
+                        od_id
+                        name
+                        description
+                        interpreter
+                        behaviors
+                        conditions {
+                            id
+                        }
+                        created_at
+                        updated_at
+                        speaker
+                        sample_utterance
+                        listens_for
+                        confidence
+                        expected_attributes
+
+                        transition {
+                            conversation
+                            scene
+                            turn
+                        }
+
+                        virtual_intents {
+                            speaker
+                            intentId
+                        }
+
+                        actions {
+                            id
+                        }
+
+                        turn {
+                            id
+                        }
+                    }
+                }
+            }
+        GQL;
+
+        $turnUids = $turns->map(fn($turn) => $turn->getUid());
+
+        if($turnUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllResponseIntentsQuery, ['turnUids' => $turnUids,]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $intentsData = array_merge(...array_map(fn($turn) => $turn['response_intents'], $response['data']['queryTurn']));
+
+        return $serializer->denormalize($intentsData, IntentCollection::class);
+
     }
+
 
     /**
      * Retrieve all request intents with the given ID that belong to the given turns from the graph
@@ -2216,7 +2327,61 @@ class ConversationDataClient
      */
     public function getAllRequestIntentsById(TurnCollection $turns, string $intentId, bool $shallow): IntentCollection
     {
-        return new IntentCollection();
+        $getAllRequestIntentsByIdQuery = <<<'GQL'
+            query getAllRequestIntentsById($turnUids: [ID!]!, $intentOdId: String!) {
+                queryTurn(filter: {id: $turnUids}) @cascade(fields: ["request_intents"]) {
+                    request_intents(filter: {od_id: {eq: $intentOdId}}) {
+                        id
+                        od_id
+                        name
+                        description
+                        interpreter
+                        behaviors
+                        conditions {
+                            id
+                        }
+                        created_at
+                        updated_at
+                        speaker
+                        sample_utterance
+                        listens_for
+                        confidence
+                        expected_attributes
+
+                        transition {
+                            conversation
+                            scene
+                            turn
+                        }
+
+                        virtual_intents {
+                            speaker
+                            intentId
+                        }
+
+                        actions {
+                            id
+                        }
+
+                        turn {
+                            id
+                        }
+                    }
+                }
+            }
+        GQL;
+
+        $turnUids = $turns->map(fn($turn) => $turn->getUid());
+
+        if($turnUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllRequestIntentsByIdQuery, ['turnUids' => $turnUids, 'intentOdId' => $intentId]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $intentsData = array_merge(...array_map(fn($turn) => $turn['request_intents'], $response['data']['queryTurn']));
+
+        return $serializer->denormalize($intentsData, IntentCollection::class);
     }
 
     /**
@@ -2230,6 +2395,60 @@ class ConversationDataClient
      */
     public function getAllResponseIntentsById(TurnCollection $turns, string $intentId, bool $shallow): IntentCollection
     {
-        return new IntentCollection();
+        $getAllResponseIntentsByIdQuery = <<<'GQL'
+            query getAllResponseIntentsById($turnUids: [ID!]!, $intentOdId: String!) {
+                queryTurn(filter: {id: $turnUids}) @cascade(fields: ["response_intents"]) {
+                    response_intents(filter: {od_id: {eq: $intentOdId}}) {
+                        id
+                        od_id
+                        name
+                        description
+                        interpreter
+                        behaviors
+                        conditions {
+                            id
+                        }
+                        created_at
+                        updated_at
+                        speaker
+                        sample_utterance
+                        listens_for
+                        confidence
+                        expected_attributes
+
+                        transition {
+                            conversation
+                            scene
+                            turn
+                        }
+
+                        virtual_intents {
+                            speaker
+                            intentId
+                        }
+
+                        actions {
+                            id
+                        }
+
+                        turn {
+                            id
+                        }
+                    }
+                }
+            }
+        GQL;
+
+        $turnUids = $turns->map(fn($turn) => $turn->getUid());
+
+        if($turnUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllResponseIntentsByIdQuery, ['turnUids' => $turnUids, 'intentOdId' => $intentId]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $intentsData = array_merge(...array_map(fn($turn) => $turn['response_intents'], $response['data']['queryTurn']));
+
+        return $serializer->denormalize($intentsData, IntentCollection::class);
     }
 }

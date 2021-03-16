@@ -5,6 +5,7 @@ namespace OpenDialogAi\Core\Conversation\DataClients\Tests\ConversationDataClien
 
 use OpenDialogAi\Core\Conversation\ActionsCollection;
 use OpenDialogAi\Core\Conversation\Exceptions\ConversationObjectNotFoundException;
+use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\Transition;
 use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\Intent;
@@ -14,7 +15,7 @@ use OpenDialogAi\Core\Conversation\VirtualIntentCollection;
 class IntentQueriesTest extends ConversationDataClientQueriesTest
 {
 
-    public function getTestTurn(): Turn {
+    public function getTestScene(): Scene {
         $scenario = $this->client->addScenario($this->getStandaloneScenario());
 
         $conversation = $this->getStandaloneConversation();
@@ -24,7 +25,12 @@ class IntentQueriesTest extends ConversationDataClientQueriesTest
         $scene = $this->getStandaloneScene();
         $scene->setConversation($conversation);
         $scene = $this->client->addScene($scene);
+        return $scene;
+    }
 
+    public function getTestTurn(): Turn {
+
+        $scene = $this->getTestScene();
         $turn = $this->getStandaloneTurn();
         $turn->setScene($scene);
         $turn = $this->client->addTurn($turn);
@@ -181,7 +187,307 @@ class IntentQueriesTest extends ConversationDataClientQueriesTest
         $this->assertEquals(true, $success);
     }
 
-//    public function testAddTurn() {
+    public function testGetAllRequestIntents() {
+        $scene = $this->getTestScene();
+
+        /**
+         * Turn A -> [Request: Intent A]
+         * Turn B -> [Request: Intent B, Intent C, Response: Intent D]
+         * Turn C -> []
+         */
+        $turnA = new Turn();
+        $turnA->setOdId("turn_a");
+        $turnA->setName("Turn A");
+        $turnA->setScene($scene);
+        $turnA = $this->client->addTurn($turnA);
+
+        $turnB = new Turn();
+        $turnB->setOdId("turn_b");
+        $turnB->setName("Turn B");
+        $turnB->setScene($scene);
+        $turnB = $this->client->addTurn($turnB);
+
+        $turnC = new Turn();
+        $turnC->setOdId("turn_c");
+        $turnC->setName("Turn C");
+        $turnC->setScene($scene);
+        $turnC = $this->client->addTurn($turnC);
+
+
+        $intentA = new Intent();
+        $intentA->setOdId("intent_a");
+        $intentA->setName("Intent A");
+        $intentA->setConfidence(1.0);
+        $intentA->setSpeaker(Intent::USER);
+        $intentA->setSampleUtterance("Test sample utterance A");
+        $intentA->setTurn($turnA);
+        $intentA = $this->client->addRequestIntent($intentA);
+
+        $intentB = new Intent();
+        $intentB->setOdId("intent_b");
+        $intentB->setName("Intent B");
+        $intentB->setConfidence(1.0);
+        $intentB->setSpeaker(Intent::USER);
+        $intentB->setSampleUtterance("Test sample utterance B");
+        $intentB->setTurn($turnB);
+        $intentB = $this->client->addRequestIntent($intentB);
+
+        $intentC = new Intent();
+        $intentC->setOdId("intent_c");
+        $intentC->setName("Intent C");
+        $intentC->setConfidence(1.0);
+        $intentC->setSpeaker(Intent::USER);
+        $intentC->setSampleUtterance("Test sample utterance C");
+        $intentC->setTurn($turnB);
+        $intentC = $this->client->addRequestIntent($intentC);
+
+        $intentD = new Intent();
+        $intentD->setOdId("intent_d");
+        $intentD->setName("Intent d");
+        $intentD->setConfidence(1.0);
+        $intentD->setSpeaker(Intent::USER);
+        $intentD->setSampleUtterance("Test sample utterance D");
+        $intentD->setTurn($turnB);
+        $intentD = $this->client->addResponseIntent($intentD);
+
+        $requestIntents = $this->client->getAllRequestIntents(new TurnCollection([$turnA, $turnB, $turnC]), false);
+        $this->assertEquals(3, $requestIntents->count());
+        $this->assertEquals($intentA->getUid(), $requestIntents[0]->getUid());
+        $this->assertEquals($turnA->getUid(), $requestIntents[0]->getTurn()->getUid());
+        $this->assertEquals($intentB->getUid(), $requestIntents[1]->getUid());
+        $this->assertEquals($turnB->getUid(), $requestIntents[1]->getTurn()->getUid());
+        $this->assertEquals($intentC->getUid(), $requestIntents[2]->getUid());
+        $this->assertEquals($turnB->getUid(), $requestIntents[2]->getTurn()->getUid());
+
+
+
+
+    }
+
+    public function testGetAllResponseIntents() {
+        $scene = $this->getTestScene();
+
+        /**
+         * Turn A -> [Request: , Response: Intent A]
+         * Turn B -> [Request: Intent B, Response: Intent C, Intent D]
+         * Turn C -> [,]
+         */
+        $turnA = new Turn();
+        $turnA->setOdId("turn_a");
+        $turnA->setName("Turn A");
+        $turnA->setScene($scene);
+        $turnA = $this->client->addTurn($turnA);
+
+        $turnB = new Turn();
+        $turnB->setOdId("turn_b");
+        $turnB->setName("Turn B");
+        $turnB->setScene($scene);
+        $turnB = $this->client->addTurn($turnB);
+
+        $turnC = new Turn();
+        $turnC->setOdId("turn_c");
+        $turnC->setName("Turn C");
+        $turnC->setScene($scene);
+        $turnC = $this->client->addTurn($turnC);
+
+
+        $intentA = new Intent();
+        $intentA->setOdId("intent_a");
+        $intentA->setName("Intent A");
+        $intentA->setConfidence(1.0);
+        $intentA->setSpeaker(Intent::USER);
+        $intentA->setSampleUtterance("Test sample utterance A");
+        $intentA->setTurn($turnA);
+        $intentA = $this->client->addResponseIntent($intentA);
+
+        $intentB = new Intent();
+        $intentB->setOdId("intent_b");
+        $intentB->setName("Intent B");
+        $intentB->setConfidence(1.0);
+        $intentB->setSpeaker(Intent::USER);
+        $intentB->setSampleUtterance("Test sample utterance B");
+        $intentB->setTurn($turnB);
+        $intentB = $this->client->addRequestIntent($intentB);
+
+        $intentC = new Intent();
+        $intentC->setOdId("intent_c");
+        $intentC->setName("Intent C");
+        $intentC->setConfidence(1.0);
+        $intentC->setSpeaker(Intent::USER);
+        $intentC->setSampleUtterance("Test sample utterance C");
+        $intentC->setTurn($turnB);
+        $intentC = $this->client->addResponseIntent($intentC);
+
+        $intentD = new Intent();
+        $intentD->setOdId("intent_d");
+        $intentD->setName("Intent d");
+        $intentD->setConfidence(1.0);
+        $intentD->setSpeaker(Intent::USER);
+        $intentD->setSampleUtterance("Test sample utterance D");
+        $intentD->setTurn($turnB);
+        $intentD = $this->client->addResponseIntent($intentD);
+
+        $responseIntents = $this->client->getAllResponseIntents(new TurnCollection([$turnA, $turnB, $turnC]), false);
+        $this->assertEquals(3, $responseIntents->count());
+        $this->assertEquals($intentA->getUid(), $responseIntents[0]->getUid());
+        $this->assertEquals($turnA->getUid(), $responseIntents[0]->getTurn()->getUid());
+        $this->assertEquals($intentC->getUid(), $responseIntents[1]->getUid());
+        $this->assertEquals($turnB->getUid(), $responseIntents[1]->getTurn()->getUid());
+        $this->assertEquals($intentD->getUid(), $responseIntents[2]->getUid());
+        $this->assertEquals($turnB->getUid(), $responseIntents[2]->getTurn()->getUid());
+
+
+
+
+    }
+
+    public function testGetAllRequestIntentsById() {
+        $scene = $this->getTestScene();
+
+        /**
+         * Turn A -> [Request: Intent A (OdId :test_id)]
+         * Turn B -> [Request: Intent B (OdId: test_id), Intent C, Response: Intent D]
+         * Turn C -> []
+         */
+        $turnA = new Turn();
+        $turnA->setOdId("turn_a");
+        $turnA->setName("Turn A");
+        $turnA->setScene($scene);
+        $turnA = $this->client->addTurn($turnA);
+
+        $turnB = new Turn();
+        $turnB->setOdId("turn_b");
+        $turnB->setName("Turn B");
+        $turnB->setScene($scene);
+        $turnB = $this->client->addTurn($turnB);
+
+        $turnC = new Turn();
+        $turnC->setOdId("turn_c");
+        $turnC->setName("Turn C");
+        $turnC->setScene($scene);
+        $turnC = $this->client->addTurn($turnC);
+
+
+        $intentA = new Intent();
+        $intentA->setOdId("test_id");
+        $intentA->setName("Intent A");
+        $intentA->setConfidence(1.0);
+        $intentA->setSpeaker(Intent::USER);
+        $intentA->setSampleUtterance("Test sample utterance A");
+        $intentA->setTurn($turnA);
+        $intentA = $this->client->addRequestIntent($intentA);
+
+        $intentB = new Intent();
+        $intentB->setOdId("test_id");
+        $intentB->setName("Intent B");
+        $intentB->setConfidence(1.0);
+        $intentB->setSpeaker(Intent::USER);
+        $intentB->setSampleUtterance("Test sample utterance B");
+        $intentB->setTurn($turnB);
+        $intentB = $this->client->addRequestIntent($intentB);
+
+        $intentC = new Intent();
+        $intentC->setOdId("intent_c");
+        $intentC->setName("Intent C");
+        $intentC->setConfidence(1.0);
+        $intentC->setSpeaker(Intent::USER);
+        $intentC->setSampleUtterance("Test sample utterance C");
+        $intentC->setTurn($turnB);
+        $intentC = $this->client->addRequestIntent($intentC);
+
+        $intentD = new Intent();
+        $intentD->setOdId("intent_d");
+        $intentD->setName("Intent d");
+        $intentD->setConfidence(1.0);
+        $intentD->setSpeaker(Intent::USER);
+        $intentD->setSampleUtterance("Test sample utterance D");
+        $intentD->setTurn($turnB);
+        $intentD = $this->client->addResponseIntent($intentD);
+
+        $requestIntents = $this->client->getAllRequestIntentsById(new TurnCollection([$turnA, $turnB, $turnC]), "test_id", false);
+        $this->assertEquals(2, $requestIntents->count());
+        $this->assertEquals($intentA->getUid(), $requestIntents[0]->getUid());
+        $this->assertEquals($turnA->getUid(), $requestIntents[0]->getTurn()->getUid());
+        $this->assertEquals($intentB->getUid(), $requestIntents[1]->getUid());
+        $this->assertEquals($turnB->getUid(), $requestIntents[1]->getTurn()->getUid());
+
+    }
+
+    public function testGetAllResponseIntentsById() {
+        $scene = $this->getTestScene();
+
+        /**
+         * Turn A -> [Request: , Response: Intent A (OdId: test_id)]
+         * Turn B -> [Request: Intent B, Response: Intent C (OdId: test_id), Intent D]
+         * Turn C -> [,]
+         */
+        $turnA = new Turn();
+        $turnA->setOdId("turn_a");
+        $turnA->setName("Turn A");
+        $turnA->setScene($scene);
+        $turnA = $this->client->addTurn($turnA);
+
+        $turnB = new Turn();
+        $turnB->setOdId("turn_b");
+        $turnB->setName("Turn B");
+        $turnB->setScene($scene);
+        $turnB = $this->client->addTurn($turnB);
+
+        $turnC = new Turn();
+        $turnC->setOdId("turn_c");
+        $turnC->setName("Turn C");
+        $turnC->setScene($scene);
+        $turnC = $this->client->addTurn($turnC);
+
+
+        $intentA = new Intent();
+        $intentA->setOdId("test_id");
+        $intentA->setName("Intent A");
+        $intentA->setConfidence(1.0);
+        $intentA->setSpeaker(Intent::USER);
+        $intentA->setSampleUtterance("Test sample utterance A");
+        $intentA->setTurn($turnA);
+        $intentA = $this->client->addResponseIntent($intentA);
+
+        $intentB = new Intent();
+        $intentB->setOdId("intent_b");
+        $intentB->setName("Intent B");
+        $intentB->setConfidence(1.0);
+        $intentB->setSpeaker(Intent::USER);
+        $intentB->setSampleUtterance("Test sample utterance B");
+        $intentB->setTurn($turnB);
+        $intentB = $this->client->addRequestIntent($intentB);
+
+        $intentC = new Intent();
+        $intentC->setOdId("test_id");
+        $intentC->setName("Intent C");
+        $intentC->setConfidence(1.0);
+        $intentC->setSpeaker(Intent::USER);
+        $intentC->setSampleUtterance("Test sample utterance C");
+        $intentC->setTurn($turnB);
+        $intentC = $this->client->addResponseIntent($intentC);
+
+        $intentD = new Intent();
+        $intentD->setOdId("intent_d");
+        $intentD->setName("Intent d");
+        $intentD->setConfidence(1.0);
+        $intentD->setSpeaker(Intent::USER);
+        $intentD->setSampleUtterance("Test sample utterance D");
+        $intentD->setTurn($turnB);
+        $intentD = $this->client->addResponseIntent($intentD);
+
+        $responseIntents = $this->client->getAllResponseIntentsById(new TurnCollection([$turnA, $turnB, $turnC]), "test_id",
+        false);
+        $this->assertEquals(2, $responseIntents->count());
+        $this->assertEquals($intentA->getUid(), $responseIntents[0]->getUid());
+        $this->assertEquals($turnA->getUid(), $responseIntents[0]->getTurn()->getUid());
+        $this->assertEquals($intentC->getUid(), $responseIntents[1]->getUid());
+        $this->assertEquals($turnB->getUid(), $responseIntents[1]->getTurn()->getUid());
+
+    }
+
+
+    //    public function testAddTurn() {
 //        $scenario = $this->client->addScenario($this->getStandaloneScenario());
 //        $conversation = $this->getStandaloneConversation();
 //        $conversation->setScenario($scenario);
