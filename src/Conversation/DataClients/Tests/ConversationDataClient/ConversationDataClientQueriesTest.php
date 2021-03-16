@@ -17,6 +17,7 @@ use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
+use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\Core\Tests\TestCase;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
@@ -73,17 +74,32 @@ class ConversationDataClientQueriesTest extends TestCase
 
     public function getStandaloneScene()
     {
-        $conversation = new Scene();
-        $conversation->setOdId("test_scene");
-        $conversation->setName("Test Scene");
-        $conversation->setDescription("A test scene");
-        $conversation->setInterpreter("interpreter.core.example");
-        $conversation->setBehaviors(new BehaviorsCollection([new Behavior("STARTING")]));
-        $conversation->setConditions(new ConditionCollection());
-        $conversation->setCreatedAt(new DateTime('2021-03-01T01:00:00.0000Z'));
-        $conversation->setUpdatedAt(new DateTime('2021-03-01T02:00:00.0000Z'));
-        $conversation->setTurns(new TurnCollection());
-        return $conversation;
+        $scene = new Scene();
+        $scene->setOdId("test_scene");
+        $scene->setName("Test Scene");
+        $scene->setDescription("A test scene");
+        $scene->setInterpreter("interpreter.core.example");
+        $scene->setBehaviors(new BehaviorsCollection([new Behavior("STARTING")]));
+        $scene->setConditions(new ConditionCollection());
+        $scene->setCreatedAt(new DateTime('2021-03-01T01:00:00.0000Z'));
+        $scene->setUpdatedAt(new DateTime('2021-03-01T02:00:00.0000Z'));
+        $scene->setTurns(new TurnCollection());
+        return $scene;
+    }
+
+    public function getStandaloneTurn()
+    {
+        $turn = new Turn();
+        $turn->setOdId("test_turn");
+        $turn->setName("Test Turn");
+        $turn->setDescription("A test turn");
+        $turn->setInterpreter("interpreter.core.example");
+        $turn->setBehaviors(new BehaviorsCollection([new Behavior("STARTING")]));
+        $turn->setConditions(new ConditionCollection());
+        $turn->setCreatedAt(new DateTime('2021-03-01T01:00:00.0000Z'));
+        $turn->setUpdatedAt(new DateTime('2021-03-01T02:00:00.0000Z'));
+        $turn->setValidOrigins(['origin_a', 'origin_b']);
+        return $turn;
     }
 
 

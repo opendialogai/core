@@ -25,6 +25,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\TurnCollectionNormali
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\TurnNormalizer;
 use OpenDialogAi\Core\Conversation\Exceptions\ConversationObjectNotFoundException;
 use OpenDialogAi\Core\Conversation\Exceptions\InsufficientHydrationException;
+use OpenDialogAi\Core\Conversation\Intent;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\ScenarioCollection;
@@ -1373,10 +1374,12 @@ class ConversationDataClient
                     valid_origins
                     request_intents {
                         id
+                        od_id
                     }
 
                     response_intents {
                         id
+                        od_id
                     }
                 }
             }
@@ -1729,6 +1732,452 @@ class ConversationDataClient
         return $serializer->denormalize($response['data']['queryTurn'], TurnCollection::class);
     }
 
+    /**
+     * Add an intent as a Request Intent to a Turn
+     * The provided intent must reference a turn with a valid uid.
+     * @param  Intent  $intent
+     *
+     * @return Intent
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function addRequestIntent(Intent $intent): Intent {
+
+        // Adds a new intent and returns the ID
+        $addIntentMutation = <<<'GQL'
+            mutation addIntent($intent: AddIntentInput!) {
+              addIntent(input: [$intent]) {
+                intent {
+                    id
+                }
+              }
+            }
+        GQL;
+
+        // Adds a intent to a turns lists of request intents
+        $addRequestIntentToTurnMutation = <<<'GQL'
+            mutation addRequestIntentToTurn($turnUid: ID!, $intentUid: ID!) {
+                updateTurn(input: {filter: {id: [$turnUid]}, set: {request_intents: [{id: $intentUid}]}}) {
+                    turn {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $intent->setCreatedAt(Carbon::now());
+        $intent->setUpdatedAt(Carbon::now());
+
+        // Required fields on Intent
+        $missing = array_filter([
+            Intent::OD_ID,
+            Intent::NAME,
+            Intent::CREATED_AT,
+            Intent::UPDATED_AT,
+            Intent::TURN,
+            Intent::SAMPLE_UTTERANCE,
+            Intent::CONFIDENCE,
+            Intent::SPEAKER,
+        ], fn
+        ($required) =>
+        !in_array($required, $intent->hydratedFields()));
+
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        // Required fields on Turn
+        $missing = array_filter([Turn::UID], fn($required) => !in_array($required, $intent->getTurn()
+            ->hydratedFields()));
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn attached to the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $data = $serializer->normalize($intent, 'json', [
+            AbstractNormalizer::ATTRIBUTES => [
+                Intent::OD_ID,
+                Intent::NAME,
+                Intent::DESCRIPTION,
+                Intent::INTERPRETER,
+                Intent::CREATED_AT,
+                Intent::UPDATED_AT,
+                Intent::BEHAVIORS => Behavior::FIELDS,
+                Intent::CONDITIONS => Condition::FIELDS,
+                Intent::TURN => [Intent::UID],
+                Intent::SPEAKER,
+                Intent::CONFIDENCE,
+                Intent::LISTENS_FOR,
+                Intent::EXPECTED_ATTRIBUTES,
+                Intent::SAMPLE_UTTERANCE,
+                Intent::VIRTUAL_INTENTS,
+                Intent::ACTIONS,
+            ]
+        ]);
+
+        $addIntentResponse = $this->client->query($addIntentMutation, ['intent' => $data]);
+        $newIntentId = $addIntentResponse['data']['addIntent']['intent']['0']['id'];
+
+        // Link from Turn to Intent (Can't be auto-generated via dgraph graphql @hasInverse directive)
+        $this->client->query($addRequestIntentToTurnMutation, ['turnUid' => $intent->getTurn()->getUid(),
+            'intentUid' => $newIntentId]);
+
+        return $this->getIntentByUid($newIntentId, false);
+    }
+
+    /**
+     * Add an intent as a Request Intent to a Turn
+     * The provided intent must reference a turn with a valid uid.
+     * @param  Intent  $intent
+     *
+     * @return Intent
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function addResponseIntent(Intent $intent): Intent {
+
+        // Adds a new intent and returns the ID
+        $addIntentMutation = <<<'GQL'
+            mutation addIntent($intent: AddIntentInput!) {
+              addIntent(input: [$intent]) {
+                intent {
+                    id
+                }
+              }
+            }
+        GQL;
+
+        // Adds a intent to a turns lists of request intents
+        $addResponseIntentToTurnMutation = <<<'GQL'
+            mutation addResponseIntentToTurn($turnUid: ID!, $intentUid: ID!) {
+                updateTurn(input: {filter: {id: [$turnUid]}, set: {response_intents: [{id: $intentUid}]}}) {
+                    turn {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+
+
+        $intent->setCreatedAt(Carbon::now());
+        $intent->setUpdatedAt(Carbon::now());
+
+        // Required fields on Intent
+        $missing = array_filter([
+            Intent::OD_ID,
+            Intent::NAME,
+            Intent::CREATED_AT,
+            Intent::UPDATED_AT,
+            Intent::TURN,
+            Intent::SAMPLE_UTTERANCE,
+            Intent::CONFIDENCE,
+            Intent::SPEAKER,
+        ], fn
+        ($required) =>
+        !in_array($required, $intent->hydratedFields()));
+
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        // Required fields on Turn
+        $missing = array_filter([Turn::UID], fn($required) => !in_array($required, $intent->getTurn()
+            ->hydratedFields()));
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn attached to the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $data = $serializer->normalize($intent, 'json', [
+            AbstractNormalizer::ATTRIBUTES => [
+                Intent::OD_ID,
+                Intent::NAME,
+                Intent::DESCRIPTION,
+                Intent::INTERPRETER,
+                Intent::CREATED_AT,
+                Intent::UPDATED_AT,
+                Intent::BEHAVIORS => Behavior::FIELDS,
+                Intent::CONDITIONS => Condition::FIELDS,
+                Intent::TURN => [Intent::UID],
+                Intent::SPEAKER,
+                Intent::CONFIDENCE,
+                Intent::LISTENS_FOR,
+                Intent::EXPECTED_ATTRIBUTES,
+                Intent::SAMPLE_UTTERANCE,
+                Intent::VIRTUAL_INTENTS,
+                Intent::ACTIONS,
+            ]
+        ]);
+
+        $addIntentResponse = $this->client->query($addIntentMutation, ['intent' => $data]);
+        $newIntentId = $addIntentResponse['data']['addIntent']['intent']['0']['id'];
+
+        // Link from Turn to Intent (Can't be auto-generated via dgraph graphql @hasInverse directive)
+        $this->client->query($addResponseIntentToTurnMutation, ['turnUid' => $intent->getTurn()->getUid(),
+            'intentUid' => $newIntentId]);
+
+        return $this->getIntentByUid($newIntentId, false);
+    }
+
+    /**
+     * Get Turn with the provided uid
+     *
+     * @param  string  $intentUid
+     * @param  bool    $shallow
+     *
+     * @return Scene
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getIntentByUid(string $intentUid, bool $shallow): Intent {
+        // Looks up an intent by its ID
+        $getIntentByUidQuery = <<<'GQL'
+            query getIntentByUid($intentUid: ID!) {
+                getIntent(id: $intentUid) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    speaker
+                    sample_utterance
+                    listens_for
+                    confidence
+                    expected_attributes
+
+                    transition {
+                        conversation
+                        scene
+                        turn
+                    }
+
+                    virtual_intents {
+                        speaker
+                        intentId
+                    }
+
+                    actions {
+                        id
+                    }
+
+                    turn {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($getIntentByUidQuery, ['intentUid' => $intentUid]);
+        if($response['data']['getIntent'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
+                $intentUid));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return  $serializer->denormalize($response['data']['getIntent'], Intent::class);
+    }
+
+
+    /**
+     * Update a Turn
+     *
+     * @param  Intent  $intent
+     *
+     * @return Intent
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function updateIntent(Intent $intent): Intent
+    {
+        $updateIntentMutation = <<<'GQL'
+            mutation updateIntent($id: ID!, $set: IntentPatch!) {
+                updateIntent(input: {filter: {id: [$id]}, set: $set}) {
+                    intent {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    speaker
+                    sample_utterance
+                    listens_for
+                    confidence
+                    expected_attributes
+
+                    transition {
+                        conversation
+                        scene
+                        turn
+                    }
+
+                    virtual_intents {
+                        speaker
+                        intentId
+                    }
+
+                    actions {
+                        id
+                    }
+
+                    turn {
+                        id
+                    }
+                    }
+                }
+            }
+        GQL;
+        $intent->setUpdatedAt(Carbon::now());
+
+        $missing = array_diff([Intent::UID], $intent->hydratedFields());
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        // Remove UID from patch fields. We can't change the UID
+        $patchFields = array_diff($intent->hydratedFields(), [Intent::UID]);
+        $tree = array_merge(Intent::localFields(),
+            [Intent::BEHAVIORS => Behavior::FIELDS, Intent::CONDITIONS => Condition::FIELDS]);
+
+        $serializationTree = SerializationTreeHelper::filterSerializationTree($tree, $patchFields);
+        $data = $serializer->normalize($intent, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
+        $response = $this->client->query($updateIntentMutation, ['id' => $intent->getUid(), 'set' => $data]);
+        return $serializer->denormalize($response['data']['updateIntent']['intent'][0], Intent::class);
+
+    }
+
+    /**
+     * Delete an Intent by uid
+     *
+     * @param  string  $intentUid
+     *
+     * @return bool
+     */
+    public function deleteIntentByUid(string $intentUid): bool
+    {
+        $deleteIntentQuery = <<<'GQL'
+            mutation deleteIntent($id: ID!) {
+                deleteIntent(filter: {id: [$id]}) {
+                    intent {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($deleteIntentQuery, ['id' => $intentUid]);
+        // Is this neccesary? We could just not care.
+        if(empty($response['data']['deleteIntent']['intent'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Intent with uid %s could not be found',
+                $intentUid));
+        }
+        return true;
+    }
+
+
+    /**
+     * Get a scenario with data focused around a turn suitable for the conversation builder.
+     *
+     * @param  string  $intentUid
+     *
+     * @return Scene
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getScenarioWithFocusedIntent(string $intentUid): Intent {
+        $getFocusedIntentQuery = <<<'GQL'
+            query getFocusedIntent($id : ID!) {
+                getIntent(id: $id) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    speaker
+                    sample_utterance
+                    listens_for
+                    confidence
+                    expected_attributes
+
+                    transition {
+                        conversation
+                        scene
+                        turn
+                    }
+
+                    virtual_intents {
+                        speaker
+                        intentId
+                    }
+
+                    actions {
+                        id
+                    }
+
+                    turn {
+                        id
+                        od_id
+                        name
+                        description
+                        request_intents(filter: {not:{id: [$id]}}) {
+                            id
+                            od_id
+                            name
+                            description
+                        }
+
+                        response_intents(filter: {not:{id: [$id]}}) {
+                            id
+                            od_id
+                            name
+                            description
+                        }
+
+                        scene {
+                            id
+                            od_id
+                            name
+                            description
+                            conversation {
+                                id
+                                od_id
+                                name
+                                description
+                                scenario {
+                                    id
+                                    od_id
+                                    name
+                                    description
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($getFocusedIntentQuery, ['id' => $intentUid]);
+        if($response['data']['getIntent'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Intent with uid %s could not be found',
+                $intentUid));
+        }
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['getIntent'], Intent::class);
+    }
 
     /**
      * Retrieve all request intents that belong to the given turns from the graph

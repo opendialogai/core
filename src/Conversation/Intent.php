@@ -32,15 +32,15 @@ class Intent extends ConversationObject
         self::USER, self::APP,
     ];
 
-    protected ?Turn $turn;
-    protected ?string $speaker;
-    protected float $confidence;
-    protected string $sampleUtterance;
-    protected ?Transition $transition;
-    protected array $listensFor;
-    protected VirtualIntentCollection $virtualIntents;
-    protected array $expectedAttributes;
-    protected ActionsCollection $actions;
+    protected ?Turn $turn = null;
+    protected ?string $speaker = null;
+    protected ?float $confidence = null;
+    protected ?string $sampleUtterance = null;
+    protected ?Transition $transition = null;
+    protected ?array $listensFor = null;
+    protected ?VirtualIntentCollection $virtualIntents = null;
+    protected ?array $expectedAttributes = null;
+    protected ?ActionsCollection $actions = null;
 
     // The interpreted intents is a collection interpretations of this intent that are added through an interpreter.
     protected IntentCollection $interpretedIntents;
@@ -58,11 +58,14 @@ class Intent extends ConversationObject
 
     public static function localFields()
     {
-        return [...parent::allFields(),
-            self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::TRANSITION, self::LISTENS_FOR, self::VIRTUAL_INTENTS,
-            self::EXPECTED_ATTRIBUTES, self::ACTIONS
+        return [...parent::localFields(),
+            self::SPEAKER, self::CONFIDENCE, self::SAMPLE_UTTERANCE, self::LISTENS_FOR, self::EXPECTED_ATTRIBUTES
         ];
     }
+
+    public static function foreignFields() {
+        return [...parent::foreignFields(), self::TRANSITION, self::VIRTUAL_INTENTS, self::ACTIONS, self::TURN];
+}
 
     public static function createNoMatchIntent(): Intent
     {
@@ -205,7 +208,7 @@ class Intent extends ConversationObject
     /**
      * @return ActionsCollection
      */
-    public function getActions(): ActionsCollection
+    public function getActions(): ?ActionsCollection
     {
         return $this->actions;
     }
@@ -241,7 +244,7 @@ class Intent extends ConversationObject
         $this->transition = $transition;
     }
 
-    public function getExpectedAttributes(): array
+    public function getExpectedAttributes(): ?array
     {
         return $this->expectedAttributes;
     }
@@ -251,7 +254,7 @@ class Intent extends ConversationObject
         $this->expectedAttributes = $expectedAttributes;
     }
 
-    public function getListensFor(): array
+    public function getListensFor(): ?array
     {
         return $this->listensFor;
     }
@@ -261,7 +264,7 @@ class Intent extends ConversationObject
         $this->listensFor = $listensFor;
     }
 
-    public function getVirtualIntents(): VirtualIntentCollection
+    public function getVirtualIntents(): ?VirtualIntentCollection
     {
         return $this->virtualIntents;
     }
