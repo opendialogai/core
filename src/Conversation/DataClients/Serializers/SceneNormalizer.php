@@ -2,13 +2,9 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
-use OpenDialogAi\Core\Conversation\BehaviorsCollection;
-use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\Conversation;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
-use OpenDialogAi\Core\Conversation\Scenario;
 use OpenDialogAi\Core\Conversation\Scene;
-use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -16,7 +12,7 @@ class SceneNormalizer extends ConversationObjectNormalizer
 {
     public function normalize($object, string $format = null, array $context = [])
     {
-        if(!isset($context[AbstractNormalizer::ATTRIBUTES])) {
+        if (!isset($context[AbstractNormalizer::ATTRIBUTES])) {
             throw new \RuntimeException('The $context["attributes"] value MUST be set when normalizing a conversation object!');
         }
         $tree = $context[AbstractNormalizer::ATTRIBUTES];
@@ -54,7 +50,7 @@ class SceneNormalizer extends ConversationObjectNormalizer
             $conversation = $this->serializer->denormalize($data['conversation'], Conversation::class);
 
             // If we didn't hydrate $conversation->scenes, we must manually add the link.
-            if($conversation->getScenes() === null) {
+            if ($conversation->getScenes() === null) {
                 $conversation->addScene($scene);
                 $scene->setConversation($conversation);
             } else {
@@ -62,7 +58,7 @@ class SceneNormalizer extends ConversationObjectNormalizer
             }
         }
 
-        if(isset($data['turns'])) {
+        if (isset($data['turns'])) {
             $turns = $this->serializer->denormalize($data['turns'], TurnCollection::class);
             $scene->setTurns(new TurnCollection());
             foreach ($turns as $turn) {

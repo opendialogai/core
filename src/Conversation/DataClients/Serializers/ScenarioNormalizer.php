@@ -12,7 +12,7 @@ class ScenarioNormalizer extends ConversationObjectNormalizer
 
     public function normalize($object, string $format = null, array $context = [])
     {
-        if(!isset($context[AbstractNormalizer::ATTRIBUTES])) {
+        if (!isset($context[AbstractNormalizer::ATTRIBUTES])) {
             throw new \RuntimeException('The $context["attributes"] value MUST be set when normalizing a conversation object!');
         }
         $tree = $context[AbstractNormalizer::ATTRIBUTES];

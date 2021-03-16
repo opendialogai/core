@@ -3,20 +3,17 @@
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
 
-use OpenDialogAi\Core\Conversation\BehaviorsCollection;
-use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
 use OpenDialogAi\Core\Conversation\IntentCollection;
 use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\Turn;
-use OpenDialogAi\Core\Conversation\TurnCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class TurnNormalizer extends ConversationObjectNormalizer
 {
     public function normalize($object, string $format = null, array $context = [])
     {
-        if(!isset($context[AbstractNormalizer::ATTRIBUTES])) {
+        if (!isset($context[AbstractNormalizer::ATTRIBUTES])) {
             throw new \RuntimeException('The $context["attributes"] value MUST be set when normalizing a conversation object!');
         }
         $tree = $context[AbstractNormalizer::ATTRIBUTES];
@@ -64,7 +61,7 @@ class TurnNormalizer extends ConversationObjectNormalizer
             $scene = $this->serializer->denormalize($data['scene'], Scene::class);
 
             // If we didn't hydrate $scene->turns, we must manually add the link.
-            if($scene->getTurns() === null) {
+            if ($scene->getTurns() === null) {
                 $scene->addTurn($turn);
                 $turn->setScene($scene);
             } else {
@@ -72,25 +69,25 @@ class TurnNormalizer extends ConversationObjectNormalizer
             }
         }
 
-        if(isset($data['request_intents'])) {
+        if (isset($data['request_intents'])) {
             $request_intents = $this->serializer->denormalize($data['request_intents'], IntentCollection::class);
             $turn->setRequestIntents(new IntentCollection());
-            foreach($request_intents as $intent) {
+            foreach ($request_intents as $intent) {
                 $turn->addRequestIntent($intent);
                 $intent->setTurn($turn);
             }
         }
 
-        if(isset($data['response_intents'])) {
+        if (isset($data['response_intents'])) {
             $response_intents = $this->serializer->denormalize($data['response_intents'], IntentCollection::class);
             $turn->setResponseIntents(new IntentCollection());
-            foreach($response_intents as $intent) {
+            foreach ($response_intents as $intent) {
                 $turn->addResponseIntent($intent);
                 $intent->setTurn($turn);
             }
         }
 
-        if(isset($data['valid_origins'])) {
+        if (isset($data['valid_origins'])) {
             $turn->setValidOrigins($data['valid_origins']);
         }
 

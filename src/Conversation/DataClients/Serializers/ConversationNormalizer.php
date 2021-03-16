@@ -2,13 +2,9 @@
 
 namespace OpenDialogAi\Core\Conversation\DataClients\Serializers;
 
-use OpenDialogAi\Core\Conversation\BehaviorsCollection;
-use OpenDialogAi\Core\Conversation\ConditionCollection;
 use OpenDialogAi\Core\Conversation\Conversation;
-use OpenDialogAi\Core\Conversation\ConversationCollection;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
 use OpenDialogAi\Core\Conversation\Scenario;
-use OpenDialogAi\Core\Conversation\Scene;
 use OpenDialogAi\Core\Conversation\SceneCollection;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -16,7 +12,7 @@ class ConversationNormalizer extends ConversationObjectNormalizer
 {
     public function normalize($object, string $format = null, array $context = [])
     {
-        if(!isset($context[AbstractNormalizer::ATTRIBUTES])) {
+        if (!isset($context[AbstractNormalizer::ATTRIBUTES])) {
             throw new \RuntimeException('The $context["attributes"] value MUST be set when normalizing a conversation object!');
         }
         $tree = $context[AbstractNormalizer::ATTRIBUTES];
@@ -53,7 +49,7 @@ class ConversationNormalizer extends ConversationObjectNormalizer
             // Possibility of a circular reference here.
             $scenario = $this->serializer->denormalize($data['scenario'], Scenario::class);
             // If we didn't hydrate the $scenario->conversations, we must manually add the link.
-            if($scenario->getConversations() === null) {
+            if ($scenario->getConversations() === null) {
                 $scenario->addConversation($conversation);
                 $conversation->setScenario($scenario);
             } else {
@@ -62,7 +58,7 @@ class ConversationNormalizer extends ConversationObjectNormalizer
 
         }
 
-        if(isset($data['scenes'])) {
+        if (isset($data['scenes'])) {
             $scenes = $this->serializer->denormalize($data['scenes'], SceneCollection::class);
             $conversation->setScenes(new SceneCollection());
             foreach ($scenes as $scene) {

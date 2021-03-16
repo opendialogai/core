@@ -15,6 +15,7 @@ use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionCollectionNo
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConditionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConversationCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ConversationNormalizer;
+use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\IntentCollectionNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\IntentNormalizer;
 use OpenDialogAi\Core\Conversation\DataClients\Serializers\ScenarioCollectionNormalizer;
@@ -34,10 +35,8 @@ use OpenDialogAi\Core\Conversation\SceneCollection;
 use OpenDialogAi\Core\Conversation\Turn;
 use OpenDialogAi\Core\Conversation\TurnCollection;
 use OpenDialogAi\GraphQLClient\GraphQLClientInterface;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use OpenDialogAi\Core\Conversation\DataClients\Serializers\Helpers\SerializationTreeHelper;
 
 /**
  * Draft Conversation Client
@@ -47,14 +46,10 @@ class ConversationDataClient
 
     protected GraphQLClientInterface $client;
 
-    public static function getNormalizers() {
-        return [new ScenarioCollectionNormalizer(), new ScenarioNormalizer(), new
-        ConversationCollectionNormalizer(), new ConversationNormalizer(), new SceneCollectionNormalizer(), new SceneNormalizer(),
-            new TurnCollectionNormalizer(), new TurnNormalizer(), new IntentCollectionNormalizer(), new IntentNormalizer(), new
-            ConditionCollectionNormalizer(), new ConditionNormalizer(), new BehaviorsCollectionNormalizer(), new BehaviorNormalizer
-            ()];
+    public function __construct(GraphQLClientInterface $client)
+    {
+        $this->client = $client;
     }
-
 
     /**
      * @param $obj
@@ -62,14 +57,10 @@ class ConversationDataClient
      *
      * @return array
      */
-    public function checkRequired(ConversationObject  $obj, $tree): array {
+    public function checkRequired(ConversationObject $obj, $tree): array
+    {
         $hydrated = $obj->hydratedFields();
 
-    }
-
-    public function __construct(GraphQLClientInterface $client)
-    {
-        $this->client = $client;
     }
 
     public function query()
@@ -100,7 +91,8 @@ class ConversationDataClient
      * @return ScenarioCollection
      * @todo handle returning scenarios that are in preview mode (or do we use an OD condition for that)
      */
-    public function getAllActiveScenarios(bool $shallow): ScenarioCollection {
+    public function getAllActiveScenarios(bool $shallow): ScenarioCollection
+    {
         $getAllActiveScenariosQuery = <<<'GQL'
             query getAllActiveScenarios {
                 queryScenario(filter:  {active: true, status:{ eq: LIVE }}) {
@@ -128,6 +120,19 @@ class ConversationDataClient
         $response = $this->client->query($getAllActiveScenariosQuery);
         $serializer = new Serializer(self::getNormalizers(), []);
         return $serializer->denormalize($response['data']['queryScenario'], ScenarioCollection::class);
+    }
+
+    public static function getNormalizers()
+    {
+        return [
+            new ScenarioCollectionNormalizer(), new ScenarioNormalizer(), new
+            ConversationCollectionNormalizer(), new ConversationNormalizer(), new SceneCollectionNormalizer(),
+            new SceneNormalizer(), new TurnCollectionNormalizer(), new TurnNormalizer(), new IntentCollectionNormalizer(),
+            new IntentNormalizer(), new
+            ConditionCollectionNormalizer(), new ConditionNormalizer(), new BehaviorsCollectionNormalizer(),
+            new BehaviorNormalizer
+            ()
+        ];
     }
 
     public function getAllScenarios(bool $shallow): ScenarioCollection
@@ -188,13 +193,12 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getScenarioQuery, ['id' => $scenarioUid]);
-        if($response['data']['getScenario'] === null) {
-            throw new ConversationObjectNotFoundException(sprintf('Scenario with uid %s could not be found',
-                $scenarioUid));
+        if ($response['data']['getScenario'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Scenario with uid %s could not be found', $scenarioUid));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
-        return  $serializer->denormalize($response['data']['getScenario'], Scenario::class);
+        return $serializer->denormalize($response['data']['getScenario'], Scenario::class);
     }
 
     public function addScenario(Scenario $scenario): Scenario
@@ -228,30 +232,19 @@ class ConversationDataClient
         $scenario->setUpdatedAt(Carbon::now());
 
         $required = [
-            Scenario::OD_ID,
-            Scenario::NAME,
-            Scenario::CREATED_AT,
-            Scenario::UPDATED_AT,
-            Scenario::ACTIVE,
-            Scenario::STATUS
+            Scenario::OD_ID, Scenario::NAME, Scenario::CREATED_AT, Scenario::UPDATED_AT, Scenario::ACTIVE, Scenario::STATUS
         ];
         $missing = array_diff($required, $scenario->hydratedFields());
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scenario supplied to ConversationDataClient::addScenario(), but are required!", implode(",", $missing)));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scenario supplied to ConversationDataClient::addScenario(), but are required!",
+                implode(",", $missing)));
         }
 
         $maxTree = [
-          Scenario::OD_ID,
-          Scenario::NAME,
-          Scenario::DESCRIPTION,
-          Scenario::INTERPRETER,
-          Scenario::CONDITIONS => Condition::FIELDS,
-          Scenario::BEHAVIORS => Behavior::FIELDS,
-          Scenario::STATUS,
-          Scenario::ACTIVE,
-          Scenario::CREATED_AT,
-          Scenario::UPDATED_AT,
+            Scenario::OD_ID, Scenario::NAME, Scenario::DESCRIPTION, Scenario::INTERPRETER,
+            Scenario::CONDITIONS => Condition::FIELDS, Scenario::BEHAVIORS => Behavior::FIELDS, Scenario::STATUS,
+            Scenario::ACTIVE, Scenario::CREATED_AT, Scenario::UPDATED_AT,
         ];
 
         $serializer = new Serializer(self::getNormalizers(), []);
@@ -280,9 +273,8 @@ class ConversationDataClient
 
         $response = $this->client->query($deleteScenarioQuery, ['id' => $scenarioUid]);
         // Is this neccesary? We could just not care.
-        if(empty($response['data']['deleteScenario']['scenario'])) {
-            throw new ConversationObjectNotFoundException(sprintf('Scenario with uid %s could not be found',
-                $scenarioUid));
+        if (empty($response['data']['deleteScenario']['scenario'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Scenario with uid %s could not be found', $scenarioUid));
         }
         return true;
     }
@@ -316,8 +308,9 @@ class ConversationDataClient
         $scenario->setUpdatedAt(Carbon::now());
 
         $missing = array_diff([Scenario::UID], $scenario->hydratedFields());
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scenario supplied to ConversationDataClient::updateScenario(), but are required!", implode(",", $missing)));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scenario supplied to ConversationDataClient::updateScenario(), but are required!",
+                implode(",", $missing)));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
@@ -342,7 +335,8 @@ class ConversationDataClient
      * @return Conversation
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function addConversation(Conversation $conversation): Conversation {
+    public function addConversation(Conversation $conversation): Conversation
+    {
         $addConversationQuery = <<<'GQL'
             mutation addConversationQuery($conversation: AddConversationInput!) {
               addConversation(input: [$conversation]) {
@@ -373,23 +367,19 @@ class ConversationDataClient
         $conversation->setUpdatedAt(Carbon::now());
 
         $missing = array_filter([
-            Conversation::OD_ID,
-            Conversation::NAME,
-            Conversation::CREATED_AT,
-            Conversation::UPDATED_AT,
-            Conversation::SCENARIO
-        ], fn
-        ($required) =>
-        !in_array($required, $conversation->hydratedFields()));
+            Conversation::OD_ID, Conversation::NAME, Conversation::CREATED_AT, Conversation::UPDATED_AT, Conversation::SCENARIO
+        ], fn($required) => !in_array($required, $conversation->hydratedFields()));
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields (%s) are missing from the conversation supplied to ConversationDataClient::addConversation(), but are required!", implode(",", $missing)));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields (%s) are missing from the conversation supplied to ConversationDataClient::addConversation(), but are required!",
+                implode(",", $missing)));
         }
 
-        $missing = array_filter([Scenario::UID], fn($required) => !in_array($required, $conversation->getScenario()
-            ->hydratedFields()));
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields (%s) are missing from the scenario attached to the conversation supplied to ConversationDataClient::addConversation(), but are required!", implode(",", $missing)));
+        $missing =
+            array_filter([Scenario::UID], fn($required) => !in_array($required, $conversation->getScenario()->hydratedFields()));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields (%s) are missing from the scenario attached to the conversation supplied to ConversationDataClient::addConversation(), but are required!",
+                implode(",", $missing)));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
@@ -397,15 +387,9 @@ class ConversationDataClient
         $tree = [Conversation::localFields()];
         $conversationData = $serializer->normalize($conversation, 'json', [
             AbstractNormalizer::ATTRIBUTES => [
-                Conversation::OD_ID,
-                Conversation::NAME,
-                Conversation::DESCRIPTION,
-                Conversation::INTERPRETER,
-                Conversation::CREATED_AT,
-                Conversation::UPDATED_AT,
-                Conversation::BEHAVIORS => Behavior::FIELDS,
-                Conversation::CONDITIONS => Condition::FIELDS,
-                Conversation::SCENARIO => [Scenario::UID]
+                Conversation::OD_ID, Conversation::NAME, Conversation::DESCRIPTION, Conversation::INTERPRETER,
+                Conversation::CREATED_AT, Conversation::UPDATED_AT, Conversation::BEHAVIORS => Behavior::FIELDS,
+                Conversation::CONDITIONS => Condition::FIELDS, Conversation::SCENARIO => [Scenario::UID]
             ]
         ]);
 
@@ -416,7 +400,8 @@ class ConversationDataClient
     /***
      * Retrive all conversations that belong to the given scenario
      */
-    public function getAllConversationsByScenario(Scenario $scenario, bool $shallow): ConversationCollection {
+    public function getAllConversationsByScenario(Scenario $scenario, bool $shallow): ConversationCollection
+    {
         $getAllConversationsByScenarioQuery = <<<'GQL'
             query getAllConversationsByScenario($scenarioUid: ID!) {
                 queryConversation @cascade(fields: ["scenario"]) {
@@ -441,11 +426,11 @@ class ConversationDataClient
             }
         GQL;
 
-        $missing = array_filter([Scenario::UID], fn($required) =>
-        !in_array($required, $scenario->hydratedFields()));
+        $missing = array_filter([Scenario::UID], fn($required) => !in_array($required, $scenario->hydratedFields()));
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scenario supplied to ConversationDataClient::getAllConversationsByScenario(), but are required!", implode(",", $missing)));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scenario supplied to ConversationDataClient::getAllConversationsByScenario(), but are required!",
+                implode(",", $missing)));
         }
 
         $response = $this->client->query($getAllConversationsByScenarioQuery, ['scenarioUid' => $scenario->getUid()]);
@@ -455,13 +440,15 @@ class ConversationDataClient
 
     /**
      * Get Conversation with the provided uid
+     *
      * @param  string  $conversationUid
      * @param  bool    $shallow
      *
      * @return Conversation
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getConversationByUid(string $conversationUid, bool $shallow): Conversation {
+    public function getConversationByUid(string $conversationUid, bool $shallow): Conversation
+    {
         $getConversationQuery = <<<'GQL'
             query getConversation($id : ID!) {
                 getConversation(id: $id) {
@@ -487,13 +474,13 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getConversationQuery, ['id' => $conversationUid]);
-        if($response['data']['getConversation'] === null) {
+        if ($response['data']['getConversation'] === null) {
             throw new ConversationObjectNotFoundException(sprintf('Conversation with uid %s could not be found',
                 $conversationUid));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
-        return  $serializer->denormalize($response['data']['getConversation'], Conversation::class);
+        return $serializer->denormalize($response['data']['getConversation'], Conversation::class);
     }
 
     /**
@@ -534,8 +521,9 @@ class ConversationDataClient
         $conversation->setUpdatedAt(Carbon::now());
 
         $missing = array_diff([Conversation::UID], $conversation->hydratedFields());
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the conversation supplied to ConversationDataClient::updateConversation(), but are required!", implode(",", $missing)));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the conversation supplied to ConversationDataClient::updateConversation(), but are required!",
+                implode(",", $missing)));
         }
 
 
@@ -573,7 +561,7 @@ class ConversationDataClient
 
         $response = $this->client->query($deleteConversationQuery, ['id' => $conversationUid]);
         // Is this neccesary? We could just not care.
-        if(empty($response['data']['deleteConversation']['conversation'])) {
+        if (empty($response['data']['deleteConversation']['conversation'])) {
             throw new ConversationObjectNotFoundException(sprintf('Conversation with uid %s could not be found',
                 $conversationUid));
         }
@@ -588,7 +576,8 @@ class ConversationDataClient
      * @return Conversation
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getScenarioWithFocusedConversation(string $conversationUid): Conversation {
+    public function getScenarioWithFocusedConversation(string $conversationUid): Conversation
+    {
         $getFocusedConversationQuery = <<<'GQL'
             query getFocusedConversationQuery($id : ID!) {
                 getConversation(id: $id) {
@@ -620,7 +609,7 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getFocusedConversationQuery, ['id' => $conversationUid]);
-        if($response['data']['getConversation'] === null) {
+        if ($response['data']['getConversation'] === null) {
             throw new ConversationObjectNotFoundException(sprintf('Conversation with uid %s could not be found',
                 $conversationUid));
         }
@@ -665,7 +654,7 @@ class ConversationDataClient
 
         $scenarioUids = $scenarios->map(fn($scenario) => $scenario->getUid());
 
-        if($scenarioUids->contains(null)) {
+        if ($scenarioUids->contains(null)) {
             throw new InsufficientHydrationException("All scenarios passed to ConversationDataClient::getAllStartingConversations must have a UID!");
         }
 
@@ -710,8 +699,8 @@ class ConversationDataClient
 
         $scenarioUids = $scenarios->map(fn($scenario) => $scenario->getUid());
 
-        if($scenarioUids->contains(null)) {
-            throw new InsufficientHydrationException(sprintf("All scenarios passed to %s must have a UID!", __METHOD__ ));
+        if ($scenarioUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenarios passed to %s must have a UID!", __METHOD__));
         }
 
         $response = $this->client->query($getAllOpenConversations, ['scenarioUids' => $scenarioUids]);
@@ -755,8 +744,8 @@ class ConversationDataClient
 
         $scenarioUids = $scenarios->map(fn($scenario) => $scenario->getUid());
 
-        if($scenarioUids->contains(null)) {
-            throw new InsufficientHydrationException(sprintf("All scenarios passed to %s must have a UID!", __METHOD__ ));
+        if ($scenarioUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenarios passed to %s must have a UID!", __METHOD__));
         }
 
         $response = $this->client->query($getAllConversationsInScenarios, ['scenarioUids' => $scenarioUids]);
@@ -774,7 +763,8 @@ class ConversationDataClient
      * @return Conversation
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function addScene(Scene $scene): Scene {
+    public function addScene(Scene $scene): Scene
+    {
         $addSceneMutation = <<<'GQL'
             mutation addScene($scene: AddSceneInput!) {
               addScene(input: [$scene]) {
@@ -806,38 +796,28 @@ class ConversationDataClient
 
         // Required fields on Scene
         $missing = array_filter([
-            Scene::OD_ID,
-            Scene::NAME,
-            Scene::CREATED_AT,
-            Scene::UPDATED_AT,
-            Scene::CONVERSATION
-        ], fn
-        ($required) =>
-        !in_array($required, $scene->hydratedFields()));
+            Scene::OD_ID, Scene::NAME, Scene::CREATED_AT, Scene::UPDATED_AT, Scene::CONVERSATION
+        ], fn($required) => !in_array($required, $scene->hydratedFields()));
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scene supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         // Required fields on Conversation
-        $missing = array_filter([Conversation::UID], fn($required) => !in_array($required, $scene->getConversation()
-            ->hydratedFields()));
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the conversation attached to the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        $missing =
+            array_filter([Conversation::UID], fn($required) => !in_array($required, $scene->getConversation()->hydratedFields()));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the conversation attached to the scene supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
         //TODO: Update to allow entering a full scene graph
         $sceneData = $serializer->normalize($scene, 'json', [
             AbstractNormalizer::ATTRIBUTES => [
-                Scene::OD_ID,
-                Scene::NAME,
-                Scene::DESCRIPTION,
-                Scene::INTERPRETER,
-                Scene::CREATED_AT,
-                Scene::UPDATED_AT,
-                Scene::BEHAVIORS => Behavior::FIELDS,
-                Scene::CONDITIONS => Condition::FIELDS,
+                Scene::OD_ID, Scene::NAME, Scene::DESCRIPTION, Scene::INTERPRETER, Scene::CREATED_AT, Scene::UPDATED_AT,
+                Scene::BEHAVIORS => Behavior::FIELDS, Scene::CONDITIONS => Condition::FIELDS,
                 Scene::CONVERSATION => [Conversation::UID]
             ]
         ]);
@@ -849,7 +829,8 @@ class ConversationDataClient
     /***
      * Retrive all conversations that belong to the given scenario
      */
-    public function getAllScenesByConversation(Conversation $conversation, bool $shallow): SceneCollection {
+    public function getAllScenesByConversation(Conversation $conversation, bool $shallow): SceneCollection
+    {
         $getAllScenesByConversationQuery = <<<'GQL'
             query getAllScenesByConversation($conversationUid: ID!) {
                 queryScene @cascade(fields: ["conversation"]) {
@@ -874,11 +855,11 @@ class ConversationDataClient
             }
         GQL;
 
-        $missing = array_filter([Conversation::UID], fn($required) =>
-        !in_array($required, $conversation->hydratedFields()));
+        $missing = array_filter([Conversation::UID], fn($required) => !in_array($required, $conversation->hydratedFields()));
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the conversation supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the conversation supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         $response = $this->client->query($getAllScenesByConversationQuery, ['conversationUid' => $conversation->getUid()]);
@@ -895,7 +876,8 @@ class ConversationDataClient
      * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getSceneByUid(string $sceneUid, bool $shallow): Scene {
+    public function getSceneByUid(string $sceneUid, bool $shallow): Scene
+    {
         $getSceneQuery = <<<'GQL'
             query getScene($id : ID!) {
                 getScene(id: $id) {
@@ -921,13 +903,12 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getSceneQuery, ['id' => $sceneUid]);
-        if($response['data']['getScene'] === null) {
-            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found',
-                $sceneUid));
+        if ($response['data']['getScene'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found', $sceneUid));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
-        return  $serializer->denormalize($response['data']['getScene'], Scene::class);
+        return $serializer->denormalize($response['data']['getScene'], Scene::class);
     }
 
     /**
@@ -968,16 +949,16 @@ class ConversationDataClient
         $scene->setUpdatedAt(Carbon::now());
 
         $missing = array_diff([Scene::UID], $scene->hydratedFields());
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scene supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
 
         $serializer = new Serializer(self::getNormalizers(), []);
         // Remove UID from patch fields. We can't change the UID
         $patchFields = array_diff($scene->hydratedFields(), [Conversation::UID]);
-        $tree = array_merge(Scene::localFields(),
-            [Scene::BEHAVIORS => Behavior::FIELDS, Scene::CONDITIONS => Condition::FIELDS]);
+        $tree = array_merge(Scene::localFields(), [Scene::BEHAVIORS => Behavior::FIELDS, Scene::CONDITIONS => Condition::FIELDS]);
 
         $serializationTree = SerializationTreeHelper::filterSerializationTree($tree, $patchFields);
         $data = $serializer->normalize($scene, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
@@ -1007,9 +988,8 @@ class ConversationDataClient
 
         $response = $this->client->query($deleteSceneQuery, ['id' => $sceneUid]);
         // Is this neccesary? We could just not care.
-        if(empty($response['data']['deleteScene']['scene'])) {
-            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found',
-                $sceneUid));
+        if (empty($response['data']['deleteScene']['scene'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found', $sceneUid));
         }
         return true;
     }
@@ -1022,7 +1002,8 @@ class ConversationDataClient
      * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getScenarioWithFocusedScene(string $sceneUid): Scene {
+    public function getScenarioWithFocusedScene(string $sceneUid): Scene
+    {
         $getFocusedSceneQuery = <<<'GQL'
             query getFocusedScene($id : ID!) {
                 getScene(id: $id) {
@@ -1060,9 +1041,8 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getFocusedSceneQuery, ['id' => $sceneUid]);
-        if($response['data']['getScene'] === null) {
-            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found',
-                $sceneUid));
+        if ($response['data']['getScene'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Scene with uid %s could not be found', $sceneUid));
         }
         $serializer = new Serializer(self::getNormalizers(), []);
         return $serializer->denormalize($response['data']['getScene'], Scene::class);
@@ -1105,7 +1085,7 @@ class ConversationDataClient
 
         $conversationUids = $conversations->map(fn($scenario) => $scenario->getUid());
 
-        if($conversationUids->contains(null)) {
+        if ($conversationUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All conversations passed to %s must have a UID!", __METHOD__));
         }
 
@@ -1151,7 +1131,7 @@ class ConversationDataClient
 
         $conversationUids = $conversations->map(fn($scenario) => $scenario->getUid());
 
-        if($conversationUids->contains(null)) {
+        if ($conversationUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All conversations passed to %s must have a UID!", __METHOD__));
         }
 
@@ -1196,7 +1176,7 @@ class ConversationDataClient
 
         $conversationUids = $conversations->map(fn($scenario) => $scenario->getUid());
 
-        if($conversationUids->contains(null)) {
+        if ($conversationUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All conversations passed to %s must have a UID!", __METHOD__));
         }
 
@@ -1214,7 +1194,8 @@ class ConversationDataClient
      * @return Turn
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function addTurn(Turn $turn): Turn {
+    public function addTurn(Turn $turn): Turn
+    {
         $addTurnMutation = <<<'GQL'
             mutation addTurn($turn: AddTurnInput!) {
               addTurn(input: [$turn]) {
@@ -1252,39 +1233,27 @@ class ConversationDataClient
 
         // Required fields on Turn
         $missing = array_filter([
-            Turn::OD_ID,
-            Turn::NAME,
-            Turn::CREATED_AT,
-            Turn::UPDATED_AT,
-            Turn::SCENE
-        ], fn
-        ($required) =>
-        !in_array($required, $turn->hydratedFields()));
+            Turn::OD_ID, Turn::NAME, Turn::CREATED_AT, Turn::UPDATED_AT, Turn::SCENE
+        ], fn($required) => !in_array($required, $turn->hydratedFields()));
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         // Required fields on Scene
-        $missing = array_filter([Scene::UID], fn($required) => !in_array($required, $turn->getConversation()
-            ->hydratedFields()));
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scene attached to the turn supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        $missing = array_filter([Scene::UID], fn($required) => !in_array($required, $turn->getConversation()->hydratedFields()));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the scene attached to the turn supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
         //TODO: Update to allow entering a full scene graph
         $data = $serializer->normalize($turn, 'json', [
             AbstractNormalizer::ATTRIBUTES => [
-                Turn::OD_ID,
-                Turn::NAME,
-                Turn::DESCRIPTION,
-                Turn::INTERPRETER,
-                Turn::CREATED_AT,
-                Turn::UPDATED_AT,
-                Turn::VALID_ORIGINS,
-                Turn::BEHAVIORS => Behavior::FIELDS,
-                Turn::CONDITIONS => Condition::FIELDS,
+                Turn::OD_ID, Turn::NAME, Turn::DESCRIPTION, Turn::INTERPRETER, Turn::CREATED_AT, Turn::UPDATED_AT,
+                Turn::VALID_ORIGINS, Turn::BEHAVIORS => Behavior::FIELDS, Turn::CONDITIONS => Condition::FIELDS,
                 Turn::SCENE => [Scene::UID]
             ]
         ]);
@@ -1303,7 +1272,8 @@ class ConversationDataClient
      * @return TurnCollection
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getAllTurnsByScene(Scene $scene, bool $shallow): TurnCollection {
+    public function getAllTurnsByScene(Scene $scene, bool $shallow): TurnCollection
+    {
         $getAllTurnsBySceneQuery = <<<'GQL'
             query getAllTurnsByScene($sceneUid: ID!) {
                 queryTurn @cascade(fields: ["scene"]) {
@@ -1332,11 +1302,11 @@ class ConversationDataClient
             }
         GQL;
 
-        $missing = array_filter([Scene::UID], fn($required) =>
-        !in_array($required, $scene->hydratedFields()));
+        $missing = array_filter([Scene::UID], fn($required) => !in_array($required, $scene->hydratedFields()));
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scene supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         $response = $this->client->query($getAllTurnsBySceneQuery, ['sceneUid' => $scene->getUid()]);
@@ -1353,7 +1323,8 @@ class ConversationDataClient
      * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getTurnByUid(string $turnUid, bool $shallow): Turn {
+    public function getTurnByUid(string $turnUid, bool $shallow): Turn
+    {
         $getTurnQuery = <<<'GQL'
             query getTurn($id : ID!) {
                 getTurn(id: $id) {
@@ -1386,13 +1357,12 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getTurnQuery, ['id' => $turnUid]);
-        if($response['data']['getTurn'] === null) {
-            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
-                $turnUid));
+        if ($response['data']['getTurn'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found', $turnUid));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
-        return  $serializer->denormalize($response['data']['getTurn'], Turn::class);
+        return $serializer->denormalize($response['data']['getTurn'], Turn::class);
     }
 
     /**
@@ -1437,15 +1407,15 @@ class ConversationDataClient
         $turn->setUpdatedAt(Carbon::now());
 
         $missing = array_diff([Turn::UID], $turn->hydratedFields());
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the turn supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the turn supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
         // Remove UID from patch fields. We can't change the UID
         $patchFields = array_diff($turn->hydratedFields(), [Turn::UID]);
-        $tree = array_merge(Turn::localFields(),
-            [Turn::BEHAVIORS => Behavior::FIELDS, Turn::CONDITIONS => Condition::FIELDS]);
+        $tree = array_merge(Turn::localFields(), [Turn::BEHAVIORS => Behavior::FIELDS, Turn::CONDITIONS => Condition::FIELDS]);
 
         $serializationTree = SerializationTreeHelper::filterSerializationTree($tree, $patchFields);
         $data = $serializer->normalize($turn, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
@@ -1475,9 +1445,8 @@ class ConversationDataClient
 
         $response = $this->client->query($deleteTurnQuery, ['id' => $turnUid]);
         // Is this neccesary? We could just not care.
-        if(empty($response['data']['deleteTurn']['turn'])) {
-            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
-                $turnUid));
+        if (empty($response['data']['deleteTurn']['turn'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found', $turnUid));
         }
         return true;
     }
@@ -1490,7 +1459,8 @@ class ConversationDataClient
      * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getScenarioWithFocusedTurn(string $turnUid): Turn {
+    public function getScenarioWithFocusedTurn(string $turnUid): Turn
+    {
         //Todo: Also return the turns that are dependant on this turn (ie. have focused turn in their valid origins)
         $getFocusedTurnQuery = <<<'GQL'
             query getFocusedTurn($id : ID!) {
@@ -1544,9 +1514,8 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getFocusedTurnQuery, ['id' => $turnUid]);
-        if($response['data']['getTurn'] === null) {
-            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
-                $turnUid));
+        if ($response['data']['getTurn'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found', $turnUid));
         }
         $serializer = new Serializer(self::getNormalizers(), []);
         return $serializer->denormalize($response['data']['getTurn'], Turn::class);
@@ -1594,7 +1563,7 @@ class ConversationDataClient
 
         $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
 
-        if($sceneUids->contains(null)) {
+        if ($sceneUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
         }
 
@@ -1644,7 +1613,7 @@ class ConversationDataClient
 
         $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
 
-        if($sceneUids->contains(null)) {
+        if ($sceneUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
         }
 
@@ -1693,7 +1662,7 @@ class ConversationDataClient
 
         $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
 
-        if($sceneUids->contains(null)) {
+        if ($sceneUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
         }
 
@@ -1712,7 +1681,8 @@ class ConversationDataClient
      *
      * @return TurnCollection
      */
-    public function getAllTurnsByValidOrigin(SceneCollection $scenes, string $validOrigin, bool $shallow): TurnCollection {
+    public function getAllTurnsByValidOrigin(SceneCollection $scenes, string $validOrigin, bool $shallow): TurnCollection
+    {
         $getAllTurnsByValidOriginQuery = <<<'GQL'
             query getAllTurnsByValidOrigin($sceneUids: [ID!]!, $originOdId: String!) {
                 queryTurn(filter:  {valid_origins: {eq: $originOdId}}) @cascade(fields: ["scene", "valid_origins"]) {
@@ -1743,11 +1713,12 @@ class ConversationDataClient
 
         $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
 
-        if($sceneUids->contains(null)) {
+        if ($sceneUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
         }
 
-        $response = $this->client->query($getAllTurnsByValidOriginQuery, ['sceneUids' => $sceneUids, 'originOdId' => $validOrigin]);
+        $response =
+            $this->client->query($getAllTurnsByValidOriginQuery, ['sceneUids' => $sceneUids, 'originOdId' => $validOrigin]);
         $serializer = new Serializer(self::getNormalizers(), []);
         return $serializer->denormalize($response['data']['queryTurn'], TurnCollection::class);
     }
@@ -1755,12 +1726,14 @@ class ConversationDataClient
     /**
      * Add an intent as a Request Intent to a Turn
      * The provided intent must reference a turn with a valid uid.
+     *
      * @param  Intent  $intent
      *
      * @return Intent
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function addRequestIntent(Intent $intent): Intent {
+    public function addRequestIntent(Intent $intent): Intent
+    {
 
         // Adds a new intent and returns the ID
         $addIntentMutation = <<<'GQL'
@@ -1789,48 +1762,29 @@ class ConversationDataClient
 
         // Required fields on Intent
         $missing = array_filter([
-            Intent::OD_ID,
-            Intent::NAME,
-            Intent::CREATED_AT,
-            Intent::UPDATED_AT,
-            Intent::TURN,
-            Intent::SAMPLE_UTTERANCE,
-            Intent::CONFIDENCE,
-            Intent::SPEAKER,
-        ], fn
-        ($required) =>
-        !in_array($required, $intent->hydratedFields()));
+            Intent::OD_ID, Intent::NAME, Intent::CREATED_AT, Intent::UPDATED_AT, Intent::TURN, Intent::SAMPLE_UTTERANCE,
+            Intent::CONFIDENCE, Intent::SPEAKER,
+        ], fn($required) => !in_array($required, $intent->hydratedFields()));
 
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the intent supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         // Required fields on Turn
-        $missing = array_filter([Turn::UID], fn($required) => !in_array($required, $intent->getTurn()
-            ->hydratedFields()));
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn attached to the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        $missing = array_filter([Turn::UID], fn($required) => !in_array($required, $intent->getTurn()->hydratedFields()));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn attached to the intent supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
         $data = $serializer->normalize($intent, 'json', [
             AbstractNormalizer::ATTRIBUTES => [
-                Intent::OD_ID,
-                Intent::NAME,
-                Intent::DESCRIPTION,
-                Intent::INTERPRETER,
-                Intent::CREATED_AT,
-                Intent::UPDATED_AT,
-                Intent::BEHAVIORS => Behavior::FIELDS,
-                Intent::CONDITIONS => Condition::FIELDS,
-                Intent::TURN => [Intent::UID],
-                Intent::SPEAKER,
-                Intent::CONFIDENCE,
-                Intent::LISTENS_FOR,
-                Intent::EXPECTED_ATTRIBUTES,
-                Intent::SAMPLE_UTTERANCE,
-                Intent::VIRTUAL_INTENTS,
-                Intent::ACTIONS,
+                Intent::OD_ID, Intent::NAME, Intent::DESCRIPTION, Intent::INTERPRETER, Intent::CREATED_AT, Intent::UPDATED_AT,
+                Intent::BEHAVIORS => Behavior::FIELDS, Intent::CONDITIONS => Condition::FIELDS, Intent::TURN => [Intent::UID],
+                Intent::SPEAKER, Intent::CONFIDENCE, Intent::LISTENS_FOR, Intent::EXPECTED_ATTRIBUTES, Intent::SAMPLE_UTTERANCE,
+                Intent::VIRTUAL_INTENTS, Intent::ACTIONS,
             ]
         ]);
 
@@ -1838,102 +1792,9 @@ class ConversationDataClient
         $newIntentId = $addIntentResponse['data']['addIntent']['intent']['0']['id'];
 
         // Link from Turn to Intent (Can't be auto-generated via dgraph graphql @hasInverse directive)
-        $this->client->query($addRequestIntentToTurnMutation, ['turnUid' => $intent->getTurn()->getUid(),
-            'intentUid' => $newIntentId]);
-
-        return $this->getIntentByUid($newIntentId, false);
-    }
-
-    /**
-     * Add an intent as a Request Intent to a Turn
-     * The provided intent must reference a turn with a valid uid.
-     * @param  Intent  $intent
-     *
-     * @return Intent
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
-     */
-    public function addResponseIntent(Intent $intent): Intent {
-
-        // Adds a new intent and returns the ID
-        $addIntentMutation = <<<'GQL'
-            mutation addIntent($intent: AddIntentInput!) {
-              addIntent(input: [$intent]) {
-                intent {
-                    id
-                }
-              }
-            }
-        GQL;
-
-        // Adds a intent to a turns lists of request intents
-        $addResponseIntentToTurnMutation = <<<'GQL'
-            mutation addResponseIntentToTurn($turnUid: ID!, $intentUid: ID!) {
-                updateTurn(input: {filter: {id: [$turnUid]}, set: {response_intents: [{id: $intentUid}]}}) {
-                    turn {
-                        id
-                    }
-                }
-            }
-        GQL;
-
-
-
-        $intent->setCreatedAt(Carbon::now());
-        $intent->setUpdatedAt(Carbon::now());
-
-        // Required fields on Intent
-        $missing = array_filter([
-            Intent::OD_ID,
-            Intent::NAME,
-            Intent::CREATED_AT,
-            Intent::UPDATED_AT,
-            Intent::TURN,
-            Intent::SAMPLE_UTTERANCE,
-            Intent::CONFIDENCE,
-            Intent::SPEAKER,
-        ], fn
-        ($required) =>
-        !in_array($required, $intent->hydratedFields()));
-
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
-        }
-
-        // Required fields on Turn
-        $missing = array_filter([Turn::UID], fn($required) => !in_array($required, $intent->getTurn()
-            ->hydratedFields()));
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn attached to the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
-        }
-
-        $serializer = new Serializer(self::getNormalizers(), []);
-        $data = $serializer->normalize($intent, 'json', [
-            AbstractNormalizer::ATTRIBUTES => [
-                Intent::OD_ID,
-                Intent::NAME,
-                Intent::DESCRIPTION,
-                Intent::INTERPRETER,
-                Intent::CREATED_AT,
-                Intent::UPDATED_AT,
-                Intent::BEHAVIORS => Behavior::FIELDS,
-                Intent::CONDITIONS => Condition::FIELDS,
-                Intent::TURN => [Intent::UID],
-                Intent::SPEAKER,
-                Intent::CONFIDENCE,
-                Intent::LISTENS_FOR,
-                Intent::EXPECTED_ATTRIBUTES,
-                Intent::SAMPLE_UTTERANCE,
-                Intent::VIRTUAL_INTENTS,
-                Intent::ACTIONS,
-            ]
+        $this->client->query($addRequestIntentToTurnMutation, [
+            'turnUid' => $intent->getTurn()->getUid(), 'intentUid' => $newIntentId
         ]);
-
-        $addIntentResponse = $this->client->query($addIntentMutation, ['intent' => $data]);
-        $newIntentId = $addIntentResponse['data']['addIntent']['intent']['0']['id'];
-
-        // Link from Turn to Intent (Can't be auto-generated via dgraph graphql @hasInverse directive)
-        $this->client->query($addResponseIntentToTurnMutation, ['turnUid' => $intent->getTurn()->getUid(),
-            'intentUid' => $newIntentId]);
 
         return $this->getIntentByUid($newIntentId, false);
     }
@@ -1947,7 +1808,8 @@ class ConversationDataClient
      * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getIntentByUid(string $intentUid, bool $shallow): Intent {
+    public function getIntentByUid(string $intentUid, bool $shallow): Intent
+    {
         // Looks up an intent by its ID
         $getIntentByUidQuery = <<<'GQL'
             query getIntentByUid($intentUid: ID!) {
@@ -1992,15 +1854,90 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getIntentByUidQuery, ['intentUid' => $intentUid]);
-        if($response['data']['getIntent'] === null) {
-            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
-                $intentUid));
+        if ($response['data']['getIntent'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found', $intentUid));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
-        return  $serializer->denormalize($response['data']['getIntent'], Intent::class);
+        return $serializer->denormalize($response['data']['getIntent'], Intent::class);
     }
 
+    /**
+     * Add an intent as a Request Intent to a Turn
+     * The provided intent must reference a turn with a valid uid.
+     *
+     * @param  Intent  $intent
+     *
+     * @return Intent
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function addResponseIntent(Intent $intent): Intent
+    {
+
+        // Adds a new intent and returns the ID
+        $addIntentMutation = <<<'GQL'
+            mutation addIntent($intent: AddIntentInput!) {
+              addIntent(input: [$intent]) {
+                intent {
+                    id
+                }
+              }
+            }
+        GQL;
+
+        // Adds a intent to a turns lists of request intents
+        $addResponseIntentToTurnMutation = <<<'GQL'
+            mutation addResponseIntentToTurn($turnUid: ID!, $intentUid: ID!) {
+                updateTurn(input: {filter: {id: [$turnUid]}, set: {response_intents: [{id: $intentUid}]}}) {
+                    turn {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+
+        $intent->setCreatedAt(Carbon::now());
+        $intent->setUpdatedAt(Carbon::now());
+
+        // Required fields on Intent
+        $missing = array_filter([
+            Intent::OD_ID, Intent::NAME, Intent::CREATED_AT, Intent::UPDATED_AT, Intent::TURN, Intent::SAMPLE_UTTERANCE,
+            Intent::CONFIDENCE, Intent::SPEAKER,
+        ], fn($required) => !in_array($required, $intent->hydratedFields()));
+
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the intent supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
+        }
+
+        // Required fields on Turn
+        $missing = array_filter([Turn::UID], fn($required) => !in_array($required, $intent->getTurn()->hydratedFields()));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields %s are missing from the turn attached to the intent supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        $data = $serializer->normalize($intent, 'json', [
+            AbstractNormalizer::ATTRIBUTES => [
+                Intent::OD_ID, Intent::NAME, Intent::DESCRIPTION, Intent::INTERPRETER, Intent::CREATED_AT, Intent::UPDATED_AT,
+                Intent::BEHAVIORS => Behavior::FIELDS, Intent::CONDITIONS => Condition::FIELDS, Intent::TURN => [Intent::UID],
+                Intent::SPEAKER, Intent::CONFIDENCE, Intent::LISTENS_FOR, Intent::EXPECTED_ATTRIBUTES, Intent::SAMPLE_UTTERANCE,
+                Intent::VIRTUAL_INTENTS, Intent::ACTIONS,
+            ]
+        ]);
+
+        $addIntentResponse = $this->client->query($addIntentMutation, ['intent' => $data]);
+        $newIntentId = $addIntentResponse['data']['addIntent']['intent']['0']['id'];
+
+        // Link from Turn to Intent (Can't be auto-generated via dgraph graphql @hasInverse directive)
+        $this->client->query($addResponseIntentToTurnMutation, [
+            'turnUid' => $intent->getTurn()->getUid(), 'intentUid' => $newIntentId
+        ]);
+
+        return $this->getIntentByUid($newIntentId, false);
+    }
 
     /**
      * Update a Turn
@@ -2058,15 +1995,16 @@ class ConversationDataClient
         $intent->setUpdatedAt(Carbon::now());
 
         $missing = array_diff([Intent::UID], $intent->hydratedFields());
-        if(!empty($missing)) {
-            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the intent supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        if (!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the intent supplied to %s, but are required!",
+                implode(",", $missing), __METHOD__));
         }
 
         $serializer = new Serializer(self::getNormalizers(), []);
         // Remove UID from patch fields. We can't change the UID
         $patchFields = array_diff($intent->hydratedFields(), [Intent::UID]);
-        $tree = array_merge(Intent::localFields(),
-            [Intent::BEHAVIORS => Behavior::FIELDS, Intent::CONDITIONS => Condition::FIELDS]);
+        $tree =
+            array_merge(Intent::localFields(), [Intent::BEHAVIORS => Behavior::FIELDS, Intent::CONDITIONS => Condition::FIELDS]);
 
         $serializationTree = SerializationTreeHelper::filterSerializationTree($tree, $patchFields);
         $data = $serializer->normalize($intent, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
@@ -2096,9 +2034,8 @@ class ConversationDataClient
 
         $response = $this->client->query($deleteIntentQuery, ['id' => $intentUid]);
         // Is this neccesary? We could just not care.
-        if(empty($response['data']['deleteIntent']['intent'])) {
-            throw new ConversationObjectNotFoundException(sprintf('Intent with uid %s could not be found',
-                $intentUid));
+        if (empty($response['data']['deleteIntent']['intent'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Intent with uid %s could not be found', $intentUid));
         }
         return true;
     }
@@ -2112,7 +2049,8 @@ class ConversationDataClient
      * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getScenarioWithFocusedIntent(string $intentUid): Intent {
+    public function getScenarioWithFocusedIntent(string $intentUid): Intent
+    {
         $getFocusedIntentQuery = <<<'GQL'
             query getFocusedIntent($id : ID!) {
                 getIntent(id: $id) {
@@ -2191,9 +2129,8 @@ class ConversationDataClient
         GQL;
 
         $response = $this->client->query($getFocusedIntentQuery, ['id' => $intentUid]);
-        if($response['data']['getIntent'] === null) {
-            throw new ConversationObjectNotFoundException(sprintf('Intent with uid %s could not be found',
-                $intentUid));
+        if ($response['data']['getIntent'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Intent with uid %s could not be found', $intentUid));
         }
         $serializer = new Serializer(self::getNormalizers(), []);
         return $serializer->denormalize($response['data']['getIntent'], Intent::class);
@@ -2255,7 +2192,7 @@ class ConversationDataClient
 
         $turnUids = $turns->map(fn($turn) => $turn->getUid());
 
-        if($turnUids->contains(null)) {
+        if ($turnUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
         }
 
@@ -2323,7 +2260,7 @@ class ConversationDataClient
 
         $turnUids = $turns->map(fn($turn) => $turn->getUid());
 
-        if($turnUids->contains(null)) {
+        if ($turnUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
         }
 
@@ -2393,7 +2330,7 @@ class ConversationDataClient
 
         $turnUids = $turns->map(fn($turn) => $turn->getUid());
 
-        if($turnUids->contains(null)) {
+        if ($turnUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
         }
 
@@ -2461,7 +2398,7 @@ class ConversationDataClient
 
         $turnUids = $turns->map(fn($turn) => $turn->getUid());
 
-        if($turnUids->contains(null)) {
+        if ($turnUids->contains(null)) {
             throw new InsufficientHydrationException(sprintf("All turns passed to %s must have a UID!", __METHOD__));
         }
 
