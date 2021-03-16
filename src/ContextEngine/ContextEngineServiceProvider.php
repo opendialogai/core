@@ -6,6 +6,7 @@ use Carbon\Laravel\ServiceProvider;
 use OpenDialogAi\ContextEngine\Contexts\User\UserDataClient;
 use OpenDialogAi\ContextEngine\ContextService\CoreContextService;
 use OpenDialogAi\ContextEngine\Contracts\ContextService;
+use OpenDialogAi\ContextEngine\DataClients\GraphAttributeDataClient;
 
 class ContextEngineServiceProvider extends ServiceProvider
 {
@@ -32,9 +33,8 @@ class ContextEngineServiceProvider extends ServiceProvider
             return $contextService;
         });
 
-        $this->app->singleton(UserDataClient::class, function () {
-            return new UserDataClient(
-            );
+        $this->app->singleton(GraphAttributeDataClient::class, function () {
+            return new GraphAttributeDataClient();
         });
     }
 }

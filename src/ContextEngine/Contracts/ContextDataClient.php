@@ -6,6 +6,9 @@ namespace OpenDialogAi\ContextEngine\Contracts;
 
 use Ds\Map;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
+use OpenDialogAi\AttributeEngine\Contracts\AttributeBag;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotLoadAttributeException;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistAttributeException;
 
 /**
  * A ContextDataClient works with a context to retrieve attributes from persistent storage or
@@ -14,32 +17,43 @@ use OpenDialogAi\AttributeEngine\Contracts\Attribute;
 interface ContextDataClient
 {
     /**
-     * Retrieve the specified attribute.
-     * @param string $attributeName
+     * Retrieves all persisted attributes for the given context-user pair.
+     *
+     * @param string $contextId
+     * @param string $userId
+     * @return AttributeBag
+     * @throws CouldNotLoadAttributeException
+     */
+    public function loadAttributes(string $contextId, string $userId): AttributeBag;
+
+    /**
+     * Retrieves a desired persisted attribute for the given context-user pair.
+     *
+     * @param string $contextId
+     * @param string $userId
+     * @param string $attributeId
      * @return Attribute
+     * @throws CouldNotLoadAttributeException
      */
-    public function loadAttribute(string $attributeName): Attribute;
+    public function loadAttribute(string $contextId, string $userId, string $attributeId): Attribute;
 
     /**
-     * Retrieve all the specified attributes.
-     * @param array $attributes
-     * @return Map
+     * Persists the given attributes to the context-user pair.
+     *
+     * @param string $contextId
+     * @param string $userId
+     * @param AttributeBag $attributes
+     * @throws CouldNotPersistAttributeException
      */
-    public function loadAttributes(array $attributes): Map;
+    public function persistAttributes(string $contextId, string $userId, AttributeBag $attributes): void;
 
     /**
-     * Persist the specified attribute for the relevant context.
-     * @param string $attributeName
-     * @param string $context
-     * @return bool
+     * Persists the given attribute to the context-user pair.
+     *
+     * @param string $contextId
+     * @param string $userId
+     * @param Attribute $attribute
+     * @throws CouldNotPersistAttributeException
      */
-    public function persistAttribute(string $attributeName, string $context): bool;
-
-    /**
-     * Persist all the specified attributes.
-     * @param array $attributes
-     * @param string $context
-     * @return bool
-     */
-    public function persistAttributes(array $attributes, string $context): bool;
+    public function persistAttribute(string $contextId, string $userId, Attribute $attribute): void;
 }
