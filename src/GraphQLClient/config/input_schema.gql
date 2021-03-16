@@ -65,7 +65,7 @@ type Turn implements ConversationObject {
     request_intents: [Intent!]
     response_intents: [Intent!]
     scene: Scene!
-    valid_origins: [Turn!]
+    valid_origins: [String!] @search(by: [hash])
 }
 
 type Intent implements ConversationObject {

@@ -142,7 +142,6 @@ class ScenarioQueriesTest extends ConversationDataClientQueriesTest
         $this->assertEquals($testScenario->getConditions(), $updatedScenario->getConditions());
         $this->assertEquals($testScenario->getInterpreter(), $updatedScenario->getInterpreter());
         $this->assertEquals($testScenario->getCreatedAt(), $updatedScenario->getCreatedAt());
-        $this->assertEquals($testScenario->getUpdatedAt(), $updatedScenario->getUpdatedAt());
         $this->assertEquals($changes->isActive(), $updatedScenario->isActive());
         $this->assertEquals($testScenario->getStatus(), $updatedScenario->getStatus());
         $this->assertEquals($testScenario->getConversations(), $updatedScenario->getConversations());

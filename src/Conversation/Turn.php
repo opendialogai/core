@@ -21,7 +21,7 @@ class Turn extends ConversationObject
     // The set of possible intents that could provide a response
     protected ?IntentCollection $responseIntents = null;
 
-    protected ?TurnCollection $validOrigins = null;
+    protected ?array $validOrigins = null;
 
     public function __construct(?Scene $scene = null)
     {
@@ -137,12 +137,12 @@ class Turn extends ConversationObject
         return !empty($this->validOrigins);
     }
 
-    public function getValidOrigins(): ?TurnCollection
+    public function getValidOrigins(): ?array
     {
         return $this->validOrigins;
     }
 
-    public function setValidOrigins(TurnCollection $validOrigins): void
+    public function setValidOrigins(array $validOrigins): void
     {
         $this->validOrigins = $validOrigins;
     }

@@ -28,8 +28,7 @@ class TurnNormalizer extends ConversationObjectNormalizer
         }
 
         if (in_array(Turn::VALID_ORIGINS, array_keys($tree), true)) {
-            $data['valid_origins'] = $this->serializer->normalize($object->getValidOrigins(), $format,
-                SerializationTreeHelper::createChildContext($context, Turn::VALID_ORIGINS));
+            $data['valid_origins'] = $object->getValidOrigins();
         }
 
         if (in_array(Turn::REQUEST_INTENTS, array_keys($tree), true)) {
@@ -92,8 +91,7 @@ class TurnNormalizer extends ConversationObjectNormalizer
         }
 
         if(isset($data['valid_origins'])) {
-            $valid_origins = $this->serializer->denormalize($data['valid_origins'], TurnCollection::class);
-            $turn->setValidOrigins($valid_origins);
+            $turn->setValidOrigins($data['valid_origins']);
         }
 
         return $turn;

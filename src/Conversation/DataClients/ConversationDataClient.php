@@ -1018,10 +1018,10 @@ class ConversationDataClient
      *
      * @param  string  $sceneUid
      *
-     * @return Scenario
+     * @return Scene
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function getScenarioWithFocusedScene(string $sceneUid): Scenario {
+    public function getScenarioWithFocusedScene(string $sceneUid): Scene {
         $getFocusedSceneQuery = <<<'GQL'
             query getFocusedScene($id : ID!) {
                 getScene(id: $id) {
@@ -1064,9 +1064,7 @@ class ConversationDataClient
                 $sceneUid));
         }
         $serializer = new Serializer(self::getNormalizers(), []);
-        $scene = $serializer->denormalize($response['data']['getScene'], Scene::class);
-
-        return $scene->getScenario();
+        return $serializer->denormalize($response['data']['getScene'], Scene::class);
     }
 
 
@@ -1207,12 +1205,12 @@ class ConversationDataClient
     }
 
     /**
-     * Adds a new Scene.
-     * The supplied Scene must reference an existing Conversation (i.e one with a UID)
+     * Adds a new Turn.
+     * The supplied Turn must reference an existing Scene (i.e one with a UID)
      *
-     * @param  Conversation  $conversation
+     * @param  Turn  $turn
      *
-     * @return Conversation
+     * @return Turn
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function addTurn(Turn $turn): Turn {
@@ -1231,10 +1229,7 @@ class ConversationDataClient
                     }
                     created_at
                     updated_at
-                    valid_origins {
-                        id
-                        od_id
-                    }
+                    valid_origins
                     scene {
                         id
                     }
@@ -1299,20 +1294,296 @@ class ConversationDataClient
 
 
     /**
-     * Retrieve all scenes that belong to the given conversations that have a behavior as "starting" from the graph
+     * Get all Turns in a scene
+     *
+     * @param  Scene  $scene
+     * @param  bool   $shallow
+     *
+     * @return TurnCollection
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getAllTurnsByScene(Scene $scene, bool $shallow): TurnCollection {
+        $getAllTurnsBySceneQuery = <<<'GQL'
+            query getAllTurnsByScene($sceneUid: ID!) {
+                queryTurn @cascade(fields: ["scene"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scene(filter: {id: [$sceneUid]}) {
+                        id
+                    }
+                    valid_origins
+                    request_intents {
+                        id
+                    }
+                    response_intents {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $missing = array_filter([Scene::UID], fn($required) =>
+        !in_array($required, $scene->hydratedFields()));
+
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the scene supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        $response = $this->client->query($getAllTurnsBySceneQuery, ['sceneUid' => $scene->getUid()]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryTurn'], TurnCollection::class);
+    }
+
+    /**
+     * Get Turn with the provided uid
+     *
+     * @param  string  $turnUid
+     * @param  bool    $shallow
+     *
+     * @return Scene
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getTurnByUid(string $turnUid, bool $shallow): Turn {
+        $getTurnQuery = <<<'GQL'
+            query getTurn($id : ID!) {
+                getTurn(id: $id) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scene {
+                        id
+                    }
+                    valid_origins
+                    request_intents {
+                        id
+                    }
+
+                    response_intents {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($getTurnQuery, ['id' => $turnUid]);
+        if($response['data']['getTurn'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
+                $turnUid));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return  $serializer->denormalize($response['data']['getTurn'], Turn::class);
+    }
+
+    /**
+     * Update a Turn
+     *
+     * @param  Scene  $turn
+     *
+     * @return Scene
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function updateTurn(Turn $turn): Turn
+    {
+        $updateTurnMutation = <<<'GQL'
+            mutation updateTurn($id: ID!, $set: TurnPatch!) {
+                updateTurn(input: {filter: {id: [$id]}, set: $set}) {
+                    turn {
+                        id
+                        od_id
+                        name
+                        description
+                        interpreter
+                        behaviors
+                        conditions {
+                            id
+                        }
+                        created_at
+                        updated_at
+                        scene {
+                            id
+                        }
+                        valid_origins
+                        request_intents {
+                            id
+                        }
+
+                        response_intents {
+                            id
+                        }
+                    }
+                }
+            }
+        GQL;
+        $turn->setUpdatedAt(Carbon::now());
+
+        $missing = array_diff([Turn::UID], $turn->hydratedFields());
+        if(!empty($missing)) {
+            throw new InsufficientHydrationException(sprintf("The fields '%s' are missing from the turn supplied to %s, but are required!", implode(",", $missing), __METHOD__));
+        }
+
+        $serializer = new Serializer(self::getNormalizers(), []);
+        // Remove UID from patch fields. We can't change the UID
+        $patchFields = array_diff($turn->hydratedFields(), [Turn::UID]);
+        $tree = array_merge(Turn::localFields(),
+            [Turn::BEHAVIORS => Behavior::FIELDS, Turn::CONDITIONS => Condition::FIELDS]);
+
+        $serializationTree = SerializationTreeHelper::filterSerializationTree($tree, $patchFields);
+        $data = $serializer->normalize($turn, 'json', [AbstractNormalizer::ATTRIBUTES => $serializationTree]);
+        $response = $this->client->query($updateTurnMutation, ['id' => $turn->getUid(), 'set' => $data]);
+        return $serializer->denormalize($response['data']['updateTurn']['turn'][0], Turn::class);
+
+    }
+
+    /**
+     * Delete a Turn by uid
+     *
+     * @param  string  $turnUid
+     *
+     * @return bool
+     */
+    public function deleteTurnByUid(string $turnUid): bool
+    {
+        $deleteTurnQuery = <<<'GQL'
+            mutation deleteTurn($id: ID!) {
+                deleteTurn(filter: {id: [$id]}) {
+                    turn {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($deleteTurnQuery, ['id' => $turnUid]);
+        // Is this neccesary? We could just not care.
+        if(empty($response['data']['deleteTurn']['turn'])) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
+                $turnUid));
+        }
+        return true;
+    }
+
+    /**
+     * Get a scenario with data focused around a turn suitable for the conversation builder.
+     *
+     * @param  string  $turnUid
+     *
+     * @return Scene
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getScenarioWithFocusedTurn(string $turnUid): Turn {
+        $getFocusedTurnQuery = <<<'GQL'
+            query getFocusedTurn($id : ID!) {
+                getTurn(id: $id) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    valid_origins
+                    request_intents {
+                        id
+                        od_id
+                        name
+                        description
+                    }
+
+                    response_intents {
+                        id
+                        od_id
+                        name
+                        description
+                    }
+                }
+            }
+        GQL;
+
+        $response = $this->client->query($getFocusedTurnQuery, ['id' => $turnUid]);
+        if($response['data']['getTurn'] === null) {
+            throw new ConversationObjectNotFoundException(sprintf('Turn with uid %s could not be found',
+                $turnUid));
+        }
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['getTurn'], Turn::class);
+    }
+
+
+    /**
+     * Retrieve all turn that belong to the given scenes that have the "STARTING" behavior.
      *
      * @param  SceneCollection  $scenes
      * @param  bool             $shallow
      *
      * @return TurnCollection
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function getAllStartingTurns(SceneCollection $scenes, bool $shallow): TurnCollection
     {
-        return new TurnCollection();
+        $getAllStartingTurns = <<<'GQL'
+            query getAllStartingTurns($sceneUids: [ID!]!) {
+                queryTurn(filter: { behaviors: {eq: "STARTING" }}) @cascade(fields: ["scene"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scene(filter: {id: $sceneUids}) {
+                        id
+                    }
+                    valid_origins
+                    request_intents {
+                        id
+                    }
+                    response_intents {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
+
+        if($sceneUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllStartingTurns, ['sceneUids' => $sceneUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryTurn'], TurnCollection::class);
     }
 
+
     /**
-     * Retrieve all scenes that belong to the given conversations that have a behavior as "open" from the graph
+     * Retrieve all turn that belong to the given scenes that have the "OPEN" behavior.
      *
      * @param  SceneCollection  $scenes
      * @param  bool             $shallow
@@ -1321,11 +1592,47 @@ class ConversationDataClient
      */
     public function getAllOpenTurns(SceneCollection $scenes, bool $shallow): TurnCollection
     {
-        return new TurnCollection();
+        $getAllOpenTurnsQuery = <<<'GQL'
+            query getAllOpenTurns($sceneUids: [ID!]!) {
+                queryTurn(filter: { behaviors: {eq: "OPEN" }}) @cascade(fields: ["scene"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scene(filter: {id: $sceneUids}) {
+                        id
+                    }
+                    valid_origins
+                    request_intents {
+                        id
+                    }
+                    response_intents {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
+
+        if($sceneUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllOpenTurnsQuery, ['sceneUids' => $sceneUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryTurn'], TurnCollection::class);
     }
 
     /**
-     * Retrieve all scenes that belong to the given conversations from the graph
+     * Retrieve all turns that belong to the given scenes.
      *
      * @param  SceneCollection  $scenes
      * @param  bool             $shallow
@@ -1334,8 +1641,95 @@ class ConversationDataClient
      */
     public function getAllTurns(SceneCollection $scenes, bool $shallow): TurnCollection
     {
-        return new TurnCollection();
+        $getAllTurnsQuery = <<<'GQL'
+            query getAllTurns($sceneUids: [ID!]!) {
+                queryTurn @cascade(fields: ["scene"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scene(filter: {id: $sceneUids}) {
+                        id
+                    }
+                    valid_origins
+                    request_intents {
+                        id
+                    }
+                    response_intents {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
+
+        if($sceneUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllTurnsQuery, ['sceneUids' => $sceneUids]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryTurn'], TurnCollection::class);
     }
+
+    /**
+     * Retrieve all turns that belong to given scenes and that have the specified validOrigin
+     * Valid origin is an od_id
+     *
+     * @param  SceneCollection  $scenes
+     * @param  string           $validOrigin
+     * @param  bool             $shallow
+     *
+     * @return TurnCollection
+     */
+    public function getAllTurnsByValidOrigin(SceneCollection $scenes, string $validOrigin, bool $shallow): TurnCollection {
+        $getAllTurnsByValidOriginQuery = <<<'GQL'
+            query getAllTurnsByValidOrigin($sceneUids: [ID!]!, $originOdId: String!) {
+                queryTurn(filter:  {valid_origins: {eq: $originOdId}}) @cascade(fields: ["scene", "valid_origins"]) {
+                    id
+                    od_id
+                    name
+                    description
+                    interpreter
+                    behaviors
+                    conditions {
+                        id
+                    }
+                    created_at
+                    updated_at
+                    scene(filter: {id: $sceneUids}) {
+                        id
+                    }
+                    valid_origins
+                    request_intents {
+                        id
+                    }
+                    response_intents {
+                        id
+                    }
+                }
+            }
+        GQL;
+
+        $sceneUids = $scenes->map(fn($scenario) => $scenario->getUid());
+
+        if($sceneUids->contains(null)) {
+            throw new InsufficientHydrationException(sprintf("All scenes passed to %s must have a UID!", __METHOD__));
+        }
+
+        $response = $this->client->query($getAllTurnsByValidOriginQuery, ['sceneUids' => $sceneUids, 'originOdId' => $validOrigin]);
+        $serializer = new Serializer(self::getNormalizers(), []);
+        return $serializer->denormalize($response['data']['queryTurn'], TurnCollection::class);
+    }
+
 
     /**
      * Retrieve all request intents that belong to the given turns from the graph
