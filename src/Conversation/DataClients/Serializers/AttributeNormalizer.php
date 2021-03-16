@@ -45,6 +45,7 @@ class AttributeNormalizer implements ContextAwareNormalizerInterface, Denormaliz
                     ->map(fn (string $id, Attribute $attribute) =>
                         $this->normalize($attribute, $format, $context + [self::IS_COMPOSITE_CHILD => true])
                     )
+                    ->values()
                     ->toArray()
             ]);
         } else {
@@ -102,8 +103,13 @@ class AttributeNormalizer implements ContextAwareNormalizerInterface, Denormaliz
         }
 
         if (isset($value[self::COMPOSITE_VALUE])) {
-            $value = new Map($value[self::COMPOSITE_VALUE]);
-            $value = $value->map(fn ($key, $attribute) => $this->denormalize($attribute, $type, $format, $context));
+            $valueMap = new Map();
+
+            foreach ($value[self::COMPOSITE_VALUE] as $compositeChild) {
+                $valueMap->put($compositeChild[self::ID], $compositeChild);
+            }
+
+            $value = $valueMap->map(fn ($key, $attribute) => $this->denormalize($attribute, $type, $format, $context));
         } else {
             $value = $value[self::SCALAR_VALUE];
         }
