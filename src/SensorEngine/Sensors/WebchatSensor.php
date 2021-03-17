@@ -175,6 +175,7 @@ class WebchatSensor extends BaseSensor
     protected function createUser(string $userId, array $userData): UserAttribute
     {
         $user = new UserAttribute(UtteranceAttribute::UTTERANCE_USER);
+        $user->setUserId($userId);
         isset($userData[UserAttribute::FIRST_NAME]) ? $user->setUserAttribute('first_name', $userData['first_name']) : null;
         isset($userData[UserAttribute::LAST_NAME]) ? $user->setUserAttribute('last_name', $userData['last_name']) : null;
         isset($userData[UserAttribute::EMAIL]) ? $user->setUserAttribute('email', $userData['email']) : null;
