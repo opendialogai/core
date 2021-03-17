@@ -29,8 +29,8 @@ class GraphAttributeDataClient implements ContextDataClient
     {
         $query = <<<'GQL'
             query getUser($userId: ID!) {
-                getUser(id: $userId) {
-                    contexts(filter: {name: $contextId}) {
+                getUser(user_id: $userId) {
+                    contexts(filter: {name: {eq: $contextId}}) {
                         attributes {
                             id
                             type
@@ -75,10 +75,10 @@ class GraphAttributeDataClient implements ContextDataClient
     {
         $query = <<<'GQL'
             query getUser($userId: ID!) {
-                getUser(id: $userId) {
-                    contexts(filter: {name: $contextId}) {
-                        attributes(filter: {id: $attributeId}) {
-                            id
+                getUser(user_id: $userId) {
+                    contexts(filter: {name: {eq: $contextId}}) {
+                        attributes(filter: {name: {eq: $attributeId}}) {
+                            name
                             type
                             value
                         }

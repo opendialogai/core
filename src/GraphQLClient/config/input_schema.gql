@@ -120,16 +120,17 @@ type VirtualIntent {
 
 type Context {
     id: ID!
-    name: String!
+    name: String! @search(by:[hash])
     user: User!
-    attributes: [Attribute]
+    attributes: [Attribute] @hasInverse(field:context)
 }
 
 type Attribute  {
     id: ID!
-    name: String!
+    name: String! @search(by:[hash])
     type: String!
     value: String!
+    context: Context!
 }
 
 type Condition  {
@@ -177,7 +178,6 @@ type Action  {
 type User  {
     id: ID!
     user_id: String! @id
-    attributes: [Attribute]
     records: [UserHistoryRecord] @hasInverse(field:user)
     contexts: [Context] @hasInverse(field:user)
 }
