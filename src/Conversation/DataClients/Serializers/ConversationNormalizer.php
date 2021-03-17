@@ -24,7 +24,7 @@ class ConversationNormalizer extends ConversationObjectNormalizer
         }
 
         if (in_array(Conversation::SCENES, array_keys($tree), true)) {
-            $data['scenes'] = $this->serializer->normalize($object->getConversations(), $format,
+            $data['scenes'] = $this->serializer->normalize($object->getScenes(), $format,
                 SerializationTreeHelper::createChildContext($context, Conversation::SCENES));
         }
 
