@@ -3,83 +3,96 @@
 namespace OpenDialogAi\ContextEngine\Contexts;
 
 use Ds\Map;
-use Illuminate\Support\Facades\Log;
+use OpenDialogAi\AttributeEngine\AttributeBag\BasicAttributeBag;
 use OpenDialogAi\AttributeEngine\Contracts\Attribute;
-use OpenDialogAi\AttributeEngine\Exceptions\AttributeDoesNotExistException;
 use OpenDialogAi\ContextEngine\Contracts\ContextDataClient;
-use OpenDialogAi\ContextEngine\Exceptions\UnableToLoadAttributeFromPersistentStorageException;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotLoadAttributeException;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotPersistAttributeException;
 
-class PersistentContext extends AbstractContext
+abstract class PersistentContext extends AbstractContext
 {
-
-    protected $persistentAttributes = [];
-
-    protected ContextDataClient $dataClient;
+    private string $userId;
 
     public function __construct(ContextDataClient $dataClient)
     {
-        parent::__construct();
-        $this->dataClient = $dataClient;
+        parent::__construct($dataClient);
     }
 
     /**
-     * If we are dealing with an attribute that is not persistent try to retrieve as usual, alternatively
-     * if it is a persistent attributet has not already been retrieved or if we are meant to refresh its
-     * value we access through the data client.
+     * @param string $userId
+     */
+    public function setUserId(string $userId): void
+    {
+        $this->userId = $userId;
+    }
+
+    /**
+     * @throws CouldNotLoadAttributeException
+     */
+    public function loadAttributes(): void
+    {
+        $attributes = $this->dataClient->loadAttributes(self::getComponentId(), $this->userId);
+        $this->setAttributes($attributes->getAttributes());
+    }
+
+    /**
+     * Retrieve an attribute, if $refresh is true then it will be re-retrieved from the data source.
      *
      * @param string $attributeName
      * @param bool $refresh
      * @return Attribute
+     * @throws CouldNotLoadAttributeException
      */
     public function getAttribute(string $attributeName, bool $refresh = false): Attribute
     {
-        if (!$this->isPersistentAttribute($attributeName)) {
-            return parent::getAttribute($attributeName);
+        if (!isset($this->userId)) {
+            throw new CouldNotLoadAttributeException('User ID not set.');
         }
 
         if ($this->hasAttribute($attributeName) && !$refresh) {
             return parent::getAttribute($attributeName);
-        } elseif (($this->hasAttribute($attributeName) && $refresh) || (!$this->hasAttribute($attributeName))) {
-            try {
-                $attribute = $this->dataClient->loadAttribute($attributeName);
-                $this->addAttribute($attribute);
-                return parent::getAttribute($attributeName);
-            } catch (UnableToLoadAttributeFromPersistentStorageException $e) {
-                Log::debug(sprintf("Cannot return attribute with name %s - does not exist", $attributeName));
-                throw new AttributeDoesNotExistException(
-                    sprintf("Cannot return attribute with name %s - does not exist", $attributeName)
-                );
-            }
         }
+
+        $attribute = $this->dataClient->loadAttribute(self::getComponentId(), $this->userId, $attributeName);
+        $this->addAttribute($attribute);
+        return parent::getAttribute($attributeName);
     }
 
     /**
-     * We first ensure that all persistent attribuets are loaded and/or are refreshed and then return the attribute
-     * map as usual.
      * @param bool $refresh
      * @return Map
+     * @throws CouldNotLoadAttributeException
      */
     public function getAttributes(bool $refresh = false): Map
     {
-        // Before we return attributes let us make sure all persistent attributes are available
-        foreach ($this->persistentAttributes as $attributeName) {
-            if (!$this->hasAttribute($attributeName) || $refresh) {
-                $attribute = $this->dataClient->loadAttribute($attributeName);
-                $this->attributes->put($attribute->getId(), $attribute);
-            }
+        if (!isset($this->userId)) {
+            throw new CouldNotLoadAttributeException('User ID not set.');
         }
 
+        if (!parent::getAttributes()->isEmpty() && !$refresh) {
+            return parent::getAttributes();
+        }
+
+        $this->loadAttributes();
         return parent::getAttributes();
     }
 
-    public function isPersistentAttribute(string $attributeName): bool
+    /**
+     * Persists all the attributes in the context.
+     *
+     * @return bool
+     */
+    public function persist(): bool
     {
-        if (in_array($attributeName, $this->persistentAttributes)) {
+        try {
+            $attributes = parent::getAttributes();
+            $attributeBag = new BasicAttributeBag();
+            $attributeBag->setAttributes($attributes);
+            $this->dataClient->persistAttributes(self::getComponentId(), $this->userId, $attributeBag);
             return true;
+        } catch (CouldNotPersistAttributeException $e) {
+            return false;
         }
-
-        return false;
     }
-
 }
 

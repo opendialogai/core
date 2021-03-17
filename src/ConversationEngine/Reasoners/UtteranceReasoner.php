@@ -43,8 +43,10 @@ class UtteranceReasoner
                 UserAttribute::CURRENT_USER, UserContext::USER_CONTEXT
             );
             if ($currentUser->getUserId() == '') {
-                throw new CouldNotCreateUserFromUtteranceException("The user has not user id set - could not create a new
-                user or update an existing one using utterance information.");
+                throw new CouldNotCreateUserFromUtteranceException(
+                    "The user has not user id set - could not create a new user or update an existing one
+                     using utterance information."
+                );
             }
             return $currentUser;
         } else {

@@ -20,14 +20,17 @@ abstract class AbstractContext implements Context, OpenDialogComponent
 
     protected static bool $attributesAreReadOnly = false;
 
-    private ?ContextDataClient $dataClient;
+    protected ContextDataClient $dataClient;
 
     protected $dataClientAttributes = [];
 
-    public function __construct(?ContextDataClient $dataClient = null)
+    public function __construct(ContextDataClient $dataClient = null)
     {
         $this->attributes = new Map();
-        $this->dataClient = $dataClient;
+
+        if (!is_null($dataClient)) {
+            $this->dataClient = $dataClient;
+        }
     }
 
     /**
