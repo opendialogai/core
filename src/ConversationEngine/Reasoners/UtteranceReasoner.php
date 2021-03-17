@@ -33,23 +33,21 @@ class UtteranceReasoner
                 $utterance
             );
 
-            // Save the utterance user
-            ContextService::saveAttribute(
-                UserContext::USER_CONTEXT.'.'.UtteranceAttribute::UTTERANCE_USER,
-                $utterance->getAttribute(UtteranceAttribute::UTTERANCE_USER)
-            );
+            $currentUser = $utterance->getAttribute(UtteranceAttribute::UTTERANCE_USER);
 
-            // Retrieve the current user
-            /* @var UserAttribute $currentUser */
-            $currentUser = ContextService::getAttribute(
-                UserAttribute::CURRENT_USER, UserContext::USER_CONTEXT
-            );
             if ($currentUser->getUserId() == '') {
                 throw new CouldNotCreateUserFromUtteranceException(
                     "The user has not user id set - could not create a new user or update an existing one
                      using utterance information."
                 );
             }
+
+            // Save the utterance user
+            ContextService::saveAttribute(
+                UserContext::USER_CONTEXT.'.'.UtteranceAttribute::UTTERANCE_USER,
+                $currentUser
+            );
+
             return $currentUser;
         } else {
             throw new IncomingUtteranceNotValid('Utterance provided cannot be used');
