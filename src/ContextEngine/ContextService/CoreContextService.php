@@ -2,14 +2,18 @@
 
 namespace OpenDialogAi\ContextEngine\ContextService;
 
+use Ds\Map;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use OpenDialogAi\AttributeEngine\Facades\AttributeResolver;
 use OpenDialogAi\ContextEngine\Contexts\AbstractContext;
 use OpenDialogAi\ContextEngine\Contexts\Intent\IntentContext;
 use OpenDialogAi\ContextEngine\Contexts\MessageHistory\MessageHistoryContext;
+use OpenDialogAi\ContextEngine\Contexts\PersistentContext;
 use OpenDialogAi\ContextEngine\Contexts\User\UserContext;
 use OpenDialogAi\ContextEngine\Contracts\Context;
 use OpenDialogAi\ContextEngine\Exceptions\ContextDoesNotExistException;
+use OpenDialogAi\ContextEngine\Exceptions\CouldNotLoadAttributeException;
 
 
 class CoreContextService extends BasicContextService
@@ -113,8 +117,33 @@ class CoreContextService extends BasicContextService
             $contextObject::getComponentData();
 
             $this->addContext($contextObject);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning(sprintf('Error while adding context %s - %s', $context, $e->getMessage()));
+        }
+    }
+
+    /**
+     * Loads all attributes for persistent contexts.
+     *
+     * @param string $userId
+     */
+    public function loadPersistentContextAttributes(string $userId): void
+    {
+        /** @var Map|PersistentContext[] $persistentContexts */
+        $persistentContexts = $this->contexts->filter(
+            fn (string $key, Context $context) => $context instanceof PersistentContext
+        );
+
+        foreach ($persistentContexts as $persistentContext) {
+            try {
+                $persistentContext->setUserId($userId);
+                $persistentContext->loadAttributes();
+            } catch (CouldNotLoadAttributeException $e) {
+                Log::warning(sprintf(
+                    'Could not load attributes for persistent context: %s',
+                    $persistentContext::getComponentId()
+                ));
+            }
         }
     }
 }

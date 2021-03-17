@@ -31,6 +31,10 @@ abstract class PersistentContext extends AbstractContext
      */
     public function loadAttributes(): void
     {
+        if (!isset($this->userId)) {
+            throw new CouldNotLoadAttributeException('User ID not set.');
+        }
+
         $attributes = $this->dataClient->loadAttributes(self::getComponentId(), $this->userId);
         $this->setAttributes($attributes->getAttributes());
     }

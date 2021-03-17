@@ -25,6 +25,8 @@ class UtteranceReasoner
     public static function analyseUtterance(UtteranceAttribute $utterance): Attribute
     {
         if (UtteranceReasoner::utteranceIsValid($utterance)) {
+            ContextService::loadPersistentContextAttributes($utterance->getUserId());
+
             // Save the utterance
             ContextService::saveAttribute(
                 UserContext::USER_CONTEXT.'.'.UtteranceAttribute::UTTERANCE,
