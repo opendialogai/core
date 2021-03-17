@@ -28,7 +28,7 @@ class GraphAttributeDataClient implements ContextDataClient
     public function loadAttributes(string $contextId, string $userId): AttributeBag
     {
         $query = <<<'GQL'
-            query getUser($userId: ID!) {
+            query getUser($userId: String!, $contextId: String!) {
                 getUser(user_id: $userId) {
                     contexts(filter: {name: {eq: $contextId}}) {
                         attributes {
@@ -74,7 +74,7 @@ class GraphAttributeDataClient implements ContextDataClient
     public function loadAttribute(string $contextId, string $userId, string $attributeId): ?Attribute
     {
         $query = <<<'GQL'
-            query getUser($userId: ID!) {
+            query getUser($userId: String!, $contextId: String!, $attributeId: String!) {
                 getUser(user_id: $userId) {
                     contexts(filter: {name: {eq: $contextId}}) {
                         attributes(filter: {name: {eq: $attributeId}}) {
